@@ -19,7 +19,7 @@ describe('TicketsService', () => {
   let service: TicketsService;
   let mockTx: {
     ticket: {
-      count: jest.Mock;
+      findFirst: jest.Mock;
       create: jest.Mock;
     };
   };
@@ -35,7 +35,7 @@ describe('TicketsService', () => {
   beforeEach(async () => {
     mockTx = {
       ticket: {
-        count: jest.fn(),
+        findFirst: jest.fn(),
         create: jest.fn(),
       },
     };
@@ -66,7 +66,7 @@ describe('TicketsService', () => {
   describe('create', () => {
     it('should create ticket with auto-calculated SLA deadlines (MEDIUM default)', async () => {
       jest.useFakeTimers().setSystemTime(new Date('2026-01-15T10:00:00.000Z'));
-      mockTx.ticket.count.mockResolvedValue(0);
+      mockTx.ticket.findFirst.mockResolvedValue(null);
       mockTx.ticket.create.mockImplementation(({ data }) => ({
         id: 'ticket-1',
         ...data,
@@ -106,7 +106,7 @@ describe('TicketsService', () => {
       async (priority, responseHours, resolveHours) => {
         const start = new Date('2026-03-01T00:00:00.000Z');
         jest.useFakeTimers().setSystemTime(start);
-        mockTx.ticket.count.mockResolvedValue(0);
+        mockTx.ticket.findFirst.mockResolvedValue(null);
         mockTx.ticket.create.mockImplementation(({ data }) => data);
 
         const result = (await service.create(
@@ -133,18 +133,20 @@ describe('TicketsService', () => {
       },
     );
 
-    it('should generate sequential protocols per year based on existing count', async () => {
+    it('should generate sequential protocols per year based on highest existing protocol', async () => {
       jest.useFakeTimers().setSystemTime(new Date('2026-06-01T00:00:00.000Z'));
       mockTx.ticket.create.mockImplementation(({ data }) => data);
 
-      mockTx.ticket.count.mockResolvedValueOnce(0);
+      mockTx.ticket.findFirst.mockResolvedValueOnce(null);
       const first = (await service.create(
         { title: 't1', description: 'd1', serviceDeskId: 'desk-1' },
         'requester-1',
       )) as unknown as { protocol: string };
       expect(first.protocol).toBe('AP-2026-0001');
 
-      mockTx.ticket.count.mockResolvedValueOnce(1);
+      mockTx.ticket.findFirst.mockResolvedValueOnce({
+        protocol: 'AP-2026-0001',
+      });
       const second = (await service.create(
         { title: 't2', description: 'd2', serviceDeskId: 'desk-1' },
         'requester-1',
@@ -152,9 +154,36 @@ describe('TicketsService', () => {
       expect(second.protocol).toBe('AP-2026-0002');
     });
 
-    it('should count protocols scoped by year prefix, not global count', async () => {
+    it('should derive the next protocol from the highest surviving row even when earlier rows in the year were deleted (gap)', async () => {
+      // Regression test: earlier tickets AP-2026-0001..0004 were deleted
+      // (e.g. admin cleanup / future soft-delete / failed test teardown),
+      // leaving only AP-2026-0005 as the highest surviving protocol for
+      // the year. A count()-based derivation would see 1 remaining row
+      // and incorrectly compute AP-2026-0002 (a collision waiting to
+      // happen). The correct behavior is to find the actual highest
+      // existing protocol and increment its numeric suffix, yielding
+      // AP-2026-0006 regardless of how many rows exist in between.
+      jest.useFakeTimers().setSystemTime(new Date('2026-06-01T00:00:00.000Z'));
+      mockTx.ticket.findFirst.mockResolvedValueOnce({
+        protocol: 'AP-2026-0005',
+      });
+      mockTx.ticket.create.mockImplementation(({ data }) => data);
+
+      const result = (await service.create(
+        { title: 't', description: 'd', serviceDeskId: 'desk-1' },
+        'requester-1',
+      )) as unknown as { protocol: string };
+
+      expect(result.protocol).toBe('AP-2026-0006');
+      expect(mockTx.ticket.findFirst).toHaveBeenCalledWith({
+        where: { protocol: { startsWith: 'AP-2026-' } },
+        orderBy: { protocol: 'desc' },
+      });
+    });
+
+    it('should scope highest-protocol lookup by year prefix, not across all years', async () => {
       jest.useFakeTimers().setSystemTime(new Date('2027-01-01T00:00:00.000Z'));
-      mockTx.ticket.count.mockResolvedValue(5);
+      mockTx.ticket.findFirst.mockResolvedValue({ protocol: 'AP-2027-0005' });
       mockTx.ticket.create.mockImplementation(({ data }) => data);
 
       await service.create(
@@ -162,21 +191,26 @@ describe('TicketsService', () => {
         'requester-1',
       );
 
-      expect(mockTx.ticket.count).toHaveBeenCalledWith({
+      expect(mockTx.ticket.findFirst).toHaveBeenCalledWith({
         where: { protocol: { startsWith: 'AP-2027-' } },
+        orderBy: { protocol: 'desc' },
       });
     });
 
     it('should retry protocol generation once on a unique constraint collision (simulated race)', async () => {
       jest.useFakeTimers().setSystemTime(new Date('2026-06-01T00:00:00.000Z'));
-      // First attempt: count() says 0 -> would-be protocol AP-2026-0001, but the
-      // insert collides (another concurrent request already committed that
-      // protocol). Second attempt: count() now sees 1 (the concurrent commit)
-      // -> AP-2026-0002, which succeeds. This proves the app-level retry path
-      // reacts correctly to a DB-reported collision; it does NOT execute two
-      // real concurrent DB transactions, so it does not prove real Postgres
-      // race behavior end-to-end (see report for the honest scope of this test).
-      mockTx.ticket.count.mockResolvedValueOnce(0).mockResolvedValueOnce(1);
+      // First attempt: findFirst says no rows yet -> would-be protocol
+      // AP-2026-0001, but the insert collides (another concurrent request
+      // already committed that protocol). Second attempt: findFirst now
+      // sees the concurrently-committed AP-2026-0001 as the highest row
+      // -> AP-2026-0002, which succeeds. This proves the app-level retry
+      // path reacts correctly to a DB-reported collision; it does NOT
+      // execute two real concurrent DB transactions, so it does not prove
+      // real Postgres race behavior end-to-end (see report for the honest
+      // scope of this test).
+      mockTx.ticket.findFirst
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ protocol: 'AP-2026-0001' });
       mockTx.ticket.create
         .mockImplementationOnce(() => {
           throw prismaKnownError('P2002', { target: ['protocol'] });
@@ -194,7 +228,7 @@ describe('TicketsService', () => {
 
     it('should give up and rethrow after exhausting protocol retry attempts', async () => {
       jest.useFakeTimers().setSystemTime(new Date('2026-06-01T00:00:00.000Z'));
-      mockTx.ticket.count.mockResolvedValue(0);
+      mockTx.ticket.findFirst.mockResolvedValue(null);
       mockTx.ticket.create.mockImplementation(() => {
         throw prismaKnownError('P2002', { target: ['protocol'] });
       });
@@ -209,7 +243,7 @@ describe('TicketsService', () => {
 
     it('should not swallow unrelated prisma errors from create', async () => {
       jest.useFakeTimers().setSystemTime(new Date('2026-06-01T00:00:00.000Z'));
-      mockTx.ticket.count.mockResolvedValue(0);
+      mockTx.ticket.findFirst.mockResolvedValue(null);
       mockTx.ticket.create.mockImplementation(() => {
         throw prismaKnownError('P2003', { field_name: 'serviceDeskId' });
       });

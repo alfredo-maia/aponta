@@ -57,6 +57,20 @@ const FORWARD_TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
 
 const MAX_PROTOCOL_RETRY_ATTEMPTS = 3;
 
+/**
+ * Fixed width the numeric suffix of a protocol is zero-padded to (e.g.
+ * `0001` in `AP-2026-0001`). This width must stay fixed for as long as
+ * `tickets.service.ts` relies on `orderBy: { protocol: 'desc' }` (a plain
+ * string sort) to find the highest-numbered protocol for a year: a fixed
+ * width plus a fixed-length prefix means every protocol string for a
+ * given year has equal length, so lexicographic descending order is
+ * exactly numeric descending order. Do not raise sequence numbers past
+ * `MAX_PROTOCOL_SEQUENCE` without widening this constant (and updating
+ * every existing protocol's padding) first.
+ */
+const PROTOCOL_SEQUENCE_WIDTH = 4;
+const MAX_PROTOCOL_SEQUENCE = 10 ** PROTOCOL_SEQUENCE_WIDTH - 1;
+
 @Injectable()
 export class TicketsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -64,10 +78,37 @@ export class TicketsService {
   /**
    * Generates the next protocol number for the given year (e.g.
    * AP-2026-0001) and creates the ticket in the SAME database transaction
-   * as the count, then relies on the DB-level unique constraint on
+   * used to derive it, then relies on the DB-level unique constraint on
    * `protocol` as the final race-safety backstop; see the class-level
    * comment in the report for the full explanation of what this proves
    * and what it doesn't.
+   *
+   * Sequence derivation: the next number is derived from the HIGHEST
+   * existing protocol for the year (`findFirst` ordered by `protocol`
+   * desc), not from a `count()` of rows for the year. A count-based
+   * derivation breaks the moment any row for that year is deleted (manual
+   * DB cleanup, a future soft/hard-delete feature, failed test teardown,
+   * etc.): the count drops below the highest sequence number already
+   * issued, so every subsequent create() would recompute the same
+   * already-used protocol, hit P2002, retry, recompute the SAME wrong
+   * number again, and eventually exhaust MAX_PROTOCOL_RETRY_ATTEMPTS —
+   * permanently bricking ticket creation for that year. Deriving from the
+   * max surviving protocol is immune to gaps: it always resumes counting
+   * from the highest number ever issued, regardless of what was deleted
+   * in between.
+   *
+   * `orderBy: { protocol: 'desc' }` sorts numerically-equivalently here
+   * ONLY because the numeric suffix is zero-padded to a FIXED width (4
+   * digits, see `PROTOCOL_SEQUENCE_WIDTH` below) and the `AP-<year>-`
+   * prefix has a fixed length too — so all protocols for a given year are
+   * equal-length strings and lexicographic (string) descending order
+   * matches numeric descending order. If the sequence within a year ever
+   * needed a 5th digit, `String(n).padStart(4, '0')` would silently
+   * overflow to a 5-character suffix (e.g. "10000"), which would sort
+   * BEFORE "9999" lexicographically ("1..." < "9..."), breaking the
+   * string-sort assumption. `MAX_SAFE_SEQUENCE` below guards against that
+   * by throwing rather than silently emitting a protocol that could
+   * mis-sort or duplicate an existing row.
    */
   async create(
     dto: CreateTicketDto,
@@ -90,11 +131,15 @@ export class TicketsService {
     ) {
       try {
         return await this.prisma.$transaction(async (tx) => {
-          const existingCount = await tx.ticket.count({
+          const highest = await tx.ticket.findFirst({
             where: { protocol: { startsWith: yearPrefix } },
+            orderBy: { protocol: 'desc' },
           });
-          const nextNumber = existingCount + 1;
-          const protocol = `${yearPrefix}${String(nextNumber).padStart(4, '0')}`;
+          const nextNumber = this.nextSequenceNumber(
+            highest?.protocol,
+            yearPrefix,
+          );
+          const protocol = `${yearPrefix}${String(nextNumber).padStart(PROTOCOL_SEQUENCE_WIDTH, '0')}`;
 
           return tx.ticket.create({
             data: {
@@ -118,8 +163,11 @@ export class TicketsService {
           this.isProtocolConflict(error)
         ) {
           // Another concurrent request committed the protocol we tried to
-          // use first. Retry: the next attempt's count() will observe the
-          // just-committed row and pick the following number.
+          // use first. Retry: the next attempt's findFirst() will observe
+          // the just-committed row as the new highest and pick the
+          // following number. Kept as the concurrency safety net — this
+          // fix only changes HOW the sequence number is derived, not this
+          // retry-on-collision backstop.
           continue;
         }
         if (
@@ -138,6 +186,34 @@ export class TicketsService {
       'Could not generate a unique ticket protocol after multiple attempts',
       { cause: lastError as Error },
     );
+  }
+
+  /**
+   * Parses the numeric suffix out of the highest existing protocol for
+   * the year (if any) and returns the next sequence number. Guards
+   * against the padded suffix ever overflowing its fixed width, which
+   * would break the string-sort-equals-numeric-sort assumption that
+   * `orderBy: { protocol: 'desc' }` relies on.
+   */
+  private nextSequenceNumber(
+    highestProtocol: string | undefined,
+    yearPrefix: string,
+  ): number {
+    if (!highestProtocol) {
+      return 1;
+    }
+    const suffix = highestProtocol.slice(yearPrefix.length);
+    const parsed = Number.parseInt(suffix, 10);
+    const current = Number.isNaN(parsed) ? 0 : parsed;
+    const next = current + 1;
+    if (next > MAX_PROTOCOL_SEQUENCE) {
+      throw new BadRequestException(
+        `Ticket protocol sequence for prefix ${yearPrefix} exhausted ` +
+          `${PROTOCOL_SEQUENCE_WIDTH}-digit capacity (${MAX_PROTOCOL_SEQUENCE}); ` +
+          'widen PROTOCOL_SEQUENCE_WIDTH before more tickets can be created this year.',
+      );
+    }
+    return next;
   }
 
   private isProtocolConflict(
