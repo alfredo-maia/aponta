@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import axios from 'axios';
 import { api } from '../lib/api';
@@ -24,6 +24,8 @@ export function RegisterPage() {
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [registeredButLoginFailed, setRegisteredButLoginFailed] =
+    useState(false);
   const {
     register,
     handleSubmit,
@@ -34,20 +36,31 @@ export function RegisterPage() {
 
   const onSubmit = async (values: RegisterFormValues) => {
     setSubmitError(null);
+    setRegisteredButLoginFailed(false);
+
     try {
       await api.post('/auth/register', values);
-      const { data } = await api.post<{ access_token: string }>(
-        '/auth/login',
-        { email: values.email, password: values.password },
-      );
-      login(data.access_token);
-      navigate('/');
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 409) {
         setSubmitError('An account with this email already exists.');
       } else {
         setSubmitError('Something went wrong. Please try again.');
       }
+      return;
+    }
+
+    // Registration succeeded — the account genuinely exists from here on,
+    // regardless of what happens next. Any failure below must not be
+    // reported using the same "registration failed" messaging.
+    try {
+      const { data } = await api.post<{ access_token: string }>(
+        '/auth/login',
+        { email: values.email, password: values.password },
+      );
+      login(data.access_token);
+      navigate('/');
+    } catch {
+      setRegisteredButLoginFailed(true);
     }
   };
 
@@ -111,6 +124,17 @@ export function RegisterPage() {
         {submitError && (
           <p role="alert" className="text-sm text-red-600">
             {submitError}
+          </p>
+        )}
+
+        {registeredButLoginFailed && (
+          <p role="alert" className="text-sm text-red-600">
+            Account created successfully! There was a problem logging you in
+            automatically — please{' '}
+            <Link to="/login" className="underline">
+              sign in
+            </Link>
+            .
           </p>
         )}
 
