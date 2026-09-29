@@ -65,6 +65,34 @@
       "options": {
         "passWithNoTests": true
       }
+    },
+    "prisma-generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prisma generate --schema=./prisma/schema.prisma --config=./prisma.config.ts",
+        "cwd": "apps/api"
+      }
+    },
+    "prisma-migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prisma migrate dev --schema=./prisma/schema.prisma --config=./prisma.config.ts",
+        "cwd": "apps/api"
+      }
+    },
+    "prisma-migrate-deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prisma migrate deploy --schema=./prisma/schema.prisma --config=./prisma.config.ts",
+        "cwd": "apps/api"
+      }
+    },
+    "prisma-studio": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prisma studio --schema=./prisma/schema.prisma --config=./prisma.config.ts",
+        "cwd": "apps/api"
+      }
     }
   }
 }

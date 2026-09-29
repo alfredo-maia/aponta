@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  AGENT
+  CLIENT
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role      @default(AGENT)
+
+  requestedTickets Ticket[]  @relation("RequesterTickets")
+  assignedTickets  Ticket[]  @relation("AgentTickets")
+  comments         Comment[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model ServiceDesk {
+  id        String   @id @default(uuid())
+  name      String
+  tickets   Ticket[]
+  createdAt DateTime @default(now())
+}
+
+model Ticket {
+  id          String         @id @default(uuid())
+  protocol    String         @unique
+  title       String
+  description String
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority @default(MEDIUM)
+
+  requesterId String
+  requester   User           @relation("RequesterTickets", fields: [requesterId], references: [id])
+
+  agentId     String?
+  agent       User?          @relation("AgentTickets", fields: [agentId], references: [id])
+
+  serviceDeskId String
+  serviceDesk   ServiceDesk  @relation(fields: [serviceDeskId], references: [id])
+
+  responseDeadline DateTime?
+  resolveDeadline  DateTime?
+
+  comments    Comment[]
+
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([serviceDeskId, status])
+  @@index([requesterId])
+}
+
+model Comment {
+  id         String   @id @default(uuid())
+  content    String
+  isInternal Boolean  @default(false)
+
+  ticketId   String
+  ticket     Ticket   @relation(fields: [ticketId], references: [id])
+
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
+
+  createdAt  DateTime @default(now())
+
+  @@index([ticketId])
+}
