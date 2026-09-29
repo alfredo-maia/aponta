@@ -7,7 +7,7 @@ import { Role } from '@prisma/client';
 
 describe('AuthService', () => {
   let authService: AuthService;
-  let usersService: { findByEmail: jest.Mock };
+  let usersService: { findByEmail: jest.Mock; toSafeUser: jest.Mock };
   let jwtService: { sign: jest.Mock };
 
   const mockUser = {
@@ -25,6 +25,11 @@ describe('AuthService', () => {
 
     usersService = {
       findByEmail: jest.fn(),
+      toSafeUser: jest.fn((user) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password: _password, ...safeUser } = user;
+        return safeUser;
+      }),
     };
     jwtService = {
       sign: jest.fn().mockReturnValue('signed-jwt-token'),
@@ -59,6 +64,9 @@ describe('AuthService', () => {
         updatedAt: mockUser.updatedAt,
       });
       expect(result).not.toHaveProperty('password');
+      // Consistency: validateUser should delegate password-stripping to
+      // UsersService.toSafeUser rather than re-implementing it inline.
+      expect(usersService.toSafeUser).toHaveBeenCalledWith(mockUser);
     });
 
     it('should return null when password is incorrect', async () => {

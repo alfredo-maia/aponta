@@ -1,12 +1,20 @@
 import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { Role } from '@prisma/client';
 import { AuthService } from './auth.service';
 import { UsersService, SafeUser } from '../users/users.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
+import { RegisterDto } from '../users/dto/register.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 
 interface AuthenticatedRequest {
   user: SafeUser;
 }
+
+/**
+ * Role assigned to every account created via the public, unauthenticated
+ * registration endpoint. RegisterDto has no `role` field at all, so this is
+ * the only role a self-registered user can ever get — never client-supplied.
+ */
+const DEFAULT_REGISTRATION_ROLE = Role.CLIENT;
 
 @Controller('auth')
 export class AuthController {
@@ -22,7 +30,10 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async register(@Body() registerDto: RegisterDto) {
+    return this.usersService.create({
+      ...registerDto,
+      role: DEFAULT_REGISTRATION_ROLE,
+    });
   }
 }

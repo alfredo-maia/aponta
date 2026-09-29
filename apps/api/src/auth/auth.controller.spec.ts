@@ -56,9 +56,34 @@ describe('AuthController', () => {
 
       const result = await controller.register(dto);
 
-      expect(usersService.create).toHaveBeenCalledWith(dto);
+      expect(usersService.create).toHaveBeenCalledWith({
+        ...dto,
+        role: 'CLIENT',
+      });
       expect(result).toEqual(mockSafeUser);
       expect(result).not.toHaveProperty('password');
+    });
+
+    it('should always register with CLIENT role, ignoring any client-supplied role', async () => {
+      // RegisterDto has no `role` field, but simulate an attacker who
+      // manages to smuggle one onto the parsed object (e.g. before a
+      // global ValidationPipe strips it) — the controller must never
+      // forward it to UsersService.create.
+      const maliciousDto = {
+        name: 'Attacker',
+        email: 'attacker@example.com',
+        password: 'plain-password',
+        role: 'ADMIN',
+      } as unknown as { name: string; email: string; password: string };
+
+      await controller.register(maliciousDto);
+
+      expect(usersService.create).toHaveBeenCalledWith(
+        expect.objectContaining({ role: 'CLIENT' }),
+      );
+      expect(usersService.create).not.toHaveBeenCalledWith(
+        expect.objectContaining({ role: 'ADMIN' }),
+      );
     });
   });
 });

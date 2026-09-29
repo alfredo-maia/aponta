@@ -24,9 +24,7 @@ export class AuthService {
       return null;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _password, ...safeUser } = user;
-    return safeUser;
+    return this.usersService.toSafeUser(user);
   }
 
   async login(user: SafeUser): Promise<{ access_token: string }> {
