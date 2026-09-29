@@ -1,11 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
 import { ExecutionContext } from '@nestjs/common';
+import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { Role } from '@prisma/client';
 import { ServiceDesksController } from './service-desks.controller';
 import { ServiceDesksService } from './service-desks.service';
 import { ROLES_KEY } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 const mockServiceDesksService = {
   create: jest.fn(),
@@ -120,6 +122,46 @@ describe('ServiceDesksController', () => {
       expect(
         guard.canActivate(contextFor(controller.findOne, Role.AGENT)),
       ).toBe(true);
+    });
+  });
+
+  describe('@UseGuards registration (catches decorator removal/reordering)', () => {
+    // These assertions read NestJS's own GUARDS_METADATA (set by @UseGuards)
+    // rather than instantiating RolesGuard by hand. Unlike the
+    // "RolesGuard behavior against the declared metadata" suite above -
+    // which manually builds an ExecutionContext and never asks whether
+    // NestJS would actually apply RolesGuard to the route - these tests
+    // fail if @UseGuards(RolesGuard) is deleted or reordered on a handler,
+    // even though @Roles(...) metadata is untouched.
+    function methodGuards(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      handler: (...args: any[]) => unknown,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ): any[] {
+      return Reflect.getMetadata(GUARDS_METADATA, handler) ?? [];
+    }
+
+    it('registers JwtAuthGuard at the class level', () => {
+      expect(
+        Reflect.getMetadata(GUARDS_METADATA, ServiceDesksController),
+      ).toContain(JwtAuthGuard);
+    });
+
+    it('registers RolesGuard on the create handler', () => {
+      expect(methodGuards(controller.create)).toContain(RolesGuard);
+    });
+
+    it('registers RolesGuard on the update handler', () => {
+      expect(methodGuards(controller.update)).toContain(RolesGuard);
+    });
+
+    it('registers RolesGuard on the remove handler', () => {
+      expect(methodGuards(controller.remove)).toContain(RolesGuard);
+    });
+
+    it('does not register RolesGuard on findAll/findOne (no method-level @UseGuards)', () => {
+      expect(methodGuards(controller.findAll)).not.toContain(RolesGuard);
+      expect(methodGuards(controller.findOne)).not.toContain(RolesGuard);
     });
   });
 
