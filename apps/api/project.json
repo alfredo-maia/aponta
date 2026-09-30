@@ -93,6 +93,13 @@
         "command": "prisma studio --schema=./prisma/schema.prisma --config=./prisma.config.ts",
         "cwd": "apps/api"
       }
+    },
+    "prisma-seed": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "ts-node -r dotenv/config prisma/seed.ts",
+        "cwd": "apps/api"
+      }
     }
   }
 }
