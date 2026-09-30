@@ -4,17 +4,14 @@ import { useAuthStore } from '../../stores/authStore';
 const navItems = [
   { to: '/', label: 'Painel' },
   { to: '/tickets/new', label: 'Novo Chamado' },
-  { to: '/my-account', label: 'Minha Conta' },
+  { to: '/settings', label: 'Configurações' },
 ];
 
 export function Sidebar() {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
 
-  const items =
-    user?.role === 'ADMIN'
-      ? [...navItems, { to: '/service-desks', label: 'Departamentos' }]
-      : navItems;
+  const items = navItems;
 
   return (
     <aside className="flex h-full w-56 flex-col justify-between border-r bg-background p-4">
