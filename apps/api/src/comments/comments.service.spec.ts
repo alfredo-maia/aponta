@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { NotFoundException } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { CommentsService } from './comments.service';
@@ -26,12 +27,12 @@ describe('CommentsService', () => {
 
   beforeEach(async () => {
     mockPrismaService = {
-      ticket: {
-        findUnique: jest.fn(),
-      },
       comment: {
         create: jest.fn(),
         findMany: jest.fn(),
+      },
+      ticket: {
+        findUnique: jest.fn(),
       },
     };
 
@@ -39,6 +40,7 @@ describe('CommentsService', () => {
       providers: [
         CommentsService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: EventEmitter2, useValue: { emit: jest.fn() } },
       ],
     }).compile();
 
@@ -68,6 +70,7 @@ describe('CommentsService', () => {
           ticketId: 'ticket-1',
           authorId: 'client-1',
         },
+        include: { author: { select: { email: true } } }
       });
       expect(result.isInternal).toBe(false);
     });
@@ -79,6 +82,7 @@ describe('CommentsService', () => {
       await service.create('ticket-1', { content: 'Looking into it' }, agentUser);
 
       expect(mockPrismaService.comment.create).toHaveBeenCalledWith({
+        include: expect.any(Object),
         data: expect.objectContaining({ isInternal: false }),
       });
     });
@@ -97,6 +101,7 @@ describe('CommentsService', () => {
         );
 
         expect(mockPrismaService.comment.create).toHaveBeenCalledWith({
+          include: expect.any(Object),
           data: expect.objectContaining({
             isInternal: true,
             authorId: `${role}-user`,
@@ -116,6 +121,7 @@ describe('CommentsService', () => {
       );
 
       expect(mockPrismaService.comment.create).toHaveBeenCalledWith({
+        include: expect.any(Object),
         data: expect.objectContaining({ isInternal: false }),
       });
     });
@@ -145,6 +151,7 @@ describe('CommentsService', () => {
       await service.create('ticket-1', { content: 'Agent reply' }, agentUser);
 
       expect(mockPrismaService.comment.create).toHaveBeenCalledWith({
+        include: expect.any(Object),
         data: expect.objectContaining({ authorId: 'agent-1' }),
       });
     });

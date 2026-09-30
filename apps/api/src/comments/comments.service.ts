@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Comment, Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -6,7 +7,10 @@ import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator
 
 @Injectable()
 export class CommentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
   /**
    * Creates a comment on a ticket. `isInternal` is only honored for
@@ -24,14 +28,37 @@ export class CommentsService {
     const isInternal =
       currentUser.role === Role.CLIENT ? false : (dto.isInternal ?? false);
 
-    return this.prisma.comment.create({
+    const comment = await this.prisma.comment.create({
       data: {
         content: dto.content,
         isInternal,
         ticketId,
         authorId: currentUser.id,
       },
+      include: {
+        author: { select: { email: true } },
+      }
     });
+
+    const ticket = await this.prisma.ticket.findUnique({
+      where: { id: ticketId },
+      include: {
+        requester: { select: { email: true } },
+        agent: { select: { email: true } },
+      },
+    });
+
+    if (ticket) {
+      this.eventEmitter.emit('ticket.commented', {
+        ticket,
+        comment,
+        authorEmail: comment.author?.email,
+        requesterEmail: ticket.requester?.email,
+        agentEmail: ticket.agent?.email,
+      });
+    }
+
+    return comment;
   }
 
   /**

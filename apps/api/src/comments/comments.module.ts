@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { CommentsService } from './comments.service';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CommentsController } from './comments.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, EventEmitterModule.forRoot()],
   controllers: [CommentsController],
   providers: [CommentsService],
   exports: [CommentsService],

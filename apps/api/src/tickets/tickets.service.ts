@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Prisma, Role, Ticket, TicketPriority, TicketStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
@@ -73,7 +74,10 @@ const MAX_PROTOCOL_SEQUENCE = 10 ** PROTOCOL_SEQUENCE_WIDTH - 1;
 
 @Injectable()
 export class TicketsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
   /**
    * Generates the next protocol number for the given year (e.g.
@@ -141,7 +145,7 @@ export class TicketsService {
           );
           const protocol = `${yearPrefix}${String(nextNumber).padStart(PROTOCOL_SEQUENCE_WIDTH, '0')}`;
 
-          return tx.ticket.create({
+          const ticket = await tx.ticket.create({
             data: {
               protocol,
               title: dto.title,
@@ -153,7 +157,17 @@ export class TicketsService {
               responseDeadline,
               resolveDeadline,
             },
+            include: {
+              requester: { select: { email: true } },
+            },
           });
+          
+          this.eventEmitter.emit('ticket.created', {
+            ticket,
+            requesterEmail: ticket.requester?.email,
+          });
+
+          return ticket;
         });
       } catch (error) {
         lastError = error;
@@ -307,10 +321,16 @@ export class TicketsService {
     }
 
     try {
-      return await this.prisma.ticket.update({
+      const ticket = await this.prisma.ticket.update({
         where: { id },
         data: { agentId },
+        include: { agent: { select: { email: true } } },
       });
+      this.eventEmitter.emit('ticket.assigned', {
+        ticket,
+        agentEmail: ticket.agent?.email,
+      });
+      return ticket;
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -353,9 +373,16 @@ export class TicketsService {
       );
     }
 
-    return this.prisma.ticket.update({
+    const ticket = await this.prisma.ticket.update({
       where: { id },
       data: { status: newStatus },
+      include: { requester: { select: { email: true } } },
     });
+    
+    this.eventEmitter.emit('ticket.status_changed', {
+      ticket,
+      requesterEmail: ticket.requester?.email,
+    });
+    return ticket;
   }
 }

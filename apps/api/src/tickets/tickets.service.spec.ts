@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Prisma, Role, TicketPriority, TicketStatus } from '@prisma/client';
 import {
   BadRequestException,
@@ -52,6 +53,7 @@ describe('TicketsService', () => {
       providers: [
         TicketsService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: EventEmitter2, useValue: { emit: jest.fn() } },
       ],
     }).compile();
 
@@ -81,6 +83,7 @@ describe('TicketsService', () => {
       const result = await service.create(dto, 'requester-1');
 
       expect(mockTx.ticket.create).toHaveBeenCalledWith({
+        include: { requester: { select: { email: true } } },
         data: expect.objectContaining({
           protocol: 'AP-2026-0001',
           title: dto.title,
@@ -401,6 +404,7 @@ describe('TicketsService', () => {
       expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
         where: { id: 't1' },
         data: { agentId: 'agent-1' },
+        include: { agent: { select: { email: true } } },
       });
       expect(result.agentId).toBe('agent-1');
     });
@@ -445,6 +449,7 @@ describe('TicketsService', () => {
       expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
         where: { id: 't1' },
         data: { status: TicketStatus.IN_PROGRESS },
+        include: { requester: { select: { email: true } } },
       });
       expect(result.status).toBe(TicketStatus.IN_PROGRESS);
     });
