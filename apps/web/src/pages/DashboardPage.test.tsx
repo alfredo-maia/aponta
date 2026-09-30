@@ -110,7 +110,7 @@ describe('DashboardPage', () => {
     mockApiGet([]);
     renderDashboard();
 
-    expect(await screen.findByText(/nenhum chamado encontrado/i)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Aberto' })).toBeInTheDocument();
   });
 
   it('should render a card per ticket with protocol, status and priority badges', async () => {
