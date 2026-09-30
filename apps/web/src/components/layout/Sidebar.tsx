@@ -1,18 +1,30 @@
 import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 
-const navItems = [
-  { to: '/', label: 'Painel' },
-  { to: '/tickets/new', label: 'Novo Chamado' },
-];
-
 export function Sidebar() {
   const user = useAuthStore((state) => state.user);
 
-  const items =
-    user?.role === 'ADMIN'
-      ? [...navItems, { to: '/service-desks', label: 'Departamentos' }]
-      : navItems;
+  const getNavItems = () => {
+    if (user?.role === 'CLIENT') {
+      return [
+        { to: '/', label: 'Meus Chamados' },
+        { to: '/tickets/new', label: 'Abrir Chamado' },
+      ];
+    }
+    
+    const base = [
+      { to: '/', label: 'Caixa de Entrada' },
+      { to: '/tickets/new', label: 'Novo Chamado' },
+    ];
+    
+    if (user?.role === 'ADMIN') {
+      return [...base, { to: '/service-desks', label: 'Departamentos' }];
+    }
+    
+    return base;
+  };
+
+  const items = getNavItems();
 
   return (
     <aside className="flex h-full w-56 flex-col border-r bg-background p-4">

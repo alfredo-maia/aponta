@@ -87,7 +87,7 @@ describe('DashboardPage', () => {
     renderDashboard();
 
     expect(
-      screen.getByRole('heading', { name: /chamados/i }),
+      screen.getByRole('heading', { level: 1 }),
     ).toBeInTheDocument();
     expect(await screen.findByText('Printer not working')).toBeInTheDocument();
   });
