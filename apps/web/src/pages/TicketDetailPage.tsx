@@ -3,10 +3,12 @@ import { CommentForm } from '../components/tickets/CommentForm';
 import { TicketComments } from '../components/tickets/TicketComments';
 import { TicketDetail } from '../components/tickets/TicketDetail';
 import { useTicket } from '../hooks/useTicket';
+import { useAuthStore } from '../stores/authStore';
 
 export function TicketDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data: ticket, isLoading, isError } = useTicket(id);
+  const user = useAuthStore((state) => state.user);
 
   if (isLoading) {
     return (
@@ -27,14 +29,18 @@ export function TicketDetailPage() {
     );
   }
 
+  const isClient = user?.role === 'CLIENT';
+
   return (
     <div className="space-y-6">
       <TicketDetail ticket={ticket} />
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Comentários</h2>
-        <TicketComments ticketId={ticket.id} />
-        <CommentForm ticketId={ticket.id} />
-      </section>
+      {!isClient && (
+        <section className="space-y-4">
+          <h2 className="text-lg font-semibold">Comentários</h2>
+          <TicketComments ticketId={ticket.id} />
+          <CommentForm ticketId={ticket.id} />
+        </section>
+      )}
     </div>
   );
 }

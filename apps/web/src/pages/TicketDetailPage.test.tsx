@@ -172,6 +172,7 @@ describe('TicketDetailPage', () => {
   });
 
   it('should show the comment form and post a new comment', async () => {
+    setRole('AGENT');
     const user = userEvent.setup();
     renderPage();
 
