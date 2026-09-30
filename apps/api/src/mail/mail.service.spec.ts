@@ -62,7 +62,7 @@ describe('MailService', () => {
       // Emulating a fail gracefully log strategy - or we can throw. Let's say we expect it to not crash if SMTP is unconfigured.
       mockSendMail.mockRejectedValueOnce(new Error('SMTP Error'));
       
-      const loggerSpy = jest.spyOn(service['logger'], 'error').mockImplementation(() => {});
+      const loggerSpy = jest.spyOn(service['logger'], 'error').mockImplementation(() => undefined);
 
       await service.sendEmail({
         to: 'client@example.com',

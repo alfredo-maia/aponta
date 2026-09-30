@@ -1,22 +1,22 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { MailService } from '../mail.service';
 import { ConfigService } from '@nestjs/config';
 
 interface TicketPayload {
-  ticket: any; 
+  ticket: any; // eslint-disable-line @typescript-eslint/no-explicit-any 
   requesterEmail?: string;
   agentEmail?: string;
 }
 
 interface CommentPayload extends TicketPayload {
-  comment: any;
+  comment: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   authorEmail?: string;
 }
 
 @Injectable()
 export class TicketEventsListener {
-  private readonly logger = new Logger(TicketEventsListener.name);
+  
   private readonly appUrl: string;
 
   constructor(
