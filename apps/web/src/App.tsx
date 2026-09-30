@@ -1,35 +1,35 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AppLayout } from './components/layout/AppLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { DashboardPage } from './pages/DashboardPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 
 /**
- * Temporary landing page for the protected area. Tasks 8-10 replace this
- * with the real dashboard; it exists so `/` has something to render behind
- * the auth guard.
+ * App-wide Tanstack Query client. The provider lives here (rather than in
+ * main.tsx) alongside the router so `<App />` stays self-contained: any test
+ * that renders the app gets a working query context without extra wrappers.
+ * Tests that exercise query-backed components directly create their own
+ * client (typically with `retry: false`).
  */
-function DashboardPlaceholder() {
-  return (
-    <div className="flex min-h-full items-center justify-center">
-      <h1 className="text-4xl font-bold">Aponta</h1>
-    </div>
-  );
-}
+const queryClient = new QueryClient();
 
 export function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route element={<ProtectedRoute />}>
-          <Route element={<AppLayout />}>
-            <Route path="/" element={<DashboardPlaceholder />} />
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<DashboardPage />} />
+            </Route>
           </Route>
-        </Route>
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
 
