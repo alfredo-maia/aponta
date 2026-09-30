@@ -10,6 +10,7 @@ import { ServiceDesksModule } from './service-desks/service-desks.module';
 import { TicketsModule } from './tickets/tickets.module';
 import { UsersModule } from './users/users.module';
 import { MailModule } from './mail/mail.module';
+import { OrganizationsModule } from './organizations/organizations.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { MailModule } from './mail/mail.module';
     TicketsModule,
     CommentsModule,
     MailModule,
+    OrganizationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
