@@ -13,6 +13,7 @@ export function Sidebar() {
     }
     
     const base = [
+      { to: '/knowledge', label: 'Ajuda (FAQ)' },
       { to: '/', label: 'Caixa de Entrada' },
       { to: '/tickets/new', label: 'Novo Chamado' },
     ];

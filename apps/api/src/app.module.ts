@@ -12,6 +12,7 @@ import { UsersModule } from './users/users.module';
 import { MailModule } from './mail/mail.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { ReportsModule } from './reports/reports.module';
+import { ArticlesModule } from './articles/articles.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ReportsModule } from './reports/reports.module';
     MailModule,
     OrganizationsModule,
     ReportsModule,
+    ArticlesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
