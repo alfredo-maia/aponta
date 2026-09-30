@@ -1,18 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { UsersService } from '../users/users.service';
 
 export interface JwtPayload {
   sub: string;
   email: string;
-  role: string;
-  organizationId?: string | null;
 }
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(configService: ConfigService) {
+  constructor(
+    configService: ConfigService,
+    private readonly usersService: UsersService,
+  ) {
     const secret = configService.get<string>('JWT_SECRET');
     if (!secret) {
       throw new Error(
@@ -27,11 +29,20 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    return { 
-      id: payload.sub, 
-      email: payload.email, 
-      role: payload.role,
-      organizationId: payload.organizationId
+    const user = await this.usersService.findById(payload.sub);
+
+    if (!user) {
+      throw new UnauthorizedException('User no longer exists');
+    }
+
+    // By returning fresh values from the DB, we ensure that if a user's role 
+    // or organization is changed while they have an active token, the new 
+    // permissions are enforced IMMEDIATELY.
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      organizationId: user.organizationId
     };
   }
 }
