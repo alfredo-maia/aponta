@@ -6,6 +6,17 @@ Sistema de tickets/helpdesk.
 
 A aplicação foi desenhada para ser hospedada em um VPS que roda múltiplos projetos, usando o **Caddy como servidor web global (Edge Proxy) no host**.
 
+### Backups Automáticos
+Os backups do banco de dados ocorrem via `scripts/backup.sh`. Eles são executados por uma tarefa no crontab do host do servidor que coleta um arquivo `pg_dump` no container `aponta-prod-postgres-1` e o compacta localmente.
+Se você for migrar de servidor, confira os backups salvos em `/home/hermes/backups/aponta`.
+
+Para reinstalar o cron (todo dia às 03:00):
+```bash
+sudo crontab -e
+# Adicionar:
+0 3 * * * /caminho/absoluto/aponta/scripts/backup.sh >> /var/log/aponta_backup.log 2>&1
+```
+
 ### Portas e Segurança
 Os arquivos `docker-compose.yml` e `.env.prod` foram configurados para **nunca exportar portas abertas publicamente no Docker**. O Aponta escuta nas portas internas `127.0.0.1:8090` (Web/Frontend) e `127.0.0.1:8091` (API).
 
