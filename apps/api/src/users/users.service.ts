@@ -109,4 +109,16 @@ export class UsersService {
       throw error;
     }
   }
+
+  async findAgents(): Promise<SafeUser[]> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        role: {
+          in: ['AGENT', 'ADMIN'],
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+    return users.map((user) => this.toSafeUser(user));
+  }
 }

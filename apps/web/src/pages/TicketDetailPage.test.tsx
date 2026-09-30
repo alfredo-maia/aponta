@@ -11,6 +11,7 @@ vi.mock('../lib/api', () => ({
   api: {
     get: vi.fn(),
     post: vi.fn(),
+    patch: vi.fn(),
   },
 }));
 
@@ -51,18 +52,32 @@ const comments = [
   },
 ];
 
+const mockAgents = [
+  { id: 'agent-1', name: 'Agent Smith', email: 'agent1@ex.com', role: 'AGENT' },
+  { id: 'agent-2', name: 'Agent Jones', email: 'agent2@ex.com', role: 'AGENT' },
+  { id: 'admin-1', name: 'Admin Boss', email: 'admin@ex.com', role: 'ADMIN' },
+];
+
 function mockApi() {
   vi.mocked(api.get).mockImplementation((url: string) => {
     if (url === '/tickets/t-1') {
       return Promise.resolve({ data: ticket });
     }
     if (url === '/tickets/t-1/comments') {
-      // Snapshot copy: React Query structurally shares data, and handing out
-      // the live array would let the POST push() mutate already-cached data,
-      // suppressing the re-render a real (fresh JSON) API would trigger.
       return Promise.resolve({ data: [...comments] });
     }
+    if (url === '/users/agents') {
+      return Promise.resolve({ data: mockAgents });
+    }
     return Promise.reject(new Error(`Unexpected GET ${url}`));
+  });
+  vi.mocked(api.patch).mockImplementation((url: string, body: unknown) => {
+    if (url === '/tickets/t-1/assign') {
+      const { agentId } = body as { agentId: string };
+      ticket.agentId = agentId;
+      return Promise.resolve({ data: ticket });
+    }
+    return Promise.reject(new Error(`Unexpected PATCH ${url}`));
   });
   vi.mocked(api.post).mockImplementation((url: string, body: unknown) => {
     const { content, isInternal } = body as {
@@ -201,5 +216,33 @@ describe('TicketDetailPage', () => {
     expect(
       screen.queryByRole('checkbox', { name: /nota interna/i }),
     ).not.toBeInTheDocument();
+  });
+
+  describe('Agent assignment', () => {
+    it('hides the assignment dropdown from clients', async () => {
+      setRole('CLIENT');
+      renderPage();
+      await screen.findByText('Printer not working');
+      expect(screen.queryByLabelText(/atribuído a:/i)).not.toBeInTheDocument();
+    });
+
+    it('shows the assignment dropdown to agents and allows assigning a ticket', async () => {
+      setRole('AGENT');
+      const user = userEvent.setup();
+      renderPage();
+      
+      const select = await screen.findByLabelText(/atribuído a:/i);
+      expect(select).toBeInTheDocument();
+      
+      // Need to wait for the agents query to render options
+      await screen.findByRole('option', { name: 'Agent Jones' });
+      
+      // Select the new agent (Agent Jones)
+      await user.selectOptions(select, 'agent-2');
+      
+      await waitFor(() => {
+        expect(api.patch).toHaveBeenCalledWith('/tickets/t-1/assign', { agentId: 'agent-2' });
+      });
+    });
   });
 });

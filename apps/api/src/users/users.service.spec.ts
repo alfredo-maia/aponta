@@ -12,6 +12,7 @@ describe('UsersService', () => {
       findUnique: jest.Mock;
       create: jest.Mock;
       update: jest.Mock;
+      findMany: jest.Mock;
     };
   };
 
@@ -21,6 +22,7 @@ describe('UsersService', () => {
         findUnique: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        findMany: jest.fn(),
       },
     };
 
@@ -200,6 +202,27 @@ describe('UsersService', () => {
           email: 'taken@example.com',
         }),
       ).rejects.toBeInstanceOf(ConflictException);
+    });
+  });
+
+  describe('findAgents', () => {
+    it('returns a list of agents and admins mapped to SafeUsers', async () => {
+      const mockUsers = [
+        { id: '1', email: 'agent@example.com', password: 'hash', createdAt: new Date(), updatedAt: new Date(), role: Role.AGENT, name: 'Agent' },
+        { id: '2', email: 'admin@example.com', password: 'hash', createdAt: new Date(), updatedAt: new Date(), role: Role.ADMIN, name: 'Admin' },
+      ];
+      prisma.user.findMany.mockResolvedValueOnce(mockUsers);
+
+      const result = await service.findAgents();
+
+      expect(prisma.user.findMany).toHaveBeenCalledWith({
+        where: { role: { in: ['AGENT', 'ADMIN'] } },
+        orderBy: { name: 'asc' },
+      });
+      expect(result).toHaveLength(2);
+      expect(result[0]).not.toHaveProperty('password');
+      expect(result[0].name).toBe('Agent');
+      expect(result[1].name).toBe('Admin');
     });
   });
 });

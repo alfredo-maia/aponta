@@ -1,3 +1,6 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '../../lib/api';
+import { useAuthStore } from '../../stores/authStore';
 import type { Ticket } from '../../hooks/useTickets';
 import {
   priorityBadgeClasses,
@@ -20,6 +23,26 @@ interface TicketDetailProps {
 }
 
 export function TicketDetail({ ticket }: TicketDetailProps) {
+  const user = useAuthStore((state) => state.user);
+  const queryClient = useQueryClient();
+
+  const { data: agents = [] } = useQuery({
+    queryKey: ['agents'],
+    queryFn: async () => {
+      const res = await api.get<{ id: string; name: string }[]>('/users/agents');
+      return res.data;
+    },
+    enabled: user?.role === 'AGENT' || user?.role === 'ADMIN',
+  });
+
+  const assignMutation = useMutation({
+    mutationFn: (agentId: string) =>
+      api.patch(`/tickets/${ticket.id}/assign`, { agentId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tickets', ticket.id] });
+    },
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
@@ -29,17 +52,39 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
           </span>
           <h1 className="text-2xl font-bold">{ticket.title}</h1>
         </div>
-        <div className="flex shrink-0 gap-2">
-          <span
-            className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusBadgeClasses[ticket.status]}`}
-          >
-            {statusLabels[ticket.status]}
-          </span>
-          <span
-            className={`rounded-full px-2 py-0.5 text-xs font-medium ${priorityBadgeClasses[ticket.priority]}`}
-          >
-            {priorityLabels[ticket.priority]}
-          </span>
+        <div className="flex flex-col shrink-0 gap-2 items-end">
+          <div className="flex gap-2">
+            <span
+              className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusBadgeClasses[ticket.status]}`}
+            >
+              {statusLabels[ticket.status]}
+            </span>
+            <span
+              className={`rounded-full px-2 py-0.5 text-xs font-medium ${priorityBadgeClasses[ticket.priority]}`}
+            >
+              {priorityLabels[ticket.priority]}
+            </span>
+          </div>
+          
+          {(user?.role === 'AGENT' || user?.role === 'ADMIN') && (
+            <div className="mt-2 text-sm">
+              <label htmlFor="assignee" className="mr-2 text-muted-foreground">Atribuído a:</label>
+              <select
+                id="assignee"
+                className="rounded border px-2 py-1 text-sm disabled:opacity-50"
+                value={ticket.agentId || ''}
+                disabled={assignMutation.isPending}
+                onChange={(e) => assignMutation.mutate(e.target.value)}
+              >
+                <option value="">Não atribuído</option>
+                {agents.map((agent) => (
+                  <option key={agent.id} value={agent.id}>
+                    {agent.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
 

@@ -73,4 +73,55 @@ test.describe('ticket creation and detail view', () => {
     await expect(page.getByRole('heading', { name: uniqueTitle })).toBeVisible();
     expect(page.url()).toBe(detailUrl);
   });
+
+  test('an agent can assign a ticket', async ({ page }) => {
+    // 1. Register dynamically a new client
+    const uniqueClientEmail = `client-${Date.now()}@aponta.com`;
+    await page.goto('/register');
+    await page.fill('#name', 'Dynamic Client');
+    await page.fill('#email', uniqueClientEmail);
+    await page.fill('#password', 'Password123!');
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL('/');
+    
+    await page.goto('/tickets/new');
+    const uniqueTitle = `Chamado para atribuição ${Date.now()}`;
+    await page.fill('#ticket-title', uniqueTitle);
+    await page.fill('#ticket-description', 'Preciso de ajuda com a atribuição.');
+    await page.locator('#ticket-service-desk').selectOption({ label: 'General Support' });
+    await page.click('button[type="submit"]');
+    await expect(page).not.toHaveURL('/tickets/new', { timeout: 10000 });
+    
+    // Save the ticket URL so we can go directly to it
+    const ticketUrl = page.url();
+
+    // Log out from Client
+    await page.locator('.rounded-full.bg-primary').click(); // Avatar
+    await page.getByRole('button', { name: 'Sair' }).click();
+    await expect(page).toHaveURL('/login');
+
+    // 2. Log in as an AGENT
+    await page.fill('[name="email"]', 'agent@aponta.com');
+    await page.fill('[name="password"]', 'Password123!');
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL('/');
+
+    // Go directly to the ticket URL
+    await page.goto(ticketUrl);
+
+    // 3. Look for the assignment dropdown
+    const assignSelect = page.getByLabel(/atribuído a:/i);
+    await expect(assignSelect).toBeVisible();
+
+    // 4. Assign it to 'Demo Agent'
+    // The seeded script names it "Seed Agent"
+    await assignSelect.selectOption({ label: 'Seed Agent' });
+
+    // Wait a brief moment for the react-query mutation cache invalidation to settle
+    await page.waitForTimeout(500);
+
+    // 5. Verify the selection persisted after a full reload
+    await page.reload();
+    await expect(page.getByLabel(/atribuído a:/i)).toHaveValue(/^[0-9a-fA-F-]+$/); // It should have the UUID of the Agent
+  });
 });
