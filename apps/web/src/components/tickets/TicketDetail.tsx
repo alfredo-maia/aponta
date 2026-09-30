@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../stores/authStore';
-import type { Ticket } from '../../hooks/useTickets';
+import type { Ticket, TicketStatus } from '../../hooks/useTickets';
 import {
   priorityBadgeClasses,
   priorityLabels,
@@ -43,6 +43,15 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
     },
   });
 
+  const statusMutation = useMutation({
+    mutationFn: (status: TicketStatus) =>
+      api.patch(`/tickets/${ticket.id}/status`, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tickets', ticket.id] });
+      queryClient.invalidateQueries({ queryKey: ['tickets'] });
+    },
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
@@ -54,11 +63,26 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
         </div>
         <div className="flex flex-col shrink-0 gap-2 items-end">
           <div className="flex gap-2">
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusBadgeClasses[ticket.status]}`}
-            >
-              {statusLabels[ticket.status]}
-            </span>
+            {user?.role === 'CLIENT' ? (
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusBadgeClasses[ticket.status]}`}
+              >
+                {statusLabels[ticket.status]}
+              </span>
+            ) : (
+              <select
+                className={`rounded-full outline-none px-2 py-0.5 text-xs font-medium border-none cursor-pointer ${statusBadgeClasses[ticket.status]}`}
+                value={ticket.status}
+                disabled={statusMutation.isPending}
+                onChange={(e) => statusMutation.mutate(e.target.value as TicketStatus)}
+              >
+                {(Object.keys(statusLabels) as TicketStatus[]).map((st) => (
+                  <option key={st} value={st}>
+                    {statusLabels[st]}
+                  </option>
+                ))}
+              </select>
+            )}
             <span
               className={`rounded-full px-2 py-0.5 text-xs font-medium ${priorityBadgeClasses[ticket.priority]}`}
             >
