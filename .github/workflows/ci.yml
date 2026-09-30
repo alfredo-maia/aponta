@@ -31,6 +31,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Prisma Client
+        run: pnpm exec nx run api:prisma-generate
+
       - name: Lint
         run: pnpm exec nx run-many -t lint --projects=api,web,web-e2e
 
@@ -94,6 +97,9 @@ jobs:
 
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
+
+      - name: Generate Prisma Client
+        run: pnpm exec nx run api:prisma-generate
 
       - name: Apply Prisma migrations
         run: pnpm exec nx run api:prisma-migrate-deploy
