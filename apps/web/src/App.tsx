@@ -6,6 +6,7 @@ import { CreateTicketPage } from './pages/CreateTicketPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { ServiceDesksPage } from './pages/ServiceDesksPage';
 import { TicketDetailPage } from './pages/TicketDetailPage';
 
 /**
@@ -29,6 +30,7 @@ export function App() {
               <Route path="/" element={<DashboardPage />} />
               <Route path="/tickets/new" element={<CreateTicketPage />} />
               <Route path="/tickets/:id" element={<TicketDetailPage />} />
+              <Route path="/service-desks" element={<ServiceDesksPage />} />
             </Route>
           </Route>
         </Routes>
