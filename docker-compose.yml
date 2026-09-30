@@ -1,0 +1,130 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-aponta}
+    volumes:
+      - aponta_postgres_data:/var/lib/postgresql/data
+    # No published port in production: only other containers on the
+    # `default` compose network need to reach Postgres (contrast with
+    # docker-compose.dev.yml, which exposes 5432 on the host for local
+    # tooling like `prisma studio` / a GUI client run outside Docker).
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # One-off migration runner: applies `prisma migrate deploy` against a
+  # fresh (or existing) database before the api is allowed to start
+  # accepting traffic. Uses the same production api image (deploy-only
+  # tooling — no extra image to build/maintain) but overrides the CMD.
+  # Exits 0 on success; `api` below waits on
+  # `condition: service_completed_successfully` so a fresh DB is always
+  # migrated exactly once per `docker compose up`, and `restart: "no"`
+  # keeps it from looping if it ever fails (surface the real error in logs
+  # instead of restart-crash-looping silently).
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: production
+    restart: 'no'
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-aponta}?schema=public
+    command:
+      [
+        'npx',
+        '--no-install',
+        'prisma',
+        'migrate',
+        'deploy',
+        '--schema=./prisma/schema.prisma',
+        '--config=./prisma.config.ts',
+      ]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # NOTE: seeding is intentionally NOT wired into automatic startup here.
+  # Task 11's `prisma-seed` creates a fixed demo login
+  # (agent@aponta.com / Password123!) and demo ServiceDesks — appropriate
+  # for local dev/E2E, but not something that should silently run against
+  # a real production database on every `docker compose up`. Seed a fresh
+  # environment explicitly and deliberately instead:
+  #   docker compose run --rm migrate node -e "require('child_process').execSync('npx --no-install ts-node -r dotenv/config prisma/seed.ts', {stdio:'inherit'})"
+  # (the production image has no ts-node; see README/task-12-report.md for
+  # the simplest actual one-off invocation against this compose file.)
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: production
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-aponta}?schema=public
+      NODE_ENV: production
+      API_PORT: ${API_PORT:-3001}
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
+    ports:
+      - '${API_PORT:-3001}:3001'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'wget -qO- http://127.0.0.1:${API_PORT:-3001}/api || exit 1',
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      target: production
+      args:
+        # Baked into the static bundle at build time (Vite/import.meta.env
+        # semantics — this is NOT re-readable at container runtime). Left
+        # as the same-origin default so nginx's own `/api/` reverse proxy
+        # (apps/web/nginx.conf) handles routing to the `api` service;
+        # override only if serving the web app from a different origin
+        # than the api.
+        VITE_API_URL: ${VITE_API_URL:-/api}
+    restart: unless-stopped
+    environment:
+      # Runtime env (nginx envsubst, NOT the Vite build arg above): the
+      # `/api/` proxy_pass target port in apps/web/nginx.conf resolves this
+      # at container start. Must match the api service's actual listening
+      # port (API_PORT), independent of and in addition to the VITE_API_URL
+      # build arg — one controls what the browser calls, the other controls
+      # where nginx forwards it internally.
+      API_PORT: ${API_PORT:-3001}
+    ports:
+      - '${WEB_PORT:-3000}:3000'
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3000/']
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+volumes:
+  aponta_postgres_data:

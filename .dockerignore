@@ -1,0 +1,27 @@
+# Keep the Docker build context small and avoid leaking local secrets into
+# image layers (apps/api/Dockerfile and apps/web/Dockerfile both use
+# `context: .` at the repo root — see docker-compose*.yml).
+node_modules
+**/node_modules
+dist
+**/dist
+out-tsc
+tmp
+coverage
+**/coverage
+.git
+.nx
+**/.nx/cache
+.vscode
+.idea
+
+# Local secrets — never bake these into an image; compose injects the real
+# values at container start via `env_file`/`environment`.
+.env
+.env.local
+.env.*.local
+
+# Docs / non-runtime
+*.md
+.superpowers
+docs

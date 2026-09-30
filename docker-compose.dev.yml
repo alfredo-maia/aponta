@@ -20,6 +20,7 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+      target: development
     restart: unless-stopped
     env_file:
       - .env
@@ -36,6 +37,7 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      target: development
     restart: unless-stopped
     environment:
       VITE_API_URL: http://localhost:${API_PORT:-3001}
