@@ -111,7 +111,7 @@ describe('CreateTicketPage', () => {
       screen.getByLabelText(/description/i),
       'Need a new printer on floor 3.',
     );
-    await user.selectOptions(screen.getByLabelText(/service desk/i), 'sd-1');
+    await user.selectOptions(screen.getByLabelText(/department/i), 'sd-1');
     await user.selectOptions(screen.getByLabelText(/priority/i), 'MEDIUM');
 
     await user.click(screen.getByRole('button', { name: /create ticket/i }));

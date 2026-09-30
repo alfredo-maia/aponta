@@ -31,7 +31,7 @@ export function TicketFilters({ filters, onChange }: TicketFiltersProps) {
           htmlFor="filter-service-desk"
           className="block text-sm font-medium"
         >
-          Service desk
+          Department
         </label>
         <select
           id="filter-service-desk"
@@ -44,7 +44,7 @@ export function TicketFilters({ filters, onChange }: TicketFiltersProps) {
             })
           }
         >
-          <option value="">All service desks</option>
+          <option value="">All departments</option>
           {(serviceDesks ?? []).map((desk) => (
             <option key={desk.id} value={desk.id}>
               {desk.name}

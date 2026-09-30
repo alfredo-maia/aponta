@@ -12,7 +12,7 @@ export function Sidebar() {
 
   const items =
     user?.role === 'ADMIN'
-      ? [...navItems, { to: '/service-desks', label: 'Service Desks' }]
+      ? [...navItems, { to: '/service-desks', label: 'Departments' }]
       : navItems;
 
   return (

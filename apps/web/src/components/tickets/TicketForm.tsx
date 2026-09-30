@@ -25,7 +25,7 @@ const priorities = Object.keys(priorityLabels) as TicketPriority[];
 export const ticketFormSchema = z.object({
   title: z.string().trim().min(1, 'Title is required'),
   description: z.string().trim().min(1, 'Description is required'),
-  serviceDeskId: z.string().min(1, 'Service desk is required'),
+  serviceDeskId: z.string().min(1, 'Department is required'),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
 });
 
@@ -115,14 +115,14 @@ export function TicketForm({
           htmlFor="ticket-service-desk"
           className="block text-sm font-medium"
         >
-          Service desk
+          Department
         </label>
         <select
           id="ticket-service-desk"
           className="w-full rounded border bg-background px-3 py-2"
           {...register('serviceDeskId')}
         >
-          <option value="">Select a service desk</option>
+          <option value="">Select a department</option>
           {(serviceDesks ?? []).map((desk) => (
             <option key={desk.id} value={desk.id}>
               {desk.name}

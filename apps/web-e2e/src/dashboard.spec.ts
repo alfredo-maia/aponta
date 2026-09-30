@@ -122,7 +122,7 @@ test.describe('dashboard filtering', () => {
     // Clear the filter: both are visible again.
     await page
       .locator('#filter-service-desk')
-      .selectOption({ label: 'All service desks' });
+      .selectOption({ label: 'All departments' });
     await expect(page.getByText(generalTitle)).toBeVisible();
     await expect(page.getByText(itTitle)).toBeVisible();
   });

@@ -18,13 +18,14 @@ const serviceDeskFormSchema = z.object({
 type ServiceDeskFormValues = z.infer<typeof serviceDeskFormSchema>;
 
 /**
- * ADMIN-only page for managing service desks: the create-ticket form
- * (TicketForm) reads its dropdown from `GET /service-desks` but had no UI
- * anywhere to populate that list — an ADMIN previously had to call the API
- * directly. This page closes that gap: list existing desks and create new
- * ones, matching the API's ADMIN-only `POST /service-desks` guard
- * (service-desks.controller.ts) on the client side too so non-admins get an
- * immediate, clear message instead of a silent 403 from a hidden form.
+ * ADMIN-only page for managing departments (API resource: "service desk").
+ * The create-ticket form (TicketForm) reads its dropdown from
+ * `GET /service-desks` but had no UI anywhere to populate that list — an
+ * ADMIN previously had to call the API directly. This page closes that
+ * gap: list existing departments and a form to create new ones, matching
+ * the API's ADMIN-only `POST /service-desks` guard
+ * (service-desks.controller.ts) on the client side too so non-admins get
+ * an immediate, clear message instead of a silent 403 from a hidden form.
  */
 export function ServiceDesksPage() {
   const user = useAuthStore((state) => state.user);
@@ -64,10 +65,10 @@ export function ServiceDesksPage() {
   if (!isAdmin) {
     return (
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold">Service desks</h1>
+        <h1 className="text-2xl font-bold">Departments</h1>
         <p className="text-sm text-muted-foreground">
           You do not have permission to view this page. Only administrators
-          can manage service desks.
+          can manage departments.
         </p>
       </div>
     );
@@ -75,7 +76,7 @@ export function ServiceDesksPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Service desks</h1>
+      <h1 className="text-2xl font-bold">Departments</h1>
 
       <form
         onSubmit={handleSubmit((values) => mutation.mutate(values))}
@@ -106,7 +107,7 @@ export function ServiceDesksPage() {
       </form>
       {mutation.isError && (
         <p role="alert" className="text-sm text-red-600">
-          Failed to create service desk. Please try again.
+          Failed to create department. Please try again.
         </p>
       )}
 
@@ -121,7 +122,7 @@ export function ServiceDesksPage() {
           ))}
           {serviceDesks?.length === 0 && (
             <li className="px-4 py-3 text-sm text-muted-foreground">
-              No service desks yet.
+              No departments yet.
             </li>
           )}
         </ul>

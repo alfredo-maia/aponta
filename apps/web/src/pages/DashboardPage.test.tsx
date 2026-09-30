@@ -156,7 +156,7 @@ describe('DashboardPage', () => {
     await screen.findByText('Printer not working');
     await screen.findByRole('option', { name: 'Suporte N1' });
 
-    await user.selectOptions(screen.getByLabelText(/service desk/i), 'sd-1');
+    await user.selectOptions(screen.getByLabelText(/department/i), 'sd-1');
     await waitFor(() => {
       expect(api.get).toHaveBeenCalledWith('/tickets', {
         params: { serviceDeskId: 'sd-1' },
