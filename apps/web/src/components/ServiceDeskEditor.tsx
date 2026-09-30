@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 
 export function ServiceDeskEditor({ desk, agents }: { desk: any; agents: any[] }) {

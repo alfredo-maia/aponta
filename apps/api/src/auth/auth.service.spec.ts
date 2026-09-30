@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { Role } from '@prisma/client';
+import { SafeUser } from '../users/users.service';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -11,6 +12,7 @@ describe('AuthService', () => {
   let jwtService: { sign: jest.Mock };
 
   const mockUser = {
+    organizationId: null,
     id: 'user-1',
     name: 'Jane Doe',
     email: 'jane@example.com',
@@ -60,6 +62,7 @@ describe('AuthService', () => {
         name: mockUser.name,
         email: mockUser.email,
         role: mockUser.role,
+        organizationId: mockUser.organizationId,
         createdAt: mockUser.createdAt,
         updatedAt: mockUser.updatedAt,
       });
@@ -94,11 +97,12 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('should return JWT token on login', async () => {
-      const validatedUser = {
+      const validatedUser: SafeUser = {
         id: mockUser.id,
         name: mockUser.name,
         email: mockUser.email,
         role: mockUser.role,
+        organizationId: mockUser.organizationId,
         createdAt: mockUser.createdAt,
         updatedAt: mockUser.updatedAt,
       };
