@@ -56,4 +56,44 @@ test.describe('authentication', () => {
     );
     await expect(page).toHaveURL('/login');
   });
+
+  test('a user can change their password and log in with the new one', async ({
+    page,
+  }) => {
+    const uniqueEmail = `e2e-change-password-${Date.now()}@aponta.com`;
+
+    // Register a fresh user (auto-logs in) rather than reusing the seeded
+    // agent, so this spec never collides with a password already changed
+    // by a previous run.
+    await page.goto('/register');
+    await page.fill('[name="name"]', 'E2E Change Password User');
+    await page.fill('[name="email"]', uniqueEmail);
+    await page.fill('[name="password"]', 'OldPassword123!');
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL('/', { timeout: 10_000 });
+
+    await page.goto('/my-account');
+    await page.fill('#currentPassword', 'OldPassword123!');
+    await page.fill('#newPassword', 'NewPassword456!');
+    await page.click('button[type="submit"]');
+
+    await expect(page.getByText('Senha atualizada com sucesso!')).toBeVisible();
+
+    // Log out, then prove the old password no longer works and the new
+    // one does — the only real proof the API actually persisted the hash.
+    await page.getByRole('button', { name: 'Sair' }).click();
+    await expect(page).toHaveURL('/login');
+
+    await page.fill('[name="email"]', uniqueEmail);
+    await page.fill('[name="password"]', 'OldPassword123!');
+    await page.click('button[type="submit"]');
+    await expect(page.getByRole('alert')).toHaveText(
+      'E-mail ou senha inválidos.',
+    );
+
+    await page.fill('[name="email"]', uniqueEmail);
+    await page.fill('[name="password"]', 'NewPassword456!');
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL('/');
+  });
 });

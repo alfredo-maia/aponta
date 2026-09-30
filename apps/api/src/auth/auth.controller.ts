@@ -3,7 +3,9 @@ import { Role } from '@prisma/client';
 import { AuthService } from './auth.service';
 import { UsersService, SafeUser } from '../users/users.service';
 import { RegisterDto } from '../users/dto/register.dto';
+import { ChangePasswordDto } from '../users/dto/change-password.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 interface AuthenticatedRequest {
   user: SafeUser;
@@ -35,5 +37,19 @@ export class AuthController {
       ...registerDto,
       role: DEFAULT_REGISTRATION_ROLE,
     });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('change-password')
+  async changePassword(
+    @Request() req: AuthenticatedRequest,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    await this.usersService.changePassword(
+      req.user.id,
+      changePasswordDto.currentPassword,
+      changePasswordDto.newPassword,
+    );
+    return { message: 'Password updated successfully' };
   }
 }

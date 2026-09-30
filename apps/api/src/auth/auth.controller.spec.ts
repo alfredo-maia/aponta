@@ -6,7 +6,11 @@ import { UsersService } from '../users/users.service';
 describe('AuthController', () => {
   let controller: AuthController;
   let authService: { login: jest.Mock };
-  let usersService: { create: jest.Mock; findByEmail: jest.Mock };
+  let usersService: {
+    create: jest.Mock;
+    findByEmail: jest.Mock;
+    changePassword: jest.Mock;
+  };
 
   const mockSafeUser = {
     id: 'user-1',
@@ -22,6 +26,7 @@ describe('AuthController', () => {
     usersService = {
       create: jest.fn().mockResolvedValue(mockSafeUser),
       findByEmail: jest.fn(),
+      changePassword: jest.fn().mockResolvedValue(undefined),
     };
 
     const moduleRef = await Test.createTestingModule({
@@ -84,6 +89,22 @@ describe('AuthController', () => {
       expect(usersService.create).not.toHaveBeenCalledWith(
         expect.objectContaining({ role: 'ADMIN' }),
       );
+    });
+  });
+
+  describe('changePassword', () => {
+    it('calls usersService.changePassword with the authenticated user id', async () => {
+      const req = { user: mockSafeUser };
+      const dto = { currentPassword: 'old-pass', newPassword: 'new-pass-123' };
+
+      const result = await controller.changePassword(req as never, dto);
+
+      expect(usersService.changePassword).toHaveBeenCalledWith(
+        mockSafeUser.id,
+        dto.currentPassword,
+        dto.newPassword,
+      );
+      expect(result).toEqual({ message: 'Password updated successfully' });
     });
   });
 });

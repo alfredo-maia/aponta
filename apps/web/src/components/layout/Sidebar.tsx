@@ -4,6 +4,7 @@ import { useAuthStore } from '../../stores/authStore';
 const navItems = [
   { to: '/', label: 'Painel' },
   { to: '/tickets/new', label: 'Novo Chamado' },
+  { to: '/my-account', label: 'Minha Conta' },
 ];
 
 export function Sidebar() {

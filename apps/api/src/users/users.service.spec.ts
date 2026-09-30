@@ -1,5 +1,6 @@
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import * as bcrypt from 'bcryptjs';
 import { Prisma, Role } from '@prisma/client';
 import { UsersService } from './users.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -10,6 +11,7 @@ describe('UsersService', () => {
     user: {
       findUnique: jest.Mock;
       create: jest.Mock;
+      update: jest.Mock;
     };
   };
 
@@ -18,6 +20,7 @@ describe('UsersService', () => {
       user: {
         findUnique: jest.fn(),
         create: jest.fn(),
+        update: jest.fn(),
       },
     };
 
@@ -87,6 +90,67 @@ describe('UsersService', () => {
 
       expect(result).not.toHaveProperty('password');
       expect(result.email).toBe(dto.email);
+    });
+  });
+
+  describe('changePassword', () => {
+    const existingUser = {
+      id: 'user-1',
+      name: 'Jane Doe',
+      email: 'jane@example.com',
+      password: '',
+      role: Role.ADMIN,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    it('throws UnauthorizedException when the current password is wrong', async () => {
+      existingUser.password = await bcrypt.hash('correct-current-password', 10);
+      prisma.user.findUnique.mockResolvedValue(existingUser);
+
+      await expect(
+        service.changePassword(
+          existingUser.id,
+          'wrong-current-password',
+          'brand-new-password',
+        ),
+      ).rejects.toBeInstanceOf(UnauthorizedException);
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+
+    it('throws UnauthorizedException when the user does not exist', async () => {
+      prisma.user.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.changePassword('missing-user', 'whatever', 'brand-new-password'),
+      ).rejects.toBeInstanceOf(UnauthorizedException);
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+
+    it('hashes and persists the new password when the current password is correct', async () => {
+      existingUser.password = await bcrypt.hash('correct-current-password', 10);
+      prisma.user.findUnique.mockResolvedValue(existingUser);
+      prisma.user.update.mockResolvedValue({
+        ...existingUser,
+        password: 'new-hashed-password',
+      });
+
+      await service.changePassword(
+        existingUser.id,
+        'correct-current-password',
+        'brand-new-password',
+      );
+
+      expect(prisma.user.update).toHaveBeenCalledTimes(1);
+      const updateArgs = prisma.user.update.mock.calls[0][0];
+      expect(updateArgs.where).toEqual({ id: existingUser.id });
+      // The new password must be hashed, never stored in plain text.
+      expect(updateArgs.data.password).not.toBe('brand-new-password');
+      const isNewPasswordHashCorrect = await bcrypt.compare(
+        'brand-new-password',
+        updateArgs.data.password,
+      );
+      expect(isNewPasswordHashCorrect).toBe(true);
     });
   });
 });
