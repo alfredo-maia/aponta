@@ -15,6 +15,7 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
+          port: 2000
           # Não usa porta padronizada, assume 22 a não ser que exista overrides.
           script: |
             set -e
