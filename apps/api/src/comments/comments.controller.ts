@@ -7,9 +7,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { Role } from '@prisma/client';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 interface AuthenticatedRequest {
@@ -18,13 +21,11 @@ interface AuthenticatedRequest {
 
 /**
  * Comment timeline endpoints, nested under the ticket resource.
- * No RolesGuard here by design: all roles may create/read comments, and the
- * role-dependent rules (CLIENT ownership, isInternal write/read control) are
- * enforced inside CommentsService where they can be unit-tested directly —
- * the same split TicketsController/TicketsService uses for findOne.
+ * Currently restricted to AGENT and ADMIN roles per business requirements.
  */
 @Controller('tickets')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.AGENT, Role.ADMIN)
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
