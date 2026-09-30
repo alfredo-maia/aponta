@@ -18,7 +18,11 @@ export function Sidebar() {
     ];
     
     if (user?.role === 'ADMIN') {
-      return [...base, { to: '/service-desks', label: 'Departamentos' }];
+      return [
+        ...base, 
+        { to: '/service-desks', label: 'Departamentos' },
+        { to: '/organizations', label: 'Empresas' }
+      ];
     }
     
     return base;
