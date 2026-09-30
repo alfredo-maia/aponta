@@ -4,10 +4,12 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
+import { ServiceDeskEditor } from '../components/ServiceDeskEditor';
 
 interface ServiceDesk {
   id: string;
   name: string;
+  agents?: { id: string; name: string }[];
   createdAt: string;
 }
 
@@ -36,6 +38,15 @@ export function ServiceDesksPage() {
     queryKey: ['service-desks'],
     queryFn: async () => {
       const { data } = await api.get<ServiceDesk[]>('/service-desks');
+      return data;
+    },
+    enabled: isAdmin,
+  });
+
+  const { data: agents } = useQuery({
+    queryKey: ['agents'],
+    queryFn: async () => {
+      const { data } = await api.get<{ id: string; name: string; email: string }[]>('/users/agents');
       return data;
     },
     enabled: isAdmin,
@@ -116,8 +127,9 @@ export function ServiceDesksPage() {
       ) : (
         <ul className="max-w-lg divide-y rounded-lg border">
           {(serviceDesks ?? []).map((desk) => (
-            <li key={desk.id} className="px-4 py-3 text-sm">
-              {desk.name}
+            <li key={desk.id} className="px-4 py-3">
+              <div className="text-sm font-medium">{desk.name}</div>
+              <ServiceDeskEditor desk={desk} agents={agents ?? []} />
             </li>
           ))}
           {serviceDesks?.length === 0 && (
