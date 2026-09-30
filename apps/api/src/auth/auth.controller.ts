@@ -1,9 +1,10 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Request, UseGuards } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { AuthService } from './auth.service';
 import { UsersService, SafeUser } from '../users/users.service';
 import { RegisterDto } from '../users/dto/register.dto';
 import { ChangePasswordDto } from '../users/dto/change-password.dto';
+import { UpdateProfileDto } from '../users/dto/update-profile.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
@@ -51,5 +52,21 @@ export class AuthController {
       changePasswordDto.newPassword,
     );
     return { message: 'Password updated successfully' };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getProfile(@Request() req: AuthenticatedRequest) {
+    const user = await this.usersService.findById(req.user.id);
+    return user ? this.usersService.toSafeUser(user) : null;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('me')
+  async updateProfile(
+    @Request() req: AuthenticatedRequest,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    return this.usersService.updateProfile(req.user.id, updateProfileDto);
   }
 }

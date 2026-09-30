@@ -88,4 +88,25 @@ export class UsersService {
       data: { password: hashedNewPassword },
     });
   }
+
+  async updateProfile(
+    userId: string,
+    data: { name: string; email: string },
+  ): Promise<SafeUser> {
+    try {
+      const user = await this.prisma.user.update({
+        where: { id: userId },
+        data: { name: data.name, email: data.email },
+      });
+      return this.toSafeUser(user);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === UNIQUE_CONSTRAINT_VIOLATION
+      ) {
+        throw new ConflictException('Email already in use');
+      }
+      throw error;
+    }
+  }
 }

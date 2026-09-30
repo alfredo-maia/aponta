@@ -153,4 +153,53 @@ describe('UsersService', () => {
       expect(isNewPasswordHashCorrect).toBe(true);
     });
   });
+
+  describe('updateProfile', () => {
+    const existingUser = {
+      id: 'user-1',
+      name: 'Jane Doe',
+      email: 'jane@example.com',
+      password: 'hashed',
+      role: Role.ADMIN,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    it('updates name and email and returns the safe user', async () => {
+      prisma.user.findUnique.mockResolvedValue(existingUser);
+      prisma.user.update.mockResolvedValue({
+        ...existingUser,
+        name: 'Jane Updated',
+        email: 'jane.updated@example.com',
+      });
+
+      const result = await service.updateProfile('user-1', {
+        name: 'Jane Updated',
+        email: 'jane.updated@example.com',
+      });
+
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id: 'user-1' },
+        data: { name: 'Jane Updated', email: 'jane.updated@example.com' },
+      });
+      expect(result).not.toHaveProperty('password');
+      expect(result.email).toBe('jane.updated@example.com');
+    });
+
+    it('throws ConflictException when the new email is already in use by another user', async () => {
+      prisma.user.findUnique.mockResolvedValue(existingUser);
+      const prismaError = new Prisma.PrismaClientKnownRequestError(
+        'Unique constraint failed on the fields: (`email`)',
+        { code: 'P2002', clientVersion: '7.8.0' },
+      );
+      prisma.user.update.mockRejectedValue(prismaError);
+
+      await expect(
+        service.updateProfile('user-1', {
+          name: 'Jane Doe',
+          email: 'taken@example.com',
+        }),
+      ).rejects.toBeInstanceOf(ConflictException);
+    });
+  });
 });

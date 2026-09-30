@@ -73,6 +73,7 @@ test.describe('authentication', () => {
     await expect(page).toHaveURL('/', { timeout: 10_000 });
 
     await page.goto('/my-account');
+    await page.getByRole('tab', { name: 'Segurança' }).click();
     await page.fill('#currentPassword', 'OldPassword123!');
     await page.fill('#newPassword', 'NewPassword456!');
     await page.click('button[type="submit"]');
@@ -96,6 +97,48 @@ test.describe('authentication', () => {
 
     await page.fill('[name="email"]', uniqueEmail);
     await page.fill('[name="password"]', 'NewPassword456!');
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL('/');
+  });
+
+  test('a user can update their name and email from Minha Conta', async ({
+    page,
+  }) => {
+    const uniqueEmail = `e2e-update-profile-${Date.now()}@aponta.com`;
+    const updatedEmail = `e2e-update-profile-${Date.now()}-updated@aponta.com`;
+
+    await page.goto('/register');
+    await page.fill('[name="name"]', 'E2E Update Profile User');
+    await page.fill('[name="email"]', uniqueEmail);
+    await page.fill('[name="password"]', 'Password123!');
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL('/', { timeout: 10_000 });
+
+    await page.goto('/my-account');
+    // Minha Conta is the default tab — profile fields are visible right away.
+    await page.fill('#name', 'Nome Atualizado');
+    await page.fill('#email', updatedEmail);
+    await page.click('button[type="submit"]');
+
+    await expect(page.getByText('Dados atualizados com sucesso!')).toBeVisible();
+
+    // Log out and log back in with the NEW email to prove the API actually
+    // persisted it (old email should no longer work). The top-right menu
+    // still shows the OLD email because the JWT wasn't refreshed by the
+    // profile update — that's expected until the user logs in again.
+    await page.getByText(uniqueEmail).click();
+    await page.getByRole('button', { name: 'Sair' }).click();
+    await expect(page).toHaveURL('/login');
+
+    await page.fill('[name="email"]', uniqueEmail);
+    await page.fill('[name="password"]', 'Password123!');
+    await page.click('button[type="submit"]');
+    await expect(page.getByRole('alert')).toHaveText(
+      'E-mail ou senha inválidos.',
+    );
+
+    await page.fill('[name="email"]', updatedEmail);
+    await page.fill('[name="password"]', 'Password123!');
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL('/');
   });

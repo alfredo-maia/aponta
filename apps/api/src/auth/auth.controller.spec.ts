@@ -10,6 +10,9 @@ describe('AuthController', () => {
     create: jest.Mock;
     findByEmail: jest.Mock;
     changePassword: jest.Mock;
+    updateProfile: jest.Mock;
+    findById: jest.Mock;
+    toSafeUser: jest.Mock;
   };
 
   const mockSafeUser = {
@@ -27,6 +30,9 @@ describe('AuthController', () => {
       create: jest.fn().mockResolvedValue(mockSafeUser),
       findByEmail: jest.fn(),
       changePassword: jest.fn().mockResolvedValue(undefined),
+      updateProfile: jest.fn().mockResolvedValue(mockSafeUser),
+      findById: jest.fn().mockResolvedValue(mockSafeUser),
+      toSafeUser: jest.fn().mockReturnValue(mockSafeUser),
     };
 
     const moduleRef = await Test.createTestingModule({
@@ -105,6 +111,35 @@ describe('AuthController', () => {
         dto.newPassword,
       );
       expect(result).toEqual({ message: 'Password updated successfully' });
+    });
+  });
+
+  describe('getProfile', () => {
+    it('returns the full safe user record for the authenticated user id', async () => {
+      usersService.findById = jest.fn().mockResolvedValue(mockSafeUser);
+      const req = { user: mockSafeUser };
+
+      const result = await controller.getProfile(req as never);
+
+      expect(usersService.findById).toHaveBeenCalledWith(mockSafeUser.id);
+      expect(result).toEqual(mockSafeUser);
+    });
+  });
+
+  describe('updateProfile', () => {
+    it('calls usersService.updateProfile with the authenticated user id and returns the updated user', async () => {
+      const req = { user: mockSafeUser };
+      const dto = { name: 'Jane Updated', email: 'jane.updated@example.com' };
+      const updatedUser = { ...mockSafeUser, ...dto };
+      usersService.updateProfile.mockResolvedValue(updatedUser);
+
+      const result = await controller.updateProfile(req as never, dto);
+
+      expect(usersService.updateProfile).toHaveBeenCalledWith(
+        mockSafeUser.id,
+        dto,
+      );
+      expect(result).toEqual(updatedUser);
     });
   });
 });
