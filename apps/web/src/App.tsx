@@ -5,6 +5,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { DashboardPage } from './pages/DashboardPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { TicketDetailPage } from './pages/TicketDetailPage';
 
 /**
  * App-wide Tanstack Query client. The provider lives here (rather than in
@@ -25,6 +26,7 @@ export function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route path="/" element={<DashboardPage />} />
+              <Route path="/tickets/:id" element={<TicketDetailPage />} />
             </Route>
           </Route>
         </Routes>

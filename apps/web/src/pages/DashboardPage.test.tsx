@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../lib/api';
 import { DashboardPage } from './DashboardPage';
@@ -67,7 +68,11 @@ function renderDashboard() {
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <DashboardPage />
+      {/* TicketCard links to the ticket detail route, so a router context is
+          required even though these tests never navigate. */}
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 }
