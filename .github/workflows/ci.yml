@@ -14,6 +14,13 @@ jobs:
   lint-typecheck-unit:
     name: Lint, typecheck, unit tests
     runs-on: ubuntu-latest
+    env:
+      # prisma.config.ts requires DATABASE_URL to be resolvable even for
+      # `prisma generate` (no real connection is made — generate only
+      # reads the schema). This job never talks to a real database, so a
+      # syntactically valid placeholder is enough.
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/aponta?schema=public
+      JWT_SECRET: ci-test-secret-do-not-use-in-production
     steps:
       - uses: actions/checkout@v4
         with:
