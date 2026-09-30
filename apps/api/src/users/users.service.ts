@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
-import { Prisma } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import type { User } from '@prisma/client';
@@ -108,6 +108,23 @@ export class UsersService {
       }
       throw error;
     }
+  }
+
+  async findAll(): Promise<SafeUser[]> {
+    const users = await this.prisma.user.findMany({
+      orderBy: { name: 'asc' },
+      include: { organization: true },
+    });
+    return users.map((user) => this.toSafeUser(user));
+  }
+
+  async updateAdminFields(id: string, data: { role?: Role; organizationId?: string | null }) {
+    const user = await this.prisma.user.update({
+      where: { id },
+      data,
+      include: { organization: true },
+    });
+    return this.toSafeUser(user);
   }
 
   async findAgents(): Promise<SafeUser[]> {
