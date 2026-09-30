@@ -271,7 +271,11 @@ describe('TicketsService', () => {
       );
 
       expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
-        where: { serviceDeskId: 'desk-1', status: TicketStatus.OPEN },
+        where: { 
+          serviceDeskId: 'desk-1', 
+          status: TicketStatus.OPEN,
+          serviceDesk: { agents: { some: { id: 'agent-1' } } } 
+        },
       });
     });
 
@@ -301,7 +305,11 @@ describe('TicketsService', () => {
 
   describe('findOne', () => {
     it('returns the ticket for AGENT regardless of requester', async () => {
-      const ticket = { id: 't1', requesterId: 'someone-else' };
+      const ticket = { 
+        id: 't1', 
+        requesterId: 'someone-else',
+        serviceDesk: { agents: [{ id: 'agent-1' }] }
+      };
       mockPrismaService.ticket.findUnique.mockResolvedValue(ticket);
 
       const result = await service.findOne('t1', {
@@ -309,7 +317,9 @@ describe('TicketsService', () => {
         role: Role.AGENT,
       });
 
-      expect(result).toEqual(ticket);
+      // The service deletes relations before returning
+      const expected = { id: 't1', requesterId: 'someone-else' };
+      expect(result).toEqual(expected);
     });
 
     it('returns the ticket for CLIENT when they are the requester', async () => {

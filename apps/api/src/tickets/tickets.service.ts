@@ -257,9 +257,21 @@ export class TicketsService {
     if (query.status) {
       where.status = query.status;
     }
+
     if (currentUser.role === Role.CLIENT) {
       where.requesterId = currentUser.id;
+    } else if (currentUser.role === Role.CLIENT_MASTER) {
+      // Sees all tickets requested by users in the same organization, OR their own if no org
+      if (currentUser.organizationId) {
+        where.requester = { organizationId: currentUser.organizationId };
+      } else {
+        where.requesterId = currentUser.id;
+      }
+    } else if (currentUser.role === Role.AGENT || currentUser.role === Role.AGENT_MASTER) {
+      // Agents only see tickets belonging to ServiceDesks they are assigned to
+      where.serviceDesk = { agents: { some: { id: currentUser.id } } };
     }
+    // ADMIN has no restrictions, sees everything
 
     return this.prisma.ticket.findMany({ where });
   }
@@ -268,18 +280,40 @@ export class TicketsService {
     id: string,
     currentUser: CurrentUserPayload,
   ): Promise<Ticket> {
-    const ticket = await this.prisma.ticket.findUnique({ where: { id } });
+    const ticket = await this.prisma.ticket.findUnique({ 
+      where: { id },
+      include: {
+        requester: { select: { organizationId: true } },
+        serviceDesk: { select: { agents: { where: { id: currentUser.id }, select: { id: true } } } }
+      }
+    });
+
     if (!ticket) {
       throw new NotFoundException(`Ticket with ID ${id} not found`);
     }
-    if (
-      currentUser.role === Role.CLIENT &&
-      ticket.requesterId !== currentUser.id
-    ) {
-      // Deliberately NotFoundException (not Forbidden): do not leak the
-      // existence of other users' tickets to a CLIENT.
+
+    let isAuthorized = false;
+
+    if (currentUser.role === Role.ADMIN) {
+      isAuthorized = true;
+    } else if (currentUser.role === Role.CLIENT) {
+      isAuthorized = ticket.requesterId === currentUser.id;
+    } else if (currentUser.role === Role.CLIENT_MASTER) {
+      isAuthorized = ticket.requesterId === currentUser.id || 
+                     (!!currentUser.organizationId && (ticket as Ticket & { requester?: any, serviceDesk?: any }).requester?.organizationId === currentUser.organizationId);
+    } else if (currentUser.role === Role.AGENT || currentUser.role === Role.AGENT_MASTER) {
+      // Authorized if the agent is assigned to this ticket's service desk
+      isAuthorized = (ticket as Ticket & { requester?: any, serviceDesk?: any }).serviceDesk?.agents?.length > 0;
+    }
+
+    if (!isAuthorized) {
       throw new NotFoundException(`Ticket with ID ${id} not found`);
     }
+
+    // strip out the included relations we used only for authorization
+    delete (ticket as Ticket & { requester?: any, serviceDesk?: any }).requester;
+    delete (ticket as Ticket & { requester?: any, serviceDesk?: any }).serviceDesk;
+
     return ticket;
   }
 

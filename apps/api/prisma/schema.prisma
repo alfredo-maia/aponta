@@ -8,7 +8,9 @@ datasource db {
 
 enum Role {
   ADMIN
+  AGENT_MASTER
   AGENT
+  CLIENT_MASTER
   CLIENT
 }
 
@@ -26,12 +28,24 @@ enum TicketPriority {
   CRITICAL
 }
 
-model User {
-  id        String    @id @default(uuid())
+model Organization {
+  id        String   @id @default(uuid())
   name      String
-  email     String    @unique
-  password  String
-  role      Role      @default(AGENT)
+  users     User[]
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id             String        @id @default(uuid())
+  name           String
+  email          String        @unique
+  password       String
+  role           Role          @default(AGENT)
+
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+
+  serviceDesks   ServiceDesk[] @relation("AgentServiceDesks")
 
   requestedTickets Ticket[]  @relation("RequesterTickets")
   assignedTickets  Ticket[]  @relation("AgentTickets")
@@ -45,6 +59,7 @@ model ServiceDesk {
   id        String   @id @default(uuid())
   name      String
   tickets   Ticket[]
+  agents    User[]   @relation("AgentServiceDesks")
   createdAt DateTime @default(now())
 }
 

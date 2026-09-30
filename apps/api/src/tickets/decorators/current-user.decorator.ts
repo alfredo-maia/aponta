@@ -14,6 +14,7 @@ export interface CurrentUserPayload {
   // are not forced to fabricate an email for every fixture user.
   email?: string;
   role: Role;
+  organizationId?: string | null;
 }
 
 export const CurrentUser = createParamDecorator(
