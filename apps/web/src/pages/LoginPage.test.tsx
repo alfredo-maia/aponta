@@ -28,10 +28,10 @@ describe('LoginPage', () => {
 
   it('should render login form', () => {
     renderLoginPage();
-    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/e-mail/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/senha/i)).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /sign in/i }),
+      screen.getByRole('button', { name: /entrar/i }),
     ).toBeInTheDocument();
   });
 
@@ -39,10 +39,10 @@ describe('LoginPage', () => {
     const user = userEvent.setup();
     renderLoginPage();
 
-    await user.click(screen.getByRole('button', { name: /sign in/i }));
+    await user.click(screen.getByRole('button', { name: /entrar/i }));
 
     expect(
-      await screen.findByText(/invalid email/i),
+      await screen.findByText(/e-mail inválido/i),
     ).toBeInTheDocument();
     expect(api.post).not.toHaveBeenCalled();
   });
@@ -55,9 +55,9 @@ describe('LoginPage', () => {
 
     renderLoginPage();
 
-    await user.type(screen.getByLabelText(/email/i), 'jane@example.com');
-    await user.type(screen.getByLabelText(/password/i), 'password123');
-    await user.click(screen.getByRole('button', { name: /sign in/i }));
+    await user.type(screen.getByLabelText(/e-mail/i), 'jane@example.com');
+    await user.type(screen.getByLabelText(/senha/i), 'password123');
+    await user.click(screen.getByRole('button', { name: /entrar/i }));
 
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith('/auth/login', {
@@ -80,12 +80,12 @@ describe('LoginPage', () => {
 
     renderLoginPage();
 
-    await user.type(screen.getByLabelText(/email/i), 'jane@example.com');
-    await user.type(screen.getByLabelText(/password/i), 'wrongpassword');
-    await user.click(screen.getByRole('button', { name: /sign in/i }));
+    await user.type(screen.getByLabelText(/e-mail/i), 'jane@example.com');
+    await user.type(screen.getByLabelText(/senha/i), 'wrongpassword');
+    await user.click(screen.getByRole('button', { name: /entrar/i }));
 
     expect(
-      await screen.findByText(/invalid email or password/i),
+      await screen.findByText(/e-mail ou senha inválidos/i),
     ).toBeInTheDocument();
   });
 });

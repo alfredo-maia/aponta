@@ -85,8 +85,8 @@ describe('CreateTicketPage', () => {
 
   it('should render ticket form', () => {
     renderPage();
-    expect(screen.getByLabelText(/title/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/description/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/título/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/descrição/i)).toBeInTheDocument();
   });
 
   it('should populate the service desk dropdown from the API', async () => {
@@ -106,15 +106,15 @@ describe('CreateTicketPage', () => {
 
     await screen.findByRole('option', { name: 'Suporte N1' });
 
-    await user.type(screen.getByLabelText(/title/i), 'New printer request');
+    await user.type(screen.getByLabelText(/título/i), 'New printer request');
     await user.type(
-      screen.getByLabelText(/description/i),
+      screen.getByLabelText(/descrição/i),
       'Need a new printer on floor 3.',
     );
-    await user.selectOptions(screen.getByLabelText(/department/i), 'sd-1');
-    await user.selectOptions(screen.getByLabelText(/priority/i), 'MEDIUM');
+    await user.selectOptions(screen.getByLabelText(/departamento/i), 'sd-1');
+    await user.selectOptions(screen.getByLabelText(/prioridade/i), 'MEDIUM');
 
-    await user.click(screen.getByRole('button', { name: /create ticket/i }));
+    await user.click(screen.getByRole('button', { name: /criar chamado/i }));
 
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith('/tickets', {
@@ -136,9 +136,9 @@ describe('CreateTicketPage', () => {
 
     await screen.findByRole('option', { name: 'Suporte N1' });
 
-    await user.click(screen.getByRole('button', { name: /create ticket/i }));
+    await user.click(screen.getByRole('button', { name: /criar chamado/i }));
 
-    expect(await screen.findByText(/title is required/i)).toBeInTheDocument();
+    expect(await screen.findByText(/título é obrigatório/i)).toBeInTheDocument();
     expect(api.post).not.toHaveBeenCalled();
     expect(navigateMock).not.toHaveBeenCalled();
   });

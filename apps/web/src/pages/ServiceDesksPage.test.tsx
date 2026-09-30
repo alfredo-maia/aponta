@@ -81,8 +81,8 @@ describe('ServiceDesksPage', () => {
     renderPage();
     await screen.findByText('Suporte N1');
 
-    await user.type(screen.getByLabelText(/name/i), 'Financeiro');
-    await user.click(screen.getByRole('button', { name: /create/i }));
+    await user.type(screen.getByLabelText(/nome/i), 'Financeiro');
+    await user.click(screen.getByRole('button', { name: /criar/i }));
 
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith('/service-desks', {
@@ -97,9 +97,9 @@ describe('ServiceDesksPage', () => {
     renderPage();
     await screen.findByText('Suporte N1');
 
-    await user.click(screen.getByRole('button', { name: /create/i }));
+    await user.click(screen.getByRole('button', { name: /criar/i }));
 
-    expect(await screen.findByText(/name is required/i)).toBeInTheDocument();
+    expect(await screen.findByText(/nome é obrigatório/i)).toBeInTheDocument();
     expect(api.post).not.toHaveBeenCalled();
   });
 
@@ -108,7 +108,7 @@ describe('ServiceDesksPage', () => {
     renderPage();
 
     expect(
-      screen.getByText(/do not have permission/i),
+      screen.getByText(/não tem permissão/i),
     ).toBeInTheDocument();
     expect(api.get).not.toHaveBeenCalled();
   });

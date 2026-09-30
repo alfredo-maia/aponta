@@ -48,22 +48,22 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
       <dl className="grid gap-4 text-sm sm:grid-cols-2">
         <div className="space-y-1">
           <dt className="font-medium text-muted-foreground">
-            Response deadline
+            Prazo de resposta
           </dt>
           <dd>
             {ticket.responseDeadline
               ? formatDeadline(ticket.responseDeadline)
-              : 'Not set'}
+              : 'Não definido'}
           </dd>
         </div>
         <div className="space-y-1">
           <dt className="font-medium text-muted-foreground">
-            Resolve deadline
+            Prazo de resolução
           </dt>
           <dd>
             {ticket.resolveDeadline
               ? formatDeadline(ticket.resolveDeadline)
-              : 'Not set'}
+              : 'Não definido'}
           </dd>
         </div>
       </dl>

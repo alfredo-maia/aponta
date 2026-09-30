@@ -25,7 +25,7 @@ test.describe('authentication', () => {
     // auto-login) before navigating, so give this a bit more headroom than
     // the default 5s assertion timeout.
     await expect(page).toHaveURL('/', { timeout: 10_000 });
-    await expect(page.getByRole('heading', { name: 'Tickets' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Chamados' })).toBeVisible();
   });
 
   test('the seeded agent can login and see the dashboard', async ({
@@ -37,7 +37,7 @@ test.describe('authentication', () => {
     await page.click('button[type="submit"]');
 
     await expect(page).toHaveURL('/');
-    await expect(page.getByRole('heading', { name: 'Tickets' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Chamados' })).toBeVisible();
     // Sidebar shows the signed-in user's email, sourced from the real JWT
     // returned by POST /api/auth/login and decoded client-side.
     await expect(page.getByText('agent@aponta.com')).toBeVisible();
@@ -52,7 +52,7 @@ test.describe('authentication', () => {
     await page.click('button[type="submit"]');
 
     await expect(page.getByRole('alert')).toHaveText(
-      'Invalid email or password.',
+      'E-mail ou senha inválidos.',
     );
     await expect(page).toHaveURL('/login');
   });

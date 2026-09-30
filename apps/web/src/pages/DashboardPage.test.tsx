@@ -87,7 +87,7 @@ describe('DashboardPage', () => {
     renderDashboard();
 
     expect(
-      screen.getByRole('heading', { name: /tickets/i }),
+      screen.getByRole('heading', { name: /chamados/i }),
     ).toBeInTheDocument();
     expect(await screen.findByText('Printer not working')).toBeInTheDocument();
   });
@@ -103,14 +103,14 @@ describe('DashboardPage', () => {
     });
     renderDashboard();
 
-    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+    expect(screen.getByText(/carregando/i)).toBeInTheDocument();
   });
 
   it('should show empty state when no tickets', async () => {
     mockApiGet([]);
     renderDashboard();
 
-    expect(await screen.findByText(/no tickets found/i)).toBeInTheDocument();
+    expect(await screen.findByText(/nenhum chamado encontrado/i)).toBeInTheDocument();
   });
 
   it('should render a card per ticket with protocol, status and priority badges', async () => {
@@ -122,16 +122,16 @@ describe('DashboardPage', () => {
     expect(firstCard).not.toBeNull();
     const first = within(firstCard as HTMLElement);
     expect(first.getByText('AP-000001')).toBeInTheDocument();
-    expect(first.getByText('Open')).toBeInTheDocument();
-    expect(first.getByText('High')).toBeInTheDocument();
+    expect(first.getByText('Aberto')).toBeInTheDocument();
+    expect(first.getByText('Alta')).toBeInTheDocument();
 
     const secondTitle = screen.getByText('VPN access request');
     const secondCard = secondTitle.closest('li');
     expect(secondCard).not.toBeNull();
     const second = within(secondCard as HTMLElement);
     expect(second.getByText('AP-000002')).toBeInTheDocument();
-    expect(second.getByText('In Progress')).toBeInTheDocument();
-    expect(second.getByText('Medium')).toBeInTheDocument();
+    expect(second.getByText('Em Andamento')).toBeInTheDocument();
+    expect(second.getByText('Média')).toBeInTheDocument();
   });
 
   it('should show an error state when the tickets request fails', async () => {
@@ -144,7 +144,7 @@ describe('DashboardPage', () => {
     renderDashboard();
 
     expect(
-      await screen.findByText(/failed to load tickets/i),
+      await screen.findByText(/falha ao carregar os chamados/i),
     ).toBeInTheDocument();
   });
 
@@ -156,7 +156,7 @@ describe('DashboardPage', () => {
     await screen.findByText('Printer not working');
     await screen.findByRole('option', { name: 'Suporte N1' });
 
-    await user.selectOptions(screen.getByLabelText(/department/i), 'sd-1');
+    await user.selectOptions(screen.getByLabelText(/departamento/i), 'sd-1');
     await waitFor(() => {
       expect(api.get).toHaveBeenCalledWith('/tickets', {
         params: { serviceDeskId: 'sd-1' },

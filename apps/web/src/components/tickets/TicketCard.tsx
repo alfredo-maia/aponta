@@ -2,17 +2,17 @@ import { Link } from 'react-router-dom';
 import type { Ticket, TicketPriority, TicketStatus } from '../../hooks/useTickets';
 
 export const statusLabels: Record<TicketStatus, string> = {
-  OPEN: 'Open',
-  IN_PROGRESS: 'In Progress',
-  RESOLVED: 'Resolved',
-  CLOSED: 'Closed',
+  OPEN: 'Aberto',
+  IN_PROGRESS: 'Em Andamento',
+  RESOLVED: 'Resolvido',
+  CLOSED: 'Fechado',
 };
 
 export const priorityLabels: Record<TicketPriority, string> = {
-  LOW: 'Low',
-  MEDIUM: 'Medium',
-  HIGH: 'High',
-  CRITICAL: 'Critical',
+  LOW: 'Baixa',
+  MEDIUM: 'Média',
+  HIGH: 'Alta',
+  CRITICAL: 'Crítica',
 };
 
 export const statusBadgeClasses: Record<TicketStatus, string> = {

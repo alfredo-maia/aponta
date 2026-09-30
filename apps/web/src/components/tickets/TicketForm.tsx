@@ -23,9 +23,9 @@ const priorities = Object.keys(priorityLabels) as TicketPriority[];
  * are server-assigned.
  */
 export const ticketFormSchema = z.object({
-  title: z.string().trim().min(1, 'Title is required'),
-  description: z.string().trim().min(1, 'Description is required'),
-  serviceDeskId: z.string().min(1, 'Department is required'),
+  title: z.string().trim().min(1, 'Título é obrigatório'),
+  description: z.string().trim().min(1, 'Descrição é obrigatória'),
+  serviceDeskId: z.string().min(1, 'Departamento é obrigatório'),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
 });
 
@@ -77,7 +77,7 @@ export function TicketForm({
     >
       <div className="space-y-1">
         <label htmlFor="ticket-title" className="block text-sm font-medium">
-          Title
+          Título
         </label>
         <input
           id="ticket-title"
@@ -95,7 +95,7 @@ export function TicketForm({
           htmlFor="ticket-description"
           className="block text-sm font-medium"
         >
-          Description
+          Descrição
         </label>
         <textarea
           id="ticket-description"
@@ -115,14 +115,14 @@ export function TicketForm({
           htmlFor="ticket-service-desk"
           className="block text-sm font-medium"
         >
-          Department
+          Departamento
         </label>
         <select
           id="ticket-service-desk"
           className="w-full rounded border bg-background px-3 py-2"
           {...register('serviceDeskId')}
         >
-          <option value="">Select a department</option>
+          <option value="">Selecione um departamento</option>
           {(serviceDesks ?? []).map((desk) => (
             <option key={desk.id} value={desk.id}>
               {desk.name}
@@ -138,7 +138,7 @@ export function TicketForm({
 
       <div className="space-y-1">
         <label htmlFor="ticket-priority" className="block text-sm font-medium">
-          Priority
+          Prioridade
         </label>
         <select
           id="ticket-priority"
@@ -167,7 +167,7 @@ export function TicketForm({
         disabled={isSubmitting}
         className="rounded bg-primary px-4 py-2 text-primary-foreground disabled:opacity-50"
       >
-        Create ticket
+        Criar chamado
       </button>
     </form>
   );

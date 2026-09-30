@@ -21,10 +21,10 @@ function renderRegisterPage() {
 }
 
 async function fillAndSubmit(user: ReturnType<typeof userEvent.setup>) {
-  await user.type(screen.getByLabelText(/name/i), 'Jane Doe');
-  await user.type(screen.getByLabelText(/email/i), 'jane@example.com');
-  await user.type(screen.getByLabelText(/password/i), 'password123');
-  await user.click(screen.getByRole('button', { name: /create account/i }));
+  await user.type(screen.getByLabelText(/nome/i), 'Jane Doe');
+  await user.type(screen.getByLabelText(/e-mail/i), 'jane@example.com');
+  await user.type(screen.getByLabelText(/senha/i), 'password123');
+  await user.click(screen.getByRole('button', { name: /criar conta/i }));
 }
 
 describe('RegisterPage', () => {
@@ -35,11 +35,11 @@ describe('RegisterPage', () => {
 
   it('should render register form', () => {
     renderRegisterPage();
-    expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/nome/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/e-mail/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/senha/i)).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /create account/i }),
+      screen.getByRole('button', { name: /criar conta/i }),
     ).toBeInTheDocument();
   });
 
@@ -89,7 +89,7 @@ describe('RegisterPage', () => {
     await fillAndSubmit(user);
 
     expect(
-      await screen.findByText(/account with this email already exists/i),
+      await screen.findByText(/já existe uma conta com este e-mail/i),
     ).toBeInTheDocument();
     // Only the register call should have been attempted; login must not
     // have been called since registration itself failed.
@@ -131,17 +131,17 @@ describe('RegisterPage', () => {
     // Must NOT show the generic/ambiguous error that implies registration
     // itself failed.
     expect(
-      screen.queryByText(/something went wrong\. please try again\./i),
+      screen.queryByText(/algo deu errado\. tente novamente\./i),
     ).not.toBeInTheDocument();
 
     // Must show a message that makes clear the account WAS created.
     expect(
-      await screen.findByText(/account (was )?created/i),
+      await screen.findByText(/conta criada/i),
     ).toBeInTheDocument();
 
     // Must provide a path to /login (either a visible link, or the page
     // navigated there automatically).
-    const loginLink = screen.queryByRole('link', { name: /sign in|log in/i });
+    const loginLink = screen.queryByRole('link', { name: /entre com sua conta/i });
     expect(loginLink).toBeInTheDocument();
 
     // The user should never have been logged in with a token.

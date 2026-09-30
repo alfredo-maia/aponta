@@ -2,8 +2,8 @@ import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 
 const navItems = [
-  { to: '/', label: 'Dashboard' },
-  { to: '/tickets/new', label: 'New Ticket' },
+  { to: '/', label: 'Painel' },
+  { to: '/tickets/new', label: 'Novo Chamado' },
 ];
 
 export function Sidebar() {
@@ -12,7 +12,7 @@ export function Sidebar() {
 
   const items =
     user?.role === 'ADMIN'
-      ? [...navItems, { to: '/service-desks', label: 'Departments' }]
+      ? [...navItems, { to: '/service-desks', label: 'Departamentos' }]
       : navItems;
 
   return (
@@ -46,7 +46,7 @@ export function Sidebar() {
           onClick={logout}
           className="w-full rounded border px-3 py-2 text-left hover:bg-muted"
         >
-          Sign out
+          Sair
         </button>
       </div>
     </aside>

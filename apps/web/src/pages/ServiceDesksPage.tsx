@@ -12,7 +12,7 @@ interface ServiceDesk {
 }
 
 const serviceDeskFormSchema = z.object({
-  name: z.string().trim().min(1, 'Name is required'),
+  name: z.string().trim().min(1, 'Nome é obrigatório'),
 });
 
 type ServiceDeskFormValues = z.infer<typeof serviceDeskFormSchema>;
@@ -65,10 +65,10 @@ export function ServiceDesksPage() {
   if (!isAdmin) {
     return (
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold">Departments</h1>
+        <h1 className="text-2xl font-bold">Departamentos</h1>
         <p className="text-sm text-muted-foreground">
-          You do not have permission to view this page. Only administrators
-          can manage departments.
+          Você não tem permissão para ver esta página. Somente
+          administradores podem gerenciar departamentos.
         </p>
       </div>
     );
@@ -76,7 +76,7 @@ export function ServiceDesksPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Departments</h1>
+      <h1 className="text-2xl font-bold">Departamentos</h1>
 
       <form
         onSubmit={handleSubmit((values) => mutation.mutate(values))}
@@ -85,7 +85,7 @@ export function ServiceDesksPage() {
       >
         <div className="flex-1 space-y-1">
           <label htmlFor="service-desk-name" className="block text-sm font-medium">
-            Name
+            Nome
           </label>
           <input
             id="service-desk-name"
@@ -102,17 +102,17 @@ export function ServiceDesksPage() {
           disabled={mutation.isPending}
           className="rounded bg-primary px-4 py-2 text-primary-foreground disabled:opacity-50"
         >
-          Create
+          Criar
         </button>
       </form>
       {mutation.isError && (
         <p role="alert" className="text-sm text-red-600">
-          Failed to create department. Please try again.
+          Falha ao criar o departamento. Tente novamente.
         </p>
       )}
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">Carregando…</p>
       ) : (
         <ul className="max-w-lg divide-y rounded-lg border">
           {(serviceDesks ?? []).map((desk) => (
@@ -122,7 +122,7 @@ export function ServiceDesksPage() {
           ))}
           {serviceDesks?.length === 0 && (
             <li className="px-4 py-3 text-sm text-muted-foreground">
-              No departments yet.
+              Nenhum departamento cadastrado ainda.
             </li>
           )}
         </ul>

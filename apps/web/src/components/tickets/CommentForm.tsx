@@ -8,7 +8,7 @@ import type { TicketComment } from './TicketComments';
 import { commentsQueryKey } from './TicketComments';
 
 const commentSchema = z.object({
-  content: z.string().trim().min(1, 'Comment is required'),
+  content: z.string().trim().min(1, 'Comentário é obrigatório'),
   isInternal: z.boolean(),
 });
 
@@ -71,7 +71,7 @@ export function CommentForm({ ticketId }: CommentFormProps) {
     >
       <div className="space-y-1">
         <label htmlFor="comment-content" className="block text-sm font-medium">
-          Add a comment
+          Adicionar um comentário
         </label>
         <textarea
           id="comment-content"
@@ -92,14 +92,14 @@ export function CommentForm({ ticketId }: CommentFormProps) {
             {...register('isInternal')}
           />
           <label htmlFor="comment-is-internal" className="text-sm">
-            Internal note
+            Nota interna
           </label>
         </div>
       )}
 
       {mutation.isError && (
         <p role="alert" className="text-sm text-red-600">
-          Failed to post comment. Please try again.
+          Falha ao publicar o comentário. Tente novamente.
         </p>
       )}
 
@@ -108,7 +108,7 @@ export function CommentForm({ ticketId }: CommentFormProps) {
         disabled={mutation.isPending}
         className="rounded bg-primary px-4 py-2 text-primary-foreground disabled:opacity-50"
       >
-        Post comment
+        Publicar comentário
       </button>
     </form>
   );

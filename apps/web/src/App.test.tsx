@@ -29,7 +29,7 @@ describe('App', () => {
   it('redirects unauthenticated users to the login page', () => {
     render(<App />);
     expect(
-      screen.getByRole('heading', { name: /sign in/i }),
+      screen.getByRole('heading', { name: /entrar/i }),
     ).toBeInTheDocument();
   });
 
@@ -42,7 +42,7 @@ describe('App', () => {
     render(<App />);
 
     expect(
-      await screen.findByRole('heading', { name: /tickets/i }),
+      await screen.findByRole('heading', { name: /chamados/i }),
     ).toBeInTheDocument();
   });
 });

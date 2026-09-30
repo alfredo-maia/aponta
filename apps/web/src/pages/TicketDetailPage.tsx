@@ -11,7 +11,7 @@ export function TicketDetailPage() {
   if (isLoading) {
     return (
       <p role="status" className="text-sm text-muted-foreground">
-        Loading ticket…
+        Carregando chamado…
       </p>
     );
   }
@@ -21,7 +21,8 @@ export function TicketDetailPage() {
   if (isError || !ticket) {
     return (
       <p role="alert" className="text-sm text-red-600">
-        Failed to load ticket. It may not exist or you may not have access.
+        Falha ao carregar o chamado. Ele pode não existir ou você pode não
+        ter acesso a ele.
       </p>
     );
   }
@@ -30,7 +31,7 @@ export function TicketDetailPage() {
     <div className="space-y-6">
       <TicketDetail ticket={ticket} />
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Comments</h2>
+        <h2 className="text-lg font-semibold">Comentários</h2>
         <TicketComments ticketId={ticket.id} />
         <CommentForm ticketId={ticket.id} />
       </section>

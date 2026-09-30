@@ -122,7 +122,7 @@ test.describe('dashboard filtering', () => {
     // Clear the filter: both are visible again.
     await page
       .locator('#filter-service-desk')
-      .selectOption({ label: 'All departments' });
+      .selectOption({ label: 'Todos os departamentos' });
     await expect(page.getByText(generalTitle)).toBeVisible();
     await expect(page.getByText(itTitle)).toBeVisible();
   });
@@ -146,13 +146,13 @@ test.describe('dashboard filtering', () => {
     await page.goto('/');
     await expect(page.getByText(uniqueTitle)).toBeVisible();
 
-    await page.locator('#filter-status').selectOption({ label: 'Open' });
+    await page.locator('#filter-status').selectOption({ label: 'Aberto' });
     await expect(page.getByText(uniqueTitle)).toBeVisible();
 
-    await page.locator('#filter-status').selectOption({ label: 'Closed' });
+    await page.locator('#filter-status').selectOption({ label: 'Fechado' });
     await expect(page.getByText(uniqueTitle)).toBeHidden();
 
-    await page.locator('#filter-status').selectOption({ label: 'All statuses' });
+    await page.locator('#filter-status').selectOption({ label: 'Todos os status' });
     await expect(page.getByText(uniqueTitle)).toBeVisible();
   });
 });

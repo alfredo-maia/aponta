@@ -13,9 +13,9 @@ import { useAuthStore } from '../stores/authStore';
  * security hardening measure — do not add a role selector to this form.
  */
 const registerSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  name: z.string().min(1, 'Nome é obrigatório'),
+  email: z.string().email('E-mail inválido'),
+  password: z.string().min(8, 'A senha deve ter pelo menos 8 caracteres'),
 });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
@@ -42,9 +42,9 @@ export function RegisterPage() {
       await api.post('/auth/register', values);
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 409) {
-        setSubmitError('An account with this email already exists.');
+        setSubmitError('Já existe uma conta com este e-mail.');
       } else {
-        setSubmitError('Something went wrong. Please try again.');
+        setSubmitError('Algo deu errado. Tente novamente.');
       }
       return;
     }
@@ -71,11 +71,11 @@ export function RegisterPage() {
         noValidate
         className="w-full max-w-sm space-y-4 rounded-lg border p-6"
       >
-        <h1 className="text-2xl font-bold">Create account</h1>
+        <h1 className="text-2xl font-bold">Criar conta</h1>
 
         <div className="space-y-1">
           <label htmlFor="name" className="block text-sm font-medium">
-            Name
+            Nome
           </label>
           <input
             id="name"
@@ -91,7 +91,7 @@ export function RegisterPage() {
 
         <div className="space-y-1">
           <label htmlFor="email" className="block text-sm font-medium">
-            Email
+            E-mail
           </label>
           <input
             id="email"
@@ -107,7 +107,7 @@ export function RegisterPage() {
 
         <div className="space-y-1">
           <label htmlFor="password" className="block text-sm font-medium">
-            Password
+            Senha
           </label>
           <input
             id="password"
@@ -129,10 +129,10 @@ export function RegisterPage() {
 
         {registeredButLoginFailed && (
           <p role="alert" className="text-sm text-red-600">
-            Account created successfully! There was a problem logging you in
-            automatically — please{' '}
+            Conta criada com sucesso! Houve um problema ao fazer login
+            automaticamente — por favor{' '}
             <Link to="/login" className="underline">
-              sign in
+              entre com sua conta
             </Link>
             .
           </p>
@@ -143,7 +143,7 @@ export function RegisterPage() {
           disabled={isSubmitting}
           className="w-full rounded bg-primary px-4 py-2 text-primary-foreground disabled:opacity-50"
         >
-          Create account
+          Criar conta
         </button>
       </form>
     </div>

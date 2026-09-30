@@ -42,7 +42,7 @@ export function TicketComments({ ticketId }: TicketCommentsProps) {
   if (isLoading) {
     return (
       <p role="status" className="text-sm text-muted-foreground">
-        Loading comments…
+        Carregando comentários…
       </p>
     );
   }
@@ -50,14 +50,14 @@ export function TicketComments({ ticketId }: TicketCommentsProps) {
   if (isError) {
     return (
       <p role="alert" className="text-sm text-red-600">
-        Failed to load comments. Please try again.
+        Falha ao carregar os comentários. Tente novamente.
       </p>
     );
   }
 
   const comments = data ?? [];
   if (comments.length === 0) {
-    return <p className="text-sm text-muted-foreground">No comments yet.</p>;
+    return <p className="text-sm text-muted-foreground">Nenhum comentário ainda.</p>;
   }
 
   return (
@@ -73,7 +73,7 @@ export function TicketComments({ ticketId }: TicketCommentsProps) {
             </span>
             {comment.isInternal && (
               <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">
-                Internal note
+                Nota interna
               </span>
             )}
           </div>

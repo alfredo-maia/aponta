@@ -28,7 +28,7 @@ export function CreateTicketPage() {
       navigate(`/tickets/${ticket.id}`);
     },
     onError: () => {
-      setSubmitError('Failed to create ticket. Please try again.');
+      setSubmitError('Falha ao criar o chamado. Tente novamente.');
     },
   });
 
@@ -39,7 +39,7 @@ export function CreateTicketPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">New ticket</h1>
+      <h1 className="text-2xl font-bold">Novo chamado</h1>
       <TicketForm
         onSubmit={onSubmit}
         isSubmitting={mutation.isPending}

@@ -10,7 +10,7 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Tickets</h1>
+      <h1 className="text-2xl font-bold">Chamados</h1>
       <TicketFilters filters={filters} onChange={setFilters} />
       <TicketList
         tickets={data ?? []}

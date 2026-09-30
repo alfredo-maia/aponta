@@ -125,11 +125,11 @@ describe('TicketDetailPage', () => {
     expect(
       screen.getByText('The floor 2 printer is jammed.'),
     ).toBeInTheDocument();
-    expect(screen.getByText('In Progress')).toBeInTheDocument();
-    expect(screen.getByText('High')).toBeInTheDocument();
-    expect(screen.getByText(/response deadline/i)).toBeInTheDocument();
+    expect(screen.getByText('Em Andamento')).toBeInTheDocument();
+    expect(screen.getByText('Alta')).toBeInTheDocument();
+    expect(screen.getByText(/prazo de resposta/i)).toBeInTheDocument();
     expect(screen.getByText('2026-09-30 14:00 UTC')).toBeInTheDocument();
-    expect(screen.getByText(/resolve deadline/i)).toBeInTheDocument();
+    expect(screen.getByText(/prazo de resolução/i)).toBeInTheDocument();
     expect(screen.getByText('2026-10-02 17:30 UTC')).toBeInTheDocument();
   });
 
@@ -143,7 +143,7 @@ describe('TicketDetailPage', () => {
     const publicItem = publicContent.closest('li');
     expect(publicItem).not.toBeNull();
     expect(
-      within(publicItem as HTMLElement).queryByText(/internal note/i),
+      within(publicItem as HTMLElement).queryByText(/nota interna/i),
     ).not.toBeInTheDocument();
 
     const internalContent = screen.getByText(
@@ -152,7 +152,7 @@ describe('TicketDetailPage', () => {
     const internalItem = internalContent.closest('li');
     expect(internalItem).not.toBeNull();
     expect(
-      within(internalItem as HTMLElement).getByText(/internal note/i),
+      within(internalItem as HTMLElement).getByText(/nota interna/i),
     ).toBeInTheDocument();
   });
 
@@ -160,9 +160,9 @@ describe('TicketDetailPage', () => {
     const user = userEvent.setup();
     renderPage();
 
-    const textarea = await screen.findByLabelText(/add a comment/i);
+    const textarea = await screen.findByLabelText(/adicionar um comentário/i);
     await user.type(textarea, 'Follow-up question');
-    await user.click(screen.getByRole('button', { name: /post comment/i }));
+    await user.click(screen.getByRole('button', { name: /publicar comentário/i }));
 
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith('/tickets/t-1/comments', {
@@ -179,7 +179,7 @@ describe('TicketDetailPage', () => {
 
     await screen.findByText('Printer not working');
     expect(
-      screen.getByRole('checkbox', { name: /internal note/i }),
+      screen.getByRole('checkbox', { name: /nota interna/i }),
     ).toBeInTheDocument();
   });
 
@@ -189,7 +189,7 @@ describe('TicketDetailPage', () => {
 
     await screen.findByText('Printer not working');
     expect(
-      screen.getByRole('checkbox', { name: /internal note/i }),
+      screen.getByRole('checkbox', { name: /nota interna/i }),
     ).toBeInTheDocument();
   });
 
@@ -199,7 +199,7 @@ describe('TicketDetailPage', () => {
 
     await screen.findByText('Printer not working');
     expect(
-      screen.queryByRole('checkbox', { name: /internal note/i }),
+      screen.queryByRole('checkbox', { name: /nota interna/i }),
     ).not.toBeInTheDocument();
   });
 });

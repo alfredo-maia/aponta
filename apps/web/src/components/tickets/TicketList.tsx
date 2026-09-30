@@ -11,7 +11,7 @@ export function TicketList({ tickets, isLoading, isError }: TicketListProps) {
   if (isLoading) {
     return (
       <p role="status" className="text-sm text-muted-foreground">
-        Loading tickets…
+        Carregando chamados…
       </p>
     );
   }
@@ -19,7 +19,7 @@ export function TicketList({ tickets, isLoading, isError }: TicketListProps) {
   if (isError) {
     return (
       <p role="alert" className="text-sm text-red-600">
-        Failed to load tickets. Please try again.
+        Falha ao carregar os chamados. Tente novamente.
       </p>
     );
   }
@@ -27,7 +27,7 @@ export function TicketList({ tickets, isLoading, isError }: TicketListProps) {
   if (tickets.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        No tickets found. Try adjusting the filters.
+        Nenhum chamado encontrado. Tente ajustar os filtros.
       </p>
     );
   }

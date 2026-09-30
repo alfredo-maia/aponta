@@ -8,8 +8,8 @@ import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
+  email: z.string().email('E-mail inválido'),
+  password: z.string().min(1, 'Senha é obrigatória'),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -37,9 +37,9 @@ export function LoginPage() {
       navigate('/');
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 401) {
-        setSubmitError('Invalid email or password.');
+        setSubmitError('E-mail ou senha inválidos.');
       } else {
-        setSubmitError('Something went wrong. Please try again.');
+        setSubmitError('Algo deu errado. Tente novamente.');
       }
     }
   };
@@ -51,11 +51,11 @@ export function LoginPage() {
         noValidate
         className="w-full max-w-sm space-y-4 rounded-lg border p-6"
       >
-        <h1 className="text-2xl font-bold">Sign in</h1>
+        <h1 className="text-2xl font-bold">Entrar</h1>
 
         <div className="space-y-1">
           <label htmlFor="email" className="block text-sm font-medium">
-            Email
+            E-mail
           </label>
           <input
             id="email"
@@ -71,7 +71,7 @@ export function LoginPage() {
 
         <div className="space-y-1">
           <label htmlFor="password" className="block text-sm font-medium">
-            Password
+            Senha
           </label>
           <input
             id="password"
@@ -96,7 +96,7 @@ export function LoginPage() {
           disabled={isSubmitting}
           className="w-full rounded bg-primary px-4 py-2 text-primary-foreground disabled:opacity-50"
         >
-          Sign in
+          Entrar
         </button>
       </form>
     </div>
