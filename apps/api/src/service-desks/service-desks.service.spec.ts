@@ -44,7 +44,10 @@ describe('ServiceDesksService', () => {
 
     const result = await service.create(createDto);
     expect(result).toEqual(expecteddesk);
-    expect(prisma.serviceDesk.create).toHaveBeenCalledWith({ data: createDto });
+    expect(prisma.serviceDesk.create).toHaveBeenCalledWith({
+      data: createDto,
+      include: { agents: { select: { id: true, name: true, email: true } } }
+    });
   });
 
   it('should find all service desks', async () => {
@@ -53,7 +56,9 @@ describe('ServiceDesksService', () => {
 
     const result = await service.findAll();
     expect(result).toEqual(expected);
-    expect(prisma.serviceDesk.findMany).toHaveBeenCalled();
+    expect(prisma.serviceDesk.findMany).toHaveBeenCalledWith({
+      include: { agents: { select: { id: true, name: true, email: true } } }
+    });
   });
 
   it('should find one service desk by id', async () => {
@@ -62,7 +67,10 @@ describe('ServiceDesksService', () => {
 
     const result = await service.findOne('1');
     expect(result).toEqual(expected);
-    expect(prisma.serviceDesk.findUnique).toHaveBeenCalledWith({ where: { id: '1' } });
+    expect(prisma.serviceDesk.findUnique).toHaveBeenCalledWith({
+      where: { id: '1' },
+      include: { agents: { select: { id: true, name: true, email: true } } }
+    });
   });
 
   it('should update a service desk', async () => {
@@ -75,6 +83,7 @@ describe('ServiceDesksService', () => {
     expect(prisma.serviceDesk.update).toHaveBeenCalledWith({
       where: { id: '1' },
       data: updateDto,
+      include: { agents: { select: { id: true, name: true, email: true } } }
     });
   });
 

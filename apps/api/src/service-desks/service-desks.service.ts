@@ -8,18 +8,26 @@ export class ServiceDesksService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createServiceDeskDto: CreateServiceDeskDto) {
+    const { agentIds, ...data } = createServiceDeskDto;
     return this.prisma.serviceDesk.create({
-      data: createServiceDeskDto,
+      data: {
+        ...data,
+        ...(agentIds && { agents: { connect: agentIds.map(id => ({ id })) } }),
+      },
+      include: { agents: { select: { id: true, name: true, email: true } } },
     });
   }
 
   async findAll() {
-    return this.prisma.serviceDesk.findMany();
+    return this.prisma.serviceDesk.findMany({
+      include: { agents: { select: { id: true, name: true, email: true } } },
+    });
   }
 
   async findOne(id: string) {
     const serviceDesk = await this.prisma.serviceDesk.findUnique({
       where: { id },
+      include: { agents: { select: { id: true, name: true, email: true } } },
     });
     if (!serviceDesk) {
       throw new NotFoundException(`ServiceDesk with ID ${id} not found`);
@@ -34,9 +42,15 @@ export class ServiceDesksService {
     if (!serviceDesk) {
       throw new NotFoundException(`ServiceDesk with ID ${id} not found`);
     }
+
+    const { agentIds, ...data } = updateServiceDeskDto;
     return this.prisma.serviceDesk.update({
       where: { id },
-      data: updateServiceDeskDto,
+      data: {
+        ...data,
+        ...(agentIds !== undefined && { agents: { set: agentIds.map(id => ({ id })) } }),
+      },
+      include: { agents: { select: { id: true, name: true, email: true } } },
     });
   }
 
