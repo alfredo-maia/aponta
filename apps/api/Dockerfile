@@ -66,6 +66,17 @@ RUN pnpm exec nx run api:build
 # (if added later) are picked up without a rebuild.
 FROM deps AS development
 COPY . .
+# Same requirement as the `build` stage above: PrismaService imports
+# @prisma/client at module load time, so the client must be generated
+# before `nx serve api` ever runs — otherwise the container starts, NestJS
+# throws `Cannot find module '.prisma/client/default'` on the first
+# request/import, and Nx's watcher loops forever restarting a permanently
+# broken process. `prisma generate` only reads the schema (no DB
+# connection attempted), so the same build-time placeholder used above is
+# fine here too; the real DATABASE_URL is injected at container runtime by
+# docker-compose.dev.yml.
+ENV DATABASE_URL="postgresql://user:***@localhost:5432/db?schema=public"
+RUN pnpm exec nx run api:prisma-generate
 ENV NODE_ENV=development
 EXPOSE 3001
 CMD ["pnpm", "exec", "nx", "run", "api:serve"]
