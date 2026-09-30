@@ -81,6 +81,9 @@ test.describe('authentication', () => {
 
     // Log out, then prove the old password no longer works and the new
     // one does — the only real proof the API actually persisted the hash.
+    // "Sair" now lives inside the top-right user-menu dropdown (mirrors
+    // the Tiflux reference UI), so open it before clicking.
+    await page.getByText(uniqueEmail).click();
     await page.getByRole('button', { name: 'Sair' }).click();
     await expect(page).toHaveURL('/login');
 
