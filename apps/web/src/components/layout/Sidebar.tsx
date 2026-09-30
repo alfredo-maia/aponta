@@ -21,7 +21,14 @@ export function Sidebar() {
       return [
         ...base, 
         { to: '/service-desks', label: 'Departamentos' },
-        { to: '/organizations', label: 'Empresas' }
+        { to: '/organizations', label: 'Empresas' },
+        { to: '/reports', label: 'Relatórios' }
+      ];
+    }
+    if (user?.role === 'AGENT_MASTER') {
+      return [
+        ...base, 
+        { to: '/reports', label: 'Relatórios' }
       ];
     }
     

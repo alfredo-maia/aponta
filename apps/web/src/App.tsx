@@ -10,6 +10,7 @@ import { RegisterPage } from './pages/RegisterPage';
 import { ServiceDesksPage } from './pages/ServiceDesksPage';
 import { OrganizationsPage } from './pages/OrganizationsPage';
 import { TicketDetailPage } from './pages/TicketDetailPage';
+import { ReportsPage } from './pages/ReportsPage';
 
 /**
  * App-wide Tanstack Query client. The provider lives here (rather than in
@@ -34,6 +35,7 @@ export function App() {
               <Route path="/tickets/:id" element={<TicketDetailPage />} />
               <Route path="/service-desks" element={<ServiceDesksPage />} />
               <Route path="/organizations" element={<OrganizationsPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
               <Route path="/my-account" element={<MyAccountPage />} />
             </Route>
           </Route>

@@ -11,6 +11,7 @@ import { TicketsModule } from './tickets/tickets.module';
 import { UsersModule } from './users/users.module';
 import { MailModule } from './mail/mail.module';
 import { OrganizationsModule } from './organizations/organizations.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { OrganizationsModule } from './organizations/organizations.module';
     CommentsModule,
     MailModule,
     OrganizationsModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
