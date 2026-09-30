@@ -1,7 +1,10 @@
 import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 
-const navItems = [{ to: '/', label: 'Dashboard' }];
+const navItems = [
+  { to: '/', label: 'Dashboard' },
+  { to: '/tickets/new', label: 'New Ticket' },
+];
 
 export function Sidebar() {
   const user = useAuthStore((state) => state.user);
