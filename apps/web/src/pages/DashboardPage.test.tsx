@@ -56,7 +56,7 @@ function mockApiGet(ticketData: unknown[] = tickets) {
       return Promise.resolve({ data: serviceDesks });
     }
     if (url === '/tickets') {
-      return Promise.resolve({ data: ticketData });
+      return Promise.resolve({ data: { data: ticketData, meta: { total: ticketData.length, page: 1, totalPages: 1 } } });
     }
     return Promise.reject(new Error(`Unexpected GET ${url}`));
   });
@@ -89,6 +89,7 @@ describe('DashboardPage', () => {
     expect(
       screen.getByRole('heading', { level: 1 }),
     ).toBeInTheDocument();
+    
     expect(await screen.findByText('Printer not working')).toBeInTheDocument();
   });
 
@@ -156,18 +157,25 @@ describe('DashboardPage', () => {
     await screen.findByText('Printer not working');
     await screen.findByRole('option', { name: 'Suporte N1' });
 
+    // Mock resolve before interaction to avoid unhandled rejections
+    vi.mocked(api.get).mockClear();
+    mockApiGet();
+
     await user.selectOptions(screen.getByLabelText(/departamento/i), 'sd-1');
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/tickets', {
-        params: { serviceDeskId: 'sd-1' },
-      });
+      expect(api.get).toHaveBeenCalledWith(expect.stringContaining('/tickets'), expect.objectContaining({
+        params: expect.objectContaining({ serviceDeskId: 'sd-1' }),
+      }));
     });
+
+    vi.mocked(api.get).mockClear();
+    mockApiGet();
 
     await user.selectOptions(screen.getByLabelText(/status/i), 'OPEN');
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/tickets', {
-        params: { serviceDeskId: 'sd-1', status: 'OPEN' },
-      });
+      expect(api.get).toHaveBeenCalledWith(expect.stringContaining('/tickets'), expect.objectContaining({
+        params: expect.objectContaining({ serviceDeskId: 'sd-1', status: 'OPEN' }),
+      }));
     });
   });
 });

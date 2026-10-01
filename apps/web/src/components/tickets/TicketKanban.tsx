@@ -74,7 +74,7 @@ export function TicketKanban({ tickets, isLoading, isError }: TicketKanbanProps)
 
   // Agrupa os chamados
   const grouped = columns.reduce((acc, col) => {
-    acc[col] = tickets.filter((t) => t.status === col);
+    acc[col] = (tickets.data || []).filter((t) => t.status === col);
     return acc;
   }, {} as Record<TicketStatus, Ticket[]>);
 

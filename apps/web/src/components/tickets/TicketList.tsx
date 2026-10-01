@@ -24,7 +24,7 @@ export function TicketList({ tickets, isLoading, isError }: TicketListProps) {
     );
   }
 
-  if (tickets.length === 0) {
+  if ((tickets.data || []).length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
         Nenhum chamado encontrado. Tente ajustar os filtros.
@@ -34,7 +34,7 @@ export function TicketList({ tickets, isLoading, isError }: TicketListProps) {
 
   return (
     <ul className="space-y-3">
-      {tickets.map((ticket) => (
+      {(tickets.data || []).map((ticket) => (
         <TicketCard key={ticket.id} ticket={ticket} />
       ))}
     </ul>

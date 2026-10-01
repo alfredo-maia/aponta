@@ -24,6 +24,8 @@ export interface Ticket {
 export interface TicketFiltersInput {
   serviceDeskId?: string;
   status?: TicketStatus;
+  search?: string;
+  page?: number;
 }
 
 /**
