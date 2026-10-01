@@ -69,6 +69,9 @@ function mockApi() {
     if (url === '/users/agents') {
       return Promise.resolve({ data: mockAgents });
     }
+    if (url === '/tickets/t-1/audits') {
+      return Promise.resolve({ data: [] });
+    }
     return Promise.reject(new Error(`Unexpected GET ${url}`));
   });
   vi.mocked(api.patch).mockImplementation((url: string, body: unknown) => {
@@ -302,6 +305,95 @@ describe('TicketDetailPage', () => {
       // The select must reflect the real (unchanged) status from the server,
       // not silently keep whatever the user picked.
       expect(select).toHaveValue('IN_PROGRESS');
+    });
+  });
+
+  describe('Audit history ("Histórico")', () => {
+    const audits = [
+      {
+        id: 'a-1',
+        action: 'STATUS_CHANGED',
+        prevVal: 'OPEN',
+        newVal: 'IN_PROGRESS',
+        createdAt: '2026-09-28T10:30:00.000Z',
+        user: { name: 'Agente Smith' },
+      },
+      {
+        id: 'a-2',
+        action: 'ASSIGNED',
+        prevVal: null,
+        newVal: 'agent-1',
+        createdAt: '2026-09-28T10:00:00.000Z',
+        user: { name: 'Agente Smith' },
+      },
+    ];
+
+    function mockApiWithAudits() {
+      vi.mocked(api.get).mockImplementation((url: string) => {
+        if (url === '/tickets/t-1') {
+          return Promise.resolve({ data: ticket });
+        }
+        if (url === '/tickets/t-1/comments') {
+          return Promise.resolve({ data: [...comments] });
+        }
+        if (url === '/users/agents') {
+          return Promise.resolve({ data: mockAgents });
+        }
+        if (url === '/tickets/t-1/audits') {
+          return Promise.resolve({ data: audits });
+        }
+        return Promise.reject(new Error(`Unexpected GET ${url}`));
+      });
+    }
+
+    it('hides the "Histórico" section from clients', async () => {
+      setRole('CLIENT');
+      mockApiWithAudits();
+      renderPage();
+
+      await screen.findByText('Printer not working');
+      expect(
+        screen.queryByRole('heading', { name: /histórico/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows the "Histórico" section with the audit trail to agents', async () => {
+      setRole('AGENT');
+      mockApiWithAudits();
+      renderPage();
+
+      await screen.findByRole('heading', { name: /histórico/i });
+      expect(
+        await screen.findByText(/aberto.*em andamento/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getAllByText((text) => text.includes('Agente Smith')).length,
+      ).toBeGreaterThan(0);
+    });
+
+    it('shows an empty-state message when there is no audit history yet', async () => {
+      setRole('AGENT');
+      vi.mocked(api.get).mockImplementation((url: string) => {
+        if (url === '/tickets/t-1') {
+          return Promise.resolve({ data: ticket });
+        }
+        if (url === '/tickets/t-1/comments') {
+          return Promise.resolve({ data: [] });
+        }
+        if (url === '/users/agents') {
+          return Promise.resolve({ data: mockAgents });
+        }
+        if (url === '/tickets/t-1/audits') {
+          return Promise.resolve({ data: [] });
+        }
+        return Promise.reject(new Error(`Unexpected GET ${url}`));
+      });
+      renderPage();
+
+      await screen.findByRole('heading', { name: /histórico/i });
+      expect(
+        screen.getByText(/nenhuma alteração registrada/i),
+      ).toBeInTheDocument();
     });
   });
 });

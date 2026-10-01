@@ -16,6 +16,8 @@ const mockTicketsService = {
   update: jest.fn(),
   assign: jest.fn(),
   changeStatus: jest.fn(),
+  changeServiceDesk: jest.fn(),
+  findAudits: jest.fn(),
 };
 
 describe('TicketsController', () => {
@@ -227,13 +229,56 @@ describe('TicketsController', () => {
 
     it('delegates assign to the service', async () => {
       mockTicketsService.assign.mockResolvedValue({ id: 't1' });
+      const req = { user: { id: 'agent-1', role: Role.AGENT } };
 
-      await controller.assign('t1', { agentId: 'agent-1' });
+      await controller.assign('t1', { agentId: 'agent-1' }, req as never);
 
       expect(mockTicketsService.assign).toHaveBeenCalledWith(
         't1',
         'agent-1',
+        { id: 'agent-1', role: Role.AGENT },
       );
+    });
+  });
+
+  describe('changeServiceDesk', () => {
+    it('delegates to the service with the caller user', async () => {
+      const req = { user: { id: 'agent-1', role: Role.AGENT } };
+      mockTicketsService.changeServiceDesk.mockResolvedValue({ id: 't1' });
+
+      await controller.changeServiceDesk(
+        't1',
+        { serviceDeskId: 'desk-2' },
+        req as never,
+      );
+
+      expect(mockTicketsService.changeServiceDesk).toHaveBeenCalledWith(
+        't1',
+        'desk-2',
+        { id: 'agent-1', role: Role.AGENT },
+      );
+    });
+
+    it('requires AGENT or ADMIN', () => {
+      expect(
+        Reflect.getMetadata(ROLES_KEY, controller.changeServiceDesk),
+      ).toEqual([Role.AGENT, Role.ADMIN]);
+    });
+  });
+
+  describe('findAudits', () => {
+    it('delegates to the service (any authenticated role can read the trail)', async () => {
+      mockTicketsService.findAudits.mockResolvedValue([]);
+
+      await controller.findAudits('t1');
+
+      expect(mockTicketsService.findAudits).toHaveBeenCalledWith('t1');
+    });
+
+    it('is not restricted to any role (service/guard handles visibility upstream via findOne)', () => {
+      expect(
+        Reflect.getMetadata(ROLES_KEY, controller.findAudits),
+      ).toBeUndefined();
     });
   });
 });

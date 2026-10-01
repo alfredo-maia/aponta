@@ -16,6 +16,7 @@ import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { TicketQueryDto } from './dto/ticket-query.dto';
 import { AssignTicketDto } from './dto/assign-ticket.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
+import { ChangeServiceDeskDto } from './dto/change-service-desk.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -51,18 +52,31 @@ export class TicketsController {
     return this.ticketsService.findOne(id, req.user);
   }
 
+  @Get(':id/audits')
+  findAudits(@Param('id') id: string) {
+    return this.ticketsService.findAudits(id);
+  }
+
   @Patch(':id')
   @UseGuards(RolesGuard)
   @Roles(Role.AGENT, Role.ADMIN)
-  update(@Param('id') id: string, @Body() updateTicketDto: UpdateTicketDto) {
-    return this.ticketsService.update(id, updateTicketDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateTicketDto: UpdateTicketDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.ticketsService.update(id, updateTicketDto, req.user);
   }
 
   @Patch(':id/assign')
   @UseGuards(RolesGuard)
   @Roles(Role.AGENT, Role.ADMIN)
-  assign(@Param('id') id: string, @Body() assignTicketDto: AssignTicketDto) {
-    return this.ticketsService.assign(id, assignTicketDto.agentId);
+  assign(
+    @Param('id') id: string,
+    @Body() assignTicketDto: AssignTicketDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.ticketsService.assign(id, assignTicketDto.agentId, req.user);
   }
 
   @Patch(':id/status')
@@ -76,6 +90,21 @@ export class TicketsController {
     return this.ticketsService.changeStatus(
       id,
       changeStatusDto.status,
+      req.user,
+    );
+  }
+
+  @Patch(':id/service-desk')
+  @UseGuards(RolesGuard)
+  @Roles(Role.AGENT, Role.ADMIN)
+  changeServiceDesk(
+    @Param('id') id: string,
+    @Body() changeServiceDeskDto: ChangeServiceDeskDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.ticketsService.changeServiceDesk(
+      id,
+      changeServiceDeskDto.serviceDeskId,
       req.user,
     );
   }

@@ -426,7 +426,11 @@ export class TicketsService {
    * recalculated from the ticket's ORIGINAL `createdAt` (not from the
    * moment of the update) — see report for rationale.
    */
-  async update(id: string, dto: UpdateTicketDto): Promise<Ticket> {
+  async update(
+    id: string,
+    dto: UpdateTicketDto,
+    currentUser: CurrentUserPayload,
+  ): Promise<Ticket> {
     const existing = await this.prisma.ticket.findUnique({ where: { id } });
     if (!existing) {
       throw new NotFoundException(`Ticket with ID ${id} not found`);
@@ -439,7 +443,9 @@ export class TicketsService {
     if (dto.description !== undefined) {
       data.description = dto.description;
     }
-    if (dto.priority !== undefined && dto.priority !== existing.priority) {
+    const priorityChanged =
+      dto.priority !== undefined && dto.priority !== existing.priority;
+    if (priorityChanged) {
       data.priority = dto.priority;
       const [businessHours, holidays] = await Promise.all([
         this.prisma.businessHour.findMany({
@@ -451,7 +457,7 @@ export class TicketsService {
       ]);
       const { responseDeadline, resolveDeadline } = calculateSla(
         existing.createdAt,
-        dto.priority,
+        dto.priority as TicketPriority,
         businessHours,
         holidays,
       );
@@ -459,10 +465,28 @@ export class TicketsService {
       data.resolveDeadline = resolveDeadline;
     }
 
-    return this.prisma.ticket.update({ where: { id }, data });
+    const ticket = await this.prisma.ticket.update({ where: { id }, data });
+
+    if (priorityChanged) {
+      await this.prisma.ticketAudit.create({
+        data: {
+          action: 'PRIORITY_CHANGED',
+          prevVal: existing.priority,
+          newVal: dto.priority as string,
+          ticketId: id,
+          userId: currentUser.id,
+        },
+      });
+    }
+
+    return ticket;
   }
 
-  async assign(id: string, agentId: string): Promise<Ticket> {
+  async assign(
+    id: string,
+    agentId: string,
+    currentUser: CurrentUserPayload,
+  ): Promise<Ticket> {
     const existing = await this.prisma.ticket.findUnique({ where: { id } });
     if (!existing) {
       throw new NotFoundException(`Ticket with ID ${id} not found`);
@@ -473,6 +497,15 @@ export class TicketsService {
         where: { id },
         data: { agentId },
         include: { agent: { select: { email: true } } },
+      });
+      await this.prisma.ticketAudit.create({
+        data: {
+          action: 'ASSIGNED',
+          prevVal: (existing as Ticket & { agentId?: string | null }).agentId ?? null,
+          newVal: agentId,
+          ticketId: id,
+          userId: currentUser.id,
+        },
       });
       this.eventEmitter.emit('ticket.assigned', {
         ticket,
@@ -529,11 +562,84 @@ export class TicketsService {
           : { status: newStatus },
       include: { requester: { select: { email: true } } },
     });
-    
+
+    await this.prisma.ticketAudit.create({
+      data: {
+        action: 'STATUS_CHANGED',
+        prevVal: existing.status,
+        newVal: newStatus,
+        ticketId: id,
+        userId: currentUser.id,
+      },
+    });
+
     this.eventEmitter.emit('ticket.status_changed', {
       ticket,
       requesterEmail: ticket.requester?.email,
     });
     return ticket;
+  }
+
+  /**
+   * Moves a ticket to a different service desk (department). A no-op
+   * (no DB write, no audit row) when the target desk is the same as the
+   * current one, to avoid noisy audit entries on no-change submits.
+   */
+  async changeServiceDesk(
+    id: string,
+    serviceDeskId: string,
+    currentUser: CurrentUserPayload,
+  ): Promise<Ticket> {
+    const existing = await this.prisma.ticket.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`Ticket with ID ${id} not found`);
+    }
+
+    if (existing.serviceDeskId === serviceDeskId) {
+      return existing;
+    }
+
+    const targetDesk = await this.prisma.serviceDesk.findUnique({
+      where: { id: serviceDeskId },
+    });
+    if (!targetDesk) {
+      throw new BadRequestException(
+        `Invalid serviceDeskId: service desk ${serviceDeskId} does not exist`,
+      );
+    }
+
+    const ticket = await this.prisma.ticket.update({
+      where: { id },
+      data: { serviceDeskId },
+    });
+
+    await this.prisma.ticketAudit.create({
+      data: {
+        action: 'SERVICE_DESK_CHANGED',
+        prevVal: existing.serviceDeskId,
+        newVal: serviceDeskId,
+        ticketId: id,
+        userId: currentUser.id,
+      },
+    });
+
+    return ticket;
+  }
+
+  /**
+   * Returns the full audit trail for a ticket, oldest first, with the
+   * acting user's name attached for display.
+   */
+  async findAudits(id: string) {
+    const existing = await this.prisma.ticket.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`Ticket with ID ${id} not found`);
+    }
+
+    return this.prisma.ticketAudit.findMany({
+      where: { ticketId: id },
+      orderBy: { createdAt: 'asc' },
+      include: { user: { select: { name: true } } },
+    });
   }
 }

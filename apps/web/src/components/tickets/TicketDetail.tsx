@@ -19,6 +19,55 @@ function formatDeadline(iso: string): string {
   return `${iso.slice(0, 10)} ${iso.slice(11, 16)} UTC`;
 }
 
+interface TicketAudit {
+  id: string;
+  action: string;
+  prevVal: string | null;
+  newVal: string | null;
+  createdAt: string;
+  user: { name: string } | null;
+}
+
+/**
+ * Human-readable (pt-BR) labels for status/priority raw enum values, so
+ * the audit trail shows "Aberto" rather than "OPEN" where applicable.
+ */
+function auditValueLabel(raw: string | null): string {
+  if (raw === null) {
+    return 'Nenhum';
+  }
+  if (raw in statusLabels) {
+    return statusLabels[raw as TicketStatus];
+  }
+  if (raw in priorityLabels) {
+    return priorityLabels[raw as keyof typeof priorityLabels];
+  }
+  return raw;
+}
+
+/**
+ * Renders a single audit entry as a plain-language sentence, e.g.
+ * "Status alterado de Aberto para Em Andamento".
+ */
+function describeAudit(audit: TicketAudit): string {
+  const prev = auditValueLabel(audit.prevVal);
+  const next = auditValueLabel(audit.newVal);
+  switch (audit.action) {
+    case 'STATUS_CHANGED':
+      return `Status alterado de ${prev} para ${next}`;
+    case 'PRIORITY_CHANGED':
+      return `Prioridade alterada de ${prev} para ${next}`;
+    case 'ASSIGNED':
+      return audit.prevVal
+        ? 'Chamado reatribuído a outro atendente'
+        : 'Chamado atribuído a um atendente';
+    case 'SERVICE_DESK_CHANGED':
+      return 'Chamado movido para outro departamento';
+    default:
+      return audit.action;
+  }
+}
+
 interface TicketDetailProps {
   ticket: Ticket;
 }
@@ -26,6 +75,7 @@ interface TicketDetailProps {
 export function TicketDetail({ ticket }: TicketDetailProps) {
   const user = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
+  const isAgentOrAdmin = user?.role === 'AGENT' || user?.role === 'ADMIN';
 
   const { data: agents = [] } = useQuery({
     queryKey: ['agents'],
@@ -33,7 +83,16 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
       const res = await api.get<{ id: string; name: string }[]>('/users/agents');
       return res.data;
     },
-    enabled: user?.role === 'AGENT' || user?.role === 'ADMIN',
+    enabled: isAgentOrAdmin,
+  });
+
+  const { data: audits = [] } = useQuery({
+    queryKey: ['tickets', ticket.id, 'audits'],
+    queryFn: async () => {
+      const res = await api.get<TicketAudit[]>(`/tickets/${ticket.id}/audits`);
+      return res.data;
+    },
+    enabled: isAgentOrAdmin,
   });
 
   const assignMutation = useMutation({
@@ -151,6 +210,33 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
           </dd>
         </div>
       </dl>
+
+      {isAgentOrAdmin && (
+        <section className="space-y-2">
+          <h2 className="text-lg font-semibold">Histórico</h2>
+          {audits.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Nenhuma alteração registrada ainda.
+            </p>
+          ) : (
+            <ul className="space-y-2 text-sm">
+              {audits.map((audit) => (
+                <li
+                  key={audit.id}
+                  className="flex items-start justify-between gap-4 rounded border px-3 py-2"
+                >
+                  <span>{describeAudit(audit)}</span>
+                  <span className="shrink-0 text-right text-xs text-muted-foreground">
+                    {audit.user?.name ?? 'Sistema'}
+                    <br />
+                    {formatDeadline(audit.createdAt)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
     </div>
   );
 }

@@ -33,8 +33,12 @@ describe('TicketsService', () => {
     };
     businessHour: { findMany: jest.Mock };
     holiday: { findMany: jest.Mock };
+    ticketAudit: { create: jest.Mock; findMany: jest.Mock };
+    serviceDesk: { findUnique: jest.Mock };
     $transaction: jest.Mock;
   };
+
+  const actingUser = { id: 'user-1', role: Role.AGENT };
 
   beforeEach(async () => {
     mockTx = {
@@ -55,6 +59,13 @@ describe('TicketsService', () => {
       },
       holiday: {
         findMany: jest.fn().mockResolvedValue([]),
+      },
+      ticketAudit: {
+        create: jest.fn().mockResolvedValue({}),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      serviceDesk: {
+        findUnique: jest.fn(),
       },
       $transaction: jest.fn(async (cb: (tx: unknown) => unknown) => cb(mockTx)),
     };
@@ -616,7 +627,7 @@ describe('TicketsService', () => {
       mockPrismaService.ticket.findUnique.mockResolvedValue(existingTicket);
       mockPrismaService.ticket.update.mockResolvedValue({});
 
-      await service.update('t1', { title: 'new title' });
+      await service.update('t1', { title: 'new title' }, actingUser);
 
       expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
         where: { id: 't1' },
@@ -628,7 +639,7 @@ describe('TicketsService', () => {
       mockPrismaService.ticket.findUnique.mockResolvedValue(existingTicket);
       mockPrismaService.ticket.update.mockResolvedValue({});
 
-      await service.update('t1', { priority: TicketPriority.CRITICAL });
+      await service.update('t1', { priority: TicketPriority.CRITICAL }, actingUser);
 
       expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
         where: { id: 't1' },
@@ -644,7 +655,7 @@ describe('TicketsService', () => {
       mockPrismaService.ticket.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.update('missing', { title: 'x' }),
+        service.update('missing', { title: 'x' }, actingUser),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -657,7 +668,7 @@ describe('TicketsService', () => {
         agentId: 'agent-1',
       });
 
-      const result = await service.assign('t1', 'agent-1');
+      const result = await service.assign('t1', 'agent-1', actingUser);
 
       expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
         where: { id: 't1' },
@@ -670,7 +681,7 @@ describe('TicketsService', () => {
     it('throws NotFoundException when ticket does not exist', async () => {
       mockPrismaService.ticket.findUnique.mockResolvedValue(null);
 
-      await expect(service.assign('missing', 'agent-1')).rejects.toThrow(
+      await expect(service.assign('missing', 'agent-1', actingUser)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -681,7 +692,7 @@ describe('TicketsService', () => {
         throw prismaKnownError('P2003', { field_name: 'agentId' });
       });
 
-      await expect(service.assign('t1', 'ghost-agent')).rejects.toThrow(
+      await expect(service.assign('t1', 'ghost-agent', actingUser)).rejects.toThrow(
         BadRequestException,
       );
     });
@@ -837,5 +848,223 @@ describe('TicketsService', () => {
     // method) — see tickets.controller.spec.ts for that assertion. There is
     // no route through which a CLIENT-authenticated request invokes this
     // service method at all.
+  });
+
+  describe('audit trail', () => {
+    it('records a TicketAudit row when priority changes via update()', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        title: 'old',
+        description: 'old-desc',
+        priority: TicketPriority.MEDIUM,
+        createdAt: new Date('2026-01-01T00:00:00.000Z'),
+        serviceDeskId: 'desk-1',
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({});
+
+      await service.update('t1', { priority: TicketPriority.CRITICAL }, actingUser);
+
+      expect(mockPrismaService.ticketAudit.create).toHaveBeenCalledWith({
+        data: {
+          action: 'PRIORITY_CHANGED',
+          prevVal: TicketPriority.MEDIUM,
+          newVal: TicketPriority.CRITICAL,
+          ticketId: 't1',
+          userId: actingUser.id,
+        },
+      });
+    });
+
+    it('does NOT record an audit row when update() changes only title/description', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        title: 'old',
+        description: 'old-desc',
+        priority: TicketPriority.MEDIUM,
+        createdAt: new Date('2026-01-01T00:00:00.000Z'),
+        serviceDeskId: 'desk-1',
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({});
+
+      await service.update('t1', { title: 'new title' }, actingUser);
+
+      expect(mockPrismaService.ticketAudit.create).not.toHaveBeenCalled();
+    });
+
+    it('records a TicketAudit row when an agent is (re)assigned', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        agentId: null,
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({
+        id: 't1',
+        agentId: 'agent-2',
+      });
+
+      await service.assign('t1', 'agent-2', actingUser);
+
+      expect(mockPrismaService.ticketAudit.create).toHaveBeenCalledWith({
+        data: {
+          action: 'ASSIGNED',
+          prevVal: null,
+          newVal: 'agent-2',
+          ticketId: 't1',
+          userId: actingUser.id,
+        },
+      });
+    });
+
+    it('records a TicketAudit row on a valid status transition', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.OPEN,
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.IN_PROGRESS,
+      });
+
+      await service.changeStatus('t1', TicketStatus.IN_PROGRESS, actingUser);
+
+      expect(mockPrismaService.ticketAudit.create).toHaveBeenCalledWith({
+        data: {
+          action: 'STATUS_CHANGED',
+          prevVal: TicketStatus.OPEN,
+          newVal: TicketStatus.IN_PROGRESS,
+          ticketId: 't1',
+          userId: actingUser.id,
+        },
+      });
+    });
+
+    it('does NOT record an audit row when a status transition is rejected', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.OPEN,
+      });
+
+      await expect(
+        service.changeStatus('t1', TicketStatus.RESOLVED, actingUser),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(mockPrismaService.ticketAudit.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('changeServiceDesk', () => {
+    it('moves the ticket to a different service desk and records an audit row', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        serviceDeskId: 'desk-1',
+      });
+      mockPrismaService.serviceDesk.findUnique.mockResolvedValue({
+        id: 'desk-2',
+        name: 'Financeiro',
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({
+        id: 't1',
+        serviceDeskId: 'desk-2',
+      });
+
+      const result = await service.changeServiceDesk(
+        't1',
+        'desk-2',
+        actingUser,
+      );
+
+      expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
+        where: { id: 't1' },
+        data: { serviceDeskId: 'desk-2' },
+      });
+      expect(mockPrismaService.ticketAudit.create).toHaveBeenCalledWith({
+        data: {
+          action: 'SERVICE_DESK_CHANGED',
+          prevVal: 'desk-1',
+          newVal: 'desk-2',
+          ticketId: 't1',
+          userId: actingUser.id,
+        },
+      });
+      expect(result.serviceDeskId).toBe('desk-2');
+    });
+
+    it('throws NotFoundException when the ticket does not exist', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.changeServiceDesk('missing', 'desk-2', actingUser),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws BadRequestException when the target service desk does not exist', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        serviceDeskId: 'desk-1',
+      });
+      mockPrismaService.serviceDesk.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.changeServiceDesk('t1', 'ghost-desk', actingUser),
+      ).rejects.toThrow(BadRequestException);
+      expect(mockPrismaService.ticket.update).not.toHaveBeenCalled();
+    });
+
+    it('is a no-op (no audit, no update) when the target desk is the same as the current one', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        serviceDeskId: 'desk-1',
+      });
+      mockPrismaService.serviceDesk.findUnique.mockResolvedValue({
+        id: 'desk-1',
+        name: 'Suporte Geral',
+      });
+
+      await service.changeServiceDesk('t1', 'desk-1', actingUser);
+
+      expect(mockPrismaService.ticket.update).not.toHaveBeenCalled();
+      expect(mockPrismaService.ticketAudit.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('findAudits', () => {
+    it('returns the audit trail for a ticket ordered oldest first, with the acting user name', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({ id: 't1' });
+      mockPrismaService.ticketAudit.findMany.mockResolvedValue([
+        {
+          id: 'a1',
+          action: 'STATUS_CHANGED',
+          prevVal: 'OPEN',
+          newVal: 'IN_PROGRESS',
+          createdAt: new Date('2026-01-01T00:00:00.000Z'),
+          user: { name: 'Agente Teste' },
+        },
+      ]);
+
+      const result = await service.findAudits('t1');
+
+      expect(mockPrismaService.ticketAudit.findMany).toHaveBeenCalledWith({
+        where: { ticketId: 't1' },
+        orderBy: { createdAt: 'asc' },
+        include: { user: { select: { name: true } } },
+      });
+      expect(result).toEqual([
+        {
+          id: 'a1',
+          action: 'STATUS_CHANGED',
+          prevVal: 'OPEN',
+          newVal: 'IN_PROGRESS',
+          createdAt: new Date('2026-01-01T00:00:00.000Z'),
+          user: { name: 'Agente Teste' },
+        },
+      ]);
+    });
+
+    it('throws NotFoundException when the ticket does not exist', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue(null);
+
+      await expect(service.findAudits('missing')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
   });
 });
