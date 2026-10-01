@@ -151,4 +151,113 @@ describe('BusinessHoursEditor', () => {
 
     expect(screen.queryByTestId('business-hour-row-0')).not.toBeInTheDocument();
   });
+
+  it('applies the same Mon-Fri window in one click via the shortcut', async () => {
+    vi.mocked(api.get).mockResolvedValue({
+      data: { businessHours: [], holidays: [] },
+    });
+
+    const user = userEvent.setup();
+    renderEditor();
+
+    await screen.findByText(/sem expediente configurado/i);
+
+    await user.type(
+      screen.getByLabelText(/horário seg-sex \(início\)/i),
+      '08:00',
+    );
+    await user.type(
+      screen.getByLabelText(/horário seg-sex \(fim\)/i),
+      '18:00',
+    );
+    await user.click(
+      screen.getByRole('button', { name: /aplicar seg-sex/i }),
+    );
+
+    const weekdays = [1, 2, 3, 4, 5];
+    for (const [i, weekday] of weekdays.entries()) {
+      const row = screen.getByTestId(`business-hour-row-${i}`);
+      expect(within(row).getByLabelText(/dia da semana/i)).toHaveValue(
+        String(weekday),
+      );
+      expect(within(row).getByLabelText(/início/i)).toHaveValue('08:00');
+      expect(within(row).getByLabelText(/fim/i)).toHaveValue('18:00');
+    }
+    expect(screen.queryByTestId('business-hour-row-5')).not.toBeInTheDocument();
+  });
+
+  it('does not apply the Mon-Fri shortcut with empty start/end time', async () => {
+    vi.mocked(api.get).mockResolvedValue({
+      data: { businessHours: [], holidays: [] },
+    });
+
+    const user = userEvent.setup();
+    renderEditor();
+
+    await screen.findByText(/sem expediente configurado/i);
+
+    await user.click(
+      screen.getByRole('button', { name: /aplicar seg-sex/i }),
+    );
+
+    expect(screen.queryByTestId('business-hour-row-0')).not.toBeInTheDocument();
+  });
+
+  it('imports national holidays for a chosen year and adds them as draft rows', async () => {
+    vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url === '/service-desks/holidays/national/2026') {
+        return Promise.resolve({
+          data: [
+            { date: '2026-01-01', name: 'Confraternização mundial' },
+            { date: '2026-12-25', name: 'Natal' },
+          ],
+        });
+      }
+      return Promise.resolve({ data: { businessHours: [], holidays: [] } });
+    });
+
+    const user = userEvent.setup();
+    renderEditor();
+
+    await screen.findByText(/sem expediente configurado/i);
+
+    await user.clear(screen.getByLabelText(/ano para importar feriados/i));
+    await user.type(screen.getByLabelText(/ano para importar feriados/i), '2026');
+    await user.click(
+      screen.getByRole('button', { name: /importar feriados nacionais/i }),
+    );
+
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith(
+        '/service-desks/holidays/national/2026',
+      );
+    });
+
+    expect(await screen.findByDisplayValue('Natal')).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue('Confraternização mundial'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows an error message when importing national holidays fails', async () => {
+    vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url === '/service-desks/holidays/national/2026') {
+        return Promise.reject(new Error('BrasilAPI unreachable'));
+      }
+      return Promise.resolve({ data: { businessHours: [], holidays: [] } });
+    });
+
+    const user = userEvent.setup();
+    renderEditor();
+
+    await screen.findByText(/sem expediente configurado/i);
+
+    await user.click(
+      screen.getByRole('button', { name: /importar feriados nacionais/i }),
+    );
+
+    expect(
+      await screen.findByText(/falha ao importar feriados/i),
+    ).toBeInTheDocument();
+  });
 });

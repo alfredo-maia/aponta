@@ -35,6 +35,13 @@ export class ServiceDesksController {
     return this.serviceDesksService.findAll();
   }
 
+  @Get('holidays/national/:year')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN, Role.AGENT_MASTER)
+  importNationalHolidays(@Param('year') year: string) {
+    return this.serviceDesksService.importNationalHolidays(Number(year));
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.serviceDesksService.findOne(id);

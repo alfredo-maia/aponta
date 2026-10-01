@@ -17,6 +17,7 @@ const mockServiceDesksService = {
   remove: jest.fn(),
   getBusinessHours: jest.fn(),
   updateBusinessHours: jest.fn(),
+  importNationalHolidays: jest.fn(),
 };
 
 describe('ServiceDesksController', () => {
@@ -67,6 +68,12 @@ describe('ServiceDesksController', () => {
       expect(
         Reflect.getMetadata(ROLES_KEY, controller.getBusinessHours),
       ).toBeUndefined();
+    });
+
+    it('requires ADMIN or AGENT_MASTER on importNationalHolidays', () => {
+      expect(
+        Reflect.getMetadata(ROLES_KEY, controller.importNationalHolidays),
+      ).toEqual([Role.ADMIN, Role.AGENT_MASTER]);
     });
 
     it('does not restrict findAll to any role', () => {
@@ -148,6 +155,29 @@ describe('ServiceDesksController', () => {
       expect(
         guard.canActivate(
           contextFor(controller.updateBusinessHours, Role.CLIENT),
+        ),
+      ).toBe(false);
+    });
+
+    it('allows ADMIN and AGENT_MASTER on importNationalHolidays, blocks AGENT/CLIENT', () => {
+      expect(
+        guard.canActivate(
+          contextFor(controller.importNationalHolidays, Role.ADMIN),
+        ),
+      ).toBe(true);
+      expect(
+        guard.canActivate(
+          contextFor(controller.importNationalHolidays, Role.AGENT_MASTER),
+        ),
+      ).toBe(true);
+      expect(
+        guard.canActivate(
+          contextFor(controller.importNationalHolidays, Role.AGENT),
+        ),
+      ).toBe(false);
+      expect(
+        guard.canActivate(
+          contextFor(controller.importNationalHolidays, Role.CLIENT),
         ),
       ).toBe(false);
     });
@@ -287,6 +317,20 @@ describe('ServiceDesksController', () => {
       expect(
         mockServiceDesksService.updateBusinessHours,
       ).toHaveBeenCalledWith('1', dto);
+      expect(result).toEqual(expected);
+    });
+
+    it('importNationalHolidays delegates to the service with the parsed year', async () => {
+      const expected = [{ date: '2026-01-01', name: 'Confraternização mundial' }];
+      mockServiceDesksService.importNationalHolidays.mockResolvedValue(
+        expected,
+      );
+
+      const result = await controller.importNationalHolidays('2026');
+
+      expect(
+        mockServiceDesksService.importNationalHolidays,
+      ).toHaveBeenCalledWith(2026);
       expect(result).toEqual(expected);
     });
   });

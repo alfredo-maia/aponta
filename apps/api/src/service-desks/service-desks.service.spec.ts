@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ServiceDesksService } from './service-desks.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { HolidaysImportService } from './holidays-import.service';
 
 const mockPrismaService = {
   serviceDesk: {
@@ -23,6 +24,10 @@ const mockPrismaService = {
   $transaction: jest.fn(),
 };
 
+const mockHolidaysImportService = {
+  fetchNationalHolidays: jest.fn(),
+};
+
 describe('ServiceDesksService', () => {
   let service: ServiceDesksService;
   let prisma: PrismaService;
@@ -32,6 +37,7 @@ describe('ServiceDesksService', () => {
       providers: [
         ServiceDesksService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: HolidaysImportService, useValue: mockHolidaysImportService },
       ],
     }).compile();
 
@@ -171,6 +177,22 @@ describe('ServiceDesksService', () => {
       await expect(
         service.updateBusinessHours('missing', { businessHours: [], holidays: [] }),
       ).rejects.toThrow('ServiceDesk with ID missing not found');
+    });
+  });
+
+  describe('importNationalHolidays', () => {
+    it('delegates to HolidaysImportService with the given year', async () => {
+      const expected = [{ date: '2026-01-01', name: 'Confraternização mundial' }];
+      mockHolidaysImportService.fetchNationalHolidays.mockResolvedValue(
+        expected,
+      );
+
+      const result = await service.importNationalHolidays(2026);
+
+      expect(
+        mockHolidaysImportService.fetchNationalHolidays,
+      ).toHaveBeenCalledWith(2026);
+      expect(result).toEqual(expected);
     });
   });
 });

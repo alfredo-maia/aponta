@@ -3,10 +3,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateServiceDeskDto } from './dto/create-service-desk.dto';
 import { UpdateServiceDeskDto } from './dto/update-service-desk.dto';
 import { UpdateBusinessHoursDto } from './dto/update-business-hours.dto';
+import { HolidaysImportService } from './holidays-import.service';
 
 @Injectable()
 export class ServiceDesksService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly holidaysImportService: HolidaysImportService,
+  ) {}
 
   async create(createServiceDeskDto: CreateServiceDeskDto) {
     const { agentIds, ...data } = createServiceDeskDto;
@@ -114,5 +118,9 @@ export class ServiceDesksService {
     ]);
 
     return this.getBusinessHours(serviceDeskId);
+  }
+
+  importNationalHolidays(year: number) {
+    return this.holidaysImportService.fetchNationalHolidays(year);
   }
 }

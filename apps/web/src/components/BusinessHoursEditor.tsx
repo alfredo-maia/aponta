@@ -66,6 +66,15 @@ export function BusinessHoursEditor({
   const windows = draft?.businessHours ?? data?.businessHours ?? [];
   const holidays = draft?.holidays ?? data?.holidays ?? [];
 
+  // Shortcut state: "same window every Mon-Fri" so admins don't have to
+  // add+fill 5 identical rows by hand.
+  const [shortcutStart, setShortcutStart] = useState('');
+  const [shortcutEnd, setShortcutEnd] = useState('');
+
+  // National holiday import state.
+  const currentYear = new Date().getFullYear();
+  const [importYear, setImportYear] = useState(String(currentYear));
+
   const ensureDraft = (): BusinessHoursConfig =>
     draft ?? {
       businessHours: data?.businessHours ?? [],
@@ -94,6 +103,25 @@ export function BusinessHoursEditor({
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey });
       setDraft(null);
+    },
+  });
+
+  const importHolidaysMutation = useMutation({
+    mutationFn: async (year: string) => {
+      const { data } = await api.get<{ date: string; name: string }[]>(
+        `/service-desks/holidays/national/${year}`,
+      );
+      return data;
+    },
+    onSuccess: (imported) => {
+      const current = ensureDraft();
+      setDraft({
+        ...current,
+        holidays: [
+          ...current.holidays,
+          ...imported.map((h) => ({ date: h.date, name: h.name })),
+        ],
+      });
     },
   });
 
@@ -149,6 +177,20 @@ export function BusinessHoursEditor({
     setDraft({
       ...current,
       holidays: current.holidays.filter((_, i) => i !== index),
+    });
+  };
+
+  const applyMondayToFridayWindow = () => {
+    if (!shortcutStart.trim() || !shortcutEnd.trim()) return;
+    const current = ensureDraft();
+    const mondayToFriday = [1, 2, 3, 4, 5].map((weekday) => ({
+      weekday,
+      startTime: shortcutStart,
+      endTime: shortcutEnd,
+    }));
+    setDraft({
+      ...current,
+      businessHours: [...current.businessHours, ...mondayToFriday],
     });
   };
 
@@ -289,6 +331,80 @@ export function BusinessHoursEditor({
         >
           + Adicionar feriado
         </button>
+      </div>
+
+      <div className="flex flex-wrap items-end gap-2 rounded border border-dashed p-2">
+        <div className="flex flex-col gap-1">
+          <label htmlFor="shortcut-start" className="text-xs text-muted-foreground">
+            Horário Seg-Sex (início)
+          </label>
+          <input
+            id="shortcut-start"
+            aria-label="Horário Seg-Sex (início)"
+            type="text"
+            placeholder="08:00"
+            value={shortcutStart}
+            onChange={(e) => setShortcutStart(e.target.value)}
+            className="w-20 rounded border px-2 py-1 text-xs"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="shortcut-end" className="text-xs text-muted-foreground">
+            Horário Seg-Sex (fim)
+          </label>
+          <input
+            id="shortcut-end"
+            aria-label="Horário Seg-Sex (fim)"
+            type="text"
+            placeholder="18:00"
+            value={shortcutEnd}
+            onChange={(e) => setShortcutEnd(e.target.value)}
+            className="w-20 rounded border px-2 py-1 text-xs"
+          />
+        </div>
+        <button
+          type="button"
+          onClick={applyMondayToFridayWindow}
+          className="text-xs px-2 py-1 border rounded hover:bg-gray-50"
+        >
+          Aplicar Seg-Sex
+        </button>
+        <span className="text-xs text-muted-foreground">
+          Cria as 5 janelas (Seg a Sex) de uma vez com o mesmo horário.
+        </span>
+      </div>
+
+      <div className="flex flex-wrap items-end gap-2 rounded border border-dashed p-2">
+        <div className="flex flex-col gap-1">
+          <label htmlFor="import-year" className="text-xs text-muted-foreground">
+            Ano para importar feriados
+          </label>
+          <input
+            id="import-year"
+            aria-label="Ano para importar feriados"
+            type="text"
+            value={importYear}
+            onChange={(e) => setImportYear(e.target.value)}
+            className="w-20 rounded border px-2 py-1 text-xs"
+          />
+        </div>
+        <button
+          type="button"
+          disabled={importHolidaysMutation.isPending}
+          onClick={() => importHolidaysMutation.mutate(importYear)}
+          className="text-xs px-2 py-1 border rounded hover:bg-gray-50 disabled:opacity-50"
+        >
+          Importar feriados nacionais
+        </button>
+        <span className="text-xs text-muted-foreground">
+          Busca os feriados nacionais do ano via BrasilAPI (feriados
+          estaduais/municipais precisam ser adicionados manualmente).
+        </span>
+        {importHolidaysMutation.isError && (
+          <p role="alert" className="w-full text-xs text-red-600">
+            Falha ao importar feriados. Tente novamente.
+          </p>
+        )}
       </div>
 
       {mutation.isError && (
