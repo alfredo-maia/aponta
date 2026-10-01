@@ -12,6 +12,7 @@ import { OrganizationsPage } from './pages/OrganizationsPage';
 import { TicketDetailPage } from './pages/TicketDetailPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { KnowledgePage } from './pages/KnowledgePage';
+import { PublicCsatPage } from './pages/PublicCsatPage';
 
 /**
  * App-wide Tanstack Query client. The provider lives here (rather than in
@@ -29,6 +30,7 @@ export function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/avaliar/:token" element={<PublicCsatPage />} />
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route path="/" element={<DashboardPage />} />

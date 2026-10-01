@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Prisma, Role, Ticket, TicketPriority, TicketStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -522,7 +523,10 @@ export class TicketsService {
 
     const ticket = await this.prisma.ticket.update({
       where: { id },
-      data: { status: newStatus },
+      data:
+        newStatus === TicketStatus.RESOLVED && !existing.csatToken
+          ? { status: newStatus, csatToken: randomUUID() }
+          : { status: newStatus },
       include: { requester: { select: { email: true } } },
     });
     

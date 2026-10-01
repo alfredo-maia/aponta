@@ -31,12 +31,13 @@ describe('TicketEventsListener', () => {
   });
 
   describe('handleTicketStatusChangedEvent', () => {
-    it('sends a CSAT-request email (not the generic status email) when the ticket becomes RESOLVED', async () => {
+    it('sends a CSAT-request email with a public token link when the ticket becomes RESOLVED', async () => {
       const ticket = {
         id: 'ticket-1',
         protocol: '2026-0001',
         title: 'Impressora não funciona',
         status: 'RESOLVED',
+        csatToken: 'tok-abc-123',
       };
 
       await listener.handleTicketStatusChangedEvent({
@@ -49,13 +50,36 @@ describe('TicketEventsListener', () => {
         to: 'cliente@aponta.com',
         subject: `[Aponta] Seu chamado ${ticket.protocol} foi resolvido — avalie nosso atendimento`,
         text: expect.stringContaining(
-          'https://aponta.dmtecnologia.cloud/tickets/ticket-1',
+          'https://aponta.dmtecnologia.cloud/avaliar/tok-abc-123',
         ),
       });
       // Must not also send the generic "status changed" email
       expect(mockMailService.sendEmail).not.toHaveBeenCalledWith(
         expect.objectContaining({
           subject: expect.stringContaining('mudou para'),
+        }),
+      );
+    });
+
+    it('falls back to the ticket detail link when the ticket has no csatToken yet', async () => {
+      const ticket = {
+        id: 'ticket-1',
+        protocol: '2026-0001',
+        title: 'Impressora não funciona',
+        status: 'RESOLVED',
+        csatToken: null,
+      };
+
+      await listener.handleTicketStatusChangedEvent({
+        ticket,
+        requesterEmail: 'cliente@aponta.com',
+      });
+
+      expect(mockMailService.sendEmail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          text: expect.stringContaining(
+            'https://aponta.dmtecnologia.cloud/tickets/ticket-1',
+          ),
         }),
       );
     });

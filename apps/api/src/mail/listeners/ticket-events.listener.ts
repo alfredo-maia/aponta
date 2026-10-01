@@ -53,10 +53,13 @@ export class TicketEventsListener {
     if (!payload.requesterEmail) return;
 
     if (payload.ticket.status === 'RESOLVED') {
+      const ratingLink = payload.ticket.csatToken
+        ? `${this.appUrl}/avaliar/${payload.ticket.csatToken}`
+        : `${this.appUrl}/tickets/${payload.ticket.id}`;
       await this.mailService.sendEmail({
         to: payload.requesterEmail,
         subject: `[Aponta] Seu chamado ${payload.ticket.protocol} foi resolvido — avalie nosso atendimento`,
-        text: `Olá!\n\nSeu chamado "${payload.ticket.title}" foi marcado como resolvido.\n\nGostaríamos muito de saber como foi sua experiência — deixe sua avaliação (nota e comentário) aqui:\n${this.appUrl}/tickets/${payload.ticket.id}\n\nSe o problema persistir, você também pode reabrir o chamado por lá.`,
+        text: `Olá!\n\nSeu chamado "${payload.ticket.title}" foi marcado como resolvido.\n\nGostaríamos muito de saber como foi sua experiência — deixe sua avaliação (nota e comentário) aqui, sem precisar fazer login:\n${ratingLink}\n\nSe o problema persistir, você também pode reabrir o chamado por lá.`,
       });
       return;
     }

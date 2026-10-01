@@ -784,6 +784,54 @@ describe('TicketsService', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
+    it('generates a csatToken when transitioning to RESOLVED and none exists yet', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.IN_PROGRESS,
+        csatToken: null,
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.RESOLVED,
+        csatToken: 'generated-token',
+      });
+
+      await service.changeStatus('t1', TicketStatus.RESOLVED, {
+        id: 'agent-1',
+        role: Role.AGENT,
+      });
+
+      expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
+        where: { id: 't1' },
+        data: { status: TicketStatus.RESOLVED, csatToken: expect.any(String) },
+        include: { requester: { select: { email: true } } },
+      });
+    });
+
+    it('does not overwrite an existing csatToken when transitioning to RESOLVED again', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.IN_PROGRESS,
+        csatToken: 'already-existing-token',
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.RESOLVED,
+        csatToken: 'already-existing-token',
+      });
+
+      await service.changeStatus('t1', TicketStatus.RESOLVED, {
+        id: 'agent-1',
+        role: Role.AGENT,
+      });
+
+      expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
+        where: { id: 't1' },
+        data: { status: TicketStatus.RESOLVED },
+        include: { requester: { select: { email: true } } },
+      });
+    });
+
     // Note: CLIENT is blocked from ever reaching changeStatus() at the route
     // level (JwtAuthGuard + RolesGuard(AGENT, ADMIN) on the controller
     // method) — see tickets.controller.spec.ts for that assertion. There is

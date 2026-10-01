@@ -129,6 +129,7 @@ model Ticket {
 
   csatScore   Int?
   csatComment String?
+  csatToken   String? @unique
 
   comments    Comment[]
   audits      TicketAudit[]
