@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { TicketStatus, TicketFiltersInput } from '../../hooks/useTickets';
 import { statusLabels } from './TicketCard';
@@ -24,8 +25,40 @@ export function TicketFilters({ filters, onChange }: TicketFiltersProps) {
     },
   });
 
+  // Local, debounced search text: typing shouldn't fire a request per
+  // keystroke. Kept in sync if the parent resets filters (e.g. clearing).
+  const [searchText, setSearchText] = useState(filters.search ?? '');
+
+  useEffect(() => {
+    setSearchText(filters.search ?? '');
+  }, [filters.search]);
+
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      if ((filters.search ?? '') !== searchText) {
+        onChange({ ...filters, search: searchText || undefined });
+      }
+    }, 400);
+    return () => clearTimeout(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchText]);
+
   return (
     <div className="flex flex-wrap items-end gap-4">
+      <div className="space-y-1">
+        <label htmlFor="filter-search" className="block text-sm font-medium">
+          Buscar
+        </label>
+        <input
+          id="filter-search"
+          type="search"
+          placeholder="Título, protocolo ou descrição…"
+          className="rounded border bg-background px-3 py-2 text-sm"
+          value={searchText}
+          onChange={(event) => setSearchText(event.target.value)}
+        />
+      </div>
+
       <div className="space-y-1">
         <label
           htmlFor="filter-service-desk"

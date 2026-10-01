@@ -1,7 +1,7 @@
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
-import type { Ticket, TicketStatus } from '../../hooks/useTickets';
+import type { Ticket, TicketStatus, TicketsPage } from '../../hooks/useTickets';
 import { TicketCard, statusLabels } from './TicketCard';
 import { useAuthStore } from '../../stores/authStore';
 
@@ -24,17 +24,25 @@ export function TicketKanban({ tickets, isLoading, isError }: TicketKanbanProps)
     },
     onMutate: async ({ id, status }) => {
       await queryClient.cancelQueries({ queryKey: ['tickets'] });
-      const previousTickets = queryClient.getQueryData<Ticket[]>(['tickets']);
-      queryClient.setQueryData<Ticket[]>(['tickets'], (old) => {
-        if (!old) return old;
-        return old.map((t) => (t.id === id ? { ...t, status } : t));
+      const previousQueries = queryClient.getQueriesData<TicketsPage>({
+        queryKey: ['tickets'],
       });
-      return { previousTickets };
+      queryClient.setQueriesData<TicketsPage>(
+        { queryKey: ['tickets'] },
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            data: old.data.map((t) => (t.id === id ? { ...t, status } : t)),
+          };
+        },
+      );
+      return { previousQueries };
     },
     onError: (err, newTicket, context) => {
-      if (context?.previousTickets) {
-        queryClient.setQueryData(['tickets'], context.previousTickets);
-      }
+      context?.previousQueries?.forEach(([key, value]) => {
+        queryClient.setQueryData(key, value);
+      });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['tickets'] });
@@ -74,7 +82,7 @@ export function TicketKanban({ tickets, isLoading, isError }: TicketKanbanProps)
 
   // Agrupa os chamados
   const grouped = columns.reduce((acc, col) => {
-    acc[col] = (tickets.data || []).filter((t) => t.status === col);
+    acc[col] = tickets.filter((t) => t.status === col);
     return acc;
   }, {} as Record<TicketStatus, Ticket[]>);
 

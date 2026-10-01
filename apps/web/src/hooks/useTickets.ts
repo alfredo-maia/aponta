@@ -21,6 +21,18 @@ export interface Ticket {
   updatedAt: string;
 }
 
+export interface TicketsMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface TicketsPage {
+  data: Ticket[];
+  meta: TicketsMeta;
+}
+
 export interface TicketFiltersInput {
   serviceDeskId?: string;
   status?: TicketStatus;
@@ -29,26 +41,36 @@ export interface TicketFiltersInput {
 }
 
 /**
- * Fetches the visible ticket queue via `GET /tickets` (Task 5). Both filters
- * are optional and map directly to the endpoint's query params; the server
- * already scopes results by role (CLIENTs only see their own tickets), so no
- * client-side filtering is applied. The filter values are part of the query
- * key (normalized with `?? null` so `undefined` and "no filter" hash the
- * same), which makes Tanstack Query cache and refetch per filter combination.
+ * Fetches the visible ticket queue via `GET /tickets` (Task 5, extended in
+ * Issue #08 with search + pagination). Filters are optional and map
+ * directly to the endpoint's query params; the server already scopes
+ * results by role (CLIENTs only see their own tickets), so no client-side
+ * filtering is applied. The filter values are part of the query key
+ * (normalized with `?? null` so `undefined` and "no filter" hash the
+ * same), which makes Tanstack Query cache and refetch per filter+page
+ * combination.
  */
 export function useTickets(filters: TicketFiltersInput = {}) {
-  const { serviceDeskId, status } = filters;
+  const { serviceDeskId, status, search, page } = filters;
 
   return useQuery({
     queryKey: [
       'tickets',
-      { serviceDeskId: serviceDeskId ?? null, status: status ?? null },
+      {
+        serviceDeskId: serviceDeskId ?? null,
+        status: status ?? null,
+        search: search ?? null,
+        page: page ?? 1,
+      },
     ],
     queryFn: async () => {
-      const { data } = await api.get<Ticket[]>('/tickets', {
+      const { data } = await api.get<TicketsPage>('/tickets', {
         params: {
           ...(serviceDeskId ? { serviceDeskId } : {}),
           ...(status ? { status } : {}),
+          ...(search ? { search } : {}),
+          page: page ?? 1,
+          limit: 20,
         },
       });
       return data;

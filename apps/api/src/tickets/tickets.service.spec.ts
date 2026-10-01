@@ -29,6 +29,7 @@ describe('TicketsService', () => {
       findMany: jest.Mock;
       findUnique: jest.Mock;
       update: jest.Mock;
+      count: jest.Mock;
     };
     $transaction: jest.Mock;
   };
@@ -45,6 +46,7 @@ describe('TicketsService', () => {
         findMany: jest.fn(),
         findUnique: jest.fn(),
         update: jest.fn(),
+        count: jest.fn().mockResolvedValue(0),
       },
       $transaction: jest.fn(async (cb: (tx: unknown) => unknown) => cb(mockTx)),
     };
@@ -276,6 +278,9 @@ describe('TicketsService', () => {
           status: TicketStatus.OPEN,
           serviceDesk: { agents: { some: { id: 'agent-1' } } } 
         },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
       });
     });
 
@@ -289,6 +294,9 @@ describe('TicketsService', () => {
 
       expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
         where: { serviceDeskId: 'desk-1', requesterId: 'client-1' },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
       });
     });
 
@@ -299,6 +307,52 @@ describe('TicketsService', () => {
 
       expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
         where: {},
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('applies a case-insensitive search filter across title/protocol/description', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { search: 'printer' },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: {
+          OR: [
+            { title: { contains: 'printer', mode: 'insensitive' } },
+            { protocol: { contains: 'printer', mode: 'insensitive' } },
+            { description: { contains: 'printer', mode: 'insensitive' } },
+          ],
+        },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('paginates using page/limit and returns meta', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([{ id: 't-1' }]);
+      mockPrismaService.ticket.count.mockResolvedValue(45);
+
+      const result = await service.findAll(
+        { page: '2', limit: '10' },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: {},
+        skip: 10,
+        take: 10,
+        orderBy: { createdAt: 'desc' },
+      });
+      expect(result).toEqual({
+        data: [{ id: 't-1' }],
+        meta: { total: 45, page: 2, limit: 10, totalPages: 5 },
       });
     });
   });

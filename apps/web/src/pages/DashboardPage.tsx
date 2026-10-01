@@ -12,7 +12,7 @@ export function DashboardPage() {
   const [filters, setFilters] = useState<TicketFiltersInput>({});
   const { data, isLoading, isError } = useTickets(filters);
   const user = useAuthStore((state) => state.user);
-  
+
   // Agentes default to Kanban, Clients forcefully use list
   const [viewMode, setViewMode] = useState<ViewMode>(user?.role === 'CLIENT' ? 'list' : 'kanban');
 
@@ -22,6 +22,16 @@ export function DashboardPage() {
       setViewMode('list');
     }
   }, [user?.role]);
+
+  const tickets = data?.data ?? [];
+  const meta = data?.meta;
+  const currentPage = filters.page ?? 1;
+
+  const handleFiltersChange = (next: TicketFiltersInput) => {
+    // Any filter/search change resets back to page 1 so results aren't
+    // scoped to a page number that may no longer exist under the new query.
+    setFilters({ ...next, page: 1 });
+  };
 
   return (
     <div className="space-y-6">
@@ -51,20 +61,55 @@ export function DashboardPage() {
         )}
       </div>
 
-      <TicketFilters filters={filters} onChange={setFilters} />
-      
+      <TicketFilters filters={filters} onChange={handleFiltersChange} />
+
       {viewMode === 'kanban' ? (
         <TicketKanban
-          tickets={data ?? []}
+          tickets={tickets}
           isLoading={isLoading}
           isError={isError}
         />
       ) : (
-        <TicketList
-          tickets={data ?? []}
-          isLoading={isLoading}
-          isError={isError}
-        />
+        <>
+          <TicketList
+            tickets={tickets}
+            isLoading={isLoading}
+            isError={isError}
+          />
+          {meta && meta.totalPages > 1 && (
+            <nav
+              aria-label="Paginação de chamados"
+              className="flex items-center justify-between pt-2 text-sm"
+            >
+              <span className="text-muted-foreground">
+                Página {meta.page} de {meta.totalPages} ({meta.total}{' '}
+                {meta.total === 1 ? 'chamado' : 'chamados'})
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  disabled={currentPage <= 1}
+                  onClick={() =>
+                    setFilters((prev) => ({ ...prev, page: currentPage - 1 }))
+                  }
+                  className="rounded border px-3 py-1 disabled:opacity-50"
+                >
+                  Anterior
+                </button>
+                <button
+                  type="button"
+                  disabled={currentPage >= meta.totalPages}
+                  onClick={() =>
+                    setFilters((prev) => ({ ...prev, page: currentPage + 1 }))
+                  }
+                  className="rounded border px-3 py-1 disabled:opacity-50"
+                >
+                  Próxima
+                </button>
+              </div>
+            </nav>
+          )}
+        </>
       )}
     </div>
   );

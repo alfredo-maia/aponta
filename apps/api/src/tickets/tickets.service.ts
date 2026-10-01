@@ -249,13 +249,23 @@ export class TicketsService {
   async findAll(
     query: TicketQueryDto,
     currentUser: CurrentUserPayload,
-  ): Promise<Ticket[]> {
+  ): Promise<{
+    data: Ticket[];
+    meta: { total: number; page: number; limit: number; totalPages: number };
+  }> {
     const where: Prisma.TicketWhereInput = {};
     if (query.serviceDeskId) {
       where.serviceDeskId = query.serviceDeskId;
     }
     if (query.status) {
       where.status = query.status;
+    }
+    if (query.search) {
+      where.OR = [
+        { title: { contains: query.search, mode: 'insensitive' } },
+        { protocol: { contains: query.search, mode: 'insensitive' } },
+        { description: { contains: query.search, mode: 'insensitive' } },
+      ];
     }
 
     if (currentUser.role === Role.CLIENT) {
@@ -273,7 +283,26 @@ export class TicketsService {
     }
     // ADMIN has no restrictions, sees everything
 
-    return this.prisma.ticket.findMany({ where });
+    const page = Math.max(parseInt(query.page ?? '1', 10) || 1, 1);
+    const limit = Math.min(
+      Math.max(parseInt(query.limit ?? '20', 10) || 20, 1),
+      100,
+    );
+
+    const [data, total] = await Promise.all([
+      this.prisma.ticket.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.ticket.count({ where }),
+    ]);
+
+    return {
+      data,
+      meta: { total, page, limit, totalPages: Math.max(Math.ceil(total / limit), 1) },
+    };
   }
 
   async findOne(

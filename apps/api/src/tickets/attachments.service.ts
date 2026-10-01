@@ -42,9 +42,9 @@ export class AttachmentsService {
       throw new NotFoundException('Anexo não encontrado');
     }
     const isOwner = attachment.uploaderId === user.id;
-    const isPrivileged = [Role.ADMIN, Role.AGENT_MASTER, Role.AGENT].includes(
-      user.role,
-    );
+    const isPrivileged = (
+      [Role.ADMIN, Role.AGENT_MASTER, Role.AGENT] as Role[]
+    ).includes(user.role);
     if (!isOwner && !isPrivileged) {
       throw new ForbiddenException(
         'Você não tem permissão para remover este anexo',
