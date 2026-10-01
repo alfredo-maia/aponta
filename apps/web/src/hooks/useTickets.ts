@@ -21,6 +21,8 @@ export interface Ticket {
   resolveDeadline: string | null;
   responseSlaStatus?: SlaStatus | null;
   resolveSlaStatus?: SlaStatus | null;
+  csatScore?: number | null;
+  csatComment?: string | null;
   createdAt: string;
   updatedAt: string;
 }

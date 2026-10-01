@@ -3,6 +3,7 @@ import { CommentForm } from '../components/tickets/CommentForm';
 import { TicketComments } from '../components/tickets/TicketComments';
 import { TicketDetail } from '../components/tickets/TicketDetail';
 import { TicketAttachments } from '../components/tickets/TicketAttachments';
+import { TicketCsat } from '../components/tickets/TicketCsat';
 import { useTicket } from '../hooks/useTicket';
 import { useAuthStore } from '../stores/authStore';
 
@@ -35,6 +36,9 @@ export function TicketDetailPage() {
   return (
     <div className="space-y-6">
       <TicketDetail ticket={ticket} />
+      
+      <TicketCsat ticket={ticket} />
+      
       <TicketAttachments ticketId={ticket.id} />
       {!isClient && (
         <section className="space-y-4">

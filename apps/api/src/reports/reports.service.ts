@@ -26,20 +26,41 @@ export class ReportsService {
     // Avg resolution time (in hours) - very naive approach
     let totalResolvedHours = 0;
     let resolvedCount = 0;
+    
+    // CSAT Tracking
+    let totalCsatScore = 0;
+    let totalRated = 0;
+    const csatDistribution: Record<string, number> = {
+      '1': 0, '2': 0, '3': 0, '4': 0, '5': 0
+    };
+
     for (const t of tickets) {
       if (t.status === 'RESOLVED' || t.status === 'CLOSED') {
         const diffMs = new Date(t.updatedAt).getTime() - new Date(t.createdAt).getTime();
         totalResolvedHours += diffMs / (1000 * 60 * 60);
         resolvedCount++;
       }
+
+      if (t.csatScore) {
+        totalRated++;
+        totalCsatScore += t.csatScore;
+        csatDistribution[String(t.csatScore)]++;
+      }
     }
+    
     const avgResolutionTime = resolvedCount > 0 ? (totalResolvedHours / resolvedCount) : 0;
+    const csatAverage = totalRated > 0 ? (totalCsatScore / totalRated) : 0;
 
     return {
       total: tickets.length,
       statusCounts,
       departmentCounts,
       avgResolutionTimeHours: avgResolutionTime,
+      csat: {
+        average: csatAverage,
+        distribution: csatDistribution,
+        totalRated,
+      }
     };
   }
 }

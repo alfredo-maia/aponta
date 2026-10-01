@@ -19,6 +19,11 @@ interface DashboardMetrics {
   statusCounts: Record<string, number>;
   departmentCounts: Record<string, number>;
   avgResolutionTimeHours: number;
+  csat: {
+    average: number;
+    distribution: Record<string, number>;
+    totalRated: number;
+  };
 }
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
@@ -43,18 +48,24 @@ export function ReportsPage() {
   // Format data for Recharts
   const statusData = Object.entries(metrics.statusCounts).map(([name, value]) => ({ name, value }));
   const deptData = Object.entries(metrics.departmentCounts).map(([name, value]) => ({ name, value }));
+  
+  // Format CSAT 1 to 5 to show sequentially
+  const csatData = [1, 2, 3, 4, 5].map((score) => ({
+    name: `${score}⭐`,
+    value: metrics.csat?.distribution?.[String(score)] || 0,
+  }));
 
   return (
     <div className="p-8 flex-1 overflow-y-auto">
       <h1 className="text-2xl font-bold mb-6">Relatórios e Métricas</h1>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 mb-8">
         <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
           <h3 className="tracking-tight text-sm font-medium text-muted-foreground">Total de Chamados</h3>
           <p className="text-2xl font-bold mt-2">{metrics.total}</p>
         </div>
         <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
-          <h3 className="tracking-tight text-sm font-medium text-muted-foreground">Tempo Médio de Resolução</h3>
+          <h3 className="tracking-tight text-sm font-medium text-muted-foreground">Tempo Médio</h3>
           <p className="text-2xl font-bold mt-2">{metrics.avgResolutionTimeHours.toFixed(1)} h</p>
         </div>
         <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
@@ -65,9 +76,15 @@ export function ReportsPage() {
           <h3 className="tracking-tight text-sm font-medium text-muted-foreground">Chamados Concluídos</h3>
           <p className="text-2xl font-bold mt-2">{(metrics.statusCounts['RESOLVED'] || 0) + (metrics.statusCounts['CLOSED'] || 0)}</p>
         </div>
+        <div className="rounded-lg border bg-blue-50 bg-card text-card-foreground shadow-sm p-6">
+          <h3 className="tracking-tight text-sm font-medium text-blue-700">Satisfação (CSAT)</h3>
+          <p className="text-2xl font-bold mt-2 text-blue-900">
+            {metrics.csat?.average?.toFixed(1) || '0.0'} <span className="text-sm font-normal text-blue-600">({metrics.csat?.totalRated || 0} avaliações)</span>
+          </p>
+        </div>
       </div>
 
-      <div className="grid gap-8 md:grid-cols-2">
+      <div className="grid gap-8 md:grid-cols-3">
         {/* Status Distribution */}
         <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6 h-96">
           <h3 className="text-lg font-semibold mb-4">Volume por Status</h3>
@@ -104,6 +121,20 @@ export function ReportsPage() {
               </Pie>
               <Tooltip />
             </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Csat Distribution */}
+        <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6 h-96">
+          <h3 className="text-lg font-semibold mb-4">CSAT (Distribuição das Notas)</h3>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={csatData} layout="vertical">
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis type="number" />
+              <YAxis dataKey="name" type="category" />
+              <Tooltip />
+              <Bar dataKey="value" name="Avaliações" fill="#ffc658" />
+            </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
