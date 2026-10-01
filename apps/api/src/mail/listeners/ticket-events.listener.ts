@@ -52,6 +52,15 @@ export class TicketEventsListener {
   async handleTicketStatusChangedEvent(payload: TicketPayload) {
     if (!payload.requesterEmail) return;
 
+    if (payload.ticket.status === 'RESOLVED') {
+      await this.mailService.sendEmail({
+        to: payload.requesterEmail,
+        subject: `[Aponta] Seu chamado ${payload.ticket.protocol} foi resolvido — avalie nosso atendimento`,
+        text: `Olá!\n\nSeu chamado "${payload.ticket.title}" foi marcado como resolvido.\n\nGostaríamos muito de saber como foi sua experiência — deixe sua avaliação (nota e comentário) aqui:\n${this.appUrl}/tickets/${payload.ticket.id}\n\nSe o problema persistir, você também pode reabrir o chamado por lá.`,
+      });
+      return;
+    }
+
     await this.mailService.sendEmail({
       to: payload.requesterEmail,
       subject: `[Aponta] Status do chamado ${payload.ticket.protocol} mudou para ${payload.ticket.status}`,
