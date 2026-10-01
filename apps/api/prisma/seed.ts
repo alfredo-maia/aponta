@@ -83,6 +83,26 @@ async function main() {
         `Service desk already exists: ${secondaryServiceDesk.name}`,
       );
     }
+
+    // Issue #22 (RBAC/Organizations) scoped AGENT/AGENT_MASTER visibility in
+    // TicketsService.findAll/findOne to ServiceDesks the agent is assigned
+    // to (`serviceDesk.agents`). Without this, the seeded agent is assigned
+    // to NO desk and TicketsService.findAll returns an empty list for them,
+    // which silently broke every E2E spec that logs in as agent@aponta.com
+    // and expects to see tickets it just created (dashboard.spec.ts,
+    // tickets.spec.ts) — connect the seeded agent to both seeded desks so
+    // it can see/manage tickets on either, matching pre-RBAC behavior.
+    await prisma.serviceDesk.update({
+      where: { id: serviceDesk.id },
+      data: { agents: { connect: { id: user.id } } },
+    });
+    await prisma.serviceDesk.update({
+      where: { id: secondaryServiceDesk.id },
+      data: { agents: { connect: { id: user.id } } },
+    });
+    console.log(
+      `Assigned ${user.email} as agent of: ${serviceDesk.name}, ${secondaryServiceDesk.name}`,
+    );
   } finally {
     await prisma.$disconnect();
   }

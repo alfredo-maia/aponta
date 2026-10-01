@@ -45,7 +45,10 @@ test.describe('ticket creation and detail view', () => {
     // Server-assigned fields prove this came from the real API, not a mock:
     // protocol format AP-<year>-<seq> (see tickets.service.ts) and OPEN status.
     await expect(page.getByText(/^AP-\d{4}-\d{4}$/)).toBeVisible();
-    await expect(page.getByText('Aberto')).toBeVisible();
+    // Status renders as a <select> for agents (TicketDetail.tsx), so the
+    // "Aberto" <option> text is not an independently visible DOM node even
+    // when selected — assert the select's value instead of its text.
+    await expect(page.locator('#ticket-status')).toHaveValue('OPEN');
   });
 
   test('a freshly created ticket is retrievable by reloading its detail URL', async ({

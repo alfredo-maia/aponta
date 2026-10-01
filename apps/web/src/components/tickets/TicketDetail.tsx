@@ -71,6 +71,7 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
               </span>
             ) : (
               <select
+                id="ticket-status"
                 className={`rounded-full outline-none px-2 py-0.5 text-xs font-medium border-none cursor-pointer ${statusBadgeClasses[ticket.status]}`}
                 value={ticket.status}
                 disabled={statusMutation.isPending}
