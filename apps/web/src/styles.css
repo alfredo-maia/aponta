@@ -3,4 +3,24 @@
 @theme {
   --color-background: #fafaf9;
   --color-foreground: #1a1a1a;
+
+  /*
+   * Issue #07/#08 visual QA (prod) found "Novo Chamado" and the file-input
+   * "Choose file" button both rendering with NO background: every
+   * component in apps/web/src uses bg-primary/bg-secondary/bg-muted/
+   * bg-card (+ their *-foreground pairs), but only background/foreground
+   * were ever defined here. Tailwind v4 only emits utilities for colors
+   * declared in @theme, so bg-primary etc. silently compiled to nothing
+   * app-wide (not just on the file input) — this fills in the full set
+   * actually referenced across apps/web/src (`grep -rohE
+   * "(bg|text|border)-(primary|secondary|muted|card)(-foreground)?"`).
+   */
+  --color-primary: #1a1a1a;
+  --color-primary-foreground: #fafaf9;
+  --color-secondary: #e7e5e4;
+  --color-secondary-foreground: #1a1a1a;
+  --color-muted: #f5f5f4;
+  --color-muted-foreground: #78716c;
+  --color-card: #ffffff;
+  --color-card-foreground: #1a1a1a;
 }
