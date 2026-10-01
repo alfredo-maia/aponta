@@ -118,6 +118,7 @@ function renderPage() {
     <QueryClientProvider client={queryClient}>
       <MemoryRouter initialEntries={['/tickets/t-1']}>
         <Routes>
+          <Route path="/" element={<p>Dashboard</p>} />
           <Route path="/tickets/:id" element={<TicketDetailPage />} />
         </Routes>
       </MemoryRouter>
@@ -451,6 +452,23 @@ describe('TicketDetailPage', () => {
       expect(
         screen.getAllByText((text) => text.includes('Agente Smith')).length,
       ).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Back button', () => {
+    it('shows a "Voltar" link that navigates back to the ticket list', async () => {
+      setRole('AGENT');
+      const user = userEvent.setup();
+      renderPage();
+
+      await screen.findByText('Printer not working');
+
+      const backLink = screen.getByRole('link', { name: /voltar/i });
+      expect(backLink).toBeInTheDocument();
+
+      await user.click(backLink);
+
+      expect(await screen.findByText('Dashboard')).toBeInTheDocument();
     });
   });
 });

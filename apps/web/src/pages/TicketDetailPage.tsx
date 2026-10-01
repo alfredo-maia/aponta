@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { CommentForm } from '../components/tickets/CommentForm';
 import { TicketComments } from '../components/tickets/TicketComments';
 import { TicketDetail } from '../components/tickets/TicketDetail';
@@ -35,6 +35,12 @@ export function TicketDetailPage() {
 
   return (
     <div className="space-y-6">
+      <Link
+        to="/"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+      >
+        ← Voltar
+      </Link>
       <TicketDetail ticket={ticket} />
       
       <TicketCsat ticket={ticket} />
