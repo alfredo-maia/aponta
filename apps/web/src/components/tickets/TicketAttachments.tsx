@@ -138,16 +138,22 @@ export function TicketAttachments({ ticketId }: TicketAttachmentsProps) {
       )}
 
       <div className="flex flex-wrap items-center gap-2 pt-2">
-        <label htmlFor="attachment-file" className="sr-only">
-          Selecionar arquivo
-        </label>
         <input
           id="attachment-file"
           ref={fileInputRef}
           type="file"
           onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
-          className="text-sm text-muted-foreground file:mr-3 file:cursor-pointer file:rounded file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-secondary-foreground hover:file:opacity-80"
+          className="sr-only"
         />
+        <label
+          htmlFor="attachment-file"
+          className="cursor-pointer rounded bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:opacity-80"
+        >
+          Selecionar arquivo
+        </label>
+        <span className="truncate text-sm text-muted-foreground">
+          {selectedFile ? selectedFile.name : 'Nenhum arquivo selecionado'}
+        </span>
         <button
           type="button"
           onClick={handleUpload}
