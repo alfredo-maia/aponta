@@ -1,28 +1,52 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateArticleDto } from './dto/create-article.dto';
+import { UpdateArticleDto } from './dto/update-article.dto';
+import { ArticleQueryDto } from './dto/article-query.dto';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
-import { Role } from '@prisma/client';
 
 /**
  * Knowledge Base (FAQ) articles. Articles can be public (visible to
  * everyone, including unauthenticated/CLIENT users) or internal
  * (AGENT+ only). Only AGENT and above may author articles — CLIENT and
- * CLIENT_MASTER are strictly read-only, enforced via RBAC on the
- * controller AND a query-level filter here so an internal article is
- * never even fetched for a CLIENT.
+ * CLIENT_MASTER (and anonymous/unauthenticated callers) are strictly
+ * read-only, enforced via RBAC on the controller AND a query-level
+ * filter here so an internal article is never even fetched for them.
  */
 @Injectable()
 export class ArticlesService {
   constructor(private prisma: PrismaService) {}
 
-  findAll(currentUser: CurrentUserPayload) {
+  findAll(currentUser: CurrentUserPayload | undefined, query?: ArticleQueryDto) {
     const isClient =
+      !currentUser ||
       currentUser.role === Role.CLIENT ||
       currentUser.role === Role.CLIENT_MASTER;
 
+    const where: Prisma.ArticleWhereInput = {};
+
+    if (isClient) {
+      where.isPublic = true;
+    }
+
+    if (query?.search) {
+      where.OR = [
+        { title: { contains: query.search, mode: 'insensitive' } },
+        { content: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (query?.tag) {
+      where.tags = { has: query.tag };
+    }
+
     return this.prisma.article.findMany({
-      where: isClient ? { isPublic: true } : {},
+      where,
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -37,5 +61,48 @@ export class ArticlesService {
         authorId: currentUser.id,
       },
     });
+  }
+
+  async update(
+    id: string,
+    dto: UpdateArticleDto,
+    currentUser: CurrentUserPayload,
+  ) {
+    const article = await this.prisma.article.findUnique({ where: { id } });
+
+    if (!article) {
+      throw new NotFoundException(`Article with ID ${id} not found`);
+    }
+
+    this.assertCanModify(article.authorId, currentUser);
+
+    return this.prisma.article.update({ where: { id }, data: dto });
+  }
+
+  async remove(id: string, currentUser: CurrentUserPayload) {
+    const article = await this.prisma.article.findUnique({ where: { id } });
+
+    if (!article) {
+      throw new NotFoundException(`Article with ID ${id} not found`);
+    }
+
+    this.assertCanModify(article.authorId, currentUser);
+
+    return this.prisma.article.delete({ where: { id } });
+  }
+
+  /**
+   * Only the article's own author or an ADMIN may edit/delete it — a
+   * different AGENT (not the author) cannot touch someone else's article.
+   */
+  private assertCanModify(authorId: string, currentUser: CurrentUserPayload) {
+    const isAuthor = authorId === currentUser.id;
+    const isAdmin = currentUser.role === Role.ADMIN;
+
+    if (!isAuthor && !isAdmin) {
+      throw new ForbiddenException(
+        'Só o autor do artigo ou um ADMIN podem editá-lo/excluí-lo',
+      );
+    }
   }
 }

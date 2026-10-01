@@ -7,6 +7,8 @@ import { ROLES_KEY } from '../auth/decorators/roles.decorator';
 
 const mockArticlesService = {
   findAll: jest.fn(),
+  update: jest.fn(),
+  remove: jest.fn(),
   create: jest.fn(),
 };
 
@@ -39,7 +41,20 @@ describe('ArticlesController', () => {
       ]);
     });
 
-    it('has no @Roles restriction on findAll (every authenticated role can list, filtered server-side)', () => {
+    it('requires AGENT, AGENT_MASTER or ADMIN on update/remove', () => {
+      expect(Reflect.getMetadata(ROLES_KEY, controller.update)).toEqual([
+        Role.AGENT,
+        Role.AGENT_MASTER,
+        Role.ADMIN,
+      ]);
+      expect(Reflect.getMetadata(ROLES_KEY, controller.remove)).toEqual([
+        Role.AGENT,
+        Role.AGENT_MASTER,
+        Role.ADMIN,
+      ]);
+    });
+
+    it('has no @Roles restriction on findAll', () => {
       expect(Reflect.getMetadata(ROLES_KEY, controller.findAll)).toBeUndefined();
     });
   });
@@ -47,12 +62,12 @@ describe('ArticlesController', () => {
   describe('delegation', () => {
     const agent = { id: 'agent-1', role: Role.AGENT };
 
-    it('findAll delegates to the service with the current user', async () => {
+    it('findAll delegates to the service with the current user and query', async () => {
       mockArticlesService.findAll.mockResolvedValue([]);
 
-      await controller.findAll(agent);
+      await controller.findAll(agent, { search: 'test' });
 
-      expect(mockArticlesService.findAll).toHaveBeenCalledWith(agent);
+      expect(mockArticlesService.findAll).toHaveBeenCalledWith(agent, { search: 'test' });
     });
 
     it('create delegates to the service with the dto and current user', async () => {
@@ -62,6 +77,23 @@ describe('ArticlesController', () => {
       await controller.create(dto, agent);
 
       expect(mockArticlesService.create).toHaveBeenCalledWith(dto, agent);
+    });
+
+    it('update delegates to the service', async () => {
+      const dto = { title: 'Novo' };
+      mockArticlesService.update.mockResolvedValue({ id: 'article-1' });
+
+      await controller.update('article-1', dto, agent);
+
+      expect(mockArticlesService.update).toHaveBeenCalledWith('article-1', dto, agent);
+    });
+
+    it('remove delegates to the service', async () => {
+      mockArticlesService.remove.mockResolvedValue({ id: 'article-1' });
+
+      await controller.remove('article-1', agent);
+
+      expect(mockArticlesService.remove).toHaveBeenCalledWith('article-1', agent);
     });
   });
 });
