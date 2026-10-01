@@ -395,5 +395,62 @@ describe('TicketDetailPage', () => {
         screen.getByText(/nenhuma alteração registrada/i),
       ).toBeInTheDocument();
     });
+
+    it('refetches the audit trail after an assignment succeeds', async () => {
+      setRole('AGENT');
+      vi.mocked(api.get).mockImplementation((url: string) => {
+        if (url === '/tickets/t-1') return Promise.resolve({ data: ticket });
+        if (url === '/tickets/t-1/comments')
+          return Promise.resolve({ data: [] });
+        if (url === '/users/agents')
+          return Promise.resolve({ data: mockAgents });
+        if (url === '/tickets/t-1/audits') return Promise.resolve({ data: [] });
+        return Promise.reject(new Error(`Unexpected GET ${url}`));
+      });
+      const user = userEvent.setup();
+      renderPage();
+
+      await screen.findByRole('heading', { name: /histórico/i });
+      await screen.findByText(/nenhuma alteração registrada/i);
+
+      // After the assignment succeeds, the audits endpoint resolves with a
+      // new entry — the UI must refetch (not just show a stale empty state).
+      vi.mocked(api.get).mockImplementation((url: string) => {
+        if (url === '/tickets/t-1') return Promise.resolve({ data: ticket });
+        if (url === '/tickets/t-1/comments')
+          return Promise.resolve({ data: [] });
+        if (url === '/users/agents')
+          return Promise.resolve({ data: mockAgents });
+        if (url === '/tickets/t-1/audits') {
+          return Promise.resolve({
+            data: [
+              {
+                id: 'audit-1',
+                action: 'ASSIGNED',
+                prevVal: null,
+                newVal: 'agent-2',
+                createdAt: '2026-10-01T19:42:00.000Z',
+                user: { name: 'Agente Smith', email: 'agent@aponta.com' },
+              },
+            ],
+          });
+        }
+        return Promise.reject(new Error(`Unexpected GET ${url}`));
+      });
+      vi.mocked(api.patch).mockResolvedValue({ data: { id: 't-1' } });
+
+      const select = await screen.findByLabelText(/atribuído a:/i);
+      await screen.findByRole('option', { name: 'Agent Jones' });
+      await user.selectOptions(select, 'agent-2');
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText(/nenhuma alteração registrada/i),
+        ).not.toBeInTheDocument();
+      });
+      expect(
+        screen.getAllByText((text) => text.includes('Agente Smith')).length,
+      ).toBeGreaterThan(0);
+    });
   });
 });
