@@ -31,6 +31,8 @@ describe('TicketsService', () => {
       update: jest.Mock;
       count: jest.Mock;
     };
+    businessHour: { findMany: jest.Mock };
+    holiday: { findMany: jest.Mock };
     $transaction: jest.Mock;
   };
 
@@ -47,6 +49,12 @@ describe('TicketsService', () => {
         findUnique: jest.fn(),
         update: jest.fn(),
         count: jest.fn().mockResolvedValue(0),
+      },
+      businessHour: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      holiday: {
+        findMany: jest.fn().mockResolvedValue([]),
       },
       $transaction: jest.fn(async (cb: (tx: unknown) => unknown) => cb(mockTx)),
     };
@@ -137,6 +145,73 @@ describe('TicketsService', () => {
         );
       },
     );
+
+    it('should calculate SLA using business hours when the service desk has an Expediente configured', async () => {
+      // Friday 2026-01-16 is a weekday. Expediente: Mon-Fri 09:00-18:00.
+      // Ticket created Friday 17:00 with CRITICAL priority (1h response,
+      // 4h resolve): only 1 business hour left today (17:00-18:00), so the
+      // 4h resolve deadline must roll over into Monday business hours.
+      const start = new Date('2026-01-16T17:00:00.000Z'); // Friday
+      jest.useFakeTimers().setSystemTime(start);
+      mockTx.ticket.findFirst.mockResolvedValue(null);
+      mockTx.ticket.create.mockImplementation(({ data }) => data);
+      mockPrismaService.businessHour.findMany.mockResolvedValue([
+        { weekday: 1, startTime: '09:00', endTime: '18:00' },
+        { weekday: 2, startTime: '09:00', endTime: '18:00' },
+        { weekday: 3, startTime: '09:00', endTime: '18:00' },
+        { weekday: 4, startTime: '09:00', endTime: '18:00' },
+        { weekday: 5, startTime: '09:00', endTime: '18:00' },
+      ]);
+      mockPrismaService.holiday.findMany.mockResolvedValue([]);
+
+      const result = (await service.create(
+        {
+          title: 't',
+          description: 'd',
+          serviceDeskId: 'desk-1',
+          priority: TicketPriority.CRITICAL,
+        },
+        'requester-1',
+      )) as unknown as { responseDeadline: Date; resolveDeadline: Date };
+
+      // 1h response: fits inside today's remaining window (17:00 -> 18:00).
+      expect(result.responseDeadline.toISOString()).toBe(
+        '2026-01-16T18:00:00.000Z',
+      );
+      // 4h resolve: 1h left Friday + roll to Monday 09:00 for the remaining 3h.
+      expect(result.resolveDeadline.toISOString()).toBe(
+        '2026-01-19T12:00:00.000Z',
+      );
+      expect(mockPrismaService.businessHour.findMany).toHaveBeenCalledWith({
+        where: { serviceDeskId: 'desk-1' },
+      });
+    });
+
+    it('should fall back to 24/7 wall-clock SLA when the service desk has no Expediente configured', async () => {
+      const start = new Date('2026-01-16T17:00:00.000Z');
+      jest.useFakeTimers().setSystemTime(start);
+      mockTx.ticket.findFirst.mockResolvedValue(null);
+      mockTx.ticket.create.mockImplementation(({ data }) => data);
+      mockPrismaService.businessHour.findMany.mockResolvedValue([]);
+      mockPrismaService.holiday.findMany.mockResolvedValue([]);
+
+      const result = (await service.create(
+        {
+          title: 't',
+          description: 'd',
+          serviceDeskId: 'desk-1',
+          priority: TicketPriority.CRITICAL,
+        },
+        'requester-1',
+      )) as unknown as { responseDeadline: Date; resolveDeadline: Date };
+
+      expect(result.responseDeadline.toISOString()).toBe(
+        '2026-01-16T18:00:00.000Z',
+      );
+      expect(result.resolveDeadline.toISOString()).toBe(
+        '2026-01-16T21:00:00.000Z',
+      );
+    });
 
     it('should generate sequential protocols per year based on highest existing protocol', async () => {
       jest.useFakeTimers().setSystemTime(new Date('2026-06-01T00:00:00.000Z'));
@@ -351,8 +426,70 @@ describe('TicketsService', () => {
         orderBy: { createdAt: 'desc' },
       });
       expect(result).toEqual({
-        data: [{ id: 't-1' }],
+        data: [{ id: 't-1', responseSlaStatus: null, resolveSlaStatus: null }],
         meta: { total: 45, page: 2, limit: 10, totalPages: 5 },
+      });
+    });
+
+    it('decorates each listed ticket with responseSlaStatus/resolveSlaStatus', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-01-01T05:00:00.000Z'));
+      mockPrismaService.ticket.findMany.mockResolvedValue([
+        {
+          id: 't-1',
+          status: TicketStatus.OPEN,
+          createdAt: new Date('2026-01-01T00:00:00.000Z'),
+          responseDeadline: new Date('2026-01-01T10:00:00.000Z'),
+          resolveDeadline: new Date('2026-01-01T04:00:00.000Z'),
+        },
+      ]);
+
+      const result = await service.findAll(
+        {},
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(result.data[0]).toMatchObject({
+        responseSlaStatus: 'ON_TRACK',
+        resolveSlaStatus: 'BREACHED',
+      });
+    });
+
+    it('does not report BREACHED/AT_RISK SLA status for RESOLVED or CLOSED tickets (already past deadline but settled)', async () => {
+      // A ticket resolved WITHIN its deadline, long ago, should not keep
+      // showing "Vencido" forever just because wall-clock time moved on —
+      // there's no `resolvedAt` to compare against, so the safe behavior
+      // is to suppress the (now meaningless) SLA status once the ticket
+      // reaches a terminal state.
+      jest.useFakeTimers().setSystemTime(new Date('2026-06-01T00:00:00.000Z'));
+      mockPrismaService.ticket.findMany.mockResolvedValue([
+        {
+          id: 't-resolved',
+          status: TicketStatus.RESOLVED,
+          createdAt: new Date('2026-01-01T00:00:00.000Z'),
+          responseDeadline: new Date('2026-01-01T10:00:00.000Z'),
+          resolveDeadline: new Date('2026-01-01T04:00:00.000Z'),
+        },
+        {
+          id: 't-closed',
+          status: TicketStatus.CLOSED,
+          createdAt: new Date('2026-01-01T00:00:00.000Z'),
+          responseDeadline: new Date('2026-01-01T10:00:00.000Z'),
+          resolveDeadline: new Date('2026-01-01T04:00:00.000Z'),
+        },
+      ]);
+
+      const result = await service.findAll(
+        {},
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(result.data[0]).toMatchObject({
+        responseSlaStatus: null,
+        resolveSlaStatus: null,
+      });
+      expect(result.data[1]).toMatchObject({
+        responseSlaStatus: null,
+        resolveSlaStatus: null,
       });
     });
   });
@@ -372,7 +509,12 @@ describe('TicketsService', () => {
       });
 
       // The service deletes relations before returning
-      const expected = { id: 't1', requesterId: 'someone-else' };
+      const expected = {
+        id: 't1',
+        requesterId: 'someone-else',
+        responseSlaStatus: null,
+        resolveSlaStatus: null,
+      };
       expect(result).toEqual(expected);
     });
 
@@ -385,7 +527,11 @@ describe('TicketsService', () => {
         role: Role.CLIENT,
       });
 
-      expect(result).toEqual(ticket);
+      expect(result).toEqual({
+        ...ticket,
+        responseSlaStatus: null,
+        resolveSlaStatus: null,
+      });
     });
 
     it('throws NotFoundException when CLIENT requests another users ticket', async () => {
@@ -404,6 +550,53 @@ describe('TicketsService', () => {
         service.findOne('missing', { id: 'admin-1', role: Role.ADMIN }),
       ).rejects.toThrow(NotFoundException);
     });
+
+    it('decorates the ticket with responseSlaStatus/resolveSlaStatus when deadlines are present', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-01-01T09:30:00.000Z'));
+      const ticket = {
+        id: 't1',
+        requesterId: 'admin-1',
+        createdAt: new Date('2026-01-01T00:00:00.000Z'),
+        responseDeadline: new Date('2026-01-01T10:00:00.000Z'),
+        resolveDeadline: new Date('2026-01-02T00:00:00.000Z'),
+      };
+      mockPrismaService.ticket.findUnique.mockResolvedValue(ticket);
+
+      const result = (await service.findOne('t1', {
+        id: 'admin-1',
+        role: Role.ADMIN,
+      })) as unknown as {
+        responseSlaStatus: string;
+        resolveSlaStatus: string;
+      };
+
+      expect(result.responseSlaStatus).toBe('AT_RISK'); // 9.5h of 10h elapsed = 95%
+      expect(result.resolveSlaStatus).toBe('ON_TRACK');
+    });
+
+    it('suppresses SLA status for a RESOLVED ticket even past its deadline', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-06-01T00:00:00.000Z'));
+      const ticket = {
+        id: 't1',
+        requesterId: 'admin-1',
+        status: TicketStatus.RESOLVED,
+        createdAt: new Date('2026-01-01T00:00:00.000Z'),
+        responseDeadline: new Date('2026-01-01T10:00:00.000Z'),
+        resolveDeadline: new Date('2026-01-02T00:00:00.000Z'),
+      };
+      mockPrismaService.ticket.findUnique.mockResolvedValue(ticket);
+
+      const result = (await service.findOne('t1', {
+        id: 'admin-1',
+        role: Role.ADMIN,
+      })) as unknown as {
+        responseSlaStatus: string | null;
+        resolveSlaStatus: string | null;
+      };
+
+      expect(result.responseSlaStatus).toBeNull();
+      expect(result.resolveSlaStatus).toBeNull();
+    });
   });
 
   describe('update', () => {
@@ -414,6 +607,7 @@ describe('TicketsService', () => {
       description: 'old-desc',
       priority: TicketPriority.MEDIUM,
       createdAt,
+      serviceDeskId: 'desk-1',
       responseDeadline: new Date('2026-01-01T08:00:00.000Z'),
       resolveDeadline: new Date('2026-01-02T00:00:00.000Z'),
     };

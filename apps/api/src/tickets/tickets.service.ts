@@ -10,6 +10,8 @@ import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { TicketQueryDto } from './dto/ticket-query.dto';
 import { CurrentUserPayload } from './decorators/current-user.decorator';
+import { addBusinessHours } from '../scheduling/business-hours';
+import { getSlaStatus } from '../scheduling/sla-status';
 
 const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
 const FOREIGN_KEY_VIOLATION = 'P2003';
@@ -27,18 +29,33 @@ const SLA_HOURS: Record<
   LOW: { responseHours: 24, resolveHours: 72 },
 };
 
-function addHours(date: Date, hours: number): Date {
-  return new Date(date.getTime() + hours * 60 * 60 * 1000);
-}
-
+/**
+ * Calculates SLA deadlines counting only *business* hours, as configured
+ * via the service desk's Expediente (`BusinessHour` + `Holiday`). A
+ * service desk with no Expediente configured (`businessHours.length ===
+ * 0`) falls back to plain 24/7 wall-clock hours — see
+ * `addBusinessHours` in `../scheduling/business-hours`.
+ */
 function calculateSla(
   createdAt: Date,
   priority: TicketPriority,
+  businessHours: { weekday: number; startTime: string; endTime: string }[],
+  holidays: { date: Date }[],
 ): { responseDeadline: Date; resolveDeadline: Date } {
   const { responseHours, resolveHours } = SLA_HOURS[priority];
   return {
-    responseDeadline: addHours(createdAt, responseHours),
-    resolveDeadline: addHours(createdAt, resolveHours),
+    responseDeadline: addBusinessHours(
+      createdAt,
+      responseHours,
+      businessHours,
+      holidays,
+    ),
+    resolveDeadline: addBusinessHours(
+      createdAt,
+      resolveHours,
+      businessHours,
+      holidays,
+    ),
   };
 }
 
@@ -78,6 +95,53 @@ export class TicketsService {
     private readonly prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
+
+  /**
+   * Adds `responseSlaStatus`/`resolveSlaStatus` ('ON_TRACK' | 'AT_RISK' |
+   * 'BREACHED' | null) to a ticket payload, derived from its
+   * createdAt/deadlines relative to "now". Pure presentation data — not
+   * persisted — so every read path (list + detail) can decorate
+   * consistently without duplicating the classification logic.
+   */
+  private decorateWithSlaStatus<
+    T extends {
+      status: TicketStatus;
+      createdAt: Date;
+      responseDeadline: Date | null;
+      resolveDeadline: Date | null;
+    },
+  >(ticket: T): T & { responseSlaStatus: string | null; resolveSlaStatus: string | null } {
+    // Once a ticket reaches a terminal state, elapsed wall-clock time no
+    // longer reflects whether the SLA was honored (we don't track a
+    // resolvedAt/closedAt timestamp to compare against). Showing a
+    // permanently "BREACHED" badge on a ticket resolved on time would be
+    // misleading, so SLA status is only meaningful while the ticket is open.
+    const isTerminal =
+      ticket.status === TicketStatus.RESOLVED ||
+      ticket.status === TicketStatus.CLOSED;
+    if (isTerminal) {
+      return {
+        ...ticket,
+        responseSlaStatus: null,
+        resolveSlaStatus: null,
+      };
+    }
+
+    const now = new Date();
+    return {
+      ...ticket,
+      responseSlaStatus: getSlaStatus(
+        ticket.createdAt,
+        ticket.responseDeadline,
+        now,
+      ),
+      resolveSlaStatus: getSlaStatus(
+        ticket.createdAt,
+        ticket.resolveDeadline,
+        now,
+      ),
+    };
+  }
 
   /**
    * Generates the next protocol number for the given year (e.g.
@@ -120,9 +184,19 @@ export class TicketsService {
   ): Promise<Ticket> {
     const priority = dto.priority ?? TicketPriority.MEDIUM;
     const createdAt = new Date();
+    const [businessHours, holidays] = await Promise.all([
+      this.prisma.businessHour.findMany({
+        where: { serviceDeskId: dto.serviceDeskId },
+      }),
+      this.prisma.holiday.findMany({
+        where: { serviceDeskId: dto.serviceDeskId },
+      }),
+    ]);
     const { responseDeadline, resolveDeadline } = calculateSla(
       createdAt,
       priority,
+      businessHours,
+      holidays,
     );
     const year = createdAt.getUTCFullYear();
     const yearPrefix = `AP-${year}-`;
@@ -300,7 +374,7 @@ export class TicketsService {
     ]);
 
     return {
-      data,
+      data: data.map((t) => this.decorateWithSlaStatus(t)),
       meta: { total, page, limit, totalPages: Math.max(Math.ceil(total / limit), 1) },
     };
   }
@@ -343,7 +417,7 @@ export class TicketsService {
     delete (ticket as Ticket & { requester?: any, serviceDesk?: any }).requester;
     delete (ticket as Ticket & { requester?: any, serviceDesk?: any }).serviceDesk;
 
-    return ticket;
+    return this.decorateWithSlaStatus(ticket);
   }
 
   /**
@@ -366,9 +440,19 @@ export class TicketsService {
     }
     if (dto.priority !== undefined && dto.priority !== existing.priority) {
       data.priority = dto.priority;
+      const [businessHours, holidays] = await Promise.all([
+        this.prisma.businessHour.findMany({
+          where: { serviceDeskId: existing.serviceDeskId },
+        }),
+        this.prisma.holiday.findMany({
+          where: { serviceDeskId: existing.serviceDeskId },
+        }),
+      ]);
       const { responseDeadline, resolveDeadline } = calculateSla(
         existing.createdAt,
         dto.priority,
+        businessHours,
+        holidays,
       );
       data.responseDeadline = responseDeadline;
       data.resolveDeadline = resolveDeadline;

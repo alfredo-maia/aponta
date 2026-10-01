@@ -148,6 +148,32 @@ describe('TicketDetailPage', () => {
     expect(screen.getByText('2026-10-02 17:30 UTC')).toBeInTheDocument();
   });
 
+  it('shows SLA status badges when the backend reports responseSlaStatus/resolveSlaStatus', async () => {
+    vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url === '/tickets/t-1') {
+        return Promise.resolve({
+          data: {
+            ...ticket,
+            responseSlaStatus: 'AT_RISK',
+            resolveSlaStatus: 'BREACHED',
+          },
+        });
+      }
+      if (url === '/tickets/t-1/comments') {
+        return Promise.resolve({ data: comments });
+      }
+      if (url === '/users/agents') {
+        return Promise.resolve({ data: mockAgents });
+      }
+      return Promise.resolve({ data: [] });
+    });
+
+    renderPage();
+
+    expect(await screen.findByText(/em risco/i)).toBeInTheDocument();
+    expect(screen.getByText(/vencido/i)).toBeInTheDocument();
+  });
+
   it('should render the comment timeline with an internal-note indicator only on internal comments', async () => {
     setRole('AGENT');
     renderPage();

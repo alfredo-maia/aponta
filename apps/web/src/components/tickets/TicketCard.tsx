@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { Ticket, TicketPriority, TicketStatus } from '../../hooks/useTickets';
+import { SlaBadge } from './SlaBadge';
 
 export const statusLabels: Record<TicketStatus, string> = {
   OPEN: 'Aberto',
@@ -34,6 +35,10 @@ interface TicketCardProps {
 }
 
 export function TicketCard({ ticket }: TicketCardProps) {
+  const hasSlaBadges = Boolean(
+    ticket.responseSlaStatus || ticket.resolveSlaStatus,
+  );
+
   return (
     <li className="rounded-lg border bg-background p-4">
       <Link to={`/tickets/${ticket.id}`} className="block">
@@ -57,6 +62,12 @@ export function TicketCard({ ticket }: TicketCardProps) {
             </span>
           </div>
         </div>
+        {hasSlaBadges && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            <SlaBadge status={ticket.responseSlaStatus} label="Resposta" />
+            <SlaBadge status={ticket.resolveSlaStatus} label="Resolução" />
+          </div>
+        )}
       </Link>
     </li>
   );

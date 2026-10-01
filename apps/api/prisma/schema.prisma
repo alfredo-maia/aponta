@@ -65,9 +65,46 @@ model ServiceDesk {
   tickets Ticket[]
   agents  User[]   @relation("AgentServiceDesks")
 
-  businessHours String? // Store JSON config defining 08:00 - 18:00
+  businessHours BusinessHour[]
+  holidays      Holiday[]
 
   createdAt DateTime @default(now())
+}
+
+/// One weekly working window for a ServiceDesk, e.g. Monday 08:00-18:00.
+/// Multiple rows per weekday are allowed (e.g. split shift with lunch break).
+/// A ServiceDesk with zero BusinessHour rows is treated as 24/7 (no restriction)
+/// so SLA math keeps working for desks that haven't configured Expediente yet.
+model BusinessHour {
+  id   String @id @default(uuid())
+  /// 0 = Sunday ... 6 = Saturday (JS Date#getDay() convention)
+  weekday Int
+
+  /// Stored as "HH:mm" (24h, UTC). NOTE (known v1 limitation): all SLA/
+  /// business-hours math in `scheduling/business-hours.ts` operates in UTC,
+  /// not the service desk's real-world local timezone. A desk configured
+  /// "08:00–18:00" is actually treated as 08:00–18:00 UTC. Per-desk timezone
+  /// support is tracked as follow-up work, not implemented in this release.
+  startTime String
+  endTime   String
+
+  serviceDeskId String
+  serviceDesk   ServiceDesk @relation(fields: [serviceDeskId], references: [id], onDelete: Cascade)
+
+  @@index([serviceDeskId])
+}
+
+/// A single calendar date that does not count as business time for SLA
+/// purposes (national/local holidays). Compared by date only (UTC midnight).
+model Holiday {
+  id   String   @id @default(uuid())
+  date DateTime
+  name String
+
+  serviceDeskId String
+  serviceDesk   ServiceDesk @relation(fields: [serviceDeskId], references: [id], onDelete: Cascade)
+
+  @@index([serviceDeskId])
 }
 
 model Ticket {

@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
 import { ServiceDeskEditor } from '../components/ServiceDeskEditor';
+import { BusinessHoursEditor } from '../components/BusinessHoursEditor';
 
 interface ServiceDesk {
   id: string;
@@ -125,11 +126,12 @@ export function ServiceDesksPage() {
       {isLoading ? (
         <p className="text-sm text-muted-foreground">Carregando…</p>
       ) : (
-        <ul className="max-w-lg divide-y rounded-lg border">
+        <ul className="max-w-2xl divide-y rounded-lg border">
           {(serviceDesks ?? []).map((desk) => (
             <li key={desk.id} className="px-4 py-3">
               <div className="text-sm font-medium">{desk.name}</div>
               <ServiceDeskEditor desk={desk} agents={agents ?? []} />
+              <BusinessHoursEditor serviceDeskId={desk.id} />
             </li>
           ))}
           {serviceDesks?.length === 0 && (

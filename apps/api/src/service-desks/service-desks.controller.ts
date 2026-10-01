@@ -4,6 +4,7 @@ import {
   Post,
   Body,
   Patch,
+  Put,
   Param,
   Delete,
   UseGuards,
@@ -11,6 +12,7 @@ import {
 import { ServiceDesksService } from './service-desks.service';
 import { CreateServiceDeskDto } from './dto/create-service-desk.dto';
 import { UpdateServiceDeskDto } from './dto/update-service-desk.dto';
+import { UpdateBusinessHoursDto } from './dto/update-business-hours.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -53,5 +55,20 @@ export class ServiceDesksController {
   @Roles(Role.ADMIN)
   remove(@Param('id') id: string) {
     return this.serviceDesksService.remove(id);
+  }
+
+  @Get(':id/business-hours')
+  getBusinessHours(@Param('id') id: string) {
+    return this.serviceDesksService.getBusinessHours(id);
+  }
+
+  @Put(':id/business-hours')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN, Role.AGENT_MASTER)
+  updateBusinessHours(
+    @Param('id') id: string,
+    @Body() dto: UpdateBusinessHoursDto,
+  ) {
+    return this.serviceDesksService.updateBusinessHours(id, dto);
   }
 }

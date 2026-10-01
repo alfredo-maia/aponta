@@ -15,6 +15,8 @@ const mockServiceDesksService = {
   findOne: jest.fn(),
   update: jest.fn(),
   remove: jest.fn(),
+  getBusinessHours: jest.fn(),
+  updateBusinessHours: jest.fn(),
 };
 
 describe('ServiceDesksController', () => {
@@ -53,6 +55,18 @@ describe('ServiceDesksController', () => {
       expect(Reflect.getMetadata(ROLES_KEY, controller.remove)).toEqual([
         Role.ADMIN,
       ]);
+    });
+
+    it('requires ADMIN or AGENT_MASTER on updateBusinessHours', () => {
+      expect(
+        Reflect.getMetadata(ROLES_KEY, controller.updateBusinessHours),
+      ).toEqual([Role.ADMIN, Role.AGENT_MASTER]);
+    });
+
+    it('does not restrict getBusinessHours to any role', () => {
+      expect(
+        Reflect.getMetadata(ROLES_KEY, controller.getBusinessHours),
+      ).toBeUndefined();
     });
 
     it('does not restrict findAll to any role', () => {
@@ -115,6 +129,29 @@ describe('ServiceDesksController', () => {
       ).toBe(true);
     });
 
+    it('allows ADMIN and AGENT_MASTER on updateBusinessHours, blocks AGENT/CLIENT', () => {
+      expect(
+        guard.canActivate(
+          contextFor(controller.updateBusinessHours, Role.ADMIN),
+        ),
+      ).toBe(true);
+      expect(
+        guard.canActivate(
+          contextFor(controller.updateBusinessHours, Role.AGENT_MASTER),
+        ),
+      ).toBe(true);
+      expect(
+        guard.canActivate(
+          contextFor(controller.updateBusinessHours, Role.AGENT),
+        ),
+      ).toBe(false);
+      expect(
+        guard.canActivate(
+          contextFor(controller.updateBusinessHours, Role.CLIENT),
+        ),
+      ).toBe(false);
+    });
+
     it('allows any authenticated role on findAll/findOne (no @Roles metadata)', () => {
       expect(
         guard.canActivate(contextFor(controller.findAll, Role.CLIENT)),
@@ -157,6 +194,18 @@ describe('ServiceDesksController', () => {
 
     it('registers RolesGuard on the remove handler', () => {
       expect(methodGuards(controller.remove)).toContain(RolesGuard);
+    });
+
+    it('registers RolesGuard on the updateBusinessHours handler', () => {
+      expect(methodGuards(controller.updateBusinessHours)).toContain(
+        RolesGuard,
+      );
+    });
+
+    it('does not register RolesGuard on getBusinessHours (no method-level @UseGuards)', () => {
+      expect(methodGuards(controller.getBusinessHours)).not.toContain(
+        RolesGuard,
+      );
     });
 
     it('does not register RolesGuard on findAll/findOne (no method-level @UseGuards)', () => {
@@ -211,6 +260,34 @@ describe('ServiceDesksController', () => {
 
       expect(mockServiceDesksService.remove).toHaveBeenCalledWith('1');
       expect(result).toEqual({ id: '1' });
+    });
+
+    it('getBusinessHours delegates to the service', async () => {
+      const expected = { businessHours: [], holidays: [] };
+      mockServiceDesksService.getBusinessHours.mockResolvedValue(expected);
+
+      const result = await controller.getBusinessHours('1');
+
+      expect(mockServiceDesksService.getBusinessHours).toHaveBeenCalledWith(
+        '1',
+      );
+      expect(result).toEqual(expected);
+    });
+
+    it('updateBusinessHours delegates to the service', async () => {
+      const dto = {
+        businessHours: [{ weekday: 1, startTime: '08:00', endTime: '18:00' }],
+        holidays: [],
+      };
+      const expected = { businessHours: dto.businessHours, holidays: [] };
+      mockServiceDesksService.updateBusinessHours.mockResolvedValue(expected);
+
+      const result = await controller.updateBusinessHours('1', dto);
+
+      expect(
+        mockServiceDesksService.updateBusinessHours,
+      ).toHaveBeenCalledWith('1', dto);
+      expect(result).toEqual(expected);
     });
   });
 });

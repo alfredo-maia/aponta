@@ -5,6 +5,8 @@ export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
 
 export type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
+export type SlaStatus = 'ON_TRACK' | 'AT_RISK' | 'BREACHED';
+
 export interface Ticket {
   id: string;
   protocol: string;
@@ -17,6 +19,8 @@ export interface Ticket {
   serviceDeskId: string;
   responseDeadline: string | null;
   resolveDeadline: string | null;
+  responseSlaStatus?: SlaStatus | null;
+  resolveSlaStatus?: SlaStatus | null;
   createdAt: string;
   updatedAt: string;
 }

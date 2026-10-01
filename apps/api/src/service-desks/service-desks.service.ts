@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateServiceDeskDto } from './dto/create-service-desk.dto';
 import { UpdateServiceDeskDto } from './dto/update-service-desk.dto';
+import { UpdateBusinessHoursDto } from './dto/update-business-hours.dto';
 
 @Injectable()
 export class ServiceDesksService {
@@ -64,5 +65,54 @@ export class ServiceDesksService {
     return this.prisma.serviceDesk.delete({
       where: { id },
     });
+  }
+
+  async getBusinessHours(serviceDeskId: string) {
+    const serviceDesk = await this.prisma.serviceDesk.findUnique({
+      where: { id: serviceDeskId },
+    });
+    if (!serviceDesk) {
+      throw new NotFoundException(
+        `ServiceDesk with ID ${serviceDeskId} not found`,
+      );
+    }
+
+    const [businessHours, holidays] = await Promise.all([
+      this.prisma.businessHour.findMany({ where: { serviceDeskId } }),
+      this.prisma.holiday.findMany({ where: { serviceDeskId } }),
+    ]);
+
+    return { businessHours, holidays };
+  }
+
+  async updateBusinessHours(
+    serviceDeskId: string,
+    dto: UpdateBusinessHoursDto,
+  ) {
+    const serviceDesk = await this.prisma.serviceDesk.findUnique({
+      where: { id: serviceDeskId },
+    });
+    if (!serviceDesk) {
+      throw new NotFoundException(
+        `ServiceDesk with ID ${serviceDeskId} not found`,
+      );
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.businessHour.deleteMany({ where: { serviceDeskId } }),
+      this.prisma.holiday.deleteMany({ where: { serviceDeskId } }),
+      this.prisma.businessHour.createMany({
+        data: dto.businessHours.map((bh) => ({ ...bh, serviceDeskId })),
+      }),
+      this.prisma.holiday.createMany({
+        data: dto.holidays.map((h) => ({
+          name: h.name,
+          date: new Date(h.date),
+          serviceDeskId,
+        })),
+      }),
+    ]);
+
+    return this.getBusinessHours(serviceDeskId);
   }
 }

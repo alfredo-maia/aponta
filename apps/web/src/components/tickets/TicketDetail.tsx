@@ -8,6 +8,7 @@ import {
   statusBadgeClasses,
   statusLabels,
 } from './TicketCard';
+import { SlaBadge } from './SlaBadge';
 
 /**
  * Renders an ISO 8601 UTC timestamp as a stable, timezone-independent string
@@ -120,20 +121,22 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
           <dt className="font-medium text-muted-foreground">
             Prazo de resposta
           </dt>
-          <dd>
+          <dd className="flex items-center gap-2">
             {ticket.responseDeadline
               ? formatDeadline(ticket.responseDeadline)
               : 'Não definido'}
+            <SlaBadge status={ticket.responseSlaStatus} label="SLA" />
           </dd>
         </div>
         <div className="space-y-1">
           <dt className="font-medium text-muted-foreground">
             Prazo de resolução
           </dt>
-          <dd>
+          <dd className="flex items-center gap-2">
             {ticket.resolveDeadline
               ? formatDeadline(ticket.resolveDeadline)
               : 'Não definido'}
+            <SlaBadge status={ticket.resolveSlaStatus} label="SLA" />
           </dd>
         </div>
       </dl>
