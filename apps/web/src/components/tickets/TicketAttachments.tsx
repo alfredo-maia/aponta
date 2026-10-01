@@ -146,7 +146,7 @@ export function TicketAttachments({ ticketId }: TicketAttachmentsProps) {
           ref={fileInputRef}
           type="file"
           onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
-          className="text-sm"
+          className="text-sm text-muted-foreground file:mr-3 file:cursor-pointer file:rounded file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-secondary-foreground hover:file:opacity-80"
         />
         <button
           type="button"
