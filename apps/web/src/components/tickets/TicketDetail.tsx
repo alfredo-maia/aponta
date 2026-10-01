@@ -53,6 +53,10 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
     },
   });
 
+  const statusErrorMessage = statusMutation.isError
+    ? 'Não foi possível alterar o status deste chamado. Verifique se a transição é permitida (ex.: é preciso passar por "Em Andamento" antes de "Resolvido").'
+    : null;
+
   return (
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
@@ -73,6 +77,7 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
             ) : (
               <select
                 id="ticket-status"
+                aria-label="Status"
                 className={`rounded-full outline-none px-2 py-0.5 text-xs font-medium border-none cursor-pointer ${statusBadgeClasses[ticket.status]}`}
                 value={ticket.status}
                 disabled={statusMutation.isPending}
@@ -115,6 +120,12 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
       </div>
 
       <p className="whitespace-pre-wrap text-sm">{ticket.description}</p>
+
+      {statusErrorMessage && (
+        <p role="alert" className="rounded border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {statusErrorMessage}
+        </p>
+      )}
 
       <dl className="grid gap-4 text-sm sm:grid-cols-2">
         <div className="space-y-1">

@@ -272,4 +272,36 @@ describe('TicketDetailPage', () => {
       });
     });
   });
+
+  describe('Status change errors', () => {
+    it('shows an error message (not a silent revert) when the backend rejects an invalid status transition', async () => {
+      setRole('AGENT');
+      vi.mocked(api.patch).mockImplementation((url: string) => {
+        if (url === '/tickets/t-1/status') {
+          return Promise.reject({
+            isAxiosError: true,
+            response: {
+              status: 400,
+              data: { message: 'Cannot transition ticket from IN_PROGRESS to CLOSED' },
+            },
+          });
+        }
+        return Promise.reject(new Error(`Unexpected PATCH ${url}`));
+      });
+      const user = userEvent.setup();
+      renderPage();
+
+      const select = await screen.findByLabelText(/^status$/i);
+      await user.selectOptions(select, 'CLOSED');
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/não foi possível alterar o status/i),
+        ).toBeInTheDocument();
+      });
+      // The select must reflect the real (unchanged) status from the server,
+      // not silently keep whatever the user picked.
+      expect(select).toHaveValue('IN_PROGRESS');
+    });
+  });
 });
