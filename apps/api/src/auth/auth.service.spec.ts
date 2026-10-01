@@ -113,6 +113,7 @@ describe('AuthService', () => {
         sub: validatedUser.id,
         email: validatedUser.email,
         role: validatedUser.role,
+        organizationId: validatedUser.organizationId,
       });
       expect(result).toEqual({ access_token: 'signed-jwt-token' });
     });

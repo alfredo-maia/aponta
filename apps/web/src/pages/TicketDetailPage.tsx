@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { CommentForm } from '../components/tickets/CommentForm';
 import { TicketComments } from '../components/tickets/TicketComments';
 import { TicketDetail } from '../components/tickets/TicketDetail';
+import { TicketAttachments } from '../components/tickets/TicketAttachments';
 import { useTicket } from '../hooks/useTicket';
 import { useAuthStore } from '../stores/authStore';
 
@@ -34,6 +35,7 @@ export function TicketDetailPage() {
   return (
     <div className="space-y-6">
       <TicketDetail ticket={ticket} />
+      <TicketAttachments ticketId={ticket.id} />
       {!isClient && (
         <section className="space-y-4">
           <h2 className="text-lg font-semibold">Comentários</h2>

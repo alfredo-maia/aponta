@@ -94,6 +94,11 @@ COPY --from=build /workspace/dist/apps/api ./
 COPY --from=build /workspace/apps/api/prisma ./prisma
 COPY --from=build /workspace/apps/api/prisma.config.ts ./prisma.config.ts
 
+# Persistent storage for ticket attachment uploads (Issue #07). Mounted as a
+# named volume in docker-compose.yml so files survive container recreation;
+# owned by the unprivileged `aponta` user that the process actually runs as.
+RUN mkdir -p ./uploads && chown -R aponta:aponta ./uploads
+
 # `nx:webpack`'s NxAppWebpackPlugin (generatePackageJson: true) derives the
 # dependency list from source import/require detection, which misses
 # `tslib` — webpack's `importHelpers` output calls `require('tslib')` from

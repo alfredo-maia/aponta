@@ -81,6 +81,8 @@ services:
       SMTP_FROM: ${SMTP_FROM}
     ports:
       - '127.0.0.1:${API_PORT:-3001}:3001'
+    volumes:
+      - aponta_uploads:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -133,3 +135,4 @@ services:
 
 volumes:
   aponta_postgres_data:
+  aponta_uploads:
