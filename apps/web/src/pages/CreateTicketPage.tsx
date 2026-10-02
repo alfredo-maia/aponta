@@ -50,7 +50,7 @@ export function CreateTicketPage() {
     },
     onSuccess: (data) => {
       void queryClient.invalidateQueries({ queryKey: ['tickets'] });
-      navigate(`/app/tickets/${data.id}`);
+      navigate(`/tickets/${data.id}`);
     },
     onError: () => {
       setSubmitError('Falha ao criar o chamado. Verifique os dados e tente novamente.');

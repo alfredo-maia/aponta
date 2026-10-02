@@ -34,7 +34,7 @@ test.describe('ticket creation and detail view', () => {
       .locator('#ticket-service-desk')
       .selectOption({ label: 'General Support' });
     await page.locator('#ticket-priority').selectOption({ label: 'Alta' });
-    await page.getByRole('button', { name: 'Criar chamado' }).click();
+    await page.getByRole('button', { name: 'Submeter Solicitação' }).click();
 
     // POST /api/tickets succeeds -> navigate(`/tickets/${ticket.id}`).
     await expect(page).toHaveURL(/\/tickets\/[0-9a-f-]{36}$/);
@@ -64,7 +64,7 @@ test.describe('ticket creation and detail view', () => {
     await page
       .locator('#ticket-service-desk')
       .selectOption({ label: 'General Support' });
-    await page.getByRole('button', { name: 'Criar chamado' }).click();
+    await page.getByRole('button', { name: 'Submeter Solicitação' }).click();
     await expect(page).toHaveURL(/\/tickets\/[0-9a-f-]{36}$/);
 
     const detailUrl = page.url();

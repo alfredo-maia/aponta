@@ -175,7 +175,7 @@ describe('TicketDetailPage', () => {
     renderPage();
 
     expect(await screen.findByText(/em risco/i)).toBeInTheDocument();
-    expect(screen.getByText(/vencido/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/vencido/i).length).toBeGreaterThan(0);
   });
 
   it('should render the comment timeline with an internal-note indicator only on internal comments', async () => {

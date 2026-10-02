@@ -126,7 +126,7 @@ describe('CreateTicketPage', () => {
     });
 
     await waitFor(() => {
-      expect(navigateMock).toHaveBeenCalledWith('/app/tickets/t-99');
+      expect(navigateMock).toHaveBeenCalledWith('/tickets/t-99');
     });
   });
 
