@@ -1,14 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CommentsService } from '../comments.service';
-import { UsersService } from '../../users/users.service';
-
-interface InboundEmailPayload {
-  subject: string;
-  textBody: string;
-  fromAddress: string;
-}
+import { CurrentUserPayload } from '../../tickets/decorators/current-user.decorator';
 
 @Injectable()
 export class MailInboundListener {
@@ -17,51 +11,78 @@ export class MailInboundListener {
   constructor(
     private readonly prisma: PrismaService,
     private readonly commentsService: CommentsService,
-    private readonly usersService: UsersService,
   ) {}
 
   @OnEvent('mail.inbound.received')
-  async handleInboundEmail(payload: InboundEmailPayload) {
-    const match = payload.subject.match(/chamado\s+([A-Za-z0-9-]+)/i);
+  async handleInboundEmail(payload: {
+    subject: string;
+    fromAddress: string;
+    textBody: string;
+  }): Promise<void> {
+    const match = payload.subject.match(/AP-\d{4}-\d+/i);
     if (!match) {
-      this.logger.debug(`Ignored email: No protocol found in subject "${payload.subject}".`);
+      this.logger.debug(`Ignored inbound email (no protocol in subject): ${payload.subject}`);
       return;
     }
 
-    const protocol = match[1];
-
-    const user = await this.usersService.findByEmail(payload.fromAddress);
-    if (!user) {
-      this.logger.warn(`Ignored email for ticket ${protocol}: Author email ${payload.fromAddress} not found.`);
+    const protocol = match[0].toUpperCase();
+    const ticket = await this.prisma.ticket.findUnique({ where: { protocol } });
+    
+    if (!ticket) {
+      this.logger.warn(`Ignored inbound email (protocol not found): ${protocol}`);
       return;
     }
 
-    const ticket = await this.prisma.ticket.findUnique({
-      where: { protocol },
+    const user = await this.prisma.user.findUnique({
+      where: { email: payload.fromAddress },
     });
 
-    if (!ticket) {
-      this.logger.warn(`Ignored email: Ticket with protocol ${protocol} not found.`);
+    if (!user) {
+      this.logger.warn(`Ignored inbound email (user not found): ${payload.fromAddress}`);
       return;
+    }
+
+    const currentUser: CurrentUserPayload = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      organizationId: user.organizationId,
+    };
+
+    let content = payload.textBody;
+    // Very basic reply trimming
+    const splitTokens = ['\nOn ', '\nEm ', '\nDe:', '\n>'];
+    for (const token of splitTokens) {
+      const splitIndex = content.toLowerCase().search(token.toLowerCase());
+      if (splitIndex !== -1) {
+        content = content.substring(0, splitIndex);
+      }
+    }
+    content = content.trim();
+    
+    if (!content) {
+       this.logger.warn(`Ignored inbound email (empty content after trim): ${protocol}`);
+       return;
     }
 
     try {
       await this.commentsService.create(
         ticket.id,
-        {
-          content: payload.textBody,
-          isInternal: false,
-        },
-        {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-          organizationId: user.organizationId,
-        },
+        { content, isInternal: false },
+        currentUser,
       );
-      this.logger.log(`Created email reply comment for ticket ${protocol} from ${user.email}`);
-    } catch (error) {
-      this.logger.error(`Failed to create comment for ticked ${protocol} from ${user.email}`, error instanceof Error ? error.stack : String(error));
+      this.logger.log(`Created inbound email comment for ticket ${protocol}`);
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        this.logger.warn(
+          `Inbound email rejected: user ${user.email} not authorized for ticket ${protocol}`,
+        );
+      } else {
+        this.logger.error(
+          `Error creating inbound comment for ticket ${protocol}`,
+          e instanceof Error ? e.stack : String(e),
+        );
+      }
     }
   }
 }
