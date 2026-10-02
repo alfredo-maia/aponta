@@ -9,7 +9,7 @@ import { statusBadgeClasses, statusLabels } from './TicketCard';
 export function TicketParentChild({ ticket }: { ticket: Ticket }) {
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
-  const isAgentOrAdmin = user?.role === 'AGENT' || user?.role === 'ADMIN';
+  const isAgentOrAdmin = ['AGENT', 'AGENT_MASTER', 'ADMIN'].includes(user?.role as string);
 
   const [parentProtocol, setParentProtocol] = useState('');
   const [isEditing, setIsEditing] = useState(false);

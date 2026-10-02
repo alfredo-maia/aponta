@@ -77,7 +77,7 @@ interface TicketDetailProps {
 export function TicketDetail({ ticket }: TicketDetailProps) {
   const user = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
-  const isAgentOrAdmin = user?.role === 'AGENT' || user?.role === 'ADMIN';
+  const isAgentOrAdmin = ['AGENT', 'AGENT_MASTER', 'ADMIN'].includes(user?.role as string);
 
   const { data: agents = [] } = useQuery({
     queryKey: ['agents'],
@@ -158,7 +158,7 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
             </span>
           </div>
           
-          {(user?.role === 'AGENT' || user?.role === 'ADMIN') && (
+          {(['AGENT', 'AGENT_MASTER', 'ADMIN'].includes(user?.role as string)) && (
             <div className="mt-2 text-sm">
               <label htmlFor="assignee" className="mr-2 text-muted-foreground">Atribuído a:</label>
               <select

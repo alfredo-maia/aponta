@@ -27,7 +27,7 @@ interface CommentFormProps {
  */
 export function CommentForm({ ticketId }: CommentFormProps) {
   const role = useAuthStore((state) => state.user?.role);
-  const canMarkInternal = role === 'AGENT' || role === 'ADMIN';
+  const canMarkInternal = ['AGENT', 'AGENT_MASTER', 'ADMIN'].includes(role as string);
   const queryClient = useQueryClient();
 
   const {
