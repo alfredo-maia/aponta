@@ -68,7 +68,8 @@ model ServiceDesk {
   businessHours BusinessHour[]
   holidays      Holiday[]
 
-  createdAt DateTime @default(now())
+  createdAt           DateTime             @default(now())
+  serviceCatalogItems ServiceCatalogItem[]
 }
 
 /// One weekly working window for a ServiceDesk, e.g. Monday 08:00-18:00.
@@ -76,7 +77,7 @@ model ServiceDesk {
 /// A ServiceDesk with zero BusinessHour rows is treated as 24/7 (no restriction)
 /// so SLA math keeps working for desks that haven't configured Expediente yet.
 model BusinessHour {
-  id   String @id @default(uuid())
+  id      String @id @default(uuid())
   /// 0 = Sunday ... 6 = Saturday (JS Date#getDay() convention)
   weekday Int
 
@@ -131,11 +132,11 @@ model Ticket {
   csatComment String?
   csatToken   String? @unique
 
-  comments    Comment[]
-  audits      TicketAudit[]
+  comments       Comment[]
+  audits         TicketAudit[]
   parentTicketId String?
-  parentTicket   Ticket?  @relation("ParentChildTickets", fields: [parentTicketId], references: [id])
-  subTickets     Ticket[] @relation("ParentChildTickets")
+  parentTicket   Ticket?       @relation("ParentChildTickets", fields: [parentTicketId], references: [id])
+  subTickets     Ticket[]      @relation("ParentChildTickets")
 
   checklists  TicketChecklist[]
   attachments TicketAttachment[]
@@ -224,4 +225,36 @@ model Comment {
   createdAt DateTime @default(now())
 
   @@index([ticketId])
+}
+
+model ServiceCatalogCategory {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  isActive    Boolean @default(true)
+
+  items ServiceCatalogItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ServiceCatalogItem {
+  id          String  @id @default(uuid())
+  title       String
+  description String?
+  icon        String?
+
+  categoryId String
+  category   ServiceCatalogCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  defaultServiceDeskId String
+  defaultServiceDesk   ServiceDesk @relation(fields: [defaultServiceDeskId], references: [id])
+
+  defaultPriority TicketPriority @default(MEDIUM)
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

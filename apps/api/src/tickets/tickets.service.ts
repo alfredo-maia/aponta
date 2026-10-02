@@ -183,14 +183,25 @@ export class TicketsService {
     dto: CreateTicketDto,
     requesterId: string,
   ): Promise<Ticket> {
-    const priority = dto.priority ?? TicketPriority.MEDIUM;
+    let priority = dto.priority ?? TicketPriority.MEDIUM;
+    let serviceDeskId = dto.serviceDeskId;
+
+    if (dto.catalogItemId) {
+      const catalogItem = await this.prisma.serviceCatalogItem.findUnique({ where: { id: dto.catalogItemId }});
+      if (catalogItem && catalogItem.isActive) {
+         priority = catalogItem.defaultPriority;
+         serviceDeskId = catalogItem.defaultServiceDeskId;
+      }
+    }
+
+
     const createdAt = new Date();
     const [businessHours, holidays] = await Promise.all([
       this.prisma.businessHour.findMany({
-        where: { serviceDeskId: dto.serviceDeskId },
+        where: { serviceDeskId: serviceDeskId },
       }),
       this.prisma.holiday.findMany({
-        where: { serviceDeskId: dto.serviceDeskId },
+        where: { serviceDeskId: serviceDeskId },
       }),
     ]);
     const { responseDeadline, resolveDeadline } = calculateSla(
@@ -225,7 +236,7 @@ export class TicketsService {
               protocol,
               title: dto.title,
               description: dto.description,
-              serviceDeskId: dto.serviceDeskId,
+              serviceDeskId: serviceDeskId,
               requesterId,
               status: TicketStatus.OPEN,
               priority,

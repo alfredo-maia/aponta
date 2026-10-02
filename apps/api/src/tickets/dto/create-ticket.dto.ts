@@ -8,6 +8,11 @@ import { TicketPriority } from '@prisma/client';
  * caller (requesterId), never client-controlled. See TicketsService.create.
  */
 export class CreateTicketDto {
+
+  @IsOptional()
+  @IsUUID()
+  catalogItemId?: string;
+
   @IsString()
   @IsNotEmpty()
   title!: string;

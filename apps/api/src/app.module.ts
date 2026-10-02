@@ -1,3 +1,4 @@
+import { CatalogModule } from "./catalog/catalog.module";
 import { ChecklistsModule } from "./checklists/checklists.module";
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -18,6 +19,7 @@ import { ArticlesModule } from './articles/articles.module';
 
 @Module({
   imports: [
+    CatalogModule,
     ChecklistsModule,
     ConfigModule.forRoot({ isGlobal: true }),
     EventEmitterModule.forRoot(),

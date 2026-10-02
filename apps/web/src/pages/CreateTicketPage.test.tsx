@@ -114,7 +114,7 @@ describe('CreateTicketPage', () => {
     await user.selectOptions(screen.getByLabelText(/departamento/i), 'sd-1');
     await user.selectOptions(screen.getByLabelText(/prioridade/i), 'MEDIUM');
 
-    await user.click(screen.getByRole('button', { name: /criar chamado/i }));
+    await user.click(screen.getByRole('button', { name: /submeter solicitação/i }));
 
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith('/tickets', {
@@ -126,7 +126,7 @@ describe('CreateTicketPage', () => {
     });
 
     await waitFor(() => {
-      expect(navigateMock).toHaveBeenCalledWith('/tickets/t-99');
+      expect(navigateMock).toHaveBeenCalledWith('/app/tickets/t-99');
     });
   });
 
@@ -136,7 +136,7 @@ describe('CreateTicketPage', () => {
 
     await screen.findByRole('option', { name: 'Suporte N1' });
 
-    await user.click(screen.getByRole('button', { name: /criar chamado/i }));
+    await user.click(screen.getByRole('button', { name: /submeter solicitação/i }));
 
     expect(await screen.findByText(/título é obrigatório/i)).toBeInTheDocument();
     expect(api.post).not.toHaveBeenCalled();
