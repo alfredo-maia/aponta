@@ -23,16 +23,22 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUserPayload } from './decorators/current-user.decorator';
 
+import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+
 interface AuthenticatedRequest {
   user: CurrentUserPayload;
 }
 
+@ApiTags('Tickets')
+@ApiBearerAuth()
 @Controller('tickets')
 @UseGuards(JwtAuthGuard)
 export class TicketsController {
   constructor(private readonly ticketsService: TicketsService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a new ticket', description: 'Creates a ticket acting on behalf of the user using strictly predefined DTO rules' })
+  @ApiResponse({ status: 201, description: 'Ticket successfully created.' })
   create(
     @Body() createTicketDto: CreateTicketDto,
     @Req() req: AuthenticatedRequest,
@@ -41,6 +47,7 @@ export class TicketsController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'List and filter tickets', description: 'Lists tickets respecting User/Tenant/Role visibility rules via the core generic helper' })
   findAll(
     @Query() query: TicketQueryDto,
     @Req() req: AuthenticatedRequest,
@@ -83,6 +90,7 @@ export class TicketsController {
   @Patch(':id/status')
   @UseGuards(RolesGuard)
   @Roles(Role.AGENT, Role.ADMIN)
+  @ApiOperation({ summary: 'Fast mutate ticket status', description: 'Dedicated Action intent to change a ticket status, triggering specific events on the state machine' })
   changeStatus(
     @Param('id') id: string,
     @Body() changeStatusDto: ChangeStatusDto,

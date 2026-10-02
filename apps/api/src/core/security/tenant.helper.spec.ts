@@ -1,4 +1,4 @@
-import { Role, Prisma } from '@prisma/client';
+import { Role } from '@prisma/client';
 import { TenantHelper } from './tenant.helper';
 import { CurrentUserPayload } from '../../tickets/decorators/current-user.decorator';
 
