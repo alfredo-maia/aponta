@@ -11,6 +11,7 @@ import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { TicketQueryDto } from './dto/ticket-query.dto';
 import { CurrentUserPayload } from './decorators/current-user.decorator';
+import { TenantHelper } from '../core/security/tenant.helper';
 import { addBusinessHours } from '../scheduling/business-hours';
 import { getSlaStatus } from '../scheduling/sla-status';
 
@@ -349,7 +350,8 @@ export class TicketsService {
     data: Ticket[];
     meta: { total: number; page: number; limit: number; totalPages: number };
   }> {
-    const where: Prisma.TicketWhereInput = {};
+    const baseWhere = TenantHelper.getTicketWhere(currentUser);
+    const where: Prisma.TicketWhereInput = { ...baseWhere };
     if (query.serviceDeskId) {
       where.serviceDeskId = query.serviceDeskId;
     }
@@ -363,21 +365,6 @@ export class TicketsService {
         { description: { contains: query.search, mode: 'insensitive' } },
       ];
     }
-
-    if (currentUser.role === Role.CLIENT) {
-      where.requesterId = currentUser.id;
-    } else if (currentUser.role === Role.CLIENT_MASTER) {
-      // Sees all tickets requested by users in the same organization, OR their own if no org
-      if (currentUser.organizationId) {
-        where.requester = { organizationId: currentUser.organizationId };
-      } else {
-        where.requesterId = currentUser.id;
-      }
-    } else if (currentUser.role === Role.AGENT || currentUser.role === Role.AGENT_MASTER) {
-      // Agents only see tickets belonging to ServiceDesks they are assigned to
-      where.serviceDesk = { agents: { some: { id: currentUser.id } } };
-    }
-    // ADMIN has no restrictions, sees everything
 
     const page = Math.max(parseInt(query.page ?? '1', 10) || 1, 1);
     const limit = Math.min(
