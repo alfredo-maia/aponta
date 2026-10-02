@@ -16,12 +16,12 @@ export function Sidebar() {
       { to: '/knowledge', label: 'Ajuda (FAQ)' },
       { to: '/', label: 'Caixa de Entrada' },
       { to: '/tickets/new', label: 'Novo Chamado' },
-      { to: '/vault', label: 'Cofre de Senhas' },
     ];
     
     if (user?.role === 'ADMIN') {
       return [
         ...base, 
+        { to: '/vault', label: 'Cofre de Senhas' },
         { to: '/service-desks', label: 'Departamentos' },
         { to: '/organizations', label: 'Empresas' },
         { to: '/reports', label: 'Relatórios' }
@@ -30,7 +30,14 @@ export function Sidebar() {
     if (user?.role === 'AGENT_MASTER') {
       return [
         ...base, 
+        { to: '/vault', label: 'Cofre de Senhas' },
         { to: '/reports', label: 'Relatórios' }
+      ];
+    }
+    if (user?.role === 'AGENT') {
+      return [
+        ...base,
+        { to: '/vault', label: 'Cofre de Senhas' }
       ];
     }
     

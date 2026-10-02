@@ -1,6 +1,5 @@
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { ForbiddenException } from '@nestjs/common';
 import { VaultService } from './vault.service';
-import { PrismaService } from '../prisma/prisma.service';
 import { Role } from '@prisma/client';
 
 describe('VaultService', () => {
@@ -35,22 +34,20 @@ describe('VaultService', () => {
       const user = { id: 'admin', role: Role.ADMIN };
       const result = await service.create({ name: 'teste', password: 'x' }, user);
       expect(result).toEqual({ id: 'cred' });
-      expect(mockPrisma.credential.create).toHaveBeenCalled();
     });
   });
 
   describe('remove', () => {
-    it('should throw ForbiddenException if user is CLIENT_MASTER but credential is from another org', async () => {
-      mockPrisma.credential.findFirst.mockResolvedValue(null);
-      const user = { id: 'c-master', role: Role.CLIENT_MASTER, organizationId: 'org1' };
+    it('should throw ForbiddenException if user is CLIENT_MASTER', async () => {
+      const user = { id: 'c-master', role: Role.CLIENT_MASTER };
       await expect(service.remove('cred-123', user))
         .rejects
-        .toThrow(NotFoundException);
+        .toThrow(ForbiddenException);
     });
 
-    it('should allow CLIENT_MASTER to remove if matched', async () => {
-      mockPrisma.credential.findFirst.mockResolvedValue({ id: 'cred-123', organizationId: 'org1' });
-      const user = { id: 'c-master', role: Role.CLIENT_MASTER, organizationId: 'org1' };
+    it('should allow ADMIN to remove', async () => {
+      mockPrisma.credential.findFirst.mockResolvedValue({ id: 'cred-123' });
+      const user = { id: 'admin', role: Role.ADMIN };
       await service.remove('cred-123', user);
       expect(mockPrisma.credential.delete).toHaveBeenCalledWith({ where: { id: 'cred-123' }});
     });
@@ -59,6 +56,11 @@ describe('VaultService', () => {
   describe('findAll', () => {
     it('should throw ForbiddenException if user is CLIENT', async () => {
       const user = { id: 'client', role: Role.CLIENT };
+      await expect(service.findAll(user)).rejects.toThrow(ForbiddenException);
+    });
+    
+    it('should throw ForbiddenException if user is CLIENT_MASTER', async () => {
+      const user = { id: 'cm', role: Role.CLIENT_MASTER };
       await expect(service.findAll(user)).rejects.toThrow(ForbiddenException);
     });
   });

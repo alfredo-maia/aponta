@@ -10,7 +10,7 @@ export function VaultPage() {
   if (query.isError) return <div className="p-8 text-destructive">Erro ao carregar o cofre de senhas.</div>;
 
   const credentials = query.data || [];
-  const canEdit = user && ['ADMIN', 'CLIENT_MASTER'].includes(user.role);
+  const canEdit = user && user.role === 'ADMIN';
 
   // Group by Organization, simulating Tiflux Root structure
   const grouped = credentials.reduce((acc, cred) => {
@@ -62,7 +62,7 @@ export function VaultPage() {
                 </div>
                 {canEdit && (
                   <button
-                    onClick={() => { if(confirm('Excluir senha definitivamente?')) removeMutation.mutate(cred.id); }}
+                    onClick={() => { if(window.confirm('Excluir senha definitivamente?')) removeMutation.mutate(cred.id); }}
                     className="p-2 text-destructive hover:bg-destructive/10 rounded-full"
                     title="Excluir"
                   >

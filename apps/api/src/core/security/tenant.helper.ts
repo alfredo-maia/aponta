@@ -18,16 +18,11 @@ export class TenantHelper {
 
   static getCredentialWhere(user: CurrentUserPayload): Prisma.CredentialWhereInput {
     if (user.role === Role.ADMIN) return {};
-    if (user.role === Role.CLIENT_MASTER) {
-      return user.organizationId
-        ? { organizationId: user.organizationId }
-        : { id: '00000000-0000-0000-0000-000000000000' };
-    }
     if (user.role === Role.AGENT || user.role === Role.AGENT_MASTER) {
-      // For now, Agents can see all credentials. Controller will enforce Read-Only.
+      // Agents can see all credentials. Controller will enforce Read-Only.
       return {};
     }
-    // CLIENT is blocked entirely from seeing any vault
+    // CLIENT and CLIENT_MASTER are mapped to fail-closed
     return { id: '00000000-0000-0000-0000-000000000000' };
   }
 }

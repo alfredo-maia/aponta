@@ -16,21 +16,21 @@ export class VaultController {
   constructor(private readonly vaultService: VaultService) {}
 
   @Get()
-  @Roles(Role.ADMIN, Role.AGENT_MASTER, Role.AGENT, Role.CLIENT_MASTER)
+  @Roles(Role.ADMIN, Role.AGENT_MASTER, Role.AGENT)
   @ApiOperation({ summary: 'List all credentials scoped by User Tenant' })
   findAll(@CurrentUser() user: CurrentUserPayload) {
     return this.vaultService.findAll(user);
   }
 
   @Post()
-  @Roles(Role.ADMIN, Role.CLIENT_MASTER)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Create a new credential' })
   create(@Body() dto: CreateCredentialDto, @CurrentUser() user: CurrentUserPayload) {
     return this.vaultService.create(dto, user);
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN, Role.CLIENT_MASTER)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Delete a credential' })
   remove(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
     return this.vaultService.remove(id, user);

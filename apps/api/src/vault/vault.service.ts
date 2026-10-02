@@ -15,8 +15,6 @@ export class VaultService {
       throw new ForbiddenException('Acesso negado ao Cofre de Senhas');
     }
 
-    // Tiflux groups credentials by Organization.
-    // So we fetch the credentials WITH their Organization data, ordered by Org Name.
     return this.prisma.credential.findMany({
       where,
       include: { organization: true },
@@ -25,50 +23,32 @@ export class VaultService {
   }
 
   async create(createDto: CreateCredentialDto, user: CurrentUserPayload) {
-    // Only ADMIN and CLIENT_MASTER can create.
-    if (![Role.ADMIN, Role.CLIENT_MASTER].includes(user.role)) {
-      throw new ForbiddenException('Não autorizado a criar credenciais');
+    if (user.role !== Role.ADMIN) {
+      throw new ForbiddenException('Apenas Administradores podem gerenciar o cofre');
     }
 
-    let targetOrganizationId = '';
-
-    if (user.role === Role.CLIENT_MASTER) {
-      if (!user.organizationId) {
-         throw new ForbiddenException('Você não pertence a uma organização');
-      }
-      targetOrganizationId = user.organizationId;
-    } else {
-      // ADMIN creating... normally they should pass organizationId in a separate endpoint
-      // but for MVP, we'll just throw if they don't have it in a separate DTO, 
-      // or we can allow adding a query param. 
-      // Actually, since ADMIN manages everything, let's just make it simple: 
-      // If ADMIN calls this without specifying org, it fails unless we update DTO.
-      // Let's assume ADMIN must pass it somehow, or we can use the first org for test.
-      const org = await this.prisma.organization.findFirst();
-      if (!org) throw new NotFoundException('No organizations exist');
-      targetOrganizationId = org.id;
-    }
+    const org = await this.prisma.organization.findFirst();
+    if (!org) throw new NotFoundException('No organizations exist');
 
     return this.prisma.credential.create({
       data: {
         ...createDto,
-        organizationId: targetOrganizationId,
+        organizationId: org.id,
       },
     });
   }
 
   async remove(id: string, user: CurrentUserPayload) {
-    if (![Role.ADMIN, Role.CLIENT_MASTER].includes(user.role)) {
-      throw new ForbiddenException('Não autorizado a excluir credenciais');
+    if (user.role !== Role.ADMIN) {
+      throw new ForbiddenException('Acesso restrito');
     }
 
-    const where = TenantHelper.getCredentialWhere(user);
     const credential = await this.prisma.credential.findFirst({
-      where: { id, ...where },
+      where: { id },
     });
 
     if (!credential) {
-      throw new NotFoundException('Credencial não encontrada ou sem permissão');
+      throw new NotFoundException('Credencial não encontrada');
     }
 
     await this.prisma.credential.delete({ where: { id } });
