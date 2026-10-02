@@ -18,12 +18,14 @@ interface CommentPayload extends TicketPayload {
 export class TicketEventsListener {
   
   private readonly appUrl: string;
+  private readonly replyTo: string | undefined;
 
   constructor(
     private readonly mailService: MailService,
     private readonly configService: ConfigService,
   ) {
     this.appUrl = this.configService.get<string>('WEB_ORIGIN') || 'http://localhost:3000';
+    this.replyTo = this.configService.get<string>('SMTP_REPLY_TO') || this.configService.get<string>('IMAP_USER');
   }
 
   @OnEvent('ticket.created')
@@ -32,7 +34,8 @@ export class TicketEventsListener {
     
     await this.mailService.sendEmail({
       to: payload.requesterEmail,
-      subject: `[Aponta] O Chamado ${payload.ticket.protocol} foi aberto com sucesso`,
+      replyTo: this.replyTo,
+        subject: `[Aponta] O Chamado ${payload.ticket.protocol} foi aberto com sucesso`,
       text: `Olá!\n\nSeu chamado "${payload.ticket.title}" foi criado e está em nossa fila sob o protocolo ${payload.ticket.protocol}.\n\nAcompanhe o status aqui:\n${this.appUrl}/tickets/${payload.ticket.id}`,
     });
   }
@@ -43,7 +46,8 @@ export class TicketEventsListener {
 
     await this.mailService.sendEmail({
       to: payload.agentEmail,
-      subject: `[Aponta] Novo chamado atribuído a você: ${payload.ticket.protocol}`,
+      replyTo: this.replyTo,
+        subject: `[Aponta] Novo chamado atribuído a você: ${payload.ticket.protocol}`,
       text: `Olá!\n\nO chamado "${payload.ticket.title}" foi atribuído a você.\n\nAcesse para atender:\n${this.appUrl}/tickets/${payload.ticket.id}`,
     });
   }
@@ -58,6 +62,7 @@ export class TicketEventsListener {
         : `${this.appUrl}/tickets/${payload.ticket.id}`;
       await this.mailService.sendEmail({
         to: payload.requesterEmail,
+        replyTo: this.replyTo,
         subject: `[Aponta] Seu chamado ${payload.ticket.protocol} foi resolvido — avalie nosso atendimento`,
         text: `Olá!\n\nSeu chamado "${payload.ticket.title}" foi marcado como resolvido.\n\nGostaríamos muito de saber como foi sua experiência — deixe sua avaliação (nota e comentário) aqui, sem precisar fazer login:\n${ratingLink}\n\nSe o problema persistir, você também pode reabrir o chamado por lá.`,
       });
@@ -66,7 +71,8 @@ export class TicketEventsListener {
 
     await this.mailService.sendEmail({
       to: payload.requesterEmail,
-      subject: `[Aponta] Status do chamado ${payload.ticket.protocol} mudou para ${payload.ticket.status}`,
+      replyTo: this.replyTo,
+        subject: `[Aponta] Status do chamado ${payload.ticket.protocol} mudou para ${payload.ticket.status}`,
       text: `Olá!\n\nO status do seu chamado "${payload.ticket.title}" mudou para ${payload.ticket.status}.\n\nVeja mais detalhes aqui:\n${this.appUrl}/tickets/${payload.ticket.id}`,
     });
   }
@@ -78,6 +84,7 @@ export class TicketEventsListener {
     if (payload.authorEmail !== payload.requesterEmail && payload.requesterEmail) {
       await this.mailService.sendEmail({
         to: payload.requesterEmail,
+        replyTo: this.replyTo,
         subject: `[Aponta] Nova resposta no chamado ${payload.ticket.protocol}`,
         text: `Olá!\n\nHá um novo comentário no seu chamado "${payload.ticket.title}".\n\nConfira:\n${this.appUrl}/tickets/${payload.ticket.id}`,
       });
@@ -86,6 +93,7 @@ export class TicketEventsListener {
     if (payload.agentEmail && payload.authorEmail === payload.requesterEmail) {
       await this.mailService.sendEmail({
         to: payload.agentEmail,
+        replyTo: this.replyTo,
         subject: `[Aponta] Nova interação do cliente no chamado ${payload.ticket.protocol}`,
         text: `Olá!\n\nO cliente enviou uma resposta no chamado "${payload.ticket.title}".\n\nVerifique as atualizações no painel:\n${this.appUrl}/tickets/${payload.ticket.id}`,
       });

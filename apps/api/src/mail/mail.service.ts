@@ -7,6 +7,7 @@ export interface SendEmailOptions {
   subject: string;
   text: string;
   html?: string;
+  replyTo?: string;
 }
 
 @Injectable()
@@ -52,6 +53,7 @@ export class MailService {
         subject: options.subject,
         text: options.text,
         html: options.html,
+        ...(options.replyTo ? { replyTo: options.replyTo } : {}),
       });
     } catch (error) {
       this.logger.error(`Failed to send email to ${options.to}`, error instanceof Error ? error.stack : String(error));
