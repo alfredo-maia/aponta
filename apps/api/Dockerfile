@@ -114,7 +114,7 @@ RUN node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.
 # install only production deps from that pruned manifest so the final image
 # has no devDependencies, no Nx, no TypeScript toolchain.
 RUN corepack enable && corepack prepare pnpm@12.8.1 --activate \
-  && pnpm install --prod --no-frozen-lockfile --allow-build="@prisma/engines" --allow-build="prisma" \
+  && pnpm install --prod --no-frozen-lockfile --allow-build="@prisma/engines" --allow-build="prisma" --allow-build="@scarf/scarf" \
   && pnpm store prune \
   && rm -rf /root/.local/share/pnpm/store /root/.cache
 
