@@ -16,7 +16,8 @@ import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { TicketQueryDto } from './dto/ticket-query.dto';
 import { AssignTicketDto } from './dto/assign-ticket.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
-import { ChangeServiceDeskDto } from './dto/change-service-desk.dto';
+import { ChangeServiceDeskDto } from "./dto/change-service-desk.dto";
+import { UpdateParentDto } from "./dto/update-parent.dto";
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -107,5 +108,14 @@ export class TicketsController {
       changeServiceDeskDto.serviceDeskId,
       req.user,
     );
+  }
+@Patch(':id/parent')
+  @Roles(Role.AGENT, Role.AGENT_MASTER, Role.ADMIN)
+  async updateParent(
+    @Param('id') id: string,
+    @Body() dto: UpdateParentDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.ticketsService.updateParent(id, dto.parentProtocol, req.user);
   }
 }

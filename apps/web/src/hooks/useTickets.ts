@@ -23,6 +23,9 @@ export interface Ticket {
   resolveSlaStatus?: SlaStatus | null;
   csatScore?: number | null;
   csatComment?: string | null;
+  parentTicketId?: string | null;
+  parentTicket?: { id: string; protocol: string; title: string; status: TicketStatus; } | null;
+  subTickets?: { id: string; protocol: string; title: string; status: TicketStatus; }[];
   createdAt: string;
   updatedAt: string;
 }

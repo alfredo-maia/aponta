@@ -10,6 +10,7 @@ import {
 } from './TicketCard';
 import { SlaBadge } from './SlaBadge';
 import { TicketChecklist } from './TicketChecklist';
+import { TicketParentChild } from './TicketParent';
 
 /**
  * Renders an ISO 8601 UTC timestamp as a stable, timezone-independent string
@@ -216,6 +217,7 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
         <>
 
         <TicketChecklist ticketId={ticket.id} />
+          <TicketParentChild ticket={ticket} />
 
       <section className="space-y-2">
           <h2 className="text-lg font-semibold">Histórico</h2>

@@ -1,7 +1,7 @@
 import {
   BadRequestException,
   Injectable,
-  NotFoundException,
+  NotFoundException, ForbiddenException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -388,6 +388,8 @@ export class TicketsService {
       where: { id },
       include: {
         requester: { select: { organizationId: true } },
+        parentTicket: { select: { id: true, protocol: true, title: true, status: true } },
+        subTickets: { select: { id: true, protocol: true, title: true, status: true } },
         serviceDesk: { select: { agents: { where: { id: currentUser.id }, select: { id: true } } } }
       }
     });
@@ -640,6 +642,51 @@ export class TicketsService {
       where: { ticketId: id },
       orderBy: { createdAt: 'asc' },
       include: { user: { select: { name: true } } },
+    });
+  }
+
+  async updateParent(
+    id: string,
+    parentProtocol: string | null | undefined,
+    currentUser: CurrentUserPayload,
+  ) {
+    await this.findOne(id, currentUser); // checks permissions
+    
+    if (!parentProtocol) {
+      // Disconnect
+      return this.prisma.ticket.update({
+        where: { id },
+        data: { parentTicketId: null },
+      });
+    }
+
+    const parent = await this.prisma.ticket.findUnique({
+      where: { protocol: parentProtocol.toUpperCase() },
+    });
+
+    if (!parent) {
+      throw new NotFoundException(`Parent ticket '${parentProtocol}' not found`);
+    }
+
+    if (parent.id === id) {
+      throw new ForbiddenException('A ticket cannot be its own parent');
+    }
+
+    // Cyclic check: Is the parent actually a child (or sub-child) of this ticket?
+    // A simple 1-level check is usually enough for basic helpdesk, but let's check recursively if needed
+    // Assuming max depth is low, we can fetch parents upwards.
+    let currentParentId = parent.parentTicketId;
+    while (currentParentId) {
+      if (currentParentId === id) {
+         throw new ForbiddenException('Cyclic relationship detected. This parent is already your child/descendant.');
+      }
+      const ancestor = await this.prisma.ticket.findUnique({ where: { id: currentParentId }, select: { parentTicketId: true }});
+      currentParentId = ancestor?.parentTicketId || null;
+    }
+
+    return this.prisma.ticket.update({
+      where: { id },
+      data: { parentTicketId: parent.id },
     });
   }
 }

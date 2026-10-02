@@ -133,6 +133,10 @@ model Ticket {
 
   comments    Comment[]
   audits      TicketAudit[]
+  parentTicketId String?
+  parentTicket   Ticket?  @relation("ParentChildTickets", fields: [parentTicketId], references: [id])
+  subTickets     Ticket[] @relation("ParentChildTickets")
+
   checklists  TicketChecklist[]
   attachments TicketAttachment[]
 
