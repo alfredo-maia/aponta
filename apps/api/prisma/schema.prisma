@@ -42,6 +42,7 @@ model Organization {
   id        String   @id @default(uuid())
   name      String
   users     User[]
+  credentials Credential[]
   createdAt DateTime @default(now())
 }
 
@@ -271,4 +272,18 @@ model ServiceCatalogItem {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+/// Cofre de Senhas: Multi-tenant password vault entries.
+model Credential {
+  id             String       @id @default(uuid())
+  name           String
+  username       String?
+  password       String
+  url            String?
+  description    String?
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 }

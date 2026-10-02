@@ -16,6 +16,7 @@ export function Sidebar() {
       { to: '/knowledge', label: 'Ajuda (FAQ)' },
       { to: '/', label: 'Caixa de Entrada' },
       { to: '/tickets/new', label: 'Novo Chamado' },
+      { to: '/vault', label: 'Cofre de Senhas' },
     ];
     
     if (user?.role === 'ADMIN') {

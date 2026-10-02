@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { CommentsModule } from './comments/comments.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ServiceDesksModule } from './service-desks/service-desks.module';
+import { VaultModule } from './vault/vault.module';
 import { TicketsModule } from './tickets/tickets.module';
 import { UsersModule } from './users/users.module';
 import { MailModule } from './mail/mail.module';
@@ -29,7 +30,7 @@ import { SchedulingModule } from "./scheduling/scheduling.module";
     UsersModule,
     AuthModule,
     ServiceDesksModule,
-    TicketsModule,
+    TicketsModule, VaultModule,
     CommentsModule,
     MailModule,
     OrganizationsModule,
