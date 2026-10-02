@@ -1,3 +1,4 @@
+import { ChecklistsModule } from "./checklists/checklists.module";
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -17,6 +18,7 @@ import { ArticlesModule } from './articles/articles.module';
 
 @Module({
   imports: [
+    ChecklistsModule,
     ConfigModule.forRoot({ isGlobal: true }),
     EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),

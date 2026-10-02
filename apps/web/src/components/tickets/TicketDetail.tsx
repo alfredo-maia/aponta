@@ -9,6 +9,7 @@ import {
   statusLabels,
 } from './TicketCard';
 import { SlaBadge } from './SlaBadge';
+import { TicketChecklist } from './TicketChecklist';
 
 /**
  * Renders an ISO 8601 UTC timestamp as a stable, timezone-independent string
@@ -212,7 +213,11 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
       </dl>
 
       {isAgentOrAdmin && (
-        <section className="space-y-2">
+        <>
+
+        <TicketChecklist ticketId={ticket.id} />
+
+      <section className="space-y-2">
           <h2 className="text-lg font-semibold">Histórico</h2>
           {audits.length === 0 ? (
             <p className="text-sm text-muted-foreground">
@@ -236,6 +241,7 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
             </ul>
           )}
         </section>
+        </>
       )}
     </div>
   );
