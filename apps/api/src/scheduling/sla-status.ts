@@ -21,7 +21,7 @@ export function getSlaStatus(
   createdAt: Date,
   deadline: Date | null,
   now: Date,
-  slaAccumulatedPauseTime: number = 0,
+  slaAccumulatedPauseTime = 0,
   slaPausedAt: Date | null = null,
 ): SlaStatus | null {
   if (!deadline) {
