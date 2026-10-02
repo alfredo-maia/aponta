@@ -15,6 +15,10 @@ enum Role {
 }
 
 enum TicketStatus {
+  ESCALATED
+  PENDING_CUSTOMER
+  ON_HOLD
+  PENDING_APPROVAL
   OPEN
   IN_PROGRESS
   RESOLVED
@@ -109,12 +113,14 @@ model Holiday {
 }
 
 model Ticket {
-  id          String         @id @default(uuid())
-  protocol    String         @unique
-  title       String
-  description String
-  status      TicketStatus   @default(OPEN)
-  priority    TicketPriority @default(MEDIUM)
+  id                      String         @id @default(uuid())
+  protocol                String         @unique
+  title                   String
+  description             String
+  slaPausedAt             DateTime?
+  slaAccumulatedPauseTime Int            @default(0)
+  status                  TicketStatus   @default(OPEN)
+  priority                TicketPriority @default(MEDIUM)
 
   requesterId String
   requester   User   @relation("RequesterTickets", fields: [requesterId], references: [id])
