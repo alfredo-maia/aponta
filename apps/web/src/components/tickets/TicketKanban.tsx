@@ -5,7 +5,7 @@ import type { Ticket, TicketStatus, TicketsPage } from '../../hooks/useTickets';
 import { TicketCard, statusLabels } from './TicketCard';
 import { useAuthStore } from '../../stores/authStore';
 
-const columns: TicketStatus[] = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
+const columns: TicketStatus[] = ['OPEN', 'IN_PROGRESS', 'ESCALATED', 'PENDING_CUSTOMER', 'PENDING_APPROVAL', 'ON_HOLD', 'RESOLVED', 'CLOSED'];
 
 interface TicketKanbanProps {
   tickets: Ticket[];
