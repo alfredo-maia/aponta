@@ -9,6 +9,7 @@ import {
   statusLabels,
 } from './TicketCard';
 import { SlaBadge } from './SlaBadge';
+import { SlaProgress } from './SlaProgress';
 import { TicketChecklist } from './TicketChecklist';
 import { TicketParentChild } from './TicketParent';
 
@@ -212,6 +213,7 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
           </dd>
         </div>
       </dl>
+      <SlaProgress ticket={ticket} />
 
       {isAgentOrAdmin && (
         <>

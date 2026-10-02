@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
 
-export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
+export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED' | 'PENDING_CUSTOMER' | 'ON_HOLD' | 'PENDING_APPROVAL' | 'ESCALATED';
 
 export type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
@@ -19,6 +19,8 @@ export interface Ticket {
   serviceDeskId: string;
   responseDeadline: string | null;
   resolveDeadline: string | null;
+  slaPausedAt?: string | null;
+  slaAccumulatedPauseTime?: number;
   responseSlaStatus?: SlaStatus | null;
   resolveSlaStatus?: SlaStatus | null;
   csatScore?: number | null;

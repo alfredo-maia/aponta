@@ -16,6 +16,7 @@ import { MailModule } from './mail/mail.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { ReportsModule } from './reports/reports.module';
 import { ArticlesModule } from './articles/articles.module';
+import { SchedulingModule } from "./scheduling/scheduling.module";
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ArticlesModule } from './articles/articles.module';
     OrganizationsModule,
     ReportsModule,
     ArticlesModule,
+    SchedulingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

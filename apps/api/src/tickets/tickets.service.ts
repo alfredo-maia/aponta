@@ -114,6 +114,8 @@ export class TicketsService {
       createdAt: Date;
       responseDeadline: Date | null;
       resolveDeadline: Date | null;
+      slaAccumulatedPauseTime: number;
+      slaPausedAt: Date | null;
     },
   >(ticket: T): T & { responseSlaStatus: string | null; resolveSlaStatus: string | null } {
     // Once a ticket reaches a terminal state, elapsed wall-clock time no
@@ -139,11 +141,15 @@ export class TicketsService {
         ticket.createdAt,
         ticket.responseDeadline,
         now,
+        ticket.slaAccumulatedPauseTime,
+        ticket.slaPausedAt
       ),
       resolveSlaStatus: getSlaStatus(
         ticket.createdAt,
         ticket.resolveDeadline,
         now,
+        ticket.slaAccumulatedPauseTime,
+        ticket.slaPausedAt
       ),
     };
   }

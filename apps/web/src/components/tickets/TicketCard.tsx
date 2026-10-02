@@ -5,6 +5,10 @@ import { SlaBadge } from './SlaBadge';
 export const statusLabels: Record<TicketStatus, string> = {
   OPEN: 'Aberto',
   IN_PROGRESS: 'Em Andamento',
+  PENDING_CUSTOMER: 'Aguardando Cliente',
+  ON_HOLD: 'Aguardando Terceiros',
+  PENDING_APPROVAL: 'Aguardando Aprovação',
+  ESCALATED: 'Escalonado',
   RESOLVED: 'Resolvido',
   CLOSED: 'Fechado',
 };
@@ -19,7 +23,11 @@ export const priorityLabels: Record<TicketPriority, string> = {
 export const statusBadgeClasses: Record<TicketStatus, string> = {
   OPEN: 'bg-blue-100 text-blue-800',
   IN_PROGRESS: 'bg-amber-100 text-amber-800',
-  RESOLVED: 'bg-green-100 text-green-800',
+  PENDING_CUSTOMER: 'bg-orange-100 text-orange-800 border-orange-200',
+  ON_HOLD: 'bg-purple-100 text-purple-800 border-purple-200',
+  PENDING_APPROVAL: 'bg-pink-100 text-pink-800 border-pink-200',
+  ESCALATED: 'bg-red-200 text-red-900 border-red-300 font-bold',
+  RESOLVED: 'bg-green-100 text-green-800 border-green-200',
   CLOSED: 'bg-gray-200 text-gray-700',
 };
 
