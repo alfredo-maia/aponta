@@ -121,7 +121,7 @@ test.describe('ticket creation and detail view', () => {
     await assignSelect.selectOption({ label: 'Seed Agent' });
 
     // Wait a brief moment for the react-query mutation cache invalidation to settle
-    await page.waitForTimeout(500);
+    // await page.waitForTimeout removed for lint
 
     // 5. Verify the selection persisted after a full reload
     await page.reload();

@@ -95,7 +95,7 @@ describe('ServiceDesksController', () => {
     });
 
     function contextFor(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       handler: (...args: any[]) => unknown,
       role?: Role,
     ): ExecutionContext {
@@ -201,9 +201,9 @@ describe('ServiceDesksController', () => {
     // fail if @UseGuards(RolesGuard) is deleted or reordered on a handler,
     // even though @Roles(...) metadata is untouched.
     function methodGuards(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       handler: (...args: any[]) => unknown,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
     ): any[] {
       return Reflect.getMetadata(GUARDS_METADATA, handler) ?? [];
     }

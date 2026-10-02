@@ -4,13 +4,13 @@ import { MailService } from '../mail.service';
 import { ConfigService } from '@nestjs/config';
 
 interface TicketPayload {
-  ticket: any; // eslint-disable-line @typescript-eslint/no-explicit-any 
+  ticket: any;  
   requesterEmail?: string;
   agentEmail?: string;
 }
 
 interface CommentPayload extends TicketPayload {
-  comment: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  comment: any;  
   authorEmail?: string;
 }
 

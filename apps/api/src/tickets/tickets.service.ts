@@ -223,7 +223,7 @@ export class TicketsService {
     const year = createdAt.getUTCFullYear();
     const yearPrefix = `AP-${year}-`;
 
-    let lastError: unknown;
+    let lastError: any;
     for (
       let attempt = 0;
       attempt < MAX_PROTOCOL_RETRY_ATTEMPTS;

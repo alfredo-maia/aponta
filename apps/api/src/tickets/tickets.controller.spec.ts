@@ -132,7 +132,7 @@ describe('TicketsController', () => {
     });
 
     function contextFor(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       handler: (...args: any[]) => unknown,
       role?: Role,
     ): ExecutionContext {
@@ -185,7 +185,7 @@ describe('TicketsController', () => {
   });
 
   describe('@UseGuards registration', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     function methodGuards(handler: (...args: any[]) => unknown): any[] {
       return Reflect.getMetadata(GUARDS_METADATA, handler) ?? [];
     }
