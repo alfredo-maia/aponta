@@ -22,6 +22,7 @@ export function Sidebar() {
       return [
         ...base, 
         { to: '/vault', label: 'Cofre de Senhas' },
+        { to: '/contracts', label: 'Contratos' },
         { to: '/service-desks', label: 'Departamentos' },
         { to: '/organizations', label: 'Empresas' },
         { to: '/reports', label: 'Relatórios' }
@@ -31,16 +32,25 @@ export function Sidebar() {
       return [
         ...base, 
         { to: '/vault', label: 'Cofre de Senhas' },
+        { to: '/contracts', label: 'Contratos' },
         { to: '/reports', label: 'Relatórios' }
       ];
     }
     if (user?.role === 'AGENT') {
       return [
         ...base,
-        { to: '/vault', label: 'Cofre de Senhas' }
+        { to: '/vault', label: 'Cofre de Senhas' },
+        { to: '/contracts', label: 'Contratos' }
       ];
     }
     
+    if (user?.role === 'CLIENT_MASTER') {
+      return [
+        ...base,
+        { to: '/contracts', label: 'Meus Contratos' }
+      ];
+    }
+
     return base;
   };
 

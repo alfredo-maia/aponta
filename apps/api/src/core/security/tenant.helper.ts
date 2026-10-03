@@ -25,4 +25,16 @@ export class TenantHelper {
     // CLIENT and CLIENT_MASTER are mapped to fail-closed
     return { id: '00000000-0000-0000-0000-000000000000' };
   }
+
+  static getContractWhere(user: CurrentUserPayload): Prisma.ContractWhereInput {
+    if (user.role === Role.ADMIN) return {};
+    if (user.role === Role.CLIENT_MASTER && user.organizationId) {
+      return { organizationId: user.organizationId };
+    }
+    if (user.role === Role.AGENT || user.role === Role.AGENT_MASTER) {
+      return { active: true }; // Only see active contracts broadly, minus financials
+    }
+    // Fail-closed for standard CLIENT
+    return { id: '00000000-0000-0000-0000-000000000000' };
+  }
 }

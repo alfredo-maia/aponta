@@ -43,6 +43,7 @@ model Organization {
   name      String
   users     User[]
   credentials Credential[]
+  contracts Contract[]
   createdAt DateTime @default(now())
 }
 
@@ -286,4 +287,23 @@ model Credential {
   organization   Organization @relation(fields: [organizationId], references: [id])
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+}
+
+enum ContractType {
+  FIXED_COVERAGE
+  HOURS_LIMIT
+}
+
+model Contract {
+  id                 String       @id @default(uuid())
+  organizationId     String
+  organization       Organization @relation(fields: [organizationId], references: [id])
+  type               ContractType @default(FIXED_COVERAGE)
+  active             Boolean      @default(true)
+  monthlyValue       Float?
+  lastAmendmentValue Float?
+  hoursLimit         Int?
+  adjustmentDate     DateTime?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
 }
