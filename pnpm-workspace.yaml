@@ -1,6 +1,10 @@
 packages:
   - 'packages/*'
   - 'apps/*'
+overrides:
+  mysql2: '>=3.23.1'
+  js-yaml@>=5.0.0 <=5.4.0: '>=5.4.1'
+  deepmerge-ts@<8.0.0: '>=8.0.0'
 allowBuilds:
   '@nestjs/core': true
   '@parcel/watcher': true

@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Patch, Post, Request, UseGuards } from '@nestjs/common';
 import { Role } from '@prisma/client';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { UsersService, SafeUser } from '../users/users.service';
 import { RegisterDto } from '../users/dto/register.dto';
@@ -27,11 +28,13 @@ export class AuthController {
   ) {}
 
   @UseGuards(LocalAuthGuard)
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('login')
   async login(@Request() req: AuthenticatedRequest) {
     return this.authService.login(req.user);
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
     return this.usersService.create({
