@@ -7,7 +7,7 @@ import { TicketsController } from './tickets.controller';
 import { TicketsService } from './tickets.service';
 import { ROLES_KEY } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtOrTokenAuthGuard } from '../auth/guards/jwt-or-token-auth.guard';
 
 const mockTicketsService = {
   create: jest.fn(),
@@ -190,10 +190,10 @@ describe('TicketsController', () => {
       return Reflect.getMetadata(GUARDS_METADATA, handler) ?? [];
     }
 
-    it('registers JwtAuthGuard at the class level', () => {
+    it('registers JwtOrTokenAuthGuard at the class level', () => {
       expect(
         Reflect.getMetadata(GUARDS_METADATA, TicketsController),
-      ).toContain(JwtAuthGuard);
+      ).toContain(JwtOrTokenAuthGuard);
     });
 
     it('registers RolesGuard on update/assign/changeStatus handlers', () => {

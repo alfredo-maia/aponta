@@ -19,6 +19,7 @@ import { MailModule } from './mail/mail.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { ArticlesModule } from './articles/articles.module';
 import { SchedulingModule } from "./scheduling/scheduling.module";
+import { ApiTokensModule } from './api-tokens/api-tokens.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { SchedulingModule } from "./scheduling/scheduling.module";
     OrganizationsModule,
     ArticlesModule,
     SchedulingModule,
+    ApiTokensModule,
   ],
   controllers: [AppController],
   providers: [AppService],

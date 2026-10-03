@@ -68,6 +68,7 @@ model User {
   audits      TicketAudit[]
   attachments TicketAttachment[]
   worklogs    Worklog[]
+  apiTokens   ApiToken[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -320,4 +321,17 @@ model Worklog {
   authorId    String
   author      User     @relation(fields: [authorId], references: [id])
   createdAt   DateTime @default(now())
+}
+
+model ApiToken {
+  id         String    @id @default(uuid())
+  name       String
+  prefix     String    @db.VarChar(16)
+  tokenHash  String
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([prefix])
 }

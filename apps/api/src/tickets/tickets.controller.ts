@@ -18,7 +18,7 @@ import { AssignTicketDto } from './dto/assign-ticket.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import { ChangeServiceDeskDto } from "./dto/change-service-desk.dto";
 import { UpdateParentDto } from "./dto/update-parent.dto";
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtOrTokenAuthGuard } from '../auth/guards/jwt-or-token-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUserPayload } from './decorators/current-user.decorator';
@@ -32,7 +32,7 @@ interface AuthenticatedRequest {
 @ApiTags('Tickets')
 @ApiBearerAuth()
 @Controller('tickets')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtOrTokenAuthGuard)
 export class TicketsController {
   constructor(private readonly ticketsService: TicketsService) {}
 

@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MyAccountPage } from './MyAccountPage';
 import { api } from '../lib/api';
@@ -11,14 +12,20 @@ vi.mock('../lib/api', () => ({
     get: vi.fn(),
     post: vi.fn(),
     patch: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
 function renderMyAccountPage() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
   return render(
-    <MemoryRouter>
-      <MyAccountPage />
-    </MemoryRouter>,
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <MyAccountPage />
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 }
 
@@ -29,8 +36,16 @@ describe('MyAccountPage', () => {
       token: 'fake-token',
       user: { sub: 'u-1', email: 'jane@example.com', role: 'AGENT' },
     });
-    vi.mocked(api.get).mockResolvedValue({
-      data: { id: 'u-1', name: 'Jane Doe', email: 'jane@example.com', role: 'AGENT' },
+    vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url === '/auth/me') {
+        return Promise.resolve({
+          data: { id: 'u-1', name: 'Jane Doe', email: 'jane@example.com', role: 'AGENT' },
+        });
+      }
+      if (url === '/api-tokens') {
+        return Promise.resolve({ data: [] });
+      }
+      return Promise.reject(new Error(`Unexpected GET ${url}`));
     });
   });
 
@@ -150,6 +165,86 @@ describe('MyAccountPage', () => {
       expect(
         await screen.findByText(/senha atual incorreta/i),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('Tokens de API tab', () => {
+    it('creates a token, shows the plaintext value once, then lists it as metadata-only', async () => {
+      const user = userEvent.setup();
+      vi.mocked(api.post).mockResolvedValueOnce({
+        data: {
+          id: 'tok-1',
+          name: 'Claude Desktop',
+          token: 'apta_abcdef1234567890',
+          createdAt: '2026-10-03T00:00:00.000Z',
+          lastUsedAt: null,
+        },
+      });
+      // After creation, the list is re-fetched (metadata only, no token).
+      vi.mocked(api.get).mockImplementation((url: string) => {
+        if (url === '/auth/me') {
+          return Promise.resolve({
+            data: { id: 'u-1', name: 'Jane Doe', email: 'jane@example.com', role: 'AGENT' },
+          });
+        }
+        if (url === '/api-tokens') {
+          return Promise.resolve({
+            data: [
+              { id: 'tok-1', name: 'Claude Desktop', createdAt: '2026-10-03T00:00:00.000Z', lastUsedAt: null },
+            ],
+          });
+        }
+        return Promise.reject(new Error(`Unexpected GET ${url}`));
+      });
+
+      renderMyAccountPage();
+      await user.click(screen.getByRole('tab', { name: /tokens de api/i }));
+
+      await user.type(screen.getByLabelText(/nome do token/i), 'Claude Desktop');
+      await user.click(screen.getByRole('button', { name: /gerar token/i }));
+
+      await waitFor(() => {
+        expect(api.post).toHaveBeenCalledWith('/api-tokens', { name: 'Claude Desktop' });
+      });
+
+      // The plaintext token is shown exactly once, right after creation.
+      expect(await screen.findByText('apta_abcdef1234567890')).toBeInTheDocument();
+
+      // The persisted list entry never carries the plaintext value.
+      await waitFor(() => {
+        expect(screen.getByText('Claude Desktop')).toBeInTheDocument();
+      });
+    });
+
+    it('revokes a token after confirmation', async () => {
+      const user = userEvent.setup();
+      vi.mocked(api.get).mockImplementation((url: string) => {
+        if (url === '/auth/me') {
+          return Promise.resolve({
+            data: { id: 'u-1', name: 'Jane Doe', email: 'jane@example.com', role: 'AGENT' },
+          });
+        }
+        if (url === '/api-tokens') {
+          return Promise.resolve({
+            data: [
+              { id: 'tok-1', name: 'Old Script', createdAt: '2026-01-01T00:00:00.000Z', lastUsedAt: null },
+            ],
+          });
+        }
+        return Promise.reject(new Error(`Unexpected GET ${url}`));
+      });
+      vi.mocked(api.delete).mockResolvedValueOnce({ data: { success: true } });
+      vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+      renderMyAccountPage();
+      await user.click(screen.getByRole('tab', { name: /tokens de api/i }));
+
+      expect(await screen.findByText('Old Script')).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: /revogar/i }));
+
+      await waitFor(() => {
+        expect(api.delete).toHaveBeenCalledWith('/api-tokens/tok-1');
+      });
     });
   });
 });

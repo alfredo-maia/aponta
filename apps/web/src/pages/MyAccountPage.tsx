@@ -5,6 +5,7 @@ import { z } from 'zod';
 import axios from 'axios';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
+import { useApiTokens } from '../hooks/useApiTokens';
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Senha atual é obrigatória'),
@@ -20,7 +21,7 @@ const profileSchema = z.object({
 });
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
-type Tab = 'profile' | 'security';
+type Tab = 'profile' | 'security' | 'tokens';
 
 /**
  * Mirrors the Tiflux reference UI (accessed 2026-09-30): "Minha conta"
@@ -28,6 +29,11 @@ type Tab = 'profile' | 'security';
  * email, ...) and a "Segurança" tab holding the change-password form.
  * Only name/email are implemented here; photo/phone/language etc. from
  * the reference are out of scope for now.
+ *
+ * "Tokens de API" is Aponta-specific (no Tiflux equivalent): lets ANY
+ * role mint a personal Bearer token (scoped to their own current
+ * role/organization, enforced server-side) to drive the REST API from
+ * outside the browser — e.g. the apps/mcp MCP server for LLM clients.
  */
 export function MyAccountPage() {
   const [tab, setTab] = useState<Tab>('profile');
@@ -63,9 +69,24 @@ export function MyAccountPage() {
         >
           Segurança
         </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'tokens'}
+          onClick={() => setTab('tokens')}
+          className={`px-3 py-2 text-sm font-medium whitespace-nowrap ${
+            tab === 'tokens'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-muted-foreground'
+          }`}
+        >
+          Tokens de API
+        </button>
       </div>
 
-      {tab === 'profile' ? <ProfileTab /> : <SecurityTab />}
+      {tab === 'profile' && <ProfileTab />}
+      {tab === 'security' && <SecurityTab />}
+      {tab === 'tokens' && <ApiTokensTab />}
     </div>
   );
 }
@@ -269,3 +290,124 @@ function SecurityTab() {
 }
 
 export default MyAccountPage;
+
+function ApiTokensTab() {
+  const { listQuery, createMutation, revokeMutation } = useApiTokens();
+  const [name, setName] = useState('');
+  const [justCreatedToken, setJustCreatedToken] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    const created = await createMutation.mutateAsync(name.trim());
+    setJustCreatedToken(created.token);
+    setCopied(false);
+    setName('');
+  };
+
+  const handleCopy = () => {
+    if (justCreatedToken) {
+      navigator.clipboard.writeText(justCreatedToken);
+      setCopied(true);
+    }
+  };
+
+  const handleRevoke = (id: string) => {
+    if (window.confirm('Revogar este token? Qualquer integração usando-o perderá acesso imediatamente.')) {
+      revokeMutation.mutate(id);
+    }
+  };
+
+  const formatDate = (iso: string | null) => {
+    if (!iso) return 'Nunca usado';
+    return new Date(iso).toLocaleString('pt-BR');
+  };
+
+  return (
+    <div className="space-y-6 rounded-lg border p-6">
+      <div>
+        <h2 className="text-lg font-semibold">Tokens de API</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Gere um token pessoal para integrações externas (ex: servidor MCP para IAs).
+          O token herda exatamente o mesmo nível de acesso da sua conta.
+        </p>
+      </div>
+
+      {justCreatedToken && (
+        <div className="rounded border-2 border-amber-400 bg-amber-50 p-4 space-y-2">
+          <p className="text-sm font-semibold text-amber-800">
+            Copie seu token agora — ele não será exibido novamente!
+          </p>
+          <div className="flex items-center gap-2">
+            <code className="flex-1 overflow-x-auto rounded bg-white px-2 py-1 text-xs border">
+              {justCreatedToken}
+            </code>
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="shrink-0 rounded bg-amber-600 px-3 py-1 text-xs text-white hover:bg-amber-700"
+            >
+              {copied ? 'Copiado!' : 'Copiar'}
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => setJustCreatedToken(null)}
+            className="text-xs text-amber-700 hover:underline"
+          >
+            Entendi, fechar
+          </button>
+        </div>
+      )}
+
+      <form onSubmit={handleCreate} className="flex items-end gap-2">
+        <div className="flex-1 space-y-1">
+          <label htmlFor="token-name" className="block text-sm font-medium">
+            Nome do token
+          </label>
+          <input
+            id="token-name"
+            type="text"
+            placeholder="Ex: Claude Desktop"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            maxLength={60}
+            className="w-full rounded border px-3 py-2"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={createMutation.isPending || !name.trim()}
+          className="rounded bg-primary px-4 py-2 text-primary-foreground disabled:opacity-50 whitespace-nowrap"
+        >
+          Gerar Token
+        </button>
+      </form>
+
+      <div className="space-y-2">
+        {listQuery.isLoading && <p className="text-sm text-muted-foreground">Carregando...</p>}
+        {!listQuery.isLoading && listQuery.data?.length === 0 && (
+          <p className="text-sm text-muted-foreground">Nenhum token criado ainda.</p>
+        )}
+        {listQuery.data?.map((token) => (
+          <div key={token.id} className="flex items-center justify-between rounded border px-3 py-2">
+            <div>
+              <p className="text-sm font-medium">{token.name}</p>
+              <p className="text-xs text-muted-foreground">
+                Criado em {formatDate(token.createdAt)} · Último uso: {formatDate(token.lastUsedAt)}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleRevoke(token.id)}
+              className="text-sm text-red-600 hover:underline"
+            >
+              Revogar
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

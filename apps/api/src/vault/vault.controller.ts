@@ -2,7 +2,7 @@ import { Controller, Get, Post, Delete, Body, Param, UseGuards } from '@nestjs/c
 import { VaultService } from './vault.service';
 import { CreateCredentialDto } from './dto/create-credential.dto';
 import { CurrentUser, CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtOrTokenAuthGuard } from '../auth/guards/jwt-or-token-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
@@ -11,7 +11,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 @ApiTags('Vault')
 @ApiBearerAuth()
 @Controller('vault')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtOrTokenAuthGuard, RolesGuard)
 export class VaultController {
   constructor(private readonly vaultService: VaultService) {}
 
