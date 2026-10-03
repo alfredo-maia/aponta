@@ -45,7 +45,7 @@ export class ArticlesController {
 
   @Delete(':id')
   @UseGuards(RolesGuard)
-  @Roles(Role.AGENT, Role.AGENT_MASTER, Role.ADMIN)
+  @Roles(Role.ADMIN)
   remove(
     @Param('id') id: string,
     @CurrentUser() user: CurrentUserPayload,

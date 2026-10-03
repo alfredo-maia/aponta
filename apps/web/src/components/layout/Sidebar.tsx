@@ -9,6 +9,7 @@ export function Sidebar() {
       return [
         { to: '/', label: 'Meus Chamados' },
         { to: '/tickets/new', label: 'Abrir Chamado' },
+        { to: '/knowledge', label: 'Ajuda (FAQ)' },
       ];
     }
     

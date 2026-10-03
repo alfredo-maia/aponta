@@ -41,15 +41,16 @@ describe('ArticlesController', () => {
       ]);
     });
 
-    it('requires AGENT, AGENT_MASTER or ADMIN on update/remove', () => {
+    it('requires AGENT, AGENT_MASTER or ADMIN on update', () => {
       expect(Reflect.getMetadata(ROLES_KEY, controller.update)).toEqual([
         Role.AGENT,
         Role.AGENT_MASTER,
         Role.ADMIN,
       ]);
+    });
+
+    it('requires strict ADMIN on remove', () => {
       expect(Reflect.getMetadata(ROLES_KEY, controller.remove)).toEqual([
-        Role.AGENT,
-        Role.AGENT_MASTER,
         Role.ADMIN,
       ]);
     });

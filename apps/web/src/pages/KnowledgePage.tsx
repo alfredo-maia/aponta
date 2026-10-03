@@ -18,6 +18,8 @@ export function KnowledgePage() {
     user?.role === 'AGENT_MASTER' ||
     user?.role === 'ADMIN';
 
+  const canDelete = user?.role === 'ADMIN';
+
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [tag, setTag] = useState('');
@@ -221,14 +223,16 @@ export function KnowledgePage() {
                   >
                     Editar
                   </button>
-                  <button
-                    onClick={() => {
-                      if (window.confirm('Excluir este artigo?')) deleteMutation.mutate(art.id);
-                    }}
-                    className="text-sm text-red-600 py-1 hover:underline cursor-pointer"
-                  >
-                    Excluir
-                  </button>
+                  {canDelete && (
+                    <button
+                      onClick={() => {
+                        if (window.confirm('Excluir este artigo?')) deleteMutation.mutate(art.id);
+                      }}
+                      className="text-sm text-red-600 py-1 hover:underline cursor-pointer"
+                    >
+                      Excluir
+                    </button>
+                  )}
                 </div>
               )}
             </div>
