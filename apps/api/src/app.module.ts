@@ -23,12 +23,42 @@ import { ArticlesModule } from './articles/articles.module';
 import { SchedulingModule } from "./scheduling/scheduling.module";
 import { ApiTokensModule } from './api-tokens/api-tokens.module';
 import { HealthModule } from './health/health.module';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
     CatalogModule,
     ChecklistsModule,
     ConfigModule.forRoot({ isGlobal: true }),
+    // Structured JSON logging (issue #42): pino everywhere (replaces Nest's
+    // default console logger, wired in main.ts via app.useLogger). In
+    // production (NODE_ENV=production) logs are raw JSON lines, ready for
+    // ingestion by any log aggregator; in dev they're pretty-printed. The
+    // /api/health endpoint is excluded from per-request access logs since
+    // uptime monitors poll it every few seconds and would otherwise flood
+    // the log stream with noise. Request/response headers that commonly
+    // carry secrets (authorization, cookies, API tokens) are redacted.
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level: process.env['LOG_LEVEL'] || 'info',
+        transport:
+          process.env['NODE_ENV'] === 'production'
+            ? undefined
+            : { target: 'pino-pretty', options: { singleLine: true } },
+        redact: {
+          paths: [
+            'req.headers.authorization',
+            'req.headers.cookie',
+            'req.headers["x-api-token"]',
+            'res.headers["set-cookie"]',
+          ],
+          censor: '[REDACTED]',
+        },
+        autoLogging: {
+          ignore: (req) => req.url === '/api/health',
+        },
+      },
+    }),
     EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),
     // Global rate limiting (anti brute-force). A tighter, named limit is

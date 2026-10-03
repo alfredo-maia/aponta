@@ -141,6 +141,6 @@ EXPOSE 3001
 # overridable), so the hardcoded default only fires if the var is
 # genuinely unset inside the container.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-  CMD wget -qO- "http://127.0.0.1:${API_PORT:-3001}/api" || exit 1
+  CMD wget -qO- "http://127.0.0.1:${API_PORT:-3001}/api/health" || exit 1
 
 CMD ["node", "main.js"]

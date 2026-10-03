@@ -1,13 +1,22 @@
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger as NestLogger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Logger } from 'nestjs-pino';
 import helmet from 'helmet';
 import { join } from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bufferLogs: true,
+  });
+  // Structured JSON logging (issue #42) replaces Nest's default console
+  // logger app-wide — every log line (including Nest's own lifecycle logs)
+  // goes through pino from this point on, with request correlation via
+  // pino-http in LoggerModule (see app.module.ts).
+  app.useLogger(app.get(Logger));
+
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
 
@@ -51,8 +60,9 @@ async function bootstrap() {
 
   const port = process.env.API_PORT || process.env.PORT || 3001;
   await app.listen(port);
-  Logger.log(
+  NestLogger.log(
     `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`,
+    'Bootstrap',
   );
 }
 
