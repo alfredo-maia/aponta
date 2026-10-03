@@ -370,8 +370,6 @@ importers:
         specifier: ^5.1.4
         version: 5.1.4(webpack-dev-server@5.2.6)(webpack@5.111.1)
 
-  apps/mcp: {}
-
 packages:
 
   '@adobe/css-tools@4.5.0':

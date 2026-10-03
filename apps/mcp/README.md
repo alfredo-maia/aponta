@@ -22,7 +22,7 @@ Variáveis de ambiente (ver `.env.example`):
   "mcpServers": {
     "aponta": {
       "command": "node",
-      "args": ["/caminho/para/aponta/apps/mcp/dist/main.js"],
+      "args": ["/caminho/para/aponta/dist/apps/mcp/main.js"],
       "env": {
         "APONTA_API_URL": "http://localhost:3001/api",
         "APONTA_API_TOKEN": "apta_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -60,5 +60,5 @@ Variáveis de ambiente (ver `.env.example`):
 
 ```bash
 pnpm exec nx run mcp:build
-node apps/mcp/dist/main.js
+node dist/apps/mcp/main.js
 ```

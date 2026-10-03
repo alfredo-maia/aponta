@@ -294,7 +294,7 @@ export function DocsPage() {
   "mcpServers": {
     "aponta": {
       "command": "node",
-      "args": ["/caminho/para/aponta/apps/mcp/dist/main.js"],
+      "args": ["/caminho/para/aponta/dist/apps/mcp/main.js"],
       "env": {
         "APONTA_API_URL": "https://sua-instancia.aponta.com/api",
         "APONTA_API_TOKEN": "apta_xxxxxxxxxxxxxxxxxxxxxxxx"
