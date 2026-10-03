@@ -86,6 +86,13 @@ jobs:
       E2E_API_PORT: '3101'
       E2E_WEB_PORT: '3100'
       CI: 'true'
+      # The E2E suite runs dozens of register/login flows against a single
+      # API instance in a few minutes (far more than any real user would in
+      # production) — it would otherwise trip the anti-brute-force rate
+      # limit on /auth/login and /auth/register. This flag is read only by
+      # ThrottlerModule's skipIf in apps/api/src/app.module.ts and must
+      # never be set in the production environment/deploy workflow.
+      E2E_TESTING: 'true'
 
     steps:
       - uses: actions/checkout@v4

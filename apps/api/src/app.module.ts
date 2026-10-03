@@ -32,9 +32,16 @@ import { ApiTokensModule } from './api-tokens/api-tokens.module';
     ScheduleModule.forRoot(),
     // Global rate limiting (anti brute-force). A tighter, named limit is
     // applied on top of this for /auth/login via @Throttle on the handler.
-    ThrottlerModule.forRoot([
-      { name: 'default', ttl: 60_000, limit: 100 },
-    ]),
+    //
+    // skipIf disables throttling ONLY when E2E_TESTING=true, which is set
+    // exclusively by the CI "E2E (Playwright, full stack)" job (see
+    // .github/workflows/ci.yml) to let dozens of register/login flows run
+    // in a few minutes without tripping the brute-force limit. It is never
+    // set by the production deploy workflow, so prod stays protected.
+    ThrottlerModule.forRoot({
+      throttlers: [{ name: 'default', ttl: 60_000, limit: 100 }],
+      skipIf: () => process.env['E2E_TESTING'] === 'true',
+    }),
     PrismaModule,
     UsersModule,
     AuthModule,
