@@ -22,6 +22,7 @@ import { OrganizationsModule } from './organizations/organizations.module';
 import { ArticlesModule } from './articles/articles.module';
 import { SchedulingModule } from "./scheduling/scheduling.module";
 import { ApiTokensModule } from './api-tokens/api-tokens.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { ApiTokensModule } from './api-tokens/api-tokens.module';
     ArticlesModule,
     SchedulingModule,
     ApiTokensModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [
