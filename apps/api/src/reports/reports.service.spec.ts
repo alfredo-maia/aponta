@@ -1,50 +1,52 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { ForbiddenException } from '@nestjs/common';
 import { ReportsService } from './reports.service';
-import { PrismaService } from '../prisma/prisma.service';
-
-const mockPrismaService = {
-  ticket: {
-    findMany: jest.fn(),
-  },
-};
+import { Role } from '@prisma/client';
 
 describe('ReportsService', () => {
   let service: ReportsService;
+  let mockPrisma: any;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ReportsService,
-        { provide: PrismaService, useValue: mockPrismaService },
-      ],
-    }).compile();
-
-    service = module.get<ReportsService>(ReportsService);
+  beforeEach(() => {
+    mockPrisma = {
+      worklog: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+    };
+    service = new ReportsService(mockPrisma as any);
   });
 
-  it('calculates average CSAT and distribution correctly', async () => {
-    mockPrismaService.ticket.findMany.mockResolvedValue([
-      { status: 'RESOLVED', csatScore: 5, createdAt: new Date(), updatedAt: new Date() },
-      { status: 'CLOSED', csatScore: 5, createdAt: new Date(), updatedAt: new Date() },
-      { status: 'RESOLVED', csatScore: 4, createdAt: new Date(), updatedAt: new Date() },
-      { status: 'RESOLVED', csatScore: 1, createdAt: new Date(), updatedAt: new Date() },
-      // ticket with no score:
-      { status: 'RESOLVED', csatScore: null, createdAt: new Date(), updatedAt: new Date() },
-      // open ticket:
-      { status: 'OPEN', csatScore: null, createdAt: new Date(), updatedAt: new Date() }
-    ]);
-
-    const result = await service.getDashboardMetrics();
-
-    expect(result.csat).toBeDefined();
-    expect(result.csat.average).toBe(3.75); // (5+5+4+1) = 15 / 4 = 3.75
-    expect(result.csat.distribution).toEqual({
-      '1': 1,
-      '2': 0,
-      '3': 0,
-      '4': 1,
-      '5': 2,
+  describe('getBilling', () => {
+    it('should block AGENT from billing', async () => {
+      await expect(service.getBilling({ id: '1', role: Role.AGENT })).rejects.toThrow(ForbiddenException);
     });
-    expect(result.csat.totalRated).toBe(4);
+
+    it('should block AGENT_MASTER from billing', async () => {
+      await expect(service.getBilling({ id: '2', role: Role.AGENT_MASTER })).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should allow ADMIN to view billing', async () => {
+      const res = await service.getBilling({ id: '3', role: Role.ADMIN });
+      expect(res).toEqual([]);
+    });
+  });
+
+  describe('getWorkload', () => {
+    it('should force agent filter and allow AGENT to view their own workload', async () => {
+      mockPrisma.worklog.findMany.mockResolvedValue([]);
+      await service.getWorkload({ id: 'agent-1', role: Role.AGENT }, 'other-id');
+      expect(mockPrisma.worklog.findMany).toHaveBeenCalledWith({
+        where: expect.objectContaining({ authorId: 'agent-1' }),
+        include: expect.any(Object),
+      });
+    });
+
+    it('should not force filter if ADMIN', async () => {
+      mockPrisma.worklog.findMany.mockResolvedValue([]);
+      await service.getWorkload({ id: 'admin', role: Role.ADMIN }, 'other-id');
+      expect(mockPrisma.worklog.findMany).toHaveBeenCalledWith({
+        where: expect.objectContaining({ authorId: 'other-id' }),
+        include: expect.any(Object),
+      });
+    });
   });
 });

@@ -10,13 +10,13 @@ import { AuthModule } from './auth/auth.module';
 import { CommentsModule } from './comments/comments.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ServiceDesksModule } from './service-desks/service-desks.module';
+import { ReportsModule } from './reports/reports.module';
 import { ContractsModule } from './contracts/contracts.module';
 import { VaultModule } from './vault/vault.module';
 import { TicketsModule } from './tickets/tickets.module';
 import { UsersModule } from './users/users.module';
 import { MailModule } from './mail/mail.module';
 import { OrganizationsModule } from './organizations/organizations.module';
-import { ReportsModule } from './reports/reports.module';
 import { ArticlesModule } from './articles/articles.module';
 import { SchedulingModule } from "./scheduling/scheduling.module";
 
@@ -31,11 +31,10 @@ import { SchedulingModule } from "./scheduling/scheduling.module";
     UsersModule,
     AuthModule,
     ServiceDesksModule,
-    TicketsModule, VaultModule, ContractsModule,
+    TicketsModule, VaultModule, ContractsModule, ReportsModule,
     CommentsModule,
     MailModule,
     OrganizationsModule,
-    ReportsModule,
     ArticlesModule,
     SchedulingModule,
   ],

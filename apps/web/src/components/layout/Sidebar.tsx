@@ -40,14 +40,16 @@ export function Sidebar() {
       return [
         ...base,
         { to: '/vault', label: 'Cofre de Senhas' },
-        { to: '/contracts', label: 'Contratos' }
+        { to: '/contracts', label: 'Contratos' },
+        { to: '/reports', label: 'Carga de Trabalho' }
       ];
     }
     
     if (user?.role === 'CLIENT_MASTER') {
       return [
         ...base,
-        { to: '/contracts', label: 'Meus Contratos' }
+        { to: '/contracts', label: 'Meus Contratos' },
+        { to: '/reports', label: 'Relatórios' }
       ];
     }
 

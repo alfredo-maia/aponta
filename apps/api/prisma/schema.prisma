@@ -67,6 +67,7 @@ model User {
   articles    Article[]
   audits      TicketAudit[]
   attachments TicketAttachment[]
+  worklogs    Worklog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -156,6 +157,7 @@ model Ticket {
 
   checklists  TicketChecklist[]
   attachments TicketAttachment[]
+  worklogs    Worklog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -306,4 +308,16 @@ model Contract {
   adjustmentDate     DateTime?
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
+}
+
+model Worklog {
+  id          String   @id @default(uuid())
+  description String
+  minutes     Int      // Tempo apontado
+  billable    Boolean  @default(true)
+  ticketId    String
+  ticket      Ticket   @relation(fields: [ticketId], references: [id])
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  createdAt   DateTime @default(now())
 }

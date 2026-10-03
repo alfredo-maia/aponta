@@ -1,66 +1,80 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
+import { TenantHelper } from '../core/security/tenant.helper';
+import { Role } from '@prisma/client';
+import { WorkloadReportItemDto, BillingReportItemDto } from './dto/report.dto';
 
 @Injectable()
 export class ReportsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async getDashboardMetrics() {
-    const tickets = await this.prisma.ticket.findMany({
-      include: {
-        serviceDesk: true,
+  async getWorkload(user: CurrentUserPayload, targetAgentId?: string): Promise<WorkloadReportItemDto[]> {
+    // AGENT can only see their own workload
+    const isBasicAgent = ([Role.AGENT] as Role[]).includes(user.role);
+    const filterAgentId = isBasicAgent ? user.id : targetAgentId;
+
+    const baseWhere = TenantHelper.getTicketWhere(user);
+    if (baseWhere.id === '00000000-0000-0000-0000-000000000000') {
+      throw new ForbiddenException('Acesso negado aos relatórios');
+    }
+
+    const worklogs = await this.prisma.worklog.findMany({
+      where: {
+        ticket: baseWhere,
+        ...(filterAgentId ? { authorId: filterAgentId } : {})
       },
+      include: { author: { select: { id: true, name: true } } }
     });
 
-    const statusCounts = tickets.reduce((acc, ticket) => {
-      acc[ticket.status] = (acc[ticket.status] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const departmentCounts = tickets.reduce((acc, ticket) => {
-      const dept = ticket.serviceDesk ? ticket.serviceDesk.name : 'Unknown';
-      acc[dept] = (acc[dept] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    // Avg resolution time (in hours) - very naive approach
-    let totalResolvedHours = 0;
-    let resolvedCount = 0;
-    
-    // CSAT Tracking
-    let totalCsatScore = 0;
-    let totalRated = 0;
-    const csatDistribution: Record<string, number> = {
-      '1': 0, '2': 0, '3': 0, '4': 0, '5': 0
-    };
-
-    for (const t of tickets) {
-      if (t.status === 'RESOLVED' || t.status === 'CLOSED') {
-        const diffMs = new Date(t.updatedAt).getTime() - new Date(t.createdAt).getTime();
-        totalResolvedHours += diffMs / (1000 * 60 * 60);
-        resolvedCount++;
-      }
-
-      if (t.csatScore) {
-        totalRated++;
-        totalCsatScore += t.csatScore;
-        csatDistribution[String(t.csatScore)]++;
-      }
+    const grouped = new Map<string, { name: string; minutes: number }>();
+    for (const log of worklogs) {
+      const g = grouped.get(log.authorId) || { name: log.author.name, minutes: 0 };
+      g.minutes += log.minutes;
+      grouped.set(log.authorId, g);
     }
-    
-    const avgResolutionTime = resolvedCount > 0 ? (totalResolvedHours / resolvedCount) : 0;
-    const csatAverage = totalRated > 0 ? (totalCsatScore / totalRated) : 0;
 
-    return {
-      total: tickets.length,
-      statusCounts,
-      departmentCounts,
-      avgResolutionTimeHours: avgResolutionTime,
-      csat: {
-        average: csatAverage,
-        distribution: csatDistribution,
-        totalRated,
-      }
-    };
+    return Array.from(grouped.entries()).map(([agentId, data]) => ({
+      agentId,
+      agentName: data.name,
+      totalMinutes: data.minutes,
+    })).sort((a, b) => b.totalMinutes - a.totalMinutes);
+  }
+
+  async getBilling(user: CurrentUserPayload): Promise<BillingReportItemDto[]> {
+    // AGENTs are forbidden from seeing billing reports
+    if (([Role.AGENT, Role.AGENT_MASTER] as Role[]).includes(user.role)) {
+      throw new ForbiddenException('Restrito a visualização de faturamento');
+    }
+
+    const baseWhere = TenantHelper.getTicketWhere(user);
+    if (baseWhere.id === '00000000-0000-0000-0000-000000000000') {
+      throw new ForbiddenException('Restrição organizacional');
+    }
+
+    const worklogs = await this.prisma.worklog.findMany({
+      where: { ticket: baseWhere },
+      include: { ticket: { include: { requester: { include: { organization: true } } } } }
+    });
+
+    const grouped = new Map<string, { name: string; billable: number; nonBillable: number }>();
+    for (const log of worklogs) {
+      const org = log.ticket.requester.organization;
+      const orgId = org?.id || 'SEM_EMPRESA';
+      const orgName = org?.name || 'Cliente Sem Organização Vinculada';
+      
+      const g = grouped.get(orgId) || { name: orgName, billable: 0, nonBillable: 0 };
+      if (log.billable) g.billable += log.minutes;
+      else g.nonBillable += log.minutes;
+      
+      grouped.set(orgId, g);
+    }
+
+    return Array.from(grouped.entries()).map(([orgId, data]) => ({
+      organizationId: orgId,
+      organizationName: data.name,
+      billableMinutes: data.billable,
+      nonBillableMinutes: data.nonBillable,
+    })).sort((a, b) => b.billableMinutes - a.billableMinutes);
   }
 }
