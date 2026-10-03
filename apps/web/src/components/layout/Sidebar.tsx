@@ -1,6 +1,8 @@
 import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 
+const DOCS_ITEM = { to: '/docs', label: 'Documentação' };
+
 export function Sidebar() {
   const user = useAuthStore((state) => state.user);
 
@@ -10,6 +12,7 @@ export function Sidebar() {
         { to: '/', label: 'Meus Chamados' },
         { to: '/tickets/new', label: 'Abrir Chamado' },
         { to: '/knowledge', label: 'Ajuda (FAQ)' },
+        DOCS_ITEM,
       ];
     }
     
@@ -26,7 +29,8 @@ export function Sidebar() {
         { to: '/contracts', label: 'Contratos' },
         { to: '/service-desks', label: 'Departamentos' },
         { to: '/organizations', label: 'Empresas' },
-        { to: '/reports', label: 'Relatórios' }
+        { to: '/reports', label: 'Relatórios' },
+        DOCS_ITEM,
       ];
     }
     if (user?.role === 'AGENT_MASTER') {
@@ -34,7 +38,8 @@ export function Sidebar() {
         ...base, 
         { to: '/vault', label: 'Cofre de Senhas' },
         { to: '/contracts', label: 'Contratos' },
-        { to: '/reports', label: 'Relatórios' }
+        { to: '/reports', label: 'Relatórios' },
+        DOCS_ITEM,
       ];
     }
     if (user?.role === 'AGENT') {
@@ -42,7 +47,8 @@ export function Sidebar() {
         ...base,
         { to: '/vault', label: 'Cofre de Senhas' },
         { to: '/contracts', label: 'Contratos' },
-        { to: '/reports', label: 'Carga de Trabalho' }
+        { to: '/reports', label: 'Carga de Trabalho' },
+        DOCS_ITEM,
       ];
     }
     
@@ -50,11 +56,12 @@ export function Sidebar() {
       return [
         ...base,
         { to: '/contracts', label: 'Meus Contratos' },
-        { to: '/reports', label: 'Relatórios' }
+        { to: '/reports', label: 'Relatórios' },
+        DOCS_ITEM,
       ];
     }
 
-    return base;
+    return [...base, DOCS_ITEM];
   };
 
   const items = getNavItems();
