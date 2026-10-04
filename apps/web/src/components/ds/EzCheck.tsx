@@ -10,13 +10,18 @@ export interface EzCheckProps extends Omit<InputHTMLAttributes<HTMLInputElement>
    * Has an error state.
    */
   hasError?: boolean;
+  /**
+   * Extra classes applied to the label <span> (e.g. 'line-through' for
+   * completed checklist items).
+   */
+  labelClassName?: string;
 }
 
 /**
  * Aponta DS Checkbox
  */
 export const EzCheck = forwardRef<HTMLInputElement, EzCheckProps>(
-  ({ label, hasError, className, disabled, id, ...props }, ref) => {
+  ({ label, hasError, labelClassName, className, disabled, id, ...props }, ref) => {
     return (
       <label
         className={cn(
@@ -49,7 +54,7 @@ export const EzCheck = forwardRef<HTMLInputElement, EzCheckProps>(
           </svg>
         </div>
         {label && (
-          <span className={cn('text-[14px] font-medium text-gray-900', hasError && 'text-red-700')}>
+          <span className={cn('text-[14px] font-medium text-gray-900', hasError && 'text-red-700', labelClassName)}>
             {label}
           </span>
         )}

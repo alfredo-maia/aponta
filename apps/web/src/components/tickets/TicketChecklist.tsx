@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, CheckSquare, Square } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { api } from '../../lib/api';
-
+import { EzButton, EzCheck, EzTextInput } from '../ds';
 
 export interface ChecklistItem {
   id: string;
@@ -71,12 +71,20 @@ export function TicketChecklist({ ticketId }: { ticketId: string }) {
 
   if (checklists.length === 0) {
     return (
-      <section className="space-y-2 rounded-lg border p-4 bg-muted/20">
+      <section className="space-y-2 rounded-lg border border-gray-200 bg-gray-80 p-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-primary">Validação (Checklist)</h2>
-          <button type="button" className="inline-flex items-center rounded border px-3 py-1 text-sm bg-white hover:bg-gray-100" onClick={() => createListMutation.mutate('Pré-resolução')}><Plus className="mr-2 h-4 w-4" /> Criar Lista Interna</button>
+          <h2 className="text-lg font-semibold text-gray-900">Validação (Checklist)</h2>
+          <EzButton
+            type="button"
+            variant="secondary"
+            size="small"
+            leftIcon={Plus}
+            onClick={() => createListMutation.mutate('Pré-resolução')}
+          >
+            Criar Lista Interna
+          </EzButton>
         </div>
-        <p className="text-sm text-muted-foreground">Nenhum protocolo ou tarefa vinculada a este chamado.</p>
+        <p className="text-sm text-gray-500">Nenhum protocolo ou tarefa vinculada a este chamado.</p>
       </section>
     );
   }
@@ -85,48 +93,71 @@ export function TicketChecklist({ ticketId }: { ticketId: string }) {
   const checklist = checklists[0];
 
   return (
-    <section className="space-y-4 rounded-lg border p-4 bg-muted/10">
-      <h2 className="text-lg font-semibold text-primary">{checklist.title} (Interno)</h2>
-      
+    <section className="space-y-4 rounded-lg border border-gray-200 bg-white p-4">
+      <h2 className="text-lg font-semibold text-gray-900">
+        {checklist.title} <span className="text-sm font-normal text-gray-500">(Interno)</span>
+      </h2>
+
       <ul className="space-y-1">
         {checklist.items.map((item) => (
-          <li key={item.id} className="flex items-center group justify-between hover:bg-muted/50 p-1 -mx-1 rounded">
-            <label className="flex items-center gap-3 cursor-pointer text-sm flex-1 truncate select-none">
-              <input 
-                type="checkbox"
-                className="hidden" 
-                checked={item.isCompleted} 
-                onChange={(e) => toggleItemMutation.mutate({ listId: checklist.id, itemId: item.id, isCompleted: e.target.checked })}
+          <li
+            key={item.id}
+            className="group -mx-1 flex items-center justify-between rounded p-1 hover:bg-gray-80"
+          >
+            <div className="flex-1 truncate">
+              <EzCheck
+                id={`checklist-item-${item.id}`}
+                label={item.text}
+                checked={item.isCompleted}
+                onChange={(e) =>
+                  toggleItemMutation.mutate({
+                    listId: checklist.id,
+                    itemId: item.id,
+                    isCompleted: e.target.checked,
+                  })
+                }
+                labelClassName={item.isCompleted ? 'line-through opacity-70' : undefined}
               />
-              <span className="text-primary hover:text-primary/80">
-                {item.isCompleted ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
-              </span>
-              <span className={item.isCompleted ? 'text-muted-foreground line-through opacity-70' : 'font-medium'}>
-                {item.text}
-              </span>
-            </label>
-            <button type="button" className="inline-flex items-center justify-center rounded h-6 w-6 text-red-600 hover:bg-red-100 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => deleteItemMutation.mutate({ listId: checklist.id, itemId: item.id })}><Trash2 className="h-3 w-3" /></button>
+            </div>
+            <EzButton
+              type="button"
+              variant="tertiary"
+              size="x-small"
+              leftIcon={Trash2}
+              onClick={() =>
+                deleteItemMutation.mutate({ listId: checklist.id, itemId: item.id })
+              }
+              className="!text-red-600 opacity-0 transition-opacity group-hover:opacity-100"
+              aria-label={`Remover ${item.text}`}
+            />
           </li>
         ))}
       </ul>
 
-      <form 
+      <form
         onSubmit={(e) => {
           e.preventDefault();
           if (!newItemText.trim()) return;
           addItemMutation.mutate({ listId: checklist.id, text: newItemText.trim() });
           setNewItemText('');
         }}
-        className="flex gap-2 items-center pt-2"
+        className="flex items-end gap-2 pt-2"
       >
-        <input
-          type="text"
-          className="flex-1 rounded-md border bg-background px-3 py-1.5 text-sm outline-none w-full"
-          placeholder="Adicionar tarefa pendente..."
-          value={newItemText}
-          onChange={(e) => setNewItemText(e.target.value)}
+        <div className="flex-1">
+          <EzTextInput
+            id="new-checklist-item"
+            placeholder="Adicionar tarefa pendente..."
+            value={newItemText}
+            onChange={(e) => setNewItemText(e.target.value)}
+          />
+        </div>
+        <EzButton
+          type="submit"
+          size="small"
+          leftIcon={Plus}
+          disabled={!newItemText.trim() || addItemMutation.isPending}
+          aria-label="Adicionar item"
         />
-        <button type="submit" disabled={!newItemText.trim() || addItemMutation.isPending} className="inline-flex items-center justify-center rounded bg-primary text-white h-8 w-8 disabled:opacity-50"><Plus className="h-4 w-4" /></button>
       </form>
     </section>
   );

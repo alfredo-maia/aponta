@@ -1,5 +1,6 @@
 import type { Ticket } from '../../hooks/useTickets';
 import { TicketCard } from './TicketCard';
+import { EzAlert, EzEmptyCard, EzSpinner } from '../ds';
 
 interface TicketListProps {
   tickets: Ticket[];
@@ -10,25 +11,26 @@ interface TicketListProps {
 export function TicketList({ tickets, isLoading, isError }: TicketListProps) {
   if (isLoading) {
     return (
-      <p role="status" className="text-sm text-muted-foreground">
-        Carregando chamados…
-      </p>
+      <div className="flex justify-center py-8">
+        <EzSpinner label="Carregando chamados…" />
+      </div>
     );
   }
 
   if (isError) {
     return (
-      <p role="alert" className="text-sm text-red-600">
+      <EzAlert variant="error">
         Falha ao carregar os chamados. Tente novamente.
-      </p>
+      </EzAlert>
     );
   }
 
   if (tickets.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">
-        Nenhum chamado encontrado. Tente ajustar os filtros.
-      </p>
+      <EzEmptyCard
+        title="Nenhum chamado encontrado"
+        description="Tente ajustar os filtros."
+      />
     );
   }
 

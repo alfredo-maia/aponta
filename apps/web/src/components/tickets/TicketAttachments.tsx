@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../stores/authStore';
+import { EzAlert, EzButton, EzSpinner } from '../ds';
 
 export interface TicketAttachment {
   id: string;
@@ -92,17 +93,17 @@ export function TicketAttachments({ ticketId }: TicketAttachmentsProps) {
   };
 
   return (
-    <section className="space-y-3 rounded-lg border p-4">
-      <h2 className="text-lg font-semibold">Anexos</h2>
+    <section className="space-y-3 rounded-lg border border-gray-200 bg-white p-4">
+      <h2 className="text-lg font-semibold text-gray-900">Anexos</h2>
 
       {isLoading && (
-        <p role="status" className="text-sm text-muted-foreground">
-          Carregando anexos…
-        </p>
+        <div className="flex justify-center py-4">
+          <EzSpinner label="Carregando anexos…" />
+        </div>
       )}
 
       {attachments && attachments.length === 0 && (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-gray-500">
           Nenhum anexo neste chamado ainda.
         </p>
       )}
@@ -112,25 +113,27 @@ export function TicketAttachments({ ticketId }: TicketAttachmentsProps) {
           {attachments.map((attachment) => (
             <li
               key={attachment.id}
-              className="flex items-center justify-between gap-2 rounded border px-3 py-2 text-sm"
+              className="flex items-center justify-between gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm"
             >
               <a
                 href={attachment.fileUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="flex min-w-0 items-center gap-2 truncate text-primary hover:underline"
+                className="flex min-w-0 items-center gap-2 truncate text-brand-600 hover:underline"
               >
                 <span aria-hidden="true">{formatBytes(attachment.mimeType)}</span>
                 <span className="truncate">{attachment.originalName}</span>
               </a>
               {(canDeleteAny || attachment.uploaderId === userId) && (
-                <button
+                <EzButton
                   type="button"
+                  variant="tertiary"
+                  size="small"
                   onClick={() => deleteMutation.mutate(attachment.id)}
-                  className="shrink-0 text-xs text-red-600 hover:underline"
+                  className="!text-red-600 hover:!text-red-700"
                 >
                   Remover
-                </button>
+                </EzButton>
               )}
             </li>
           ))}
@@ -147,28 +150,28 @@ export function TicketAttachments({ ticketId }: TicketAttachmentsProps) {
         />
         <label
           htmlFor="attachment-file"
-          className="cursor-pointer rounded bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:opacity-80"
+          className="cursor-pointer rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-80"
         >
           Selecionar arquivo
         </label>
-        <span className="truncate text-sm text-muted-foreground">
+        <span className="truncate text-sm text-gray-500">
           {selectedFile ? selectedFile.name : 'Nenhum arquivo selecionado'}
         </span>
-        <button
+        <EzButton
           type="button"
+          size="small"
           onClick={handleUpload}
           disabled={!selectedFile || uploadMutation.isPending}
-          className="rounded bg-primary px-3 py-1.5 text-sm text-primary-foreground disabled:opacity-50"
         >
           {uploadMutation.isPending ? 'Enviando…' : 'Anexar arquivo'}
-        </button>
+        </EzButton>
       </div>
 
       {uploadMutation.isError && (
-        <p role="alert" className="text-sm text-red-600">
+        <EzAlert variant="error" role="alert">
           Falha ao enviar o anexo. Verifique o tipo e o tamanho do arquivo
           (máx. 10MB).
-        </p>
+        </EzAlert>
       )}
     </section>
   );

@@ -4,6 +4,7 @@ import { api } from '../../lib/api';
 import type { Ticket, TicketStatus, TicketsPage } from '../../hooks/useTickets';
 import { TicketCard, statusLabels } from './TicketCard';
 import { useAuthStore } from '../../stores/authStore';
+import { EzAlert, EzSpinner, EzTag } from '../ds';
 
 const columns: TicketStatus[] = ['OPEN', 'IN_PROGRESS', 'ESCALATED', 'PENDING_CUSTOMER', 'PENDING_APPROVAL', 'ON_HOLD', 'RESOLVED', 'CLOSED'];
 
@@ -61,11 +62,18 @@ export function TicketKanban({ tickets, isLoading, isError }: TicketKanbanProps)
 
   if (isLoading) {
     return (
-      <div className="flex gap-4 overflow-x-auto pb-4"><span className="sr-only">Carregando...</span>
+      <div className="flex gap-4 overflow-x-auto pb-4">
         {columns.map((col) => (
-          <div key={col} className="w-80 shrink-0 space-y-4 rounded-lg bg-muted/50 p-4">
-            <h3 className="font-semibold text-muted-foreground">{statusLabels[col]}</h3>
-            <div className="h-32 animate-pulse rounded-lg bg-muted" />
+          <div
+            key={col}
+            className="w-80 shrink-0 space-y-4 rounded-lg border border-gray-100 bg-gray-80 p-4"
+          >
+            <h3 className="text-sm font-semibold text-gray-600">
+              {statusLabels[col]}
+            </h3>
+            <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-gray-200 bg-white">
+              <EzSpinner label={col === 'OPEN' ? 'Carregando...' : undefined} />
+            </div>
           </div>
         ))}
       </div>
@@ -73,11 +81,7 @@ export function TicketKanban({ tickets, isLoading, isError }: TicketKanbanProps)
   }
 
   if (isError) {
-    return (
-      <p role="alert" className="text-sm text-red-600">
-        Falha ao carregar os chamados.
-      </p>
-    );
+    return <EzAlert variant="error">Falha ao carregar os chamados.</EzAlert>;
   }
 
   // Agrupa os chamados
@@ -101,17 +105,23 @@ export function TicketKanban({ tickets, isLoading, isError }: TicketKanbanProps)
               <div
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                className={`flex w-80 shrink-0 flex-col gap-3 rounded-lg bg-muted/30 p-4 min-h-[500px] border ${
-                  snapshot.isDraggingOver ? 'border-primary ring-1 ring-primary/20 bg-muted/50' : 'border-transparent'
+                className={`flex w-80 shrink-0 flex-col gap-3 rounded-lg border p-4 min-h-[500px] transition-colors ${
+                  snapshot.isDraggingOver
+                    ? 'border-brand-500 bg-brand-100/30 ring-1 ring-brand-200'
+                    : 'border-gray-200 bg-gray-80'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="font-semibold capitalize text-foreground">{statusLabels[col]}</h3>
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
-                    {grouped[col].length}
-                  </span>
+                  <h3 className="text-sm font-semibold text-gray-900">
+                    {statusLabels[col]}
+                  </h3>
+                  <EzTag
+                    label={String(grouped[col].length)}
+                    variant="gray"
+                    className="!px-2 !py-0.5"
+                  />
                 </div>
-                
+
                 <div className="flex flex-1 flex-col gap-3">
                   {grouped[col].map((ticket, index) => (
                     <Draggable
@@ -119,7 +129,7 @@ export function TicketKanban({ tickets, isLoading, isError }: TicketKanbanProps)
                       draggableId={ticket.id}
                       index={index}
                       // Disable drag for clients or closed tickets if needed
-                      isDragDisabled={isClient || ticket.status === 'CLOSED'} 
+                      isDragDisabled={isClient || ticket.status === 'CLOSED'}
                     >
                       {(provided, dragSnapshot) => (
                         <div

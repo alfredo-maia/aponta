@@ -3,15 +3,16 @@ import { api } from '../../lib/api';
 import { useAuthStore } from '../../stores/authStore';
 import type { Ticket, TicketStatus } from '../../hooks/useTickets';
 import {
-  priorityBadgeClasses,
   priorityLabels,
-  statusBadgeClasses,
+  priorityTagVariants,
   statusLabels,
+  statusTagVariants,
 } from './TicketCard';
 import { SlaBadge } from './SlaBadge';
 import { SlaProgress } from './SlaProgress';
 import { TicketChecklist } from './TicketChecklist';
 import { TicketParentChild } from './TicketParent';
+import { EzAlert, EzTag } from '../ds';
 
 /**
  * Renders an ISO 8601 UTC timestamp as a stable, timezone-independent string
@@ -123,24 +124,23 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 space-y-1">
-          <span className="font-mono text-xs text-muted-foreground">
+          <span className="font-mono text-xs text-gray-500">
             {ticket.protocol}
           </span>
-          <h1 className="text-2xl font-bold">{ticket.title}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{ticket.title}</h1>
         </div>
-        <div className="flex flex-col shrink-0 gap-2 items-end">
-          <div className="flex gap-2">
+        <div className="flex shrink-0 flex-col items-end gap-2">
+          <div className="flex items-center gap-2">
             {user?.role === 'CLIENT' ? (
-              <span
-                className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusBadgeClasses[ticket.status]}`}
-              >
-                {statusLabels[ticket.status]}
-              </span>
+              <EzTag
+                label={statusLabels[ticket.status]}
+                variant={statusTagVariants[ticket.status]}
+              />
             ) : (
               <select
                 id="ticket-status"
                 aria-label="Status"
-                className={`rounded-full outline-none px-2 py-0.5 text-xs font-medium border-none cursor-pointer ${statusBadgeClasses[ticket.status]}`}
+                className="h-7 cursor-pointer rounded-full border border-gray-200 bg-white px-3 text-xs font-medium text-gray-900 outline-none transition-colors hover:border-gray-300 focus:border-brand-600 focus:ring-1 focus:ring-brand-600 disabled:opacity-50"
                 value={ticket.status}
                 disabled={statusMutation.isPending}
                 onChange={(e) => statusMutation.mutate(e.target.value as TicketStatus)}
@@ -152,19 +152,20 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
                 ))}
               </select>
             )}
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs font-medium ${priorityBadgeClasses[ticket.priority]}`}
-            >
-              {priorityLabels[ticket.priority]}
-            </span>
+            <EzTag
+              label={priorityLabels[ticket.priority]}
+              variant={priorityTagVariants[ticket.priority]}
+            />
           </div>
-          
+
           {(['AGENT', 'AGENT_MASTER', 'ADMIN'].includes(user?.role as string)) && (
-            <div className="mt-2 text-sm">
-              <label htmlFor="assignee" className="mr-2 text-muted-foreground">Atribuído a:</label>
+            <div className="mt-2 flex items-center gap-2 text-sm">
+              <label htmlFor="assignee" className="text-gray-500">
+                Atribuído a:
+              </label>
               <select
                 id="assignee"
-                className="rounded border px-2 py-1 text-sm disabled:opacity-50"
+                className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition-colors hover:border-gray-300 focus:border-brand-600 focus:ring-1 focus:ring-brand-600 disabled:opacity-50"
                 value={ticket.agentId || ''}
                 disabled={assignMutation.isPending}
                 onChange={(e) => assignMutation.mutate(e.target.value)}
@@ -181,20 +182,20 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
         </div>
       </div>
 
-      <p className="whitespace-pre-wrap text-sm">{ticket.description}</p>
+      <p className="whitespace-pre-wrap text-sm text-gray-900">
+        {ticket.description}
+      </p>
 
       {statusErrorMessage && (
-        <p role="alert" className="rounded border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <EzAlert variant="error" role="alert">
           {statusErrorMessage}
-        </p>
+        </EzAlert>
       )}
 
       <dl className="grid gap-4 text-sm sm:grid-cols-2">
         <div className="space-y-1">
-          <dt className="font-medium text-muted-foreground">
-            Prazo de resposta
-          </dt>
-          <dd className="flex items-center gap-2">
+          <dt className="font-medium text-gray-500">Prazo de resposta</dt>
+          <dd className="flex items-center gap-2 text-gray-900">
             {ticket.responseDeadline
               ? formatDeadline(ticket.responseDeadline)
               : 'Não definido'}
@@ -202,10 +203,8 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
           </dd>
         </div>
         <div className="space-y-1">
-          <dt className="font-medium text-muted-foreground">
-            Prazo de resolução
-          </dt>
-          <dd className="flex items-center gap-2">
+          <dt className="font-medium text-gray-500">Prazo de resolução</dt>
+          <dd className="flex items-center gap-2 text-gray-900">
             {ticket.resolveDeadline
               ? formatDeadline(ticket.resolveDeadline)
               : 'Não definido'}
@@ -217,34 +216,33 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
 
       {isAgentOrAdmin && (
         <>
-
-        <TicketChecklist ticketId={ticket.id} />
+          <TicketChecklist ticketId={ticket.id} />
           <TicketParentChild ticket={ticket} />
 
-      <section className="space-y-2">
-          <h2 className="text-lg font-semibold">Histórico</h2>
-          {audits.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Nenhuma alteração registrada ainda.
-            </p>
-          ) : (
-            <ul className="space-y-2 text-sm">
-              {audits.map((audit) => (
-                <li
-                  key={audit.id}
-                  className="flex items-start justify-between gap-4 rounded border px-3 py-2"
-                >
-                  <span>{describeAudit(audit)}</span>
-                  <span className="shrink-0 text-right text-xs text-muted-foreground">
-                    {audit.user?.name ?? 'Sistema'}
-                    <br />
-                    {formatDeadline(audit.createdAt)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+          <section className="space-y-2">
+            <h2 className="text-lg font-semibold text-gray-900">Histórico</h2>
+            {audits.length === 0 ? (
+              <p className="text-sm text-gray-500">
+                Nenhuma alteração registrada ainda.
+              </p>
+            ) : (
+              <ul className="space-y-2 text-sm">
+                {audits.map((audit) => (
+                  <li
+                    key={audit.id}
+                    className="flex items-start justify-between gap-4 rounded-lg border border-gray-200 bg-white px-3 py-2"
+                  >
+                    <span className="text-gray-900">{describeAudit(audit)}</span>
+                    <span className="shrink-0 text-right text-xs text-gray-500">
+                      {audit.user?.name ?? 'Sistema'}
+                      <br />
+                      {formatDeadline(audit.createdAt)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         </>
       )}
     </div>

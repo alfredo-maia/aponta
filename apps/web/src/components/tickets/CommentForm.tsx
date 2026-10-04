@@ -6,6 +6,7 @@ import { api } from '../../lib/api';
 import { useAuthStore } from '../../stores/authStore';
 import type { TicketComment } from './TicketComments';
 import { commentsQueryKey } from './TicketComments';
+import { EzAlert, EzButton, EzCheck, EzTextArea } from '../ds';
 
 const commentSchema = z.object({
   content: z.string().trim().min(1, 'Comentário é obrigatório'),
@@ -34,11 +35,15 @@ export function CommentForm({ ticketId }: CommentFormProps) {
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<CommentFormValues>({
     resolver: zodResolver(commentSchema),
     defaultValues: { content: '', isInternal: false },
   });
+
+  const isInternal = watch('isInternal');
 
   const mutation = useMutation({
     mutationFn: async (values: CommentFormValues) => {
@@ -67,49 +72,35 @@ export function CommentForm({ ticketId }: CommentFormProps) {
     <form
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      className="space-y-3 rounded-lg border p-4"
+      className="space-y-3 rounded-lg border border-gray-200 bg-white p-4"
     >
-      <div className="space-y-1">
-        <label htmlFor="comment-content" className="block text-sm font-medium">
-          Adicionar um comentário
-        </label>
-        <textarea
-          id="comment-content"
-          rows={3}
-          className="w-full rounded border px-3 py-2"
-          {...register('content')}
-        />
-        {errors.content && (
-          <p className="text-sm text-red-600">{errors.content.message}</p>
-        )}
-      </div>
+      <EzTextArea
+        id="comment-content"
+        label="Adicionar um comentário"
+        rows={3}
+        hasError={!!errors.content}
+        message={errors.content?.message}
+        {...register('content')}
+      />
 
       {canMarkInternal && (
-        <div className="flex items-center gap-2">
-          <input
-            id="comment-is-internal"
-            type="checkbox"
-            {...register('isInternal')}
-          />
-          <label htmlFor="comment-is-internal" className="text-sm">
-            Nota interna
-          </label>
-        </div>
+        <EzCheck
+          id="comment-is-internal"
+          label="Nota interna"
+          checked={isInternal}
+          onChange={(e) => setValue('isInternal', e.target.checked)}
+        />
       )}
 
       {mutation.isError && (
-        <p role="alert" className="text-sm text-red-600">
+        <EzAlert variant="error" role="alert">
           Falha ao publicar o comentário. Tente novamente.
-        </p>
+        </EzAlert>
       )}
 
-      <button
-        type="submit"
-        disabled={mutation.isPending}
-        className="rounded bg-primary px-4 py-2 text-primary-foreground disabled:opacity-50"
-      >
+      <EzButton type="submit" disabled={mutation.isPending}>
         Publicar comentário
-      </button>
+      </EzButton>
     </form>
   );
 }

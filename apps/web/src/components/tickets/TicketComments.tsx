@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
+import { EzAlert, EzSpinner, EzTag } from '../ds';
 
 export interface TicketComment {
   id: string;
@@ -41,23 +42,23 @@ export function TicketComments({ ticketId }: TicketCommentsProps) {
 
   if (isLoading) {
     return (
-      <p role="status" className="text-sm text-muted-foreground">
-        Carregando comentários…
-      </p>
+      <div className="flex justify-center py-6">
+        <EzSpinner label="Carregando comentários…" />
+      </div>
     );
   }
 
   if (isError) {
     return (
-      <p role="alert" className="text-sm text-red-600">
+      <EzAlert variant="error" role="alert">
         Falha ao carregar os comentários. Tente novamente.
-      </p>
+      </EzAlert>
     );
   }
 
   const comments = data ?? [];
   if (comments.length === 0) {
-    return <p className="text-sm text-muted-foreground">Nenhum comentário ainda.</p>;
+    return <p className="text-sm text-gray-500">Nenhum comentário ainda.</p>;
   }
 
   return (
@@ -65,19 +66,19 @@ export function TicketComments({ ticketId }: TicketCommentsProps) {
       {comments.map((comment) => (
         <li
           key={comment.id}
-          className="space-y-2 rounded-lg border bg-background p-4"
+          className="space-y-2 rounded-lg border border-gray-200 bg-white p-4"
         >
           <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-gray-500">
               {formatTimestamp(comment.createdAt)}
             </span>
             {comment.isInternal && (
-              <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">
-                Nota interna
-              </span>
+              <EzTag label="Nota interna" variant="petroleum" />
             )}
           </div>
-          <p className="whitespace-pre-wrap text-sm">{comment.content}</p>
+          <p className="whitespace-pre-wrap text-sm text-gray-900">
+            {comment.content}
+          </p>
         </li>
       ))}
     </ul>

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { TicketStatus, TicketFiltersInput } from '../../hooks/useTickets';
 import { statusLabels } from './TicketCard';
 import { api } from '../../lib/api';
+import { EzComboBox, EzTextInput } from '../ds';
 
 interface ServiceDesk {
   id: string;
@@ -45,72 +46,54 @@ export function TicketFilters({ filters, onChange }: TicketFiltersProps) {
 
   return (
     <div className="flex flex-wrap items-end gap-4">
-      <div className="space-y-1">
-        <label htmlFor="filter-search" className="block text-sm font-medium">
-          Buscar
-        </label>
-        <input
-          id="filter-search"
-          type="search"
-          placeholder="Título, protocolo ou descrição…"
-          className="rounded border bg-background px-3 py-2 text-sm"
-          value={searchText}
-          onChange={(event) => setSearchText(event.target.value)}
-        />
-      </div>
+      <EzTextInput
+        id="filter-search"
+        label="Buscar"
+        type="search"
+        placeholder="Título, protocolo ou descrição…"
+        value={searchText}
+        onChange={(event) => setSearchText(event.target.value)}
+      />
 
-      <div className="space-y-1">
-        <label
-          htmlFor="filter-service-desk"
-          className="block text-sm font-medium"
-        >
-          Departamento
-        </label>
-        <select
-          id="filter-service-desk"
-          className="rounded border bg-background px-3 py-2 text-sm"
-          value={filters.serviceDeskId ?? ''}
-          onChange={(event) =>
-            onChange({
-              ...filters,
-              serviceDeskId: event.target.value || undefined,
-            })
-          }
-        >
-          <option value="">Todos os departamentos</option>
-          {(serviceDesks ?? []).map((desk) => (
-            <option key={desk.id} value={desk.id}>
-              {desk.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <EzComboBox
+        id="filter-service-desk"
+        label="Departamento"
+        value={filters.serviceDeskId ?? ''}
+        onChange={(event) =>
+          onChange({
+            ...filters,
+            serviceDeskId: event.target.value || undefined,
+          })
+        }
+      >
+        <option value="">Todos os departamentos</option>
+        {(serviceDesks ?? []).map((desk) => (
+          <option key={desk.id} value={desk.id}>
+            {desk.name}
+          </option>
+        ))}
+      </EzComboBox>
 
-      <div className="space-y-1">
-        <label htmlFor="filter-status" className="block text-sm font-medium">
-          Status
-        </label>
-        <select
-          id="filter-status"
-          className="rounded border bg-background px-3 py-2 text-sm"
-          value={filters.status ?? ''}
-          onChange={(event) =>
-            onChange({
-              ...filters,
-              status: (event.target.value || undefined) as
-                | TicketStatus
-                | undefined,
-            })
-          }
-        >
-          <option value="">Todos os status</option>
-          {ticketStatuses.map((status) => (
-            <option key={status} value={status}>
-              {statusLabels[status]}
-            </option>
-          ))}
-        </select>
-      </div>
+      <EzComboBox
+        id="filter-status"
+        label="Status"
+        value={filters.status ?? ''}
+        onChange={(event) =>
+          onChange({
+            ...filters,
+            status: (event.target.value || undefined) as
+              | TicketStatus
+              | undefined,
+          })
+        }
+      >
+        <option value="">Todos os status</option>
+        {ticketStatuses.map((status) => (
+          <option key={status} value={status}>
+            {statusLabels[status]}
+          </option>
+        ))}
+      </EzComboBox>
     </div>
   );
 }
