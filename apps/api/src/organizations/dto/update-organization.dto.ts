@@ -5,4 +5,20 @@ export class UpdateOrganizationDto {
   @IsString()
   @IsNotEmpty()
   name?: string;
+
+  @IsOptional()
+  @IsString()
+  legalName?: string;
+
+  @IsOptional()
+  @IsString()
+  cnpj?: string;
+
+  @IsOptional()
+  @IsString()
+  municipalRegistration?: string;
+
+  @IsOptional()
+  @IsString()
+  stateRegistration?: string;
 }

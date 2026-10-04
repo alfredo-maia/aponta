@@ -3,6 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { Role } from '@prisma/client';
 import { OrganizationsController } from './organizations.controller';
 import { OrganizationsService } from './organizations.service';
+import { CnpjLookupService } from './cnpj-lookup.service';
 import { ROLES_KEY } from '../auth/decorators/roles.decorator';
 
 const mockOrganizationsService = {
@@ -11,6 +12,14 @@ const mockOrganizationsService = {
   findOne: jest.fn(),
   update: jest.fn(),
   remove: jest.fn(),
+  addAddress: jest.fn(),
+  removeAddress: jest.fn(),
+  addContact: jest.fn(),
+  removeContact: jest.fn(),
+};
+
+const mockCnpjLookupService = {
+  lookup: jest.fn(),
 };
 
 describe('OrganizationsController', () => {
@@ -19,7 +28,11 @@ describe('OrganizationsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [OrganizationsController],
-      providers: [{ provide: OrganizationsService, useValue: mockOrganizationsService }, Reflector],
+      providers: [
+        { provide: OrganizationsService, useValue: mockOrganizationsService },
+        { provide: CnpjLookupService, useValue: mockCnpjLookupService },
+        Reflector,
+      ],
     }).compile();
 
     controller = module.get<OrganizationsController>(OrganizationsController);
@@ -31,7 +44,7 @@ describe('OrganizationsController', () => {
   });
 
   describe('@Roles metadata', () => {
-    it.each([['create'], ['update'], ['remove']])(
+    it.each([['create'], ['update'], ['remove'], ['lookupCnpj'], ['addAddress'], ['removeAddress'], ['addContact'], ['removeContact']])(
       'requires ADMIN on %s',
       (methodName) => {
         expect(Reflect.getMetadata(ROLES_KEY, (controller as any)[methodName])).toEqual([
@@ -103,6 +116,64 @@ describe('OrganizationsController', () => {
 
       expect(mockOrganizationsService.remove).toHaveBeenCalledWith('org-1');
       expect(result).toEqual({ id: 'org-1' });
+    });
+  });
+
+  describe('lookupCnpj', () => {
+    it('delegates to the CnpjLookupService with the given cnpj', async () => {
+      const lookupResult = { cnpj: '19131243000197', legalName: 'Empresa Teste' } as any;
+      mockCnpjLookupService.lookup.mockResolvedValue(lookupResult);
+
+      const result = await controller.lookupCnpj('19131243000197');
+
+      expect(mockCnpjLookupService.lookup).toHaveBeenCalledWith('19131243000197');
+      expect(result).toEqual(lookupResult);
+    });
+  });
+
+  describe('addAddress', () => {
+    it('delegates to the service with id and dto', async () => {
+      const dto = { city: 'Sao Paulo' } as any;
+      mockOrganizationsService.addAddress.mockResolvedValue({ id: 'addr-1', ...dto });
+
+      const result = await controller.addAddress('org-1', dto);
+
+      expect(mockOrganizationsService.addAddress).toHaveBeenCalledWith('org-1', dto);
+      expect(result).toEqual({ id: 'addr-1', ...dto });
+    });
+  });
+
+  describe('removeAddress', () => {
+    it('delegates to the service with organization and address id', async () => {
+      mockOrganizationsService.removeAddress.mockResolvedValue({ id: 'addr-1' });
+
+      const result = await controller.removeAddress('org-1', 'addr-1');
+
+      expect(mockOrganizationsService.removeAddress).toHaveBeenCalledWith('org-1', 'addr-1');
+      expect(result).toEqual({ id: 'addr-1' });
+    });
+  });
+
+  describe('addContact', () => {
+    it('delegates to the service with id and dto', async () => {
+      const dto = { name: 'Jane' } as any;
+      mockOrganizationsService.addContact.mockResolvedValue({ id: 'contact-1', ...dto });
+
+      const result = await controller.addContact('org-1', dto);
+
+      expect(mockOrganizationsService.addContact).toHaveBeenCalledWith('org-1', dto);
+      expect(result).toEqual({ id: 'contact-1', ...dto });
+    });
+  });
+
+  describe('removeContact', () => {
+    it('delegates to the service with organization and contact id', async () => {
+      mockOrganizationsService.removeContact.mockResolvedValue({ id: 'contact-1' });
+
+      const result = await controller.removeContact('org-1', 'contact-1');
+
+      expect(mockOrganizationsService.removeContact).toHaveBeenCalledWith('org-1', 'contact-1');
+      expect(result).toEqual({ id: 'contact-1' });
     });
   });
 });

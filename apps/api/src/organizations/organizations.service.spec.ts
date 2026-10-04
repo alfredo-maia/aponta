@@ -14,6 +14,16 @@ describe('OrganizationsService', () => {
         update: jest.fn(),
         delete: jest.fn(),
       },
+      organizationAddress: {
+        create: jest.fn(),
+        findUnique: jest.fn(),
+        delete: jest.fn(),
+      },
+      organizationContact: {
+        create: jest.fn(),
+        findUnique: jest.fn(),
+        delete: jest.fn(),
+      },
     };
     service = new OrganizationsService(mockPrisma as any);
   });
@@ -60,6 +70,8 @@ describe('OrganizationsService', () => {
         where: { id: 'org-1' },
         include: {
           users: { select: { id: true, name: true, email: true, role: true } },
+          addresses: true,
+          contacts: true,
         },
       });
       expect(result).toEqual(org);
@@ -106,6 +118,110 @@ describe('OrganizationsService', () => {
 
       expect(mockPrisma.organization.delete).toHaveBeenCalledWith({ where: { id: 'org-1' } });
       expect(result).toEqual({ id: 'org-1' });
+    });
+  });
+
+  describe('addAddress', () => {
+    it('throws NotFoundException when the organization does not exist', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue(null);
+
+      await expect(service.addAddress('missing-id', { city: 'SP' } as any)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockPrisma.organizationAddress.create).not.toHaveBeenCalled();
+    });
+
+    it('creates the address linked to the organization', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue({ id: 'org-1', users: [] });
+      const dto = { city: 'Sao Paulo' } as any;
+      mockPrisma.organizationAddress.create.mockResolvedValue({ id: 'addr-1', organizationId: 'org-1', ...dto });
+
+      const result = await service.addAddress('org-1', dto);
+
+      expect(mockPrisma.organizationAddress.create).toHaveBeenCalledWith({
+        data: { ...dto, organizationId: 'org-1' },
+      });
+      expect(result).toEqual({ id: 'addr-1', organizationId: 'org-1', ...dto });
+    });
+  });
+
+  describe('removeAddress', () => {
+    it('throws NotFoundException when the organization does not exist', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue(null);
+
+      await expect(service.removeAddress('missing-org', 'addr-1')).rejects.toThrow(NotFoundException);
+      expect(mockPrisma.organizationAddress.delete).not.toHaveBeenCalled();
+    });
+
+    it('throws NotFoundException when the address does not belong to the organization', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue({ id: 'org-1', users: [] });
+      mockPrisma.organizationAddress.findUnique.mockResolvedValue({ id: 'addr-1', organizationId: 'org-2' });
+
+      await expect(service.removeAddress('org-1', 'addr-1')).rejects.toThrow(NotFoundException);
+      expect(mockPrisma.organizationAddress.delete).not.toHaveBeenCalled();
+    });
+
+    it('deletes the address when it belongs to the organization', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue({ id: 'org-1', users: [] });
+      mockPrisma.organizationAddress.findUnique.mockResolvedValue({ id: 'addr-1', organizationId: 'org-1' });
+      mockPrisma.organizationAddress.delete.mockResolvedValue({ id: 'addr-1' });
+
+      const result = await service.removeAddress('org-1', 'addr-1');
+
+      expect(mockPrisma.organizationAddress.delete).toHaveBeenCalledWith({ where: { id: 'addr-1' } });
+      expect(result).toEqual({ id: 'addr-1' });
+    });
+  });
+
+  describe('addContact', () => {
+    it('throws NotFoundException when the organization does not exist', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue(null);
+
+      await expect(service.addContact('missing-id', { name: 'Jane' } as any)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockPrisma.organizationContact.create).not.toHaveBeenCalled();
+    });
+
+    it('creates the contact linked to the organization', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue({ id: 'org-1', users: [] });
+      const dto = { name: 'Jane' } as any;
+      mockPrisma.organizationContact.create.mockResolvedValue({ id: 'contact-1', organizationId: 'org-1', ...dto });
+
+      const result = await service.addContact('org-1', dto);
+
+      expect(mockPrisma.organizationContact.create).toHaveBeenCalledWith({
+        data: { ...dto, organizationId: 'org-1' },
+      });
+      expect(result).toEqual({ id: 'contact-1', organizationId: 'org-1', ...dto });
+    });
+  });
+
+  describe('removeContact', () => {
+    it('throws NotFoundException when the organization does not exist', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue(null);
+
+      await expect(service.removeContact('missing-org', 'contact-1')).rejects.toThrow(NotFoundException);
+      expect(mockPrisma.organizationContact.delete).not.toHaveBeenCalled();
+    });
+
+    it('throws NotFoundException when the contact does not belong to the organization', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue({ id: 'org-1', users: [] });
+      mockPrisma.organizationContact.findUnique.mockResolvedValue({ id: 'contact-1', organizationId: 'org-2' });
+
+      await expect(service.removeContact('org-1', 'contact-1')).rejects.toThrow(NotFoundException);
+      expect(mockPrisma.organizationContact.delete).not.toHaveBeenCalled();
+    });
+
+    it('deletes the contact when it belongs to the organization', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue({ id: 'org-1', users: [] });
+      mockPrisma.organizationContact.findUnique.mockResolvedValue({ id: 'contact-1', organizationId: 'org-1' });
+      mockPrisma.organizationContact.delete.mockResolvedValue({ id: 'contact-1' });
+
+      const result = await service.removeContact('org-1', 'contact-1');
+
+      expect(mockPrisma.organizationContact.delete).toHaveBeenCalledWith({ where: { id: 'contact-1' } });
+      expect(result).toEqual({ id: 'contact-1' });
     });
   });
 });

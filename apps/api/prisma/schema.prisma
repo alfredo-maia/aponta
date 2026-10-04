@@ -41,10 +41,40 @@ enum TicketPriority {
 model Organization {
   id        String   @id @default(uuid())
   name      String
+  legalName              String?
+  cnpj                   String?  @unique
+  municipalRegistration  String?
+  stateRegistration      String?
   users     User[]
   credentials Credential[]
   contracts Contract[]
+  addresses OrganizationAddress[]
+  contacts  OrganizationContact[]
   createdAt DateTime @default(now())
+}
+
+model OrganizationAddress {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  zipCode        String?
+  street         String?
+  neighborhood   String?
+  city           String?
+  state          String?
+  complement     String?
+  createdAt      DateTime     @default(now())
+}
+
+model OrganizationContact {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  email          String?
+  phone          String?
+  type           String?
+  createdAt      DateTime     @default(now())
 }
 
 model User {

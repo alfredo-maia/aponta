@@ -12,6 +12,7 @@ vi.mock('../lib/api', () => ({
     get: vi.fn(),
     post: vi.fn(),
     patch: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
@@ -26,10 +27,27 @@ const users = [
   { id: 'u-3', name: 'Agente', email: 'agent@example.com', role: 'AGENT', organizationId: null },
 ];
 
+const orgDetail = {
+  id: 'org-1',
+  name: 'Empresa A',
+  legalName: 'Empresa A Ltda',
+  cnpj: '19131243000197',
+  municipalRegistration: '123',
+  stateRegistration: '456',
+  users: [],
+  addresses: [
+    { id: 'addr-1', street: 'Av Paulista', city: 'Sao Paulo', state: 'SP', zipCode: '01310100', neighborhood: 'Bela Vista', complement: null },
+  ],
+  contacts: [
+    { id: 'contact-1', name: 'Jane Doe', email: 'jane@example.com', phone: '11999999999', type: 'Financeiro' },
+  ],
+};
+
 function mockApiGet() {
   vi.mocked(api.get).mockImplementation((url: string) => {
     if (url === '/organizations') return Promise.resolve({ data: orgs });
     if (url === '/users') return Promise.resolve({ data: users });
+    if (url === '/organizations/org-1') return Promise.resolve({ data: orgDetail });
     return Promise.reject(new Error(`Unexpected GET ${url}`));
   });
 }
@@ -103,7 +121,7 @@ describe('OrganizationsPage', () => {
     expect(api.post).not.toHaveBeenCalled();
   });
 
-  it('creates a new organization and resets the form', async () => {
+  it('creates a new organization with rich fields and resets the form', async () => {
     vi.mocked(api.post).mockResolvedValue({ data: { id: 'org-3', name: 'Empresa C' } });
     loginAs('ADMIN');
     const user = userEvent.setup();
@@ -113,12 +131,49 @@ describe('OrganizationsPage', () => {
       expect(screen.getByText('Empresa A')).toBeInTheDocument();
     });
 
-    await user.type(screen.getByLabelText(/nome da empresa/i), 'Empresa C');
+    await user.type(screen.getByLabelText(/nome fantasia/i), 'Empresa C');
+    await user.type(screen.getByLabelText(/razão social/i), 'Empresa C Ltda');
     await user.click(screen.getByRole('button', { name: /cadastrar/i }));
 
     await waitFor(() => {
-      expect(api.post).toHaveBeenCalledWith('/organizations', { name: 'Empresa C' });
+      expect(api.post).toHaveBeenCalledWith('/organizations', expect.objectContaining({
+        name: 'Empresa C',
+        legalName: 'Empresa C Ltda',
+      }));
     });
+  });
+
+  it('looks up a CNPJ and autofills legal name / trade name', async () => {
+    vi.mocked(api.get).mockImplementation((url: string, config?: any) => {
+      if (url === '/organizations') return Promise.resolve({ data: orgs });
+      if (url === '/organizations/cnpj-lookup') {
+        expect(config?.params?.cnpj).toBe('19131243000197');
+        return Promise.resolve({
+          data: {
+            cnpj: '19131243000197',
+            legalName: 'Empresa Teste LTDA',
+            tradeName: 'Teste',
+            address: { zipCode: null, street: null, neighborhood: null, city: null, state: null, complement: null },
+          },
+        });
+      }
+      return Promise.reject(new Error(`Unexpected GET ${url}`));
+    });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    await user.type(screen.getByLabelText(/cnpj/i), '19131243000197');
+    await user.click(screen.getByRole('button', { name: /buscar cnpj/i }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/razão social/i)).toHaveValue('Empresa Teste LTDA');
+    });
+    expect(screen.getByLabelText(/nome fantasia/i)).toHaveValue('Teste');
   });
 
   it('expands the "Vincular Usuários" panel and lists only CLIENT/CLIENT_MASTER users', async () => {
@@ -178,6 +233,63 @@ describe('OrganizationsPage', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/nenhuma empresa cadastrada/i)).toBeInTheDocument();
+    });
+  });
+
+  it('opens the detail modal with registration data, addresses and contacts', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Empresa A' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A Ltda')).toBeInTheDocument();
+    });
+    expect(screen.getByText('19.131.243/0001-97')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: /endereços/i }));
+    await waitFor(() => {
+      expect(screen.getByText(/Av Paulista/)).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('tab', { name: /contatos/i }));
+    await waitFor(() => {
+      expect(screen.getByText(/Jane Doe/)).toBeInTheDocument();
+    });
+  });
+
+  it('adds a new contact from the detail modal', async () => {
+    vi.mocked(api.post).mockResolvedValue({ data: { id: 'contact-2', name: 'New Contact' } });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Empresa A' }));
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A Ltda')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('tab', { name: /contatos/i }));
+    await waitFor(() => {
+      expect(screen.getByText(/Jane Doe/)).toBeInTheDocument();
+    });
+
+    await user.type(screen.getByLabelText(/^nome$/i), 'New Contact');
+    await user.click(screen.getByRole('button', { name: /adicionar contato/i }));
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith('/organizations/org-1/contacts', expect.objectContaining({
+        name: 'New Contact',
+      }));
     });
   });
 });
