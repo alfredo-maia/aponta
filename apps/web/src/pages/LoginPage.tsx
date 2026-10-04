@@ -6,6 +6,7 @@ import { z } from 'zod';
 import axios from 'axios';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
+import { EzAlert, EzButton, EzCardItem, EzTextInput } from '../components/ds';
 
 const loginSchema = z.object({
   email: z.string().email('E-mail inválido'),
@@ -45,59 +46,37 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        noValidate
-        className="w-full max-w-sm space-y-4 rounded-lg border p-6"
-      >
-        <h1 className="text-2xl font-bold">Entrar</h1>
+    <div className="flex min-h-screen items-center justify-center bg-gray-80 text-gray-900">
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="w-full max-w-sm">
+        <EzCardItem className="space-y-4 p-6">
+          <h1 className="text-[20px] font-semibold text-gray-900">Entrar</h1>
 
-        <div className="space-y-1">
-          <label htmlFor="email" className="block text-sm font-medium">
-            E-mail
-          </label>
-          <input
+          <EzTextInput
             id="email"
+            label="E-mail"
             type="email"
             autoComplete="email"
-            className="w-full rounded border px-3 py-2"
+            hasError={!!errors.email}
+            message={errors.email?.message}
             {...register('email')}
           />
-          {errors.email && (
-            <p className="text-sm text-red-600">{errors.email.message}</p>
-          )}
-        </div>
 
-        <div className="space-y-1">
-          <label htmlFor="password" className="block text-sm font-medium">
-            Senha
-          </label>
-          <input
+          <EzTextInput
             id="password"
+            label="Senha"
             type="password"
             autoComplete="current-password"
-            className="w-full rounded border px-3 py-2"
+            hasError={!!errors.password}
+            message={errors.password?.message}
             {...register('password')}
           />
-          {errors.password && (
-            <p className="text-sm text-red-600">{errors.password.message}</p>
-          )}
-        </div>
 
-        {submitError && (
-          <p role="alert" className="text-sm text-red-600">
-            {submitError}
-          </p>
-        )}
+          {submitError && <EzAlert variant="error">{submitError}</EzAlert>}
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full rounded bg-primary px-4 py-2 text-primary-foreground disabled:opacity-50"
-        >
-          Entrar
-        </button>
+          <EzButton type="submit" disabled={isSubmitting} className="w-full">
+            Entrar
+          </EzButton>
+        </EzCardItem>
       </form>
     </div>
   );

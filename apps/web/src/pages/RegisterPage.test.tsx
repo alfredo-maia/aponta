@@ -23,7 +23,7 @@ function renderRegisterPage() {
 async function fillAndSubmit(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText(/nome/i), 'Jane Doe');
   await user.type(screen.getByLabelText(/e-mail/i), 'jane@example.com');
-  await user.type(screen.getByLabelText(/senha/i), 'password123');
+  await user.type(screen.getByLabelText(/^senha$/i), 'password123');
   await user.click(screen.getByRole('button', { name: /criar conta/i }));
 }
 
@@ -37,7 +37,7 @@ describe('RegisterPage', () => {
     renderRegisterPage();
     expect(screen.getByLabelText(/nome/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/e-mail/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/senha/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^senha$/i)).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /criar conta/i }),
     ).toBeInTheDocument();

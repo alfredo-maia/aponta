@@ -6,6 +6,7 @@ import axios from 'axios';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
 import { useApiTokens } from '../hooks/useApiTokens';
+import { EzAlert, EzButton, EzTabs, EzTextInput } from '../components/ds';
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Senha atual é obrigatória'),
@@ -38,55 +39,27 @@ type Tab = 'profile' | 'security' | 'tokens';
 export function MyAccountPage() {
   const [tab, setTab] = useState<Tab>('profile');
 
+  const tabs = [
+    { id: 'profile', label: 'Minha Conta' },
+    { id: 'security', label: 'Segurança' },
+    { id: 'tokens', label: 'Tokens de API' },
+  ];
+
   return (
-    <div className="mx-auto max-w-sm space-y-6 p-6">
-      <h1 className="text-2xl font-bold">Minha Conta</h1>
+    <div className="mx-auto max-w-2xl space-y-6 p-6">
+      <h1 className="text-2xl font-bold text-gray-900">Minha Conta</h1>
 
-      <div role="tablist" className="flex gap-2 border-b">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'profile'}
-          onClick={() => setTab('profile')}
-          className={`px-3 py-2 text-sm font-medium ${
-            tab === 'profile'
-              ? 'border-b-2 border-primary text-primary'
-              : 'text-muted-foreground'
-          }`}
-        >
-          Minha Conta
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'security'}
-          onClick={() => setTab('security')}
-          className={`px-3 py-2 text-sm font-medium ${
-            tab === 'security'
-              ? 'border-b-2 border-primary text-primary'
-              : 'text-muted-foreground'
-          }`}
-        >
-          Segurança
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'tokens'}
-          onClick={() => setTab('tokens')}
-          className={`px-3 py-2 text-sm font-medium whitespace-nowrap ${
-            tab === 'tokens'
-              ? 'border-b-2 border-primary text-primary'
-              : 'text-muted-foreground'
-          }`}
-        >
-          Tokens de API
-        </button>
+      <EzTabs
+        tabs={tabs}
+        activeTab={tab}
+        onChange={(id) => setTab(id as Tab)}
+      />
+
+      <div className="pt-2">
+        {tab === 'profile' && <ProfileTab />}
+        {tab === 'security' && <SecurityTab />}
+        {tab === 'tokens' && <ApiTokensTab />}
       </div>
-
-      {tab === 'profile' && <ProfileTab />}
-      {tab === 'security' && <SecurityTab />}
-      {tab === 'tokens' && <ApiTokensTab />}
     </div>
   );
 }
@@ -142,56 +115,39 @@ function ProfileTab() {
     <form
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      className="space-y-4 rounded-lg border p-6"
+      className="space-y-4 rounded-lg border border-gray-200 bg-white p-6"
     >
-      <div className="space-y-1">
-        <label htmlFor="name" className="block text-sm font-medium">
-          Nome
-        </label>
-        <input
-          id="name"
-          type="text"
-          className="w-full rounded border px-3 py-2"
-          {...register('name')}
-        />
-        {errors.name && (
-          <p className="text-sm text-red-600">{errors.name.message}</p>
-        )}
-      </div>
+      <EzTextInput
+        id="name"
+        label="Nome"
+        hasError={!!errors.name}
+        message={errors.name?.message}
+        {...register('name')}
+      />
 
-      <div className="space-y-1">
-        <label htmlFor="email" className="block text-sm font-medium">
-          E-mail
-        </label>
-        <input
-          id="email"
-          type="email"
-          className="w-full rounded border px-3 py-2"
-          {...register('email')}
-        />
-        {errors.email && (
-          <p className="text-sm text-red-600">{errors.email.message}</p>
-        )}
-      </div>
+      <EzTextInput
+        id="email"
+        type="email"
+        label="E-mail"
+        hasError={!!errors.email}
+        message={errors.email?.message}
+        {...register('email')}
+      />
 
       {submitError && (
-        <p role="alert" className="text-sm text-red-600">
+        <EzAlert variant="error" role="alert">
           {submitError}
-        </p>
+        </EzAlert>
       )}
       {success && (
-        <p role="status" className="text-sm text-green-600">
+        <EzAlert variant="success" role="status">
           Dados atualizados com sucesso!
-        </p>
+        </EzAlert>
       )}
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full rounded bg-primary px-4 py-2 text-primary-foreground disabled:opacity-50"
-      >
+      <EzButton type="submit" disabled={isSubmitting} className="w-full">
         Salvar
-      </button>
+      </EzButton>
     </form>
   );
 }
@@ -229,62 +185,44 @@ function SecurityTab() {
     <form
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      className="space-y-4 rounded-lg border p-6"
+      className="space-y-4 rounded-lg border border-gray-200 bg-white p-6"
     >
-      <h2 className="text-lg font-semibold">Alterar senha</h2>
+      <h2 className="text-lg font-semibold text-gray-900">Alterar senha</h2>
 
-      <div className="space-y-1">
-        <label htmlFor="currentPassword" className="block text-sm font-medium">
-          Senha atual
-        </label>
-        <input
-          id="currentPassword"
-          type="password"
-          autoComplete="current-password"
-          className="w-full rounded border px-3 py-2"
-          {...register('currentPassword')}
-        />
-        {errors.currentPassword && (
-          <p className="text-sm text-red-600">
-            {errors.currentPassword.message}
-          </p>
-        )}
-      </div>
+      <EzTextInput
+        id="currentPassword"
+        type="password"
+        autoComplete="current-password"
+        label="Senha atual"
+        hasError={!!errors.currentPassword}
+        message={errors.currentPassword?.message}
+        {...register('currentPassword')}
+      />
 
-      <div className="space-y-1">
-        <label htmlFor="newPassword" className="block text-sm font-medium">
-          Nova senha
-        </label>
-        <input
-          id="newPassword"
-          type="password"
-          autoComplete="new-password"
-          className="w-full rounded border px-3 py-2"
-          {...register('newPassword')}
-        />
-        {errors.newPassword && (
-          <p className="text-sm text-red-600">{errors.newPassword.message}</p>
-        )}
-      </div>
+      <EzTextInput
+        id="newPassword"
+        type="password"
+        autoComplete="new-password"
+        label="Nova senha"
+        hasError={!!errors.newPassword}
+        message={errors.newPassword?.message}
+        {...register('newPassword')}
+      />
 
       {submitError && (
-        <p role="alert" className="text-sm text-red-600">
+        <EzAlert variant="error" role="alert">
           {submitError}
-        </p>
+        </EzAlert>
       )}
       {success && (
-        <p role="status" className="text-sm text-green-600">
+        <EzAlert variant="success" role="status">
           Senha atualizada com sucesso!
-        </p>
+        </EzAlert>
       )}
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full rounded bg-primary px-4 py-2 text-primary-foreground disabled:opacity-50"
-      >
+      <EzButton type="submit" disabled={isSubmitting} className="w-full">
         Trocar senha
-      </button>
+      </EzButton>
     </form>
   );
 }
@@ -325,31 +263,32 @@ function ApiTokensTab() {
   };
 
   return (
-    <div className="space-y-6 rounded-lg border p-6">
+    <div className="space-y-6 rounded-lg border border-gray-200 bg-white p-6">
       <div>
-        <h2 className="text-lg font-semibold">Tokens de API</h2>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h2 className="text-lg font-semibold text-gray-900">Tokens de API</h2>
+        <p className="mt-1 text-sm text-gray-500">
           Gere um token pessoal para integrações externas (ex: servidor MCP para IAs).
           O token herda exatamente o mesmo nível de acesso da sua conta.
         </p>
       </div>
 
       {justCreatedToken && (
-        <div className="rounded border-2 border-amber-400 bg-amber-50 p-4 space-y-2">
+        <div className="space-y-2 rounded-lg border-2 border-amber-400 bg-amber-50 p-4">
           <p className="text-sm font-semibold text-amber-800">
             Copie seu token agora — ele não será exibido novamente!
           </p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 overflow-x-auto rounded bg-white px-2 py-1 text-xs border">
+            <code className="flex-1 overflow-x-auto rounded border border-gray-200 bg-white px-2 py-1 text-xs">
               {justCreatedToken}
             </code>
-            <button
+            <EzButton
               type="button"
+              size="small"
               onClick={handleCopy}
-              className="shrink-0 rounded bg-amber-600 px-3 py-1 text-xs text-white hover:bg-amber-700"
+              className="!bg-amber-600 !border-amber-600 hover:!bg-amber-700 hover:!border-amber-700"
             >
               {copied ? 'Copiado!' : 'Copiar'}
-            </button>
+            </EzButton>
           </div>
           <button
             type="button"
@@ -362,49 +301,52 @@ function ApiTokensTab() {
       )}
 
       <form onSubmit={handleCreate} className="flex items-end gap-2">
-        <div className="flex-1 space-y-1">
-          <label htmlFor="token-name" className="block text-sm font-medium">
-            Nome do token
-          </label>
-          <input
+        <div className="flex-1">
+          <EzTextInput
             id="token-name"
-            type="text"
+            label="Nome do token"
             placeholder="Ex: Claude Desktop"
             value={name}
             onChange={(e) => setName(e.target.value)}
             maxLength={60}
-            className="w-full rounded border px-3 py-2"
           />
         </div>
-        <button
+        <EzButton
           type="submit"
           disabled={createMutation.isPending || !name.trim()}
-          className="rounded bg-primary px-4 py-2 text-primary-foreground disabled:opacity-50 whitespace-nowrap"
+          className="whitespace-nowrap"
         >
           Gerar Token
-        </button>
+        </EzButton>
       </form>
 
       <div className="space-y-2">
-        {listQuery.isLoading && <p className="text-sm text-muted-foreground">Carregando...</p>}
+        {listQuery.isLoading && (
+          <p className="text-sm text-gray-500">Carregando...</p>
+        )}
         {!listQuery.isLoading && listQuery.data?.length === 0 && (
-          <p className="text-sm text-muted-foreground">Nenhum token criado ainda.</p>
+          <p className="text-sm text-gray-500">Nenhum token criado ainda.</p>
         )}
         {listQuery.data?.map((token) => (
-          <div key={token.id} className="flex items-center justify-between rounded border px-3 py-2">
+          <div
+            key={token.id}
+            className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2"
+          >
             <div>
-              <p className="text-sm font-medium">{token.name}</p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm font-medium text-gray-900">{token.name}</p>
+              <p className="text-xs text-gray-500">
                 Criado em {formatDate(token.createdAt)} · Último uso: {formatDate(token.lastUsedAt)}
               </p>
             </div>
-            <button
+            <EzButton
               type="button"
+              variant="tertiary"
+              size="small"
               onClick={() => handleRevoke(token.id)}
-              className="text-sm text-red-600 hover:underline"
+              className="!text-red-600 hover:!text-red-700"
             >
               Revogar
-            </button>
+            </EzButton>
           </div>
         ))}
       </div>

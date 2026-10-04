@@ -44,7 +44,7 @@ describe('DocsPage', () => {
     await user.click(contractsNavButton);
 
     expect(scrollSpy).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
-    expect(contractsNavButton.className).toContain('bg-primary');
+    expect(contractsNavButton.className).toContain('bg-brand-100');
   });
 
   it('jumps to the API section when the in-text FAQ link is clicked', async () => {

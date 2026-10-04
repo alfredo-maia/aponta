@@ -1,13 +1,24 @@
 import { Lock, Copy, Trash } from 'lucide-react';
 import { useVault } from '../hooks/useVault';
 import { useAuthStore } from '../stores/authStore';
+import { EzAlert, EzButton, EzCardItem, EzEmptyCard, EzSpinner } from '../components/ds';
 
 export function VaultPage() {
   const { query, removeMutation } = useVault();
   const user = useAuthStore((s) => s.user);
 
-  if (query.isLoading) return <div className="p-8 text-muted-foreground">Carregando cofre...</div>;
-  if (query.isError) return <div className="p-8 text-destructive">Erro ao carregar o cofre de senhas.</div>;
+  if (query.isLoading)
+    return (
+      <div className="flex justify-center p-8">
+        <EzSpinner label="Carregando cofre..." />
+      </div>
+    );
+  if (query.isError)
+    return (
+      <div className="p-8">
+        <EzAlert variant="error">Erro ao carregar o cofre de senhas.</EzAlert>
+      </div>
+    );
 
   const credentials = query.data || [];
   const canEdit = user && user.role === 'ADMIN';
@@ -20,7 +31,9 @@ export function VaultPage() {
     return acc;
   }, {} as Record<string, typeof credentials>);
 
-  const handleCopy = (text: string) => navigator.clipboard.writeText(text);
+  const handleCopy = (text?: string) => {
+    if (text) navigator.clipboard.writeText(text);
+  };
 
   return (
     <div className="space-y-6">
@@ -31,48 +44,53 @@ export function VaultPage() {
       </div>
 
       {!credentials.length && (
-        <div className="text-muted-foreground border rounded-lg p-8 text-center bg-card">
-          Nenhuma credencial liberada para esta operação.
-        </div>
+        <EzEmptyCard title="Nenhuma credencial liberada para esta operação." />
       )}
 
       {Object.entries(grouped).map(([org, creds]) => (
-        <div key={org} className="border rounded-lg bg-card overflow-hidden">
-          <div className="bg-muted px-4 py-3 font-semibold text-foreground flex justify-between">
+        <EzCardItem key={org} flat className="overflow-hidden">
+          <div className="bg-gray-50 px-4 py-3 font-semibold text-gray-900 flex justify-between">
             <span>{org}</span>
-            <span className="text-sm font-normal text-muted-foreground">{creds.length} pastas/senhas</span>
+            <span className="text-sm font-normal text-gray-500">{creds.length} pastas/senhas</span>
           </div>
-          <ul className="divide-y">
+          <ul className="divide-y divide-gray-100">
             {creds.map((cred) => (
-              <li key={cred.id} className="p-4 flex items-center justify-between hover:bg-muted/50">
+              <li key={cred.id} className="p-4 flex items-center justify-between hover:bg-gray-50">
                 <div>
-                  <h3 className="font-medium">{cred.name}</h3>
-                  <div className="text-sm text-muted-foreground mt-1 space-x-4">
+                  <h3 className="font-medium text-gray-900">{cred.name}</h3>
+                  <div className="text-sm text-gray-500 mt-1 space-x-4">
                     {cred.username && (
                       <span>
                         <span className="font-semibold">User:</span> {cred.username}{' '}
-                        <button onClick={() => handleCopy(cred.username!)}><Copy className="w-3 h-3 inline" /></button>
+                        <button onClick={() => handleCopy(cred.username)}>
+                          <Copy className="w-3 h-3 inline" />
+                        </button>
                       </span>
                     )}
                     <span>
                       <span className="font-semibold">Pass:</span> ********{' '}
-                      <button onClick={() => handleCopy(cred.password!)}><Copy className="w-3 h-3 inline" /></button>
+                      <button onClick={() => handleCopy(cred.password)}>
+                        <Copy className="w-3 h-3 inline" />
+                      </button>
                     </span>
                   </div>
                 </div>
                 {canEdit && (
-                  <button
-                    onClick={() => { if(window.confirm('Excluir senha definitivamente?')) removeMutation.mutate(cred.id); }}
-                    className="p-2 text-destructive hover:bg-destructive/10 rounded-full"
+                  <EzButton
+                    variant="tertiary"
+                    size="small"
+                    onClick={() => {
+                      if (window.confirm('Excluir senha definitivamente?')) removeMutation.mutate(cred.id);
+                    }}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-100/50"
                     title="Excluir"
-                  >
-                    <Trash className="w-4 h-4" />
-                  </button>
+                    rightIcon={Trash}
+                  />
                 )}
               </li>
             ))}
           </ul>
-        </div>
+        </EzCardItem>
       ))}
     </div>
   );

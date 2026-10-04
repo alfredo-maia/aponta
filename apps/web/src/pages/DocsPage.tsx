@@ -12,6 +12,7 @@ import {
   BarChart,
   BookMarked,
 } from 'lucide-react';
+import { EzSidebarButton } from '../components/ds';
 
 type SectionId =
   | 'conceitos'
@@ -74,7 +75,7 @@ function Section({
         {icon}
         {title}
       </h2>
-      <div className="prose prose-sm max-w-none text-foreground space-y-3">{children}</div>
+      <div className="prose prose-sm max-w-none text-gray-900 space-y-3">{children}</div>
     </section>
   );
 }
@@ -96,23 +97,18 @@ export function DocsPage() {
           </div>
           {NAV.map((group) => (
             <div key={group.label}>
-              <p className="mb-1 px-3 text-xs font-semibold uppercase text-muted-foreground">
+              <p className="mb-1 px-3 text-xs font-semibold uppercase text-gray-500">
                 {group.label}
               </p>
               <ul className="space-y-0.5">
                 {group.items.map((item) => (
                   <li key={item.id}>
-                    <button
+                    <EzSidebarButton
+                      label={item.label}
+                      icon={item.icon}
+                      active={active === item.id}
                       onClick={() => handleNavClick(item.id)}
-                      className={`flex w-full items-center gap-2 rounded px-3 py-1.5 text-left text-sm ${
-                        active === item.id
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-foreground hover:bg-muted'
-                      }`}
-                    >
-                      {item.icon}
-                      {item.label}
-                    </button>
+                    />
                   </li>
                 ))}
               </ul>
@@ -161,8 +157,8 @@ export function DocsPage() {
           </p>
           <p>
             Clientes veem a mesma lista filtrada para <strong>apenas os seus próprios chamados</strong>,
-            na página <Link to="/" className="text-primary underline">Meus Chamados</Link>, e podem
-            abrir um novo chamado em <Link to="/tickets/new" className="text-primary underline">Abrir Chamado</Link>.
+            na página <Link to="/" className="text-brand-600 underline">Meus Chamados</Link>, e podem
+            abrir um novo chamado em <Link to="/tickets/new" className="text-brand-600 underline">Abrir Chamado</Link>.
           </p>
           <p>
             Cada ticket acompanha prazos de SLA (resposta e resolução) calculados a partir da Mesa de
@@ -172,7 +168,7 @@ export function DocsPage() {
 
         <Section id="relatorios" title="Relatórios" icon={<BarChart className="h-6 w-6" />}>
           <p>
-            A aba <Link to="/reports" className="text-primary underline">Relatórios</Link> reúne duas
+            A aba <Link to="/reports" className="text-brand-600 underline">Relatórios</Link> reúne duas
             visões, separadas por abas:
           </p>
           <ul className="list-disc pl-6">
@@ -191,7 +187,7 @@ export function DocsPage() {
 
         <Section id="cofre" title="Cofre de Senhas" icon={<Lock className="h-6 w-6" />}>
           <p>
-            O <Link to="/vault" className="text-primary underline">Cofre de Senhas</Link> guarda
+            O <Link to="/vault" className="text-brand-600 underline">Cofre de Senhas</Link> guarda
             credenciais de acesso a sistemas de clientes (usuário/senha, URL, notas), restrito a
             papéis internos (<strong>ADMIN</strong>, <strong>AGENT_MASTER</strong>,{' '}
             <strong>AGENT</strong>). Clientes <strong>nunca</strong> têm acesso a este módulo — a API
@@ -202,7 +198,7 @@ export function DocsPage() {
 
         <Section id="contratos" title="Contratos" icon={<Briefcase className="h-6 w-6" />}>
           <p>
-            A tela de <Link to="/contracts" className="text-primary underline">Contratos</Link> lista
+            A tela de <Link to="/contracts" className="text-brand-600 underline">Contratos</Link> lista
             os contratos de cobertura/SLA vinculados a cada Organização. Campos financeiros (valor
             mensal, valor de última aditivo, data de reajuste) só são retornados pela API para{' '}
             <strong>ADMIN</strong> e <strong>CLIENT_MASTER</strong> — para Agentes e Agent Masters o
@@ -213,7 +209,7 @@ export function DocsPage() {
 
         <Section id="conhecimento" title="Base de Conhecimento" icon={<BookMarked className="h-6 w-6" />}>
           <p>
-            A <Link to="/knowledge" className="text-primary underline">Base de Conhecimento</Link>{' '}
+            A <Link to="/knowledge" className="text-brand-600 underline">Base de Conhecimento</Link>{' '}
             funciona como uma Wiki/FAQ interna. Artigos podem ser marcados como{' '}
             <strong>públicos</strong> (visíveis a Clientes) ou <strong>internos</strong> (somente
             equipe).
@@ -244,7 +240,7 @@ export function DocsPage() {
             <div>
               <p className="font-semibold">Como gero um token para integrar com outro sistema ou IA?</p>
               <p>
-                Veja a seção <a href="#api" onClick={() => handleNavClick('api')} className="text-primary underline cursor-pointer">API &amp; Tokens de Acesso</a> abaixo.
+                Veja a seção <a href="#api" onClick={() => handleNavClick('api')} className="text-brand-600 underline cursor-pointer">API &amp; Tokens de Acesso</a> abaixo.
               </p>
             </div>
           </div>
@@ -259,7 +255,7 @@ export function DocsPage() {
           </p>
           <ol className="list-decimal pl-6 space-y-1">
             <li>
-              Acesse <Link to="/my-account" className="text-primary underline">Configurações &gt; Minha Conta</Link>.
+              Acesse <Link to="/my-account" className="text-brand-600 underline">Configurações &gt; Minha Conta</Link>.
             </li>
             <li>Clique na aba <strong>Tokens de API</strong>.</li>
             <li>Dê um nome claro ao token (ex: &quot;Integração n8n&quot;, &quot;MCP Claude Desktop&quot;).</li>
@@ -287,7 +283,7 @@ export function DocsPage() {
             permite que assistentes de IA (Claude Desktop, e outros clientes compatíveis) consultem e
             operem o sistema diretamente, usando linguagem natural.
           </p>
-          <p><strong>Passo 1 — Gerar o token:</strong> siga o passo a passo da seção <a href="#api" onClick={() => handleNavClick('api')} className="text-primary underline cursor-pointer">API &amp; Tokens de Acesso</a> acima.</p>
+          <p><strong>Passo 1 — Gerar o token:</strong> siga o passo a passo da seção <a href="#api" onClick={() => handleNavClick('api')} className="text-brand-600 underline cursor-pointer">API &amp; Tokens de Acesso</a> acima.</p>
           <p><strong>Passo 2 — Configurar o cliente MCP</strong> (exemplo Claude Desktop):</p>
           <pre className="rounded bg-muted p-3 text-xs overflow-x-auto">
 {`{
@@ -316,7 +312,7 @@ export function DocsPage() {
             segurança usado pela interface web — a IA nunca acessa mais dados do que o usuário que
             gerou o token teria acesso.
           </p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-gray-500">
             Problemas comuns: se a IA relatar &quot;acesso negado&quot; ao tentar uma ação
             administrativa (ex: criar credencial no Cofre), confirme que o token foi gerado por um
             usuário com o papel (Role) necessário.

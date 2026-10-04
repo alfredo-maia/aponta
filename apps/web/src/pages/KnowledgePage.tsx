@@ -2,6 +2,17 @@ import { useState } from 'react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
+import {
+  EzAlert,
+  EzButton,
+  EzCardItem,
+  EzCheck,
+  EzEmptyCard,
+  EzSpinner,
+  EzTag,
+  EzTextArea,
+  EzTextInput,
+} from '../components/ds';
 
 interface Article {
   id: string;
@@ -39,7 +50,7 @@ export function KnowledgePage() {
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  
+
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isPublic, setIsPublic] = useState(true);
@@ -93,40 +104,47 @@ export function KnowledgePage() {
     },
   });
 
-  if (isLoading) return <div className="p-8">Carregando artigos...</div>;
+  if (isLoading) {
+    return (
+      <div className="p-8">
+        <EzSpinner label="Carregando artigos..." />
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 flex-1 overflow-y-auto">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Base de Conhecimento (FAQ)</h1>
-          {(!user) && <p className="text-sm text-gray-500">Exibindo apenas artigos públicos</p>}
+          <h1 className="text-[20px] font-semibold text-gray-900">Base de Conhecimento (FAQ)</h1>
+          {!user && <p className="text-sm text-gray-500">Exibindo apenas artigos públicos</p>}
         </div>
-        
+
         <div className="flex items-center gap-2">
-          <input
+          <EzTextInput
             type="search"
             placeholder="Buscar palavra-chave..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="rounded border px-3 py-1.5 min-w-[200px]"
             title="busca por palavra-chave"
+            className="min-w-[200px]"
           />
           {tag && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-              Tag: {tag}
-              <button onClick={() => setTag('')} aria-label="Remover filtro de tag" className="hover:text-blue-900 font-bold">&times;</button>
-            </span>
+            <EzTag
+              label={`Tag: ${tag}`}
+              variant="ocean"
+              rightIcon={
+                <button onClick={() => setTag('')} aria-label="Remover filtro de tag" className="hover:text-brand-900 font-bold">
+                  &times;
+                </button>
+              }
+            />
           )}
-          
+
           {canAuthor && !isFormOpen && (
-            <button
-              type="button"
-              onClick={openNewForm}
-              className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 whitespace-nowrap"
-            >
+            <EzButton type="button" onClick={openNewForm} size="small">
               + Novo artigo
-            </button>
+            </EzButton>
           )}
         </div>
       </div>
@@ -137,127 +155,102 @@ export function KnowledgePage() {
             e.preventDefault();
             saveMutation.mutate();
           }}
-          className="mb-6 p-4 border rounded shadow-sm bg-gray-50 space-y-3"
+          className="mb-6"
         >
-          <div>
-            <label htmlFor="article-title" className="block text-sm font-medium mb-1">Título</label>
-            <input
+          <EzCardItem flat className="p-4 space-y-3">
+            <EzTextInput
               id="article-title"
+              label="Título"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              className="w-full rounded border px-2 py-1 bg-white"
             />
-          </div>
-          <div>
-            <label htmlFor="article-content" className="block text-sm font-medium mb-1">Conteúdo</label>
-            <textarea
+            <EzTextArea
               id="article-content"
+              label="Conteúdo"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               required
               rows={4}
-              className="w-full rounded border px-2 py-1 bg-white"
             />
-          </div>
-          <div>
-            <label htmlFor="article-tags" className="block text-sm font-medium mb-1">Tags (separadas por vírgula)</label>
-            <input
+            <EzTextInput
               id="article-tags"
+              label="Tags (separadas por vírgula)"
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
               placeholder="ex: acesso, senha, rh"
-              className="w-full rounded border px-2 py-1 bg-white"
             />
-          </div>
-          <label className="flex items-center gap-2 text-sm pt-2">
-            <input
-              type="checkbox"
+            <EzCheck
+              id="article-is-public"
+              label="Público (visível para clientes sem login)"
               checked={isPublic}
               onChange={(e) => setIsPublic(e.target.checked)}
             />
-            Público (visível para clientes sem login)
-          </label>
-          
-          {saveMutation.isError && (
-            <p role="alert" className="text-sm text-red-600">
-              Falha ao {editingId ? 'atualizar' : 'salvar'} o artigo.
-            </p>
-          )}
-          <div className="flex gap-2 pt-2">
-            <button
-              type="submit"
-              disabled={saveMutation.isPending}
-              className="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-            >
-              {editingId ? 'Atualizar' : 'Salvar'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsFormOpen(false)}
-              className="px-3 py-2 text-sm border bg-white rounded hover:bg-gray-100"
-            >
-              Cancelar
-            </button>
-          </div>
+
+            {saveMutation.isError && (
+              <EzAlert variant="error">
+                Falha ao {editingId ? 'atualizar' : 'salvar'} o artigo.
+              </EzAlert>
+            )}
+            <div className="flex gap-2 pt-2">
+              <EzButton type="submit" disabled={saveMutation.isPending}>
+                {editingId ? 'Atualizar' : 'Salvar'}
+              </EzButton>
+              <EzButton type="button" variant="secondary" onClick={() => setIsFormOpen(false)}>
+                Cancelar
+              </EzButton>
+            </div>
+          </EzCardItem>
         </form>
       )}
 
       <div className="space-y-4">
         {(articles ?? []).map((art) => (
-          <div key={art.id} className="p-4 border rounded shadow-sm bg-white">
+          <EzCardItem key={art.id} flat className="p-4">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-bold text-gray-900">{art.title}</h2>
-                {!art.isPublic && (
-                  <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
-                    Interno
-                  </span>
-                )}
+                <h2 className="text-[16px] font-semibold text-gray-900">{art.title}</h2>
+                {!art.isPublic && <EzTag label="Interno" variant="yellow" />}
               </div>
               {canAuthor && (
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => openEditForm(art)}
-                    className="text-sm text-blue-600 py-1 hover:underline cursor-pointer"
-                  >
+                  <EzButton variant="tertiary" size="small" onClick={() => openEditForm(art)}>
                     Editar
-                  </button>
+                  </EzButton>
                   {canDelete && (
-                    <button
+                    <EzButton
+                      variant="tertiary"
+                      size="small"
+                      className="text-red-600 hover:text-red-700"
                       onClick={() => {
                         if (window.confirm('Excluir este artigo?')) deleteMutation.mutate(art.id);
                       }}
-                      className="text-sm text-red-600 py-1 hover:underline cursor-pointer"
                     >
                       Excluir
-                    </button>
+                    </EzButton>
                   )}
                 </div>
               )}
             </div>
             <p className="whitespace-pre-wrap text-gray-700 mb-3">{art.content}</p>
-            
-            {(art.tags && art.tags.length > 0) && (
+
+            {art.tags && art.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {art.tags.map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setTag(t)}
-                    title={`Filtrar por ${t}`}
-                    className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-700 cursor-pointer transition-colors"
-                  >
-                    #{t}
+                  <button key={t} onClick={() => setTag(t)} title={`Filtrar por ${t}`}>
+                    <EzTag label={`#${t}`} variant="gray" />
                   </button>
                 ))}
               </div>
             )}
-          </div>
+          </EzCardItem>
         ))}
-        {!(articles?.length) && (
-          <p className="text-gray-500 py-4">Nenhum artigo encontrado para a busca atual.</p>
+        {!articles?.length && (
+          <EzEmptyCard title="Nenhum artigo encontrado para a busca atual." />
         )}
       </div>
     </div>
   );
 }
+
+export default KnowledgePage;

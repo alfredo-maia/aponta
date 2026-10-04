@@ -6,6 +6,7 @@ import { api } from '../lib/api';
 import type { Ticket, TicketPriority } from '../hooks/useTickets';
 import type { TicketFormValues } from '../components/tickets/TicketForm';
 import { TicketForm } from '../components/tickets/TicketForm';
+import { EzCardItem, EzAlert } from '../components/ds';
 
 export interface CatalogItem {
   id: string;
@@ -99,22 +100,32 @@ export function CreateTicketPage() {
     return (
       <div className="space-y-6 max-w-4xl pt-4">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold">Catálogo de Serviços</h1>
-          <p className="text-muted-foreground text-sm">Selecione o tipo de solicitação abaixo para direcionamentos automáticos.</p>
+          <h1 className="text-[20px] font-semibold text-gray-900">Catálogo de Serviços</h1>
+          <p className="text-gray-500 text-sm">
+            Selecione o tipo de solicitação abaixo para direcionamentos automáticos.
+          </p>
         </div>
 
-        {catalog.map(category => (
+        {catalog.map((category) => (
           <div key={category.id} className="space-y-3">
-            <h2 className="text-lg font-semibold border-b pb-1">{category.name}</h2>
+            <h2 className="text-[16px] font-semibold text-gray-900 border-b border-gray-200 pb-1">
+              {category.name}
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {category.items.map(item => (
+              {category.items.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setSelectedCatalogItem(item)}
-                  className="flex flex-col items-start text-left p-4 rounded-lg border bg-card hover:border-primary hover:ring-1 hover:ring-primary/20 transition-all focus:outline-none"
+                  className="text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-200 rounded-[16px]"
                 >
-                  <span className="font-medium text-primary mb-1">{item.icon || '📄'} {item.title}</span>
-                  {item.description && <span className="text-xs text-muted-foreground line-clamp-3">{item.description}</span>}
+                  <EzCardItem className="items-start p-4 hover:border-brand-200 cursor-pointer h-full">
+                    <span className="font-medium text-brand-600 mb-1">
+                      {item.icon || '📄'} {item.title}
+                    </span>
+                    {item.description && (
+                      <span className="text-xs text-gray-500 line-clamp-3">{item.description}</span>
+                    )}
+                  </EzCardItem>
                 </button>
               ))}
             </div>
@@ -122,12 +133,21 @@ export function CreateTicketPage() {
         ))}
 
         <div className="pt-6">
-           <button onClick={() => setSelectedCatalogItem({
-              id: 'custom', title: 'Outra Solicitação', description: '', icon: null,
-              defaultServiceDeskId: '', defaultPriority: 'MEDIUM'
-           } as any)} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors underline">
-              Meu problema não está catalogado (abrir chamado em branco)
-           </button>
+          <button
+            onClick={() =>
+              setSelectedCatalogItem({
+                id: 'custom',
+                title: 'Outra Solicitação',
+                description: '',
+                icon: null,
+                defaultServiceDeskId: '',
+                defaultPriority: 'MEDIUM',
+              })
+            }
+            className="text-sm font-medium text-gray-500 hover:text-brand-600 transition-colors underline"
+          >
+            Meu problema não está catalogado (abrir chamado em branco)
+          </button>
         </div>
       </div>
     );
@@ -137,17 +157,22 @@ export function CreateTicketPage() {
     <div className="space-y-4 pt-4 max-w-lg">
       <div className="flex items-center gap-3">
         {catalog.length > 0 && (
-           <button onClick={() => setSelectedCatalogItem(null)} className="p-1 rounded-full hover:bg-muted" aria-label="Voltar para o catálogo">
-              <ArrowLeft className="h-5 w-5 text-muted-foreground" />
-           </button>
+          <button
+            onClick={() => setSelectedCatalogItem(null)}
+            className="p-1.5 -ml-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-80 rounded-md transition-colors"
+            aria-label="Voltar para o catálogo"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
         )}
-        <h1 className="text-2xl font-bold">Abrir Chamado</h1>
+        <h1 className="text-[20px] font-semibold text-gray-900">Abrir Chamado</h1>
       </div>
 
       {selectedCatalogItem && selectedCatalogItem.id !== 'custom' && (
-         <div className="bg-primary/5 border border-primary/20 p-3 rounded text-sm text-primary mb-4 flex items-center gap-2">
-            <span className="font-bold">Serviço Selecionado:</span> {selectedCatalogItem.icon} {selectedCatalogItem.title}
-         </div>
+        <EzAlert variant="info" className="mb-4">
+          <span className="font-bold">Serviço Selecionado:</span> {selectedCatalogItem.icon}{' '}
+          {selectedCatalogItem.title}
+        </EzAlert>
       )}
 
       <TicketForm

@@ -86,7 +86,7 @@ describe('ReportsPage', () => {
       expect(screen.getByText('Alice')).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole('button', { name: /faturamento base/i }));
+    await user.click(screen.getByRole('tab', { name: /faturamento base/i }));
 
     await waitFor(() => {
       expect(screen.getByText('Empresa A')).toBeInTheDocument();
@@ -99,7 +99,7 @@ describe('ReportsPage', () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /faturamento base/i })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: /faturamento base/i })).toBeInTheDocument();
     });
   });
 
@@ -111,7 +111,7 @@ describe('ReportsPage', () => {
       expect(screen.getByText('Alice')).toBeInTheDocument();
     });
 
-    expect(screen.queryByRole('button', { name: /faturamento base/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: /faturamento base/i })).not.toBeInTheDocument();
     // AGENT must never trigger the billing request at all
     expect(api.get).not.toHaveBeenCalledWith('/reports/billing');
   });

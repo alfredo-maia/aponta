@@ -1,4 +1,5 @@
 import { Ticket } from '../../hooks/useTickets';
+import { EzProgressBar } from '../ds';
 
 export function SlaProgress({ ticket }: { ticket: Ticket }) {
   if (!ticket.resolveDeadline) return null;
@@ -26,9 +27,11 @@ export function SlaProgress({ ticket }: { ticket: Ticket }) {
   let progress = (activeElapsed / (deadline - createdAt)) * 100;
   progress = Math.max(0, Math.min(progress, 100)); // Clamp between 0 and 100
 
-  // Colors based on status
-  let barColor = 'bg-primary';
-  if (ticket.status === 'RESOLVED' || ticket.status === 'CLOSED') barColor = 'bg-zinc-400';
+  // Colors based on status (gray-400 is within the DS gray palette;
+  // brand-600 matches EzButton's primary brand color; the status reds/
+  // yellows/greens are semantic, not DS tokens, so they stay as-is).
+  let barColor = 'bg-brand-600';
+  if (ticket.status === 'RESOLVED' || ticket.status === 'CLOSED') barColor = 'bg-gray-400';
   else if (ticket.resolveSlaStatus === 'BREACHED') barColor = 'bg-red-500';
   else if (ticket.resolveSlaStatus === 'AT_RISK') barColor = 'bg-yellow-500';
   else barColor = 'bg-green-500';
@@ -45,18 +48,13 @@ export function SlaProgress({ ticket }: { ticket: Ticket }) {
 
   return (
     <div className="w-full space-y-1 mt-2 mb-4">
-      <div className="flex justify-between text-xs text-muted-foreground font-medium">
+      <div className="flex justify-between text-xs text-gray-500 font-medium">
         <span>Progresso do SLA (Resolução)</span>
         <span className={isBreached ? 'text-red-600 font-bold' : ''}>
           {isPaused ? `(PAUSADO) ${labelText}` : labelText}
         </span>
       </div>
-      <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-        <div 
-          className={`h-full ${barColor} transition-all duration-500`}
-          style={{ width: `${progress}%` }}
-        ></div>
-      </div>
+      <EzProgressBar value={progress} colorClass={barColor} />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
 import { ServiceDeskEditor } from '../components/ServiceDeskEditor';
 import { BusinessHoursEditor } from '../components/BusinessHoursEditor';
+import { EzAlert, EzButton, EzCardItem, EzEmptyCard, EzSpinner, EzTextInput } from '../components/ds';
 
 interface ServiceDesk {
   id: string;
@@ -77,8 +78,8 @@ export function ServiceDesksPage() {
   if (!isAdmin) {
     return (
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold">Departamentos</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="text-[20px] font-semibold text-gray-900">Departamentos</h1>
+        <p className="text-sm text-gray-500">
           Você não tem permissão para ver esta página. Somente
           administradores podem gerenciar departamentos.
         </p>
@@ -88,58 +89,51 @@ export function ServiceDesksPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Departamentos</h1>
+      <h1 className="text-[20px] font-semibold text-gray-900">Departamentos</h1>
 
       <form
         onSubmit={handleSubmit((values) => mutation.mutate(values))}
         noValidate
-        className="flex max-w-lg items-end gap-3 rounded-lg border p-4"
+        className="flex max-w-lg items-end gap-3"
       >
-        <div className="flex-1 space-y-1">
-          <label htmlFor="service-desk-name" className="block text-sm font-medium">
-            Nome
-          </label>
-          <input
-            id="service-desk-name"
-            type="text"
-            className="w-full rounded border px-3 py-2"
-            {...register('name')}
-          />
-          {errors.name && (
-            <p className="text-sm text-red-600">{errors.name.message}</p>
-          )}
-        </div>
-        <button
-          type="submit"
-          disabled={mutation.isPending}
-          className="rounded bg-primary px-4 py-2 text-primary-foreground disabled:opacity-50"
-        >
-          Criar
-        </button>
+        <EzCardItem flat className="flex-1 flex-row items-end gap-3 p-4">
+          <div className="flex-1">
+            <EzTextInput
+              id="service-desk-name"
+              label="Nome"
+              hasError={!!errors.name}
+              message={errors.name?.message}
+              {...register('name')}
+            />
+          </div>
+          <EzButton type="submit" disabled={mutation.isPending}>
+            Criar
+          </EzButton>
+        </EzCardItem>
       </form>
       {mutation.isError && (
-        <p role="alert" className="text-sm text-red-600">
-          Falha ao criar o departamento. Tente novamente.
-        </p>
+        <EzAlert variant="error">Falha ao criar o departamento. Tente novamente.</EzAlert>
       )}
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Carregando…</p>
+        <EzSpinner label="Carregando…" />
       ) : (
-        <ul className="max-w-2xl divide-y rounded-lg border">
-          {(serviceDesks ?? []).map((desk) => (
-            <li key={desk.id} className="px-4 py-3">
-              <div className="text-sm font-medium">{desk.name}</div>
-              <ServiceDeskEditor desk={desk} agents={agents ?? []} />
-              <BusinessHoursEditor serviceDeskId={desk.id} />
-            </li>
-          ))}
+        <EzCardItem flat className="max-w-2xl overflow-hidden">
+          <ul className="divide-y divide-gray-100">
+            {(serviceDesks ?? []).map((desk) => (
+              <li key={desk.id} className="px-4 py-3">
+                <div className="text-sm font-medium text-gray-900">{desk.name}</div>
+                <ServiceDeskEditor desk={desk} agents={agents ?? []} />
+                <BusinessHoursEditor serviceDeskId={desk.id} />
+              </li>
+            ))}
+          </ul>
           {serviceDesks?.length === 0 && (
-            <li className="px-4 py-3 text-sm text-muted-foreground">
-              Nenhum departamento cadastrado ainda.
-            </li>
+            <div className="p-4">
+              <EzEmptyCard title="Nenhum departamento cadastrado ainda." />
+            </div>
           )}
-        </ul>
+        </EzCardItem>
       )}
     </div>
   );
