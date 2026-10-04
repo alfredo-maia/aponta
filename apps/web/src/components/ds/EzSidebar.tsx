@@ -1,5 +1,6 @@
 import { HTMLAttributes, forwardRef } from 'react';
 import { cn } from './utils';
+import { EzBadge } from './EzBadge';
 
 export interface EzSidebarNavigatorProps extends HTMLAttributes<HTMLElement> {
   /** The navigation items will be passed as children (usually `EzSidebarButton`s) */
@@ -61,9 +62,9 @@ export const EzSidebarButton = forwardRef<HTMLButtonElement, EzSidebarButtonProp
         {icon && <span className={cn('flex shrink-0 items-center justify-center', collapsed ? 'w-6 h-6' : 'w-5 h-5')}>{icon}</span>}
         {!collapsed && <span className="truncate flex-1 text-left">{label}</span>}
         {!collapsed && disabled && (
-          <span className="shrink-0 rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-500">
+          <EzBadge size="small" colorClass="bg-gray-100 text-gray-500 shrink-0">
             Em breve
-          </span>
+          </EzBadge>
         )}
       </button>
     );

@@ -139,4 +139,37 @@ describe('Sidebar', () => {
     expect(mockNavigate).not.toHaveBeenCalledWith('/chats');
     expect(mockNavigate).not.toHaveBeenCalledWith('/schedule');
   });
+
+  it('navigates to /tickets/new when "Novo Ticket" is clicked', async () => {
+    const user = userEvent.setup();
+    loginAs('ADMIN');
+    renderSidebar();
+
+    await user.click(screen.getByRole('button', { name: /novo ticket/i }));
+    expect(mockNavigate).toHaveBeenCalledWith('/tickets/new');
+  });
+
+  it('navigates to an enabled item route when clicked', async () => {
+    const user = userEvent.setup();
+    loginAs('ADMIN');
+    renderSidebar();
+
+    await user.click(screen.getByRole('button', { name: 'Relatórios' }));
+    expect(mockNavigate).toHaveBeenCalledWith('/reports');
+  });
+
+  it('toggles collapsed state when "Esconder"/"Expandir" is clicked', async () => {
+    const user = userEvent.setup();
+    loginAs('ADMIN');
+    renderSidebar();
+
+    expect(screen.getByText('Esconder')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /esconder/i }));
+
+    expect(screen.queryByText('Esconder')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /expandir/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /expandir/i }));
+    expect(screen.getByText('Esconder')).toBeInTheDocument();
+  });
 });
