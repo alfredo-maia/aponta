@@ -61,6 +61,17 @@ export default defineConfig(() => {
       coverage: {
         reportsDirectory: '../../coverage/apps/web',
         provider: 'v8' as const,
+        // Enforced via `--coverage` in CI (see .github/workflows/ci.yml).
+        // Thresholds are set a few points below the measured baseline
+        // (see `pnpm nx run web:test -- --coverage`) so genuine
+        // regressions fail the build without false-failing on normal
+        // day-to-day branch-coverage noise.
+        thresholds: {
+          statements: 90,
+          branches: 82,
+          functions: 90,
+          lines: 92,
+        },
       },
     },
   };

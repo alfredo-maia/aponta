@@ -47,8 +47,8 @@ jobs:
       - name: Typecheck
         run: pnpm exec nx run-many -t typecheck --projects=api,web,web-e2e
 
-      - name: Unit tests
-        run: pnpm exec nx run-many -t test --projects=api,web
+      - name: Unit tests (with coverage thresholds)
+        run: pnpm exec nx run-many -t test --projects=api,web -- --coverage
 
       - name: Build
         run: pnpm exec nx run-many -t build --projects=api,web
