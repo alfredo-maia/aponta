@@ -6,7 +6,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { CurrentUser, CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { WorkloadReportItemDto, BillingReportItemDto } from './dto/report.dto';
+import { WorkloadReportItemDto, BillingReportItemDto, DashboardSummaryDto } from './dto/report.dto';
 
 @ApiTags('Reports')
 @ApiBearerAuth()
@@ -14,6 +14,14 @@ import { WorkloadReportItemDto, BillingReportItemDto } from './dto/report.dto';
 @UseGuards(JwtOrTokenAuthGuard, RolesGuard)
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
+
+  @Get('summary')
+  @Roles(Role.ADMIN, Role.AGENT_MASTER, Role.AGENT, Role.CLIENT_MASTER, Role.CLIENT)
+  @ApiOperation({ summary: 'Resumo de métricas para o Dashboard (contagens, SLA, tempo médio)' })
+  @ApiResponse({ status: 200, type: DashboardSummaryDto })
+  getSummary(@CurrentUser() user: CurrentUserPayload) {
+    return this.reportsService.getSummary(user);
+  }
 
   @Get('workload')
   @Roles(Role.ADMIN, Role.AGENT_MASTER, Role.AGENT, Role.CLIENT_MASTER)

@@ -14,6 +14,24 @@ export interface BillingItem {
   nonBillableMinutes: number;
 }
 
+export interface DashboardSummary {
+  openCount: number;
+  closedCount: number;
+  slaBreachedCount: number;
+  avgResolutionMinutes: number | null;
+  byStatus: Record<string, number>;
+}
+
+export function useDashboardSummary() {
+  return useQuery({
+    queryKey: ['reports', 'summary'],
+    queryFn: async () => {
+      const { data } = await api.get<DashboardSummary>('/reports/summary');
+      return data;
+    },
+  });
+}
+
 export function useReportWorkload(agentId?: string) {
   return useQuery({
     queryKey: ['reports', 'workload', agentId].filter(Boolean),

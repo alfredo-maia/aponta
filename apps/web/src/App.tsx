@@ -4,6 +4,7 @@ import { AppLayout } from './components/layout/AppLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { CreateTicketPage } from './pages/CreateTicketPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { TicketsPage } from './pages/TicketsPage';
 import { LoginPage } from './pages/LoginPage';
 import { MyAccountPage } from './pages/MyAccountPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -37,7 +38,7 @@ export function App() {
           <Route path="/avaliar/:token" element={<PublicCsatPage />} />
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
-              <Route path="/" element={<DashboardPage />} />
+              <Route path="/" element={<TicketsPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/tickets/new" element={<CreateTicketPage />} />
               <Route path="/tickets/:id" element={<TicketDetailPage />} />

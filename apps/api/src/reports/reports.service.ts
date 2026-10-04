@@ -2,8 +2,11 @@ import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 import { TenantHelper } from '../core/security/tenant.helper';
-import { Role } from '@prisma/client';
-import { WorkloadReportItemDto, BillingReportItemDto } from './dto/report.dto';
+import { Role, TicketStatus } from '@prisma/client';
+import { WorkloadReportItemDto, BillingReportItemDto, DashboardSummaryDto } from './dto/report.dto';
+import { getSlaStatus } from '../scheduling/sla-status';
+
+const CLOSED_STATUSES: TicketStatus[] = [TicketStatus.RESOLVED, TicketStatus.CLOSED];
 
 @Injectable()
 export class ReportsService {
@@ -76,5 +79,76 @@ export class ReportsService {
       billableMinutes: data.billable,
       nonBillableMinutes: data.nonBillable,
     })).sort((a, b) => b.billableMinutes - a.billableMinutes);
+  }
+
+  async getSummary(user: CurrentUserPayload): Promise<DashboardSummaryDto> {
+    const baseWhere = TenantHelper.getTicketWhere(user);
+    if (baseWhere.id === '00000000-0000-0000-0000-000000000000') {
+      throw new ForbiddenException('Acesso negado ao dashboard');
+    }
+
+    const tickets = await this.prisma.ticket.findMany({
+      where: baseWhere,
+      select: {
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        responseDeadline: true,
+        resolveDeadline: true,
+        slaAccumulatedPauseTime: true,
+        slaPausedAt: true,
+      },
+    });
+
+    const now = new Date();
+    const byStatus: Record<string, number> = {};
+    let openCount = 0;
+    let closedCount = 0;
+    let slaBreachedCount = 0;
+    let resolutionMinutesSum = 0;
+    let resolutionCount = 0;
+
+    for (const ticket of tickets) {
+      const isClosed = CLOSED_STATUSES.includes(ticket.status);
+
+      if (isClosed) {
+        closedCount += 1;
+        resolutionMinutesSum +=
+          (ticket.updatedAt.getTime() - ticket.createdAt.getTime()) / 60000;
+        resolutionCount += 1;
+      } else {
+        openCount += 1;
+        byStatus[ticket.status] = (byStatus[ticket.status] ?? 0) + 1;
+
+        const responseStatus = getSlaStatus(
+          ticket.createdAt,
+          ticket.responseDeadline,
+          now,
+          ticket.slaAccumulatedPauseTime,
+          ticket.slaPausedAt,
+        );
+        const resolveStatus = getSlaStatus(
+          ticket.createdAt,
+          ticket.resolveDeadline,
+          now,
+          ticket.slaAccumulatedPauseTime,
+          ticket.slaPausedAt,
+        );
+        if (responseStatus === 'BREACHED' || resolveStatus === 'BREACHED') {
+          slaBreachedCount += 1;
+        }
+      }
+    }
+
+    return {
+      openCount,
+      closedCount,
+      slaBreachedCount,
+      avgResolutionMinutes:
+        resolutionCount > 0
+          ? Math.round(resolutionMinutesSum / resolutionCount)
+          : null,
+      byStatus,
+    };
   }
 }

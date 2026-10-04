@@ -11,6 +11,9 @@ describe('ReportsService', () => {
       worklog: {
         findMany: jest.fn().mockResolvedValue([]),
       },
+      ticket: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
     };
     service = new ReportsService(mockPrisma as any);
   });
@@ -134,6 +137,91 @@ describe('ReportsService', () => {
         { agentId: 'a2', agentName: 'Bob', totalMinutes: 100 },
         { agentId: 'a1', agentName: 'Alice', totalMinutes: 45 },
       ]);
+    });
+  });
+
+  describe('getSummary', () => {
+    it('blocks roles the TenantHelper fails closed for', async () => {
+      await expect(
+        service.getSummary({ id: 'x', role: 'UNKNOWN' as Role }),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('counts open vs closed tickets and groups open ones by status', async () => {
+      const now = new Date();
+      mockPrisma.ticket.findMany.mockResolvedValue([
+        {
+          status: 'OPEN',
+          createdAt: now,
+          updatedAt: now,
+          responseDeadline: null,
+          resolveDeadline: null,
+          slaAccumulatedPauseTime: 0,
+          slaPausedAt: null,
+        },
+        {
+          status: 'IN_PROGRESS',
+          createdAt: now,
+          updatedAt: now,
+          responseDeadline: null,
+          resolveDeadline: null,
+          slaAccumulatedPauseTime: 0,
+          slaPausedAt: null,
+        },
+        {
+          status: 'RESOLVED',
+          createdAt: new Date(now.getTime() - 120 * 60000),
+          updatedAt: now,
+          responseDeadline: null,
+          resolveDeadline: null,
+          slaAccumulatedPauseTime: 0,
+          slaPausedAt: null,
+        },
+      ]);
+
+      const res = await service.getSummary({ id: 'admin', role: Role.ADMIN });
+
+      expect(res.openCount).toBe(2);
+      expect(res.closedCount).toBe(1);
+      expect(res.byStatus).toEqual({ OPEN: 1, IN_PROGRESS: 1 });
+      expect(res.avgResolutionMinutes).toBe(120);
+    });
+
+    it('flags an open ticket as SLA-breached once its deadline has passed', async () => {
+      const now = new Date();
+      mockPrisma.ticket.findMany.mockResolvedValue([
+        {
+          status: 'OPEN',
+          createdAt: new Date(now.getTime() - 60 * 60000),
+          updatedAt: now,
+          responseDeadline: new Date(now.getTime() - 1000),
+          resolveDeadline: null,
+          slaAccumulatedPauseTime: 0,
+          slaPausedAt: null,
+        },
+      ]);
+
+      const res = await service.getSummary({ id: 'admin', role: Role.ADMIN });
+
+      expect(res.slaBreachedCount).toBe(1);
+    });
+
+    it('returns avgResolutionMinutes null when nothing is closed yet', async () => {
+      mockPrisma.ticket.findMany.mockResolvedValue([
+        {
+          status: 'OPEN',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          responseDeadline: null,
+          resolveDeadline: null,
+          slaAccumulatedPauseTime: 0,
+          slaPausedAt: null,
+        },
+      ]);
+
+      const res = await service.getSummary({ id: 'admin', role: Role.ADMIN });
+
+      expect(res.avgResolutionMinutes).toBeNull();
     });
   });
 });
