@@ -16,6 +16,7 @@ import { PublicCsatPage } from './pages/PublicCsatPage';
 import { VaultPage } from './pages/VaultPage';
 import { ContractsPage } from './pages/ContractsPage';
 import { DocsPage } from './pages/DocsPage';
+import { SettingsPage } from './pages/SettingsPage';
 
 /**
  * App-wide Tanstack Query client. The provider lives here (rather than in
@@ -48,6 +49,7 @@ export function App() {
               <Route path="/contracts" element={<ContractsPage />} />
               <Route path="/my-account" element={<MyAccountPage />} />
               <Route path="/docs" element={<DocsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
             </Route>
           </Route>
         </Routes>
