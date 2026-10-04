@@ -55,5 +55,24 @@ describe('EzSidebar', () => {
       // {!collapsed && <span>{label}</span>}
       expect(screen.queryByText('Profile')).not.toBeInTheDocument();
     });
+
+    it('renders a disabled item with an "Em breve" badge and blocks the click', async () => {
+      const onClick = vi.fn();
+      render(<EzSidebarButton label="Agenda" disabled onClick={onClick} />);
+
+      const button = screen.getByRole('button', { name: /agenda/i });
+      expect(button).toBeDisabled();
+      expect(screen.getByText('Em breve')).toBeInTheDocument();
+
+      await userEvent.click(button);
+      expect(onClick).not.toHaveBeenCalled();
+    });
+
+    it('shows "(Em breve)" in the title when disabled and collapsed, instead of the badge', () => {
+      render(<EzSidebarButton label="Agenda" disabled collapsed />);
+      const button = screen.getByRole('button');
+      expect(button).toHaveAttribute('title', 'Agenda (Em breve)');
+      expect(screen.queryByText('Em breve')).not.toBeInTheDocument();
+    });
   });
 });

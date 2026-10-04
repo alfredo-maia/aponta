@@ -24,16 +24,18 @@ import {
 } from 'lucide-react';
 
 // Master order fixed by Issue #48. RBAC only ever hides items — it never
-// changes this relative order.
+// changes this relative order. Items not yet implemented (Chats #45, Agenda
+// #46) are kept in their fixed position but rendered disabled with an "Em
+// breve" badge, so the final order is already correct once they ship.
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard /> },
   { to: '/', label: 'Tickets', icon: <Ticket /> },
-  { to: '/chats', label: 'Chats', icon: <MessageSquare /> },
+  { to: '/chats', label: 'Chats', icon: <MessageSquare />, disabled: true },
   { to: '/organizations', label: 'Clientes', icon: <Users /> },
   { to: '/service-desks', label: 'Recursos', icon: <Box /> },
   { to: '/contracts', label: 'Contratos', icon: <FileSignature /> },
   { to: '/reports', label: 'Relatórios', icon: <BarChart3 /> },
-  { to: '/schedule', label: 'Agenda', icon: <CalendarDays /> },
+  { to: '/schedule', label: 'Agenda', icon: <CalendarDays />, disabled: true },
   { to: '/knowledge', label: 'Conhecimentos', icon: <BookOpen /> },
   { to: '/vault', label: 'Cofre de Senhas', icon: <Key /> },
   { to: '/settings', label: 'Configurações', icon: <Settings /> },
@@ -108,6 +110,7 @@ export function Sidebar() {
             icon={item.icon}
             collapsed={collapsed}
             active={isActive}
+            disabled={item.disabled}
             onClick={() => navigate(item.to)}
           />
         );

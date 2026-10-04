@@ -1,8 +1,15 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAuthStore } from '../../stores/authStore';
 import { Sidebar } from './Sidebar';
+
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+  return { ...actual, useNavigate: () => mockNavigate };
+});
 
 function renderSidebar(initialPath = '/') {
   return render(
@@ -112,5 +119,24 @@ describe('Sidebar', () => {
 
     const reportsButton = screen.getByText('Relatórios').closest('button');
     expect(reportsButton?.className).toContain('bg-brand-100');
+  });
+
+  it('renders Chats and Agenda as disabled "Em breve" items that do not navigate (Issue #45/#46 not shipped yet)', async () => {
+    const user = userEvent.setup();
+    loginAs('ADMIN');
+    renderSidebar();
+
+    const chatsButton = screen.getByRole('button', { name: /chats/i });
+    const agendaButton = screen.getByRole('button', { name: /agenda/i });
+    expect(chatsButton).toBeDisabled();
+    expect(agendaButton).toBeDisabled();
+
+    const emBreveBadges = screen.getAllByText('Em breve');
+    expect(emBreveBadges).toHaveLength(2);
+
+    await user.click(chatsButton);
+    await user.click(agendaButton);
+    expect(mockNavigate).not.toHaveBeenCalledWith('/chats');
+    expect(mockNavigate).not.toHaveBeenCalledWith('/schedule');
   });
 });
