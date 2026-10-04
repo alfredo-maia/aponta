@@ -39,13 +39,51 @@ export function CreateTicketPage() {
 
   const mutation = useMutation({
     mutationFn: async (values: TicketFormValues & { catalogItemId?: string }) => {
-      const payload = { ...values };
+      // IMPORTANT: apps/api's ValidationPipe uses forbidNonWhitelisted: true,
+      // and CreateTicketDto only accepts catalogItemId/title/description/
+      // serviceDeskId/priority. organizationId, requesterId, followersIds,
+      // parentId, scheduledDate and attachments are DS-form-only fields with
+      // no backend support yet (see Issue #49's own gap list — no
+      // ServiceDesk<->Organization link, no TicketFollower table, no
+      // scheduledFor column). Sending them verbatim makes every ticket
+      // creation fail with a 400. Only forward what the API can accept;
+      // parentId/attachments are wired through their own existing endpoints
+      // (PATCH /tickets/:id/parent, POST /tickets/:id/attachments) right
+      // after creation instead.
+      const payload: {
+        catalogItemId?: string;
+        title: string;
+        description: string;
+        serviceDeskId: string;
+        priority?: TicketPriority;
+      } = {
+        title: values.title,
+        description: values.description,
+        serviceDeskId: values.serviceDeskId,
+        priority: values.priority,
+      };
       if (selectedCatalogItem) {
         payload.catalogItemId = selectedCatalogItem.id;
         payload.serviceDeskId = selectedCatalogItem.defaultServiceDeskId;
         payload.priority = selectedCatalogItem.defaultPriority;
       }
       const { data } = await api.post<Ticket>('/tickets', payload);
+
+      if (values.parentId) {
+        await api.patch(`/tickets/${data.id}/parent`, { parentTicketId: values.parentId });
+      }
+      if (values.attachments && values.attachments.length > 0) {
+        await Promise.all(
+          values.attachments.map((file) => {
+            const form = new FormData();
+            form.append('file', file);
+            return api.post(`/tickets/${data.id}/attachments`, form, {
+              headers: { 'Content-Type': 'multipart/form-data' },
+            });
+          }),
+        );
+      }
+
       return data;
     },
     onSuccess: (data) => {

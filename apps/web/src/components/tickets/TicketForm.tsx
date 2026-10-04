@@ -32,9 +32,15 @@ const priorities = Object.keys(priorityLabels) as TicketPriority[];
 export const ticketFormSchema = z.object({
   title: z.string().trim().min(1, 'Título é obrigatório'),
   description: z.string().trim().min(1, 'Descrição é obrigatória'),
-  organizationId: z.string().min(1, 'Cliente é obrigatório'),
+  // NOTE: Issue #49 documents that Cliente/Solicitante are still backend
+  // gaps — there's no ServiceDesk<->Organization link and no seeded
+  // Organization data yet. Keeping these required here would make it
+  // IMPOSSIBLE to create any ticket at all (the DTO doesn't even accept
+  // these fields — see CreateTicketPage's mutationFn). They stay as
+  // optional UI affordances until that backend work lands.
+  organizationId: z.string().optional(),
   serviceDeskId: z.string().min(1, 'Mesa de Serviço é obrigatória'),
-  requesterId: z.string().min(1, 'Solicitante é obrigatório'),
+  requesterId: z.string().optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
   parentId: z.string().optional(),
   followersIds: z.array(z.string()).optional(),
@@ -88,14 +94,16 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
     }
   });
 
+  const isClientBase = currentUser?.role === 'CLIENT' || currentUser?.role === 'CLIENT_MASTER';
+
   const { register, handleSubmit, control, watch, formState: { errors } } = useForm<TicketFormValues>({
     resolver: zodResolver(ticketFormSchema),
     defaultValues: {
       title: catalogOverride?.title || '',
       description: '',
-      organizationId: '', // Requires fetch or lookup for actual org
+      organizationId: isClientBase ? currentUser?.organizationId || '' : '',
       serviceDeskId: catalogOverride?.defaultServiceDeskId || '',
-      requesterId: currentUser?.sub || '',
+      requesterId: currentUser?.role === 'CLIENT' ? currentUser?.sub || '' : '',
       priority: catalogOverride?.defaultPriority || 'MEDIUM',
       followersIds: [],
     },
@@ -106,10 +114,8 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
 
   const availableDesks = serviceDesks; 
 
-  const isClientBase = currentUser?.role === 'CLIENT';
-
   const availableRequesters = users.filter(u => {
-    if (isClientBase) return u.id === currentUser?.sub;
+    if (currentUser?.role === 'CLIENT') return u.id === currentUser?.sub;
     if (watchOrgId) return u.organizationId === watchOrgId || u.id === currentUser?.sub;
     return true;
   });
@@ -131,6 +137,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
           control={control}
           render={({ field }) => (
             <EzSearch
+              id="ticket-organization"
               label="Cliente"
               placeholder="Buscar cliente..."
               options={orgOptions}
@@ -138,7 +145,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
               onChange={field.onChange}
               hasError={!!errors.organizationId}
               message={errors.organizationId?.message}
-              required
+              disabled={currentUser?.role === 'CLIENT'}
             />
           )}
         />
@@ -148,6 +155,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
           control={control}
           render={({ field }) => (
             <EzComboBox
+              id="ticket-service-desk"
               label="Mesa de Serviço"
               value={field.value}
               onChange={field.onChange}
@@ -167,6 +175,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
           control={control}
           render={({ field }) => (
             <EzSearch
+              id="ticket-requester"
               label="Solicitante"
               placeholder="Buscar usuário..."
               options={requesterOptions}
@@ -174,8 +183,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
               onChange={field.onChange}
               hasError={!!errors.requesterId}
               message={errors.requesterId?.message}
-              disabled={isClientBase}
-              required
+              disabled={currentUser?.role === 'CLIENT'}
             />
           )}
         />
@@ -185,6 +193,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
           control={control}
           render={({ field }) => (
             <EzComboBox
+              id="ticket-priority"
               label="Prioridade"
               value={field.value}
               onChange={field.onChange}
@@ -215,6 +224,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
           control={control}
           render={({ field }) => (
             <EzRichText
+              testId="ticket-description"
               label="Descrição Detalhada"
               value={field.value}
               onChange={field.onChange}

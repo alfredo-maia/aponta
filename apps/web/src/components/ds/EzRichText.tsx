@@ -46,6 +46,12 @@ export interface EzRichTextProps {
    * CSS class.
    */
   className?: string;
+  /**
+   * Forwarded to the contenteditable editor surface as `data-testid`,
+   * so E2E/integration tests can target it directly (Tiptap renders a
+   * plain contenteditable div, not a native <textarea>/<input>).
+   */
+  testId?: string;
 }
 
 /**
@@ -53,7 +59,7 @@ export interface EzRichTextProps {
  * Features: Bold, Italic, Underline, Bullet List, Numbered List, Link, Image, and Preview Mode.
  */
 export const EzRichText = forwardRef<HTMLDivElement, EzRichTextProps>(
-  ({ label, message, hasError = false, value = '', onChange, disabled = false, className }, ref) => {
+  ({ label, message, hasError = false, value = '', onChange, disabled = false, className, testId }, ref) => {
     const [isPreview, setIsPreview] = useState(false);
 
     const editor = useEditor({
@@ -226,6 +232,7 @@ export const EzRichText = forwardRef<HTMLDivElement, EzRichTextProps>(
 
           {/* Editor Area */}
           <div
+            data-testid={testId}
             className={cn(
               'w-full max-h-[400px] overflow-y-auto',
               isPreview ? 'bg-gray-80' : 'bg-white'

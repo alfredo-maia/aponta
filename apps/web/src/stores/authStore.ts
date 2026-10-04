@@ -7,6 +7,7 @@ export interface AuthUser {
   sub: string;
   email: string;
   role: Role;
+  organizationId?: string | null;
 }
 
 interface AuthState {
@@ -34,7 +35,7 @@ function decodeJwtPayload(token: string): AuthUser | null {
     if (!parsed.sub || !parsed.email || !parsed.role) {
       return null;
     }
-    return { sub: parsed.sub, email: parsed.email, role: parsed.role };
+    return { sub: parsed.sub, email: parsed.email, role: parsed.role, organizationId: parsed.organizationId ?? null };
   } catch {
     return null;
   }
