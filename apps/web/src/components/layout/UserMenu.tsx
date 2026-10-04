@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { LogOut, User } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
+import { EzAvatar, EzDropdown } from '../ds';
 
 /**
  * Avatar/email dropdown in the top-right corner, mirroring the Tiflux
@@ -11,61 +12,34 @@ import { useAuthStore } from '../../stores/authStore';
 export function UserMenu() {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  const navigate = useNavigate();
 
   if (!user) {
     return null;
   }
 
   return (
-    <div ref={containerRef} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className="flex items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted"
-      >
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-          {user.email.charAt(0).toUpperCase()}
+    <EzDropdown
+      align="right"
+      trigger={
+        <span className="flex items-center gap-2 rounded-[8px] px-2 py-1.5 text-[14px] font-medium text-gray-700 hover:bg-gray-80 hover:text-gray-900 transition-colors">
+          <EzAvatar name={user.email} size={28} />
+          {user.email}
         </span>
-        {user.email}
-      </button>
-
-      {open && (
-        <div className="absolute right-0 z-10 mt-1 w-48 rounded-md border bg-background shadow-md">
-          <Link
-            to="/my-account"
-            onClick={() => setOpen(false)}
-            className="block px-4 py-2 text-sm hover:bg-muted"
-          >
-            Minha Conta
-          </Link>
-          <button
-            type="button"
-            onClick={() => {
-              setOpen(false);
-              logout();
-            }}
-            className="block w-full px-4 py-2 text-left text-sm hover:bg-muted"
-          >
-            Sair
-          </button>
-        </div>
-      )}
-    </div>
+      }
+      options={[
+        {
+          label: 'Minha Conta',
+          icon: <User className="w-4 h-4" />,
+          onClick: () => navigate('/my-account'),
+        },
+        {
+          label: 'Sair',
+          icon: <LogOut className="w-4 h-4" />,
+          onClick: logout,
+        },
+      ]}
+    />
   );
 }
 
