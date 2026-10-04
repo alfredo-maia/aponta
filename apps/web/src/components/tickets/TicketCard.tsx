@@ -57,7 +57,7 @@ export function TicketCard({ ticket }: TicketCardProps) {
   return (
     <li className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
       <Link to={`/tickets/${ticket.id}`} className="block">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center justify-between gap-4">
           <div className="min-w-0 space-y-1">
             <span className="font-mono text-xs text-gray-500">
               {ticket.protocol}
