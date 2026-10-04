@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../lib/api';
+import { useAuthStore } from '../stores/authStore';
 import { DashboardPage } from './DashboardPage';
 
 vi.mock('../lib/api', () => ({
@@ -80,6 +81,7 @@ function renderDashboard() {
 describe('DashboardPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useAuthStore.setState({ token: null, user: null });
   });
 
   it('should render ticket list', async () => {
@@ -176,6 +178,182 @@ describe('DashboardPage', () => {
       expect(api.get).toHaveBeenCalledWith(expect.stringContaining('/tickets'), expect.objectContaining({
         params: expect.objectContaining({ serviceDeskId: 'sd-1', status: 'OPEN' }),
       }));
+    });
+  });
+
+  it('defaults non-CLIENT users to the Kanban view and lets them switch to List', async () => {
+    mockApiGet();
+    const user = userEvent.setup();
+    renderDashboard();
+
+    expect(await screen.findByRole('heading', { name: 'Aberto' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Kanban' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Lista' }));
+
+    // Switching to List view renders the ticket cards as a flat list
+    // instead of Kanban columns; the Kanban-only "Aberto" column heading
+    // disappears (the status badge text "Aberto" on cards is a <span>,
+    // not a heading, so this still disambiguates reliably).
+    await waitFor(() => {
+      expect(screen.queryByRole('heading', { name: 'Aberto' })).not.toBeInTheDocument();
+    });
+    expect(await screen.findByText('Printer not working')).toBeInTheDocument();
+  });
+
+  it('shows "Meus Chamados" title and hides the view toggle entirely for CLIENT users', async () => {
+    useAuthStore.setState({
+      token: 'tok',
+      user: { sub: 'u1', email: 'client@example.com', role: 'CLIENT', organizationId: null },
+    });
+    mockApiGet();
+    renderDashboard();
+
+    expect(await screen.findByRole('heading', { name: 'Meus Chamados' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Kanban' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Lista' })).not.toBeInTheDocument();
+    // CLIENT always gets the flat list, never the Kanban columns.
+    expect(screen.queryByRole('heading', { name: 'Aberto' })).not.toBeInTheDocument();
+    expect(await screen.findByText('Printer not working')).toBeInTheDocument();
+  });
+
+  it('resets back to page 1 when filters change while on a later page', async () => {
+    vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url === '/service-desks') {
+        return Promise.resolve({ data: serviceDesks });
+      }
+      if (url === '/tickets') {
+        return Promise.resolve({
+          data: { data: tickets, meta: { total: 25, page: 2, totalPages: 3 } },
+        });
+      }
+      return Promise.reject(new Error(`Unexpected GET ${url}`));
+    });
+    const user = userEvent.setup();
+    renderDashboard();
+
+    await user.click(screen.getByRole('button', { name: 'Lista' }));
+    await screen.findByText('Printer not working');
+
+    vi.mocked(api.get).mockClear();
+    mockApiGet();
+    await user.selectOptions(screen.getByLabelText(/status/i), 'OPEN');
+
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith(
+        expect.stringContaining('/tickets'),
+        expect.objectContaining({ params: expect.objectContaining({ page: 1 }) }),
+      );
+    });
+  });
+
+  it('renders pagination controls in List view and navigates between pages', async () => {
+    vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url === '/service-desks') {
+        return Promise.resolve({ data: serviceDesks });
+      }
+      if (url === '/tickets') {
+        return Promise.resolve({
+          data: { data: tickets, meta: { total: 25, page: 1, totalPages: 3 } },
+        });
+      }
+      return Promise.reject(new Error(`Unexpected GET ${url}`));
+    });
+    const user = userEvent.setup();
+    renderDashboard();
+
+    await user.click(screen.getByRole('button', { name: 'Lista' }));
+    await screen.findByText('Printer not working');
+
+    expect(screen.getByText(/página 1 de 3/i)).toBeInTheDocument();
+    expect(screen.getByText(/25 chamados/i)).toBeInTheDocument();
+
+    const nextButton = screen.getByRole('button', { name: 'Próxima' });
+    expect(screen.getByRole('button', { name: 'Anterior' })).toBeDisabled();
+    expect(nextButton).not.toBeDisabled();
+
+    vi.mocked(api.get).mockClear();
+    await user.click(nextButton);
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith(
+        expect.stringContaining('/tickets'),
+        expect.objectContaining({ params: expect.objectContaining({ page: 2 }) }),
+      );
+    });
+  });
+
+  it('disables the "Anterior" button on page 1 and "Próxima" on the last page', async () => {
+    vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url === '/service-desks') {
+        return Promise.resolve({ data: serviceDesks });
+      }
+      if (url === '/tickets') {
+        return Promise.resolve({
+          data: { data: tickets, meta: { total: 2, page: 1, totalPages: 2 } },
+        });
+      }
+      return Promise.reject(new Error(`Unexpected GET ${url}`));
+    });
+    const user = userEvent.setup();
+    renderDashboard();
+
+    await user.click(screen.getByRole('button', { name: 'Lista' }));
+    await screen.findByText('Printer not working');
+
+    expect(screen.getByRole('button', { name: 'Anterior' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Próxima' })).not.toBeDisabled();
+  });
+
+  it('does not render pagination controls when there is only a single page', async () => {
+    mockApiGet();
+    const user = userEvent.setup();
+    renderDashboard();
+
+    await user.click(screen.getByRole('button', { name: 'Lista' }));
+    await screen.findByText('Printer not working');
+
+    expect(screen.queryByRole('navigation', { name: /paginação/i })).not.toBeInTheDocument();
+  });
+
+  it('navigates to the previous page when "Anterior" is clicked', async () => {
+    vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url === '/service-desks') {
+        return Promise.resolve({ data: serviceDesks });
+      }
+      if (url === '/tickets') {
+        return Promise.resolve({
+          data: { data: tickets, meta: { total: 25, page: 1, totalPages: 3 } },
+        });
+      }
+      return Promise.reject(new Error(`Unexpected GET ${url}`));
+    });
+    const user = userEvent.setup();
+    renderDashboard();
+
+    await user.click(screen.getByRole('button', { name: 'Lista' }));
+    await screen.findByText('Printer not working');
+
+    // Go to page 2 first so "Anterior" becomes enabled (currentPage is
+    // driven by the filters state, not by the mocked meta.page).
+    vi.mocked(api.get).mockClear();
+    await user.click(screen.getByRole('button', { name: 'Próxima' }));
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith(
+        expect.stringContaining('/tickets'),
+        expect.objectContaining({ params: expect.objectContaining({ page: 2 }) }),
+      );
+    });
+
+    const prevButton = screen.getByRole('button', { name: 'Anterior' });
+    expect(prevButton).not.toBeDisabled();
+
+    vi.mocked(api.get).mockClear();
+    await user.click(prevButton);
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith(
+        expect.stringContaining('/tickets'),
+        expect.objectContaining({ params: expect.objectContaining({ page: 1 }) }),
+      );
     });
   });
 });
