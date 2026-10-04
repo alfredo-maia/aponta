@@ -23,36 +23,53 @@ import {
   PanelLeftOpen,
 } from 'lucide-react';
 
+// Master order fixed by Issue #48. RBAC only ever hides items — it never
+// changes this relative order.
+const NAV_ITEMS = [
+  { to: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard /> },
+  { to: '/', label: 'Tickets', icon: <Ticket /> },
+  { to: '/chats', label: 'Chats', icon: <MessageSquare /> },
+  { to: '/organizations', label: 'Clientes', icon: <Users /> },
+  { to: '/service-desks', label: 'Recursos', icon: <Box /> },
+  { to: '/contracts', label: 'Contratos', icon: <FileSignature /> },
+  { to: '/reports', label: 'Relatórios', icon: <BarChart3 /> },
+  { to: '/schedule', label: 'Agenda', icon: <CalendarDays /> },
+  { to: '/knowledge', label: 'Conhecimentos', icon: <BookOpen /> },
+  { to: '/vault', label: 'Cofre de Senhas', icon: <Key /> },
+  { to: '/settings', label: 'Configurações', icon: <Settings /> },
+];
+
+// Per-role visibility, expressed as the label allow-list. Order is never
+// touched here — it always comes from NAV_ITEMS above.
+const ROLE_VISIBILITY: Record<string, string[]> = {
+  ADMIN: NAV_ITEMS.map((i) => i.label),
+  AGENT_MASTER: [
+    'Dashboard', 'Tickets', 'Chats', 'Contratos', 'Relatórios',
+    'Agenda', 'Conhecimentos', 'Cofre de Senhas', 'Configurações',
+  ],
+  AGENT: [
+    'Dashboard', 'Tickets', 'Chats', 'Contratos', 'Relatórios',
+    'Agenda', 'Conhecimentos', 'Cofre de Senhas', 'Configurações',
+  ],
+  CLIENT_MASTER: [
+    'Tickets', 'Contratos', 'Relatórios', 'Conhecimentos', 'Configurações',
+  ],
+  CLIENT: ['Tickets', 'Conhecimentos', 'Configurações'],
+};
+
+const DEFAULT_VISIBILITY = ['Tickets', 'Conhecimentos', 'Configurações'];
+
 export function Sidebar() {
   const user = useAuthStore((state) => state.user);
   const location = useLocation();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
 
-  // Based on exact ordering from Issue #48
-  // TODO: Add RBAC logic filters per item based on user role (CLIENT vs AGENT)
-  const navItems = [
-    { to: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard /> },
-    { to: '/', label: 'Tickets', icon: <Ticket /> },
-    { to: '/chats', label: 'Chats', icon: <MessageSquare /> }, 
-    { to: '/organizations', label: 'Clientes', icon: <Users /> },
-    { to: '/service-desks', label: 'Recursos', icon: <Box /> }, 
-    { to: '/contracts', label: 'Contratos', icon: <FileSignature /> },
-    { to: '/reports', label: 'Relatórios', icon: <BarChart3 /> },
-    { to: '/schedule', label: 'Agenda', icon: <CalendarDays /> }, 
-    { to: '/knowledge', label: 'Conhecimentos', icon: <BookOpen /> },
-    { to: '/vault', label: 'Cofre de senhas', icon: <Key /> },
-    { to: '/settings', label: 'Configurações', icon: <Settings /> },
-  ];
+  const allowList = user?.role
+    ? ROLE_VISIBILITY[user.role] ?? DEFAULT_VISIBILITY
+    : DEFAULT_VISIBILITY;
 
-  // RBAC filters
-  const filteredItems = navItems.filter((item) => {
-    if (user?.role === 'CLIENT') {
-      return ['Tickets', 'Ajuda (FAQ)', 'Conhecimentos'].includes(item.label);
-    }
-    // Agents, Admins, etc filter adjustments would go here based on business needs
-    return true; 
-  });
+  const filteredItems = NAV_ITEMS.filter((item) => allowList.includes(item.label));
 
   return (
     <EzSidebarNavigator collapsed={collapsed}>
@@ -66,22 +83,22 @@ export function Sidebar() {
             <div className="w-full flex justify-center text-brand-600 font-bold text-lg">A</div>
           )}
         </div>
-        
+
         <EzButton
           size={collapsed ? 'small' : 'medium'}
           className="w-full"
           leftIcon={Plus}
           onClick={() => navigate('/tickets/new')}
-          label={collapsed ? undefined : 'Novo ticket'}
-          title="Novo ticket"
+          label={collapsed ? undefined : 'Novo Ticket'}
+          title="Novo Ticket"
         />
       </div>
 
       {/* Navigation Links */}
       {filteredItems.map((item) => {
         // Strict exact match for root '/' specifically so it doesn't stay highlighted forever
-        const isActive = item.to === '/' 
-          ? location.pathname === '/' 
+        const isActive = item.to === '/'
+          ? location.pathname === '/'
           : location.pathname.startsWith(item.to);
 
         return (
@@ -98,7 +115,7 @@ export function Sidebar() {
 
       <div className="flex-1" />
 
-      {/* Footer / Toggle */}
+      {/* Footer / Toggle — fixed, outside the scroll flow of the items above */}
       <div className="mt-auto pt-2 pb-1 border-t border-gray-100">
         <EzSidebarButton
           label={collapsed ? 'Expandir' : 'Esconder'}

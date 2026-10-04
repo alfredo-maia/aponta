@@ -24,77 +24,93 @@ describe('Sidebar', () => {
     useAuthStore.setState({ token: null, user: null });
   });
 
-  it('shows the CLIENT-specific menu (Meus Chamados / Abrir Chamado) without internal modules', () => {
+  it('shows the CLIENT-specific menu without internal/agent-only modules', () => {
     loginAs('CLIENT');
     renderSidebar();
 
-    expect(screen.getByText('Meus Chamados')).toBeInTheDocument();
-    expect(screen.getByText('Abrir Chamado')).toBeInTheDocument();
-    expect(screen.getByText('Ajuda (FAQ)')).toBeInTheDocument();
-    expect(screen.getByText('Documentação')).toBeInTheDocument();
+    expect(screen.getByText('Tickets')).toBeInTheDocument();
+    expect(screen.getByText('Conhecimentos')).toBeInTheDocument();
+    expect(screen.getByText('Configurações')).toBeInTheDocument();
     expect(screen.queryByText('Cofre de Senhas')).not.toBeInTheDocument();
-    expect(screen.queryByText(/contratos/i)).not.toBeInTheDocument();
-    expect(screen.queryByText('Empresas')).not.toBeInTheDocument();
+    expect(screen.queryByText('Contratos')).not.toBeInTheDocument();
+    expect(screen.queryByText('Clientes')).not.toBeInTheDocument();
+    expect(screen.queryByText('Recursos')).not.toBeInTheDocument();
   });
 
-  it('shows the full ADMIN menu including Empresas and Departamentos', () => {
+  it('shows the full ADMIN menu including Clientes and Recursos, in the fixed order', () => {
     loginAs('ADMIN');
     renderSidebar();
 
-    expect(screen.getByText('Caixa de Entrada')).toBeInTheDocument();
-    expect(screen.getByText('Novo Chamado')).toBeInTheDocument();
-    expect(screen.getByText('Cofre de Senhas')).toBeInTheDocument();
-    expect(screen.getByText('Contratos')).toBeInTheDocument();
-    expect(screen.getByText('Departamentos')).toBeInTheDocument();
-    expect(screen.getByText('Empresas')).toBeInTheDocument();
-    expect(screen.getByText('Relatórios')).toBeInTheDocument();
-    expect(screen.getByText('Documentação')).toBeInTheDocument();
+    const expectedOrder = [
+      'Dashboard', 'Tickets', 'Chats', 'Clientes', 'Recursos',
+      'Contratos', 'Relatórios', 'Agenda', 'Conhecimentos',
+      'Cofre de Senhas', 'Configurações',
+    ];
+    for (const label of expectedOrder) {
+      expect(screen.getByText(label)).toBeInTheDocument();
+    }
+
+    const renderedLabels = expectedOrder.filter((l) => screen.queryByText(l));
+    expect(renderedLabels).toEqual(expectedOrder);
   });
 
-  it('shows the AGENT_MASTER menu (vault/contracts/reports, no Empresas/Departamentos)', () => {
+  it('shows the AGENT_MASTER menu (vault/contracts/reports, no Clientes/Recursos)', () => {
     loginAs('AGENT_MASTER');
     renderSidebar();
 
     expect(screen.getByText('Cofre de Senhas')).toBeInTheDocument();
     expect(screen.getByText('Contratos')).toBeInTheDocument();
     expect(screen.getByText('Relatórios')).toBeInTheDocument();
-    expect(screen.queryByText('Empresas')).not.toBeInTheDocument();
-    expect(screen.queryByText('Departamentos')).not.toBeInTheDocument();
+    expect(screen.queryByText('Clientes')).not.toBeInTheDocument();
+    expect(screen.queryByText('Recursos')).not.toBeInTheDocument();
   });
 
-  it('shows the AGENT menu with "Carga de Trabalho" label instead of "Relatórios"', () => {
+  it('shows the AGENT menu with access to Relatórios/Carga', () => {
     loginAs('AGENT');
     renderSidebar();
 
     expect(screen.getByText('Cofre de Senhas')).toBeInTheDocument();
     expect(screen.getByText('Contratos')).toBeInTheDocument();
-    expect(screen.getByText('Carga de Trabalho')).toBeInTheDocument();
-    expect(screen.queryByText('Relatórios')).not.toBeInTheDocument();
+    expect(screen.getByText('Relatórios')).toBeInTheDocument();
   });
 
-  it('shows the CLIENT_MASTER menu with "Meus Contratos" label and no Cofre de Senhas', () => {
+  it('shows the CLIENT_MASTER menu with Contratos/Relatórios and no Cofre de Senhas', () => {
     loginAs('CLIENT_MASTER');
     renderSidebar();
 
-    expect(screen.getByText('Meus Contratos')).toBeInTheDocument();
+    expect(screen.getByText('Contratos')).toBeInTheDocument();
     expect(screen.getByText('Relatórios')).toBeInTheDocument();
     expect(screen.queryByText('Cofre de Senhas')).not.toBeInTheDocument();
   });
 
-  it('falls back to the base menu (+ Documentação) when there is no logged-in user', () => {
+  it('falls back to the base menu when there is no logged-in user', () => {
     renderSidebar();
 
-    expect(screen.getByText('Caixa de Entrada')).toBeInTheDocument();
-    expect(screen.getByText('Novo Chamado')).toBeInTheDocument();
-    expect(screen.getByText('Documentação')).toBeInTheDocument();
+    expect(screen.getByText('Tickets')).toBeInTheDocument();
+    expect(screen.getByText('Conhecimentos')).toBeInTheDocument();
     expect(screen.queryByText('Cofre de Senhas')).not.toBeInTheDocument();
   });
 
-  it('marks the current route link as active', () => {
+  it('always renders the "Novo Ticket" action button as a highlighted button, not a nav link', () => {
+    loginAs('ADMIN');
+    renderSidebar();
+
+    const button = screen.getByRole('button', { name: /novo ticket/i });
+    expect(button).toBeInTheDocument();
+  });
+
+  it('keeps the collapse/"Esconder" control pinned at the footer, outside the item list', () => {
+    loginAs('ADMIN');
+    renderSidebar();
+
+    expect(screen.getByText('Esconder')).toBeInTheDocument();
+  });
+
+  it('marks the current route item as active', () => {
     loginAs('ADMIN');
     renderSidebar('/reports');
 
-    const reportsLink = screen.getByText('Relatórios').closest('a');
-    expect(reportsLink?.className).toContain('bg-primary');
+    const reportsButton = screen.getByText('Relatórios').closest('button');
+    expect(reportsButton?.className).toContain('bg-brand-100');
   });
 });
