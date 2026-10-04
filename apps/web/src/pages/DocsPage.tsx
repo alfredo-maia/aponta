@@ -285,7 +285,7 @@ export function DocsPage() {
           </p>
           <p><strong>Passo 1 — Gerar o token:</strong> siga o passo a passo da seção <a href="#api" onClick={() => handleNavClick('api')} className="text-brand-600 underline cursor-pointer">API &amp; Tokens de Acesso</a> acima.</p>
           <p><strong>Passo 2 — Configurar o cliente MCP</strong> (exemplo Claude Desktop):</p>
-          <pre className="rounded bg-muted p-3 text-xs overflow-x-auto">
+          <pre className="rounded-[8px] bg-gray-80 p-3 text-xs overflow-x-auto">
 {`{
   "mcpServers": {
     "aponta": {

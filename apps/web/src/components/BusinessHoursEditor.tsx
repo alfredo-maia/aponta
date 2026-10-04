@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
+import { EzAlert, EzButton, EzComboBox, EzTextInput } from './ds';
 
 interface BusinessHourWindow {
   id?: string;
@@ -196,16 +197,16 @@ export function BusinessHoursEditor({
 
   if (isLoading) {
     return (
-      <p className="text-sm text-muted-foreground">Carregando expediente…</p>
+      <p className="text-sm text-gray-500">Carregando expediente…</p>
     );
   }
 
   return (
     <div className="mt-2 space-y-3 border-t pt-2 border-gray-100 text-sm">
-      <span className="font-semibold">Expediente (SLA em horas úteis)</span>
+      <span className="font-semibold text-gray-900">Expediente (SLA em horas úteis)</span>
 
       {windows.length === 0 && holidays.length === 0 && (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-gray-500">
           Sem expediente configurado — SLA conta horas corridas (24/7).
         </p>
       )}
@@ -218,56 +219,51 @@ export function BusinessHoursEditor({
               data-testid={`business-hour-row-${i}`}
               className="flex flex-wrap items-center gap-2"
             >
-              <label className="sr-only" htmlFor={`weekday-${i}`}>
-                Dia da semana
-              </label>
-              <select
+              <EzComboBox
                 id={`weekday-${i}`}
                 aria-label="Dia da semana"
                 value={w.weekday}
                 onChange={(e) =>
                   updateWindow(i, { weekday: Number(e.target.value) })
                 }
-                className="rounded border px-2 py-1 text-xs"
+                className="!w-auto text-xs"
               >
                 {WEEKDAY_LABELS.map((label, weekday) => (
                   <option key={weekday} value={weekday}>
                     {label}
                   </option>
                 ))}
-              </select>
-              <label className="sr-only" htmlFor={`start-${i}`}>
-                Início
-              </label>
-              <input
+              </EzComboBox>
+              <EzTextInput
                 id={`start-${i}`}
                 aria-label="Início"
                 type="text"
+                size="slim"
                 placeholder="08:00"
                 value={w.startTime}
                 onChange={(e) => updateWindow(i, { startTime: e.target.value })}
-                className="w-20 rounded border px-2 py-1 text-xs"
+                className="!w-20 text-xs"
               />
-              <span className="text-muted-foreground">-</span>
-              <label className="sr-only" htmlFor={`end-${i}`}>
-                Fim
-              </label>
-              <input
+              <span className="text-gray-500">-</span>
+              <EzTextInput
                 id={`end-${i}`}
                 aria-label="Fim"
                 type="text"
+                size="slim"
                 placeholder="18:00"
                 value={w.endTime}
                 onChange={(e) => updateWindow(i, { endTime: e.target.value })}
-                className="w-20 rounded border px-2 py-1 text-xs"
+                className="!w-20 text-xs"
               />
-              <button
+              <EzButton
                 type="button"
+                variant="tertiary"
+                size="x-small"
                 onClick={() => removeWindow(i)}
-                className="text-xs text-red-600 hover:underline"
+                className="!text-red-600 hover:!text-red-700"
               >
                 Remover
-              </button>
+              </EzButton>
             </div>
           ))}
         </div>
@@ -281,155 +277,149 @@ export function BusinessHoursEditor({
               data-testid={`holiday-row-${i}`}
               className="flex flex-wrap items-center gap-2"
             >
-              <label className="sr-only" htmlFor={`holiday-date-${i}`}>
-                Data
-              </label>
-              <input
+              <EzTextInput
                 id={`holiday-date-${i}`}
                 aria-label="Data"
                 type="date"
+                size="slim"
                 value={toDateInputValue(h.date)}
                 onChange={(e) => updateHoliday(i, { date: e.target.value })}
-                className="rounded border px-2 py-1 text-xs"
+                className="text-xs"
               />
-              <label className="sr-only" htmlFor={`holiday-name-${i}`}>
-                Nome do feriado
-              </label>
-              <input
+              <EzTextInput
                 id={`holiday-name-${i}`}
                 aria-label="Nome do feriado"
                 type="text"
+                size="slim"
                 placeholder="Natal"
                 value={h.name}
                 onChange={(e) => updateHoliday(i, { name: e.target.value })}
-                className="rounded border px-2 py-1 text-xs"
+                className="text-xs"
               />
-              <button
+              <EzButton
                 type="button"
+                variant="tertiary"
+                size="x-small"
                 onClick={() => removeHoliday(i)}
-                className="text-xs text-red-600 hover:underline"
+                className="!text-red-600 hover:!text-red-700"
               >
                 Remover
-              </button>
+              </EzButton>
             </div>
           ))}
         </div>
       )}
 
       <div className="flex flex-wrap items-center gap-3">
-        <button
+        <EzButton
           type="button"
+          variant="tertiary"
+          size="x-small"
           onClick={addWindow}
-          className="text-xs text-blue-600 hover:underline"
         >
           + Adicionar horário
-        </button>
-        <button
+        </EzButton>
+        <EzButton
           type="button"
+          variant="tertiary"
+          size="x-small"
           onClick={addHoliday}
-          className="text-xs text-blue-600 hover:underline"
         >
           + Adicionar feriado
-        </button>
+        </EzButton>
       </div>
 
-      <div className="flex flex-wrap items-end gap-2 rounded border border-dashed p-2">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="shortcut-start" className="text-xs text-muted-foreground">
-            Horário Seg-Sex (início)
-          </label>
-          <input
-            id="shortcut-start"
-            aria-label="Horário Seg-Sex (início)"
-            type="text"
-            placeholder="08:00"
-            value={shortcutStart}
-            onChange={(e) => setShortcutStart(e.target.value)}
-            className="w-20 rounded border px-2 py-1 text-xs"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="shortcut-end" className="text-xs text-muted-foreground">
-            Horário Seg-Sex (fim)
-          </label>
-          <input
-            id="shortcut-end"
-            aria-label="Horário Seg-Sex (fim)"
-            type="text"
-            placeholder="18:00"
-            value={shortcutEnd}
-            onChange={(e) => setShortcutEnd(e.target.value)}
-            className="w-20 rounded border px-2 py-1 text-xs"
-          />
-        </div>
-        <button
+      <div className="flex flex-wrap items-end gap-2 rounded-[8px] border border-dashed border-gray-200 p-2">
+        <EzTextInput
+          id="shortcut-start"
+          aria-label="Horário Seg-Sex (início)"
+          label="Horário Seg-Sex (início)"
+          type="text"
+          size="slim"
+          placeholder="08:00"
+          value={shortcutStart}
+          onChange={(e) => setShortcutStart(e.target.value)}
+          className="!w-20 text-xs"
+        />
+        <EzTextInput
+          id="shortcut-end"
+          aria-label="Horário Seg-Sex (fim)"
+          label="Horário Seg-Sex (fim)"
+          type="text"
+          size="slim"
+          placeholder="18:00"
+          value={shortcutEnd}
+          onChange={(e) => setShortcutEnd(e.target.value)}
+          className="!w-20 text-xs"
+        />
+        <EzButton
           type="button"
+          variant="secondary"
+          size="small"
           onClick={applyMondayToFridayWindow}
-          className="text-xs px-2 py-1 border rounded hover:bg-gray-50"
         >
           Aplicar Seg-Sex
-        </button>
-        <span className="text-xs text-muted-foreground">
+        </EzButton>
+        <span className="text-xs text-gray-500">
           Cria as 5 janelas (Seg a Sex) de uma vez com o mesmo horário.
         </span>
       </div>
 
-      <div className="flex flex-wrap items-end gap-2 rounded border border-dashed p-2">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="import-year" className="text-xs text-muted-foreground">
-            Ano para importar feriados
-          </label>
-          <input
-            id="import-year"
-            aria-label="Ano para importar feriados"
-            type="text"
-            value={importYear}
-            onChange={(e) => setImportYear(e.target.value)}
-            className="w-20 rounded border px-2 py-1 text-xs"
-          />
-        </div>
-        <button
+      <div className="flex flex-wrap items-end gap-2 rounded-[8px] border border-dashed border-gray-200 p-2">
+        <EzTextInput
+          id="import-year"
+          aria-label="Ano para importar feriados"
+          label="Ano para importar feriados"
+          type="text"
+          size="slim"
+          value={importYear}
+          onChange={(e) => setImportYear(e.target.value)}
+          className="!w-20 text-xs"
+        />
+        <EzButton
           type="button"
+          variant="secondary"
+          size="small"
           disabled={importHolidaysMutation.isPending}
           onClick={() => importHolidaysMutation.mutate(importYear)}
-          className="text-xs px-2 py-1 border rounded hover:bg-gray-50 disabled:opacity-50"
         >
           Importar feriados nacionais
-        </button>
-        <span className="text-xs text-muted-foreground">
+        </EzButton>
+        <span className="text-xs text-gray-500">
           Busca os feriados nacionais do ano via BrasilAPI (feriados
           estaduais/municipais precisam ser adicionados manualmente).
         </span>
         {importHolidaysMutation.isError && (
-          <p role="alert" className="w-full text-xs text-red-600">
+          <EzAlert variant="error" role="alert" className="w-full">
             Falha ao importar feriados. Tente novamente.
-          </p>
+          </EzAlert>
         )}
       </div>
 
       {mutation.isError && (
-        <p role="alert" className="text-xs text-red-600">
+        <EzAlert variant="error" role="alert">
           Falha ao salvar o expediente. Tente novamente.
-        </p>
+        </EzAlert>
       )}
 
       {isDirty && (
         <div className="flex justify-end gap-2">
-          <button
+          <EzButton
             type="button"
-            className="text-xs px-2 py-1 border rounded text-muted-foreground hover:bg-gray-50"
+            variant="secondary"
+            size="small"
             onClick={() => setDraft(null)}
           >
             Cancelar
-          </button>
-          <button
+          </EzButton>
+          <EzButton
             type="button"
+            size="small"
             disabled={mutation.isPending}
             onClick={() => mutation.mutate()}
-            className="text-xs px-2 py-1 rounded bg-primary text-primary-foreground disabled:opacity-50"
           >
             Salvar expediente
-          </button>
+          </EzButton>
         </div>
       )}
     </div>
