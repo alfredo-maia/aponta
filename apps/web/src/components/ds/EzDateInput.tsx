@@ -48,7 +48,7 @@ export const EzDateInput = forwardRef<HTMLInputElement, EzDateInputProps>(
             if (!disabled && inputRef.current && 'showPicker' in HTMLInputElement.prototype) {
               try {
                 inputRef.current.showPicker();
-              } catch (e) {
+              } catch {
                 // Ignore if showPicker fails (e.g. cross-origin iframe or unsupported)
                 inputRef.current.focus();
               }

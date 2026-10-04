@@ -8,7 +8,7 @@ export interface EzTileProps extends HTMLAttributes<HTMLDivElement> {
   value?: string | number;
   description?: string;
   /** Background color variant for the icon */
-  iconVariant?: 'ocean' | 'gray' | 'green' | 'yellow' | 'red' | 'petroleum';
+  iconVariant?: 'brand' | 'gray' | 'green' | 'yellow' | 'red' | 'petroleum';
 }
 
 /**
@@ -16,7 +16,7 @@ export interface EzTileProps extends HTMLAttributes<HTMLDivElement> {
  * A small data card ideal for dashboards (e.g. "Total Tickets: 12").
  */
 export const EzTile = forwardRef<HTMLDivElement, EzTileProps>(
-  ({ icon, label, value, description, iconVariant = 'ocean', className, ...props }, ref) => {
+  ({ icon, label, value, description, iconVariant = 'brand', className, ...props }, ref) => {
     const iconColors = {
       brand: 'bg-brand-100 text-brand-600',
       gray: 'bg-gray-100 text-gray-600',

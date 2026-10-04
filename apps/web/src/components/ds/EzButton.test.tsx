@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+import { Ticket } from 'lucide-react';
 import { EzButton } from './EzButton';
 
 describe('EzButton', () => {
@@ -27,9 +28,8 @@ describe('EzButton', () => {
   });
 
   it('renders as icon-only when label is omitted but icon is passed', () => {
-    const MockIcon = () => <svg data-testid="mock-icon" />;
-    const { container } = render(<EzButton leftIcon={MockIcon} />);
-    expect(screen.getByTestId('mock-icon')).toBeInTheDocument();
+    const { container } = render(<EzButton leftIcon={Ticket} />);
+    expect(container.querySelector('svg')).toBeInTheDocument();
     // No label rendered
     expect(container.textContent).toBe('');
   });

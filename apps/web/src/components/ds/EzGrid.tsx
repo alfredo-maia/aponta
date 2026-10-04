@@ -1,11 +1,10 @@
 import { HTMLAttributes, forwardRef } from 'react';
 import { cn } from './utils';
 
-export interface EzGridProps extends HTMLAttributes<HTMLDivElement> {
-  // O componente grid nativo da Sankhya é uma engine inteira (suporta paginação, colunas dinâmicas, etc).
-  // No Aponta, substituiremos o uso desse trambolho (de 1.4mb) por @tanstack/react-table injetando as classes desta casca.
-  // Este componente apenas encapsula visualmente o wrapper da tabela.
-}
+// O componente grid nativo da Sankhya é uma engine inteira (suporta paginação, colunas dinâmicas, etc).
+// No Aponta, substituiremos o uso desse trambolho (de 1.4mb) por @tanstack/react-table injetando as classes desta casca.
+// Este componente apenas encapsula visualmente o wrapper da tabela.
+export type EzGridProps = HTMLAttributes<HTMLDivElement>;
 
 /**
  * Aponta DS Grid (Table Wrapper)
