@@ -37,7 +37,7 @@ export const EzListItem = forwardRef<HTMLLIElement, EzListItemProps>(
         ref={ref}
         onClick={onClick}
         className={cn(
-          'flex items-center justify-between w-full px-4 py-3 transition-colors text-left outline-none focus-visible:bg-gray-80 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ocean-200',
+          'flex items-center justify-between w-full px-4 py-3 transition-colors text-left outline-none focus-visible:bg-gray-80 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-200',
           onClick && 'cursor-pointer hover:bg-gray-50',
           className
         )}

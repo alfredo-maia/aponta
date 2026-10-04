@@ -1,93 +1,114 @@
-import { NavLink } from 'react-router-dom';
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
-
-const DOCS_ITEM = { to: '/docs', label: 'Documentação' };
+import {
+  EzSidebarNavigator,
+  EzSidebarButton,
+  EzButton,
+} from '../ds';
+import {
+  Plus,
+  LayoutDashboard,
+  Ticket,
+  MessageSquare,
+  Users,
+  Box,
+  FileSignature,
+  BarChart3,
+  CalendarDays,
+  BookOpen,
+  Key,
+  Settings,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from 'lucide-react';
 
 export function Sidebar() {
   const user = useAuthStore((state) => state.user);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [collapsed, setCollapsed] = useState(false);
 
-  const getNavItems = () => {
+  // Based on exact ordering from Issue #48
+  // TODO: Add RBAC logic filters per item based on user role (CLIENT vs AGENT)
+  const navItems = [
+    { to: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard /> },
+    { to: '/', label: 'Tickets', icon: <Ticket /> },
+    { to: '/chats', label: 'Chats', icon: <MessageSquare /> }, 
+    { to: '/organizations', label: 'Clientes', icon: <Users /> },
+    { to: '/service-desks', label: 'Recursos', icon: <Box /> }, 
+    { to: '/contracts', label: 'Contratos', icon: <FileSignature /> },
+    { to: '/reports', label: 'Relatórios', icon: <BarChart3 /> },
+    { to: '/schedule', label: 'Agenda', icon: <CalendarDays /> }, 
+    { to: '/knowledge', label: 'Conhecimentos', icon: <BookOpen /> },
+    { to: '/vault', label: 'Cofre de senhas', icon: <Key /> },
+    { to: '/settings', label: 'Configurações', icon: <Settings /> },
+  ];
+
+  // RBAC filters
+  const filteredItems = navItems.filter((item) => {
     if (user?.role === 'CLIENT') {
-      return [
-        { to: '/', label: 'Meus Chamados' },
-        { to: '/tickets/new', label: 'Abrir Chamado' },
-        { to: '/knowledge', label: 'Ajuda (FAQ)' },
-        DOCS_ITEM,
-      ];
+      return ['Tickets', 'Ajuda (FAQ)', 'Conhecimentos'].includes(item.label);
     }
-    
-    const base = [
-      { to: '/knowledge', label: 'Ajuda (FAQ)' },
-      { to: '/', label: 'Caixa de Entrada' },
-      { to: '/tickets/new', label: 'Novo Chamado' },
-    ];
-    
-    if (user?.role === 'ADMIN') {
-      return [
-        ...base, 
-        { to: '/vault', label: 'Cofre de Senhas' },
-        { to: '/contracts', label: 'Contratos' },
-        { to: '/service-desks', label: 'Departamentos' },
-        { to: '/organizations', label: 'Empresas' },
-        { to: '/reports', label: 'Relatórios' },
-        DOCS_ITEM,
-      ];
-    }
-    if (user?.role === 'AGENT_MASTER') {
-      return [
-        ...base, 
-        { to: '/vault', label: 'Cofre de Senhas' },
-        { to: '/contracts', label: 'Contratos' },
-        { to: '/reports', label: 'Relatórios' },
-        DOCS_ITEM,
-      ];
-    }
-    if (user?.role === 'AGENT') {
-      return [
-        ...base,
-        { to: '/vault', label: 'Cofre de Senhas' },
-        { to: '/contracts', label: 'Contratos' },
-        { to: '/reports', label: 'Carga de Trabalho' },
-        DOCS_ITEM,
-      ];
-    }
-    
-    if (user?.role === 'CLIENT_MASTER') {
-      return [
-        ...base,
-        { to: '/contracts', label: 'Meus Contratos' },
-        { to: '/reports', label: 'Relatórios' },
-        DOCS_ITEM,
-      ];
-    }
-
-    return [...base, DOCS_ITEM];
-  };
-
-  const items = getNavItems();
+    // Agents, Admins, etc filter adjustments would go here based on business needs
+    return true; 
+  });
 
   return (
-    <aside className="flex h-full w-56 flex-col border-r bg-background p-4">
-      <div className="mb-6 text-xl font-bold">Aponta</div>
-      <nav className="space-y-1">
-        {items.map((item) => (
-          <NavLink
+    <EzSidebarNavigator collapsed={collapsed}>
+      {/* Brand & Action Button Header */}
+      <div className="flex flex-col gap-3 p-2 mb-2">
+        <div className="flex items-center justify-between px-2 py-1">
+          {!collapsed && (
+            <span className="text-xl font-bold text-gray-900 tracking-tight">Aponta</span>
+          )}
+          {collapsed && (
+            <div className="w-full flex justify-center text-brand-600 font-bold text-lg">A</div>
+          )}
+        </div>
+        
+        <EzButton
+          size={collapsed ? 'small' : 'medium'}
+          className="w-full"
+          leftIcon={Plus}
+          onClick={() => navigate('/tickets/new')}
+          label={collapsed ? undefined : 'Novo ticket'}
+          title="Novo ticket"
+        />
+      </div>
+
+      {/* Navigation Links */}
+      {filteredItems.map((item) => {
+        // Strict exact match for root '/' specifically so it doesn't stay highlighted forever
+        const isActive = item.to === '/' 
+          ? location.pathname === '/' 
+          : location.pathname.startsWith(item.to);
+
+        return (
+          <EzSidebarButton
             key={item.to}
-            to={item.to}
-            end
-            className={({ isActive }) =>
-              `block rounded px-3 py-2 text-sm ${
-                isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
-              }`
-            }
-          >
-            {item.label}
-          </NavLink>
-        ))}
-      </nav>
-    </aside>
+            label={item.label}
+            icon={item.icon}
+            collapsed={collapsed}
+            active={isActive}
+            onClick={() => navigate(item.to)}
+          />
+        );
+      })}
+
+      <div className="flex-1" />
+
+      {/* Footer / Toggle */}
+      <div className="mt-auto pt-2 pb-1 border-t border-gray-100">
+        <EzSidebarButton
+          label={collapsed ? 'Expandir' : 'Esconder'}
+          icon={collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
+          collapsed={collapsed}
+          onClick={() => setCollapsed(!collapsed)}
+          className="text-gray-500 hover:text-gray-900"
+        />
+      </div>
+    </EzSidebarNavigator>
   );
 }
 

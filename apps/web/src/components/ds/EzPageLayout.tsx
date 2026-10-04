@@ -58,7 +58,7 @@ export const EzPageHeader = forwardRef<HTMLDivElement, EzPageHeaderProps>(
                   className={cn(
                     'p-1.5 rounded-[6px] transition-colors',
                     activeMode === 'list' 
-                      ? 'bg-white text-ocean-600 shadow-sm border border-gray-200' 
+                      ? 'bg-white text-brand-600 shadow-sm border border-gray-200' 
                       : 'text-gray-500 hover:text-gray-900 border border-transparent'
                   )}
                   title="Modo Lista"
@@ -70,7 +70,7 @@ export const EzPageHeader = forwardRef<HTMLDivElement, EzPageHeaderProps>(
                   className={cn(
                     'p-1.5 rounded-[6px] transition-colors',
                     activeMode === 'form' 
-                      ? 'bg-white text-ocean-600 shadow-sm border border-gray-200' 
+                      ? 'bg-white text-brand-600 shadow-sm border border-gray-200' 
                       : 'text-gray-500 hover:text-gray-900 border border-transparent'
                   )}
                   title="Modo Formulário"

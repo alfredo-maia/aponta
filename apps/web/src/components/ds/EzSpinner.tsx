@@ -33,10 +33,10 @@ export const EzSpinner = forwardRef<HTMLDivElement, EzSpinnerProps>(
       >
         <Loader2
           size={size}
-          className={cn('animate-spin', colorClass || 'text-ocean-600')}
+          className={cn('animate-spin', colorClass || 'text-brand-600')}
         />
         {label && (
-          <span className={cn('text-sm font-medium', colorClass || 'text-ocean-700')}>
+          <span className={cn('text-sm font-medium', colorClass || 'text-brand-700')}>
             {label}
           </span>
         )}

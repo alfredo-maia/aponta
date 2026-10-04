@@ -49,7 +49,7 @@ export const EzDropdown = forwardRef<HTMLButtonElement, EzDropdownProps>(
           disabled={disabled}
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
-            'inline-flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ocean-200 rounded-[12px]',
+            'inline-flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200 rounded-[12px]',
             disabled && 'opacity-50 cursor-not-allowed',
             className
           )}

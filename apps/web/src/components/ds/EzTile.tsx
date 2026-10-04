@@ -18,7 +18,7 @@ export interface EzTileProps extends HTMLAttributes<HTMLDivElement> {
 export const EzTile = forwardRef<HTMLDivElement, EzTileProps>(
   ({ icon, label, value, description, iconVariant = 'ocean', className, ...props }, ref) => {
     const iconColors = {
-      ocean: 'bg-ocean-100 text-ocean-600',
+      brand: 'bg-brand-100 text-brand-600',
       gray: 'bg-gray-100 text-gray-600',
       green: 'bg-green-100 text-green-600',
       yellow: 'bg-yellow-100 text-yellow-600',

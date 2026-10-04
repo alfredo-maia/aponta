@@ -65,7 +65,7 @@ export const EzTextInput = forwardRef<HTMLInputElement, EzTextInputProps>(
       'relative flex items-center w-full overflow-hidden transition-colors border',
       'rounded-[12px] bg-white group',
       // Focus within handles the active border outline
-      'focus-within:border-ocean-600 focus-within:ring-1 focus-within:ring-ocean-600',
+      'focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600',
       // Base vs Error border
       hasError ? 'border-red-600 ring-red-600' : 'border-gray-200 hover:border-gray-300',
       // Disabled state
@@ -131,7 +131,7 @@ export const EzTextInput = forwardRef<HTMLInputElement, EzTextInputProps>(
                   tabIndex={-1}
                   disabled={disabled}
                   onClick={() => setPasswordVisible(!passwordVisible)}
-                  className="p-0.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-ocean-200 hover:text-gray-700 transition-colors"
+                  className="p-0.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200 hover:text-gray-700 transition-colors"
                   aria-label={passwordVisible ? 'Ocultar senha' : 'Mostrar senha'}
                 >
                   {passwordVisible ? (

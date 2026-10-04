@@ -38,8 +38,8 @@ export const EzBreadcrumb = forwardRef<HTMLElement, EzBreadcrumbProps>(
                   className={cn(
                     'inline-flex items-center gap-1.5 transition-colors font-medium',
                     isLast 
-                      ? 'text-ocean-600 cursor-default pointer-events-none' 
-                      : 'text-gray-500 hover:text-ocean-600',
+                      ? 'text-brand-600 cursor-default pointer-events-none' 
+                      : 'text-gray-500 hover:text-brand-600',
                     (item.href || item.onClick) && !isLast && 'cursor-pointer'
                   )}
                 >

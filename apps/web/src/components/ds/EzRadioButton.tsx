@@ -29,13 +29,13 @@ export const EzRadioButton = forwardRef<HTMLInputElement, EzRadioButtonProps>(
             disabled={disabled}
             className={cn(
               'peer appearance-none w-5 h-5 border-2 rounded-full transition-colors',
-              'checked:border-ocean-600 focus-visible:ring-2 focus-visible:ring-ocean-200 focus:outline-none',
+              'checked:border-brand-600 focus-visible:ring-2 focus-visible:ring-brand-200 focus:outline-none',
               hasError ? 'border-red-600' : 'border-gray-300 hover:border-gray-400',
               disabled && 'border-gray-200 bg-gray-50'
             )}
           />
           {/* Inner dot */}
-          <div className="absolute w-2.5 h-2.5 rounded-full bg-ocean-600 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" />
+          <div className="absolute w-2.5 h-2.5 rounded-full bg-brand-600 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" />
         </div>
         {label && (
           <span className={cn('text-[14px] font-medium text-gray-900', hasError && 'text-red-700')}>

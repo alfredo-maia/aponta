@@ -97,7 +97,7 @@ export const EzSearch = forwardRef<HTMLInputElement, EzSearchProps>(
     const wrapperClasses = cn(
       'relative flex items-center w-full overflow-hidden transition-colors border',
       'rounded-[12px] bg-white group h-[42px]',
-      isOpen || hasError ? 'border-ocean-600 ring-1 ring-ocean-600' : 'border-gray-200 hover:border-gray-300',
+      isOpen || hasError ? 'border-brand-600 ring-1 ring-brand-600' : 'border-gray-200 hover:border-gray-300',
       hasError && !isOpen && 'border-red-600 ring-red-600',
       disabled && 'bg-gray-80 border-gray-100 cursor-not-allowed'
     );
@@ -176,11 +176,11 @@ export const EzSearch = forwardRef<HTMLInputElement, EzSearchProps>(
                     onClick={() => handleSelectOption(opt)}
                     className={cn(
                       'flex items-center justify-between px-3 py-2 text-sm cursor-pointer mx-1 rounded-[4px] transition-colors',
-                      isSelected ? 'bg-ocean-50 text-ocean-700 font-medium' : 'text-gray-900 hover:bg-gray-90'
+                      isSelected ? 'bg-brand-50 text-brand-700 font-medium' : 'text-gray-900 hover:bg-gray-90'
                     )}
                   >
                     <span className="truncate">{opt.label}</span>
-                    {isSelected && <Check className="w-4 h-4 text-ocean-600 shrink-0 ml-2" />}
+                    {isSelected && <Check className="w-4 h-4 text-brand-600 shrink-0 ml-2" />}
                   </div>
                 );
               })

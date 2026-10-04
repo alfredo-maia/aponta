@@ -17,7 +17,7 @@ export interface EzProgressBarProps extends HTMLAttributes<HTMLDivElement> {
   sizeClass?: string;
   /**
    * Foreground color class.
-   * @default 'bg-ocean-600'
+   * @default 'bg-brand-600'
    */
   colorClass?: string;
 }
@@ -26,7 +26,7 @@ export interface EzProgressBarProps extends HTMLAttributes<HTMLDivElement> {
  * Aponta DS Progress Bar
  */
 export const EzProgressBar = forwardRef<HTMLDivElement, EzProgressBarProps>(
-  ({ value, showLabel = false, sizeClass = 'h-2', colorClass = 'bg-ocean-600', className, ...props }, ref) => {
+  ({ value, showLabel = false, sizeClass = 'h-2', colorClass = 'bg-brand-600', className, ...props }, ref) => {
     const clampedValue = Math.min(100, Math.max(0, value));
 
     return (

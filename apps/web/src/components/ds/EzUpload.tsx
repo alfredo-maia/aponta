@@ -32,7 +32,7 @@ export const EzUpload = forwardRef<HTMLDivElement, EzUploadProps>(
           onClick={() => inputRef.current?.click()}
           className={cn(
             'flex flex-col items-center justify-center w-full p-6 transition-colors border-2 border-dashed rounded-[12px] cursor-pointer group',
-            hasError ? 'border-red-400 bg-red-50 hover:bg-red-100' : 'border-gray-200 bg-gray-50 hover:bg-ocean-50 hover:border-ocean-300'
+            hasError ? 'border-red-400 bg-red-50 hover:bg-red-100' : 'border-gray-200 bg-gray-50 hover:bg-brand-50 hover:border-brand-300'
           )}
         >
           <input
@@ -43,8 +43,8 @@ export const EzUpload = forwardRef<HTMLDivElement, EzUploadProps>(
             multiple={multiple}
             onChange={handleFileChange}
           />
-          <CloudUpload className={cn('w-8 h-8 mb-2 transition-colors', hasError ? 'text-red-500' : 'text-gray-400 group-hover:text-ocean-600')} />
-          <span className={cn('text-[14px] font-medium text-center', hasError ? 'text-red-700' : 'text-gray-600 group-hover:text-ocean-700')}>
+          <CloudUpload className={cn('w-8 h-8 mb-2 transition-colors', hasError ? 'text-red-500' : 'text-gray-400 group-hover:text-brand-600')} />
+          <span className={cn('text-[14px] font-medium text-center', hasError ? 'text-red-700' : 'text-gray-600 group-hover:text-brand-700')}>
             {label}
           </span>
           {accept && <span className="text-[12px] text-gray-400 mt-1">Formatos aceitos: {accept}</span>}

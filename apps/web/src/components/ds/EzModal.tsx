@@ -83,7 +83,7 @@ export const EzModal = forwardRef<HTMLDivElement, EzModalProps>(
             </div>
             <button
               onClick={onClose}
-              className="p-2 -mr-2 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ocean-200 shrink-0"
+              className="p-2 -mr-2 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200 shrink-0"
               aria-label="Fechar"
             >
               <X className="w-5 h-5" />

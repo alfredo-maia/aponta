@@ -62,8 +62,8 @@ export const EzButton = forwardRef<HTMLButtonElement, EzButtonProps>(
       
       // Ripple color depends on variant
       if (variant === 'primary') ripple.classList.add('bg-white/30');
-      if (variant === 'secondary') ripple.classList.add('bg-ocean-600/20');
-      if (variant === 'tertiary') ripple.classList.add('bg-ocean-600/15');
+      if (variant === 'secondary') ripple.classList.add('bg-brand-600/20');
+      if (variant === 'tertiary') ripple.classList.add('bg-brand-600/15');
 
       ripple.style.left = `${x - 10}px`;
       ripple.style.top = `${y - 10}px`;
@@ -84,15 +84,15 @@ export const EzButton = forwardRef<HTMLButtonElement, EzButtonProps>(
         className={cn(
           // Base styles
           'relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none',
-          'focus-visible:ring-4 focus-visible:ring-ocean-200 focus-visible:ring-offset-2',
+          'focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2',
           'active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed',
           // Variants
           variant === 'primary' &&
-            'bg-ocean-500 text-gray-70 border border-ocean-500 hover:bg-ocean-700 hover:border-ocean-700 disabled:bg-gray-400 disabled:border-gray-400 disabled:text-gray-70',
+            'bg-brand-500 text-gray-70 border border-brand-500 hover:bg-brand-700 hover:border-brand-700 disabled:bg-gray-400 disabled:border-gray-400 disabled:text-gray-70',
           variant === 'secondary' &&
-            'bg-transparent text-ocean-600 border border-gray-200 hover:bg-gray-80 hover:border-gray-90 disabled:bg-gray-80 disabled:border-gray-200 disabled:text-gray-400',
+            'bg-transparent text-brand-600 border border-gray-200 hover:bg-gray-80 hover:border-gray-90 disabled:bg-gray-80 disabled:border-gray-200 disabled:text-gray-400',
           variant === 'tertiary' &&
-            'bg-transparent text-ocean-600 hover:text-ocean-800 disabled:text-gray-400 disabled:bg-transparent',
+            'bg-transparent text-brand-600 hover:text-brand-800 disabled:text-gray-400 disabled:bg-transparent',
           // Sizes
           size === 'x-small' && 'h-[28px] text-xs',
           size === 'small' && 'h-[32px] text-xs',

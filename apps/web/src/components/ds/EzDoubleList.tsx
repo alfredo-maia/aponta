@@ -73,9 +73,9 @@ export const EzDoubleList = forwardRef<HTMLDivElement, EzDoubleListProps>(
         </div>
 
         {/* Selected List */}
-        <div className="flex flex-col flex-1 border border-ocean-200 rounded-[12px] bg-white overflow-hidden ring-1 ring-ocean-100">
-          <div className="px-4 py-3 border-b border-ocean-100 bg-ocean-50 text-[14px] font-semibold text-ocean-900">
-            {selectedLabel} <span className="text-ocean-600 font-normal ml-1">({selected.length})</span>
+        <div className="flex flex-col flex-1 border border-brand-200 rounded-[12px] bg-white overflow-hidden ring-1 ring-brand-100">
+          <div className="px-4 py-3 border-b border-brand-100 bg-brand-50 text-[14px] font-semibold text-brand-900">
+            {selectedLabel} <span className="text-brand-600 font-normal ml-1">({selected.length})</span>
           </div>
           <div className="flex-1 overflow-y-auto max-h-60 p-2">
             {selected.length === 0 ? (
@@ -97,7 +97,7 @@ export const EzDoubleList = forwardRef<HTMLDivElement, EzDoubleListProps>(
                     <div className="flex-1">
                       <EzListItem
                         description={item.description}
-                        className="rounded-[8px] py-2 border border-ocean-100 bg-ocean-50/30 mb-0"
+                        className="rounded-[8px] py-2 border border-brand-100 bg-brand-50/30 mb-0"
                       >
                         {item.label}
                       </EzListItem>

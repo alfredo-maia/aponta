@@ -26,7 +26,7 @@ export const EzBadge = forwardRef<HTMLSpanElement, EzBadgeProps>(
         className={cn(
           'inline-flex items-center justify-center rounded-full font-medium',
           // Default colors if none passed
-          !colorClass && 'bg-ocean-600 text-gray-70',
+          !colorClass && 'bg-brand-600 text-gray-70',
           colorClass,
           // Sizes mapping directly to Sankhya's xs to xl concepts
           size === 'x-small' && 'min-w-[12px] h-[12px] text-[10px] px-1',

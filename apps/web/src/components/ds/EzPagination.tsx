@@ -75,7 +75,7 @@ export const EzPagination = forwardRef<HTMLDivElement, EzPaginationProps>(
               className={cn(
                 'min-w-[32px] h-[32px] px-2 rounded-[8px] text-[14px] font-medium transition-colors flex items-center justify-center',
                 isCurrent 
-                  ? 'bg-ocean-100 text-ocean-700 pointer-events-none' 
+                  ? 'bg-brand-100 text-brand-700 pointer-events-none' 
                   : 'text-gray-700 hover:bg-gray-90'
               )}
             >

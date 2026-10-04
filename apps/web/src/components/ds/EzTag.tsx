@@ -34,7 +34,7 @@ export const EzTag = forwardRef<HTMLDivElement, EzTagProps>(
           'inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px]',
           'text-[12px] font-medium leading-none select-none transition-colors border',
           // Variants mapping to Sankhya semantic colors
-          variant === 'ocean' && 'bg-ocean-100/50 text-ocean-700 border-ocean-200',
+          variant === 'ocean' && 'bg-brand-100/50 text-brand-700 border-brand-200',
           variant === 'gray' && 'bg-gray-90 text-gray-700 border-gray-200',
           variant === 'green' && 'bg-green-100 text-green-800 border-green-200',
           variant === 'yellow' && 'bg-yellow-100 text-yellow-800 border-yellow-300',

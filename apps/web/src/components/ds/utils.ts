@@ -1,19 +1,19 @@
 import { twMerge } from 'tailwind-merge';
 
 export const ezColors = {
-  // Ocean Green (Primary/Brand)
-  'ocean-green': {
-    50: '#F4F9F8',
-    100: '#E6F3EF',
-    200: '#BFE1D7',
-    300: '#99CFBF',
-    400: '#4DAA8F',
-    500: '#1A9171',
-    600: '#008561',
-    700: '#00684C',
-    800: '#00533C',
-    900: '#00412F',
-    1000: '#00281D',
+  // Brand (Blue)
+  brand: {
+    50: '#eff6ff',
+    100: '#dbeafe',
+    200: '#bfdbfe',
+    300: '#93c5fd',
+    400: '#60a5fa',
+    500: '#3b82f6',
+    600: '#2563eb',
+    700: '#1d4ed8',
+    800: '#1e40af',
+    900: '#1e3a8a',
+    1000: '#172554',
   },
   // Base Gray (Neutrals)
   gray: {

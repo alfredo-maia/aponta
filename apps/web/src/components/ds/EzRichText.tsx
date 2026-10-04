@@ -63,7 +63,7 @@ export const EzRichText = forwardRef<HTMLDivElement, EzRichTextProps>(
         Link.configure({
           openOnClick: false,
           HTMLAttributes: {
-            class: 'text-ocean-600 underline cursor-pointer',
+            class: 'text-brand-600 underline cursor-pointer',
           },
         }),
         Image.configure({
@@ -107,7 +107,7 @@ export const EzRichText = forwardRef<HTMLDivElement, EzRichTextProps>(
         className={cn(
           'p-1.5 rounded transition-colors',
           active
-            ? 'bg-ocean-100 text-ocean-700'
+            ? 'bg-brand-100 text-brand-700'
             : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
           (btnDisabled || disabled) && 'opacity-50 cursor-not-allowed hover:bg-transparent hover:text-gray-600'
         )}
@@ -153,7 +153,7 @@ export const EzRichText = forwardRef<HTMLDivElement, EzRichTextProps>(
         <div
           className={cn(
             'flex flex-col w-full border rounded-[12px] bg-white overflow-hidden transition-colors',
-            hasError ? 'border-red-600' : 'border-gray-200 focus-within:border-ocean-600 focus-within:ring-1 focus-within:ring-ocean-600',
+            hasError ? 'border-red-600' : 'border-gray-200 focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600',
             disabled && 'bg-gray-80 border-gray-100'
           )}
         >

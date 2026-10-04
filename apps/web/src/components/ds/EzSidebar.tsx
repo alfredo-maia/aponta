@@ -44,7 +44,7 @@ export const EzSidebarButton = forwardRef<HTMLButtonElement, EzSidebarButtonProp
         className={cn(
           'flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px]',
           active 
-            ? 'bg-ocean-100 text-ocean-700' 
+            ? 'bg-brand-100 text-brand-700' 
             : 'text-gray-700 hover:bg-gray-80 hover:text-gray-900',
           collapsed ? 'justify-center px-0' : 'justify-start',
           className
