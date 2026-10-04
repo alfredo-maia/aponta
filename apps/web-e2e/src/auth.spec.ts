@@ -85,7 +85,7 @@ test.describe('authentication', () => {
     // "Sair" now lives inside the top-right user-menu dropdown (mirrors
     // the Tiflux reference UI), so open it before clicking.
     await page.getByText(uniqueEmail).click();
-    await page.getByRole('button', { name: 'Sair' }).click();
+    await page.getByRole('menuitem', { name: 'Sair' }).click();
     await expect(page).toHaveURL('/login');
 
     await page.fill('[name="email"]', uniqueEmail);
@@ -127,7 +127,7 @@ test.describe('authentication', () => {
     // still shows the OLD email because the JWT wasn't refreshed by the
     // profile update — that's expected until the user logs in again.
     await page.getByText(uniqueEmail).click();
-    await page.getByRole('button', { name: 'Sair' }).click();
+    await page.getByRole('menuitem', { name: 'Sair' }).click();
     await expect(page).toHaveURL('/login');
 
     await page.fill('[name="email"]', uniqueEmail);
