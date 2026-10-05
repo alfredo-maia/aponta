@@ -75,13 +75,31 @@ describe('OrganizationsController', () => {
   });
 
   describe('findAll', () => {
-    it('delegates to the service', async () => {
+    it('delegates to the service without filter when no query param', async () => {
       mockOrganizationsService.findAll.mockResolvedValue([{ id: 'org-1' }]);
 
       const result = await controller.findAll();
 
-      expect(mockOrganizationsService.findAll).toHaveBeenCalled();
+      expect(mockOrganizationsService.findAll).toHaveBeenCalledWith(undefined);
       expect(result).toEqual([{ id: 'org-1' }]);
+    });
+
+    it('converts active=true query param to boolean true (Tiflux-parity, issue #56)', async () => {
+      mockOrganizationsService.findAll.mockResolvedValue([{ id: 'org-1', active: true }]);
+
+      const result = await controller.findAll('true');
+
+      expect(mockOrganizationsService.findAll).toHaveBeenCalledWith(true);
+      expect(result).toEqual([{ id: 'org-1', active: true }]);
+    });
+
+    it('converts active=false query param to boolean false', async () => {
+      mockOrganizationsService.findAll.mockResolvedValue([{ id: 'org-2', active: false }]);
+
+      const result = await controller.findAll('false');
+
+      expect(mockOrganizationsService.findAll).toHaveBeenCalledWith(false);
+      expect(result).toEqual([{ id: 'org-2', active: false }]);
     });
   });
 

@@ -15,8 +15,9 @@ export class OrganizationsService {
     });
   }
 
-  async findAll() {
+  async findAll(active?: boolean) {
     return this.prisma.organization.findMany({
+      where: active === undefined ? undefined : { active },
       include: {
         _count: { select: { users: true } },
       }

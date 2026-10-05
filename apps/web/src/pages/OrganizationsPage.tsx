@@ -10,6 +10,8 @@ import {
   EzAlert,
   EzButton,
   EzCardItem,
+  EzCheck,
+  EzComboBox,
   EzEmptyCard,
   EzModal,
   EzSpinner,
@@ -40,8 +42,13 @@ interface Organization {
   name: string;
   legalName?: string | null;
   cnpj?: string | null;
+  cpf?: string | null;
+  documentType?: 'CNPJ' | 'CPF' | null;
   municipalRegistration?: string | null;
   stateRegistration?: string | null;
+  active?: boolean;
+  serviceType?: string | null;
+  healthStatus?: string | null;
   _count?: { users: number };
 }
 
@@ -76,7 +83,9 @@ interface CnpjLookupResult {
 const orgFormSchema = z.object({
   name: z.string().trim().min(1, 'Nome é obrigatório'),
   legalName: z.string().trim().optional(),
+  documentType: z.enum(['CNPJ', 'CPF']).optional(),
   cnpj: z.string().trim().optional(),
+  cpf: z.string().trim().optional(),
   municipalRegistration: z.string().trim().optional(),
   stateRegistration: z.string().trim().optional(),
 });
@@ -117,8 +126,9 @@ export function OrganizationsPage() {
 
   const [associatingOrgId, setAssociatingOrgId] = useState<string | null>(null);
   const [detailOrgId, setDetailOrgId] = useState<string | null>(null);
-  const [detailTab, setDetailTab] = useState<'info' | 'addresses' | 'contacts'>('info');
+  const [detailTab, setDetailTab] = useState<'info' | 'profile' | 'addresses' | 'contacts'>('info');
   const [cnpjLookupError, setCnpjLookupError] = useState<string | null>(null);
+  const [profileDraft, setProfileDraft] = useState<{ serviceType: string; healthStatus: string } | null>(null);
 
   const { data: orgs, isLoading: isLoadingOrgs } = useQuery({
     queryKey: ['organizations'],
@@ -147,10 +157,12 @@ export function OrganizationsPage() {
     enabled: isAdmin && !!detailOrgId,
   });
 
-  const { register, handleSubmit, reset, setValue, getValues, formState: { errors } } = useForm<OrgFormValues>({
+  const { register, handleSubmit, reset, setValue, getValues, watch, formState: { errors } } = useForm<OrgFormValues>({
     resolver: zodResolver(orgFormSchema),
-    defaultValues: { name: '', legalName: '', cnpj: '', municipalRegistration: '', stateRegistration: '' },
+    defaultValues: { name: '', legalName: '', documentType: 'CNPJ', cnpj: '', cpf: '', municipalRegistration: '', stateRegistration: '' },
   });
+
+  const documentType = watch('documentType');
 
   const {
     register: registerAddress,
@@ -183,6 +195,17 @@ export function OrganizationsPage() {
     },
   });
 
+  const updateOrgMutation = useMutation({
+    mutationFn: async (values: Partial<Organization>) => {
+      const { data } = await api.patch<Organization>(`/organizations/${detailOrgId}`, values);
+      return data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['organizations'] });
+      void queryClient.invalidateQueries({ queryKey: ['organizations', detailOrgId] });
+    },
+  });
+
   const attachUserMutation = useMutation({
     mutationFn: async ({ userId, orgId }: { userId: string; orgId: string | null }) => {
       await api.patch(`/users/${userId}`, { organizationId: orgId });
@@ -200,6 +223,7 @@ export function OrganizationsPage() {
     },
     onSuccess: (data) => {
       setCnpjLookupError(null);
+      setValue('documentType', 'CNPJ');
       setValue('cnpj', data.cnpj);
       setValue('legalName', data.legalName);
       if (data.tradeName) setValue('name', data.tradeName);
@@ -261,7 +285,15 @@ export function OrganizationsPage() {
   const openDetail = (orgId: string) => {
     setDetailTab('info');
     setDetailOrgId(orgId);
+    setProfileDraft(null);
   };
+
+  if (orgDetail && profileDraft === null) {
+    setProfileDraft({
+      serviceType: orgDetail.serviceType ?? '',
+      healthStatus: orgDetail.healthStatus ?? '',
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -275,28 +307,52 @@ export function OrganizationsPage() {
         <EzCardItem flat className="p-4 space-y-4">
           <h2 className="text-sm font-semibold text-gray-900">Nova Empresa</h2>
 
-          <div className="flex items-end gap-3">
-            <div className="flex-1">
-              <EzTextInput
-                id="org-cnpj"
-                label="CNPJ"
-                placeholder="00.000.000/0000-00"
-                {...register('cnpj')}
-              />
-            </div>
-            <EzButton
-              type="button"
-              variant="secondary"
-              leftIcon={Search}
-              disabled={cnpjLookupMutation.isPending}
-              onClick={() => {
-                const cnpj = getValues('cnpj');
-                if (cnpj) cnpjLookupMutation.mutate(cnpj);
-              }}
+          <div className="grid grid-cols-2 gap-3">
+            <EzComboBox
+              id="org-document-type"
+              label="Tipo de Documento"
+              {...register('documentType')}
             >
-              Buscar CNPJ
-            </EzButton>
+              <option value="CNPJ">CNPJ (Pessoa Jurídica)</option>
+              <option value="CPF">CPF (Pessoa Física)</option>
+            </EzComboBox>
           </div>
+
+          {documentType === 'CPF' ? (
+            <div className="flex items-end gap-3">
+              <div className="flex-1">
+                <EzTextInput
+                  id="org-cpf"
+                  label="CPF"
+                  placeholder="000.000.000-00"
+                  {...register('cpf')}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-end gap-3">
+              <div className="flex-1">
+                <EzTextInput
+                  id="org-cnpj"
+                  label="CNPJ"
+                  placeholder="00.000.000/0000-00"
+                  {...register('cnpj')}
+                />
+              </div>
+              <EzButton
+                type="button"
+                variant="secondary"
+                leftIcon={Search}
+                disabled={cnpjLookupMutation.isPending}
+                onClick={() => {
+                  const cnpj = getValues('cnpj');
+                  if (cnpj) cnpjLookupMutation.mutate(cnpj);
+                }}
+              >
+                Buscar CNPJ
+              </EzButton>
+            </div>
+          )}
 
           {cnpjLookupError && (
             <EzAlert variant="error" onClose={() => setCnpjLookupError(null)}>
@@ -356,6 +412,11 @@ export function OrganizationsPage() {
                     {org.name}
                   </button>
                   <div className="flex items-center gap-3">
+                    {org.active === false && (
+                      <span className="text-xs font-medium text-gray-500 bg-gray-90 px-2 py-0.5 rounded-full">
+                        Inativo
+                      </span>
+                    )}
                     <span className="text-xs text-gray-500">Clientes: {org._count?.users || 0}</span>
                     <EzButton
                       variant="tertiary"
@@ -420,12 +481,28 @@ export function OrganizationsPage() {
             <EzTabs
               tabs={[
                 { id: 'info', label: 'Dados Cadastrais' },
+                { id: 'profile', label: 'Perfil do Cliente' },
                 { id: 'addresses', label: `Endereços (${orgDetail.addresses?.length ?? 0})` },
                 { id: 'contacts', label: `Contatos (${orgDetail.contacts?.length ?? 0})` },
               ]}
               activeTab={detailTab}
               onChange={(tabId) => setDetailTab(tabId as typeof detailTab)}
             />
+
+            <div className="flex items-center justify-between p-3 bg-gray-90 rounded-[12px] border border-gray-200">
+              <div>
+                <div className="text-sm font-medium text-gray-900">Cliente ativo</div>
+                <div className="text-xs text-gray-500">
+                  Clientes inativos não aparecem como opção ao abrir novos tickets.
+                </div>
+              </div>
+              <EzCheck
+                id="org-active-toggle"
+                checked={orgDetail.active !== false}
+                disabled={updateOrgMutation.isPending}
+                onChange={(e) => updateOrgMutation.mutate({ active: e.target.checked })}
+              />
+            </div>
 
             {detailTab === 'info' && (
               <div className="grid grid-cols-2 gap-3 text-sm">
@@ -442,12 +519,54 @@ export function OrganizationsPage() {
                   <div className="text-gray-900 font-medium">{formatCnpj(orgDetail.cnpj) || '—'}</div>
                 </div>
                 <div>
+                  <div className="text-gray-500">CPF</div>
+                  <div className="text-gray-900 font-medium">{orgDetail.cpf || '—'}</div>
+                </div>
+                <div>
                   <div className="text-gray-500">Inscrição Municipal</div>
                   <div className="text-gray-900 font-medium">{orgDetail.municipalRegistration || '—'}</div>
                 </div>
                 <div>
                   <div className="text-gray-500">Inscrição Estadual</div>
                   <div className="text-gray-900 font-medium">{orgDetail.stateRegistration || '—'}</div>
+                </div>
+              </div>
+            )}
+
+            {detailTab === 'profile' && profileDraft && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <EzComboBox
+                    id="org-service-type"
+                    label="Tipo de Atendimento"
+                    value={profileDraft.serviceType}
+                    onChange={(e) => setProfileDraft({ ...profileDraft, serviceType: e.target.value })}
+                  >
+                    <option value="">Sem dados</option>
+                    <option value="SUPORTE">Suporte</option>
+                    <option value="CONSULTORIA">Consultoria</option>
+                    <option value="DESENVOLVIMENTO">Desenvolvimento</option>
+                  </EzComboBox>
+                  <EzComboBox
+                    id="org-health-status"
+                    label="Saúde"
+                    value={profileDraft.healthStatus}
+                    onChange={(e) => setProfileDraft({ ...profileDraft, healthStatus: e.target.value })}
+                  >
+                    <option value="">Sem dados</option>
+                    <option value="SAUDAVEL">Saudável</option>
+                    <option value="ATENCAO">Atenção</option>
+                    <option value="RISCO">Risco</option>
+                  </EzComboBox>
+                </div>
+                <div className="flex justify-end">
+                  <EzButton
+                    size="small"
+                    disabled={updateOrgMutation.isPending}
+                    onClick={() => updateOrgMutation.mutate(profileDraft)}
+                  >
+                    Salvar Perfil
+                  </EzButton>
                 </div>
               </div>
             )}

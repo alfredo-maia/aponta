@@ -32,8 +32,13 @@ const orgDetail = {
   name: 'Empresa A',
   legalName: 'Empresa A Ltda',
   cnpj: '19131243000197',
+  cpf: null,
+  documentType: 'CNPJ',
   municipalRegistration: '123',
   stateRegistration: '456',
+  active: true,
+  serviceType: null,
+  healthStatus: null,
   users: [],
   addresses: [
     { id: 'addr-1', street: 'Av Paulista', city: 'Sao Paulo', state: 'SP', zipCode: '01310100', neighborhood: 'Bela Vista', complement: null },
@@ -290,6 +295,80 @@ describe('OrganizationsPage', () => {
       expect(api.post).toHaveBeenCalledWith('/organizations/org-1/contacts', expect.objectContaining({
         name: 'New Contact',
       }));
+    });
+  });
+
+  it('toggles CPF/CNPJ fields based on document type (Tiflux-parity, issue #56)', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    expect(screen.getByLabelText(/^cnpj$/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/^cpf$/i)).not.toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText(/tipo de documento/i), 'CPF');
+
+    expect(screen.getByLabelText(/^cpf$/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/^cnpj$/i)).not.toBeInTheDocument();
+  });
+
+  it('shows the "Cliente ativo" toggle and inactivates the organization', async () => {
+    vi.mocked(api.patch).mockResolvedValue({ data: { ...orgDetail, active: false } });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Empresa A' }));
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A Ltda')).toBeInTheDocument();
+    });
+
+    const toggle = screen.getByRole('checkbox');
+    await user.click(toggle);
+
+    await waitFor(() => {
+      expect(api.patch).toHaveBeenCalledWith('/organizations/org-1', { active: false });
+    });
+  });
+
+  it('opens the "Perfil do Cliente" tab and saves serviceType/healthStatus', async () => {
+    vi.mocked(api.patch).mockResolvedValue({ data: orgDetail });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Empresa A' }));
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A Ltda')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('tab', { name: /perfil do cliente/i }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/tipo de atendimento/i)).toBeInTheDocument();
+    });
+
+    await user.selectOptions(screen.getByLabelText(/tipo de atendimento/i), 'SUPORTE');
+    await user.selectOptions(screen.getByLabelText(/^saúde$/i), 'SAUDAVEL');
+    await user.click(screen.getByRole('button', { name: /salvar perfil/i }));
+
+    await waitFor(() => {
+      expect(api.patch).toHaveBeenCalledWith('/organizations/org-1', {
+        serviceType: 'SUPORTE',
+        healthStatus: 'SAUDAVEL',
+      });
     });
   });
 });

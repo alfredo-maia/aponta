@@ -62,9 +62,10 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
 
   // Queries (Mocking relations missing in Prisma for UI completion)
   const { data: orgs = [] } = useQuery({
-    queryKey: ['organizations'],
+    queryKey: ['organizations', { active: true }],
     queryFn: async () => {
-      const { data } = await api.get<Organization[]>('/organizations');
+      // Tiflux-parity: clientes inativos não devem aparecer como opção ao abrir tickets (issue #56).
+      const { data } = await api.get<Organization[]>('/organizations', { params: { active: true } });
       return data;
     },
   });

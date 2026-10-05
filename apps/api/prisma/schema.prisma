@@ -38,13 +38,25 @@ enum TicketPriority {
   CRITICAL
 }
 
+enum DocumentType {
+  CNPJ
+  CPF
+}
+
 model Organization {
   id        String   @id @default(uuid())
   name      String
   legalName              String?
   cnpj                   String?  @unique
+  cpf                    String?  @unique
+  documentType           DocumentType? @default(CNPJ)
   municipalRegistration  String?
   stateRegistration      String?
+  /// Tiflux-parity: ativar/inativar cliente sem excluir (gap #5 do #49, confirmado ao vivo em #56).
+  active                 Boolean  @default(true)
+  /// Aba "Perfil do Cliente" no Tiflux real: segmentação livre do cliente.
+  serviceType            String?
+  healthStatus           String?
   users     User[]
   credentials Credential[]
   contracts Contract[]

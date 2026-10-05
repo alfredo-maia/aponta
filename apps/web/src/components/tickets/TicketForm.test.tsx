@@ -92,7 +92,7 @@ describe('TicketForm', () => {
       user: { sub: 'u-1', email: 'client@example.com', role: 'CLIENT', organizationId: 'org-1' },
     });
     renderForm();
-    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/organizations'));
+    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/organizations', { params: { active: true } }));
 
     expect(screen.getByLabelText('Cliente')).toBeDisabled();
     expect(screen.getByLabelText('Solicitante')).toBeDisabled();
@@ -104,7 +104,7 @@ describe('TicketForm', () => {
       user: { sub: 'u-1', email: 'admin@example.com', role: 'ADMIN', organizationId: null },
     });
     renderForm();
-    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/organizations'));
+    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/organizations', { params: { active: true } }));
 
     expect(screen.getByLabelText('Cliente')).not.toBeDisabled();
     expect(screen.getByLabelText('Solicitante')).not.toBeDisabled();
@@ -212,7 +212,7 @@ describe('TicketForm', () => {
     });
     const user = userEvent.setup();
     renderForm();
-    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/organizations'));
+    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/organizations', { params: { active: true } }));
     await waitFor(() => expect(api.get).toHaveBeenCalledWith('/users'));
 
     const orgSearch = screen.getByLabelText('Cliente') as HTMLInputElement;

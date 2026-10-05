@@ -1,4 +1,5 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsEnum, IsBoolean } from 'class-validator';
+import { DocumentType } from '@prisma/client';
 
 export class UpdateOrganizationDto {
   @IsOptional()
@@ -16,9 +17,29 @@ export class UpdateOrganizationDto {
 
   @IsOptional()
   @IsString()
+  cpf?: string;
+
+  @IsOptional()
+  @IsEnum(DocumentType)
+  documentType?: DocumentType;
+
+  @IsOptional()
+  @IsString()
   municipalRegistration?: string;
 
   @IsOptional()
   @IsString()
   stateRegistration?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  active?: boolean;
+
+  @IsOptional()
+  @IsString()
+  serviceType?: string;
+
+  @IsOptional()
+  @IsString()
+  healthStatus?: string;
 }

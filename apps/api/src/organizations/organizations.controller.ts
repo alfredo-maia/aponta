@@ -33,8 +33,9 @@ export class OrganizationsController {
   }
 
   @Get()
-  findAll() {
-    return this.organizationsService.findAll();
+  findAll(@Query('active') active?: string) {
+    const activeFilter = active === undefined ? undefined : active === 'true';
+    return this.organizationsService.findAll(activeFilter);
   }
 
   @Get(':id')

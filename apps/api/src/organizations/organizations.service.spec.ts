@@ -41,15 +41,40 @@ describe('OrganizationsService', () => {
   });
 
   describe('findAll', () => {
-    it('returns all organizations with a user count', async () => {
+    it('returns all organizations with a user count when no filter is given', async () => {
       mockPrisma.organization.findMany.mockResolvedValue([{ id: 'org-1', _count: { users: 3 } }]);
 
       const result = await service.findAll();
 
       expect(mockPrisma.organization.findMany).toHaveBeenCalledWith({
+        where: undefined,
         include: { _count: { select: { users: true } } },
       });
       expect(result).toEqual([{ id: 'org-1', _count: { users: 3 } }]);
+    });
+
+    it('filters by active=true when requested (Tiflux-parity, issue #56)', async () => {
+      mockPrisma.organization.findMany.mockResolvedValue([{ id: 'org-1', active: true }]);
+
+      const result = await service.findAll(true);
+
+      expect(mockPrisma.organization.findMany).toHaveBeenCalledWith({
+        where: { active: true },
+        include: { _count: { select: { users: true } } },
+      });
+      expect(result).toEqual([{ id: 'org-1', active: true }]);
+    });
+
+    it('filters by active=false when requested', async () => {
+      mockPrisma.organization.findMany.mockResolvedValue([{ id: 'org-2', active: false }]);
+
+      const result = await service.findAll(false);
+
+      expect(mockPrisma.organization.findMany).toHaveBeenCalledWith({
+        where: { active: false },
+        include: { _count: { select: { users: true } } },
+      });
+      expect(result).toEqual([{ id: 'org-2', active: false }]);
     });
   });
 
