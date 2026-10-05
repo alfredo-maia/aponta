@@ -28,6 +28,11 @@ const mockHolidaysImportService = {
   fetchNationalHolidays: jest.fn(),
 };
 
+const EXPECTED_INCLUDE = {
+  agents: { select: { id: true, name: true, email: true } },
+  organization: { select: { id: true, name: true } },
+};
+
 describe('ServiceDesksService', () => {
   let service: ServiceDesksService;
   let prisma: PrismaService;
@@ -63,7 +68,7 @@ describe('ServiceDesksService', () => {
     expect(result).toEqual(expecteddesk);
     expect(prisma.serviceDesk.create).toHaveBeenCalledWith({
       data: createDto,
-      include: { agents: { select: { id: true, name: true, email: true } } }
+      include: EXPECTED_INCLUDE,
     });
   });
 
@@ -74,7 +79,7 @@ describe('ServiceDesksService', () => {
     const result = await service.findAll();
     expect(result).toEqual(expected);
     expect(prisma.serviceDesk.findMany).toHaveBeenCalledWith({
-      include: { agents: { select: { id: true, name: true, email: true } } }
+      include: EXPECTED_INCLUDE,
     });
   });
 
@@ -86,7 +91,7 @@ describe('ServiceDesksService', () => {
     expect(result).toEqual(expected);
     expect(prisma.serviceDesk.findUnique).toHaveBeenCalledWith({
       where: { id: '1' },
-      include: { agents: { select: { id: true, name: true, email: true } } }
+      include: EXPECTED_INCLUDE,
     });
   });
 
@@ -100,7 +105,7 @@ describe('ServiceDesksService', () => {
     expect(prisma.serviceDesk.update).toHaveBeenCalledWith({
       where: { id: '1' },
       data: updateDto,
-      include: { agents: { select: { id: true, name: true, email: true } } }
+      include: EXPECTED_INCLUDE,
     });
   });
 

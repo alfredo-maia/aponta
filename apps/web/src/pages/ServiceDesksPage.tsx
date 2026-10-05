@@ -6,12 +6,23 @@ import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
 import { ServiceDeskEditor } from '../components/ServiceDeskEditor';
 import { BusinessHoursEditor } from '../components/BusinessHoursEditor';
+import { ServiceDeskSlaEditor } from '../components/ServiceDeskSlaEditor';
 import { EzAlert, EzButton, EzCardItem, EzEmptyCard, EzSpinner, EzTextInput } from '../components/ds';
 
 interface ServiceDesk {
   id: string;
   name: string;
   agents?: { id: string; name: string }[];
+  organization?: { id: string; name: string } | null;
+  organizationId?: string | null;
+  slaCriticalResponseHours?: number | null;
+  slaCriticalResolveHours?: number | null;
+  slaHighResponseHours?: number | null;
+  slaHighResolveHours?: number | null;
+  slaMediumResponseHours?: number | null;
+  slaMediumResolveHours?: number | null;
+  slaLowResponseHours?: number | null;
+  slaLowResolveHours?: number | null;
   createdAt: string;
 }
 
@@ -124,6 +135,21 @@ export function ServiceDesksPage() {
               <li key={desk.id} className="px-4 py-3">
                 <div className="text-sm font-medium text-gray-900">{desk.name}</div>
                 <ServiceDeskEditor desk={desk} agents={agents ?? []} />
+                <ServiceDeskSlaEditor
+                  deskId={desk.id}
+                  initial={{
+                    organizationId: desk.organizationId ?? desk.organization?.id ?? null,
+                    organizationName: desk.organization?.name ?? null,
+                    slaCriticalResponseHours: desk.slaCriticalResponseHours,
+                    slaCriticalResolveHours: desk.slaCriticalResolveHours,
+                    slaHighResponseHours: desk.slaHighResponseHours,
+                    slaHighResolveHours: desk.slaHighResolveHours,
+                    slaMediumResponseHours: desk.slaMediumResponseHours,
+                    slaMediumResolveHours: desk.slaMediumResolveHours,
+                    slaLowResponseHours: desk.slaLowResponseHours,
+                    slaLowResolveHours: desk.slaLowResolveHours,
+                  }}
+                />
                 <BusinessHoursEditor serviceDeskId={desk.id} />
               </li>
             ))}

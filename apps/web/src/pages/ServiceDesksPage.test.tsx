@@ -11,6 +11,7 @@ vi.mock('../lib/api', () => ({
   api: {
     get: vi.fn(),
     post: vi.fn(),
+    patch: vi.fn(),
   },
 }));
 
@@ -19,10 +20,15 @@ const serviceDesks = [
   { id: 'sd-2', name: 'Infraestrutura', createdAt: '2026-09-29T10:00:00.000Z' },
 ];
 
+const organizations = [{ id: 'org-1', name: 'Acme Ltda' }];
+
 function mockApiGet() {
   vi.mocked(api.get).mockImplementation((url: string) => {
     if (url === '/service-desks') {
       return Promise.resolve({ data: serviceDesks });
+    }
+    if (url === '/organizations') {
+      return Promise.resolve({ data: organizations });
     }
     return Promise.reject(new Error(`Unexpected GET ${url}`));
   });
@@ -111,5 +117,36 @@ describe('ServiceDesksPage', () => {
       screen.getByText(/não tem permissão/i),
     ).toBeInTheDocument();
     expect(api.get).not.toHaveBeenCalled();
+  });
+
+  it('should link a service desk to a client and save its SLA overrides', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    vi.mocked(api.patch).mockResolvedValue({ data: {} });
+
+    renderPage();
+    await screen.findByText('Suporte N1');
+
+    const [editSlaButton] = screen.getAllByRole('button', { name: /editar cliente e sla/i });
+    await user.click(editSlaButton);
+
+    const orgSelect = await screen.findByLabelText(/cliente vinculado/i);
+    await user.selectOptions(orgSelect, 'org-1');
+
+    const criticalResponseInput = screen.getByLabelText(/1ª resposta \(pad\. 1h\)/i);
+    await user.clear(criticalResponseInput);
+    await user.type(criticalResponseInput, '2');
+
+    await user.click(screen.getByRole('button', { name: /salvar cliente e sla/i }));
+
+    await waitFor(() => {
+      expect(api.patch).toHaveBeenCalledWith(
+        '/service-desks/sd-1',
+        expect.objectContaining({
+          organizationId: 'org-1',
+          slaCriticalResponseHours: 2,
+        }),
+      );
+    });
   });
 });

@@ -37,14 +37,24 @@ const SLA_HOURS: Record<
  * service desk with no Expediente configured (`businessHours.length ===
  * 0`) falls back to plain 24/7 wall-clock hours — see
  * `addBusinessHours` in `../scheduling/business-hours`.
+ *
+ * `slaOverrides` lets a specific ServiceDesk override the global
+ * SLA_HOURS defaults per-priority (Tiflux-parity "Meta de SLA" per
+ * client desk). Each response/resolve pair is independently nullable —
+ * a desk can override just one priority and fall back to the global
+ * default for the rest.
  */
 function calculateSla(
   createdAt: Date,
   priority: TicketPriority,
   businessHours: { weekday: number; startTime: string; endTime: string }[],
   holidays: { date: Date }[],
+  slaOverrides?: Partial<Record<TicketPriority, { responseHours?: number | null; resolveHours?: number | null }>>,
 ): { responseDeadline: Date; resolveDeadline: Date } {
-  const { responseHours, resolveHours } = SLA_HOURS[priority];
+  const defaults = SLA_HOURS[priority];
+  const override = slaOverrides?.[priority];
+  const responseHours = override?.responseHours ?? defaults.responseHours;
+  const resolveHours = override?.resolveHours ?? defaults.resolveHours;
   return {
     responseDeadline: addBusinessHours(
       createdAt,
@@ -58,6 +68,31 @@ function calculateSla(
       businessHours,
       holidays,
     ),
+  };
+}
+
+/**
+ * Builds the per-priority SLA override map for `calculateSla` from a
+ * ServiceDesk row's `sla*Hours` columns (Tiflux-parity "Meta de SLA"
+ * configured per client desk). A desk with all fields `null` yields an
+ * all-undefined map, so `calculateSla` transparently falls back to the
+ * global SLA_HOURS defaults.
+ */
+function buildSlaOverrides(desk: {
+  slaCriticalResponseHours: number | null;
+  slaCriticalResolveHours: number | null;
+  slaHighResponseHours: number | null;
+  slaHighResolveHours: number | null;
+  slaMediumResponseHours: number | null;
+  slaMediumResolveHours: number | null;
+  slaLowResponseHours: number | null;
+  slaLowResolveHours: number | null;
+}): Partial<Record<TicketPriority, { responseHours?: number | null; resolveHours?: number | null }>> {
+  return {
+    CRITICAL: { responseHours: desk.slaCriticalResponseHours, resolveHours: desk.slaCriticalResolveHours },
+    HIGH: { responseHours: desk.slaHighResponseHours, resolveHours: desk.slaHighResolveHours },
+    MEDIUM: { responseHours: desk.slaMediumResponseHours, resolveHours: desk.slaMediumResolveHours },
+    LOW: { responseHours: desk.slaLowResponseHours, resolveHours: desk.slaLowResolveHours },
   };
 }
 
@@ -207,7 +242,20 @@ export class TicketsService {
 
 
     const createdAt = new Date();
-    const [businessHours, holidays] = await Promise.all([
+    const [serviceDesk, businessHours, holidays] = await Promise.all([
+      this.prisma.serviceDesk.findUnique({
+        where: { id: serviceDeskId },
+        select: {
+          slaCriticalResponseHours: true,
+          slaCriticalResolveHours: true,
+          slaHighResponseHours: true,
+          slaHighResolveHours: true,
+          slaMediumResponseHours: true,
+          slaMediumResolveHours: true,
+          slaLowResponseHours: true,
+          slaLowResolveHours: true,
+        },
+      }),
       this.prisma.businessHour.findMany({
         where: { serviceDeskId: serviceDeskId },
       }),
@@ -220,6 +268,7 @@ export class TicketsService {
       priority,
       businessHours,
       holidays,
+      serviceDesk ? buildSlaOverrides(serviceDesk) : undefined,
     );
     const year = createdAt.getUTCFullYear();
     const yearPrefix = `AP-${year}-`;
@@ -457,7 +506,20 @@ export class TicketsService {
       dto.priority !== undefined && dto.priority !== existing.priority;
     if (priorityChanged) {
       data.priority = dto.priority;
-      const [businessHours, holidays] = await Promise.all([
+      const [serviceDesk, businessHours, holidays] = await Promise.all([
+        this.prisma.serviceDesk.findUnique({
+          where: { id: existing.serviceDeskId },
+          select: {
+            slaCriticalResponseHours: true,
+            slaCriticalResolveHours: true,
+            slaHighResponseHours: true,
+            slaHighResolveHours: true,
+            slaMediumResponseHours: true,
+            slaMediumResolveHours: true,
+            slaLowResponseHours: true,
+            slaLowResolveHours: true,
+          },
+        }),
         this.prisma.businessHour.findMany({
           where: { serviceDeskId: existing.serviceDeskId },
         }),
@@ -470,6 +532,7 @@ export class TicketsService {
         dto.priority as TicketPriority,
         businessHours,
         holidays,
+        serviceDesk ? buildSlaOverrides(serviceDesk) : undefined,
       );
       data.responseDeadline = responseDeadline;
       data.resolveDeadline = resolveDeadline;

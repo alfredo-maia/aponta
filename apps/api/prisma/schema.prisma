@@ -50,6 +50,7 @@ model Organization {
   contracts Contract[]
   addresses OrganizationAddress[]
   contacts  OrganizationContact[]
+  serviceDesks ServiceDesk[]
   createdAt DateTime @default(now())
 }
 
@@ -110,11 +111,31 @@ model ServiceDesk {
   tickets Ticket[]
   agents  User[]   @relation("AgentServiceDesks")
 
+  /// Optional client this desk belongs to (Tiflux-parity "Mesa do cliente").
+  /// null = global/shared desk usable by any client (pre-existing behavior).
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
   businessHours BusinessHour[]
   holidays      Holiday[]
 
+  /// Per-desk SLA targets (hours), overriding the global defaults in
+  /// tickets.service.ts's SLA_HOURS when set. Each pair is nullable
+  /// independently so a desk can override just e.g. CRITICAL while
+  /// falling back to defaults for the rest.
+  slaCriticalResponseHours Int?
+  slaCriticalResolveHours  Int?
+  slaHighResponseHours     Int?
+  slaHighResolveHours      Int?
+  slaMediumResponseHours   Int?
+  slaMediumResolveHours    Int?
+  slaLowResponseHours      Int?
+  slaLowResolveHours       Int?
+
   createdAt           DateTime             @default(now())
   serviceCatalogItems ServiceCatalogItem[]
+
+  @@index([organizationId])
 }
 
 /// One weekly working window for a ServiceDesk, e.g. Monday 08:00-18:00.
