@@ -97,7 +97,7 @@ export const EzModal = forwardRef<HTMLDivElement, EzModalProps>(
 
           {/* Footer */}
           {footer && (
-            <div className="flex items-center justify-end px-6 py-4 border-t border-gray-100 gap-3 bg-gray-50/50 sm:rounded-b-[24px]">
+            <div className="flex items-center justify-end px-6 py-4 border-t border-gray-100 gap-3 bg-gray-90/50 sm:rounded-b-[24px]">
               {footer}
             </div>
           )}

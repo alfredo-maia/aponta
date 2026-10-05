@@ -50,7 +50,7 @@ export function ReportsPage() {
           )}
           {workloadQ.data && workloadQ.data.length > 0 && (
             <EzGridWrapper>
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-90">
                 <tr>
                   <th className="px-4 py-3 font-semibold text-gray-700">
                     <Users className="h-4 w-4 inline mr-1" /> Atendente
@@ -60,7 +60,7 @@ export function ReportsPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {workloadQ.data.map((item) => (
-                  <tr key={item.agentId} className="hover:bg-gray-50">
+                  <tr key={item.agentId} className="hover:bg-gray-90">
                     <td className="px-4 py-3 font-medium flex items-center gap-2 text-gray-900">
                       <Clock className="w-4 h-4 text-gray-400" />
                       {item.agentName}
@@ -88,7 +88,7 @@ export function ReportsPage() {
           )}
           {billingQ.data && billingQ.data.length > 0 && (
             <EzGridWrapper>
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-90">
                 <tr>
                   <th className="px-4 py-3 font-semibold text-gray-700">
                     <DollarSign className="h-4 w-4 inline mr-1" /> Cliente / Organização
@@ -100,7 +100,7 @@ export function ReportsPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {billingQ.data.map((item) => (
-                  <tr key={item.organizationId} className="hover:bg-gray-50">
+                  <tr key={item.organizationId} className="hover:bg-gray-90">
                     <td className="px-4 py-3 font-medium text-gray-900">{item.organizationName}</td>
                     <td className="px-4 py-3 text-right font-medium text-green-600">
                       {formatHours(item.billableMinutes)}

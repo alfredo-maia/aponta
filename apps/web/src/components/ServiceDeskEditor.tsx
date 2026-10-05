@@ -43,7 +43,7 @@ export function ServiceDeskEditor({ desk, agents }: { desk: any; agents: any[] }
               id={`agent-${agent.id}`}
               checked={selectedAgents.includes(agent.id)}
               onChange={() => toggleAgent(agent.id)}
-              className="p-1 hover:bg-gray-50 rounded"
+              className="p-1 hover:bg-gray-90 rounded"
               label={<span className="truncate" title={agent.email}>{agent.name}</span>}
             />
           ))}

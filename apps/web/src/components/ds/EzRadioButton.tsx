@@ -31,7 +31,7 @@ export const EzRadioButton = forwardRef<HTMLInputElement, EzRadioButtonProps>(
               'peer appearance-none w-5 h-5 border-2 rounded-full transition-colors',
               'checked:border-brand-600 focus-visible:ring-2 focus-visible:ring-brand-200 focus:outline-none',
               hasError ? 'border-red-600' : 'border-gray-300 hover:border-gray-400',
-              disabled && 'border-gray-200 bg-gray-50'
+              disabled && 'border-gray-200 bg-gray-90'
             )}
           />
           {/* Inner dot */}

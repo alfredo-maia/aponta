@@ -37,7 +37,7 @@ export const EzDoubleList = forwardRef<HTMLDivElement, EzDoubleListProps>(
       <div ref={ref} className={cn('flex flex-col sm:flex-row w-full gap-4 items-stretch', className)} {...props}>
         {/* Available List */}
         <div className="flex flex-col flex-1 border border-gray-200 rounded-[12px] bg-white overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 text-[14px] font-semibold text-gray-900">
+          <div className="px-4 py-3 border-b border-gray-200 bg-gray-90 text-[14px] font-semibold text-gray-900">
             {availableLabel} <span className="text-gray-500 font-normal ml-1">({available.length})</span>
           </div>
           <div className="flex-1 overflow-y-auto max-h-60 p-2">

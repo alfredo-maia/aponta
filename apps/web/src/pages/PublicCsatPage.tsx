@@ -45,7 +45,7 @@ export function PublicCsatPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-90">
         <p className="text-gray-500">Carregando…</p>
       </div>
     );
@@ -55,7 +55,7 @@ export function PublicCsatPage() {
     const isNotFound =
       axios.isAxiosError(error) && error.response?.status === 404;
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gray-90 px-4">
         <div className="max-w-md w-full bg-white rounded-lg shadow p-6 text-center">
           <h1 className="text-lg font-semibold text-gray-900 mb-2">
             Link inválido
@@ -92,7 +92,7 @@ export function PublicCsatPage() {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-90 px-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow p-6">
         <h1 className="text-lg font-semibold text-gray-900 mb-1">
           Chamado {data?.protocol}

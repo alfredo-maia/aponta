@@ -32,7 +32,7 @@ export const EzUpload = forwardRef<HTMLDivElement, EzUploadProps>(
           onClick={() => inputRef.current?.click()}
           className={cn(
             'flex flex-col items-center justify-center w-full p-6 transition-colors border-2 border-dashed rounded-[12px] cursor-pointer group',
-            hasError ? 'border-red-400 bg-red-50 hover:bg-red-100' : 'border-gray-200 bg-gray-50 hover:bg-brand-50 hover:border-brand-300'
+            hasError ? 'border-red-400 bg-red-50 hover:bg-red-100' : 'border-gray-200 bg-gray-90 hover:bg-brand-50 hover:border-brand-300'
           )}
         >
           <input

@@ -30,7 +30,7 @@ export function SettingsPage() {
           <Link
             key={to}
             to={to}
-            className="flex items-center justify-between gap-3 px-4 py-3 text-[14px] text-gray-900 transition-colors hover:bg-gray-50"
+            className="flex items-center justify-between gap-3 px-4 py-3 text-[14px] text-gray-900 transition-colors hover:bg-gray-90"
           >
             <span className="flex items-center gap-3">
               <Icon className="h-4 w-4 text-gray-500" />

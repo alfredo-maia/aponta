@@ -35,7 +35,7 @@ export function ContractsPage() {
 
       {list.length > 0 && (
         <EzGridWrapper>
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-90">
             <tr>
               <th className="px-4 py-3 font-semibold text-gray-700">Empresa</th>
               <th className="px-4 py-3 font-semibold text-gray-700">Modalidade</th>
@@ -50,7 +50,7 @@ export function ContractsPage() {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {list.map((c) => (
-              <tr key={c.id} className="hover:bg-gray-50">
+              <tr key={c.id} className="hover:bg-gray-90">
                 <td className="px-4 py-3 font-medium flex items-center gap-2 text-gray-900">
                   <Building className="w-4 h-4 text-gray-400" />
                   {c.organization?.name || '---'}

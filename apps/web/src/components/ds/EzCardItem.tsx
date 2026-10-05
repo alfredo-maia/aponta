@@ -38,7 +38,7 @@ export const EzEmptyCard = forwardRef<HTMLDivElement, EzEmptyCardProps>(
       <div
         ref={ref}
         className={cn(
-          'flex flex-col items-center justify-center w-full p-8 text-center bg-gray-50 rounded-[16px] border border-dashed border-gray-200',
+          'flex flex-col items-center justify-center w-full p-8 text-center bg-gray-90 rounded-[16px] border border-dashed border-gray-200',
           className
         )}
         {...props}

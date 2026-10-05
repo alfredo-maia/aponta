@@ -52,7 +52,7 @@ export const EzPageHeader = forwardRef<HTMLDivElement, EzPageHeaderProps>(
             {actions && <div className="flex items-center gap-2">{actions}</div>}
 
             {activeMode && onModeChange && (
-              <div className="flex items-center bg-gray-50 p-1 rounded-[8px] border border-gray-200">
+              <div className="flex items-center bg-gray-90 p-1 rounded-[8px] border border-gray-200">
                 <button
                   onClick={() => onModeChange('list')}
                   className={cn(

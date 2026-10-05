@@ -49,13 +49,13 @@ export function VaultPage() {
 
       {Object.entries(grouped).map(([org, creds]) => (
         <EzCardItem key={org} flat className="overflow-hidden">
-          <div className="bg-gray-50 px-4 py-3 font-semibold text-gray-900 flex justify-between">
+          <div className="bg-gray-90 px-4 py-3 font-semibold text-gray-900 flex justify-between">
             <span>{org}</span>
             <span className="text-sm font-normal text-gray-500">{creds.length} pastas/senhas</span>
           </div>
           <ul className="divide-y divide-gray-100">
             {creds.map((cred) => (
-              <li key={cred.id} className="p-4 flex items-center justify-between hover:bg-gray-50">
+              <li key={cred.id} className="p-4 flex items-center justify-between hover:bg-gray-90">
                 <div>
                   <h3 className="font-medium text-gray-900">{cred.name}</h3>
                   <div className="text-sm text-gray-500 mt-1 space-x-4">

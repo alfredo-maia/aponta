@@ -368,7 +368,7 @@ export function OrganizationsPage() {
                 </div>
 
                 {associatingOrgId === org.id && (
-                  <div className="mt-4 p-3 bg-gray-50 rounded-[12px] border border-gray-200">
+                  <div className="mt-4 p-3 bg-gray-90 rounded-[12px] border border-gray-200">
                     <h4 className="text-sm font-semibold text-gray-900 mb-2">Vincular/Desvincular Usuários</h4>
                     {isLoadingUsers ? <span className="text-xs text-gray-500">Carregando usuários...</span> : (
                       <div className="max-h-60 overflow-y-auto space-y-2">
@@ -484,7 +484,7 @@ export function OrganizationsPage() {
                 <form
                   onSubmit={handleAddressSubmit((values) => addAddressMutation.mutate(values))}
                   noValidate
-                  className="grid grid-cols-2 gap-3 p-3 bg-gray-50 rounded-[12px] border border-gray-200"
+                  className="grid grid-cols-2 gap-3 p-3 bg-gray-90 rounded-[12px] border border-gray-200"
                 >
                   <EzTextInput id="addr-zip" label="CEP" {...registerAddress('zipCode')} />
                   <EzTextInput id="addr-street" label="Logradouro" {...registerAddress('street')} />
@@ -536,7 +536,7 @@ export function OrganizationsPage() {
                 <form
                   onSubmit={handleContactSubmit((values) => addContactMutation.mutate(values))}
                   noValidate
-                  className="grid grid-cols-2 gap-3 p-3 bg-gray-50 rounded-[12px] border border-gray-200"
+                  className="grid grid-cols-2 gap-3 p-3 bg-gray-90 rounded-[12px] border border-gray-200"
                 >
                   <EzTextInput
                     id="contact-name"

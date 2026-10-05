@@ -41,7 +41,7 @@ export function TicketsPage() {
           {user?.role === 'CLIENT' ? 'Meus Chamados' : 'Caixa de Entrada'}
         </h1>
         {user?.role !== 'CLIENT' && (
-          <div className="flex shrink-0 items-center justify-center rounded-[8px] border border-gray-200 bg-gray-50 p-1 text-sm">
+          <div className="flex shrink-0 items-center justify-center rounded-[8px] border border-gray-200 bg-gray-90 p-1 text-sm">
             <button
               type="button"
               className={cn(
