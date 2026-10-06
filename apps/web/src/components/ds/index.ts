@@ -38,6 +38,7 @@ export * from './EzCardItem';
 export * from './EzTile';
 export * from './EzGrid';
 export * from './EzDoubleList';
+export * from './EzEntityGrid';
 export * from './EzPageLayout';
 
 // Aponta DS - Tier 6

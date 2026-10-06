@@ -1,6 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { ColumnDef } from '@tanstack/react-table';
 import { z } from 'zod';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
@@ -8,6 +10,7 @@ import { ServiceDeskEditor } from '../components/ServiceDeskEditor';
 import { BusinessHoursEditor } from '../components/BusinessHoursEditor';
 import { ServiceDeskSlaEditor } from '../components/ServiceDeskSlaEditor';
 import { EzAlert, EzButton, EzCardItem, EzEmptyCard, EzSpinner, EzTextInput } from '../components/ds';
+import { EzEntityGrid } from '../components/ds/EzEntityGrid';
 
 interface ServiceDesk {
   id: string;
@@ -32,6 +35,36 @@ const serviceDeskFormSchema = z.object({
 
 type ServiceDeskFormValues = z.infer<typeof serviceDeskFormSchema>;
 
+function serviceDeskColumns(
+  onSelect: (deskId: string) => void,
+): ColumnDef<ServiceDesk>[] {
+  return [
+    {
+      accessorKey: 'name',
+      header: 'Nome',
+      cell: ({ row }) => (
+        <button
+          type="button"
+          onClick={() => onSelect(row.original.id)}
+          className="text-left font-medium text-brand-700 hover:underline"
+        >
+          {row.original.name}
+        </button>
+      ),
+    },
+    {
+      id: 'organization',
+      header: 'Cliente vinculado',
+      cell: ({ row }) => row.original.organization?.name ?? '—',
+    },
+    {
+      id: 'agents',
+      header: 'Agentes',
+      cell: ({ row }) => row.original.agents?.length ?? 0,
+    },
+  ];
+}
+
 /**
  * ADMIN-only page for managing departments (API resource: "service desk").
  * The create-ticket form (TicketForm) reads its dropdown from
@@ -46,6 +79,7 @@ export function ServiceDesksPage() {
   const user = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
   const isAdmin = user?.role === 'ADMIN';
+  const [selectedDeskId, setSelectedDeskId] = useState<string | null>(null);
 
   const { data: serviceDesks, isLoading } = useQuery({
     queryKey: ['service-desks'],
@@ -128,38 +162,58 @@ export function ServiceDesksPage() {
 
       {isLoading ? (
         <EzSpinner label="Carregando…" />
-      ) : (
-        <EzCardItem flat className="max-w-2xl overflow-hidden">
-          <ul className="divide-y divide-gray-100">
-            {(serviceDesks ?? []).map((desk) => (
-              <li key={desk.id} className="px-4 py-3">
-                <div className="text-sm font-medium text-gray-900">{desk.name}</div>
-                <ServiceDeskEditor desk={desk} agents={agents ?? []} />
-                <ServiceDeskSlaEditor
-                  deskId={desk.id}
-                  initial={{
-                    organizationId: desk.organizationId ?? desk.organization?.id ?? null,
-                    organizationName: desk.organization?.name ?? null,
-                    slaCriticalResponseHours: desk.slaCriticalResponseHours,
-                    slaCriticalResolveHours: desk.slaCriticalResolveHours,
-                    slaHighResponseHours: desk.slaHighResponseHours,
-                    slaHighResolveHours: desk.slaHighResolveHours,
-                    slaMediumResponseHours: desk.slaMediumResponseHours,
-                    slaMediumResolveHours: desk.slaMediumResolveHours,
-                    slaLowResponseHours: desk.slaLowResponseHours,
-                    slaLowResolveHours: desk.slaLowResolveHours,
-                  }}
-                />
-                <BusinessHoursEditor serviceDeskId={desk.id} />
-              </li>
-            ))}
-          </ul>
-          {serviceDesks?.length === 0 && (
+      ) : selectedDeskId === null ? (
+        (serviceDesks ?? []).length === 0 ? (
+          <EzCardItem flat className="max-w-2xl overflow-hidden">
             <div className="p-4">
               <EzEmptyCard title="Nenhum departamento cadastrado ainda." />
             </div>
-          )}
-        </EzCardItem>
+          </EzCardItem>
+        ) : (
+          <EzEntityGrid
+            data={serviceDesks ?? []}
+            columns={serviceDeskColumns(setSelectedDeskId)}
+          />
+        )
+      ) : (
+        (() => {
+          const selectedDesk = serviceDesks?.find((desk) => desk.id === selectedDeskId);
+          if (!selectedDesk) return null;
+          return (
+            <div className="max-w-2xl space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-[16px] font-semibold text-gray-900">{selectedDesk.name}</h2>
+                <EzButton
+                  type="button"
+                  variant="secondary"
+                  size="small"
+                  onClick={() => setSelectedDeskId(null)}
+                >
+                  Voltar
+                </EzButton>
+              </div>
+              <EzCardItem flat className="p-4">
+                <ServiceDeskEditor desk={selectedDesk} agents={agents ?? []} />
+                <ServiceDeskSlaEditor
+                  deskId={selectedDesk.id}
+                  initial={{
+                    organizationId: selectedDesk.organizationId ?? selectedDesk.organization?.id ?? null,
+                    organizationName: selectedDesk.organization?.name ?? null,
+                    slaCriticalResponseHours: selectedDesk.slaCriticalResponseHours,
+                    slaCriticalResolveHours: selectedDesk.slaCriticalResolveHours,
+                    slaHighResponseHours: selectedDesk.slaHighResponseHours,
+                    slaHighResolveHours: selectedDesk.slaHighResolveHours,
+                    slaMediumResponseHours: selectedDesk.slaMediumResponseHours,
+                    slaMediumResolveHours: selectedDesk.slaMediumResolveHours,
+                    slaLowResponseHours: selectedDesk.slaLowResponseHours,
+                    slaLowResolveHours: selectedDesk.slaLowResolveHours,
+                  }}
+                />
+                <BusinessHoursEditor serviceDeskId={selectedDesk.id} />
+              </EzCardItem>
+            </div>
+          );
+        })()
       )}
     </div>
   );

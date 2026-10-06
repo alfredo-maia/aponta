@@ -6,6 +6,7 @@ import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
 import { useState } from 'react';
 import { Search, Trash2 } from 'lucide-react';
+import type { ColumnDef } from '@tanstack/react-table';
 import {
   EzAlert,
   EzButton,
@@ -13,6 +14,7 @@ import {
   EzCheck,
   EzComboBox,
   EzEmptyCard,
+  EzEntityGrid,
   EzMultiSelect,
   EzPageHeader,
   EzPageLayout,
@@ -414,6 +416,39 @@ export function OrganizationsPage() {
 
   const userOptions = (usersList ?? []).map((u) => ({ label: `${u.name} (${u.email})`, value: u.id }));
 
+  const orgColumns: ColumnDef<Organization>[] = [
+    {
+      accessorKey: 'name',
+      header: 'Nome',
+      cell: ({ row }) => (
+        <button
+          type="button"
+          onClick={() => openDetail(row.original.id)}
+          className="text-left font-medium text-brand-700 hover:underline"
+        >
+          {row.original.name}
+        </button>
+      ),
+    },
+    {
+      id: 'status',
+      header: 'Status',
+      cell: ({ row }) =>
+        row.original.active === false ? (
+          <span className="text-xs font-medium text-gray-500 bg-gray-90 px-2 py-0.5 rounded-full">
+            Inativo
+          </span>
+        ) : (
+          <span className="text-xs text-gray-500">Ativo</span>
+        ),
+    },
+    {
+      id: 'clientes',
+      header: 'Clientes',
+      cell: ({ row }) => <span className="text-xs text-gray-500">{row.original._count?.users || 0}</span>,
+    },
+  ];
+
   return (
     <EzPageLayout
       header={
@@ -439,33 +474,12 @@ export function OrganizationsPage() {
             <EzSpinner label="Carregando…" />
           ) : (
             <EzCardItem flat className="overflow-hidden">
-              <ul className="divide-y divide-gray-100">
-                {(orgs ?? []).map((org) => (
-                  <li key={org.id} className="px-4 py-3">
-                    <div className="flex justify-between items-center">
-                      <button
-                        type="button"
-                        onClick={() => openDetail(org.id)}
-                        className="text-left font-medium text-brand-700 hover:underline"
-                      >
-                        {org.name}
-                      </button>
-                      <div className="flex items-center gap-3">
-                        {org.active === false && (
-                          <span className="text-xs font-medium text-gray-500 bg-gray-90 px-2 py-0.5 rounded-full">
-                            Inativo
-                          </span>
-                        )}
-                        <span className="text-xs text-gray-500">Clientes: {org._count?.users || 0}</span>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              {orgs?.length === 0 && (
+              {orgs?.length === 0 ? (
                 <div className="p-4">
                   <EzEmptyCard title="Nenhuma empresa cadastrada ainda." />
                 </div>
+              ) : (
+                <EzEntityGrid columns={orgColumns} data={orgs ?? []} />
               )}
             </EzCardItem>
           )

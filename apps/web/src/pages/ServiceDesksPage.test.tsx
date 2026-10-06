@@ -127,7 +127,11 @@ describe('ServiceDesksPage', () => {
     renderPage();
     await screen.findByText('Suporte N1');
 
-    const [editSlaButton] = screen.getAllByRole('button', { name: /editar cliente e sla/i });
+    // The grid only shows a summary; opening the desk's name navigates
+    // into the detail view where the full editors (incl. SLA) live.
+    await user.click(screen.getByText('Suporte N1'));
+
+    const editSlaButton = await screen.findByRole('button', { name: /editar cliente e sla/i });
     await user.click(editSlaButton);
 
     const orgSelect = await screen.findByLabelText(/cliente vinculado/i);

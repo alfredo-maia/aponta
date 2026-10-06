@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -128,9 +128,18 @@ describe('OrganizationsPage', () => {
       expect(screen.getByText('Empresa A')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Clientes: 2')).toBeInTheDocument();
-    expect(screen.getByText('Empresa B')).toBeInTheDocument();
-    expect(screen.getByText('Clientes: 0')).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Nome' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Status' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Clientes' })).toBeInTheDocument();
+
+    const [rowA, rowB] = screen.getAllByRole('row').slice(1);
+    expect(within(rowA).getByText('Empresa A')).toBeInTheDocument();
+    expect(within(rowA).getByText('Ativo')).toBeInTheDocument();
+    expect(within(rowA).getByText('2')).toBeInTheDocument();
+
+    expect(within(rowB).getByText('Empresa B')).toBeInTheDocument();
+    expect(within(rowB).getByText('0')).toBeInTheDocument();
+
     expect(screen.getByTitle(/modo lista/i)).toBeInTheDocument();
     expect(screen.getByTitle(/modo formulário/i)).toBeInTheDocument();
   });
@@ -255,6 +264,11 @@ describe('OrganizationsPage', () => {
     await waitFor(() => {
       expect(screen.getByText(/nenhuma empresa cadastrada/i)).toBeInTheDocument();
     });
+
+    // Regressão: a grade (EzEntityGrid) não deve renderizar seu próprio
+    // estado vazio ao mesmo tempo que o EzEmptyCard da página — só um
+    // estado de "lista vazia" deve aparecer por vez.
+    expect(screen.queryByText(/nenhum registro encontrado/i)).not.toBeInTheDocument();
   });
 
   it('opens the full-page detail with the Tiflux-parity 3-column panel', async () => {
