@@ -42,3 +42,45 @@ export * from './EzPageLayout';
 
 // Aponta DS - Tier 6
 export * from './EzUpload';
+
+// Aponta DS - Tier 7 (paridade completa com catálogo Sankhya DS)
+export * from './EzActionsButton';
+export * from './EzAlertList';
+export * from './EzCalendar';
+export * from './EzChart';
+export * from './EzChip';
+export * from './EzClassicComboBox';
+export * from './EzClassicInput';
+export * from './EzClassicTextArea';
+export * from './EzCollapsibleBox';
+export * from './EzDateTimeInput';
+export * from './EzDialog';
+export * from './EzFilter';
+export * from './EzFilterInput';
+export * from './EzForm';
+export * from './EzFormView';
+export * from './EzGridView';
+export * from './EzGuideNavigator';
+export * from './EzModalContainer';
+export * from './EzMultiSelectionList';
+export * from './EzNumberInput';
+export * from './EzPopoverPlus';
+export * from './EzPopup';
+export * from './EzScrim';
+export * from './EzScroller';
+export * from './EzSearchPlus';
+export * from './EzSortableList';
+export * from './EzSplitButton';
+export * from './EzSplitPanel';
+export * from './EzTagInput';
+export * from './EzTextEdit';
+export * from './EzTileMedium';
+export * from './EzTimeInput';
+export * from './EzTree';
+export * from './EzUnderface';
+// Nota: EzEmptyCard (já exportado via EzCardItem), EzFileItem (já exportado via
+// EzUpload) e EzListItem (já exportado via EzList) têm implementações
+// standalone equivalentes em EzEmptyCard.tsx/EzFileItem.tsx/EzListItem.tsx
+// (com testes próprios), mas não são re-exportadas aqui para não colidir com
+// as versões já conectadas às páginas reais (OrganizationsPage, TicketForm,
+// EzDoubleList). Consolidar em uma única implementação é um refactor futuro.
