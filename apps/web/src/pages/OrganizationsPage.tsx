@@ -13,9 +13,12 @@ import {
   EzCheck,
   EzComboBox,
   EzEmptyCard,
-  EzModal,
+  EzMultiSelect,
+  EzPageHeader,
+  EzPageLayout,
   EzSpinner,
   EzTabs,
+  EzTextArea,
   EzTextInput,
 } from '../components/ds';
 
@@ -37,6 +40,18 @@ interface OrganizationContact {
   type?: string | null;
 }
 
+interface ServiceDeskRef {
+  id: string;
+  name: string;
+}
+
+interface AgentGroup {
+  id: string;
+  name: string;
+  active: boolean;
+  members: { id: string; name: string; email: string }[];
+}
+
 interface Organization {
   id: string;
   name: string;
@@ -49,6 +64,10 @@ interface Organization {
   active?: boolean;
   serviceType?: string | null;
   healthStatus?: string | null;
+  workFolder?: string | null;
+  notes?: string | null;
+  visibleToClients?: boolean;
+  quarterlyBilling?: boolean;
   _count?: { users: number };
 }
 
@@ -56,6 +75,8 @@ interface OrganizationDetail extends Organization {
   users: User[];
   addresses: OrganizationAddress[];
   contacts: OrganizationContact[];
+  serviceDesks: ServiceDeskRef[];
+  agentGroups: AgentGroup[];
 }
 
 interface User {
@@ -88,6 +109,10 @@ const orgFormSchema = z.object({
   cpf: z.string().trim().optional(),
   municipalRegistration: z.string().trim().optional(),
   stateRegistration: z.string().trim().optional(),
+  workFolder: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
+  visibleToClients: z.boolean().optional(),
+  quarterlyBilling: z.boolean().optional(),
 });
 
 type OrgFormValues = z.infer<typeof orgFormSchema>;
@@ -112,6 +137,12 @@ const contactFormSchema = z.object({
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
 
+const agentGroupFormSchema = z.object({
+  name: z.string().trim().min(1, 'Nome é obrigatório'),
+});
+
+type AgentGroupFormValues = z.infer<typeof agentGroupFormSchema>;
+
 function formatCnpj(value?: string | null) {
   if (!value) return '';
   const digits = value.replace(/\D/g, '');
@@ -119,16 +150,22 @@ function formatCnpj(value?: string | null) {
   return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
 }
 
+type DetailTab = 'users' | 'resources' | 'relationships' | 'billing';
+
 export function OrganizationsPage() {
   const user = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
   const isAdmin = user?.role === 'ADMIN';
 
-  const [associatingOrgId, setAssociatingOrgId] = useState<string | null>(null);
+  // Tiflux-parity (#57): padrão Sankhya de alternância Modo Lista / Modo
+  // Formulário (EzPageHeader), substituindo o antigo modal único.
+  const [mode, setMode] = useState<'list' | 'form'>('list');
   const [detailOrgId, setDetailOrgId] = useState<string | null>(null);
-  const [detailTab, setDetailTab] = useState<'info' | 'profile' | 'addresses' | 'contacts'>('info');
+  const [detailTab, setDetailTab] = useState<DetailTab>('users');
   const [cnpjLookupError, setCnpjLookupError] = useState<string | null>(null);
   const [profileDraft, setProfileDraft] = useState<{ serviceType: string; healthStatus: string } | null>(null);
+  const [linkDeskId, setLinkDeskId] = useState<string>('');
+  const [newGroupMemberIds, setNewGroupMemberIds] = useState<(string | number)[]>([]);
 
   const { data: orgs, isLoading: isLoadingOrgs } = useQuery({
     queryKey: ['organizations'],
@@ -145,7 +182,16 @@ export function OrganizationsPage() {
       const { data } = await api.get<User[]>('/users');
       return data;
     },
-    enabled: isAdmin && !!associatingOrgId,
+    enabled: isAdmin,
+  });
+
+  const { data: serviceDesks } = useQuery({
+    queryKey: ['service-desks', 'all-for-org-link'],
+    queryFn: async () => {
+      const { data } = await api.get<ServiceDeskRef[]>('/service-desks');
+      return data;
+    },
+    enabled: isAdmin && mode === 'form' && !!detailOrgId,
   });
 
   const { data: orgDetail, isLoading: isLoadingDetail } = useQuery({
@@ -159,7 +205,11 @@ export function OrganizationsPage() {
 
   const { register, handleSubmit, reset, setValue, getValues, watch, formState: { errors } } = useForm<OrgFormValues>({
     resolver: zodResolver(orgFormSchema),
-    defaultValues: { name: '', legalName: '', documentType: 'CNPJ', cnpj: '', cpf: '', municipalRegistration: '', stateRegistration: '' },
+    defaultValues: {
+      name: '', legalName: '', documentType: 'CNPJ', cnpj: '', cpf: '',
+      municipalRegistration: '', stateRegistration: '', workFolder: '', notes: '',
+      visibleToClients: true, quarterlyBilling: false,
+    },
   });
 
   const documentType = watch('documentType');
@@ -184,14 +234,26 @@ export function OrganizationsPage() {
     defaultValues: { name: '', email: '', phone: '', type: '' },
   });
 
+  const {
+    register: registerAgentGroup,
+    handleSubmit: handleAgentGroupSubmit,
+    reset: resetAgentGroupForm,
+    formState: { errors: agentGroupErrors },
+  } = useForm<AgentGroupFormValues>({
+    resolver: zodResolver(agentGroupFormSchema),
+    defaultValues: { name: '' },
+  });
+
   const createMutation = useMutation({
     mutationFn: async (values: OrgFormValues) => {
       const { data } = await api.post<Organization>('/organizations', values);
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       void queryClient.invalidateQueries({ queryKey: ['organizations'] });
       reset();
+      setMode('list');
+      openDetail(data.id);
     },
   });
 
@@ -213,6 +275,7 @@ export function OrganizationsPage() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['organizations'] });
       void queryClient.invalidateQueries({ queryKey: ['users'] });
+      void queryClient.invalidateQueries({ queryKey: ['organizations', detailOrgId] });
     }
   });
 
@@ -273,6 +336,51 @@ export function OrganizationsPage() {
     },
   });
 
+  // Tiflux-parity (#57): aba "Relacionamentos" — Mesa<->Cliente N:N.
+  const linkDeskMutation = useMutation({
+    mutationFn: async (deskId: string) => {
+      await api.post(`/organizations/${detailOrgId}/service-desks/${deskId}`);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['organizations', detailOrgId] });
+      setLinkDeskId('');
+    },
+  });
+
+  const unlinkDeskMutation = useMutation({
+    mutationFn: async (deskId: string) => {
+      await api.delete(`/organizations/${detailOrgId}/service-desks/${deskId}`);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['organizations', detailOrgId] });
+    },
+  });
+
+  // Tiflux-parity (#57): Grupo de Atendentes — entidade por cliente.
+  const createAgentGroupMutation = useMutation({
+    mutationFn: async (values: AgentGroupFormValues) => {
+      const { data } = await api.post(`/organizations/${detailOrgId}/agent-groups`, {
+        ...values,
+        memberIds: newGroupMemberIds,
+      });
+      return data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['organizations', detailOrgId] });
+      resetAgentGroupForm();
+      setNewGroupMemberIds([]);
+    },
+  });
+
+  const removeAgentGroupMutation = useMutation({
+    mutationFn: async (agentGroupId: string) => {
+      await api.delete(`/organizations/${detailOrgId}/agent-groups/${agentGroupId}`);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['organizations', detailOrgId] });
+    },
+  });
+
   if (!isAdmin) {
     return (
       <div className="space-y-2">
@@ -283,9 +391,15 @@ export function OrganizationsPage() {
   }
 
   const openDetail = (orgId: string) => {
-    setDetailTab('info');
+    setDetailTab('users');
     setDetailOrgId(orgId);
     setProfileDraft(null);
+    setMode('form');
+  };
+
+  const backToList = () => {
+    setMode('list');
+    setDetailOrgId(null);
   };
 
   if (orgDetail && profileDraft === null) {
@@ -295,390 +409,546 @@ export function OrganizationsPage() {
     });
   }
 
+  const linkedDeskIds = new Set((orgDetail?.serviceDesks ?? []).map((d) => d.id));
+  const availableDesksToLink = (serviceDesks ?? []).filter((d) => !linkedDeskIds.has(d.id));
+
+  const userOptions = (usersList ?? []).map((u) => ({ label: `${u.name} (${u.email})`, value: u.id }));
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-[20px] font-semibold text-gray-900">Empresas (Organizações)</h1>
-
-      <form
-        onSubmit={handleSubmit((values) => createMutation.mutate(values))}
-        noValidate
-        className="max-w-2xl"
-      >
-        <EzCardItem flat className="p-4 space-y-4">
-          <h2 className="text-sm font-semibold text-gray-900">Nova Empresa</h2>
-
-          <div className="grid grid-cols-2 gap-3">
-            <EzComboBox
-              id="org-document-type"
-              label="Tipo de Documento"
-              {...register('documentType')}
-            >
-              <option value="CNPJ">CNPJ (Pessoa Jurídica)</option>
-              <option value="CPF">CPF (Pessoa Física)</option>
-            </EzComboBox>
-          </div>
-
-          {documentType === 'CPF' ? (
-            <div className="flex items-end gap-3">
-              <div className="flex-1">
-                <EzTextInput
-                  id="org-cpf"
-                  label="CPF"
-                  placeholder="000.000.000-00"
-                  {...register('cpf')}
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-end gap-3">
-              <div className="flex-1">
-                <EzTextInput
-                  id="org-cnpj"
-                  label="CNPJ"
-                  placeholder="00.000.000/0000-00"
-                  {...register('cnpj')}
-                />
-              </div>
-              <EzButton
-                type="button"
-                variant="secondary"
-                leftIcon={Search}
-                disabled={cnpjLookupMutation.isPending}
-                onClick={() => {
-                  const cnpj = getValues('cnpj');
-                  if (cnpj) cnpjLookupMutation.mutate(cnpj);
-                }}
-              >
-                Buscar CNPJ
+    <EzPageLayout
+      header={
+        <EzPageHeader
+          title="Empresas (Organizações)"
+          showBackButton={mode === 'form'}
+          onBack={backToList}
+          actions={
+            mode === 'list' ? (
+              <EzButton size="small" onClick={() => { reset(); setDetailOrgId(null); setMode('form'); }}>
+                Novo Cliente
               </EzButton>
-            </div>
-          )}
-
-          {cnpjLookupError && (
-            <EzAlert variant="error" onClose={() => setCnpjLookupError(null)}>
-              {cnpjLookupError}
-            </EzAlert>
-          )}
-
-          <div className="grid grid-cols-2 gap-3">
-            <EzTextInput
-              id="org-legal-name"
-              label="Razão Social"
-              {...register('legalName')}
-            />
-            <EzTextInput
-              id="org-name"
-              label="Nome Fantasia"
-              hasError={!!errors.name}
-              message={errors.name?.message}
-              {...register('name')}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <EzTextInput
-              id="org-municipal-registration"
-              label="Inscrição Municipal"
-              {...register('municipalRegistration')}
-            />
-            <EzTextInput
-              id="org-state-registration"
-              label="Inscrição Estadual"
-              {...register('stateRegistration')}
-            />
-          </div>
-
-          <div className="flex justify-end">
-            <EzButton type="submit" disabled={createMutation.isPending}>
-              Cadastrar
-            </EzButton>
-          </div>
-        </EzCardItem>
-      </form>
-
-      {isLoadingOrgs ? (
-        <EzSpinner label="Carregando…" />
-      ) : (
-        <EzCardItem flat className="max-w-3xl overflow-hidden">
-          <ul className="divide-y divide-gray-100">
-            {(orgs ?? []).map((org) => (
-              <li key={org.id} className="px-4 py-3">
-                <div className="flex justify-between items-center">
-                  <button
-                    type="button"
-                    onClick={() => openDetail(org.id)}
-                    className="text-left font-medium text-brand-700 hover:underline"
-                  >
-                    {org.name}
-                  </button>
-                  <div className="flex items-center gap-3">
-                    {org.active === false && (
-                      <span className="text-xs font-medium text-gray-500 bg-gray-90 px-2 py-0.5 rounded-full">
-                        Inativo
-                      </span>
-                    )}
-                    <span className="text-xs text-gray-500">Clientes: {org._count?.users || 0}</span>
-                    <EzButton
-                      variant="tertiary"
-                      size="small"
-                      onClick={() => setAssociatingOrgId(associatingOrgId === org.id ? null : org.id)}
-                    >
-                      Vincular Usuários
-                    </EzButton>
-                  </div>
-                </div>
-
-                {associatingOrgId === org.id && (
-                  <div className="mt-4 p-3 bg-gray-90 rounded-[12px] border border-gray-200">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-2">Vincular/Desvincular Usuários</h4>
-                    {isLoadingUsers ? <span className="text-xs text-gray-500">Carregando usuários...</span> : (
-                      <div className="max-h-60 overflow-y-auto space-y-2">
-                         {(usersList ?? []).filter(u => u.role.includes('CLIENT')).map(u => {
-                           const isPinned = u.organizationId === org.id;
-                           return (
-                             <div key={u.id} className="flex justify-between items-center text-sm p-1 hover:bg-white rounded-[8px]">
-                               <div>
-                                 <span className="text-gray-900">{u.name}</span>{' '}
-                                 <span className="text-gray-500">({u.email})</span>
-                               </div>
-                               <EzButton
-                                 variant="tertiary"
-                                 size="x-small"
-                                 disabled={attachUserMutation.isPending}
-                                 onClick={() => attachUserMutation.mutate({ userId: u.id, orgId: isPinned ? null : org.id })}
-                                 className={isPinned ? 'text-red-600 hover:text-red-700' : 'text-green-600 hover:text-green-700'}
-                               >
-                                 {isPinned ? 'Remover' : 'Adicionar'}
-                               </EzButton>
-                             </div>
-                           );
-                         })}
+            ) : undefined
+          }
+          activeMode={mode === 'list' || !detailOrgId ? mode : undefined}
+          onModeChange={!detailOrgId ? setMode : undefined}
+        />
+      }
+    >
+      <div className="space-y-6">
+        {mode === 'list' && (
+          isLoadingOrgs ? (
+            <EzSpinner label="Carregando…" />
+          ) : (
+            <EzCardItem flat className="overflow-hidden">
+              <ul className="divide-y divide-gray-100">
+                {(orgs ?? []).map((org) => (
+                  <li key={org.id} className="px-4 py-3">
+                    <div className="flex justify-between items-center">
+                      <button
+                        type="button"
+                        onClick={() => openDetail(org.id)}
+                        className="text-left font-medium text-brand-700 hover:underline"
+                      >
+                        {org.name}
+                      </button>
+                      <div className="flex items-center gap-3">
+                        {org.active === false && (
+                          <span className="text-xs font-medium text-gray-500 bg-gray-90 px-2 py-0.5 rounded-full">
+                            Inativo
+                          </span>
+                        )}
+                        <span className="text-xs text-gray-500">Clientes: {org._count?.users || 0}</span>
                       </div>
-                    )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              {orgs?.length === 0 && (
+                <div className="p-4">
+                  <EzEmptyCard title="Nenhuma empresa cadastrada ainda." />
+                </div>
+              )}
+            </EzCardItem>
+          )
+        )}
+
+        {mode === 'form' && !detailOrgId && (
+          <form
+            onSubmit={handleSubmit((values) => createMutation.mutate(values))}
+            noValidate
+            className="max-w-3xl"
+          >
+            <EzCardItem flat className="p-4 space-y-4">
+              <h2 className="text-sm font-semibold text-gray-900">Nova Empresa</h2>
+
+              <div className="grid grid-cols-2 gap-3">
+                <EzComboBox
+                  id="org-document-type"
+                  label="Tipo de Documento"
+                  {...register('documentType')}
+                >
+                  <option value="CNPJ">CNPJ (Pessoa Jurídica)</option>
+                  <option value="CPF">CPF (Pessoa Física)</option>
+                </EzComboBox>
+              </div>
+
+              {documentType === 'CPF' ? (
+                <div className="flex items-end gap-3">
+                  <div className="flex-1">
+                    <EzTextInput id="org-cpf" label="CPF" placeholder="000.000.000-00" {...register('cpf')} />
                   </div>
-                )}
-              </li>
-            ))}
-          </ul>
-          {orgs?.length === 0 && (
-            <div className="p-4">
-              <EzEmptyCard title="Nenhuma empresa cadastrada ainda." />
-            </div>
-          )}
-        </EzCardItem>
-      )}
-
-      <EzModal
-        isOpen={!!detailOrgId}
-        onClose={() => setDetailOrgId(null)}
-        title={orgDetail?.name ?? 'Detalhes da Empresa'}
-        maxWidth="lg"
-      >
-        {isLoadingDetail || !orgDetail ? (
-          <EzSpinner label="Carregando…" />
-        ) : (
-          <div className="space-y-4">
-            <EzTabs
-              tabs={[
-                { id: 'info', label: 'Dados Cadastrais' },
-                { id: 'profile', label: 'Perfil do Cliente' },
-                { id: 'addresses', label: `Endereços (${orgDetail.addresses?.length ?? 0})` },
-                { id: 'contacts', label: `Contatos (${orgDetail.contacts?.length ?? 0})` },
-              ]}
-              activeTab={detailTab}
-              onChange={(tabId) => setDetailTab(tabId as typeof detailTab)}
-            />
-
-            <div className="flex items-center justify-between p-3 bg-gray-90 rounded-[12px] border border-gray-200">
-              <div>
-                <div className="text-sm font-medium text-gray-900">Cliente ativo</div>
-                <div className="text-xs text-gray-500">
-                  Clientes inativos não aparecem como opção ao abrir novos tickets.
                 </div>
-              </div>
-              <EzCheck
-                id="org-active-toggle"
-                checked={orgDetail.active !== false}
-                disabled={updateOrgMutation.isPending}
-                onChange={(e) => updateOrgMutation.mutate({ active: e.target.checked })}
-              />
-            </div>
-
-            {detailTab === 'info' && (
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <div className="text-gray-500">Razão Social</div>
-                  <div className="text-gray-900 font-medium">{orgDetail.legalName || '—'}</div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Nome Fantasia</div>
-                  <div className="text-gray-900 font-medium">{orgDetail.name || '—'}</div>
-                </div>
-                <div>
-                  <div className="text-gray-500">CNPJ</div>
-                  <div className="text-gray-900 font-medium">{formatCnpj(orgDetail.cnpj) || '—'}</div>
-                </div>
-                <div>
-                  <div className="text-gray-500">CPF</div>
-                  <div className="text-gray-900 font-medium">{orgDetail.cpf || '—'}</div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Inscrição Municipal</div>
-                  <div className="text-gray-900 font-medium">{orgDetail.municipalRegistration || '—'}</div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Inscrição Estadual</div>
-                  <div className="text-gray-900 font-medium">{orgDetail.stateRegistration || '—'}</div>
-                </div>
-              </div>
-            )}
-
-            {detailTab === 'profile' && profileDraft && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <EzComboBox
-                    id="org-service-type"
-                    label="Tipo de Atendimento"
-                    value={profileDraft.serviceType}
-                    onChange={(e) => setProfileDraft({ ...profileDraft, serviceType: e.target.value })}
-                  >
-                    <option value="">Sem dados</option>
-                    <option value="SUPORTE">Suporte</option>
-                    <option value="CONSULTORIA">Consultoria</option>
-                    <option value="DESENVOLVIMENTO">Desenvolvimento</option>
-                  </EzComboBox>
-                  <EzComboBox
-                    id="org-health-status"
-                    label="Saúde"
-                    value={profileDraft.healthStatus}
-                    onChange={(e) => setProfileDraft({ ...profileDraft, healthStatus: e.target.value })}
-                  >
-                    <option value="">Sem dados</option>
-                    <option value="SAUDAVEL">Saudável</option>
-                    <option value="ATENCAO">Atenção</option>
-                    <option value="RISCO">Risco</option>
-                  </EzComboBox>
-                </div>
-                <div className="flex justify-end">
+              ) : (
+                <div className="flex items-end gap-3">
+                  <div className="flex-1">
+                    <EzTextInput id="org-cnpj" label="CNPJ" placeholder="00.000.000/0000-00" {...register('cnpj')} />
+                  </div>
                   <EzButton
-                    size="small"
-                    disabled={updateOrgMutation.isPending}
-                    onClick={() => updateOrgMutation.mutate(profileDraft)}
+                    type="button"
+                    variant="secondary"
+                    leftIcon={Search}
+                    disabled={cnpjLookupMutation.isPending}
+                    onClick={() => {
+                      const cnpj = getValues('cnpj');
+                      if (cnpj) cnpjLookupMutation.mutate(cnpj);
+                    }}
                   >
-                    Salvar Perfil
+                    Buscar CNPJ
                   </EzButton>
                 </div>
+              )}
+
+              {cnpjLookupError && (
+                <EzAlert variant="error" onClose={() => setCnpjLookupError(null)}>
+                  {cnpjLookupError}
+                </EzAlert>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
+                <EzTextInput id="org-legal-name" label="Razão Social" {...register('legalName')} />
+                <EzTextInput
+                  id="org-name"
+                  label="Nome Fantasia"
+                  hasError={!!errors.name}
+                  message={errors.name?.message}
+                  {...register('name')}
+                />
               </div>
-            )}
 
-            {detailTab === 'addresses' && (
-              <div className="space-y-4">
-                <ul className="divide-y divide-gray-100 border border-gray-200 rounded-[12px]">
-                  {(orgDetail.addresses ?? []).map((addr) => (
-                    <li key={addr.id} className="flex justify-between items-start px-3 py-2 text-sm">
-                      <div>
-                        <div className="text-gray-900">
-                          {addr.street || '—'}{addr.complement ? `, ${addr.complement}` : ''}
-                        </div>
-                        <div className="text-gray-500">
-                          {[addr.neighborhood, addr.city, addr.state, addr.zipCode].filter(Boolean).join(' · ')}
-                        </div>
-                      </div>
-                      <EzButton
-                        variant="tertiary"
-                        size="x-small"
-                        onClick={() => removeAddressMutation.mutate(addr.id)}
-                        disabled={removeAddressMutation.isPending}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 size={14} />
-                      </EzButton>
-                    </li>
-                  ))}
-                  {(orgDetail.addresses ?? []).length === 0 && (
-                    <li className="px-3 py-3 text-sm text-gray-500">Nenhum endereço cadastrado.</li>
-                  )}
-                </ul>
-
-                <form
-                  onSubmit={handleAddressSubmit((values) => addAddressMutation.mutate(values))}
-                  noValidate
-                  className="grid grid-cols-2 gap-3 p-3 bg-gray-90 rounded-[12px] border border-gray-200"
-                >
-                  <EzTextInput id="addr-zip" label="CEP" {...registerAddress('zipCode')} />
-                  <EzTextInput id="addr-street" label="Logradouro" {...registerAddress('street')} />
-                  <EzTextInput id="addr-neighborhood" label="Bairro" {...registerAddress('neighborhood')} />
-                  <EzTextInput id="addr-city" label="Cidade" {...registerAddress('city')} />
-                  <EzTextInput id="addr-state" label="Estado" {...registerAddress('state')} />
-                  <EzTextInput id="addr-complement" label="Complemento" {...registerAddress('complement')} />
-                  <div className="col-span-2 flex justify-end">
-                    <EzButton type="submit" size="small" disabled={addAddressMutation.isPending}>
-                      Adicionar Endereço
-                    </EzButton>
-                  </div>
-                  {addressErrors.street && (
-                    <p className="col-span-2 text-xs text-red-600">{addressErrors.street.message}</p>
-                  )}
-                </form>
+              <div className="grid grid-cols-2 gap-3">
+                <EzTextInput id="org-state-registration" label="Inscrição Estadual" {...register('stateRegistration')} />
+                <EzTextInput id="org-municipal-registration" label="Inscrição Municipal" {...register('municipalRegistration')} />
               </div>
-            )}
 
-            {detailTab === 'contacts' && (
-              <div className="space-y-4">
-                <ul className="divide-y divide-gray-100 border border-gray-200 rounded-[12px]">
-                  {(orgDetail.contacts ?? []).map((contact) => (
-                    <li key={contact.id} className="flex justify-between items-start px-3 py-2 text-sm">
-                      <div>
-                        <div className="text-gray-900">
-                          {contact.name}{contact.type ? ` · ${contact.type}` : ''}
-                        </div>
-                        <div className="text-gray-500">
-                          {[contact.email, contact.phone].filter(Boolean).join(' · ')}
-                        </div>
-                      </div>
-                      <EzButton
-                        variant="tertiary"
-                        size="x-small"
-                        onClick={() => removeContactMutation.mutate(contact.id)}
-                        disabled={removeContactMutation.isPending}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 size={14} />
-                      </EzButton>
-                    </li>
-                  ))}
-                  {(orgDetail.contacts ?? []).length === 0 && (
-                    <li className="px-3 py-3 text-sm text-gray-500">Nenhum contato cadastrado.</li>
-                  )}
-                </ul>
-
-                <form
-                  onSubmit={handleContactSubmit((values) => addContactMutation.mutate(values))}
-                  noValidate
-                  className="grid grid-cols-2 gap-3 p-3 bg-gray-90 rounded-[12px] border border-gray-200"
-                >
-                  <EzTextInput
-                    id="contact-name"
-                    label="Nome"
-                    hasError={!!contactErrors.name}
-                    message={contactErrors.name?.message}
-                    {...registerContact('name')}
-                  />
-                  <EzTextInput id="contact-type" label="Tipo de Contato" {...registerContact('type')} />
-                  <EzTextInput id="contact-email" label="E-mail" {...registerContact('email')} />
-                  <EzTextInput id="contact-phone" label="Telefone" {...registerContact('phone')} />
-                  <div className="col-span-2 flex justify-end">
-                    <EzButton type="submit" size="small" disabled={addContactMutation.isPending}>
-                      Adicionar Contato
-                    </EzButton>
-                  </div>
-                </form>
+              <div className="grid grid-cols-2 gap-3">
+                <EzTextInput id="org-work-folder" label="Pasta de Trabalho" {...register('workFolder')} />
+                <div className="flex items-center gap-3 pt-6">
+                  <EzCheck id="org-visible" label="Visível para clientes" {...register('visibleToClients')} />
+                  <EzCheck id="org-quarterly" label="Faturamento quarteirizado" {...register('quarterlyBilling')} />
+                </div>
               </div>
-            )}
-          </div>
+
+              <EzTextArea id="org-notes" label="Anotações" rows={3} {...register('notes')} />
+
+              <div className="flex justify-end">
+                <EzButton type="submit" disabled={createMutation.isPending}>
+                  Cadastrar
+                </EzButton>
+              </div>
+            </EzCardItem>
+          </form>
         )}
-      </EzModal>
-    </div>
+
+        {mode === 'form' && detailOrgId && (
+          isLoadingDetail || !orgDetail ? (
+            <EzSpinner label="Carregando…" />
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-[18px] font-semibold text-gray-900">{orgDetail.name}</h2>
+                <div className="flex items-center gap-2 text-sm">
+                  <EzCheck
+                    id="org-active-toggle"
+                    label="Cliente ativo"
+                    checked={orgDetail.active !== false}
+                    disabled={updateOrgMutation.isPending}
+                    onChange={(e) => updateOrgMutation.mutate({ active: e.target.checked })}
+                  />
+                </div>
+              </div>
+
+              {/* Painel principal (Tiflux-parity, aba "Informações" do cliente real) */}
+              <EzCardItem flat className="p-4">
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <div className="text-gray-500">Nome Fantasia</div>
+                    <div className="text-gray-900 font-medium">{orgDetail.name || '—'}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500">Razão Social</div>
+                    <div className="text-gray-900 font-medium">{orgDetail.legalName || '—'}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500">CPF/CNPJ</div>
+                    <div className="text-gray-900 font-medium">
+                      {orgDetail.documentType === 'CPF' ? (orgDetail.cpf || '—') : (formatCnpj(orgDetail.cnpj) || '—')}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="text-gray-500">Inscrição Estadual</div>
+                    <div className="text-gray-900 font-medium">{orgDetail.stateRegistration || '—'}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500">Inscrição Municipal</div>
+                    <div className="text-gray-900 font-medium">{orgDetail.municipalRegistration || '—'}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500">Recursos cadastrados</div>
+                    <div className="text-gray-900 font-medium">-- / 0 disponíveis / 0 em uso</div>
+                  </div>
+
+                  <div>
+                    <div className="text-gray-500">Pasta de Trabalho</div>
+                    <div className="text-gray-900 font-medium">{orgDetail.workFolder || '—'}</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <EzCheck
+                      id="org-visible-toggle"
+                      label="Visível para clientes"
+                      checked={orgDetail.visibleToClients !== false}
+                      disabled={updateOrgMutation.isPending}
+                      onChange={(e) => updateOrgMutation.mutate({ visibleToClients: e.target.checked })}
+                    />
+                  </div>
+                  <div>
+                    <div className="text-gray-500">Agentes inteligentes</div>
+                    <div className="text-gray-900 font-medium">-- / 0 disponíveis / 0 em uso</div>
+                  </div>
+
+                  <div className="col-span-2">
+                    <div className="text-gray-500">Anotações</div>
+                    <div className="text-gray-900 font-medium">{orgDetail.notes || '—'}</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <EzCheck
+                      id="org-quarterly-toggle"
+                      label="Faturamento quarteirizado"
+                      checked={orgDetail.quarterlyBilling === true}
+                      disabled={updateOrgMutation.isPending}
+                      onChange={(e) => updateOrgMutation.mutate({ quarterlyBilling: e.target.checked })}
+                    />
+                  </div>
+                </div>
+              </EzCardItem>
+
+              <EzTabs
+                tabs={[
+                  { id: 'users', label: 'Usuários' },
+                  { id: 'resources', label: 'Recursos' },
+                  { id: 'relationships', label: 'Relacionamentos' },
+                  { id: 'billing', label: 'Faturamento' },
+                ]}
+                activeTab={detailTab}
+                onChange={(tabId) => setDetailTab(tabId as DetailTab)}
+              />
+
+              {detailTab === 'users' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <EzTextInput id="org-legal-name-edit" label="Razão Social" defaultValue={orgDetail.legalName ?? ''}
+                      onBlur={(e) => { if (e.target.value !== (orgDetail.legalName ?? '')) updateOrgMutation.mutate({ legalName: e.target.value }); }} />
+                    <EzTextInput id="org-name-edit" label="Nome Fantasia" defaultValue={orgDetail.name ?? ''}
+                      onBlur={(e) => { if (e.target.value !== orgDetail.name) updateOrgMutation.mutate({ name: e.target.value }); }} />
+                  </div>
+
+                  <h4 className="text-sm font-semibold text-gray-900">Usuários vinculados</h4>
+                  {isLoadingUsers ? <EzSpinner label="Carregando usuários…" /> : (
+                    <div className="max-h-72 overflow-y-auto space-y-2 border border-gray-200 rounded-[12px] p-3">
+                      {(usersList ?? []).filter(u => u.role.includes('CLIENT')).map(u => {
+                        const isPinned = u.organizationId === detailOrgId;
+                        return (
+                          <div key={u.id} className="flex justify-between items-center text-sm p-1 hover:bg-gray-90 rounded-[8px]">
+                            <div>
+                              <span className="text-gray-900">{u.name}</span>{' '}
+                              <span className="text-gray-500">({u.email})</span>
+                            </div>
+                            <EzButton
+                              variant="tertiary"
+                              size="x-small"
+                              disabled={attachUserMutation.isPending}
+                              onClick={() => attachUserMutation.mutate({ userId: u.id, orgId: isPinned ? null : detailOrgId })}
+                              className={isPinned ? 'text-red-600 hover:text-red-700' : 'text-green-600 hover:text-green-700'}
+                            >
+                              {isPinned ? 'Remover' : 'Adicionar'}
+                            </EzButton>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  <h4 className="text-sm font-semibold text-gray-900 pt-2">Perfil do Cliente</h4>
+                  {profileDraft && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        <EzComboBox
+                          id="org-service-type"
+                          label="Tipo de Atendimento"
+                          value={profileDraft.serviceType}
+                          onChange={(e) => setProfileDraft({ ...profileDraft, serviceType: e.target.value })}
+                        >
+                          <option value="">Sem dados</option>
+                          <option value="SUPORTE">Suporte</option>
+                          <option value="CONSULTORIA">Consultoria</option>
+                          <option value="DESENVOLVIMENTO">Desenvolvimento</option>
+                        </EzComboBox>
+                        <EzComboBox
+                          id="org-health-status"
+                          label="Saúde"
+                          value={profileDraft.healthStatus}
+                          onChange={(e) => setProfileDraft({ ...profileDraft, healthStatus: e.target.value })}
+                        >
+                          <option value="">Sem dados</option>
+                          <option value="SAUDAVEL">Saudável</option>
+                          <option value="ATENCAO">Atenção</option>
+                          <option value="RISCO">Risco</option>
+                        </EzComboBox>
+                      </div>
+                      <div className="flex justify-end">
+                        <EzButton
+                          size="small"
+                          disabled={updateOrgMutation.isPending}
+                          onClick={() => updateOrgMutation.mutate(profileDraft)}
+                        >
+                          Salvar Perfil
+                        </EzButton>
+                      </div>
+                    </div>
+                  )}
+
+                  <h4 className="text-sm font-semibold text-gray-900 pt-2">Endereços</h4>
+                  <ul className="divide-y divide-gray-100 border border-gray-200 rounded-[12px]">
+                    {(orgDetail.addresses ?? []).map((addr) => (
+                      <li key={addr.id} className="flex justify-between items-start px-3 py-2 text-sm">
+                        <div>
+                          <div className="text-gray-900">
+                            {addr.street || '—'}{addr.complement ? `, ${addr.complement}` : ''}
+                          </div>
+                          <div className="text-gray-500">
+                            {[addr.neighborhood, addr.city, addr.state, addr.zipCode].filter(Boolean).join(' · ')}
+                          </div>
+                        </div>
+                        <EzButton
+                          variant="tertiary"
+                          size="x-small"
+                          onClick={() => removeAddressMutation.mutate(addr.id)}
+                          disabled={removeAddressMutation.isPending}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 size={14} />
+                        </EzButton>
+                      </li>
+                    ))}
+                    {(orgDetail.addresses ?? []).length === 0 && (
+                      <li className="px-3 py-3 text-sm text-gray-500">Nenhum endereço cadastrado.</li>
+                    )}
+                  </ul>
+                  <form
+                    onSubmit={handleAddressSubmit((values) => addAddressMutation.mutate(values))}
+                    noValidate
+                    className="grid grid-cols-2 gap-3 p-3 bg-gray-90 rounded-[12px] border border-gray-200"
+                  >
+                    <EzTextInput id="addr-zip" label="CEP" {...registerAddress('zipCode')} />
+                    <EzTextInput id="addr-street" label="Logradouro" {...registerAddress('street')} />
+                    <EzTextInput id="addr-neighborhood" label="Bairro" {...registerAddress('neighborhood')} />
+                    <EzTextInput id="addr-city" label="Cidade" {...registerAddress('city')} />
+                    <EzTextInput id="addr-state" label="Estado" {...registerAddress('state')} />
+                    <EzTextInput id="addr-complement" label="Complemento" {...registerAddress('complement')} />
+                    <div className="col-span-2 flex justify-end">
+                      <EzButton type="submit" size="small" disabled={addAddressMutation.isPending}>
+                        Adicionar Endereço
+                      </EzButton>
+                    </div>
+                    {addressErrors.street && (
+                      <p className="col-span-2 text-xs text-red-600">{addressErrors.street.message}</p>
+                    )}
+                  </form>
+
+                  <h4 className="text-sm font-semibold text-gray-900 pt-2">Contatos</h4>
+                  <ul className="divide-y divide-gray-100 border border-gray-200 rounded-[12px]">
+                    {(orgDetail.contacts ?? []).map((contact) => (
+                      <li key={contact.id} className="flex justify-between items-start px-3 py-2 text-sm">
+                        <div>
+                          <div className="text-gray-900">
+                            {contact.name}{contact.type ? ` · ${contact.type}` : ''}
+                          </div>
+                          <div className="text-gray-500">
+                            {[contact.email, contact.phone].filter(Boolean).join(' · ')}
+                          </div>
+                        </div>
+                        <EzButton
+                          variant="tertiary"
+                          size="x-small"
+                          onClick={() => removeContactMutation.mutate(contact.id)}
+                          disabled={removeContactMutation.isPending}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 size={14} />
+                        </EzButton>
+                      </li>
+                    ))}
+                    {(orgDetail.contacts ?? []).length === 0 && (
+                      <li className="px-3 py-3 text-sm text-gray-500">Nenhum contato cadastrado.</li>
+                    )}
+                  </ul>
+                  <form
+                    onSubmit={handleContactSubmit((values) => addContactMutation.mutate(values))}
+                    noValidate
+                    className="grid grid-cols-2 gap-3 p-3 bg-gray-90 rounded-[12px] border border-gray-200"
+                  >
+                    <EzTextInput
+                      id="contact-name"
+                      label="Nome"
+                      hasError={!!contactErrors.name}
+                      message={contactErrors.name?.message}
+                      {...registerContact('name')}
+                    />
+                    <EzTextInput id="contact-type" label="Tipo de Contato" {...registerContact('type')} />
+                    <EzTextInput id="contact-email" label="E-mail" {...registerContact('email')} />
+                    <EzTextInput id="contact-phone" label="Telefone" {...registerContact('phone')} />
+                    <div className="col-span-2 flex justify-end">
+                      <EzButton type="submit" size="small" disabled={addContactMutation.isPending}>
+                        Adicionar Contato
+                      </EzButton>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {detailTab === 'resources' && (
+                <EzEmptyCard
+                  title="Nenhum recurso cadastrado"
+                  description="O Aponta ainda não possui um módulo de Recursos (ativos/equipamentos) por cliente. Esta aba existe no Tiflux real mas não tem funcionalidade implementada no Aponta ainda."
+                />
+              )}
+
+              {detailTab === 'relationships' && (
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                      Mesas (Tiflux-parity: Mesa↔Cliente é N:N)
+                    </h4>
+                    <ul className="divide-y divide-gray-100 border border-gray-200 rounded-[12px]">
+                      {(orgDetail.serviceDesks ?? []).map((desk) => (
+                        <li key={desk.id} className="flex justify-between items-center px-3 py-2 text-sm">
+                          <span className="text-gray-900">{desk.name}</span>
+                          <EzButton
+                            variant="tertiary"
+                            size="x-small"
+                            onClick={() => unlinkDeskMutation.mutate(desk.id)}
+                            disabled={unlinkDeskMutation.isPending}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            Desvincular
+                          </EzButton>
+                        </li>
+                      ))}
+                      {(orgDetail.serviceDesks ?? []).length === 0 && (
+                        <li className="px-3 py-3 text-sm text-gray-500">Nenhuma mesa vinculada.</li>
+                      )}
+                    </ul>
+                    <div className="flex items-end gap-2 mt-2">
+                      <div className="flex-1">
+                        <EzComboBox
+                          id="link-desk"
+                          label="Adicionar mesa de serviço"
+                          value={linkDeskId}
+                          onChange={(e) => setLinkDeskId(e.target.value)}
+                        >
+                          <option value="">Selecione uma mesa…</option>
+                          {availableDesksToLink.map((d) => (
+                            <option key={d.id} value={d.id}>{d.name}</option>
+                          ))}
+                        </EzComboBox>
+                      </div>
+                      <EzButton
+                        size="small"
+                        disabled={!linkDeskId || linkDeskMutation.isPending}
+                        onClick={() => linkDeskId && linkDeskMutation.mutate(linkDeskId)}
+                      >
+                        Vincular
+                      </EzButton>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                      Grupo de atendentes (entidade por cliente, Tiflux-parity)
+                    </h4>
+                    <ul className="divide-y divide-gray-100 border border-gray-200 rounded-[12px]">
+                      {(orgDetail.agentGroups ?? []).map((group) => (
+                        <li key={group.id} className="flex justify-between items-start px-3 py-2 text-sm">
+                          <div>
+                            <div className="text-gray-900 font-medium">{group.name}</div>
+                            <div className="text-gray-500">
+                              {group.members.map((m) => m.name).join(', ') || 'Sem atendentes'}
+                            </div>
+                          </div>
+                          <EzButton
+                            variant="tertiary"
+                            size="x-small"
+                            onClick={() => removeAgentGroupMutation.mutate(group.id)}
+                            disabled={removeAgentGroupMutation.isPending}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 size={14} />
+                          </EzButton>
+                        </li>
+                      ))}
+                      {(orgDetail.agentGroups ?? []).length === 0 && (
+                        <li className="px-3 py-3 text-sm text-gray-500">Nenhum grupo de atendentes cadastrado.</li>
+                      )}
+                    </ul>
+                    <form
+                      onSubmit={handleAgentGroupSubmit((values) => createAgentGroupMutation.mutate(values))}
+                      noValidate
+                      className="grid grid-cols-1 gap-3 p-3 bg-gray-90 rounded-[12px] border border-gray-200 mt-2"
+                    >
+                      <EzTextInput
+                        id="agent-group-name"
+                        label="Nome do grupo"
+                        hasError={!!agentGroupErrors.name}
+                        message={agentGroupErrors.name?.message}
+                        {...registerAgentGroup('name')}
+                      />
+                      <EzMultiSelect
+                        id="agent-group-members"
+                        label="Atendentes"
+                        value={newGroupMemberIds}
+                        onChange={setNewGroupMemberIds}
+                        options={userOptions}
+                      />
+                      <div className="flex justify-end">
+                        <EzButton type="submit" size="small" disabled={createAgentGroupMutation.isPending}>
+                          Adicionar grupo de atendentes
+                        </EzButton>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+
+              {detailTab === 'billing' && (
+                <EzEmptyCard
+                  title="Módulo de Faturamento (escopo da issue #58)"
+                  description="SMS/e-mail de cobrança, integração Asaas/ContaAzul, faturamento em lote por dia de vencimento. O toggle 'Faturamento quarteirizado' já está disponível no painel acima."
+                />
+              )}
+            </div>
+          )
+        )}
+      </div>
+    </EzPageLayout>
   );
 }
 

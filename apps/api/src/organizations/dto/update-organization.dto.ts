@@ -42,4 +42,20 @@ export class UpdateOrganizationDto {
   @IsOptional()
   @IsString()
   healthStatus?: string;
+
+  @IsOptional()
+  @IsString()
+  workFolder?: string;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  visibleToClients?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  quarterlyBilling?: boolean;
 }

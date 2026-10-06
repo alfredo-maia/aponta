@@ -5,6 +5,8 @@ import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { CreateOrganizationAddressDto } from './dto/create-organization-address.dto';
 import { CreateOrganizationContactDto } from './dto/create-organization-contact.dto';
+import { CreateAgentGroupDto } from './dto/create-agent-group.dto';
+import { UpdateAgentGroupDto } from './dto/update-agent-group.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -83,5 +85,44 @@ export class OrganizationsController {
   @Roles(Role.ADMIN)
   removeContact(@Param('id') id: string, @Param('contactId') contactId: string) {
     return this.organizationsService.removeContact(id, contactId);
+  }
+
+  @Post(':id/service-desks/:deskId')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  linkServiceDesk(@Param('id') id: string, @Param('deskId') deskId: string) {
+    return this.organizationsService.linkServiceDesk(id, deskId);
+  }
+
+  @Delete(':id/service-desks/:deskId')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  unlinkServiceDesk(@Param('id') id: string, @Param('deskId') deskId: string) {
+    return this.organizationsService.unlinkServiceDesk(id, deskId);
+  }
+
+  @Post(':id/agent-groups')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  createAgentGroup(@Param('id') id: string, @Body() dto: CreateAgentGroupDto) {
+    return this.organizationsService.createAgentGroup(id, dto);
+  }
+
+  @Patch(':id/agent-groups/:agentGroupId')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  updateAgentGroup(
+    @Param('id') id: string,
+    @Param('agentGroupId') agentGroupId: string,
+    @Body() dto: UpdateAgentGroupDto,
+  ) {
+    return this.organizationsService.updateAgentGroup(id, agentGroupId, dto);
+  }
+
+  @Delete(':id/agent-groups/:agentGroupId')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  removeAgentGroup(@Param('id') id: string, @Param('agentGroupId') agentGroupId: string) {
+    return this.organizationsService.removeAgentGroup(id, agentGroupId);
   }
 }

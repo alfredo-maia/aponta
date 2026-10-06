@@ -10,10 +10,11 @@ export class CreateServiceDeskDto {
   @IsString({ each: true })
   agentIds?: string[];
 
-  /** Links this desk to a specific client (Tiflux-parity "Mesa do cliente"). Omit for a global/shared desk. */
+  /** Tiflux-parity (#57): vincula esta mesa a um ou mais clientes (N:N). Vazio/omitido = mesa global/compartilhada. */
   @IsOptional()
-  @IsString()
-  organizationId?: string;
+  @IsArray()
+  @IsString({ each: true })
+  organizationIds?: string[];
 
   @IsOptional()
   @IsInt()

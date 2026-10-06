@@ -12,8 +12,9 @@ export class UpdateServiceDeskDto {
   agentIds?: string[];
 
   @IsOptional()
-  @IsString()
-  organizationId?: string;
+  @IsArray()
+  @IsString({ each: true })
+  organizationIds?: string[];
 
   @IsOptional()
   @IsInt()

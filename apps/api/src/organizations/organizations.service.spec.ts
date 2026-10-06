@@ -24,6 +24,15 @@ describe('OrganizationsService', () => {
         findUnique: jest.fn(),
         delete: jest.fn(),
       },
+      serviceDesk: {
+        findUnique: jest.fn(),
+      },
+      agentGroup: {
+        create: jest.fn(),
+        findUnique: jest.fn(),
+        update: jest.fn(),
+        delete: jest.fn(),
+      },
     };
     service = new OrganizationsService(mockPrisma as any);
   });
@@ -97,6 +106,10 @@ describe('OrganizationsService', () => {
           users: { select: { id: true, name: true, email: true, role: true } },
           addresses: true,
           contacts: true,
+          serviceDesks: { select: { id: true, name: true } },
+          agentGroups: {
+            include: { members: { select: { id: true, name: true, email: true } } },
+          },
         },
       });
       expect(result).toEqual(org);
@@ -247,6 +260,153 @@ describe('OrganizationsService', () => {
 
       expect(mockPrisma.organizationContact.delete).toHaveBeenCalledWith({ where: { id: 'contact-1' } });
       expect(result).toEqual({ id: 'contact-1' });
+    });
+  });
+
+  describe('linkServiceDesk', () => {
+    it('throws NotFoundException when the organization does not exist', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue(null);
+
+      await expect(service.linkServiceDesk('missing-org', 'desk-1')).rejects.toThrow(NotFoundException);
+      expect(mockPrisma.organization.update).not.toHaveBeenCalled();
+    });
+
+    it('throws NotFoundException when the service desk does not exist', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue({ id: 'org-1', users: [] });
+      mockPrisma.serviceDesk.findUnique.mockResolvedValue(null);
+
+      await expect(service.linkServiceDesk('org-1', 'missing-desk')).rejects.toThrow(NotFoundException);
+      expect(mockPrisma.organization.update).not.toHaveBeenCalled();
+    });
+
+    it('connects the service desk to the organization (N:N)', async () => {
+      mockPrisma.organization.findUnique
+        .mockResolvedValueOnce({ id: 'org-1', users: [] })
+        .mockResolvedValueOnce({ id: 'org-1', serviceDesks: [{ id: 'desk-1' }] });
+      mockPrisma.serviceDesk.findUnique.mockResolvedValue({ id: 'desk-1' });
+      mockPrisma.organization.update.mockResolvedValue({ id: 'org-1' });
+
+      const result = await service.linkServiceDesk('org-1', 'desk-1');
+
+      expect(mockPrisma.organization.update).toHaveBeenCalledWith({
+        where: { id: 'org-1' },
+        data: { serviceDesks: { connect: { id: 'desk-1' } } },
+      });
+      expect(result).toEqual({ id: 'org-1', serviceDesks: [{ id: 'desk-1' }] });
+    });
+  });
+
+  describe('unlinkServiceDesk', () => {
+    it('throws NotFoundException when the organization does not exist', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue(null);
+
+      await expect(service.unlinkServiceDesk('missing-org', 'desk-1')).rejects.toThrow(NotFoundException);
+      expect(mockPrisma.organization.update).not.toHaveBeenCalled();
+    });
+
+    it('disconnects the service desk from the organization', async () => {
+      mockPrisma.organization.findUnique
+        .mockResolvedValueOnce({ id: 'org-1', users: [] })
+        .mockResolvedValueOnce({ id: 'org-1', serviceDesks: [] });
+      mockPrisma.organization.update.mockResolvedValue({ id: 'org-1' });
+
+      const result = await service.unlinkServiceDesk('org-1', 'desk-1');
+
+      expect(mockPrisma.organization.update).toHaveBeenCalledWith({
+        where: { id: 'org-1' },
+        data: { serviceDesks: { disconnect: { id: 'desk-1' } } },
+      });
+      expect(result).toEqual({ id: 'org-1', serviceDesks: [] });
+    });
+  });
+
+  describe('createAgentGroup', () => {
+    it('throws NotFoundException when the organization does not exist', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue(null);
+
+      await expect(service.createAgentGroup('missing-org', { name: 'Consultor' })).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockPrisma.agentGroup.create).not.toHaveBeenCalled();
+    });
+
+    it('creates the agent group linked to the organization, with members', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue({ id: 'org-1', users: [] });
+      const expected = { id: 'group-1', name: 'Consultor', organizationId: 'org-1', members: [] };
+      mockPrisma.agentGroup.create.mockResolvedValue(expected);
+
+      const result = await service.createAgentGroup('org-1', { name: 'Consultor', memberIds: ['u1', 'u2'] });
+
+      expect(mockPrisma.agentGroup.create).toHaveBeenCalledWith({
+        data: {
+          name: 'Consultor',
+          organizationId: 'org-1',
+          members: { connect: [{ id: 'u1' }, { id: 'u2' }] },
+        },
+        include: { members: { select: { id: true, name: true, email: true } } },
+      });
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe('updateAgentGroup', () => {
+    it('throws NotFoundException when the agent group does not exist', async () => {
+      mockPrisma.agentGroup.findUnique.mockResolvedValue(null);
+
+      await expect(service.updateAgentGroup('org-1', 'missing-group', { name: 'X' })).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockPrisma.agentGroup.update).not.toHaveBeenCalled();
+    });
+
+    it('throws NotFoundException when the agent group belongs to another organization', async () => {
+      mockPrisma.agentGroup.findUnique.mockResolvedValue({ id: 'group-1', organizationId: 'org-2' });
+
+      await expect(service.updateAgentGroup('org-1', 'group-1', { name: 'X' })).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockPrisma.agentGroup.update).not.toHaveBeenCalled();
+    });
+
+    it('updates the agent group name and members', async () => {
+      mockPrisma.agentGroup.findUnique.mockResolvedValue({ id: 'group-1', organizationId: 'org-1' });
+      const expected = { id: 'group-1', name: 'Novo nome', members: [] };
+      mockPrisma.agentGroup.update.mockResolvedValue(expected);
+
+      const result = await service.updateAgentGroup('org-1', 'group-1', { name: 'Novo nome', memberIds: ['u1'] });
+
+      expect(mockPrisma.agentGroup.update).toHaveBeenCalledWith({
+        where: { id: 'group-1' },
+        data: { name: 'Novo nome', members: { set: [{ id: 'u1' }] } },
+        include: { members: { select: { id: true, name: true, email: true } } },
+      });
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe('removeAgentGroup', () => {
+    it('throws NotFoundException when the agent group does not exist', async () => {
+      mockPrisma.agentGroup.findUnique.mockResolvedValue(null);
+
+      await expect(service.removeAgentGroup('org-1', 'missing-group')).rejects.toThrow(NotFoundException);
+      expect(mockPrisma.agentGroup.delete).not.toHaveBeenCalled();
+    });
+
+    it('throws NotFoundException when the agent group belongs to another organization', async () => {
+      mockPrisma.agentGroup.findUnique.mockResolvedValue({ id: 'group-1', organizationId: 'org-2' });
+
+      await expect(service.removeAgentGroup('org-1', 'group-1')).rejects.toThrow(NotFoundException);
+      expect(mockPrisma.agentGroup.delete).not.toHaveBeenCalled();
+    });
+
+    it('deletes the agent group when it belongs to the organization', async () => {
+      mockPrisma.agentGroup.findUnique.mockResolvedValue({ id: 'group-1', organizationId: 'org-1' });
+      mockPrisma.agentGroup.delete.mockResolvedValue({ id: 'group-1' });
+
+      const result = await service.removeAgentGroup('org-1', 'group-1');
+
+      expect(mockPrisma.agentGroup.delete).toHaveBeenCalledWith({ where: { id: 'group-1' } });
+      expect(result).toEqual({ id: 'group-1' });
     });
   });
 });

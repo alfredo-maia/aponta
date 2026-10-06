@@ -57,12 +57,21 @@ model Organization {
   /// Aba "Perfil do Cliente" no Tiflux real: segmentação livre do cliente.
   serviceType            String?
   healthStatus           String?
+  /// Tiflux-parity (gap #3/#4 do #49, confirmado ao vivo em #57): campos extras
+  /// da aba "Informações" do cliente real.
+  workFolder             String?
+  notes                  String?
+  visibleToClients       Boolean  @default(true)
+  quarterlyBilling       Boolean  @default(false)
   users     User[]
   credentials Credential[]
   contracts Contract[]
   addresses OrganizationAddress[]
   contacts  OrganizationContact[]
+  /// Tiflux-parity: Mesa<->Cliente é N:N (confirmado ao vivo: 1 mesa pode servir
+  /// vários clientes). Substitui o FK simples 1:1 da feature #54.
   serviceDesks ServiceDesk[]
+  agentGroups  AgentGroup[]
   createdAt DateTime @default(now())
 }
 
@@ -102,6 +111,7 @@ model User {
   organization   Organization? @relation(fields: [organizationId], references: [id])
 
   serviceDesks ServiceDesk[] @relation("AgentServiceDesks")
+  agentGroups  AgentGroup[]  @relation("AgentGroupMembers")
 
   requestedTickets Ticket[]  @relation("RequesterTickets")
   assignedTickets  Ticket[]  @relation("AgentTickets")
@@ -123,10 +133,13 @@ model ServiceDesk {
   tickets Ticket[]
   agents  User[]   @relation("AgentServiceDesks")
 
-  /// Optional client this desk belongs to (Tiflux-parity "Mesa do cliente").
-  /// null = global/shared desk usable by any client (pre-existing behavior).
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  /// Tiflux-parity (#57): Mesa<->Cliente é N:N (confirmado ao vivo: 1 mesa
+  /// pode servir vários clientes; cada cliente vê suas mesas em
+  /// "Relacionamentos"). Mesas sem nenhum cliente vinculado = mesa
+  /// global/compartilhada (pre-existing behavior da #54, agora via lista vazia
+  /// em vez de organizationId nulo).
+  organizations Organization[]
+  agentGroups   AgentGroup[]
 
   businessHours BusinessHour[]
   holidays      Holiday[]
@@ -146,6 +159,22 @@ model ServiceDesk {
 
   createdAt           DateTime             @default(now())
   serviceCatalogItems ServiceCatalogItem[]
+}
+
+/// Tiflux-parity (#57): Grupo de Atendentes é uma entidade POR CLIENTE
+/// (confirmado ao vivo na aba "Relacionamentos" do cliente real — cada
+/// Organization tem seus próprios grupos com pessoas vinculadas), que
+/// opcionalmente também fica associado a uma ou mais Mesas (N:N) para
+/// aparecer na coluna "Grupos de atendentes" da tabela de Mesas do cliente.
+model AgentGroup {
+  id             String       @id @default(uuid())
+  name           String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  members        User[]       @relation("AgentGroupMembers")
+  serviceDesks   ServiceDesk[]
+  active         Boolean      @default(true)
+  createdAt      DateTime     @default(now())
 
   @@index([organizationId])
 }

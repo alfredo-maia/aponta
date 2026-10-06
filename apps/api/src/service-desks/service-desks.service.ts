@@ -13,15 +13,16 @@ export class ServiceDesksService {
   ) {}
 
   async create(createServiceDeskDto: CreateServiceDeskDto) {
-    const { agentIds, ...data } = createServiceDeskDto;
+    const { agentIds, organizationIds, ...data } = createServiceDeskDto;
     return this.prisma.serviceDesk.create({
       data: {
         ...data,
         ...(agentIds && { agents: { connect: agentIds.map(id => ({ id })) } }),
+        ...(organizationIds && { organizations: { connect: organizationIds.map(id => ({ id })) } }),
       },
       include: {
         agents: { select: { id: true, name: true, email: true } },
-        organization: { select: { id: true, name: true } },
+        organizations: { select: { id: true, name: true } },
       },
     });
   }
@@ -30,7 +31,7 @@ export class ServiceDesksService {
     return this.prisma.serviceDesk.findMany({
       include: {
         agents: { select: { id: true, name: true, email: true } },
-        organization: { select: { id: true, name: true } },
+        organizations: { select: { id: true, name: true } },
       },
     });
   }
@@ -40,7 +41,7 @@ export class ServiceDesksService {
       where: { id },
       include: {
         agents: { select: { id: true, name: true, email: true } },
-        organization: { select: { id: true, name: true } },
+        organizations: { select: { id: true, name: true } },
       },
     });
     if (!serviceDesk) {
@@ -57,16 +58,17 @@ export class ServiceDesksService {
       throw new NotFoundException(`ServiceDesk with ID ${id} not found`);
     }
 
-    const { agentIds, ...data } = updateServiceDeskDto;
+    const { agentIds, organizationIds, ...data } = updateServiceDeskDto;
     return this.prisma.serviceDesk.update({
       where: { id },
       data: {
         ...data,
         ...(agentIds !== undefined && { agents: { set: agentIds.map(id => ({ id })) } }),
+        ...(organizationIds !== undefined && { organizations: { set: organizationIds.map(id => ({ id })) } }),
       },
       include: {
         agents: { select: { id: true, name: true, email: true } },
-        organization: { select: { id: true, name: true } },
+        organizations: { select: { id: true, name: true } },
       },
     });
   }

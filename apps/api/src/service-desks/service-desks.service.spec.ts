@@ -30,7 +30,7 @@ const mockHolidaysImportService = {
 
 const EXPECTED_INCLUDE = {
   agents: { select: { id: true, name: true, email: true } },
-  organization: { select: { id: true, name: true } },
+  organizations: { select: { id: true, name: true } },
 };
 
 describe('ServiceDesksService', () => {

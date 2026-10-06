@@ -44,4 +44,21 @@ export class CreateOrganizationDto {
   @IsOptional()
   @IsString()
   healthStatus?: string;
+
+  /** Tiflux-parity (#57): campos extras da aba "Informações" do cliente real. */
+  @IsOptional()
+  @IsString()
+  workFolder?: string;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  visibleToClients?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  quarterlyBilling?: boolean;
 }

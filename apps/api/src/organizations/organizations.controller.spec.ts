@@ -16,6 +16,11 @@ const mockOrganizationsService = {
   removeAddress: jest.fn(),
   addContact: jest.fn(),
   removeContact: jest.fn(),
+  linkServiceDesk: jest.fn(),
+  unlinkServiceDesk: jest.fn(),
+  createAgentGroup: jest.fn(),
+  updateAgentGroup: jest.fn(),
+  removeAgentGroup: jest.fn(),
 };
 
 const mockCnpjLookupService = {
@@ -44,7 +49,7 @@ describe('OrganizationsController', () => {
   });
 
   describe('@Roles metadata', () => {
-    it.each([['create'], ['update'], ['remove'], ['lookupCnpj'], ['addAddress'], ['removeAddress'], ['addContact'], ['removeContact']])(
+    it.each([['create'], ['update'], ['remove'], ['lookupCnpj'], ['addAddress'], ['removeAddress'], ['addContact'], ['removeContact'], ['linkServiceDesk'], ['unlinkServiceDesk'], ['createAgentGroup'], ['updateAgentGroup'], ['removeAgentGroup']])(
       'requires ADMIN on %s',
       (methodName) => {
         expect(Reflect.getMetadata(ROLES_KEY, (controller as any)[methodName])).toEqual([
@@ -192,6 +197,63 @@ describe('OrganizationsController', () => {
 
       expect(mockOrganizationsService.removeContact).toHaveBeenCalledWith('org-1', 'contact-1');
       expect(result).toEqual({ id: 'contact-1' });
+    });
+  });
+
+  describe('linkServiceDesk', () => {
+    it('delegates to the service with organization and desk id', async () => {
+      mockOrganizationsService.linkServiceDesk.mockResolvedValue({ id: 'org-1' });
+
+      const result = await controller.linkServiceDesk('org-1', 'desk-1');
+
+      expect(mockOrganizationsService.linkServiceDesk).toHaveBeenCalledWith('org-1', 'desk-1');
+      expect(result).toEqual({ id: 'org-1' });
+    });
+  });
+
+  describe('unlinkServiceDesk', () => {
+    it('delegates to the service with organization and desk id', async () => {
+      mockOrganizationsService.unlinkServiceDesk.mockResolvedValue({ id: 'org-1' });
+
+      const result = await controller.unlinkServiceDesk('org-1', 'desk-1');
+
+      expect(mockOrganizationsService.unlinkServiceDesk).toHaveBeenCalledWith('org-1', 'desk-1');
+      expect(result).toEqual({ id: 'org-1' });
+    });
+  });
+
+  describe('createAgentGroup', () => {
+    it('delegates to the service with organization id and dto', async () => {
+      const dto = { name: 'Consultor' } as any;
+      mockOrganizationsService.createAgentGroup.mockResolvedValue({ id: 'group-1', ...dto });
+
+      const result = await controller.createAgentGroup('org-1', dto);
+
+      expect(mockOrganizationsService.createAgentGroup).toHaveBeenCalledWith('org-1', dto);
+      expect(result).toEqual({ id: 'group-1', ...dto });
+    });
+  });
+
+  describe('updateAgentGroup', () => {
+    it('delegates to the service with organization id, group id and dto', async () => {
+      const dto = { name: 'Novo nome' } as any;
+      mockOrganizationsService.updateAgentGroup.mockResolvedValue({ id: 'group-1', ...dto });
+
+      const result = await controller.updateAgentGroup('org-1', 'group-1', dto);
+
+      expect(mockOrganizationsService.updateAgentGroup).toHaveBeenCalledWith('org-1', 'group-1', dto);
+      expect(result).toEqual({ id: 'group-1', ...dto });
+    });
+  });
+
+  describe('removeAgentGroup', () => {
+    it('delegates to the service with organization id and group id', async () => {
+      mockOrganizationsService.removeAgentGroup.mockResolvedValue({ id: 'group-1' });
+
+      const result = await controller.removeAgentGroup('org-1', 'group-1');
+
+      expect(mockOrganizationsService.removeAgentGroup).toHaveBeenCalledWith('org-1', 'group-1');
+      expect(result).toEqual({ id: 'group-1' });
     });
   });
 });

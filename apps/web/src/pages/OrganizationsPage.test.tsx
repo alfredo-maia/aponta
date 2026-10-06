@@ -27,6 +27,11 @@ const users = [
   { id: 'u-3', name: 'Agente', email: 'agent@example.com', role: 'AGENT', organizationId: null },
 ];
 
+const serviceDesks = [
+  { id: 'desk-1', name: 'Avulso' },
+  { id: 'desk-2', name: 'Contrato' },
+];
+
 const orgDetail = {
   id: 'org-1',
   name: 'Empresa A',
@@ -39,6 +44,10 @@ const orgDetail = {
   active: true,
   serviceType: null,
   healthStatus: null,
+  workFolder: '/clientes/empresa-a',
+  notes: 'Cliente VIP',
+  visibleToClients: true,
+  quarterlyBilling: false,
   users: [],
   addresses: [
     { id: 'addr-1', street: 'Av Paulista', city: 'Sao Paulo', state: 'SP', zipCode: '01310100', neighborhood: 'Bela Vista', complement: null },
@@ -46,12 +55,17 @@ const orgDetail = {
   contacts: [
     { id: 'contact-1', name: 'Jane Doe', email: 'jane@example.com', phone: '11999999999', type: 'Financeiro' },
   ],
+  serviceDesks: [{ id: 'desk-1', name: 'Avulso' }],
+  agentGroups: [
+    { id: 'group-1', name: 'Grupo Suporte', active: true, members: [{ id: 'u-3', name: 'Agente', email: 'agent@example.com' }] },
+  ],
 };
 
 function mockApiGet() {
   vi.mocked(api.get).mockImplementation((url: string) => {
     if (url === '/organizations') return Promise.resolve({ data: orgs });
     if (url === '/users') return Promise.resolve({ data: users });
+    if (url === '/service-desks') return Promise.resolve({ data: serviceDesks });
     if (url === '/organizations/org-1') return Promise.resolve({ data: orgDetail });
     return Promise.reject(new Error(`Unexpected GET ${url}`));
   });
@@ -79,6 +93,16 @@ function loginAs(role: 'ADMIN' | 'AGENT') {
   });
 }
 
+async function openDetail(user: ReturnType<typeof userEvent.setup>) {
+  await waitFor(() => {
+    expect(screen.getByText('Empresa A')).toBeInTheDocument();
+  });
+  await user.click(screen.getByRole('button', { name: 'Empresa A' }));
+  await waitFor(() => {
+    expect(screen.getByText('Empresa A Ltda')).toBeInTheDocument();
+  });
+}
+
 describe('OrganizationsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -96,7 +120,7 @@ describe('OrganizationsPage', () => {
     expect(api.get).not.toHaveBeenCalled();
   });
 
-  it('lists organizations with their client count for ADMIN', async () => {
+  it('shows the list view by default with a mode toggle (Tiflux/Sankhya-parity, issue #57)', async () => {
     loginAs('ADMIN');
     renderPage();
 
@@ -107,15 +131,23 @@ describe('OrganizationsPage', () => {
     expect(screen.getByText('Clientes: 2')).toBeInTheDocument();
     expect(screen.getByText('Empresa B')).toBeInTheDocument();
     expect(screen.getByText('Clientes: 0')).toBeInTheDocument();
+    expect(screen.getByTitle(/modo lista/i)).toBeInTheDocument();
+    expect(screen.getByTitle(/modo formulário/i)).toBeInTheDocument();
   });
 
-  it('validates the new-organization form and blocks empty submission', async () => {
+  it('switches to the full-page form via "Novo Cliente" and validates it', async () => {
     loginAs('ADMIN');
     const user = userEvent.setup();
     renderPage();
 
     await waitFor(() => {
       expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: /novo cliente/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Nova Empresa')).toBeInTheDocument();
     });
 
     await user.click(screen.getByRole('button', { name: /cadastrar/i }));
@@ -126,7 +158,7 @@ describe('OrganizationsPage', () => {
     expect(api.post).not.toHaveBeenCalled();
   });
 
-  it('creates a new organization with rich fields and resets the form', async () => {
+  it('creates a new organization with rich fields', async () => {
     vi.mocked(api.post).mockResolvedValue({ data: { id: 'org-3', name: 'Empresa C' } });
     loginAs('ADMIN');
     const user = userEvent.setup();
@@ -134,6 +166,11 @@ describe('OrganizationsPage', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: /novo cliente/i }));
+    await waitFor(() => {
+      expect(screen.getByText('Nova Empresa')).toBeInTheDocument();
     });
 
     await user.type(screen.getByLabelText(/nome fantasia/i), 'Empresa C');
@@ -171,6 +208,10 @@ describe('OrganizationsPage', () => {
     await waitFor(() => {
       expect(screen.getByText('Empresa A')).toBeInTheDocument();
     });
+    await user.click(screen.getByRole('button', { name: /novo cliente/i }));
+    await waitFor(() => {
+      expect(screen.getByText('Nova Empresa')).toBeInTheDocument();
+    });
 
     await user.type(screen.getByLabelText(/cnpj/i), '19131243000197');
     await user.click(screen.getByRole('button', { name: /buscar cnpj/i }));
@@ -181,7 +222,7 @@ describe('OrganizationsPage', () => {
     expect(screen.getByLabelText(/nome fantasia/i)).toHaveValue('Teste');
   });
 
-  it('expands the "Vincular Usuários" panel and lists only CLIENT/CLIENT_MASTER users', async () => {
+  it('toggles CPF/CNPJ fields based on document type (Tiflux-parity, issue #56)', async () => {
     loginAs('ADMIN');
     const user = userEvent.setup();
     renderPage();
@@ -189,43 +230,18 @@ describe('OrganizationsPage', () => {
     await waitFor(() => {
       expect(screen.getByText('Empresa A')).toBeInTheDocument();
     });
-
-    const linkButtons = screen.getAllByRole('button', { name: /vincular usuários/i });
-    await user.click(linkButtons[0]);
-
+    await user.click(screen.getByRole('button', { name: /novo cliente/i }));
     await waitFor(() => {
-      expect(screen.getByText('Cliente Um')).toBeInTheDocument();
+      expect(screen.getByText('Nova Empresa')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Cliente Dois')).toBeInTheDocument();
-    expect(screen.queryByText('Agente')).not.toBeInTheDocument();
-    // Cliente Um already belongs to org-1 -> shows "Remover"
-    expect(screen.getByRole('button', { name: /remover/i })).toBeInTheDocument();
-    // Cliente Dois does not belong -> shows "Adicionar"
-    expect(screen.getByRole('button', { name: /adicionar/i })).toBeInTheDocument();
-  });
+    expect(screen.getByLabelText(/^cnpj$/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/^cpf$/i)).not.toBeInTheDocument();
 
-  it('attaches a user to an organization when clicking "Adicionar"', async () => {
-    vi.mocked(api.patch).mockResolvedValue({ data: {} });
-    loginAs('ADMIN');
-    const user = userEvent.setup();
-    renderPage();
+    await user.selectOptions(screen.getByLabelText(/tipo de documento/i), 'CPF');
 
-    await waitFor(() => {
-      expect(screen.getByText('Empresa A')).toBeInTheDocument();
-    });
-
-    await user.click(screen.getAllByRole('button', { name: /vincular usuários/i })[0]);
-
-    await waitFor(() => {
-      expect(screen.getByText('Cliente Dois')).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByRole('button', { name: /adicionar/i }));
-
-    await waitFor(() => {
-      expect(api.patch).toHaveBeenCalledWith('/users/u-2', { organizationId: 'org-1' });
-    });
+    expect(screen.getByLabelText(/^cpf$/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/^cnpj$/i)).not.toBeInTheDocument();
   });
 
   it('shows the empty state when there are no organizations', async () => {
@@ -241,49 +257,65 @@ describe('OrganizationsPage', () => {
     });
   });
 
-  it('opens the detail modal with registration data, addresses and contacts', async () => {
+  it('opens the full-page detail with the Tiflux-parity 3-column panel', async () => {
     loginAs('ADMIN');
     const user = userEvent.setup();
     renderPage();
 
-    await waitFor(() => {
-      expect(screen.getByText('Empresa A')).toBeInTheDocument();
-    });
+    await openDetail(user);
 
-    await user.click(screen.getByRole('button', { name: 'Empresa A' }));
-
-    await waitFor(() => {
-      expect(screen.getByText('Empresa A Ltda')).toBeInTheDocument();
-    });
     expect(screen.getByText('19.131.243/0001-97')).toBeInTheDocument();
+    expect(screen.getByText('/clientes/empresa-a')).toBeInTheDocument();
+    expect(screen.getByText('Cliente VIP')).toBeInTheDocument();
+    expect(screen.getByLabelText(/visível para clientes/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/faturamento quarteirizado/i)).toBeInTheDocument();
+  });
 
-    await user.click(screen.getByRole('tab', { name: /endereços/i }));
-    await waitFor(() => {
-      expect(screen.getByText(/Av Paulista/)).toBeInTheDocument();
-    });
+  it('shows the "Cliente ativo" toggle and inactivates the organization', async () => {
+    vi.mocked(api.patch).mockResolvedValue({ data: { ...orgDetail, active: false } });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
 
-    await user.click(screen.getByRole('tab', { name: /contatos/i }));
+    await openDetail(user);
+
+    const toggle = screen.getByLabelText(/cliente ativo/i);
+    await user.click(toggle);
+
     await waitFor(() => {
-      expect(screen.getByText(/Jane Doe/)).toBeInTheDocument();
+      expect(api.patch).toHaveBeenCalledWith('/organizations/org-1', { active: false });
     });
   });
 
-  it('adds a new contact from the detail modal', async () => {
+  it('defaults to the Usuários tab, lists only CLIENT/CLIENT_MASTER users and allows linking', async () => {
+    vi.mocked(api.patch).mockResolvedValue({ data: {} });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await openDetail(user);
+
+    await waitFor(() => {
+      expect(screen.getByText('Cliente Um')).toBeInTheDocument();
+    });
+    expect(screen.getByText('Cliente Dois')).toBeInTheDocument();
+    expect(screen.queryByText('Agente')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Adicionar' }));
+
+    await waitFor(() => {
+      expect(api.patch).toHaveBeenCalledWith('/users/u-2', { organizationId: 'org-1' });
+    });
+  });
+
+  it('adds a new contact from the Usuários tab', async () => {
     vi.mocked(api.post).mockResolvedValue({ data: { id: 'contact-2', name: 'New Contact' } });
     loginAs('ADMIN');
     const user = userEvent.setup();
     renderPage();
 
-    await waitFor(() => {
-      expect(screen.getByText('Empresa A')).toBeInTheDocument();
-    });
+    await openDetail(user);
 
-    await user.click(screen.getByRole('button', { name: 'Empresa A' }));
-    await waitFor(() => {
-      expect(screen.getByText('Empresa A Ltda')).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByRole('tab', { name: /contatos/i }));
     await waitFor(() => {
       expect(screen.getByText(/Jane Doe/)).toBeInTheDocument();
     });
@@ -298,63 +330,13 @@ describe('OrganizationsPage', () => {
     });
   });
 
-  it('toggles CPF/CNPJ fields based on document type (Tiflux-parity, issue #56)', async () => {
-    loginAs('ADMIN');
-    const user = userEvent.setup();
-    renderPage();
-
-    await waitFor(() => {
-      expect(screen.getByText('Empresa A')).toBeInTheDocument();
-    });
-
-    expect(screen.getByLabelText(/^cnpj$/i)).toBeInTheDocument();
-    expect(screen.queryByLabelText(/^cpf$/i)).not.toBeInTheDocument();
-
-    await user.selectOptions(screen.getByLabelText(/tipo de documento/i), 'CPF');
-
-    expect(screen.getByLabelText(/^cpf$/i)).toBeInTheDocument();
-    expect(screen.queryByLabelText(/^cnpj$/i)).not.toBeInTheDocument();
-  });
-
-  it('shows the "Cliente ativo" toggle and inactivates the organization', async () => {
-    vi.mocked(api.patch).mockResolvedValue({ data: { ...orgDetail, active: false } });
-    loginAs('ADMIN');
-    const user = userEvent.setup();
-    renderPage();
-
-    await waitFor(() => {
-      expect(screen.getByText('Empresa A')).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByRole('button', { name: 'Empresa A' }));
-    await waitFor(() => {
-      expect(screen.getByText('Empresa A Ltda')).toBeInTheDocument();
-    });
-
-    const toggle = screen.getByRole('checkbox');
-    await user.click(toggle);
-
-    await waitFor(() => {
-      expect(api.patch).toHaveBeenCalledWith('/organizations/org-1', { active: false });
-    });
-  });
-
-  it('opens the "Perfil do Cliente" tab and saves serviceType/healthStatus', async () => {
+  it('saves serviceType/healthStatus from the Usuários tab (Perfil do Cliente, issue #56)', async () => {
     vi.mocked(api.patch).mockResolvedValue({ data: orgDetail });
     loginAs('ADMIN');
     const user = userEvent.setup();
     renderPage();
 
-    await waitFor(() => {
-      expect(screen.getByText('Empresa A')).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByRole('button', { name: 'Empresa A' }));
-    await waitFor(() => {
-      expect(screen.getByText('Empresa A Ltda')).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByRole('tab', { name: /perfil do cliente/i }));
+    await openDetail(user);
 
     await waitFor(() => {
       expect(screen.getByLabelText(/tipo de atendimento/i)).toBeInTheDocument();
@@ -369,6 +351,75 @@ describe('OrganizationsPage', () => {
         serviceType: 'SUPORTE',
         healthStatus: 'SAUDAVEL',
       });
+    });
+  });
+
+  it('shows an honest stub in the Recursos tab (no fabricated module)', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await openDetail(user);
+
+    await user.click(screen.getByRole('tab', { name: /recursos/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/nenhum recurso cadastrado/i)).toBeInTheDocument();
+    });
+  });
+
+  it('manages Mesas (N:N) and Grupo de Atendentes in the Relacionamentos tab (Tiflux-parity, issue #57)', async () => {
+    vi.mocked(api.post).mockResolvedValue({ data: {} });
+    vi.mocked(api.delete).mockResolvedValue({ data: {} });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await openDetail(user);
+
+    await user.click(screen.getByRole('tab', { name: /relacionamentos/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Avulso')).toBeInTheDocument();
+    });
+    expect(screen.getByText('Grupo Suporte')).toBeInTheDocument();
+
+    // Vincula uma nova mesa (apenas "Contrato" está disponível, pois "Avulso" já está vinculada)
+    await user.selectOptions(screen.getByLabelText(/adicionar mesa de serviço/i), 'desk-2');
+    await user.click(screen.getByRole('button', { name: /^vincular$/i }));
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith('/organizations/org-1/service-desks/desk-2');
+    });
+
+    // Desvincula a mesa existente
+    await user.click(screen.getByRole('button', { name: /desvincular/i }));
+    await waitFor(() => {
+      expect(api.delete).toHaveBeenCalledWith('/organizations/org-1/service-desks/desk-1');
+    });
+
+    // Cria um novo grupo de atendentes
+    await user.type(screen.getByLabelText(/nome do grupo/i), 'Grupo Vendas');
+    await user.click(screen.getByRole('button', { name: /adicionar grupo de atendentes/i }));
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith('/organizations/org-1/agent-groups', expect.objectContaining({
+        name: 'Grupo Vendas',
+      }));
+    });
+  });
+
+  it('shows a stub pointing to issue #58 in the Faturamento tab', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await openDetail(user);
+
+    await user.click(screen.getByRole('tab', { name: /faturamento/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/issue #58/i)).toBeInTheDocument();
     });
   });
 });
