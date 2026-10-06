@@ -133,6 +133,27 @@ services:
       start_period: 10s
       retries: 3
 
+  # Documentação visual do Design System (Storybook) — build estático,
+  # sem Node runtime, isolado da imagem de produção do app. Escuta só em
+  # 127.0.0.1:8092 (sem porta pública Docker, igual aos demais serviços);
+  # para publicar numa URL real, aponte um bloco Caddy/Nginx do host para
+  # esta porta (ver README.md). Não depende de `api`/`postgres`: é só
+  # documentação estática de componentes, não precisa de backend.
+  storybook:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      target: storybook
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:${STORYBOOK_PORT:-8092}:3000'
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3000/']
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
 volumes:
   aponta_postgres_data:
   aponta_uploads:

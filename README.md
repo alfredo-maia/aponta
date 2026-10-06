@@ -32,6 +32,24 @@ aponta.dmtecnologia.cloud {
 }
 ```
 
+### Storybook (documentação visual do Design System)
+O serviço `storybook` do `docker-compose.yml` expõe o build estático do
+Storybook (componentes `Ez*`) em `127.0.0.1:8092` — sem rota pública ainda.
+Para publicar numa URL real, crie um registro A novo no DNS (ex.:
+`storybook.aponta.dmtecnologia.cloud -> <IP do servidor>`) e adicione o
+bloco correspondente no Caddyfile do host:
+```caddyfile
+storybook.aponta.dmtecnologia.cloud {
+    tls email@dominio.com
+    reverse_proxy 127.0.0.1:8092
+}
+```
+Depois rode `sudo systemctl reload caddy` (ou `caddy reload`) no host.
+Alternativa sem DNS novo: path-based em `/storybook/` no mesmo domínio do
+app, via `reverse_proxy /storybook/* 127.0.0.1:8092` no bloco já existente
+de `aponta.dmtecnologia.cloud` (ajustar `base` do Storybook se usar esse
+caminho). A porta é configurável via `STORYBOOK_PORT` no `.env.prod`.
+
 Desta forma, todo o tráfego da internet (`https://aponta.dmtecnologia.cloud`) chega no Host de forma encriptada, o Caddy desembrulha o SSL e repassa internamente para a porta 8090, onde o `nginx` do Docker interno (rodando o frontend React) o recebe. As chamadas `/api/*` geradas no frontend e atingidas pelo Caddy caem no frontend, sendo em seguida redirecionadas pelo `nginx.conf` da imagem Web para a API real, garantindo total isolamento da rede.
 
 ## Comandos

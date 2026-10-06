@@ -40,6 +40,15 @@ ENV VITE_API_URL=${VITE_API_URL}
 RUN pnpm exec nx run web:build
 
 # ---------------------------------------------------------------------------
+# `storybook-build` stage: extends `build` but is only materialized when
+# Docker is asked for the `storybook` target below — kept separate from
+# the shared `build` stage so every regular `production`/`development`
+# build (i.e. every normal prod deploy) does NOT pay for a Storybook
+# build it doesn't need.
+FROM build AS storybook-build
+RUN pnpm exec nx run web:build-storybook
+
+# ---------------------------------------------------------------------------
 # `development` target: what docker-compose.dev.yml builds today (compose
 # file has been given an explicit `target: development`, same as the api
 # Dockerfile, since this stage is not last). Runs the real Vite dev server
@@ -65,6 +74,22 @@ FROM nginx:1.27-alpine AS production
 ENV NGINX_ENVSUBST_FILTER=API_PORT
 COPY apps/web/nginx.conf /etc/nginx/templates/default.conf.template
 COPY --from=build /workspace/dist/apps/web /usr/share/nginx/html
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:3000/ || exit 1
+
+EXPOSE 3000
+CMD ["nginx", "-g", "daemon off;"]
+
+# ---------------------------------------------------------------------------
+# `storybook` target: static Storybook build (apps/web/storybook-static),
+# served by its own nginx — separate image from `production` so publishing
+# the DS docs never touches the real app bundle. See docker-compose.yml's
+# `storybook` service (127.0.0.1:8092) and README.md for the Caddy block
+# needed to expose it on a public subdomain.
+FROM nginx:1.27-alpine AS storybook
+COPY apps/web/nginx.storybook.conf /etc/nginx/conf.d/default.conf
+COPY --from=storybook-build /workspace/apps/web/storybook-static /usr/share/nginx/html
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget -qO- http://127.0.0.1:3000/ || exit 1
