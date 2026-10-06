@@ -56,3 +56,6 @@ apps/**/.env
 apps/**/.env.*
 !apps/**/.env.example
 !.env.example
+
+
+storybook-static
