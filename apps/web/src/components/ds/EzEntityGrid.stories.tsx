@@ -144,3 +144,18 @@ export const ComColunasFixadas: Story = {
     footerAggregations: { amount: 'sum' },
   },
 };
+
+/**
+ * Agrupamento de linhas (`groupBy`), equivalente ao "Row Grouping" do AG Grid
+ * Enterprise usado nas telas financeiras do Sankhya: os tickets são
+ * agrupados por "Prioridade" em linhas-resumo colapsadas (rótulo + contador
+ * de registros) que expandem ao clique para revelar as linhas individuais.
+ * Apenas um nível de agrupamento é suportado nesta versão.
+ */
+export const AgrupadoPorPrioridade: Story = {
+  args: {
+    columns,
+    data: tickets,
+    groupBy: ['priority'],
+  },
+};

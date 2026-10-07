@@ -285,3 +285,76 @@ describe('EzEntityGrid', () => {
     ]);
   });
 });
+
+describe('EzEntityGrid grouping', () => {
+  const groupableData: Ticket[] = [
+    { id: '1', title: 'Impressora não liga', priority: 'Alta', createdAt: '2024-01-01', amount: 100 },
+    { id: '2', title: 'Erro ao salvar chamado', priority: 'Alta', createdAt: '2024-01-02', amount: 50 },
+    { id: '3', title: 'Acesso ao sistema negado', priority: 'Baixa', createdAt: '2024-01-03', amount: 30 },
+  ];
+
+  it('renders one collapsed group header row per distinct value when groupBy is set', () => {
+    render(<EzEntityGrid columns={columnsWithAmount} data={groupableData} groupBy={['priority']} />);
+
+    // Groups start collapsed: 2 group rows (Alta, Baixa), 0 leaf rows visible yet.
+    const groupRows = screen.getAllByTestId('ez-entity-grid-group-row');
+    expect(groupRows).toHaveLength(2);
+    expect(groupRows[0]).toHaveTextContent('Alta');
+    expect(groupRows[0]).toHaveTextContent('2'); // group row count badge
+    expect(groupRows[1]).toHaveTextContent('Baixa');
+    expect(screen.queryByText('Impressora não liga')).not.toBeInTheDocument();
+  });
+
+  it('expands a group to reveal its leaf rows when its header row is clicked', async () => {
+    const user = userEvent.setup();
+    render(<EzEntityGrid columns={columnsWithAmount} data={groupableData} groupBy={['priority']} />);
+
+    const groupRows = screen.getAllByTestId('ez-entity-grid-group-row');
+    await user.click(groupRows[0]);
+
+    expect(screen.getByText('Impressora não liga')).toBeInTheDocument();
+    expect(screen.getByText('Erro ao salvar chamado')).toBeInTheDocument();
+    expect(screen.queryByText('Acesso ao sistema negado')).not.toBeInTheDocument();
+  });
+
+  it('does not render group rows when groupBy is omitted', () => {
+    render(<EzEntityGrid columns={columnsWithAmount} data={groupableData} />);
+
+    expect(screen.queryByTestId('ez-entity-grid-group-row')).not.toBeInTheDocument();
+    expect(screen.getByText('Impressora não liga')).toBeInTheDocument();
+  });
+
+  it('ignores a groupBy column id that does not exist in the data without crashing', () => {
+    render(<EzEntityGrid columns={columnsWithAmount} data={groupableData} groupBy={['doesNotExist']} />);
+
+    expect(screen.queryByTestId('ez-entity-grid-group-row')).not.toBeInTheDocument();
+    expect(screen.getByText('Impressora não liga')).toBeInTheDocument();
+  });
+
+  it('shows a fallback label instead of the literal string "undefined" when the grouping value is missing', () => {
+    const dataWithMissingField: Ticket[] = [
+      { id: '1', title: 'Sem prioridade definida', priority: undefined as unknown as string, createdAt: '2024-01-01', amount: 10 },
+      { id: '2', title: 'Acesso ao sistema negado', priority: 'Baixa', createdAt: '2024-01-03', amount: 30 },
+    ];
+    render(<EzEntityGrid columns={columnsWithAmount} data={dataWithMissingField} groupBy={['priority']} />);
+
+    const groupRows = screen.getAllByTestId('ez-entity-grid-group-row');
+    expect(groupRows.some((row) => row.textContent?.includes('undefined'))).toBe(false);
+    expect(groupRows.some((row) => row.textContent?.includes('Sem valor'))).toBe(true);
+  });
+
+  it('expands a group when its header row receives Enter or Space while focused', async () => {
+    const user = userEvent.setup();
+    render(<EzEntityGrid columns={columnsWithAmount} data={groupableData} groupBy={['priority']} />);
+
+    const groupRows = screen.getAllByTestId('ez-entity-grid-group-row');
+    expect(groupRows[0]).toHaveAttribute('tabindex', '0');
+    expect(groupRows[0]).toHaveAttribute('role', 'button');
+
+    groupRows[0].focus();
+    await user.keyboard('{Enter}');
+
+    expect(screen.getByText('Impressora não liga')).toBeInTheDocument();
+    expect(screen.getByText('Erro ao salvar chamado')).toBeInTheDocument();
+  });
+});

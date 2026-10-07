@@ -162,6 +162,7 @@ export function OrganizationsPage() {
   // Tiflux-parity (#57): padrão Sankhya de alternância Modo Lista / Modo
   // Formulário (EzPageHeader), substituindo o antigo modal único.
   const [mode, setMode] = useState<'list' | 'form'>('list');
+  const [groupByStatus, setGroupByStatus] = useState(false);
   const [detailOrgId, setDetailOrgId] = useState<string | null>(null);
   const [detailTab, setDetailTab] = useState<DetailTab>('users');
   const [cnpjLookupError, setCnpjLookupError] = useState<string | null>(null);
@@ -433,6 +434,9 @@ export function OrganizationsPage() {
     {
       id: 'status',
       header: 'Status',
+      // accessorFn dá ao EzEntityGrid um valor textual real para agrupar (groupBy=['status']);
+      // sem isso a coluna seria apenas de exibição (sem accessor) e agruparia tudo em "undefined".
+      accessorFn: (org) => (org.active === false ? 'Inativo' : 'Ativo'),
       cell: ({ row }) =>
         row.original.active === false ? (
           <span className="text-xs font-medium text-gray-500 bg-gray-90 px-2 py-0.5 rounded-full">
@@ -479,7 +483,21 @@ export function OrganizationsPage() {
                   <EzEmptyCard title="Nenhuma empresa cadastrada ainda." />
                 </div>
               ) : (
-                <EzEntityGrid columns={orgColumns} data={orgs ?? []} />
+                <>
+                  <div className="flex items-center justify-end gap-2 px-4 py-2 border-b border-gray-200">
+                    <EzCheck
+                      id="org-group-by-status"
+                      label="Agrupar por status"
+                      checked={groupByStatus}
+                      onChange={(e) => setGroupByStatus(e.target.checked)}
+                    />
+                  </div>
+                  <EzEntityGrid
+                    columns={orgColumns}
+                    data={orgs ?? []}
+                    groupBy={groupByStatus ? ['status'] : undefined}
+                  />
+                </>
               )}
             </EzCardItem>
           )

@@ -12,15 +12,26 @@ import {
 import {
   ColumnDef,
   ColumnPinningState,
+  ExpandedState,
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
+  getGroupedRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  GroupingState,
   RowSelectionState,
   SortingState,
   useReactTable,
 } from '@tanstack/react-table';
-import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import { cn } from './utils';
 import { EzGridWrapper } from './EzGrid';
 import { EzTaskbar, EzTaskbarButton } from './EzTaskbar';
@@ -71,6 +82,19 @@ export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'childre
    * if desired. Omit to keep the original column order with no pinning.
    */
   pinnedColumns?: { left?: string[]; right?: string[] };
+  /**
+   * Column ids to group rows by, in order (mirrors AG Grid's row grouping in Sankhya's
+   * financial screens, e.g. grouping entries by "category" or "status"). Groups render as a
+   * collapsed summary row (label + row count) that expands on click to reveal its leaf rows —
+   * only one level of grouping is supported (`groupBy[0]`); extra ids are accepted but ignored,
+   * matching table-core's own fallback for unknown column ids. Omit to render flat rows as usual.
+   *
+   * Not tested/supported in combination with `pageSize`: pagination slices the *group rows*
+   * themselves (not the total leaf count), so a small `pageSize` can push whole groups to a
+   * later page even though their leaves would otherwise fit. Avoid combining the two props
+   * until this is covered.
+   */
+  groupBy?: string[];
 };
 
 type EzEntityGridComponent = <T,>(
@@ -91,6 +115,7 @@ function EzEntityGridInner<T>(
     pageSize,
     footerAggregations,
     pinnedColumns,
+    groupBy,
     className,
     ...props
   }: EzEntityGridProps<T>,
@@ -106,6 +131,12 @@ function EzEntityGridInner<T>(
     () => ({ left: pinnedColumns?.left ?? [], right: pinnedColumns?.right ?? [] }),
     [pinnedColumns]
   );
+  // Only a single level of grouping is supported today (mirrors the JSDoc on `groupBy`).
+  const grouping = useMemo<GroupingState>(
+    () => (groupBy && groupBy.length > 0 ? [groupBy[0]] : []),
+    [groupBy]
+  );
+  const [expanded, setExpanded] = useState<ExpandedState>({});
 
   const resolvedColumns = useMemo<ColumnDef<T>[]>(() => {
     if (!selectable) return columns;
@@ -137,14 +168,21 @@ function EzEntityGridInner<T>(
   const table = useReactTable({
     data,
     columns: resolvedColumns,
-    state: { sorting, rowSelection, pagination, columnPinning },
+    state: { sorting, rowSelection, pagination, columnPinning, grouping, expanded },
     enableRowSelection: selectable,
+    enableGrouping: grouping.length > 0,
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
     onPaginationChange: setPagination,
+    onExpandedChange: setExpanded,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getGroupedRowModel: getGroupedRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    // Row grouping already needs expand/collapse for its own group rows; keep the whole
+    // leaf set in the "current page" instead of only expanding within a sliced page window.
+    paginateExpandedRows: false,
   });
 
   const isInitialSelectionRender = useRef(true);
@@ -315,32 +353,78 @@ function EzEntityGridInner<T>(
           </tr>
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="border-t border-gray-200 hover:bg-gray-80/60 group">
-              {[
-                ...row.getLeftVisibleCells(),
-                ...row.getCenterVisibleCells(),
-                ...row.getRightVisibleCells(),
-              ].map((cell) => {
-                const pinned = cell.column.getIsPinned();
-                return (
-                  <td
-                    key={cell.id}
-                    data-pinned={pinned || undefined}
-                    style={pinnedStyle(cell.column.id, pinned)}
-                    className={cn(
-                      'px-4 py-3 text-[13px] text-gray-900',
-                      pinned && 'sticky z-10 bg-white group-hover:bg-gray-80',
-                      pinned === 'left' && 'shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
-                      pinned === 'right' && 'shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.15)]'
-                    )}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          {table.getRowModel().rows.map((row) => {
+            if (row.getIsGrouped()) {
+              const toggleExpanded = row.getToggleExpandedHandler();
+              // `row.groupingValue` is already coerced to a string key internally by
+              // table-core's getGroupedRowModel (it builds a `Map<string, Row[]>`), so an
+              // `undefined`/`null` grouping value arrives here as the *string* "undefined" —
+              // comparing `row.groupingValue === undefined` never matches. Read the real,
+              // un-coerced value straight off the row via the grouped column id instead.
+              const rawGroupingValue = row.getValue(row.groupingColumnId ?? '');
+              const groupLabel =
+                rawGroupingValue === undefined || rawGroupingValue === null
+                  ? '(Sem valor)'
+                  : String(rawGroupingValue);
+              return (
+                <tr
+                  key={row.id}
+                  data-testid="ez-entity-grid-group-row"
+                  role="button"
+                  tabIndex={0}
+                  className="border-t border-gray-200 bg-gray-80 cursor-pointer hover:bg-gray-80/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-200"
+                  onClick={toggleExpanded}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      toggleExpanded();
+                    }
+                  }}
+                >
+                  <td colSpan={resolvedColumns.length} className="px-4 py-3 text-[13px] font-semibold text-gray-900">
+                    <span className="inline-flex items-center gap-2">
+                      {row.getIsExpanded() ? (
+                        <ChevronDown aria-hidden className="w-3.5 h-3.5 text-gray-500" />
+                      ) : (
+                        <ChevronRight aria-hidden className="w-3.5 h-3.5 text-gray-500" />
+                      )}
+                      {groupLabel}
+                      <span className="inline-flex items-center justify-center min-w-[1.25rem] px-1.5 py-0.5 rounded-full bg-gray-200 text-[11px] font-medium text-gray-700">
+                        {row.subRows.length}
+                      </span>
+                    </span>
                   </td>
-                );
-              })}
-            </tr>
-          ))}
+                </tr>
+              );
+            }
+
+            return (
+              <tr key={row.id} className="border-t border-gray-200 hover:bg-gray-80/60 group">
+                {[
+                  ...row.getLeftVisibleCells(),
+                  ...row.getCenterVisibleCells(),
+                  ...row.getRightVisibleCells(),
+                ].map((cell) => {
+                  const pinned = cell.column.getIsPinned();
+                  return (
+                    <td
+                      key={cell.id}
+                      data-pinned={pinned || undefined}
+                      style={pinnedStyle(cell.column.id, pinned)}
+                      className={cn(
+                        'px-4 py-3 text-[13px] text-gray-900',
+                        pinned && 'sticky z-10 bg-white group-hover:bg-gray-80',
+                        pinned === 'left' && 'shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
+                        pinned === 'right' && 'shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.15)]'
+                      )}
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
           {table.getRowModel().rows.length === 0 && (
             <tr>
               <td

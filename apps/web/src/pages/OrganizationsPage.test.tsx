@@ -436,4 +436,33 @@ describe('OrganizationsPage', () => {
       expect(screen.getByText(/issue #58/i)).toBeInTheDocument();
     });
   });
+
+  it('groups organizations by status (Ativo/Inativo) when "Agrupar por status" is toggled on', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    // Flat by default: no group header rows, both orgs visible as leaf rows.
+    expect(screen.queryByTestId('ez-entity-grid-group-row')).not.toBeInTheDocument();
+
+    await user.click(screen.getByLabelText(/agrupar por status/i));
+
+    const groupRows = await screen.findAllByTestId('ez-entity-grid-group-row');
+    expect(groupRows).toHaveLength(1); // both orgs are active -> single "Ativo" group
+    expect(groupRows[0]).toHaveTextContent('Ativo');
+    expect(screen.queryByText('Empresa A')).not.toBeInTheDocument();
+
+    await user.click(groupRows[0]);
+    expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    expect(screen.getByText('Empresa B')).toBeInTheDocument();
+
+    // Toggling off returns to the flat view.
+    await user.click(screen.getByLabelText(/agrupar por status/i));
+    expect(screen.queryByTestId('ez-entity-grid-group-row')).not.toBeInTheDocument();
+    expect(screen.getByText('Empresa A')).toBeInTheDocument();
+  });
 });
