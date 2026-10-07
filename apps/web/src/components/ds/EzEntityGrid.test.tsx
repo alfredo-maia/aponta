@@ -9,6 +9,7 @@ type Ticket = {
   title: string;
   priority: string;
   createdAt: string;
+  amount: number;
 };
 
 const columns: ColumnDef<Ticket>[] = [
@@ -18,9 +19,14 @@ const columns: ColumnDef<Ticket>[] = [
 ];
 
 const data: Ticket[] = [
-  { id: '1', title: 'Impressora não liga', priority: 'Alta', createdAt: '2024-01-01' },
-  { id: '2', title: 'Erro ao salvar chamado', priority: 'Baixa', createdAt: '2024-01-02' },
-  { id: '3', title: 'Acesso ao sistema negado', priority: 'Média', createdAt: '2024-01-03' },
+  { id: '1', title: 'Impressora não liga', priority: 'Alta', createdAt: '2024-01-01', amount: 100 },
+  { id: '2', title: 'Erro ao salvar chamado', priority: 'Baixa', createdAt: '2024-01-02', amount: 250.5 },
+  { id: '3', title: 'Acesso ao sistema negado', priority: 'Média', createdAt: '2024-01-03', amount: 49.5 },
+];
+
+const columnsWithAmount: ColumnDef<Ticket>[] = [
+  ...columns,
+  { accessorKey: 'amount', header: 'Valor' },
 ];
 
 describe('EzEntityGrid', () => {
@@ -125,5 +131,54 @@ describe('EzEntityGrid', () => {
     );
 
     expect(screen.getByText('Status: Aberto')).toBeInTheDocument();
+  });
+
+  it('renders a footer row with the sum of numeric columns when footerAggregations is provided', () => {
+    render(
+      <EzEntityGrid
+        columns={columnsWithAmount}
+        data={data}
+        footerAggregations={{ amount: 'sum' }}
+      />
+    );
+
+    const footerRow = screen.getByTestId('ez-entity-grid-footer-row');
+    // 100 + 250.5 + 49.5 = 400
+    expect(within(footerRow).getByText('400,00')).toBeInTheDocument();
+  });
+
+  it('does not render a footer row when footerAggregations is not provided', () => {
+    render(<EzEntityGrid columns={columnsWithAmount} data={data} />);
+
+    expect(screen.queryByTestId('ez-entity-grid-footer-row')).not.toBeInTheDocument();
+  });
+
+  it('keeps the footer row empty for a column id that does not exist in the data', () => {
+    render(
+      <EzEntityGrid
+        columns={columnsWithAmount}
+        data={data}
+        footerAggregations={{ nonExistentColumn: 'sum' }}
+      />
+    );
+
+    const footerRow = screen.getByTestId('ez-entity-grid-footer-row');
+    const cells = within(footerRow).getAllByRole('cell');
+    expect(cells.every((cell) => cell.textContent === '')).toBe(true);
+  });
+
+  it('sums the full dataset (not just the current page) when footerAggregations and pageSize are both set', () => {
+    render(
+      <EzEntityGrid
+        columns={columnsWithAmount}
+        data={data}
+        pageSize={2}
+        footerAggregations={{ amount: 'sum' }}
+      />
+    );
+
+    const footerRow = screen.getByTestId('ez-entity-grid-footer-row');
+    // 100 + 250.5 + 49.5 = 400, even though only 2 of the 3 rows are visible on this page
+    expect(within(footerRow).getByText('400,00')).toBeInTheDocument();
   });
 });

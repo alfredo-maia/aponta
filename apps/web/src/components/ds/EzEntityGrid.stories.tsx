@@ -18,15 +18,16 @@ type Ticket = {
   priority: 'Baixa' | 'Média' | 'Alta' | 'Crítica';
   status: 'Aberto' | 'Em andamento' | 'Resolvido';
   createdAt: string;
+  amount: number;
 };
 
 const tickets: Ticket[] = [
-  { id: '#4821', title: 'Falha no servidor de produção', client: 'Social Tecnologia', priority: 'Crítica', status: 'Em andamento', createdAt: '09/01/2026' },
-  { id: '#4822', title: 'Impressora não liga no setor financeiro', client: 'Metalúrgica Vale', priority: 'Baixa', status: 'Aberto', createdAt: '09/01/2026' },
-  { id: '#4823', title: 'Erro ao salvar chamado de manutenção', client: 'Construtora Horizonte', priority: 'Alta', status: 'Aberto', createdAt: '08/01/2026' },
-  { id: '#4824', title: 'Acesso ao sistema negado para novo usuário', client: 'Social Tecnologia', priority: 'Média', status: 'Resolvido', createdAt: '07/01/2026' },
-  { id: '#4825', title: 'Lentidão no módulo de faturamento', client: 'Comércio Rio Branco', priority: 'Alta', status: 'Em andamento', createdAt: '06/01/2026' },
-  { id: '#4826', title: 'Solicitação de novo relatório gerencial', client: 'Metalúrgica Vale', priority: 'Baixa', status: 'Aberto', createdAt: '05/01/2026' },
+  { id: '#4821', title: 'Falha no servidor de produção', client: 'Social Tecnologia', priority: 'Crítica', status: 'Em andamento', createdAt: '09/01/2026', amount: 1250.9 },
+  { id: '#4822', title: 'Impressora não liga no setor financeiro', client: 'Metalúrgica Vale', priority: 'Baixa', status: 'Aberto', createdAt: '09/01/2026', amount: 320 },
+  { id: '#4823', title: 'Erro ao salvar chamado de manutenção', client: 'Construtora Horizonte', priority: 'Alta', status: 'Aberto', createdAt: '08/01/2026', amount: 980.5 },
+  { id: '#4824', title: 'Acesso ao sistema negado para novo usuário', client: 'Social Tecnologia', priority: 'Média', status: 'Resolvido', createdAt: '07/01/2026', amount: 150 },
+  { id: '#4825', title: 'Lentidão no módulo de faturamento', client: 'Comércio Rio Branco', priority: 'Alta', status: 'Em andamento', createdAt: '06/01/2026', amount: 2100 },
+  { id: '#4826', title: 'Solicitação de novo relatório gerencial', client: 'Metalúrgica Vale', priority: 'Baixa', status: 'Aberto', createdAt: '05/01/2026', amount: 60.3 },
 ];
 
 const columns: ColumnDef<Ticket>[] = [
@@ -48,6 +49,7 @@ const columns: ColumnDef<Ticket>[] = [
   },
   { accessorKey: 'status', header: 'Status' },
   { accessorKey: 'createdAt', header: 'Aberto em' },
+  { accessorKey: 'amount', header: 'Valor (R$)' },
 ];
 
 const meta: Meta<typeof EzEntityGrid<Ticket>> = {
@@ -108,5 +110,19 @@ export const CompletoComSelecao: Story = {
     selectable: true,
     onSelectionChange: () => undefined,
     pageSize: 4,
+  },
+};
+
+/**
+ * Linha de totais no rodapé (`footerAggregations`), equivalente à barra de
+ * somatórios (Receita/Despesa/Saldo) vista na tela "Movimentação
+ * Financeira" do Sankhya. Formata números no padrão pt-BR (2 casas
+ * decimais, separador de vírgula).
+ */
+export const ComTotaisNoRodape: Story = {
+  args: {
+    columns,
+    data: tickets,
+    footerAggregations: { amount: 'sum' },
   },
 };

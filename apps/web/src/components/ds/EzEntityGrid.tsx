@@ -44,6 +44,12 @@ export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'childre
   onSelectionChange?: (rows: T[]) => void;
   /** Number of rows per page. Omit to render every row without pagination controls. */
   pageSize?: number;
+  /**
+   * Maps a column id to an aggregation to show in a footer row (e.g. `{ amount: 'sum' }`).
+   * Omit to hide the footer row entirely. Values are formatted as pt-BR currency-style numbers
+   * (2 decimal places, comma separator) to match Sankhya's financial grids.
+   */
+  footerAggregations?: Record<string, 'sum' | 'avg' | 'min' | 'max' | 'count'>;
 };
 
 type EzEntityGridComponent = <T,>(
@@ -62,6 +68,7 @@ function EzEntityGridInner<T>(
     selectable = false,
     onSelectionChange,
     pageSize,
+    footerAggregations,
     className,
     ...props
   }: EzEntityGridProps<T>,
@@ -129,6 +136,44 @@ function EzEntityGridInner<T>(
   const showTaskbar = !!taskbarButtons && taskbarButtons.length > 0;
   const showFilterBar = !!filters;
   const showPagination = pageSize !== undefined;
+  const showFooter = !!footerAggregations && Object.keys(footerAggregations).length > 0;
+
+  const footerValues = useMemo<Record<string, number>>(() => {
+    if (!showFooter) return {};
+    const result: Record<string, number> = {};
+    for (const [columnId, aggregation] of Object.entries(footerAggregations ?? {})) {
+      const values = data
+        .map((row) => (row as Record<string, unknown>)[columnId])
+        .filter((value): value is number => typeof value === 'number');
+
+      if (values.length === 0) {
+        result[columnId] = 0;
+        continue;
+      }
+
+      switch (aggregation) {
+        case 'sum':
+          result[columnId] = values.reduce((acc, value) => acc + value, 0);
+          break;
+        case 'avg':
+          result[columnId] = values.reduce((acc, value) => acc + value, 0) / values.length;
+          break;
+        case 'min':
+          result[columnId] = Math.min(...values);
+          break;
+        case 'max':
+          result[columnId] = Math.max(...values);
+          break;
+        case 'count':
+          result[columnId] = values.length;
+          break;
+      }
+    }
+    return result;
+  }, [data, footerAggregations, showFooter]);
+
+  const formatFooterValue = (value: number) =>
+    value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   return (
     <div ref={ref} className={cn('flex flex-col gap-3 w-full', className)} {...props}>
@@ -194,6 +239,22 @@ function EzEntityGridInner<T>(
             </tr>
           )}
         </tbody>
+        {showFooter && (
+          <tfoot>
+            <tr data-testid="ez-entity-grid-footer-row" className="border-t-2 border-gray-200 bg-gray-80">
+              {resolvedColumns.map((column, index) => {
+                const columnId =
+                  'accessorKey' in column ? String(column.accessorKey) : column.id ?? '';
+                const value = footerValues[columnId];
+                return (
+                  <td key={columnId || index} className="px-4 py-3 text-[13px] font-semibold text-gray-900">
+                    {value !== undefined ? formatFooterValue(value) : ''}
+                  </td>
+                );
+              })}
+            </tr>
+          </tfoot>
+        )}
       </EzGridWrapper>
 
       {showPagination && (
