@@ -181,4 +181,107 @@ describe('EzEntityGrid', () => {
     // 100 + 250.5 + 49.5 = 400, even though only 2 of the 3 rows are visible on this page
     expect(within(footerRow).getByText('400,00')).toBeInTheDocument();
   });
+
+  it('renders a left-pinned column before the other columns, marked with data-pinned="left"', () => {
+    render(
+      <EzEntityGrid
+        columns={columnsWithAmount}
+        data={data}
+        pinnedColumns={{ left: ['priority'] }}
+      />
+    );
+
+    const headerCells = screen.getAllByRole('columnheader');
+    expect(headerCells[0]).toHaveTextContent('Prioridade');
+    expect(headerCells[0]).toHaveAttribute('data-pinned', 'left');
+    expect(headerCells[1]).not.toHaveAttribute('data-pinned');
+
+    const firstBodyRow = screen.getAllByRole('row')[1];
+    const bodyCells = within(firstBodyRow).getAllByRole('cell');
+    expect(bodyCells[0]).toHaveTextContent('Alta');
+    expect(bodyCells[0]).toHaveAttribute('data-pinned', 'left');
+  });
+
+  it('renders a right-pinned column after the other columns, marked with data-pinned="right"', () => {
+    render(
+      <EzEntityGrid
+        columns={columnsWithAmount}
+        data={data}
+        pinnedColumns={{ right: ['amount'] }}
+      />
+    );
+
+    const headerCells = screen.getAllByRole('columnheader');
+    expect(headerCells[headerCells.length - 1]).toHaveTextContent('Valor');
+    expect(headerCells[headerCells.length - 1]).toHaveAttribute('data-pinned', 'right');
+  });
+
+  it('keeps the original column order when pinnedColumns is not provided', () => {
+    render(<EzEntityGrid columns={columnsWithAmount} data={data} />);
+
+    const headerCells = screen.getAllByRole('columnheader');
+    expect(headerCells.map((cell) => cell.textContent)).toEqual([
+      'ID',
+      'Título',
+      'Prioridade',
+      'Valor',
+    ]);
+    headerCells.forEach((cell) => expect(cell).not.toHaveAttribute('data-pinned'));
+  });
+
+  it('gives a 2nd left-pinned column a cumulative offset so it does not overlap the 1st', () => {
+    // jsdom reports 0 for offsetWidth by default; stub it per-element so the cumulative
+    // offset math has real widths to add up (same technique AG Grid relies on via measured DOM).
+    const widthById: Record<string, number> = { id: 80, title: 160 };
+    const originalOffsetWidth = Object.getOwnPropertyDescriptor(
+      HTMLElement.prototype,
+      'offsetWidth'
+    );
+    Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
+      configurable: true,
+      get() {
+        const text = this.textContent ?? '';
+        if (text.startsWith('ID')) return widthById.id;
+        if (text.startsWith('Título')) return widthById.title;
+        return 0;
+      },
+    });
+
+    try {
+      render(
+        <EzEntityGrid
+          columns={columnsWithAmount}
+          data={data}
+          pinnedColumns={{ left: ['id', 'title'] }}
+        />
+      );
+
+      const headerCells = screen.getAllByRole('columnheader');
+      // 'id' is first → offset 0; 'title' is 2nd → offset equal to 'id's measured width (80px).
+      expect(headerCells[0]).toHaveStyle({ left: '0px' });
+      expect(headerCells[1]).toHaveStyle({ left: '80px' });
+    } finally {
+      if (originalOffsetWidth) {
+        Object.defineProperty(HTMLElement.prototype, 'offsetWidth', originalOffsetWidth);
+      }
+    }
+  });
+
+  it('ignores a pinned column id that does not exist in the data without crashing', () => {
+    render(
+      <EzEntityGrid
+        columns={columnsWithAmount}
+        data={data}
+        pinnedColumns={{ left: ['doesNotExist'] }}
+      />
+    );
+
+    const headerCells = screen.getAllByRole('columnheader');
+    expect(headerCells.map((cell) => cell.textContent)).toEqual([
+      'ID',
+      'Título',
+      'Prioridade',
+      'Valor',
+    ]);
+  });
 });

@@ -126,3 +126,21 @@ export const ComTotaisNoRodape: Story = {
     footerAggregations: { amount: 'sum' },
   },
 };
+
+/**
+ * Colunas fixadas (`pinnedColumns`), equivalente ao recurso "pinned columns"
+ * do AG Grid Enterprise usado nas telas financeiras do Sankhya: as colunas
+ * "Chamado" e "Cliente" ficam fixas à esquerda (empilhadas sem sobrepor,
+ * via offset cumulativo medido em runtime) e "Valor (R$)" à direita,
+ * enquanto o restante rola horizontalmente (visível reduzindo a largura
+ * da viewport do Storybook). Combinável com `footerAggregations` — o
+ * rodapé também respeita o pinning.
+ */
+export const ComColunasFixadas: Story = {
+  args: {
+    columns,
+    data: tickets,
+    pinnedColumns: { left: ['id', 'client'], right: ['amount'] },
+    footerAggregations: { amount: 'sum' },
+  },
+};

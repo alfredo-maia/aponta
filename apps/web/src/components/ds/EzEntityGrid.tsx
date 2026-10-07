@@ -1,6 +1,17 @@
-import { forwardRef, HTMLAttributes, Ref, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  forwardRef,
+  HTMLAttributes,
+  Ref,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   ColumnDef,
+  ColumnPinningState,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
@@ -50,6 +61,16 @@ export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'childre
    * (2 decimal places, comma separator) to match Sankhya's financial grids.
    */
   footerAggregations?: Record<string, 'sum' | 'avg' | 'min' | 'max' | 'count'>;
+  /**
+   * Column ids to pin to the left and/or right edge of the grid (mirrors AG Grid's `pinned`
+   * columns in Sankhya's financial screens, e.g. keeping an "amount" column visible while
+   * scrolling horizontally). Supports multiple columns per side — each gets a cumulative
+   * `left`/`right` offset measured from the rendered header widths, so a 2nd pinned column
+   * sticks right after the 1st instead of overlapping it. Pinned cells get `position: sticky`
+   * plus a `data-pinned` attribute so consumers can style the sticky boundary (shadow/border)
+   * if desired. Omit to keep the original column order with no pinning.
+   */
+  pinnedColumns?: { left?: string[]; right?: string[] };
 };
 
 type EzEntityGridComponent = <T,>(
@@ -69,6 +90,7 @@ function EzEntityGridInner<T>(
     onSelectionChange,
     pageSize,
     footerAggregations,
+    pinnedColumns,
     className,
     ...props
   }: EzEntityGridProps<T>,
@@ -80,6 +102,10 @@ function EzEntityGridInner<T>(
     pageIndex: 0,
     pageSize: pageSize ?? Math.max(data.length, 1),
   });
+  const columnPinning = useMemo<ColumnPinningState>(
+    () => ({ left: pinnedColumns?.left ?? [], right: pinnedColumns?.right ?? [] }),
+    [pinnedColumns]
+  );
 
   const resolvedColumns = useMemo<ColumnDef<T>[]>(() => {
     if (!selectable) return columns;
@@ -111,7 +137,7 @@ function EzEntityGridInner<T>(
   const table = useReactTable({
     data,
     columns: resolvedColumns,
-    state: { sorting, rowSelection, pagination },
+    state: { sorting, rowSelection, pagination, columnPinning },
     enableRowSelection: selectable,
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
@@ -175,6 +201,71 @@ function EzEntityGridInner<T>(
   const formatFooterValue = (value: number) =>
     value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+  const orderedHeaders = useMemo(
+    () => [
+      ...table.getLeftHeaderGroups().flatMap((group) => group.headers),
+      ...table.getCenterHeaderGroups().flatMap((group) => group.headers),
+      ...table.getRightHeaderGroups().flatMap((group) => group.headers),
+    ],
+    [table, columnPinning, resolvedColumns]
+  );
+
+  // Pinned columns stick via `position: sticky`, but a left/right offset of 0 for every
+  // pinned cell only works correctly for a single column per side — with two+ columns on
+  // the same side they would all stick to the same edge and overlap. We measure each pinned
+  // header's rendered width and turn that into a cumulative `left`/`right` offset (same idea
+  // AG Grid uses internally), so e.g. a 2nd left-pinned column sticks right after the 1st.
+  const headerCellRefs = useRef<Map<string, HTMLTableCellElement>>(new Map());
+  const [pinnedOffsets, setPinnedOffsets] = useState<Record<string, number>>({});
+  const registerHeaderCellRef = useCallback(
+    (columnId: string) => (el: HTMLTableCellElement | null) => {
+      if (el) headerCellRefs.current.set(columnId, el);
+      else headerCellRefs.current.delete(columnId);
+    },
+    []
+  );
+
+  const pinnedColumnsKey = useMemo(() => {
+    const left = orderedHeaders
+      .filter((header) => header.column.getIsPinned() === 'left')
+      .map((header) => header.column.id);
+    const right = orderedHeaders
+      .filter((header) => header.column.getIsPinned() === 'right')
+      .map((header) => header.column.id);
+    return JSON.stringify({ left, right });
+  }, [orderedHeaders]);
+
+  useLayoutEffect(() => {
+    const { left, right } = JSON.parse(pinnedColumnsKey) as { left: string[]; right: string[] };
+    const offsets: Record<string, number> = {};
+
+    let leftAcc = 0;
+    for (const columnId of left) {
+      offsets[columnId] = leftAcc;
+      leftAcc += headerCellRefs.current.get(columnId)?.offsetWidth ?? 0;
+    }
+
+    // Right-pinned columns accumulate from the outer edge inward: the LAST id in
+    // `pinnedColumns.right` sits flush against the grid's right edge (offset 0).
+    let rightAcc = 0;
+    for (const columnId of [...right].reverse()) {
+      offsets[columnId] = rightAcc;
+      rightAcc += headerCellRefs.current.get(columnId)?.offsetWidth ?? 0;
+    }
+
+    setPinnedOffsets((previous) => {
+      const previousKeys = Object.keys(previous);
+      const nextKeys = Object.keys(offsets);
+      const unchanged =
+        previousKeys.length === nextKeys.length &&
+        nextKeys.every((key) => previous[key] === offsets[key]);
+      return unchanged ? previous : offsets;
+    });
+  }, [pinnedColumnsKey, data]);
+
+  const pinnedStyle = (columnId: string, pinned: false | 'left' | 'right') =>
+    pinned ? { [pinned]: pinnedOffsets[columnId] ?? 0 } : undefined;
+
   return (
     <div ref={ref} className={cn('flex flex-col gap-3 w-full', className)} {...props}>
       {showFilterBar && (
@@ -191,41 +282,63 @@ function EzEntityGridInner<T>(
 
       <EzGridWrapper>
         <thead className="bg-gray-80">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                const canSort = header.column.getCanSort();
-                const sortDirection = header.column.getIsSorted();
-                const SortIcon =
-                  sortDirection === 'asc' ? ArrowUp : sortDirection === 'desc' ? ArrowDown : ArrowUpDown;
+          <tr>
+            {orderedHeaders.map((header) => {
+              const canSort = header.column.getCanSort();
+              const sortDirection = header.column.getIsSorted();
+              const SortIcon =
+                sortDirection === 'asc' ? ArrowUp : sortDirection === 'desc' ? ArrowDown : ArrowUpDown;
+              const pinned = header.column.getIsPinned();
 
-                return (
-                  <th
-                    key={header.id}
-                    className={cn(
-                      'px-4 py-3 text-[13px] font-semibold text-gray-700 select-none',
-                      canSort && 'cursor-pointer'
-                    )}
-                    onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
-                  >
-                    <span className="inline-flex items-center gap-1">
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                      {canSort && <SortIcon aria-hidden className="w-3.5 h-3.5 text-gray-400" />}
-                    </span>
-                  </th>
-                );
-              })}
-            </tr>
-          ))}
+              return (
+                <th
+                  key={header.id}
+                  ref={registerHeaderCellRef(header.column.id)}
+                  data-pinned={pinned || undefined}
+                  style={pinnedStyle(header.column.id, pinned)}
+                  className={cn(
+                    'px-4 py-3 text-[13px] font-semibold text-gray-700 select-none bg-gray-80',
+                    canSort && 'cursor-pointer',
+                    pinned && 'sticky z-10',
+                    pinned === 'left' && 'shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
+                    pinned === 'right' && 'shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.15)]'
+                  )}
+                  onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                >
+                  <span className="inline-flex items-center gap-1">
+                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    {canSort && <SortIcon aria-hidden className="w-3.5 h-3.5 text-gray-400" />}
+                  </span>
+                </th>
+              );
+            })}
+          </tr>
         </thead>
         <tbody>
           {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="border-t border-gray-200 hover:bg-gray-80/60">
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="px-4 py-3 text-[13px] text-gray-900">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
+            <tr key={row.id} className="border-t border-gray-200 hover:bg-gray-80/60 group">
+              {[
+                ...row.getLeftVisibleCells(),
+                ...row.getCenterVisibleCells(),
+                ...row.getRightVisibleCells(),
+              ].map((cell) => {
+                const pinned = cell.column.getIsPinned();
+                return (
+                  <td
+                    key={cell.id}
+                    data-pinned={pinned || undefined}
+                    style={pinnedStyle(cell.column.id, pinned)}
+                    className={cn(
+                      'px-4 py-3 text-[13px] text-gray-900',
+                      pinned && 'sticky z-10 bg-white group-hover:bg-gray-80',
+                      pinned === 'left' && 'shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
+                      pinned === 'right' && 'shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.15)]'
+                    )}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                );
+              })}
             </tr>
           ))}
           {table.getRowModel().rows.length === 0 && (
@@ -242,12 +355,22 @@ function EzEntityGridInner<T>(
         {showFooter && (
           <tfoot>
             <tr data-testid="ez-entity-grid-footer-row" className="border-t-2 border-gray-200 bg-gray-80">
-              {resolvedColumns.map((column, index) => {
-                const columnId =
-                  'accessorKey' in column ? String(column.accessorKey) : column.id ?? '';
+              {orderedHeaders.map((header) => {
+                const columnId = header.column.id;
                 const value = footerValues[columnId];
+                const pinned = header.column.getIsPinned();
                 return (
-                  <td key={columnId || index} className="px-4 py-3 text-[13px] font-semibold text-gray-900">
+                  <td
+                    key={columnId}
+                    data-pinned={pinned || undefined}
+                    style={pinnedStyle(columnId, pinned)}
+                    className={cn(
+                      'px-4 py-3 text-[13px] font-semibold text-gray-900',
+                      pinned && 'sticky z-10 bg-gray-80',
+                      pinned === 'left' && 'shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
+                      pinned === 'right' && 'shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.15)]'
+                    )}
+                  >
                     {value !== undefined ? formatFooterValue(value) : ''}
                   </td>
                 );
