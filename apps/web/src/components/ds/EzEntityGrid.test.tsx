@@ -434,6 +434,14 @@ describe('EzEntityGrid rich pagination and horizontal scrollbar (Sankhya parity)
     await user.click(screen.getByRole('button', { name: /próxima página/i }));
     expect(screen.getByTestId('ez-entity-grid-pagination-count')).toHaveTextContent('3-3 de 3');
 
+    // Previous page: 1-2 de 3
+    await user.click(screen.getByRole('button', { name: /página anterior/i }));
+    expect(screen.getByTestId('ez-entity-grid-pagination-count')).toHaveTextContent('1-2 de 3');
+
+    // Next page again: 3-3 de 3
+    await user.click(screen.getByRole('button', { name: /próxima página/i }));
+    expect(screen.getByTestId('ez-entity-grid-pagination-count')).toHaveTextContent('3-3 de 3');
+
     // Change page size to 5
     await user.selectOptions(select, '5');
     expect(onPageSizeChange).toHaveBeenCalledWith(5);
