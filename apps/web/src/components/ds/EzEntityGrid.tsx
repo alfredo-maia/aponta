@@ -9,13 +9,17 @@ import {
   useRef,
   useState,
 } from 'react';
+import { createPortal } from 'react-dom';
 import {
   ColumnDef,
+  ColumnFiltersState,
   ColumnPinningState,
   ExpandedState,
+  FilterFn,
   flexRender,
   getCoreRowModel,
   getExpandedRowModel,
+  getFilteredRowModel,
   getGroupedRowModel,
   getPaginationRowModel,
   getSortedRowModel,
@@ -31,6 +35,9 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Filter,
+  Search,
+  X,
 } from 'lucide-react';
 import { cn } from './utils';
 import { EzGridWrapper } from './EzGrid';
@@ -117,7 +124,253 @@ export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'childre
    * @default 'compact'
    */
   density?: 'compact' | 'comfortable';
+  /**
+   * Enables Excel-style column filters (funnel icon on header) with distinct values checklist.
+   * @default true
+   */
+  enableColumnFilters?: boolean;
+  /**
+   * Displays the bottom status bar with row counts and selection metrics (Sankhya / Excel parity).
+   * @default true
+   */
+  showStatusBar?: boolean;
 };
+
+const inArrayFilter: FilterFn<any> = (row, columnId, filterValue: unknown) => {
+  if (!filterValue || !Array.isArray(filterValue)) return true;
+  const raw = row.getValue(columnId);
+  const formatted = raw === undefined || raw === null || raw === '' ? '(Vazio)' : String(raw);
+  return (filterValue as string[]).includes(formatted);
+};
+
+interface EzColumnFilterPopoverProps {
+  triggerElement: HTMLElement | null | undefined;
+  columnTitle: string;
+  uniqueValues: { value: string; count: number }[];
+  currentFilter: string[] | undefined;
+  onApply: (selectedValues: string[] | undefined) => void;
+  onClose: () => void;
+}
+
+function EzColumnFilterPopover({
+  triggerElement,
+  columnTitle,
+  uniqueValues,
+  currentFilter,
+  onApply,
+  onClose,
+}: EzColumnFilterPopoverProps) {
+  const allValues = useMemo(() => uniqueValues.map((v) => v.value), [uniqueValues]);
+  const [selected, setSelected] = useState<Set<string>>(
+    () => new Set(currentFilter !== undefined ? currentFilter : allValues)
+  );
+  const [search, setSearch] = useState('');
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
+
+  useLayoutEffect(() => {
+    if (triggerElement) {
+      const rect = triggerElement.getBoundingClientRect();
+      const popoverWidth = 256;
+      let left = rect.right - popoverWidth;
+      if (typeof window !== 'undefined') {
+        if (left < 8) left = 8;
+        if (left + popoverWidth > window.innerWidth - 8) {
+          left = Math.max(8, window.innerWidth - popoverWidth - 8);
+        }
+      }
+      setCoords({
+        top: rect.bottom + 6,
+        left,
+      });
+    }
+  }, [triggerElement]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(target) &&
+        (!triggerElement || !triggerElement.contains(target))
+      ) {
+        onClose();
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose, triggerElement]);
+
+  const visibleValues = useMemo(() => {
+    if (!search.trim()) return uniqueValues;
+    const lower = search.toLowerCase();
+    return uniqueValues.filter((v) => v.value.toLowerCase().includes(lower));
+  }, [uniqueValues, search]);
+
+  const isAllVisibleSelected =
+    visibleValues.length > 0 && visibleValues.every((v) => selected.has(v.value));
+
+  const toggleSelectAll = () => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (isAllVisibleSelected) {
+        visibleValues.forEach((v) => next.delete(v.value));
+      } else {
+        visibleValues.forEach((v) => next.add(v.value));
+      }
+      return next;
+    });
+  };
+
+  const toggleItem = (val: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(val)) next.delete(val);
+      else next.add(val);
+      return next;
+    });
+  };
+
+  const handleApply = () => {
+    if (selected.size === allValues.length) {
+      onApply(undefined);
+    } else {
+      onApply(Array.from(selected));
+    }
+    onClose();
+  };
+
+  const handleClear = () => {
+    onApply(undefined);
+    onClose();
+  };
+
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div
+      ref={popoverRef}
+      role="dialog"
+      aria-label={`Filtrar ${columnTitle}`}
+      data-testid="ez-grid-column-filter-popover"
+      style={
+        coords
+          ? {
+              position: 'fixed',
+              top: `${coords.top}px`,
+              left: `${coords.left}px`,
+            }
+          : { position: 'fixed', top: '100px', left: '100px' }
+      }
+      className="w-64 bg-white rounded-[10px] shadow-2xl border border-gray-200 z-[9999] p-3 flex flex-col gap-2.5 text-left font-normal select-none"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="flex items-center justify-between pb-1.5 border-b border-gray-100">
+        <span className="text-[12px] font-semibold text-gray-800 truncate">
+          Filtro: {columnTitle}
+        </span>
+        <button
+          type="button"
+          aria-label="Fechar filtro"
+          onClick={onClose}
+          className="text-gray-400 hover:text-gray-600 p-0.5 rounded hover:bg-gray-100 transition-colors cursor-pointer"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      <div className="relative">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Pesquisar valores…"
+          aria-label="Pesquisar valores"
+          data-testid="ez-grid-column-filter-search"
+          className="w-full text-[12px] px-2.5 py-1.5 pl-7 bg-gray-50 border border-gray-200 rounded-[6px] focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500"
+        />
+        <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2 top-2 pointer-events-none" />
+      </div>
+
+      <div className="flex items-center gap-2 px-1 text-[12px] text-gray-600">
+        <input
+          type="checkbox"
+          id={`filter-select-all-${columnTitle}`}
+          checked={isAllVisibleSelected}
+          onChange={toggleSelectAll}
+          data-testid="ez-grid-column-filter-select-all"
+          className="w-3.5 h-3.5 rounded border-gray-300 text-brand-600 focus:ring-brand-500 cursor-pointer"
+        />
+        <label htmlFor={`filter-select-all-${columnTitle}`} className="cursor-pointer font-medium">
+          (Selecionar tudo)
+        </label>
+      </div>
+
+      <div className="max-h-40 overflow-y-auto space-y-0.5 pr-1 text-[12px] border-y border-gray-100 py-1.5">
+        {visibleValues.length === 0 ? (
+          <div className="text-gray-400 text-center py-2 text-[12px]">Nenhum valor encontrado</div>
+        ) : (
+          visibleValues.map((item) => (
+            <label
+              key={item.value}
+              className="flex items-center justify-between gap-2 px-1 py-1 rounded hover:bg-gray-50 cursor-pointer"
+            >
+              <div className="flex items-center gap-2 truncate">
+                <input
+                  type="checkbox"
+                  checked={selected.has(item.value)}
+                  onChange={() => toggleItem(item.value)}
+                  data-testid={`ez-grid-column-filter-item-${item.value}`}
+                  className="w-3.5 h-3.5 rounded border-gray-300 text-brand-600 focus:ring-brand-500 cursor-pointer"
+                />
+                <span className="truncate text-gray-700" title={item.value}>
+                  {item.value}
+                </span>
+              </div>
+              <span className="text-gray-400 text-[11px] shrink-0">({item.count})</span>
+            </label>
+          ))
+        )}
+      </div>
+
+      <div className="flex items-center justify-between pt-1">
+        <button
+          type="button"
+          onClick={handleClear}
+          data-testid="ez-grid-column-filter-clear"
+          className="text-[12px] text-gray-500 hover:text-gray-800 px-2 py-1 rounded hover:bg-gray-100 transition-colors cursor-pointer"
+        >
+          Limpar
+        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-[12px] text-gray-600 hover:text-gray-900 px-2.5 py-1 rounded border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={handleApply}
+            data-testid="ez-grid-column-filter-apply"
+            className="text-[12px] text-white bg-brand-600 hover:bg-brand-700 px-3 py-1 rounded-[6px] font-medium shadow-sm transition-colors cursor-pointer"
+          >
+            Aplicar
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
 
 type EzEntityGridComponent = <T,>(
   props: EzEntityGridProps<T> & { ref?: Ref<HTMLDivElement> }
@@ -143,6 +396,8 @@ function EzEntityGridInner<T>(
     pinnedColumns,
     groupBy,
     density = 'compact',
+    enableColumnFilters = true,
+    showStatusBar = true,
     className,
     ...props
   }: EzEntityGridProps<T>,
@@ -150,6 +405,8 @@ function EzEntityGridInner<T>(
 ) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [activeFilterColumnId, setActiveFilterColumnId] = useState<string | null>(null);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: pageSize ?? Math.max(data.length, 1),
@@ -213,17 +470,34 @@ function EzEntityGridInner<T>(
     return [selectColumn, ...columns];
   }, [columns, selectable]);
 
-  const table = useReactTable({
+  const table = useReactTable<T>({
     data,
     columns: resolvedColumns,
-    state: { sorting, rowSelection, pagination, columnPinning, grouping, expanded },
+    state: {
+      sorting,
+      rowSelection,
+      pagination,
+      columnPinning,
+      grouping,
+      expanded,
+      columnFilters,
+    },
     enableRowSelection: selectable,
     enableGrouping: grouping.length > 0,
+    enableFilters: enableColumnFilters,
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
+    onColumnFiltersChange: setColumnFilters,
     onPaginationChange: setPagination,
     onExpandedChange: setExpanded,
+    filterFns: {
+      inArray: inArrayFilter,
+    },
+    defaultColumn: {
+      filterFn: inArrayFilter,
+    },
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getGroupedRowModel: getGroupedRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
@@ -232,6 +506,23 @@ function EzEntityGridInner<T>(
     // leaf set in the "current page" instead of only expanding within a sliced page window.
     paginateExpandedRows: false,
   });
+
+  const filterButtonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+
+  const getColumnUniqueValues = useCallback(
+    (columnId: string) => {
+      const counts = new Map<string, number>();
+      for (const row of table.getCoreRowModel().rows) {
+        const raw = row.getValue(columnId);
+        const val = raw === undefined || raw === null || raw === '' ? '(Vazio)' : String(raw);
+        counts.set(val, (counts.get(val) ?? 0) + 1);
+      }
+      return Array.from(counts.entries())
+        .map(([value, count]) => ({ value, count }))
+        .sort((a, b) => a.value.localeCompare(b.value));
+    },
+    [table]
+  );
 
   const isInitialSelectionRender = useRef(true);
   useEffect(() => {
@@ -253,9 +544,10 @@ function EzEntityGridInner<T>(
   const footerValues = useMemo<Record<string, number>>(() => {
     if (!showFooter) return {};
     const result: Record<string, number> = {};
+    const filteredRows = table.getFilteredRowModel().rows;
     for (const [columnId, aggregation] of Object.entries(footerAggregations ?? {})) {
-      const values = data
-        .map((row) => (row as Record<string, unknown>)[columnId])
+      const values = filteredRows
+        .map((row) => (row.original as Record<string, unknown>)[columnId])
         .filter((value): value is number => typeof value === 'number');
 
       if (values.length === 0) {
@@ -282,7 +574,51 @@ function EzEntityGridInner<T>(
       }
     }
     return result;
-  }, [data, footerAggregations, showFooter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [table, columnFilters, footerAggregations, showFooter]);
+
+  const selectedMetrics = useMemo(() => {
+    const selectedRows = table.getSelectedRowModel().rows;
+    if (selectedRows.length === 0) return null;
+
+    const aggregationKeys = footerAggregations ? Object.keys(footerAggregations) : [];
+    const firstRow = data[0] as Record<string, unknown> | undefined;
+
+    let candidateKeys = aggregationKeys;
+    if (candidateKeys.length === 0 && firstRow) {
+      candidateKeys = Object.keys(firstRow).filter(
+        (key) => typeof firstRow[key] === 'number' && key !== 'id'
+      );
+    }
+
+    if (candidateKeys.length === 0) {
+      return { count: selectedRows.length };
+    }
+
+    let sum = 0;
+    let numericCount = 0;
+    for (const row of selectedRows) {
+      const orig = row.original as Record<string, unknown>;
+      for (const key of candidateKeys) {
+        const val = orig[key];
+        if (typeof val === 'number') {
+          sum += val;
+          numericCount++;
+        }
+      }
+    }
+
+    if (numericCount === 0) {
+      return { count: selectedRows.length };
+    }
+
+    return {
+      count: selectedRows.length,
+      sum,
+      avg: sum / numericCount,
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [table, rowSelection, data, footerAggregations]);
 
   const formatFooterValue = (value: number) =>
     value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -379,6 +715,16 @@ function EzEntityGridInner<T>(
                 sortDirection === 'asc' ? ArrowUp : sortDirection === 'desc' ? ArrowDown : ArrowUpDown;
               const pinned = header.column.getIsPinned();
               const isLast = headerIndex === orderedHeaders.length - 1;
+              const columnHeader = header.column.columnDef.header;
+              const columnHeaderLabel =
+                typeof columnHeader === 'string'
+                  ? columnHeader
+                  : (header.column.columnDef.id ?? header.column.id);
+              const canFilter =
+                enableColumnFilters &&
+                header.column.id !== 'select' &&
+                header.column.getCanFilter();
+              const isFiltered = header.column.getIsFiltered();
 
               return (
                 <th
@@ -397,10 +743,39 @@ function EzEntityGridInner<T>(
                   )}
                   onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
                 >
-                  <span className="inline-flex items-center gap-1">
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                    {canSort && <SortIcon aria-hidden className="w-3.5 h-3.5 text-gray-400" />}
-                  </span>
+                  <div className="flex items-center justify-between gap-1.5 w-full">
+                    <span className="inline-flex items-center gap-1 truncate">
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      {canSort && <SortIcon aria-hidden className="w-3.5 h-3.5 text-gray-400 shrink-0" />}
+                    </span>
+                    {canFilter && (
+                      <button
+                        ref={(el) => {
+                          if (el) filterButtonRefs.current.set(header.column.id, el);
+                          else filterButtonRefs.current.delete(header.column.id);
+                        }}
+                        type="button"
+                        aria-hidden="true"
+                        tabIndex={-1}
+                        title={`Filtrar por ${columnHeaderLabel}`}
+                        data-testid={`ez-grid-column-filter-${header.column.id}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveFilterColumnId(
+                            activeFilterColumnId === header.column.id ? null : header.column.id
+                          );
+                        }}
+                        className={cn(
+                          'p-1 rounded hover:bg-gray-200 transition-colors cursor-pointer shrink-0',
+                          isFiltered
+                            ? 'text-brand-600 bg-brand-50 hover:bg-brand-100'
+                            : 'text-gray-400 hover:text-gray-600'
+                        )}
+                      >
+                        <Filter className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </th>
               );
             })}
@@ -538,8 +913,77 @@ function EzEntityGridInner<T>(
         )}
       </EzGridWrapper>
 
+      {showStatusBar && (
+        <div
+          data-testid="ez-entity-grid-status-bar"
+          className="flex flex-wrap items-center justify-between gap-3 px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-[8px] text-[12px] text-gray-600 select-none"
+        >
+          <div className="flex items-center gap-3">
+            <span data-testid="ez-entity-grid-total-count" className="font-medium text-gray-700">
+              {table.getState().columnFilters.length > 0
+                ? `Filtradas: ${table.getFilteredRowModel().rows.length} de ${data.length} linhas`
+                : `Total: ${data.length} linha${data.length !== 1 ? 's' : ''}`}
+            </span>
+            {selectable && (
+              <>
+                <span className="text-gray-300">|</span>
+                <span data-testid="ez-entity-grid-selected-count">
+                  {table.getSelectedRowModel().rows.length} selecionada{table.getSelectedRowModel().rows.length !== 1 ? 's' : ''}
+                </span>
+              </>
+            )}
+          </div>
+
+          {selectedMetrics && (
+            <div
+              data-testid="ez-entity-grid-selection-metrics"
+              className="flex items-center gap-3 text-[12px] text-gray-600"
+            >
+              <span>Contagem: {selectedMetrics.count}</span>
+              {selectedMetrics.sum !== undefined && (
+                <>
+                  <span className="text-gray-300">|</span>
+                  <span>Soma: {formatFooterValue(selectedMetrics.sum)}</span>
+                </>
+              )}
+              {selectedMetrics.avg !== undefined && (
+                <>
+                  <span className="text-gray-300">|</span>
+                  <span>Média: {formatFooterValue(selectedMetrics.avg)}</span>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeFilterColumnId && (() => {
+        const activeCol = table.getColumn(activeFilterColumnId);
+        if (!activeCol) return null;
+        const columnHeader = activeCol.columnDef.header;
+        const label =
+          typeof columnHeader === 'string'
+            ? columnHeader
+            : (activeCol.columnDef.id ?? activeCol.id);
+        const triggerEl = filterButtonRefs.current.get(activeFilterColumnId);
+
+        return (
+          <EzColumnFilterPopover
+            triggerElement={triggerEl}
+            columnTitle={label}
+            uniqueValues={getColumnUniqueValues(activeFilterColumnId)}
+            currentFilter={activeCol.getFilterValue() as string[] | undefined}
+            onApply={(selectedValues) => {
+              activeCol.setFilterValue(selectedValues);
+              setActiveFilterColumnId(null);
+            }}
+            onClose={() => setActiveFilterColumnId(null)}
+          />
+        );
+      })()}
+
       {showPagination && (() => {
-        const totalCount = data.length;
+        const totalCount = table.getFilteredRowModel().rows.length;
         const currentPageIndex = table.getState().pagination.pageIndex;
         const currentPageSize = table.getState().pagination.pageSize;
         const recordStart = totalCount === 0 ? 0 : currentPageIndex * currentPageSize + 1;

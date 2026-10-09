@@ -482,3 +482,131 @@ describe('EzEntityGrid rich pagination and horizontal scrollbar (Sankhya parity)
   });
 });
 
+describe('EzEntityGrid Excel-style column filters and status bar counters', () => {
+  it('renders status bar with total row count and selection counter when selectable', async () => {
+    const user = userEvent.setup();
+    render(<EzEntityGrid columns={columnsWithAmount} data={data} selectable />);
+
+    const statusBar = screen.getByTestId('ez-entity-grid-status-bar');
+    expect(statusBar).toBeInTheDocument();
+    expect(screen.getByTestId('ez-entity-grid-total-count')).toHaveTextContent('Total: 3 linhas');
+    expect(screen.getByTestId('ez-entity-grid-selected-count')).toHaveTextContent('0 selecionadas');
+
+    // Select first row (amount: 100)
+    const checkboxes = screen.getAllByRole('checkbox');
+    await user.click(checkboxes[1]);
+
+    expect(screen.getByTestId('ez-entity-grid-selected-count')).toHaveTextContent('1 selecionada');
+    const metrics = screen.getByTestId('ez-entity-grid-selection-metrics');
+    expect(metrics).toHaveTextContent('Contagem: 1');
+    expect(metrics).toHaveTextContent('Soma: 100,00');
+    expect(metrics).toHaveTextContent('Média: 100,00');
+
+    // Select second row (amount: 250.5) -> sum = 350.5, avg = 175.25
+    await user.click(checkboxes[2]);
+    expect(screen.getByTestId('ez-entity-grid-selected-count')).toHaveTextContent('2 selecionadas');
+    expect(metrics).toHaveTextContent('Contagem: 2');
+    expect(metrics).toHaveTextContent('Soma: 350,50');
+    expect(metrics).toHaveTextContent('Média: 175,25');
+  });
+
+  it('opens Excel-style column filter popover on funnel click and filters data by distinct values', async () => {
+    const user = userEvent.setup();
+    render(<EzEntityGrid columns={columns} data={data} />);
+
+    // Prioridade column filter button
+    const filterBtn = screen.getByTestId('ez-grid-column-filter-priority');
+    expect(filterBtn).toBeInTheDocument();
+
+    await user.click(filterBtn);
+
+    // Popover is open
+    const popover = screen.getByTestId('ez-grid-column-filter-popover');
+    expect(popover).toBeInTheDocument();
+    expect(screen.getByText('Filtro: Prioridade')).toBeInTheDocument();
+
+    // Check unique values in list: Alta (1), Baixa (1), Média (1)
+    expect(screen.getByTestId('ez-grid-column-filter-item-Alta')).toBeChecked();
+    expect(screen.getByTestId('ez-grid-column-filter-item-Baixa')).toBeChecked();
+    expect(screen.getByTestId('ez-grid-column-filter-item-Média')).toBeChecked();
+
+    // Uncheck "Baixa" and "Média" so only "Alta" is selected
+    await user.click(screen.getByTestId('ez-grid-column-filter-item-Baixa'));
+    await user.click(screen.getByTestId('ez-grid-column-filter-item-Média'));
+
+    // Click Aplicar
+    await user.click(screen.getByTestId('ez-grid-column-filter-apply'));
+
+    // Popover closed
+    expect(screen.queryByTestId('ez-grid-column-filter-popover')).not.toBeInTheDocument();
+
+    // Only 'Impressora não liga' (Alta) remains
+    expect(screen.getByText('Impressora não liga')).toBeInTheDocument();
+    expect(screen.queryByText('Erro ao salvar chamado')).not.toBeInTheDocument();
+    expect(screen.queryByText('Acesso ao sistema negado')).not.toBeInTheDocument();
+
+    // Status bar shows filtered count: "Filtradas: 1 de 3 linhas"
+    expect(screen.getByTestId('ez-entity-grid-total-count')).toHaveTextContent('Filtradas: 1 de 3 linhas');
+  });
+
+  it('clears column filter restoring all rows', async () => {
+    const user = userEvent.setup();
+    render(<EzEntityGrid columns={columns} data={data} />);
+
+    const filterBtn = screen.getByTestId('ez-grid-column-filter-priority');
+    await user.click(filterBtn);
+
+    // Uncheck "Alta"
+    await user.click(screen.getByTestId('ez-grid-column-filter-item-Alta'));
+    await user.click(screen.getByTestId('ez-grid-column-filter-apply'));
+
+    expect(screen.queryByText('Impressora não liga')).not.toBeInTheDocument();
+    expect(screen.getByText('Erro ao salvar chamado')).toBeInTheDocument();
+
+    // Reopen filter and click Limpar
+    await user.click(filterBtn);
+    await user.click(screen.getByTestId('ez-grid-column-filter-clear'));
+
+    // All rows back
+    expect(screen.getByText('Impressora não liga')).toBeInTheDocument();
+    expect(screen.getByText('Erro ao salvar chamado')).toBeInTheDocument();
+    expect(screen.getByText('Acesso ao sistema negado')).toBeInTheDocument();
+    expect(screen.getByTestId('ez-entity-grid-total-count')).toHaveTextContent('Total: 3 linhas');
+  });
+
+  it('searches values within filter popover and uses select all', async () => {
+    const user = userEvent.setup();
+    render(<EzEntityGrid columns={columns} data={data} />);
+
+    const filterBtn = screen.getByTestId('ez-grid-column-filter-title');
+    await user.click(filterBtn);
+
+    const searchInput = screen.getByTestId('ez-grid-column-filter-search');
+    await user.type(searchInput, 'Impressora');
+
+    // Only "Impressora não liga" is visible inside the popover checklist
+    const popover = screen.getByTestId('ez-grid-column-filter-popover');
+    expect(within(popover).getByText('Impressora não liga')).toBeInTheDocument();
+    expect(within(popover).queryByText('Erro ao salvar chamado')).not.toBeInTheDocument();
+
+    // Toggle select all
+    const selectAll = screen.getByTestId('ez-grid-column-filter-select-all');
+    await user.click(selectAll); // unselects visible
+    expect(screen.getByTestId('ez-grid-column-filter-item-Impressora não liga')).not.toBeChecked();
+
+    await user.click(selectAll); // selects visible
+    expect(screen.getByTestId('ez-grid-column-filter-item-Impressora não liga')).toBeChecked();
+  });
+
+  it('does not render column filter buttons when enableColumnFilters is false', () => {
+    render(<EzEntityGrid columns={columns} data={data} enableColumnFilters={false} />);
+    expect(screen.queryByTestId('ez-grid-column-filter-title')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('ez-grid-column-filter-priority')).not.toBeInTheDocument();
+  });
+
+  it('does not render status bar when showStatusBar is false', () => {
+    render(<EzEntityGrid columns={columns} data={data} showStatusBar={false} />);
+    expect(screen.queryByTestId('ez-entity-grid-status-bar')).not.toBeInTheDocument();
+  });
+});
+

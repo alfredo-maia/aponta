@@ -188,3 +188,32 @@ export const PaginacaoRicaEScrollbarFixa: Story = {
   },
 };
 
+/**
+ * Filtro por coluna estilo Excel (ícone de funil no cabeçalho com popover
+ * de pesquisa rápida e checklist de valores únicos com contadores).
+ */
+export const FiltroPorColunaEstiloExcel: Story = {
+  args: {
+    columns,
+    data: tickets,
+    enableColumnFilters: true,
+    showStatusBar: true,
+  },
+};
+
+/**
+ * Barra de status com contadores e métricas de seleção (paridade Excel / Sankhya / AG Grid):
+ * exibe total de linhas, quantidade selecionada e, ao selecionar registros com colunas
+ * numéricas, calcula dinamicamente Contagem, Soma e Média.
+ */
+export const StatusBarEContadores: Story = {
+  args: {
+    columns,
+    data: tickets,
+    selectable: true,
+    showStatusBar: true,
+    footerAggregations: { amount: 'sum' },
+  },
+};
+
+
