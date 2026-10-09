@@ -74,3 +74,37 @@ export const Empty: Story = {
     </EzGridWrapper>
   ),
 };
+
+export const ComScrollbarHorizontal: Story = {
+  render: () => (
+    <EzGridWrapper alwaysShowHorizontalScrollbar>
+      <thead className="bg-gray-90">
+        <tr>
+          <th className="px-4 py-3 font-semibold text-gray-700 min-w-[200px]">Nome Fantasia</th>
+          <th className="px-4 py-3 font-semibold text-gray-700 min-w-[250px]">Razão Social</th>
+          <th className="px-4 py-3 font-semibold text-gray-700 min-w-[200px]">CNPJ</th>
+          <th className="px-4 py-3 font-semibold text-gray-700 min-w-[150px]">Status</th>
+          <th className="px-4 py-3 font-semibold text-gray-700 min-w-[150px]">Clientes</th>
+          <th className="px-4 py-3 font-semibold text-gray-700 min-w-[200px]">Data Criação</th>
+          <th className="px-4 py-3 font-semibold text-gray-700 min-w-[200px]">Responsável</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-100">
+        {orgs.map((org) => (
+          <tr key={org.name} className="hover:bg-gray-90">
+            <td className="px-4 py-3 font-medium text-brand-700">{org.name}</td>
+            <td className="px-4 py-3 text-gray-700">{org.legalName}</td>
+            <td className="px-4 py-3 text-gray-700">{org.cnpj}</td>
+            <td className="px-4 py-3">
+              <EzTag label={org.active ? 'Ativo' : 'Inativo'} variant={org.active ? 'green' : 'gray'} />
+            </td>
+            <td className="px-4 py-3 text-gray-700">{org.clients}</td>
+            <td className="px-4 py-3 text-gray-700">01/01/2026</td>
+            <td className="px-4 py-3 text-gray-700">Alfredo Maia</td>
+          </tr>
+        ))}
+      </tbody>
+    </EzGridWrapper>
+  ),
+};
+

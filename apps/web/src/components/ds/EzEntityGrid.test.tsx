@@ -108,7 +108,8 @@ describe('EzEntityGrid', () => {
     expect(screen.getByText('Impressora não liga')).toBeInTheDocument();
     expect(screen.getByText('Erro ao salvar chamado')).toBeInTheDocument();
     expect(screen.queryByText('Acesso ao sistema negado')).not.toBeInTheDocument();
-    expect(screen.getByText(/1.*2|p.*gina 1 de 2/i)).toBeInTheDocument();
+    expect(screen.getByText(/p.*gina 1 de 2/i)).toBeInTheDocument();
+    expect(screen.getByText('1-2 de 3')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /próxima página/i }));
 
@@ -408,3 +409,68 @@ describe('EzEntityGrid visual tokens (Sankhya ERP parity)', () => {
     expect(headers[headers.length - 1]).not.toHaveClass('border-r');
   });
 });
+
+describe('EzEntityGrid rich pagination and horizontal scrollbar (Sankhya parity)', () => {
+  it('displays explicit record count "1-2 de 3" and page size selector when paginated', async () => {
+    const user = userEvent.setup();
+    const onPageSizeChange = vi.fn();
+    render(
+      <EzEntityGrid
+        columns={columns}
+        data={data}
+        pageSize={2}
+        pageSizeOptions={[2, 5, 10]}
+        onPageSizeChange={onPageSizeChange}
+      />
+    );
+
+    // Initial page: 1-2 de 3
+    expect(screen.getByTestId('ez-entity-grid-pagination-count')).toHaveTextContent('1-2 de 3');
+    const select = screen.getByLabelText('Linhas por página:');
+    expect(select).toBeInTheDocument();
+    expect(select).toHaveValue('2');
+
+    // Next page: 3-3 de 3
+    await user.click(screen.getByRole('button', { name: /próxima página/i }));
+    expect(screen.getByTestId('ez-entity-grid-pagination-count')).toHaveTextContent('3-3 de 3');
+
+    // Change page size to 5
+    await user.selectOptions(select, '5');
+    expect(onPageSizeChange).toHaveBeenCalledWith(5);
+    expect(screen.getByTestId('ez-entity-grid-pagination-count')).toHaveTextContent('1-3 de 3');
+    expect(screen.getByText('Impressora não liga')).toBeInTheDocument();
+    expect(screen.getByText('Erro ao salvar chamado')).toBeInTheDocument();
+    expect(screen.getByText('Acesso ao sistema negado')).toBeInTheDocument();
+  });
+
+  it('renders persistent horizontal scrollbar when alwaysShowHorizontalScrollbar is enabled', () => {
+    render(
+      <EzEntityGrid
+        columns={columns}
+        data={data}
+        alwaysShowHorizontalScrollbar
+      />
+    );
+
+    const scrollbar = screen.getByTestId('ez-grid-horizontal-scrollbar');
+    expect(scrollbar).toBeInTheDocument();
+    const thumb = screen.getByTestId('ez-grid-horizontal-scrollbar-thumb');
+    expect(thumb).toBeInTheDocument();
+    expect(thumb).toHaveAttribute('role', 'scrollbar');
+    expect(thumb).toHaveAttribute('aria-orientation', 'horizontal');
+  });
+
+  it('does not render horizontal scrollbar when showHorizontalScrollbar is false', () => {
+    render(
+      <EzEntityGrid
+        columns={columns}
+        data={data}
+        alwaysShowHorizontalScrollbar
+        showHorizontalScrollbar={false}
+      />
+    );
+
+    expect(screen.queryByTestId('ez-grid-horizontal-scrollbar')).not.toBeInTheDocument();
+  });
+});
+

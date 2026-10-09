@@ -66,6 +66,21 @@ export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'childre
   onSelectionChange?: (rows: T[]) => void;
   /** Number of rows per page. Omit to render every row without pagination controls. */
   pageSize?: number;
+  /** Available page size choices in the rich pagination dropdown. @default [5, 10, 20, 50, 100] */
+  pageSizeOptions?: number[];
+  /** Callback fired whenever the user changes the page size via the dropdown selector. */
+  onPageSizeChange?: (newPageSize: number) => void;
+  /**
+   * Whether to display the persistent AG Grid style horizontal scrollbar on overflow.
+   * @default true
+   */
+  showHorizontalScrollbar?: boolean;
+  /**
+   * Forces the horizontal scrollbar to always show regardless of measured overflow.
+   * Useful in tests and Storybook.
+   * @default false
+   */
+  alwaysShowHorizontalScrollbar?: boolean;
   /**
    * Maps a column id to an aggregation to show in a footer row (e.g. `{ amount: 'sum' }`).
    * Omit to hide the footer row entirely. Values are formatted as pt-BR currency-style numbers
@@ -120,6 +135,10 @@ function EzEntityGridInner<T>(
     selectable = false,
     onSelectionChange,
     pageSize,
+    pageSizeOptions,
+    onPageSizeChange,
+    showHorizontalScrollbar = true,
+    alwaysShowHorizontalScrollbar = false,
     footerAggregations,
     pinnedColumns,
     groupBy,
@@ -135,6 +154,27 @@ function EzEntityGridInner<T>(
     pageIndex: 0,
     pageSize: pageSize ?? Math.max(data.length, 1),
   });
+
+  useEffect(() => {
+    if (pageSize !== undefined) {
+      setPagination((prev) => (prev.pageSize === pageSize ? prev : { ...prev, pageSize }));
+    }
+  }, [pageSize]);
+
+  const defaultPageSizeOptions = useMemo(() => [5, 10, 20, 50, 100], []);
+  const resolvedPageSizeOptions = useMemo(() => {
+    const base = pageSizeOptions ?? defaultPageSizeOptions;
+    if (pageSize !== undefined && !base.includes(pageSize)) {
+      return [...base, pageSize].sort((a, b) => a - b);
+    }
+    return base;
+  }, [pageSizeOptions, defaultPageSizeOptions, pageSize]);
+
+  const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const nextSize = Number(e.target.value);
+    table.setPageSize(nextSize);
+    onPageSizeChange?.(nextSize);
+  };
   const columnPinning = useMemo<ColumnPinningState>(
     () => ({ left: pinnedColumns?.left ?? [], right: pinnedColumns?.right ?? [] }),
     [pinnedColumns]
@@ -326,7 +366,10 @@ function EzEntityGridInner<T>(
         <EzTaskbar buttons={taskbarButtons ?? []} onAction={(action) => onTaskbarAction?.(action)} />
       )}
 
-      <EzGridWrapper>
+      <EzGridWrapper
+        showHorizontalScrollbar={showHorizontalScrollbar}
+        alwaysShowHorizontalScrollbar={alwaysShowHorizontalScrollbar}
+      >
         <thead className="bg-gray-80">
           <tr>
             {orderedHeaders.map((header, headerIndex) => {
@@ -495,41 +538,81 @@ function EzEntityGridInner<T>(
         )}
       </EzGridWrapper>
 
-      {showPagination && (
-        <div className="flex items-center justify-end gap-3">
-          <span className="text-[13px] text-gray-500">
-            Página {table.getState().pagination.pageIndex + 1} de {Math.max(table.getPageCount(), 1)}
-          </span>
-          <button
-            type="button"
-            aria-label="Página anterior"
-            title="Página anterior"
-            disabled={!table.getCanPreviousPage()}
-            onClick={() => table.previousPage()}
-            className={cn(
-              'inline-flex items-center justify-center h-[32px] w-[32px] rounded-[8px] text-gray-500 transition-colors',
-              'hover:bg-gray-80 hover:text-gray-900',
-              'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none'
-            )}
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            aria-label="Próxima página"
-            title="Próxima página"
-            disabled={!table.getCanNextPage()}
-            onClick={() => table.nextPage()}
-            className={cn(
-              'inline-flex items-center justify-center h-[32px] w-[32px] rounded-[8px] text-gray-500 transition-colors',
-              'hover:bg-gray-80 hover:text-gray-900',
-              'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none'
-            )}
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      )}
+      {showPagination && (() => {
+        const totalCount = data.length;
+        const currentPageIndex = table.getState().pagination.pageIndex;
+        const currentPageSize = table.getState().pagination.pageSize;
+        const recordStart = totalCount === 0 ? 0 : currentPageIndex * currentPageSize + 1;
+        const recordEnd =
+          totalCount === 0 ? 0 : Math.min((currentPageIndex + 1) * currentPageSize, totalCount);
+        const recordCountText = `${recordStart}-${recordEnd} de ${totalCount}`;
+
+        return (
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="ez-entity-grid-page-size-select"
+                className="text-[13px] text-gray-500 select-none"
+              >
+                Linhas por página:
+              </label>
+              <select
+                id="ez-entity-grid-page-size-select"
+                aria-label="Linhas por página:"
+                value={table.getState().pagination.pageSize}
+                onChange={handlePageSizeChange}
+                className="h-[32px] px-2 text-[13px] text-gray-700 bg-white border border-gray-200 rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-200 cursor-pointer"
+              >
+                {resolvedPageSizeOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span
+                data-testid="ez-entity-grid-pagination-count"
+                className="text-[13px] text-gray-500 font-medium select-none"
+              >
+                {recordCountText}
+              </span>
+              <span className="text-[13px] text-gray-500 select-none">
+                Página {table.getState().pagination.pageIndex + 1} de {Math.max(table.getPageCount(), 1)}
+              </span>
+              <button
+                type="button"
+                aria-label="Página anterior"
+                title="Página anterior"
+                disabled={!table.getCanPreviousPage()}
+                onClick={() => table.previousPage()}
+                className={cn(
+                  'inline-flex items-center justify-center h-[32px] w-[32px] rounded-[8px] text-gray-500 transition-colors',
+                  'hover:bg-gray-80 hover:text-gray-900',
+                  'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none'
+                )}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                aria-label="Próxima página"
+                title="Próxima página"
+                disabled={!table.getCanNextPage()}
+                onClick={() => table.nextPage()}
+                className={cn(
+                  'inline-flex items-center justify-center h-[32px] w-[32px] rounded-[8px] text-gray-500 transition-colors',
+                  'hover:bg-gray-80 hover:text-gray-900',
+                  'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none'
+                )}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

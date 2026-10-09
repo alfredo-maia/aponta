@@ -172,3 +172,19 @@ export const DensidadeConfortavel: Story = {
     density: 'comfortable',
   },
 };
+
+/**
+ * Paginação rica ("1-5 de 5" com seletor de linhas por página) e barra de
+ * rolagem horizontal estilo AG Grid sempre visível quando houver transbordo
+ * horizontal, em paridade visual com as telas de Despesas/Financeiro do Sankhya (#62).
+ */
+export const PaginacaoRicaEScrollbarFixa: Story = {
+  args: {
+    columns,
+    data: tickets,
+    pageSize: 3,
+    pageSizeOptions: [3, 5, 10, 20],
+    alwaysShowHorizontalScrollbar: true,
+  },
+};
+
