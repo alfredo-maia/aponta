@@ -95,6 +95,13 @@ export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'childre
    * until this is covered.
    */
   groupBy?: string[];
+  /**
+   * Vertical row density.
+   * - `compact`: ~25px row height (`py-1` on cells, `py-1.5` on headers), matches Sankhya ERP grid density.
+   * - `comfortable`: ~44-48px row height (`py-3`).
+   * @default 'compact'
+   */
+  density?: 'compact' | 'comfortable';
 };
 
 type EzEntityGridComponent = <T,>(
@@ -116,6 +123,7 @@ function EzEntityGridInner<T>(
     footerAggregations,
     pinnedColumns,
     groupBy,
+    density = 'compact',
     className,
     ...props
   }: EzEntityGridProps<T>,
@@ -321,12 +329,13 @@ function EzEntityGridInner<T>(
       <EzGridWrapper>
         <thead className="bg-gray-80">
           <tr>
-            {orderedHeaders.map((header) => {
+            {orderedHeaders.map((header, headerIndex) => {
               const canSort = header.column.getCanSort();
               const sortDirection = header.column.getIsSorted();
               const SortIcon =
                 sortDirection === 'asc' ? ArrowUp : sortDirection === 'desc' ? ArrowDown : ArrowUpDown;
               const pinned = header.column.getIsPinned();
+              const isLast = headerIndex === orderedHeaders.length - 1;
 
               return (
                 <th
@@ -335,7 +344,9 @@ function EzEntityGridInner<T>(
                   data-pinned={pinned || undefined}
                   style={pinnedStyle(header.column.id, pinned)}
                   className={cn(
-                    'px-4 py-3 text-[13px] font-semibold text-gray-700 select-none bg-gray-80',
+                    'px-4 text-[13px] font-semibold text-gray-700 select-none bg-gray-80',
+                    density === 'compact' ? 'py-1.5' : 'py-3',
+                    !isLast && 'border-r border-gray-100',
                     canSort && 'cursor-pointer',
                     pinned && 'sticky z-10',
                     pinned === 'left' && 'shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
@@ -381,7 +392,13 @@ function EzEntityGridInner<T>(
                     }
                   }}
                 >
-                  <td colSpan={resolvedColumns.length} className="px-4 py-3 text-[13px] font-semibold text-gray-900">
+                  <td
+                    colSpan={resolvedColumns.length}
+                    className={cn(
+                      'px-4 text-[13px] font-semibold text-gray-900',
+                      density === 'compact' ? 'py-1' : 'py-3'
+                    )}
+                  >
                     <span className="inline-flex items-center gap-2">
                       {row.getIsExpanded() ? (
                         <ChevronDown aria-hidden className="w-3.5 h-3.5 text-gray-500" />
@@ -398,8 +415,16 @@ function EzEntityGridInner<T>(
               );
             }
 
+            const isSelected = row.getIsSelected();
             return (
-              <tr key={row.id} className="border-t border-gray-200 hover:bg-gray-80/60 group">
+              <tr
+                key={row.id}
+                data-selected={isSelected || undefined}
+                className={cn(
+                  'border-t border-gray-200 group transition-colors',
+                  isSelected ? 'bg-brand-50' : 'hover:bg-grid-row-hover'
+                )}
+              >
                 {[
                   ...row.getLeftVisibleCells(),
                   ...row.getCenterVisibleCells(),
@@ -412,8 +437,13 @@ function EzEntityGridInner<T>(
                       data-pinned={pinned || undefined}
                       style={pinnedStyle(cell.column.id, pinned)}
                       className={cn(
-                        'px-4 py-3 text-[13px] text-gray-900',
-                        pinned && 'sticky z-10 bg-white group-hover:bg-gray-80',
+                        'px-4 text-[13px] text-gray-900',
+                        density === 'compact' ? 'py-1' : 'py-3',
+                        pinned && 'sticky z-10',
+                        pinned &&
+                          (isSelected
+                            ? 'bg-brand-50'
+                            : 'bg-white group-hover:bg-grid-row-hover'),
                         pinned === 'left' && 'shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
                         pinned === 'right' && 'shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.15)]'
                       )}
@@ -449,7 +479,8 @@ function EzEntityGridInner<T>(
                     data-pinned={pinned || undefined}
                     style={pinnedStyle(columnId, pinned)}
                     className={cn(
-                      'px-4 py-3 text-[13px] font-semibold text-gray-900',
+                      'px-4 text-[13px] font-semibold text-gray-900',
+                      density === 'compact' ? 'py-1' : 'py-3',
                       pinned && 'sticky z-10 bg-gray-80',
                       pinned === 'left' && 'shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
                       pinned === 'right' && 'shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.15)]'

@@ -159,3 +159,16 @@ export const AgrupadoPorPrioridade: Story = {
     groupBy: ['priority'],
   },
 };
+
+/**
+ * Densidade confortável (`density="comfortable"`), permitindo altura de linha
+ * relaxada (py-3, ~44-48px) em vez da densidade compacta padrão do Sankhya
+ * ERP (~25px com py-1/py-1.5).
+ */
+export const DensidadeConfortavel: Story = {
+  args: {
+    columns,
+    data: tickets,
+    density: 'comfortable',
+  },
+};

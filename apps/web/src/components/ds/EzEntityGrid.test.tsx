@@ -358,3 +358,53 @@ describe('EzEntityGrid grouping', () => {
     expect(screen.getByText('Erro ao salvar chamado')).toBeInTheDocument();
   });
 });
+
+describe('EzEntityGrid visual tokens (Sankhya ERP parity)', () => {
+  it('applies compact row density by default (~25px line height with py-1 on cells and py-1.5 on headers)', () => {
+    render(<EzEntityGrid columns={columns} data={data} />);
+    const headers = screen.getAllByRole('columnheader');
+    expect(headers[0]).toHaveClass('py-1.5');
+
+    const firstBodyRow = screen.getAllByRole('row')[1];
+    const firstCell = within(firstBodyRow).getAllByRole('cell')[0];
+    expect(firstCell).toHaveClass('py-1');
+  });
+
+  it('applies comfortable density (py-3) when density="comfortable" is passed', () => {
+    render(<EzEntityGrid columns={columns} data={data} density="comfortable" />);
+    const headers = screen.getAllByRole('columnheader');
+    expect(headers[0]).toHaveClass('py-3');
+
+    const firstBodyRow = screen.getAllByRole('row')[1];
+    const firstCell = within(firstBodyRow).getAllByRole('cell')[0];
+    expect(firstCell).toHaveClass('py-3');
+  });
+
+  it('applies hover:bg-grid-row-hover to body rows', () => {
+    render(<EzEntityGrid columns={columns} data={data} />);
+    const firstBodyRow = screen.getAllByRole('row')[1];
+    expect(firstBodyRow).toHaveClass('hover:bg-grid-row-hover');
+  });
+
+  it('applies bg-brand-50 to selected rows when selectable is true and row is checked', async () => {
+    const user = userEvent.setup();
+    render(<EzEntityGrid columns={columns} data={data} selectable />);
+    const checkboxes = screen.getAllByRole('checkbox');
+    const firstBodyRow = screen.getAllByRole('row')[1];
+    expect(firstBodyRow).not.toHaveClass('bg-brand-50');
+
+    await user.click(checkboxes[1]);
+    expect(firstBodyRow).toHaveClass('bg-brand-50');
+  });
+
+  it('adds border-r border-gray-100 vertical grade between header columns except on the last column', () => {
+    render(<EzEntityGrid columns={columns} data={data} />);
+    const headers = screen.getAllByRole('columnheader');
+    expect(headers.length).toBe(columns.length);
+    for (let i = 0; i < headers.length - 1; i++) {
+      expect(headers[i]).toHaveClass('border-r');
+      expect(headers[i]).toHaveClass('border-gray-100');
+    }
+    expect(headers[headers.length - 1]).not.toHaveClass('border-r');
+  });
+});
