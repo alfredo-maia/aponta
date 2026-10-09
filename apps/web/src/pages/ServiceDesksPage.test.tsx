@@ -72,6 +72,8 @@ describe('ServiceDesksPage', () => {
 
     expect(await screen.findByText('Suporte N1')).toBeInTheDocument();
     expect(screen.getByText('Infraestrutura')).toBeInTheDocument();
+    expect(screen.getByTestId('ez-entity-grid-pagination-count')).toHaveTextContent('1-2 de 2');
+    expect(screen.getByLabelText(/linhas por página/i)).toBeInTheDocument();
   });
 
   it('should create a new service desk and show it in the list', async () => {

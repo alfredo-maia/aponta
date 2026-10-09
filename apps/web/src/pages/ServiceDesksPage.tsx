@@ -173,6 +173,7 @@ export function ServiceDesksPage() {
           <EzEntityGrid
             data={serviceDesks ?? []}
             columns={serviceDeskColumns(setSelectedDeskId)}
+            pageSize={10}
           />
         )
       ) : (

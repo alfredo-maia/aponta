@@ -496,6 +496,7 @@ export function OrganizationsPage() {
                     columns={orgColumns}
                     data={orgs ?? []}
                     groupBy={groupByStatus ? ['status'] : undefined}
+                    pageSize={groupByStatus ? undefined : 10}
                   />
                 </>
               )}
