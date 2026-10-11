@@ -291,6 +291,77 @@ export const MultiplaSelecaoECalculo: Story = {
   },
 };
 
+interface Partner {
+  id: number;
+  name: string;
+  tradeName: string;
+  doc: string;
+  type: string;
+  city: string;
+  creditLimit: number;
+  active: string;
+}
+
+const partnerColumns: ColumnDef<Partner>[] = [
+  { accessorKey: 'id', header: 'Cód. Parc.' },
+  { accessorKey: 'name', header: 'Razão Social' },
+  { accessorKey: 'tradeName', header: 'Nome Fantasia' },
+  { accessorKey: 'doc', header: 'CNPJ / CPF' },
+  { accessorKey: 'type', header: 'Tipo' },
+  { accessorKey: 'city', header: 'Cidade' },
+  {
+    accessorKey: 'creditLimit',
+    header: 'Limite Crédito',
+    cell: ({ getValue }) => {
+      const val = Number(getValue());
+      return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    },
+  },
+  { accessorKey: 'active', header: 'Ativo' },
+];
+
+const partners: Partner[] = [
+  { id: 1, name: 'Sankhya Gestão de Negócios S/A', tradeName: 'Sankhya', doc: '04.123.456/0001-01', type: 'J', city: 'Uberlândia - MG', creditLimit: 150000, active: 'Sim' },
+  { id: 2, name: 'DM Tecnologia da Informação Ltda', tradeName: 'DM Tecnologia', doc: '12.987.654/0001-88', type: 'J', city: 'Belo Horizonte - MG', creditLimit: 85000, active: 'Sim' },
+  { id: 3, name: 'Petrobras Distribuidora S/A', tradeName: 'Petrobras', doc: '33.000.167/0001-01', type: 'J', city: 'Rio de Janeiro - RJ', creditLimit: 500000, active: 'Sim' },
+  { id: 4, name: 'Ambev Brasil Bebidas Ltda', tradeName: 'Ambev', doc: '07.526.557/0001-00', type: 'J', city: 'São Paulo - SP', creditLimit: 250000, active: 'Sim' },
+  { id: 5, name: 'Alfredo Maia Consultoria', tradeName: 'Alfredo Maia', doc: '123.456.789-00', type: 'F', city: 'Uberlândia - MG', creditLimit: 20000, active: 'Sim' },
+  { id: 6, name: 'Tech Inovação Eireli', tradeName: 'Tech Inovação', doc: '28.111.222/0001-33', type: 'J', city: 'Curitiba - PR', creditLimit: 45000, active: 'Não' },
+];
+
+/**
+ * Modelo de Grade Sankhya ERP: Cadastro de Parceiros (br.com.sankhya.core.cad.parceiros)
+ * Implementa todos os padrões canônicos da tela de parceiros:
+ * - Botões de ação da Taskbar: Incluir (+), Duplicar, Remover (-), Divisor e Configurar Grade
+ * - Numeração sequencial de linhas (#)
+ * - Coluna de seleção múltipla para operações em lote
+ * - Coluna Cód. Parceiro fixada à esquerda
+ * - Filtros por coluna estilo Excel com abas (Todos e Filtrados)
+ * - Menu da grade no canto superior direito (localizar coluna, densidade, estatísticas)
+ * - Barra de status com total de registros e totalizador de limite de crédito (Soma e Média)
+ * - Faixas zebradas e divisores verticais de célula (#e2e6e8)
+ */
+export const CadastroDeParceirosSankhya: Story = {
+  render: () => (
+    <EzEntityGrid
+      columns={partnerColumns as any}
+      data={partners as any}
+      showRowNumbers
+      selectable
+      showStatusBar
+      showGridCornerMenu
+      enableColumnMenu
+      enableColumnFilters
+      zebraStriping
+      density="compact"
+      footerAggregations={{ creditLimit: 'sum' }}
+      pinnedColumns={{ left: ['id'] }}
+      taskbarButtons={['INSERT', 'CLONE', 'REMOVE', 'DIVIDER', 'CONFIGURATOR']}
+    />
+  ),
+};
+
+
 
 
 

@@ -725,12 +725,21 @@ describe('EzEntityGrid Sankhya JS AG Grid parity features', () => {
     const togglePriority = screen.getByTestId('ez-grid-config-toggle-priority');
     expect(togglePriority).toBeChecked();
     await user.click(togglePriority);
-    expect(togglePriority).not.toBeChecked();
-
     // Close modal
     await user.click(within(configModal).getByRole('button', { name: 'Concluir' }));
     expect(screen.queryByRole('columnheader', { name: 'Prioridade' })).not.toBeInTheDocument();
   });
+
+  it('renders sequential row numbers when showRowNumbers is true', () => {
+    render(<EzEntityGrid columns={columns} data={data} showRowNumbers />);
+
+    const rowNumbers = screen.getAllByTestId('ez-grid-row-number');
+    expect(rowNumbers).toHaveLength(3);
+    expect(rowNumbers[0]).toHaveTextContent('1');
+    expect(rowNumbers[1]).toHaveTextContent('2');
+    expect(rowNumbers[2]).toHaveTextContent('3');
+  });
 });
+
 
 

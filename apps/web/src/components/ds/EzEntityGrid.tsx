@@ -81,6 +81,8 @@ export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'childre
   onApplyAll?: (filters: FilterDef[]) => void;
   /** Enables a leading checkbox column for multi-row selection. @default false */
   selectable?: boolean;
+  /** Enables a leading row number column (#) displaying the 1-based index of each row (Sankhya ERP parity). @default false */
+  showRowNumbers?: boolean;
   /** Called with the currently selected rows (original data items) whenever the selection changes. */
   onSelectionChange?: (rows: T[]) => void;
   /** Number of rows per page. Omit to render every row without pagination controls. */
@@ -1071,6 +1073,7 @@ function EzEntityGridInner<T>(
     onFilterChange,
     onApplyAll,
     selectable = false,
+    showRowNumbers = false,
     onSelectionChange,
     pageSize,
     pageSizeOptions,
@@ -1164,31 +1167,50 @@ function EzEntityGridInner<T>(
   const [expanded, setExpanded] = useState<ExpandedState>({});
 
   const resolvedColumns = useMemo<ColumnDef<T>[]>(() => {
-    if (!selectable) return columns;
-    const selectColumn: ColumnDef<T> = {
-      id: 'select',
-      enableSorting: false,
-      header: ({ table }) => (
-        <input
-          type="checkbox"
-          aria-label="Selecionar todas as linhas"
-          checked={table.getIsAllRowsSelected()}
-          onChange={table.getToggleAllRowsSelectedHandler()}
-          className="w-4 h-4 rounded border-gray-300 text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200"
-        />
-      ),
-      cell: ({ row }) => (
-        <input
-          type="checkbox"
-          aria-label="Selecionar linha"
-          checked={row.getIsSelected()}
-          onChange={row.getToggleSelectedHandler()}
-          className="w-4 h-4 rounded border-gray-300 text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200"
-        />
-      ),
-    };
-    return [selectColumn, ...columns];
-  }, [columns, selectable]);
+    const leadingCols: ColumnDef<T>[] = [];
+    if (showRowNumbers) {
+      leadingCols.push({
+        id: '__rowNumber__',
+        enableSorting: false,
+        header: () => (
+          <span className="text-gray-400 font-mono text-[11px] select-none text-center block w-6">#</span>
+        ),
+        cell: ({ row }) => (
+          <span
+            className="text-gray-400 font-mono text-[11px] select-none text-center block w-6"
+            data-testid="ez-grid-row-number"
+          >
+            {row.index + 1}
+          </span>
+        ),
+      });
+    }
+    if (selectable) {
+      leadingCols.push({
+        id: 'select',
+        enableSorting: false,
+        header: ({ table }) => (
+          <input
+            type="checkbox"
+            aria-label="Selecionar todas as linhas"
+            checked={table.getIsAllRowsSelected()}
+            onChange={table.getToggleAllRowsSelectedHandler()}
+            className="w-4 h-4 rounded border-gray-300 text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200"
+          />
+        ),
+        cell: ({ row }) => (
+          <input
+            type="checkbox"
+            aria-label="Selecionar linha"
+            checked={row.getIsSelected()}
+            onChange={row.getToggleSelectedHandler()}
+            className="w-4 h-4 rounded border-gray-300 text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200"
+          />
+        ),
+      });
+    }
+    return [...leadingCols, ...columns];
+  }, [columns, selectable, showRowNumbers]);
 
   const table = useReactTable<T>({
     data,
