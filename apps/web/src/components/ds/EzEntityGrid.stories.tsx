@@ -216,4 +216,31 @@ export const StatusBarEContadores: Story = {
   },
 };
 
+/**
+ * Paridade Completa com a grade Sankhya JS / AG Grid (snk-grid):
+ * - Menu da grade (ag-grid-menu) no canto superior direito (localizar coluna, densidade, limpar filtros, configurar colunas, estatísticas)
+ * - Menu de contexto por coluna (ordenar asc/desc, filtrar, fixar à esquerda, agrupar)
+ * - Indicadores visuais de ordenação Sankhya (borda superior verde/vermelha)
+ * - Filtro Excel por coluna com abas "Todos" e "Filtrados [QTD]"
+ * - Modal de Estatísticas da Grade (ocorrências, soma, média, mín, máx)
+ * - Modal de Configuração de Colunas (visibilidade e restaurar padrão)
+ * - Faixas zebradas e divisores de células verticais (#e2e6e8)
+ */
+export const SankhyaGridParity: Story = {
+  args: {
+    columns,
+    data: tickets,
+    selectable: true,
+    showStatusBar: true,
+    showGridCornerMenu: true,
+    enableColumnMenu: true,
+    enableColumnFilters: true,
+    zebraStriping: true,
+    footerAggregations: { amount: 'sum' },
+    pinnedColumns: { left: ['id'] },
+    taskbarButtons: ['INSERT', 'CLONE', 'REMOVE', 'DIVIDER', 'CONFIGURATOR'],
+  },
+};
+
+
 

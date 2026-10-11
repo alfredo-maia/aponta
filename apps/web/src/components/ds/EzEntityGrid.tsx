@@ -26,17 +26,28 @@ import {
   GroupingState,
   RowSelectionState,
   SortingState,
+  VisibilityState,
   useReactTable,
 } from '@tanstack/react-table';
 import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
+  BarChart3,
+  Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Eye,
+  EyeOff,
   Filter,
+  MoreVertical,
+  Pin,
+  PinOff,
+  RotateCcw,
+  Rows,
   Search,
+  SlidersHorizontal,
   X,
 } from 'lucide-react';
 import { cn } from './utils';
@@ -47,10 +58,12 @@ import { EzFilterBar, FilterDef } from './EzFilterBar';
 /**
  * Generic, server-agnostic data grid built by composing the existing DS
  * primitives (`EzGridWrapper` + `@tanstack/react-table`, `EzTaskbar` and
- * `EzFilterBar`). Mirrors the visual behavior of Sankhya's `snk-grid`
- * (sortable columns, row selection, a taskbar, filters and pagination)
- * WITHOUT any coupling to `SnkApplication` / `DataUnit` / `configName` —
- * the screen owns `data`/`columns` and reacts to the callbacks below.
+ * `EzFilterBar`). Mirrors the visual behavior and UX of Sankhya's `snk-grid`
+ * (sortable columns, row selection, taskbar, Excel-style column filters,
+ * persistent horizontal scrollbar, status bar metrics, AG Grid corner menu,
+ * grid statistics modal and column configurator) WITHOUT any coupling to
+ * `SnkApplication` / `DataUnit` / `configName` — the screen owns `data`/`columns`
+ * and reacts to the callbacks below.
  */
 export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'children'> & {
   /** Column definitions, in the exact shape expected by `@tanstack/react-table`. */
@@ -110,17 +123,12 @@ export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'childre
    * collapsed summary row (label + row count) that expands on click to reveal its leaf rows —
    * only one level of grouping is supported (`groupBy[0]`); extra ids are accepted but ignored,
    * matching table-core's own fallback for unknown column ids. Omit to render flat rows as usual.
-   *
-   * Not tested/supported in combination with `pageSize`: pagination slices the *group rows*
-   * themselves (not the total leaf count), so a small `pageSize` can push whole groups to a
-   * later page even though their leaves would otherwise fit. Avoid combining the two props
-   * until this is covered.
    */
   groupBy?: string[];
   /**
    * Vertical row density.
-   * - `compact`: ~25px row height (`py-1` on cells, `py-1.5` on headers), matches Sankhya ERP grid density.
-   * - `comfortable`: ~44-48px row height (`py-3`).
+   * - `compact`: ~20-25px row height (`py-1` on cells, `py-1.5` on headers), matches Sankhya ERP grid density.
+   * - `comfortable`: ~40-48px row height (`py-3`).
    * @default 'compact'
    */
   density?: 'compact' | 'comfortable';
@@ -134,6 +142,26 @@ export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'childre
    * @default true
    */
   showStatusBar?: boolean;
+  /**
+   * Enables the AG Grid corner menu button in the top right of the table (Sankhya parity).
+   * @default true
+   */
+  showGridCornerMenu?: boolean;
+  /**
+   * Enables the column header dropdown menu with sort, filter, pin, and group options (Sankhya parity).
+   * @default true
+   */
+  enableColumnMenu?: boolean;
+  /**
+   * Enables zebra striping on alternating rows (Sankhya parity).
+   * @default true
+   */
+  zebraStriping?: boolean;
+  /**
+   * Enables keyboard navigation across rows (ArrowUp / ArrowDown, Space to select).
+   * @default true
+   */
+  enableKeyboardNavigation?: boolean;
 };
 
 const inArrayFilter: FilterFn<any> = (row, columnId, filterValue: unknown) => {
@@ -143,6 +171,9 @@ const inArrayFilter: FilterFn<any> = (row, columnId, filterValue: unknown) => {
   return (filterValue as string[]).includes(formatted);
 };
 
+/* =========================================================================
+   1. EXCEL-STYLE COLUMN FILTER POPOVER (Sankhya Parity with Tabs)
+   ========================================================================= */
 interface EzColumnFilterPopoverProps {
   triggerElement: HTMLElement | null | undefined;
   columnTitle: string;
@@ -165,13 +196,14 @@ function EzColumnFilterPopover({
     () => new Set(currentFilter !== undefined ? currentFilter : allValues)
   );
   const [search, setSearch] = useState('');
+  const [activeTab, setActiveTab] = useState<'all' | 'filtered'>('all');
   const popoverRef = useRef<HTMLDivElement>(null);
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
 
   useLayoutEffect(() => {
     if (triggerElement) {
       const rect = triggerElement.getBoundingClientRect();
-      const popoverWidth = 256;
+      const popoverWidth = 270;
       let left = rect.right - popoverWidth;
       if (typeof window !== 'undefined') {
         if (left < 8) left = 8;
@@ -209,10 +241,14 @@ function EzColumnFilterPopover({
   }, [onClose, triggerElement]);
 
   const visibleValues = useMemo(() => {
-    if (!search.trim()) return uniqueValues;
+    let list = uniqueValues;
+    if (activeTab === 'filtered') {
+      list = list.filter((v) => selected.has(v.value));
+    }
+    if (!search.trim()) return list;
     const lower = search.toLowerCase();
-    return uniqueValues.filter((v) => v.value.toLowerCase().includes(lower));
-  }, [uniqueValues, search]);
+    return list.filter((v) => v.value.toLowerCase().includes(lower));
+  }, [uniqueValues, activeTab, selected, search]);
 
   const isAllVisibleSelected =
     visibleValues.length > 0 && visibleValues.every((v) => selected.has(v.value));
@@ -269,7 +305,7 @@ function EzColumnFilterPopover({
             }
           : { position: 'fixed', top: '100px', left: '100px' }
       }
-      className="w-64 bg-white rounded-[10px] shadow-2xl border border-gray-200 z-[9999] p-3 flex flex-col gap-2.5 text-left font-normal select-none"
+      className="w-72 bg-white rounded-[10px] shadow-2xl border border-gray-200 z-[9999] p-3 flex flex-col gap-2.5 text-left font-normal select-none"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex items-center justify-between pb-1.5 border-b border-gray-100">
@@ -286,12 +322,42 @@ function EzColumnFilterPopover({
         </button>
       </div>
 
+      {/* Tabs: Todos | Filtrados [QTD] (Sankhya filtermodal.tpl.html parity) */}
+      <div className="flex border-b border-gray-200 text-[12px]">
+        <button
+          type="button"
+          data-testid="ez-grid-filter-tab-all"
+          onClick={() => setActiveTab('all')}
+          className={cn(
+            'flex-1 py-1 text-center font-medium border-b-2 transition-colors cursor-pointer',
+            activeTab === 'all'
+              ? 'border-brand-600 text-brand-700 font-semibold'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          )}
+        >
+          Todos
+        </button>
+        <button
+          type="button"
+          data-testid="ez-grid-filter-tab-filtered"
+          onClick={() => setActiveTab('filtered')}
+          className={cn(
+            'flex-1 py-1 text-center font-medium border-b-2 transition-colors cursor-pointer',
+            activeTab === 'filtered'
+              ? 'border-brand-600 text-brand-700 font-semibold'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          )}
+        >
+          Filtrados ({selected.size})
+        </button>
+      </div>
+
       <div className="relative">
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Pesquisar valores…"
+          placeholder="Pesquisar..."
           aria-label="Pesquisar valores"
           data-testid="ez-grid-column-filter-search"
           className="w-full text-[12px] px-2.5 py-1.5 pl-7 bg-gray-50 border border-gray-200 rounded-[6px] focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500"
@@ -372,6 +438,626 @@ function EzColumnFilterPopover({
   );
 }
 
+/* =========================================================================
+   2. COLUMN MENU POPOVER (Sankhya getMainMenuItems Parity)
+   ========================================================================= */
+interface EzColumnMenuPopoverProps {
+  triggerElement: HTMLElement | null | undefined;
+  columnTitle: string;
+  canSort: boolean;
+  sortDirection: false | 'asc' | 'desc';
+  canFilter: boolean;
+  isPinned: false | 'left' | 'right';
+  isGrouped: boolean;
+  onSortAsc: () => void;
+  onSortDesc: () => void;
+  onOpenFilter: () => void;
+  onTogglePin: () => void;
+  onToggleGroup: () => void;
+  onClose: () => void;
+}
+
+function EzColumnMenuPopover({
+  triggerElement,
+  columnTitle,
+  canSort,
+  sortDirection,
+  canFilter,
+  isPinned,
+  isGrouped,
+  onSortAsc,
+  onSortDesc,
+  onOpenFilter,
+  onTogglePin,
+  onToggleGroup,
+  onClose,
+}: EzColumnMenuPopoverProps) {
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
+
+  useLayoutEffect(() => {
+    if (triggerElement) {
+      const rect = triggerElement.getBoundingClientRect();
+      const popoverWidth = 200;
+      let left = rect.right - popoverWidth;
+      if (typeof window !== 'undefined') {
+        if (left < 8) left = 8;
+        if (left + popoverWidth > window.innerWidth - 8) {
+          left = Math.max(8, window.innerWidth - popoverWidth - 8);
+        }
+      }
+      setCoords({
+        top: rect.bottom + 6,
+        left,
+      });
+    }
+  }, [triggerElement]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(target) &&
+        (!triggerElement || !triggerElement.contains(target))
+      ) {
+        onClose();
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose, triggerElement]);
+
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div
+      ref={popoverRef}
+      role="menu"
+      aria-label={`Opções da coluna ${columnTitle}`}
+      data-testid="ez-grid-column-menu-popover"
+      style={
+        coords
+          ? {
+              position: 'fixed',
+              top: `${coords.top}px`,
+              left: `${coords.left}px`,
+            }
+          : { position: 'fixed', top: '100px', left: '100px' }
+      }
+      className="w-52 bg-white rounded-[10px] shadow-2xl border border-gray-200 z-[9999] p-1 flex flex-col gap-0.5 text-left font-normal select-none"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="px-2.5 py-1 text-[11px] font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+        {columnTitle}
+      </div>
+
+      {canSort && (
+        <>
+          <button
+            type="button"
+            data-testid="ez-grid-column-menu-sort-asc"
+            onClick={() => {
+              onSortAsc();
+              onClose();
+            }}
+            className={cn(
+              'flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left',
+              sortDirection === 'asc' && 'font-semibold text-brand-700 bg-brand-50'
+            )}
+          >
+            <ArrowUp className="w-3.5 h-3.5 text-brand-600" />
+            Ordenar Ascendente
+          </button>
+          <button
+            type="button"
+            data-testid="ez-grid-column-menu-sort-desc"
+            onClick={() => {
+              onSortDesc();
+              onClose();
+            }}
+            className={cn(
+              'flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left',
+              sortDirection === 'desc' && 'font-semibold text-red-700 bg-red-50'
+            )}
+          >
+            <ArrowDown className="w-3.5 h-3.5 text-red-600" />
+            Ordenar Descendente
+          </button>
+        </>
+      )}
+
+      {canFilter && (
+        <button
+          type="button"
+          data-testid="ez-grid-column-menu-filter"
+          onClick={() => {
+            onOpenFilter();
+            onClose();
+          }}
+          className="flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left border-t border-gray-100"
+        >
+          <Filter className="w-3.5 h-3.5 text-gray-500" />
+          Filtrar...
+        </button>
+      )}
+
+      <button
+        type="button"
+        data-testid="ez-grid-column-menu-pin"
+        onClick={() => {
+          onTogglePin();
+          onClose();
+        }}
+        className="flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left"
+      >
+        {isPinned ? (
+          <>
+            <PinOff className="w-3.5 h-3.5 text-gray-500" />
+            Desafixar Coluna
+          </>
+        ) : (
+          <>
+            <Pin className="w-3.5 h-3.5 text-gray-500" />
+            Fixar à Esquerda
+          </>
+        )}
+      </button>
+
+      <button
+        type="button"
+        data-testid="ez-grid-column-menu-group"
+        onClick={() => {
+          onToggleGroup();
+          onClose();
+        }}
+        className="flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left"
+      >
+        <Rows className="w-3.5 h-3.5 text-gray-500" />
+        {isGrouped ? 'Desagrupar' : 'Agrupar por este campo'}
+      </button>
+    </div>,
+    document.body
+  );
+}
+
+/* =========================================================================
+   3. GRID CORNER MENU (Sankhya ag-grid-menu Parity)
+   ========================================================================= */
+interface EzGridCornerMenuProps {
+  triggerElement: HTMLElement | null | undefined;
+  density: 'compact' | 'comfortable';
+  onToggleDensity: () => void;
+  onClearAllFilters: () => void;
+  onOpenColumnConfig: () => void;
+  onOpenStatistics: () => void;
+  columnsList: { id: string; label: string }[];
+  onSelectColumn: (columnId: string) => void;
+  onClose: () => void;
+}
+
+function EzGridCornerMenuPopover({
+  triggerElement,
+  density,
+  onToggleDensity,
+  onClearAllFilters,
+  onOpenColumnConfig,
+  onOpenStatistics,
+  columnsList,
+  onSelectColumn,
+  onClose,
+}: EzGridCornerMenuProps) {
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useLayoutEffect(() => {
+    if (triggerElement) {
+      const rect = triggerElement.getBoundingClientRect();
+      const popoverWidth = 240;
+      let left = rect.right - popoverWidth;
+      if (typeof window !== 'undefined') {
+        if (left < 8) left = 8;
+        if (left + popoverWidth > window.innerWidth - 8) {
+          left = Math.max(8, window.innerWidth - popoverWidth - 8);
+        }
+      }
+      setCoords({
+        top: rect.bottom + 6,
+        left,
+      });
+    }
+  }, [triggerElement]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(target) &&
+        (!triggerElement || !triggerElement.contains(target))
+      ) {
+        onClose();
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose, triggerElement]);
+
+  const filteredColumns = useMemo(() => {
+    if (!searchTerm.trim()) return [];
+    const term = searchTerm.toLowerCase();
+    return columnsList.filter((c) => c.label.toLowerCase().includes(term));
+  }, [columnsList, searchTerm]);
+
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div
+      ref={popoverRef}
+      role="menu"
+      aria-label="Menu de opções da grade"
+      data-testid="ez-grid-corner-menu"
+      style={
+        coords
+          ? {
+              position: 'fixed',
+              top: `${coords.top}px`,
+              left: `${coords.left}px`,
+            }
+          : { position: 'fixed', top: '100px', left: '100px' }
+      }
+      className="w-60 bg-white rounded-[10px] shadow-2xl border border-gray-200 z-[9999] p-2 flex flex-col gap-1 text-left font-normal select-none"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="px-2 py-1 text-[11px] font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100 flex items-center justify-between">
+        <span>Opções da Grade</span>
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-gray-400 hover:text-gray-600 rounded p-0.5"
+        >
+          <X className="w-3 h-3" />
+        </button>
+      </div>
+
+      {/* Localizar Coluna (Sankhya findcolumn.tpl.html parity) */}
+      <div className="relative my-1">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Localizar coluna..."
+          data-testid="ez-grid-corner-find-column-input"
+          className="w-full text-[12px] px-2.5 py-1 pl-7 bg-gray-50 border border-gray-200 rounded-[6px] focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500"
+        />
+        <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2 top-2 pointer-events-none" />
+        {filteredColumns.length > 0 && (
+          <div className="absolute top-full left-0 right-0 mt-1 max-h-32 overflow-y-auto bg-white border border-gray-200 rounded-[6px] shadow-lg z-50">
+            {filteredColumns.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => {
+                  onSelectColumn(c.id);
+                  onClose();
+                }}
+                className="w-full text-left px-2.5 py-1.5 text-[12px] text-gray-700 hover:bg-gray-100 truncate cursor-pointer"
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <button
+        type="button"
+        data-testid="ez-grid-corner-toggle-density"
+        onClick={() => {
+          onToggleDensity();
+          onClose();
+        }}
+        className="flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left"
+      >
+        <SlidersHorizontal className="w-3.5 h-3.5 text-gray-500" />
+        {density === 'compact' ? 'Modo Confortável (40px)' : 'Modo Compacto (20px)'}
+      </button>
+
+      <button
+        type="button"
+        data-testid="ez-grid-corner-clear-filters"
+        onClick={() => {
+          onClearAllFilters();
+          onClose();
+        }}
+        className="flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left"
+      >
+        <Filter className="w-3.5 h-3.5 text-gray-500" />
+        Limpar Todos os Filtros
+      </button>
+
+      <button
+        type="button"
+        data-testid="ez-grid-corner-configure-columns"
+        onClick={() => {
+          onOpenColumnConfig();
+          onClose();
+        }}
+        className="flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left"
+      >
+        <Eye className="w-3.5 h-3.5 text-gray-500" />
+        Configurar Colunas...
+      </button>
+
+      <button
+        type="button"
+        data-testid="ez-grid-corner-statistics"
+        onClick={() => {
+          onOpenStatistics();
+          onClose();
+        }}
+        className="flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left"
+      >
+        <BarChart3 className="w-3.5 h-3.5 text-gray-500" />
+        Estatísticas da Grade...
+      </button>
+    </div>,
+    document.body
+  );
+}
+
+/* =========================================================================
+   4. GRID STATISTICS MODAL (Sankhya GridStatistics Parity)
+   ========================================================================= */
+interface NumericStatistic {
+  columnName: string;
+  count: number;
+  sum: number;
+  avg: number;
+  min: number;
+  max: number;
+}
+
+interface EzGridStatisticsModalProps {
+  statistics: NumericStatistic[];
+  onClose: () => void;
+}
+
+function EzGridStatisticsModal({ statistics, onClose }: EzGridStatisticsModalProps) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  if (typeof document === 'undefined') return null;
+
+  const formatNumber = (v: number) =>
+    v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 backdrop-blur-xs p-4"
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-label="Estatísticas da Grade"
+        data-testid="ez-grid-statistics-modal"
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-2xl bg-white rounded-[12px] shadow-2xl border border-gray-200 overflow-hidden flex flex-col"
+      >
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-200 bg-gray-50">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-brand-600" />
+            <h3 className="text-[14px] font-semibold text-gray-800">Estatísticas da Grade</h3>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fechar estatísticas"
+            className="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-200 transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="p-5 max-h-[60vh] overflow-y-auto">
+          {statistics.length === 0 ? (
+            <div className="text-center py-8 text-gray-500 text-[13px]">
+              Nenhuma coluna numérica disponível para cálculo de estatísticas.
+            </div>
+          ) : (
+            <div className="border border-gray-200 rounded-[8px] overflow-hidden">
+              <table className="w-full text-left text-[12px] border-collapse">
+                <thead className="bg-gray-100 text-gray-700 font-semibold border-b border-gray-200">
+                  <tr>
+                    <th className="px-3.5 py-2">Coluna</th>
+                    <th className="px-3 py-2 text-right">Ocorrências</th>
+                    <th className="px-3 py-2 text-right">Soma</th>
+                    <th className="px-3 py-2 text-right">Média</th>
+                    <th className="px-3 py-2 text-right">Mínimo</th>
+                    <th className="px-3 py-2 text-right">Máximo</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {statistics.map((s) => (
+                    <tr key={s.columnName} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-3.5 py-2 font-medium text-gray-900">{s.columnName}</td>
+                      <td className="px-3 py-2 text-right text-gray-600">{s.count}</td>
+                      <td className="px-3 py-2 text-right font-medium text-gray-900">
+                        {formatNumber(s.sum)}
+                      </td>
+                      <td className="px-3 py-2 text-right text-gray-600">{formatNumber(s.avg)}</td>
+                      <td className="px-3 py-2 text-right text-gray-600">{formatNumber(s.min)}</td>
+                      <td className="px-3 py-2 text-right text-gray-600">{formatNumber(s.max)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-end px-5 py-3 border-t border-gray-200 bg-gray-50">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-1.5 text-[12px] font-medium text-gray-700 bg-white border border-gray-300 rounded-[6px] hover:bg-gray-50 transition-colors cursor-pointer"
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+/* =========================================================================
+   5. COLUMN CONFIGURATOR MODAL (Sankhya GridConfig Parity)
+   ========================================================================= */
+interface EzGridColumnConfigModalProps {
+  columns: { id: string; label: string; isVisible: boolean }[];
+  onToggleColumn: (columnId: string) => void;
+  onRestoreDefaults: () => void;
+  onClose: () => void;
+}
+
+function EzGridColumnConfigModal({
+  columns,
+  onToggleColumn,
+  onRestoreDefaults,
+  onClose,
+}: EzGridColumnConfigModalProps) {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  const visibleColumns = useMemo(() => {
+    if (!searchTerm.trim()) return columns;
+    const term = searchTerm.toLowerCase();
+    return columns.filter((c) => c.label.toLowerCase().includes(term));
+  }, [columns, searchTerm]);
+
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 backdrop-blur-xs p-4"
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-label="Configuração da Grade"
+        data-testid="ez-grid-column-config-modal"
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md bg-white rounded-[12px] shadow-2xl border border-gray-200 overflow-hidden flex flex-col"
+      >
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-200 bg-gray-50">
+          <div className="flex items-center gap-2">
+            <Eye className="w-4 h-4 text-brand-600" />
+            <h3 className="text-[14px] font-semibold text-gray-800">Configuração de Colunas</h3>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fechar configuração"
+            className="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-200 transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="p-4 flex flex-col gap-3">
+          <div className="relative">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Pesquisar colunas..."
+              data-testid="ez-grid-config-search-input"
+              className="w-full text-[12px] px-3 py-1.5 pl-8 bg-gray-50 border border-gray-200 rounded-[6px] focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500"
+            />
+            <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-2 pointer-events-none" />
+          </div>
+
+          <div className="max-h-60 overflow-y-auto space-y-1 border border-gray-200 rounded-[8px] p-2 bg-gray-50/50">
+            {visibleColumns.map((c) => (
+              <label
+                key={c.id}
+                className="flex items-center justify-between px-2.5 py-1.5 bg-white rounded-[6px] border border-gray-100 hover:border-gray-200 cursor-pointer shadow-2xs"
+              >
+                <div className="flex items-center gap-2.5">
+                  <input
+                    type="checkbox"
+                    checked={c.isVisible}
+                    onChange={() => onToggleColumn(c.id)}
+                    data-testid={`ez-grid-config-toggle-${c.id}`}
+                    className="w-3.5 h-3.5 rounded border-gray-300 text-brand-600 focus:ring-brand-500 cursor-pointer"
+                  />
+                  <span className="text-[12px] text-gray-800 font-medium">{c.label}</span>
+                </div>
+                {c.isVisible ? (
+                  <Eye className="w-3.5 h-3.5 text-brand-600" />
+                ) : (
+                  <EyeOff className="w-3.5 h-3.5 text-gray-400" />
+                )}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between px-5 py-3 border-t border-gray-200 bg-gray-50">
+          <button
+            type="button"
+            data-testid="ez-grid-config-restore-defaults"
+            onClick={onRestoreDefaults}
+            className="flex items-center gap-1.5 text-[12px] font-medium text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            Restaurar Padrão
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-1.5 text-[12px] font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-[6px] shadow-sm transition-colors cursor-pointer"
+          >
+            Concluir
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+/* =========================================================================
+   6. MAIN COMPONENT (EzEntityGridInner)
+   ========================================================================= */
 type EzEntityGridComponent = <T,>(
   props: EzEntityGridProps<T> & { ref?: Ref<HTMLDivElement> }
 ) => React.ReactElement | null;
@@ -398,15 +1084,49 @@ function EzEntityGridInner<T>(
     density = 'compact',
     enableColumnFilters = true,
     showStatusBar = true,
+    showGridCornerMenu = true,
+    enableColumnMenu = true,
+    zebraStriping = true,
+    enableKeyboardNavigation = true,
     className,
     ...props
   }: EzEntityGridProps<T>,
   ref: Ref<HTMLDivElement>
 ) {
+  const [currentDensity, setCurrentDensity] = useState<'compact' | 'comfortable'>(density);
+
+  useEffect(() => {
+    setCurrentDensity(density);
+  }, [density]);
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [localPinnedColumns, setLocalPinnedColumns] = useState<{ left: string[]; right: string[] }>({
+    left: pinnedColumns?.left ?? [],
+    right: pinnedColumns?.right ?? [],
+  });
+
+  useEffect(() => {
+    setLocalPinnedColumns({
+      left: pinnedColumns?.left ?? [],
+      right: pinnedColumns?.right ?? [],
+    });
+  }, [pinnedColumns]);
+
+  const [localGroupBy, setLocalGroupBy] = useState<string[]>(groupBy ?? []);
+  useEffect(() => {
+    setLocalGroupBy(groupBy ?? []);
+  }, [groupBy]);
+
   const [activeFilterColumnId, setActiveFilterColumnId] = useState<string | null>(null);
+  const [activeMenuColumnId, setActiveMenuColumnId] = useState<string | null>(null);
+  const [isCornerMenuOpen, setIsCornerMenuOpen] = useState(false);
+  const [isStatisticsModalOpen, setIsStatisticsModalOpen] = useState(false);
+  const [isColumnConfigModalOpen, setIsColumnConfigModalOpen] = useState(false);
+  const [focusedRowIndex, setFocusedRowIndex] = useState<number | null>(null);
+
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: pageSize ?? Math.max(data.length, 1),
@@ -432,14 +1152,15 @@ function EzEntityGridInner<T>(
     table.setPageSize(nextSize);
     onPageSizeChange?.(nextSize);
   };
+
   const columnPinning = useMemo<ColumnPinningState>(
-    () => ({ left: pinnedColumns?.left ?? [], right: pinnedColumns?.right ?? [] }),
-    [pinnedColumns]
+    () => ({ left: localPinnedColumns.left, right: localPinnedColumns.right }),
+    [localPinnedColumns]
   );
-  // Only a single level of grouping is supported today (mirrors the JSDoc on `groupBy`).
+
   const grouping = useMemo<GroupingState>(
-    () => (groupBy && groupBy.length > 0 ? [groupBy[0]] : []),
-    [groupBy]
+    () => (localGroupBy && localGroupBy.length > 0 ? [localGroupBy[0]] : []),
+    [localGroupBy]
   );
   const [expanded, setExpanded] = useState<ExpandedState>({});
 
@@ -481,6 +1202,7 @@ function EzEntityGridInner<T>(
       grouping,
       expanded,
       columnFilters,
+      columnVisibility,
     },
     enableRowSelection: selectable,
     enableGrouping: grouping.length > 0,
@@ -488,6 +1210,7 @@ function EzEntityGridInner<T>(
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
     onExpandedChange: setExpanded,
     filterFns: {
@@ -502,12 +1225,12 @@ function EzEntityGridInner<T>(
     getGroupedRowModel: getGroupedRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    // Row grouping already needs expand/collapse for its own group rows; keep the whole
-    // leaf set in the "current page" instead of only expanding within a sliced page window.
     paginateExpandedRows: false,
   });
 
   const filterButtonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const columnMenuButtonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const cornerMenuButtonRef = useRef<HTMLButtonElement>(null);
 
   const getColumnUniqueValues = useCallback(
     (columnId: string) => {
@@ -531,8 +1254,8 @@ function EzEntityGridInner<T>(
       return;
     }
     if (!onSelectionChange) return;
-    const selected = table.getSelectedRowModel().rows.map((row) => row.original);
-    onSelectionChange(selected);
+    const selectedRows = table.getSelectedRowModel().rows.map((row) => row.original);
+    onSelectionChange(selectedRows);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rowSelection]);
 
@@ -620,6 +1343,35 @@ function EzEntityGridInner<T>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [table, rowSelection, data, footerAggregations]);
 
+  // Overall statistics across the current filtered dataset for numeric columns
+  const numericStatistics = useMemo<NumericStatistic[]>(() => {
+    const rows = table.getFilteredRowModel().rows;
+    if (rows.length === 0 || data.length === 0) return [];
+
+    const stats: NumericStatistic[] = [];
+    for (const col of table.getVisibleLeafColumns()) {
+      if (col.id === 'select') continue;
+      const values = rows
+        .map((r) => r.getValue(col.id))
+        .filter((v): v is number => typeof v === 'number' && !isNaN(v));
+
+      if (values.length > 0) {
+        const sum = values.reduce((a, b) => a + b, 0);
+        const header = col.columnDef.header;
+        const columnName = typeof header === 'string' ? header : col.id;
+        stats.push({
+          columnName,
+          count: values.length,
+          sum,
+          avg: sum / values.length,
+          min: Math.min(...values),
+          max: Math.max(...values),
+        });
+      }
+    }
+    return stats;
+  }, [table, data]);
+
   const formatFooterValue = (value: number) =>
     value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -629,14 +1381,10 @@ function EzEntityGridInner<T>(
       ...table.getCenterHeaderGroups().flatMap((group) => group.headers),
       ...table.getRightHeaderGroups().flatMap((group) => group.headers),
     ],
-    [table, columnPinning, resolvedColumns]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [table, columnPinning, resolvedColumns, columnVisibility]
   );
 
-  // Pinned columns stick via `position: sticky`, but a left/right offset of 0 for every
-  // pinned cell only works correctly for a single column per side — with two+ columns on
-  // the same side they would all stick to the same edge and overlap. We measure each pinned
-  // header's rendered width and turn that into a cumulative `left`/`right` offset (same idea
-  // AG Grid uses internally), so e.g. a 2nd left-pinned column sticks right after the 1st.
   const headerCellRefs = useRef<Map<string, HTMLTableCellElement>>(new Map());
   const [pinnedOffsets, setPinnedOffsets] = useState<Record<string, number>>({});
   const registerHeaderCellRef = useCallback(
@@ -667,8 +1415,6 @@ function EzEntityGridInner<T>(
       leftAcc += headerCellRefs.current.get(columnId)?.offsetWidth ?? 0;
     }
 
-    // Right-pinned columns accumulate from the outer edge inward: the LAST id in
-    // `pinnedColumns.right` sits flush against the grid's right edge (offset 0).
     let rightAcc = 0;
     for (const columnId of [...right].reverse()) {
       offsets[columnId] = rightAcc;
@@ -688,6 +1434,47 @@ function EzEntityGridInner<T>(
   const pinnedStyle = (columnId: string, pinned: false | 'left' | 'right') =>
     pinned ? { [pinned]: pinnedOffsets[columnId] ?? 0 } : undefined;
 
+  const handleToggleColumnPin = (colId: string) => {
+    setLocalPinnedColumns((prev) => {
+      if (prev.left.includes(colId)) {
+        return { ...prev, left: prev.left.filter((id) => id !== colId) };
+      }
+      return { ...prev, left: [...prev.left, colId] };
+    });
+  };
+
+  const handleToggleColumnGroup = (colId: string) => {
+    setLocalGroupBy((prev) => (prev.includes(colId) ? [] : [colId]));
+  };
+
+  const handleScrollToColumn = (colId: string) => {
+    const el = headerCellRefs.current.get(colId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  };
+
+  // Keyboard navigation handler
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTableSectionElement>) => {
+    if (!enableKeyboardNavigation) return;
+    const rows = table.getRowModel().rows;
+    if (rows.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setFocusedRowIndex((prev) => (prev === null ? 0 : Math.min(prev + 1, rows.length - 1)));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setFocusedRowIndex((prev) => (prev === null ? 0 : Math.max(prev - 1, 0)));
+    } else if (e.key === ' ' && focusedRowIndex !== null && selectable) {
+      e.preventDefault();
+      const targetRow = rows[focusedRowIndex];
+      if (targetRow) {
+        targetRow.toggleSelected();
+      }
+    }
+  };
+
   return (
     <div ref={ref} className={cn('flex flex-col gap-3 w-full', className)} {...props}>
       {showFilterBar && (
@@ -702,217 +1489,302 @@ function EzEntityGridInner<T>(
         <EzTaskbar buttons={taskbarButtons ?? []} onAction={(action) => onTaskbarAction?.(action)} />
       )}
 
-      <EzGridWrapper
-        showHorizontalScrollbar={showHorizontalScrollbar}
-        alwaysShowHorizontalScrollbar={alwaysShowHorizontalScrollbar}
-      >
-        <thead className="bg-gray-80">
-          <tr>
-            {orderedHeaders.map((header, headerIndex) => {
-              const canSort = header.column.getCanSort();
-              const sortDirection = header.column.getIsSorted();
-              const SortIcon =
-                sortDirection === 'asc' ? ArrowUp : sortDirection === 'desc' ? ArrowDown : ArrowUpDown;
-              const pinned = header.column.getIsPinned();
-              const isLast = headerIndex === orderedHeaders.length - 1;
-              const columnHeader = header.column.columnDef.header;
-              const columnHeaderLabel =
-                typeof columnHeader === 'string'
-                  ? columnHeader
-                  : (header.column.columnDef.id ?? header.column.id);
-              const canFilter =
-                enableColumnFilters &&
-                header.column.id !== 'select' &&
-                header.column.getCanFilter();
-              const isFiltered = header.column.getIsFiltered();
+      <div className="relative w-full">
+        {/* AG Grid Corner Menu Button (Sankhya ag-grid-menu parity) */}
+        {showGridCornerMenu && (
+          <button
+            ref={cornerMenuButtonRef}
+            type="button"
+            aria-label="Opções da grade"
+            title="Opções da grade"
+            data-testid="ez-grid-corner-menu-button"
+            onClick={() => setIsCornerMenuOpen((prev) => !prev)}
+            className="absolute top-1.5 right-1.5 z-20 p-1 rounded-[6px] bg-white/90 hover:bg-white text-gray-500 hover:text-gray-900 border border-gray-200 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+          </button>
+        )}
 
-              return (
-                <th
-                  key={header.id}
-                  ref={registerHeaderCellRef(header.column.id)}
-                  data-pinned={pinned || undefined}
-                  style={pinnedStyle(header.column.id, pinned)}
-                  className={cn(
-                    'px-4 text-[13px] font-semibold text-gray-700 select-none bg-gray-80',
-                    density === 'compact' ? 'py-1.5' : 'py-3',
-                    !isLast && 'border-r border-gray-100',
-                    canSort && 'cursor-pointer',
-                    pinned && 'sticky z-10',
-                    pinned === 'left' && 'shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
-                    pinned === 'right' && 'shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.15)]'
-                  )}
-                  onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
-                >
-                  <div className="flex items-center justify-between gap-1.5 w-full">
-                    <span className="inline-flex items-center gap-1 truncate">
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                      {canSort && <SortIcon aria-hidden className="w-3.5 h-3.5 text-gray-400 shrink-0" />}
-                    </span>
-                    {canFilter && (
-                      <button
-                        ref={(el) => {
-                          if (el) filterButtonRefs.current.set(header.column.id, el);
-                          else filterButtonRefs.current.delete(header.column.id);
-                        }}
-                        type="button"
-                        aria-hidden="true"
-                        tabIndex={-1}
-                        title={`Filtrar por ${columnHeaderLabel}`}
-                        data-testid={`ez-grid-column-filter-${header.column.id}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveFilterColumnId(
-                            activeFilterColumnId === header.column.id ? null : header.column.id
-                          );
-                        }}
-                        className={cn(
-                          'p-1 rounded hover:bg-gray-200 transition-colors cursor-pointer shrink-0',
-                          isFiltered
-                            ? 'text-brand-600 bg-brand-50 hover:bg-brand-100'
-                            : 'text-gray-400 hover:text-gray-600'
-                        )}
-                      >
-                        <Filter className="w-3.5 h-3.5" />
-                      </button>
+        <EzGridWrapper
+          showHorizontalScrollbar={showHorizontalScrollbar}
+          alwaysShowHorizontalScrollbar={alwaysShowHorizontalScrollbar}
+        >
+          <thead className="bg-gray-80">
+            <tr>
+              {orderedHeaders.map((header, headerIndex) => {
+                const canSort = header.column.getCanSort();
+                const sortDirection = header.column.getIsSorted();
+                const SortIcon =
+                  sortDirection === 'asc' ? ArrowUp : sortDirection === 'desc' ? ArrowDown : ArrowUpDown;
+                const pinned = header.column.getIsPinned();
+                const isLast = headerIndex === orderedHeaders.length - 1;
+                const columnHeader = header.column.columnDef.header;
+                const columnHeaderLabel =
+                  typeof columnHeader === 'string'
+                    ? columnHeader
+                    : (header.column.columnDef.id ?? header.column.id);
+                const canFilter =
+                  enableColumnFilters &&
+                  header.column.id !== 'select' &&
+                  header.column.getCanFilter();
+                const isFiltered = header.column.getIsFiltered();
+
+                return (
+                  <th
+                    key={header.id}
+                    ref={registerHeaderCellRef(header.column.id)}
+                    data-pinned={pinned || undefined}
+                    style={pinnedStyle(header.column.id, pinned)}
+                    className={cn(
+                      'relative px-4 text-[13px] font-semibold text-gray-700 select-none bg-gray-80',
+                      currentDensity === 'compact' ? 'py-1.5' : 'py-3',
+                      !isLast && 'border-r border-gray-100',
+                      canSort && 'cursor-pointer',
+                      pinned && 'sticky z-10',
+                      pinned === 'left' && 'shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
+                      pinned === 'right' && 'shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.15)]'
                     )}
-                  </div>
-                </th>
-              );
-            })}
-          </tr>
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => {
-            if (row.getIsGrouped()) {
-              const toggleExpanded = row.getToggleExpandedHandler();
-              // `row.groupingValue` is already coerced to a string key internally by
-              // table-core's getGroupedRowModel (it builds a `Map<string, Row[]>`), so an
-              // `undefined`/`null` grouping value arrives here as the *string* "undefined" —
-              // comparing `row.groupingValue === undefined` never matches. Read the real,
-              // un-coerced value straight off the row via the grouped column id instead.
-              const rawGroupingValue = row.getValue(row.groupingColumnId ?? '');
-              const groupLabel =
-                rawGroupingValue === undefined || rawGroupingValue === null
-                  ? '(Sem valor)'
-                  : String(rawGroupingValue);
+                    onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                  >
+                    {/* Sankhya AG Grid sort indicator borders (sk-col-orderned-asc / desc) */}
+                    {sortDirection === 'asc' && (
+                      <span
+                        data-testid="sk-col-orderned-asc"
+                        className="absolute top-0 left-0 right-0 h-[2px] bg-brand-500"
+                      />
+                    )}
+                    {sortDirection === 'desc' && (
+                      <span
+                        data-testid="sk-col-orderned-desc"
+                        className="absolute top-0 left-0 right-0 h-[2px] bg-red-500"
+                      />
+                    )}
+
+                    <div className="flex items-center justify-between gap-1.5 w-full">
+                      <span className="inline-flex items-center gap-1 truncate">
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {canSort && (
+                          <SortIcon
+                            aria-hidden="true"
+                            className={cn(
+                              'w-3.5 h-3.5 shrink-0',
+                              sortDirection === 'asc'
+                                ? 'text-brand-600'
+                                : sortDirection === 'desc'
+                                  ? 'text-red-600'
+                                  : 'text-gray-400'
+                            )}
+                          />
+                        )}
+                      </span>
+
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        {canFilter && (
+                          <button
+                            ref={(el) => {
+                              if (el) filterButtonRefs.current.set(header.column.id, el);
+                              else filterButtonRefs.current.delete(header.column.id);
+                            }}
+                            type="button"
+                            aria-hidden="true"
+                            tabIndex={-1}
+                            title={`Filtrar por ${columnHeaderLabel}`}
+                            data-testid={`ez-grid-column-filter-${header.column.id}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveFilterColumnId(
+                                activeFilterColumnId === header.column.id ? null : header.column.id
+                              );
+                            }}
+                            className={cn(
+                              'p-1 rounded hover:bg-gray-200 transition-colors cursor-pointer',
+                              isFiltered
+                                ? 'text-brand-600 bg-brand-50 hover:bg-brand-100'
+                                : 'text-gray-400 hover:text-gray-600'
+                            )}
+                          >
+                            <Filter className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+
+                        {enableColumnMenu && header.column.id !== 'select' && (
+                          <button
+                            ref={(el) => {
+                              if (el) columnMenuButtonRefs.current.set(header.column.id, el);
+                              else columnMenuButtonRefs.current.delete(header.column.id);
+                            }}
+                            type="button"
+                            aria-hidden="true"
+                            tabIndex={-1}
+                            title={`Menu da coluna ${columnHeaderLabel}`}
+                            data-testid={`ez-grid-column-menu-${header.column.id}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveMenuColumnId(
+                                activeMenuColumnId === header.column.id ? null : header.column.id
+                              );
+                            }}
+                            className="p-1 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors cursor-pointer"
+                          >
+                            <MoreVertical className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody
+            tabIndex={enableKeyboardNavigation ? 0 : undefined}
+            onKeyDown={handleKeyDown}
+            className="outline-none"
+          >
+            {table.getRowModel().rows.map((row, rowIndex) => {
+              if (row.getIsGrouped()) {
+                const toggleExpanded = row.getToggleExpandedHandler();
+                const rawGroupingValue = row.getValue(row.groupingColumnId ?? '');
+                const groupLabel =
+                  rawGroupingValue === undefined || rawGroupingValue === null
+                    ? '(Sem valor)'
+                    : String(rawGroupingValue);
+                return (
+                  <tr
+                    key={row.id}
+                    data-testid="ez-entity-grid-group-row"
+                    role="button"
+                    tabIndex={0}
+                    className="border-t border-gray-200 bg-gray-80 cursor-pointer hover:bg-gray-80/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-200"
+                    onClick={toggleExpanded}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleExpanded();
+                      }
+                    }}
+                  >
+                    <td
+                      colSpan={orderedHeaders.length}
+                      className={cn(
+                        'px-4 text-[13px] font-semibold text-gray-900',
+                        currentDensity === 'compact' ? 'py-1' : 'py-3'
+                      )}
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        {row.getIsExpanded() ? (
+                          <ChevronDown aria-hidden className="w-3.5 h-3.5 text-gray-500" />
+                        ) : (
+                          <ChevronRight aria-hidden className="w-3.5 h-3.5 text-gray-500" />
+                        )}
+                        {groupLabel}
+                        <span className="inline-flex items-center justify-center min-w-[1.25rem] px-1.5 py-0.5 rounded-full bg-gray-200 text-[11px] font-medium text-gray-700">
+                          {row.subRows.length}
+                        </span>
+                      </span>
+                    </td>
+                  </tr>
+                );
+              }
+
+              const isSelected = row.getIsSelected();
+              const isFocused = focusedRowIndex === rowIndex;
+              const isEven = rowIndex % 2 === 1;
+
               return (
                 <tr
                   key={row.id}
-                  data-testid="ez-entity-grid-group-row"
-                  role="button"
-                  tabIndex={0}
-                  className="border-t border-gray-200 bg-gray-80 cursor-pointer hover:bg-gray-80/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-200"
-                  onClick={toggleExpanded}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      toggleExpanded();
-                    }
-                  }}
+                  data-selected={isSelected || undefined}
+                  onClick={() => setFocusedRowIndex(rowIndex)}
+                  className={cn(
+                    'border-t border-gray-200 group transition-colors',
+                    isSelected
+                      ? 'bg-brand-50'
+                      : zebraStriping && isEven
+                        ? 'bg-gray-50/60 hover:bg-grid-row-hover'
+                        : 'bg-white hover:bg-grid-row-hover',
+                    isFocused && 'outline-1 outline-brand-500 outline-offset-[-1px]'
+                  )}
                 >
-                  <td
-                    colSpan={resolvedColumns.length}
-                    className={cn(
-                      'px-4 text-[13px] font-semibold text-gray-900',
-                      density === 'compact' ? 'py-1' : 'py-3'
-                    )}
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      {row.getIsExpanded() ? (
-                        <ChevronDown aria-hidden className="w-3.5 h-3.5 text-gray-500" />
-                      ) : (
-                        <ChevronRight aria-hidden className="w-3.5 h-3.5 text-gray-500" />
-                      )}
-                      {groupLabel}
-                      <span className="inline-flex items-center justify-center min-w-[1.25rem] px-1.5 py-0.5 rounded-full bg-gray-200 text-[11px] font-medium text-gray-700">
-                        {row.subRows.length}
-                      </span>
-                    </span>
-                  </td>
+                  {[
+                    ...row.getLeftVisibleCells(),
+                    ...row.getCenterVisibleCells(),
+                    ...row.getRightVisibleCells(),
+                  ].map((cell, cellIndex, allCells) => {
+                    const pinned = cell.column.getIsPinned();
+                    const isLastCell = cellIndex === allCells.length - 1;
+                    return (
+                      <td
+                        key={cell.id}
+                        data-pinned={pinned || undefined}
+                        style={pinnedStyle(cell.column.id, pinned)}
+                        className={cn(
+                          'px-4 text-[13px] text-gray-900',
+                          currentDensity === 'compact' ? 'py-1' : 'py-3',
+                          !isLastCell && 'border-r border-gray-100',
+                          pinned && 'sticky z-10',
+                          pinned &&
+                            (isSelected
+                              ? 'bg-brand-50'
+                              : 'bg-white group-hover:bg-grid-row-hover'),
+                          pinned === 'left' && 'shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
+                          pinned === 'right' && 'shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.15)]'
+                        )}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    );
+                  })}
                 </tr>
               );
-            }
-
-            const isSelected = row.getIsSelected();
-            return (
+            })}
+            {table.getRowModel().rows.length === 0 && (
+              <tr>
+                <td
+                  colSpan={orderedHeaders.length}
+                  className="px-4 py-6 text-center text-[13px] text-gray-500"
+                >
+                  Nenhum registro encontrado.
+                </td>
+              </tr>
+            )}
+          </tbody>
+          {showFooter && (
+            <tfoot>
               <tr
-                key={row.id}
-                data-selected={isSelected || undefined}
-                className={cn(
-                  'border-t border-gray-200 group transition-colors',
-                  isSelected ? 'bg-brand-50' : 'hover:bg-grid-row-hover'
-                )}
+                data-testid="ez-entity-grid-footer-row"
+                className="border-t-2 border-gray-200 bg-gray-80 font-semibold"
               >
-                {[
-                  ...row.getLeftVisibleCells(),
-                  ...row.getCenterVisibleCells(),
-                  ...row.getRightVisibleCells(),
-                ].map((cell) => {
-                  const pinned = cell.column.getIsPinned();
+                {orderedHeaders.map((header, headerIndex) => {
+                  const columnId = header.column.id;
+                  const value = footerValues[columnId];
+                  const pinned = header.column.getIsPinned();
+                  const isLastCell = headerIndex === orderedHeaders.length - 1;
                   return (
                     <td
-                      key={cell.id}
+                      key={columnId}
                       data-pinned={pinned || undefined}
-                      style={pinnedStyle(cell.column.id, pinned)}
+                      style={pinnedStyle(columnId, pinned)}
                       className={cn(
-                        'px-4 text-[13px] text-gray-900',
-                        density === 'compact' ? 'py-1' : 'py-3',
-                        pinned && 'sticky z-10',
-                        pinned &&
-                          (isSelected
-                            ? 'bg-brand-50'
-                            : 'bg-white group-hover:bg-grid-row-hover'),
+                        'px-4 text-[13px] font-semibold text-gray-900',
+                        currentDensity === 'compact' ? 'py-1' : 'py-3',
+                        !isLastCell && 'border-r border-gray-100',
+                        pinned && 'sticky z-10 bg-gray-80',
                         pinned === 'left' && 'shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
                         pinned === 'right' && 'shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.15)]'
                       )}
                     >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {value !== undefined ? formatFooterValue(value) : ''}
                     </td>
                   );
                 })}
               </tr>
-            );
-          })}
-          {table.getRowModel().rows.length === 0 && (
-            <tr>
-              <td
-                colSpan={resolvedColumns.length}
-                className="px-4 py-6 text-center text-[13px] text-gray-500"
-              >
-                Nenhum registro encontrado.
-              </td>
-            </tr>
+            </tfoot>
           )}
-        </tbody>
-        {showFooter && (
-          <tfoot>
-            <tr data-testid="ez-entity-grid-footer-row" className="border-t-2 border-gray-200 bg-gray-80">
-              {orderedHeaders.map((header) => {
-                const columnId = header.column.id;
-                const value = footerValues[columnId];
-                const pinned = header.column.getIsPinned();
-                return (
-                  <td
-                    key={columnId}
-                    data-pinned={pinned || undefined}
-                    style={pinnedStyle(columnId, pinned)}
-                    className={cn(
-                      'px-4 text-[13px] font-semibold text-gray-900',
-                      density === 'compact' ? 'py-1' : 'py-3',
-                      pinned && 'sticky z-10 bg-gray-80',
-                      pinned === 'left' && 'shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
-                      pinned === 'right' && 'shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.15)]'
-                    )}
-                  >
-                    {value !== undefined ? formatFooterValue(value) : ''}
-                  </td>
-                );
-              })}
-            </tr>
-          </tfoot>
-        )}
-      </EzGridWrapper>
+        </EzGridWrapper>
+      </div>
 
+      {/* Status Bar with Counts & Selection Metrics (Sankhya datagrid-footer-rows-counter) */}
       {showStatusBar && (
         <div
           data-testid="ez-entity-grid-status-bar"
@@ -928,8 +1800,23 @@ function EzEntityGridInner<T>(
               <>
                 <span className="text-gray-300">|</span>
                 <span data-testid="ez-entity-grid-selected-count">
-                  {table.getSelectedRowModel().rows.length} selecionada{table.getSelectedRowModel().rows.length !== 1 ? 's' : ''}
+                  {table.getSelectedRowModel().rows.length} selecionada
+                  {table.getSelectedRowModel().rows.length !== 1 ? 's' : ''}
                 </span>
+              </>
+            )}
+            {numericStatistics.length > 0 && (
+              <>
+                <span className="text-gray-300">|</span>
+                <button
+                  type="button"
+                  data-testid="ez-grid-open-statistics-button"
+                  onClick={() => setIsStatisticsModalOpen(true)}
+                  className="inline-flex items-center gap-1 text-[11px] font-medium text-brand-600 hover:text-brand-800 transition-colors cursor-pointer"
+                >
+                  <BarChart3 className="w-3.5 h-3.5" />
+                  Estatísticas
+                </button>
               </>
             )}
           </div>
@@ -957,6 +1844,7 @@ function EzEntityGridInner<T>(
         </div>
       )}
 
+      {/* Column Filter Popover */}
       {activeFilterColumnId && (() => {
         const activeCol = table.getColumn(activeFilterColumnId);
         if (!activeCol) return null;
@@ -982,6 +1870,85 @@ function EzEntityGridInner<T>(
         );
       })()}
 
+      {/* Column Menu Popover */}
+      {activeMenuColumnId && (() => {
+        const col = table.getColumn(activeMenuColumnId);
+        if (!col) return null;
+        const header = col.columnDef.header;
+        const title = typeof header === 'string' ? header : (col.columnDef.id ?? col.id);
+        const triggerEl = columnMenuButtonRefs.current.get(activeMenuColumnId);
+
+        return (
+          <EzColumnMenuPopover
+            triggerElement={triggerEl}
+            columnTitle={title}
+            canSort={col.getCanSort()}
+            sortDirection={col.getIsSorted()}
+            canFilter={col.getCanFilter()}
+            isPinned={col.getIsPinned()}
+            isGrouped={localGroupBy.includes(col.id)}
+            onSortAsc={() => col.toggleSorting(false)}
+            onSortDesc={() => col.toggleSorting(true)}
+            onOpenFilter={() => setActiveFilterColumnId(activeMenuColumnId)}
+            onTogglePin={() => handleToggleColumnPin(col.id)}
+            onToggleGroup={() => handleToggleColumnGroup(col.id)}
+            onClose={() => setActiveMenuColumnId(null)}
+          />
+        );
+      })()}
+
+      {/* Corner Menu Popover */}
+      {isCornerMenuOpen && (
+        <EzGridCornerMenuPopover
+          triggerElement={cornerMenuButtonRef.current}
+          density={currentDensity}
+          onToggleDensity={() =>
+            setCurrentDensity((prev) => (prev === 'compact' ? 'comfortable' : 'compact'))
+          }
+          onClearAllFilters={() => table.resetColumnFilters()}
+          onOpenColumnConfig={() => setIsColumnConfigModalOpen(true)}
+          onOpenStatistics={() => setIsStatisticsModalOpen(true)}
+          columnsList={table
+            .getAllLeafColumns()
+            .filter((c) => c.id !== 'select')
+            .map((c) => ({
+              id: c.id,
+              label: typeof c.columnDef.header === 'string' ? c.columnDef.header : c.id,
+            }))}
+          onSelectColumn={handleScrollToColumn}
+          onClose={() => setIsCornerMenuOpen(false)}
+        />
+      )}
+
+      {/* Statistics Modal */}
+      {isStatisticsModalOpen && (
+        <EzGridStatisticsModal
+          statistics={numericStatistics}
+          onClose={() => setIsStatisticsModalOpen(false)}
+        />
+      )}
+
+      {/* Column Config Modal */}
+      {isColumnConfigModalOpen && (
+        <EzGridColumnConfigModal
+          columns={table
+            .getAllLeafColumns()
+            .filter((c) => c.id !== 'select')
+            .map((c) => ({
+              id: c.id,
+              label: typeof c.columnDef.header === 'string' ? c.columnDef.header : c.id,
+              isVisible: c.getIsVisible(),
+            }))}
+          onToggleColumn={(colId) => {
+            const col = table.getColumn(colId);
+            if (col) col.toggleVisibility();
+          }}
+          onRestoreDefaults={() => table.resetColumnVisibility()}
+          onClose={() => setIsColumnConfigModalOpen(false)}
+        />
+      )}
+
+      {/* Rich Pagination Controls */}
       {showPagination && (() => {
         const totalCount = table.getFilteredRowModel().rows.length;
         const currentPageIndex = table.getState().pagination.pageIndex;
@@ -1065,7 +2032,9 @@ function EzEntityGridInner<T>(
  * Aponta DS Entity Grid (visual behavior mirror of Sankhya DS `snk-grid`).
  * Composes `EzGridWrapper` (+ `@tanstack/react-table`), `EzTaskbar` and
  * `EzFilterBar` into a single generic, fully client-driven data grid with
- * sortable columns, optional multi-row selection and simple pagination.
+ * sortable columns, optional multi-row selection, rich pagination, Excel-style
+ * distinct-value filters with tabs, persistent AG Grid scrollbar, status bar,
+ * AG Grid corner menu, grid statistics, and column configurator.
  */
 export const EzEntityGrid = forwardRef(EzEntityGridInner) as EzEntityGridComponent;
 (EzEntityGrid as unknown as { displayName?: string }).displayName = 'EzEntityGrid';

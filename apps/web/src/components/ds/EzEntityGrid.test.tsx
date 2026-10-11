@@ -610,3 +610,127 @@ describe('EzEntityGrid Excel-style column filters and status bar counters', () =
   });
 });
 
+describe('EzEntityGrid Sankhya JS AG Grid parity features', () => {
+  it('renders Sankhya sort indicators (green border for asc, red for desc)', async () => {
+    const user = userEvent.setup();
+    render(<EzEntityGrid columns={columns} data={data} />);
+
+    // Click to sort ascending
+    await user.click(screen.getByRole('columnheader', { name: 'Título' }));
+    expect(screen.getByTestId('sk-col-orderned-asc')).toBeInTheDocument();
+
+    // Click again to sort descending
+    await user.click(screen.getByRole('columnheader', { name: 'Título' }));
+    expect(screen.getByTestId('sk-col-orderned-desc')).toBeInTheDocument();
+  });
+
+  it('renders zebra striping and vertical dividers on body cells', () => {
+    render(<EzEntityGrid columns={columns} data={data} zebraStriping />);
+
+    const rows = screen.getAllByRole('row').slice(1);
+    expect(rows[1]).toHaveClass('bg-gray-50/60');
+
+    // First cell in row has border-r border-gray-100
+    const cells = within(rows[0]).getAllByRole('cell');
+    expect(cells[0]).toHaveClass('border-r', 'border-gray-100');
+    // Last cell does not have border-r
+    expect(cells[cells.length - 1]).not.toHaveClass('border-r');
+  });
+
+  it('opens column header menu and sorts via menu action', async () => {
+    const user = userEvent.setup();
+    render(<EzEntityGrid columns={columns} data={data} />);
+
+    const menuBtn = screen.getByTestId('ez-grid-column-menu-title');
+    await user.click(menuBtn);
+
+    const menuPopover = screen.getByTestId('ez-grid-column-menu-popover');
+    expect(menuPopover).toBeInTheDocument();
+    expect(within(menuPopover).getByText('Ordenar Ascendente')).toBeInTheDocument();
+    expect(within(menuPopover).getByText('Ordenar Descendente')).toBeInTheDocument();
+    expect(within(menuPopover).getByText('Filtrar...')).toBeInTheDocument();
+    expect(within(menuPopover).getByText('Fixar à Esquerda')).toBeInTheDocument();
+
+    // Click sort asc in menu
+    await user.click(screen.getByTestId('ez-grid-column-menu-sort-asc'));
+    expect(screen.getByTestId('sk-col-orderned-asc')).toBeInTheDocument();
+  });
+
+  it('provides "Todos" and "Filtrados" tabs in the Excel filter popover', async () => {
+    const user = userEvent.setup();
+    render(<EzEntityGrid columns={columns} data={data} />);
+
+    await user.click(screen.getByTestId('ez-grid-column-filter-title'));
+
+    const tabAll = screen.getByTestId('ez-grid-filter-tab-all');
+    const tabFiltered = screen.getByTestId('ez-grid-filter-tab-filtered');
+    expect(tabAll).toBeInTheDocument();
+    expect(tabFiltered).toBeInTheDocument();
+
+    // Switch to filtered tab
+    await user.click(tabFiltered);
+    expect(screen.getByTestId('ez-grid-column-filter-item-Impressora não liga')).toBeInTheDocument();
+  });
+
+  it('renders AG Grid corner menu and toggles density', async () => {
+    const user = userEvent.setup();
+    render(<EzEntityGrid columns={columns} data={data} density="compact" />);
+
+    const cornerBtn = screen.getByTestId('ez-grid-corner-menu-button');
+    expect(cornerBtn).toBeInTheDocument();
+
+    await user.click(cornerBtn);
+    const cornerMenu = screen.getByTestId('ez-grid-corner-menu');
+    expect(cornerMenu).toBeInTheDocument();
+    expect(screen.getByTestId('ez-grid-corner-toggle-density')).toBeInTheDocument();
+
+    // Toggle density
+    await user.click(screen.getByTestId('ez-grid-corner-toggle-density'));
+    const headers = screen.getAllByRole('columnheader');
+    expect(headers[0]).toHaveClass('py-3');
+  });
+
+  it('opens Grid Statistics modal and displays numeric metrics', async () => {
+    const user = userEvent.setup();
+    render(<EzEntityGrid columns={columnsWithAmount} data={data} />);
+
+    const statsBtn = screen.getByTestId('ez-grid-open-statistics-button');
+    expect(statsBtn).toBeInTheDocument();
+
+    await user.click(statsBtn);
+    const modal = screen.getByTestId('ez-grid-statistics-modal');
+    expect(modal).toBeInTheDocument();
+    expect(within(modal).getByText('Valor')).toBeInTheDocument();
+    expect(within(modal).getByText('400,00')).toBeInTheDocument(); // sum
+    expect(within(modal).getByText('3')).toBeInTheDocument(); // occurrences
+
+    // Close button
+    await user.click(within(modal).getByRole('button', { name: 'Fechar' }));
+    expect(screen.queryByTestId('ez-grid-statistics-modal')).not.toBeInTheDocument();
+  });
+
+  it('opens Column Configurator modal and toggles column visibility', async () => {
+    const user = userEvent.setup();
+    render(<EzEntityGrid columns={columns} data={data} />);
+
+    // Open corner menu
+    await user.click(screen.getByTestId('ez-grid-corner-menu-button'));
+    // Open column config modal
+    await user.click(screen.getByTestId('ez-grid-corner-configure-columns'));
+
+    const configModal = screen.getByTestId('ez-grid-column-config-modal');
+    expect(configModal).toBeInTheDocument();
+
+    // Toggle off "Prioridade" column
+    const togglePriority = screen.getByTestId('ez-grid-config-toggle-priority');
+    expect(togglePriority).toBeChecked();
+    await user.click(togglePriority);
+    expect(togglePriority).not.toBeChecked();
+
+    // Close modal
+    await user.click(within(configModal).getByRole('button', { name: 'Concluir' }));
+    expect(screen.queryByRole('columnheader', { name: 'Prioridade' })).not.toBeInTheDocument();
+  });
+});
+
+
