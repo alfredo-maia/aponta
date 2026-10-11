@@ -46,6 +46,7 @@ import {
   RotateCcw,
   Rows,
   Search,
+  Settings,
   SlidersHorizontal,
   X,
 } from 'lucide-react';
@@ -163,6 +164,10 @@ export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'childre
    * @default true
    */
   enableKeyboardNavigation?: boolean;
+  /**
+   * Initial column visibility configuration (map of column id to boolean).
+   */
+  initialColumnVisibility?: Record<string, boolean>;
 };
 
 const inArrayFilter: FilterFn<any> = (row, columnId, filterValue: unknown) => {
@@ -455,6 +460,8 @@ interface EzColumnMenuPopoverProps {
   onOpenFilter: () => void;
   onTogglePin: () => void;
   onToggleGroup: () => void;
+  onHideColumn?: () => void;
+  onOpenColumnConfig?: () => void;
   onClose: () => void;
 }
 
@@ -471,6 +478,8 @@ function EzColumnMenuPopover({
   onOpenFilter,
   onTogglePin,
   onToggleGroup,
+  onHideColumn,
+  onOpenColumnConfig,
   onClose,
 }: EzColumnMenuPopoverProps) {
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -624,6 +633,36 @@ function EzColumnMenuPopover({
         <Rows className="w-3.5 h-3.5 text-gray-500" />
         {isGrouped ? 'Desagrupar' : 'Agrupar por este campo'}
       </button>
+
+      {onHideColumn && (
+        <button
+          type="button"
+          data-testid="ez-grid-column-menu-hide"
+          onClick={() => {
+            onHideColumn();
+            onClose();
+          }}
+          className="flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left border-t border-gray-100"
+        >
+          <EyeOff className="w-3.5 h-3.5 text-gray-500" />
+          Ocultar esta Coluna
+        </button>
+      )}
+
+      {onOpenColumnConfig && (
+        <button
+          type="button"
+          data-testid="ez-grid-column-menu-configure"
+          onClick={() => {
+            onOpenColumnConfig();
+            onClose();
+          }}
+          className="flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left"
+        >
+          <Settings className="w-3.5 h-3.5 text-gray-500" />
+          Configurar Colunas...
+        </button>
+      )}
     </div>,
     document.body
   );
@@ -1090,6 +1129,7 @@ function EzEntityGridInner<T>(
     enableColumnMenu = true,
     zebraStriping = true,
     enableKeyboardNavigation = true,
+    initialColumnVisibility,
     className,
     ...props
   }: EzEntityGridProps<T>,
@@ -1104,7 +1144,9 @@ function EzEntityGridInner<T>(
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    initialColumnVisibility ?? {}
+  );
   const [localPinnedColumns, setLocalPinnedColumns] = useState<{ left: string[]; right: string[] }>({
     left: pinnedColumns?.left ?? [],
     right: pinnedColumns?.right ?? [],
@@ -1507,7 +1549,15 @@ function EzEntityGridInner<T>(
       )}
 
       {showTaskbar && (
-        <EzTaskbar buttons={taskbarButtons ?? []} onAction={(action) => onTaskbarAction?.(action)} />
+        <EzTaskbar
+          buttons={taskbarButtons ?? []}
+          onAction={(action) => {
+            if (action === 'CONFIGURATOR') {
+              setIsColumnConfigModalOpen(true);
+            }
+            onTaskbarAction?.(action);
+          }}
+        />
       )}
 
       <div className="relative w-full">
@@ -1913,6 +1963,8 @@ function EzEntityGridInner<T>(
             onOpenFilter={() => setActiveFilterColumnId(activeMenuColumnId)}
             onTogglePin={() => handleToggleColumnPin(col.id)}
             onToggleGroup={() => handleToggleColumnGroup(col.id)}
+            onHideColumn={() => col.toggleVisibility(false)}
+            onOpenColumnConfig={() => setIsColumnConfigModalOpen(true)}
             onClose={() => setActiveMenuColumnId(null)}
           />
         );
@@ -1931,7 +1983,7 @@ function EzEntityGridInner<T>(
           onOpenStatistics={() => setIsStatisticsModalOpen(true)}
           columnsList={table
             .getAllLeafColumns()
-            .filter((c) => c.id !== 'select')
+            .filter((c) => c.id !== 'select' && c.id !== '__rowNumber__')
             .map((c) => ({
               id: c.id,
               label: typeof c.columnDef.header === 'string' ? c.columnDef.header : c.id,
@@ -1954,7 +2006,7 @@ function EzEntityGridInner<T>(
         <EzGridColumnConfigModal
           columns={table
             .getAllLeafColumns()
-            .filter((c) => c.id !== 'select')
+            .filter((c) => c.id !== 'select' && c.id !== '__rowNumber__')
             .map((c) => ({
               id: c.id,
               label: typeof c.columnDef.header === 'string' ? c.columnDef.header : c.id,

@@ -98,10 +98,108 @@ export function TicketsPage() {
         },
       },
       {
+        accessorKey: 'serviceDeskId',
+        header: 'Mesa / Fila',
+        cell: ({ row }) => (
+          <span className="text-gray-700 text-[12px] font-mono">
+            {row.original.serviceDeskId}
+          </span>
+        ),
+      },
+      {
+        accessorKey: 'agentId',
+        header: 'Responsável',
+        cell: ({ row }) => (
+          <span className="text-gray-700 text-[12px]">
+            {row.original.agentId ? (
+              <span className="font-mono">{row.original.agentId}</span>
+            ) : (
+              <span className="text-gray-400 italic">Não atribuído</span>
+            )}
+          </span>
+        ),
+      },
+      {
+        accessorKey: 'resolveDeadline',
+        header: 'SLA Resolução',
+        cell: ({ row }) => {
+          if (!row.original.resolveDeadline) {
+            return <span className="text-gray-400 text-[12px]">—</span>;
+          }
+          const date = new Date(row.original.resolveDeadline);
+          return (
+            <span className="text-gray-600 text-[12px]">
+              {date.toLocaleDateString('pt-BR')} {date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: 'responseDeadline',
+        header: 'SLA Resposta',
+        cell: ({ row }) => {
+          if (!row.original.responseDeadline) {
+            return <span className="text-gray-400 text-[12px]">—</span>;
+          }
+          const date = new Date(row.original.responseDeadline);
+          return (
+            <span className="text-gray-600 text-[12px]">
+              {date.toLocaleDateString('pt-BR')} {date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: 'csatScore',
+        header: 'CSAT',
+        cell: ({ row }) => {
+          const score = row.original.csatScore;
+          if (score === null || score === undefined) {
+            return <span className="text-gray-400 text-[12px]">—</span>;
+          }
+          return (
+            <span className="text-amber-600 font-semibold text-[12px]">
+              ★ {score}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: 'parentTicketId',
+        header: 'Chamado Pai',
+        cell: ({ row }) => {
+          const parent = row.original.parentTicket;
+          const parentId = row.original.parentTicketId;
+          if (!parentId && !parent) {
+            return <span className="text-gray-400 text-[12px]">—</span>;
+          }
+          return (
+            <Link
+              to={`/tickets/${parent?.id ?? parentId}`}
+              className="font-mono text-brand-600 hover:text-brand-800 hover:underline text-[12px]"
+            >
+              {parent?.protocol ?? parentId}
+            </Link>
+          );
+        },
+      },
+      {
         accessorKey: 'createdAt',
         header: 'Criado em',
         cell: ({ row }) => {
           const date = new Date(row.original.createdAt);
+          return (
+            <span className="text-gray-600 text-[12px]">
+              {date.toLocaleDateString('pt-BR')} {date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: 'updatedAt',
+        header: 'Atualizado em',
+        cell: ({ row }) => {
+          const date = new Date(row.original.updatedAt);
           return (
             <span className="text-gray-600 text-[12px]">
               {date.toLocaleDateString('pt-BR')} {date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
@@ -187,6 +285,12 @@ export function TicketsPage() {
             enableColumnFilters
             zebraStriping
             density="compact"
+            initialColumnVisibility={{
+              updatedAt: false,
+              responseDeadline: false,
+              parentTicketId: false,
+              csatScore: false,
+            }}
             taskbarButtons={['INSERT', 'CLONE', 'REMOVE', 'DIVIDER', 'CONFIGURATOR']}
             onTaskbarAction={(action) => {
               if (action === 'INSERT') navigate('/tickets/new');

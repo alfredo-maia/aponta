@@ -739,6 +739,51 @@ describe('EzEntityGrid Sankhya JS AG Grid parity features', () => {
     expect(rowNumbers[1]).toHaveTextContent('2');
     expect(rowNumbers[2]).toHaveTextContent('3');
   });
+
+  it('respects initialColumnVisibility prop to hide specified columns on mount', () => {
+    render(
+      <EzEntityGrid
+        columns={columns}
+        data={data}
+        initialColumnVisibility={{ priority: false }}
+      />
+    );
+
+    expect(screen.getByRole('columnheader', { name: 'Título' })).toBeInTheDocument();
+    expect(screen.queryByRole('columnheader', { name: 'Prioridade' })).not.toBeInTheDocument();
+  });
+
+  it('hides column directly via "Ocultar esta Coluna" in column menu', async () => {
+    const user = userEvent.setup();
+    render(<EzEntityGrid columns={columns} data={data} />);
+
+    expect(screen.getByRole('columnheader', { name: 'Prioridade' })).toBeInTheDocument();
+
+    const menuBtn = screen.getByTestId('ez-grid-column-menu-priority');
+    await user.click(menuBtn);
+
+    const hideBtn = screen.getByTestId('ez-grid-column-menu-hide');
+    expect(hideBtn).toBeInTheDocument();
+    await user.click(hideBtn);
+
+    expect(screen.queryByRole('columnheader', { name: 'Prioridade' })).not.toBeInTheDocument();
+  });
+
+  it('opens Column Configurator modal from taskbar CONFIGURATOR action', async () => {
+    const user = userEvent.setup();
+    render(
+      <EzEntityGrid
+        columns={columns}
+        data={data}
+        taskbarButtons={['CONFIGURATOR']}
+      />
+    );
+
+    const configBtn = screen.getByRole('button', { name: 'Configurador' });
+    await user.click(configBtn);
+
+    expect(screen.getByTestId('ez-grid-column-config-modal')).toBeInTheDocument();
+  });
 });
 
 
