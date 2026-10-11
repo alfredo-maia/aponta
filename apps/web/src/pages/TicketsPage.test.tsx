@@ -356,4 +356,18 @@ describe('TicketsPage', () => {
       );
     });
   });
+
+  it('switches to Grade view and renders tickets in EzEntityGrid', async () => {
+    mockApiGet();
+    const user = userEvent.setup();
+    renderDashboard();
+
+    const gridButton = screen.getByRole('button', { name: 'Grade' });
+    await user.click(gridButton);
+
+    expect(await screen.findByText('AP-000001')).toBeInTheDocument();
+    expect(screen.getByText('Printer not working')).toBeInTheDocument();
+    expect(screen.getByText('AP-000002')).toBeInTheDocument();
+    expect(screen.getByText('VPN access request')).toBeInTheDocument();
+  });
 });

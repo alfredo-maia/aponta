@@ -495,6 +495,13 @@ export function OrganizationsPage() {
                   <EzEntityGrid
                     columns={orgColumns}
                     data={orgs ?? []}
+                    showRowNumbers
+                    showGridCornerMenu
+                    enableColumnMenu
+                    enableColumnFilters
+                    zebraStriping
+                    density="compact"
+                    showStatusBar
                     groupBy={groupByStatus ? ['status'] : undefined}
                     pageSize={groupByStatus ? undefined : 10}
                   />
