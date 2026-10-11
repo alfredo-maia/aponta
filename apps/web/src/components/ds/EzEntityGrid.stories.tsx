@@ -242,5 +242,55 @@ export const SankhyaGridParity: Story = {
   },
 };
 
+/**
+ * Densidade Compacta Sankhya ERP (20px - 24px):
+ * Otimizado para operadores de alta produtividade visualizarem dezenas de linhas simultâneas,
+ * com divisores verticais de célula (#e2e6e8), cabeçalho sóbrio (#f5f7f8) e tipografia condensada.
+ */
+export const ModoCompactoERP: Story = {
+  args: {
+    columns,
+    data: tickets,
+    density: 'compact',
+    zebraStriping: true,
+    enableColumnFilters: true,
+    showStatusBar: true,
+    footerAggregations: { amount: 'sum' },
+  },
+};
+
+/**
+ * Totalizadores de Rodapé e Estatísticas Dinâmicas:
+ * Exibe agregadores de colunas (Soma do valor financeiro), contagem de registros na barra de status
+ * e permite abrir a modal de Estatísticas pelo menu de canto (snk-grid ag-grid-menu).
+ */
+export const TotalizadoresEAgregacoes: Story = {
+  args: {
+    columns,
+    data: tickets,
+    selectable: true,
+    showStatusBar: true,
+    showGridCornerMenu: true,
+    footerAggregations: { amount: 'sum' },
+  },
+};
+
+/**
+ * Múltipla Seleção com Cálculo em Tempo Real no Rodapé:
+ * Ao selecionar múltiplos registros com checkboxes (ou Shift+Click), a barra de status
+ * calcula e exibe dinamicamente: Contagem de linhas selecionadas, Soma e Média das colunas numéricas.
+ */
+export const MultiplaSelecaoECalculo: Story = {
+  args: {
+    columns,
+    data: tickets,
+    selectable: true,
+    showStatusBar: true,
+    enableColumnMenu: true,
+    footerAggregations: { amount: 'sum' },
+  },
+};
+
+
 
 

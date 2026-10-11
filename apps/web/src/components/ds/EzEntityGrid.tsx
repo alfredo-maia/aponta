@@ -34,7 +34,6 @@ import {
   ArrowUp,
   ArrowUpDown,
   BarChart3,
-  Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
