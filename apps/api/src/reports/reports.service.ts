@@ -276,6 +276,35 @@ export class ReportsService {
       }
     }
 
+    // Tickets created/closed per day, trailing 30 days (reuses the tickets already
+    // loaded above — no extra query). There is no CANCELLED TicketStatus in the
+    // schema today, so that series is always 0 until one is introduced; it stays
+    // in the shape so the frontend can render it the moment it exists.
+    const dateKey = (d: Date) => {
+      const local = new Date(d);
+      return `${local.getFullYear()}-${String(local.getMonth() + 1).padStart(2, '0')}-${String(local.getDate()).padStart(2, '0')}`;
+    };
+    const trendDays = 30;
+    const trendMap = new Map<string, { created: number; closed: number; cancelled: number }>();
+    for (let i = trendDays - 1; i >= 0; i -= 1) {
+      const d = new Date(nowStartOfDay - i * oneDayMs);
+      trendMap.set(dateKey(d), { created: 0, closed: 0, cancelled: 0 });
+    }
+    for (const ticket of tickets) {
+      if (ticket.createdAt) {
+        const entry = trendMap.get(dateKey(new Date(ticket.createdAt)));
+        if (entry) entry.created += 1;
+      }
+      if (CLOSED_STATUSES.includes(ticket.status) && ticket.updatedAt) {
+        const entry = trendMap.get(dateKey(new Date(ticket.updatedAt)));
+        if (entry) entry.closed += 1;
+      }
+    }
+    const ticketsTrend30d = Array.from(trendMap.entries()).map(([date, counts]) => ({
+      date,
+      ...counts,
+    }));
+
     // Monthly hours for the user
     const year = now.getFullYear();
     const month = now.getMonth();
@@ -446,6 +475,7 @@ export class ReportsService {
       },
       chatsByDepartment,
       chatsByAgent,
+      ticketsTrend30d,
       myAppointments: {
         total: 3,
         today: 1,

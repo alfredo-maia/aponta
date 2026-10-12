@@ -124,6 +124,13 @@ export class AppointmentSummaryDto {
   @ApiProperty({ type: [AppointmentItemDto] }) items!: AppointmentItemDto[];
 }
 
+export class TicketTrendDayDto {
+  @ApiProperty() date!: string;
+  @ApiProperty() created!: number;
+  @ApiProperty() closed!: number;
+  @ApiProperty() cancelled!: number;
+}
+
 export class DashboardSummaryDto {
   @ApiProperty({ description: 'Chamados com status diferente de RESOLVED/CLOSED' })
   openCount!: number;
@@ -152,4 +159,6 @@ export class DashboardSummaryDto {
   @ApiPropertyOptional({ type: [ChatAgentItemDto] }) chatsByAgent?: ChatAgentItemDto[];
   @ApiPropertyOptional() myAppointments?: AppointmentSummaryDto;
   @ApiPropertyOptional() allAppointments?: AppointmentSummaryDto;
+  @ApiPropertyOptional({ type: [TicketTrendDayDto], description: 'Chamados criados/fechados/cancelados por dia, últimos 30 dias' })
+  ticketsTrend30d?: TicketTrendDayDto[];
 }

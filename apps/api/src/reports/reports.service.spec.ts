@@ -223,5 +223,57 @@ describe('ReportsService', () => {
 
       expect(res.avgResolutionMinutes).toBeNull();
     });
+
+    it('builds a 30-day trend of created/closed tickets bucketed by local day, with cancelled always zero', async () => {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 0, 0);
+      const fortyDaysAgo = new Date(today.getTime() - 40 * 86400000);
+
+      mockPrisma.ticket.findMany.mockResolvedValue([
+        // Created and resolved today — counts in both series for today's bucket.
+        {
+          status: 'RESOLVED',
+          createdAt: today,
+          updatedAt: today,
+          responseDeadline: null,
+          resolveDeadline: null,
+          slaAccumulatedPauseTime: 0,
+          slaPausedAt: null,
+        },
+        // Still open, created today.
+        {
+          status: 'OPEN',
+          createdAt: today,
+          updatedAt: today,
+          responseDeadline: null,
+          resolveDeadline: null,
+          slaAccumulatedPauseTime: 0,
+          slaPausedAt: null,
+        },
+        // Outside the trailing-30-day window — must not appear in any bucket.
+        {
+          status: 'CLOSED',
+          createdAt: fortyDaysAgo,
+          updatedAt: fortyDaysAgo,
+          responseDeadline: null,
+          resolveDeadline: null,
+          slaAccumulatedPauseTime: 0,
+          slaPausedAt: null,
+        },
+      ]);
+
+      const res = await service.getSummary({ id: 'admin', role: Role.ADMIN });
+
+      const trend = res.ticketsTrend30d ?? [];
+      expect(trend).toHaveLength(30);
+      const dateKey = (d: Date) =>
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const todayBucket = trend.find((b) => b.date === dateKey(today));
+      expect(todayBucket).toEqual({ date: dateKey(today), created: 2, closed: 1, cancelled: 0 });
+      expect(trend.every((b) => b.cancelled === 0)).toBe(true);
+      // Every bucket outside today's should be empty, since the only other ticket is 40 days old.
+      const otherBuckets = trend.filter((b) => b.date !== dateKey(today));
+      expect(otherBuckets.every((b) => b.created === 0 && b.closed === 0)).toBe(true);
+    });
   });
 });

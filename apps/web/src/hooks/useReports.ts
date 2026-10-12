@@ -118,6 +118,13 @@ export interface AppointmentSummary {
   items: AppointmentItem[];
 }
 
+export interface TicketTrendDay {
+  date: string;
+  created: number;
+  closed: number;
+  cancelled: number;
+}
+
 export interface DashboardSummary {
   openCount: number;
   closedCount: number;
@@ -140,6 +147,7 @@ export interface DashboardSummary {
   chatsByAgent?: ChatAgentItem[];
   myAppointments?: AppointmentSummary;
   allAppointments?: AppointmentSummary;
+  ticketsTrend30d?: TicketTrendDay[];
 }
 
 export function useDashboardSummary() {

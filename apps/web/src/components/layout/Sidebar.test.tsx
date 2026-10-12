@@ -121,6 +121,30 @@ describe('Sidebar', () => {
     expect(reportsButton?.className).toContain('bg-brand-100');
   });
 
+  it('keeps the "Tickets" item the same size whether active or not (DMTE-35: no width shift on click)', () => {
+    loginAs('ADMIN');
+
+    const { rerender } = renderSidebar('/');
+    const activeButton = screen.getByText('Tickets').closest('button');
+    const activeClasses = new Set(activeButton?.className.split(/\s+/));
+
+    rerender(
+      <MemoryRouter initialEntries={['/reports']}>
+        <Sidebar />
+      </MemoryRouter>,
+    );
+    const inactiveButton = screen.getByText('Tickets').closest('button');
+    const inactiveClasses = new Set(inactiveButton?.className.split(/\s+/));
+
+    // Padding, font weight and sizing classes must be identical active vs inactive —
+    // only the color/background classes are allowed to differ.
+    const boxModelClasses = (classes: Set<string>) =>
+      [...classes].filter(
+        (c) => !c.startsWith('bg-') && !c.startsWith('text-') && !c.startsWith('hover:'),
+      );
+    expect(boxModelClasses(activeClasses)).toEqual(boxModelClasses(inactiveClasses));
+  });
+
   it('renders Chats as a disabled "Em breve" item that does not navigate (Issue #45 not shipped yet)', async () => {
     const user = userEvent.setup();
     loginAs('ADMIN');
