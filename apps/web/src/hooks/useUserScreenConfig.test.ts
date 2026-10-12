@@ -108,4 +108,25 @@ describe('useUserScreenConfig', () => {
     expect(result.current.config.form.layout).toBe('CASCADE');
     expect(localStorage.getItem('aponta_screen_config_user-123_tickets')).toBeNull();
   });
+
+  it('persists columnOrder and savedFilters per user', () => {
+    const { result } = renderHook(() => useUserScreenConfig('organizations'));
+
+    act(() => {
+      result.current.setColumnOrder(['name', 'document', 'legalName']);
+      result.current.saveFilter('Filtro VIP', { status: 'ACTIVE', search: 'VIP' });
+    });
+
+    expect(result.current.config.grid.columnOrder).toEqual(['name', 'document', 'legalName']);
+    expect(result.current.config.savedFilters).toHaveLength(1);
+    expect(result.current.config.savedFilters[0].name).toBe('Filtro VIP');
+    expect(result.current.config.savedFilters[0].criteria).toEqual({ status: 'ACTIVE', search: 'VIP' });
+
+    const filterId = result.current.config.savedFilters[0].id;
+    act(() => {
+      result.current.deleteFilter(filterId);
+    });
+
+    expect(result.current.config.savedFilters).toHaveLength(0);
+  });
 });

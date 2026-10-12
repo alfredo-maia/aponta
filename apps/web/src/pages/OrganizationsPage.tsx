@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
 import { useState, useMemo } from 'react';
-import { Search, Trash2, CreditCard } from 'lucide-react';
+import { Search, Trash2, CreditCard, Building2, Plus } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
   EzAlert,
@@ -18,14 +18,17 @@ import {
   EzEntityToolbar,
   EzEntityScreenConfigModal,
   EzFilterDrawer,
+  EzModal,
   EzMultiSelect,
   EzPageHeader,
   EzPageLayout,
   EzSpinner,
   EzTabs,
   EzTextArea,
+  EzTextEdit,
   EzTextInput,
 } from '../components/ds';
+import { cn } from '../components/ds/utils';
 import { useUserScreenConfig } from '../hooks/useUserScreenConfig';
 
 interface OrganizationAddress {
@@ -175,9 +178,8 @@ export function OrganizationsPage() {
   const isAdmin = user?.role === 'ADMIN';
 
   // Tiflux-parity (#57): padrão Sankhya de alternância Modo Lista / Modo
-  // Formulário (EzPageHeader), substituindo o antigo modal único.
+  // Formulário (EzEntityToolbar), substituindo o antigo modal único.
   const [mode, setMode] = useState<'list' | 'form'>('list');
-  const [groupByStatus, setGroupByStatus] = useState(false);
   const [detailOrgId, setDetailOrgId] = useState<string | null>(null);
   const [detailTab, setDetailTab] = useState<DetailTab>('users');
   const [cnpjLookupError, setCnpjLookupError] = useState<string | null>(null);
@@ -196,8 +198,11 @@ export function OrganizationsPage() {
   const {
     config: screenConfig,
     setColumnVisibility,
+    setColumnOrder,
     setDensity,
     setFormLayout,
+    saveFilter,
+    deleteFilter,
     restoreDefaults,
   } = useUserScreenConfig('organizations', {
     grid: {
@@ -219,6 +224,7 @@ export function OrganizationsPage() {
   });
 
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  const [activeSavedFilterId, setActiveSavedFilterId] = useState<string | null>(null);
   const [filterSearch, setFilterSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
   const [filterDocType, setFilterDocType] = useState<'ALL' | 'CNPJ' | 'CPF'>('ALL');
@@ -226,6 +232,12 @@ export function OrganizationsPage() {
   const [screenConfigInitialTab, setScreenConfigInitialTab] = useState<'grid' | 'form'>('grid');
   const [selectedOrgs, setSelectedOrgs] = useState<Organization[]>([]);
   const [focusedIndex, setFocusedIndex] = useState(0);
+
+  // Modal para cadastro automático via CNPJ (Sankhya / Receita Federal)
+  const [isCnpjModalOpen, setIsCnpjModalOpen] = useState(false);
+  const [cnpjModalInput, setCnpjModalInput] = useState('');
+  const [cnpjModalError, setCnpjModalError] = useState<string | null>(null);
+  const [isLookingUpCnpjModal, setIsLookingUpCnpjModal] = useState(false);
 
   const { data: orgs, isLoading: isLoadingOrgs } = useQuery({
     queryKey: ['organizations'],
@@ -360,6 +372,56 @@ export function OrganizationsPage() {
     },
   });
 
+  const inlinePatchMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Organization> }) => {
+      const res = await api.patch<Organization>(`/organizations/${id}`, data);
+      return res.data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['organizations'] });
+      if (detailOrgId) {
+        void queryClient.invalidateQueries({ queryKey: ['organizations', detailOrgId] });
+      }
+    },
+  });
+
+  const handleCnpjModalSubmit = async () => {
+    const rawDigits = cnpjModalInput.replace(/\D/g, '');
+    if (rawDigits.length !== 14) {
+      setCnpjModalError('CNPJ deve conter 14 dígitos.');
+      return;
+    }
+    setIsLookingUpCnpjModal(true);
+    setCnpjModalError(null);
+    try {
+      const { data } = await api.get<CnpjLookupResult>('/organizations/cnpj-lookup', {
+        params: { cnpj: rawDigits },
+      });
+      reset();
+      setValue('documentType', 'CNPJ');
+      setValue('cnpj', data.cnpj);
+      setValue('legalName', data.legalName);
+      setValue('name', data.tradeName || data.legalName);
+      if (data.address) {
+        resetAddressForm({
+          zipCode: data.address.zipCode ?? '',
+          street: data.address.street ?? '',
+          neighborhood: data.address.neighborhood ?? '',
+          city: data.address.city ?? '',
+          state: data.address.state ?? '',
+          complement: data.address.complement ?? '',
+        });
+      }
+      setIsCnpjModalOpen(false);
+      setDetailOrgId(null);
+      setMode('form');
+    } catch {
+      setCnpjModalError('CNPJ não encontrado ou inválido na Receita Federal.');
+    } finally {
+      setIsLookingUpCnpjModal(false);
+    }
+  };
+
   const addAddressMutation = useMutation({
     mutationFn: async (values: AddressFormValues) => {
       const { data } = await api.post(`/organizations/${detailOrgId}/addresses`, values);
@@ -446,6 +508,11 @@ export function OrganizationsPage() {
   });
 
   const openDetail = (orgId: string) => {
+    const idx = filteredOrgs.findIndex((o) => o.id === orgId);
+    if (idx !== -1) {
+      setFocusedIndex(idx);
+      setSelectedOrgs([filteredOrgs[idx]]);
+    }
     setDetailTab('users');
     setDetailOrgId(orgId);
     setProfileDraft(null);
@@ -489,9 +556,16 @@ export function OrganizationsPage() {
         accessorKey: 'legalName',
         header: 'Razão Social',
         cell: ({ row }) => (
-          <span className="text-gray-900 text-xs">
-            {row.original.legalName || '—'}
-          </span>
+          <EzTextEdit
+            value={row.original.legalName || ''}
+            placeholder="Razão Social"
+            className="text-xs text-gray-900"
+            onChange={(val) => {
+              if (val !== (row.original.legalName || '')) {
+                inlinePatchMutation.mutate({ id: row.original.id, data: { legalName: val.trim() } });
+              }
+            }}
+          />
         ),
       },
       {
@@ -510,16 +584,27 @@ export function OrganizationsPage() {
       {
         id: 'status',
         header: 'Status',
-        // accessorFn dá ao EzEntityGrid um valor textual real para agrupar (groupBy=['status']);
         accessorFn: (org) => (org.active === false ? 'Inativo' : 'Ativo'),
-        cell: ({ row }) =>
-          row.original.active === false ? (
-            <span className="text-xs font-medium text-gray-500 bg-gray-90 px-2 py-0.5 rounded-full">
-              Inativo
-            </span>
-          ) : (
-            <span className="text-xs text-gray-500">Ativo</span>
-          ),
+        cell: ({ row }) => (
+          <button
+            type="button"
+            title="Alternar status (Ativo/Inativo)"
+            onClick={() => {
+              inlinePatchMutation.mutate({
+                id: row.original.id,
+                data: { active: row.original.active === false },
+              });
+            }}
+            className={cn(
+              'text-xs font-medium px-2 py-0.5 rounded-full cursor-pointer transition-colors',
+              row.original.active === false
+                ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+            )}
+          >
+            {row.original.active === false ? 'Inativo' : 'Ativo'}
+          </button>
+        ),
       },
       {
         id: 'clientes',
@@ -530,45 +615,80 @@ export function OrganizationsPage() {
         accessorKey: 'stateRegistration',
         header: 'Inscrição Estadual',
         cell: ({ row }) => (
-          <span className="text-gray-600 text-xs">
-            {row.original.stateRegistration || '—'}
-          </span>
+          <EzTextEdit
+            value={row.original.stateRegistration || ''}
+            placeholder="IE"
+            className="text-xs text-gray-600"
+            onChange={(val) => {
+              if (val !== (row.original.stateRegistration || '')) {
+                inlinePatchMutation.mutate({ id: row.original.id, data: { stateRegistration: val.trim() } });
+              }
+            }}
+          />
         ),
       },
       {
         accessorKey: 'municipalRegistration',
         header: 'Inscrição Municipal',
         cell: ({ row }) => (
-          <span className="text-gray-600 text-xs">
-            {row.original.municipalRegistration || '—'}
-          </span>
+          <EzTextEdit
+            value={row.original.municipalRegistration || ''}
+            placeholder="IM"
+            className="text-xs text-gray-600"
+            onChange={(val) => {
+              if (val !== (row.original.municipalRegistration || '')) {
+                inlinePatchMutation.mutate({ id: row.original.id, data: { municipalRegistration: val.trim() } });
+              }
+            }}
+          />
         ),
       },
       {
         accessorKey: 'workFolder',
         header: 'Pasta de Trabalho',
         cell: ({ row }) => (
-          <span className="text-gray-500 font-mono text-xs truncate max-w-xs block">
-            {row.original.workFolder || '—'}
-          </span>
+          <EzTextEdit
+            value={row.original.workFolder || ''}
+            placeholder="/pasta"
+            className="text-xs font-mono text-gray-500"
+            onChange={(val) => {
+              if (val !== (row.original.workFolder || '')) {
+                inlinePatchMutation.mutate({ id: row.original.id, data: { workFolder: val.trim() } });
+              }
+            }}
+          />
         ),
       },
       {
         accessorKey: 'serviceType',
         header: 'Perfil',
         cell: ({ row }) => (
-          <span className="text-gray-600 text-xs">
-            {row.original.serviceType || '—'}
-          </span>
+          <EzTextEdit
+            value={row.original.serviceType || ''}
+            placeholder="Perfil"
+            className="text-xs text-gray-600"
+            onChange={(val) => {
+              if (val !== (row.original.serviceType || '')) {
+                inlinePatchMutation.mutate({ id: row.original.id, data: { serviceType: val.trim() } });
+              }
+            }}
+          />
         ),
       },
       {
         accessorKey: 'healthStatus',
         header: 'Saúde',
         cell: ({ row }) => (
-          <span className="text-gray-600 text-xs">
-            {row.original.healthStatus || '—'}
-          </span>
+          <EzTextEdit
+            value={row.original.healthStatus || ''}
+            placeholder="Saúde"
+            className="text-xs text-gray-600"
+            onChange={(val) => {
+              if (val !== (row.original.healthStatus || '')) {
+                inlinePatchMutation.mutate({ id: row.original.id, data: { healthStatus: val.trim() } });
+              }
+            }}
+          />
         ),
       },
     ],
@@ -604,23 +724,38 @@ export function OrganizationsPage() {
 
   const handlePrevious = () => {
     if (focusedIndex > 0) {
-      setFocusedIndex((prev) => prev - 1);
-      setSelectedOrgs([filteredOrgs[focusedIndex - 1]]);
+      const newIdx = focusedIndex - 1;
+      setFocusedIndex(newIdx);
+      const target = filteredOrgs[newIdx];
+      if (target) {
+        setSelectedOrgs([target]);
+        if (mode === 'form' && detailOrgId) {
+          openDetail(target.id);
+        }
+      }
     }
   };
 
   const handleNext = () => {
     if (focusedIndex < filteredOrgs.length - 1) {
-      setFocusedIndex((prev) => prev + 1);
-      setSelectedOrgs([filteredOrgs[focusedIndex + 1]]);
+      const newIdx = focusedIndex + 1;
+      setFocusedIndex(newIdx);
+      const target = filteredOrgs[newIdx];
+      if (target) {
+        setSelectedOrgs([target]);
+        if (mode === 'form' && detailOrgId) {
+          openDetail(target.id);
+        }
+      }
     }
   };
 
   const handleDelete = () => {
-    if (selectedOrgs.length === 0) return;
-    const confirmMsg = `Deseja inativar ${selectedOrgs.length} empresa(s) selecionada(s)?`;
+    const targets = selectedOrgs.length > 0 ? selectedOrgs : (detailOrgId && orgDetail ? [orgDetail] : []);
+    if (targets.length === 0) return;
+    const confirmMsg = `Deseja inativar ${targets.length} empresa(s) selecionada(s)?`;
     if (window.confirm(confirmMsg)) {
-      selectedOrgs.forEach((o) => {
+      targets.forEach((o) => {
         updateOrgMutation.mutate({ active: false });
       });
       setSelectedOrgs([]);
@@ -640,7 +775,17 @@ export function OrganizationsPage() {
 
   const toolbarActions = [
     {
+      label: 'Cadastrar por CNPJ',
+      icon: Plus,
+      onClick: () => {
+        setCnpjModalInput('');
+        setCnpjModalError(null);
+        setIsCnpjModalOpen(true);
+      },
+    },
+    {
       label: 'Consultar CNPJ na Receita',
+      icon: Search,
       onClick: () => {
         const active = selectedOrgs[0] ?? filteredOrgs[focusedIndex];
         if (active?.cnpj) {
@@ -653,7 +798,7 @@ export function OrganizationsPage() {
   if (!isAdmin) {
     return (
       <div className="space-y-2">
-        <h1 className="text-[20px] font-semibold text-gray-900">Empresas</h1>
+        <h1 className="text-[18px] font-semibold text-gray-900">Clientes</h1>
         <p className="text-sm text-gray-500">Somente administradores podem gerenciar empresas.</p>
       </div>
     );
@@ -663,75 +808,79 @@ export function OrganizationsPage() {
     <EzPageLayout
       header={
         <EzPageHeader
-          title="Empresas (Organizações)"
+          title={<span className="text-[18px] font-semibold text-gray-900">Clientes</span>}
           showBackButton={mode === 'form'}
           onBack={backToList}
-          actions={
-            mode === 'list' ? (
-              <EzButton size="small" onClick={() => { reset(); setDetailOrgId(null); setMode('form'); }}>
-                Novo Cliente
-              </EzButton>
-            ) : undefined
-          }
-          activeMode={mode === 'list' || !detailOrgId ? mode : undefined}
-          onModeChange={!detailOrgId ? setMode : undefined}
         />
       }
     >
       <div className="space-y-6">
-        {mode === 'list' && (
-          isLoadingOrgs ? (
-            <EzSpinner label="Carregando…" />
-          ) : (
-            <div className="bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs flex flex-col">
-              {/* Sankhya Standard Entity Toolbar */}
-              <EzEntityToolbar
-                viewMode="GRID"
-                onToggleViewMode={(nextMode) => {
-                  if (nextMode === 'FORM') {
-                    const active = selectedOrgs[0] ?? filteredOrgs[focusedIndex] ?? filteredOrgs[0];
-                    if (active) {
-                      openDetail(active.id);
-                    } else {
-                      reset();
-                      setDetailOrgId(null);
-                      setMode('form');
-                    }
+        {isLoadingOrgs ? (
+          <EzSpinner label="Carregando…" />
+        ) : (
+          <div className="bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs flex flex-col">
+            {/* Sankhya Standard Entity Toolbar */}
+            <EzEntityToolbar
+              viewMode={mode === 'list' ? 'GRID' : 'FORM'}
+              onToggleViewMode={(nextMode) => {
+                if (nextMode === 'FORM') {
+                  const active = selectedOrgs[0] ?? filteredOrgs[focusedIndex] ?? filteredOrgs[0];
+                  if (active) {
+                    openDetail(active.id);
+                  } else {
+                    reset();
+                    setDetailOrgId(null);
+                    setMode('form');
                   }
-                }}
-                isFilterOpen={isFilterPanelOpen}
-                onToggleFilter={() => setIsFilterPanelOpen((prev) => !prev)}
-                onInsert={() => {
-                  reset();
-                  setDetailOrgId(null);
-                  setMode('form');
-                }}
-                hasPrevious={focusedIndex > 0}
-                onPrevious={handlePrevious}
-                hasNext={focusedIndex < filteredOrgs.length - 1}
-                onNext={handleNext}
-                selectedCount={selectedOrgs.length}
-                onDelete={handleDelete}
-                onClone={handleClone}
-                onRefresh={() => void queryClient.invalidateQueries({ queryKey: ['organizations'] })}
-                onOpenGridConfig={() => {
-                  setScreenConfigInitialTab('grid');
-                  setIsScreenConfigModalOpen(true);
-                }}
-                onOpenFormConfig={() => {
-                  setScreenConfigInitialTab('form');
-                  setIsScreenConfigModalOpen(true);
-                }}
-                onOpenScreenConfig={() => {
-                  setScreenConfigInitialTab('grid');
-                  setIsScreenConfigModalOpen(true);
-                }}
-                recordCountText={`${filteredOrgs.length === 0 ? 0 : 1} - ${filteredOrgs.length} de ${filteredOrgs.length}`}
-                actions={toolbarActions}
-              />
+                } else {
+                  backToList();
+                }
+              }}
+              isFilterOpen={isFilterPanelOpen}
+              onToggleFilter={() => setIsFilterPanelOpen((prev) => !prev)}
+              onInsert={() => {
+                reset();
+                setDetailOrgId(null);
+                setMode('form');
+              }}
+              insertAriaLabel="Novo Cliente"
+              insertTooltip="Novo Cliente"
+              hasPrevious={focusedIndex > 0}
+              onPrevious={handlePrevious}
+              hasNext={focusedIndex < filteredOrgs.length - 1}
+              onNext={handleNext}
+              selectedCount={selectedOrgs.length || (detailOrgId ? 1 : 0)}
+              onDelete={handleDelete}
+              onClone={handleClone}
+              onRefresh={() => {
+                void queryClient.invalidateQueries({ queryKey: ['organizations'] });
+                if (detailOrgId) {
+                  void queryClient.invalidateQueries({ queryKey: ['organizations', detailOrgId] });
+                }
+              }}
+              onOpenGridConfig={() => {
+                setScreenConfigInitialTab('grid');
+                setIsScreenConfigModalOpen(true);
+              }}
+              onOpenFormConfig={() => {
+                setScreenConfigInitialTab('form');
+                setIsScreenConfigModalOpen(true);
+              }}
+              onOpenScreenConfig={() => {
+                setScreenConfigInitialTab(mode === 'form' ? 'form' : 'grid');
+                setIsScreenConfigModalOpen(true);
+              }}
+              recordCountText={
+                mode === 'form' && detailOrgId
+                  ? `${focusedIndex >= 0 ? focusedIndex + 1 : 1} de ${filteredOrgs.length}`
+                  : `${filteredOrgs.length === 0 ? 0 : 1} - ${filteredOrgs.length} de ${filteredOrgs.length}`
+              }
+              actions={toolbarActions}
+            />
 
+            {mode === 'list' && (
               <div className="flex flex-1 overflow-hidden min-h-[420px]">
-                {/* Lateral Filter Drawer */}
+                {/* Lateral Filter Drawer com Filtros Dinâmicos e Filtros Salvos */}
                 <EzFilterDrawer
                   isOpen={isFilterPanelOpen}
                   onClose={() => setIsFilterPanelOpen(false)}
@@ -739,10 +888,30 @@ export function OrganizationsPage() {
                     setFilterSearch('');
                     setFilterStatus('ALL');
                     setFilterDocType('ALL');
+                    setActiveSavedFilterId(null);
                   }}
                   title="Filtros de Clientes"
+                  savedFilters={screenConfig.savedFilters}
+                  activeSavedFilterId={activeSavedFilterId}
+                  onApplySavedFilter={(sf) => {
+                    setActiveSavedFilterId(sf.id);
+                    if (sf.criteria.search !== undefined) setFilterSearch(sf.criteria.search);
+                    if (sf.criteria.status !== undefined) setFilterStatus(sf.criteria.status);
+                    if (sf.criteria.docType !== undefined) setFilterDocType(sf.criteria.docType);
+                  }}
+                  onSaveCurrentFilter={(name) => {
+                    saveFilter(name, {
+                      search: filterSearch,
+                      status: filterStatus,
+                      docType: filterDocType,
+                    });
+                  }}
+                  onDeleteSavedFilter={(id) => {
+                    deleteFilter(id);
+                    if (activeSavedFilterId === id) setActiveSavedFilterId(null);
+                  }}
                 >
-                  <div className="p-4 space-y-4">
+                  <div className="space-y-4">
                     <div className="space-y-1.5">
                       <label htmlFor="filter-search-input" className="text-xs font-medium text-gray-700">
                         Buscar Parceiro
@@ -794,221 +963,227 @@ export function OrganizationsPage() {
                       <EzEmptyCard title="Nenhuma empresa cadastrada ainda." />
                     </div>
                   ) : (
-                    <>
-                      <div className="flex items-center justify-end gap-2 px-2 py-1.5 border-b border-gray-100 mb-2">
-                        <EzCheck
-                          id="org-group-by-status"
-                          label="Agrupar por status"
-                          checked={groupByStatus}
-                          onChange={(e) => setGroupByStatus(e.target.checked)}
-                        />
-                      </div>
-                      <EzEntityGrid
-                        columns={orgColumns}
-                        data={filteredOrgs}
-                        showRowNumbers
-                        selectable
-                        showGridCornerMenu
-                        enableColumnMenu
-                        enableColumnFilters
-                        zebraStriping
-                        density={screenConfig.grid.density}
-                        initialColumnVisibility={screenConfig.grid.columnVisibility}
-                        showStatusBar
-                        groupBy={groupByStatus ? ['status'] : undefined}
-                        pageSize={groupByStatus ? undefined : 10}
-                        onSelectionChange={(selected) => {
-                          setSelectedOrgs(selected);
-                          if (selected.length > 0) {
-                            const idx = filteredOrgs.findIndex((o) => o.id === selected[0].id);
-                            if (idx !== -1) setFocusedIndex(idx);
-                          }
-                        }}
-                      />
-                    </>
+                    <EzEntityGrid
+                      columns={orgColumns}
+                      data={filteredOrgs}
+                      showRowNumbers
+                      selectable
+                      showGridCornerMenu
+                      enableColumnMenu
+                      enableColumnFilters
+                      zebraStriping
+                      density={screenConfig.grid.density}
+                      initialColumnVisibility={screenConfig.grid.columnVisibility}
+                      showStatusBar={false}
+                      enableColumnReorder
+                      columnOrder={screenConfig.grid.columnOrder}
+                      onColumnOrderChange={setColumnOrder}
+                      pageSize={10}
+                      onSelectionChange={(selected) => {
+                        setSelectedOrgs(selected);
+                        if (selected.length > 0) {
+                          const idx = filteredOrgs.findIndex((o) => o.id === selected[0].id);
+                          if (idx !== -1) setFocusedIndex(idx);
+                        }
+                      }}
+                    />
                   )}
                 </div>
               </div>
-            </div>
-          )
-        )}
+            )}
 
-        {mode === 'form' && !detailOrgId && (
-          <form
-            onSubmit={handleSubmit((values) => createMutation.mutate(values))}
-            noValidate
-            className="max-w-3xl"
-          >
-            <EzCardItem flat className="p-4 space-y-4">
-              <h2 className="text-sm font-semibold text-gray-900">Nova Empresa</h2>
-
-              <div className="grid grid-cols-2 gap-3">
-                <EzComboBox
-                  id="org-document-type"
-                  label="Tipo de Documento"
-                  {...register('documentType')}
-                >
-                  <option value="CNPJ">CNPJ (Pessoa Jurídica)</option>
-                  <option value="CPF">CPF (Pessoa Física)</option>
-                </EzComboBox>
-              </div>
-
-              {documentType === 'CPF' ? (
-                <div className="flex items-end gap-3">
-                  <div className="flex-1">
-                    <EzTextInput id="org-cpf" label="CPF" placeholder="000.000.000-00" {...register('cpf')} />
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-end gap-3">
-                  <div className="flex-1">
-                    <EzTextInput id="org-cnpj" label="CNPJ" placeholder="00.000.000/0000-00" {...register('cnpj')} />
-                  </div>
-                  <EzButton
-                    type="button"
-                    variant="secondary"
-                    leftIcon={Search}
-                    disabled={cnpjLookupMutation.isPending}
-                    onClick={() => {
-                      const cnpj = getValues('cnpj');
-                      if (cnpj) cnpjLookupMutation.mutate(cnpj);
-                    }}
-                  >
-                    Buscar CNPJ
-                  </EzButton>
-                </div>
-              )}
-
-              {cnpjLookupError && (
-                <EzAlert variant="error" onClose={() => setCnpjLookupError(null)}>
-                  {cnpjLookupError}
-                </EzAlert>
-              )}
-
-              <div className="grid grid-cols-2 gap-3">
-                <EzTextInput id="org-legal-name" label="Razão Social" {...register('legalName')} />
-                <EzTextInput
-                  id="org-name"
-                  label="Nome Fantasia"
-                  hasError={!!errors.name}
-                  message={errors.name?.message}
-                  {...register('name')}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <EzTextInput id="org-state-registration" label="Inscrição Estadual" {...register('stateRegistration')} />
-                <EzTextInput id="org-municipal-registration" label="Inscrição Municipal" {...register('municipalRegistration')} />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <EzTextInput id="org-work-folder" label="Pasta de Trabalho" {...register('workFolder')} />
-                <div className="flex items-center gap-3 pt-6">
-                  <EzCheck id="org-visible" label="Visível para clientes" {...register('visibleToClients')} />
-                  <EzCheck id="org-quarterly" label="Faturamento quarteirizado" {...register('quarterlyBilling')} />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <EzTextInput id="org-billing-emails-create" label="E-mails de Faturamento" placeholder="ex: financeiro@cliente.com" {...register('billingEmails')} />
-                <EzTextInput id="org-billing-due-day-create" label="Dia de Vencimento" type="number" min="1" max="31" placeholder="ex: 10" {...register('billingDueDay')} />
-              </div>
-
-              <EzTextArea id="org-notes" label="Anotações" rows={3} {...register('notes')} />
-
-              <div className="flex justify-end">
-                <EzButton type="submit" disabled={createMutation.isPending}>
-                  Cadastrar
-                </EzButton>
-              </div>
-            </EzCardItem>
-          </form>
-        )}
-
-        {mode === 'form' && detailOrgId && (
-          isLoadingDetail || !orgDetail ? (
-            <EzSpinner label="Carregando…" />
-          ) : (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-[18px] font-semibold text-gray-900">{orgDetail.name}</h2>
-                <div className="flex items-center gap-2 text-sm">
-                  <EzCheck
-                    id="org-active-toggle"
-                    label="Cliente ativo"
-                    checked={orgDetail.active !== false}
-                    disabled={updateOrgMutation.isPending}
-                    onChange={(e) => updateOrgMutation.mutate({ active: e.target.checked })}
-                  />
-                </div>
-              </div>
-
-              {/* Painel principal (Tiflux-parity, aba "Informações" do cliente real) */}
-              <EzCardItem flat className="p-4">
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <div className="text-gray-500">Nome Fantasia</div>
-                    <div className="text-gray-900 font-medium">{orgDetail.name || '—'}</div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500">Razão Social</div>
-                    <div className="text-gray-900 font-medium">{orgDetail.legalName || '—'}</div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500">CPF/CNPJ</div>
-                    <div className="text-gray-900 font-medium">
-                      {orgDetail.documentType === 'CPF' ? (orgDetail.cpf || '—') : (formatCnpj(orgDetail.cnpj) || '—')}
+            {mode === 'form' && !detailOrgId && (
+              <form
+                onSubmit={handleSubmit((values) => createMutation.mutate(values))}
+                noValidate
+                className="p-5 space-y-5"
+              >
+                <div className="bg-white rounded-[8px] border border-gray-200 p-4 space-y-4">
+                  <div className="border-b border-gray-100 pb-2.5 flex items-center justify-between">
+                    <div>
+                      <h2 className="text-sm font-semibold text-gray-900">Nova Empresa</h2>
+                      <p className="text-xs text-gray-500">Preencha os campos cadastrais conforme padrão Sankhya ERP.</p>
                     </div>
                   </div>
 
-                  <div>
-                    <div className="text-gray-500">Inscrição Estadual</div>
-                    <div className="text-gray-900 font-medium">{orgDetail.stateRegistration || '—'}</div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500">Inscrição Municipal</div>
-                    <div className="text-gray-900 font-medium">{orgDetail.municipalRegistration || '—'}</div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500">Recursos cadastrados</div>
-                    <div className="text-gray-900 font-medium">-- / 0 disponíveis / 0 em uso</div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                    <EzComboBox
+                      id="org-document-type"
+                      label="Tipo de Documento"
+                      {...register('documentType')}
+                    >
+                      <option value="CNPJ">CNPJ (Pessoa Jurídica)</option>
+                      <option value="CPF">CPF (Pessoa Física)</option>
+                    </EzComboBox>
+
+                    {documentType === 'CPF' ? (
+                      <EzTextInput id="org-cpf" label="CPF" placeholder="000.000.000-00" {...register('cpf')} />
+                    ) : (
+                      <div className="flex items-end gap-2">
+                        <div className="flex-1">
+                          <EzTextInput id="org-cnpj" label="CNPJ" placeholder="00.000.000/0000-00" {...register('cnpj')} />
+                        </div>
+                        <EzButton
+                          type="button"
+                          variant="secondary"
+                          leftIcon={Search}
+                          disabled={cnpjLookupMutation.isPending}
+                          onClick={() => {
+                            const cnpj = getValues('cnpj');
+                            if (cnpj) cnpjLookupMutation.mutate(cnpj);
+                          }}
+                        >
+                          Buscar CNPJ
+                        </EzButton>
+                      </div>
+                    )}
+
+                    <EzTextInput
+                      id="org-name"
+                      label="Nome Fantasia"
+                      hasError={!!errors.name}
+                      message={errors.name?.message}
+                      {...register('name')}
+                    />
+
+                    <EzTextInput id="org-legal-name" label="Razão Social" {...register('legalName')} />
+                    <EzTextInput id="org-state-registration" label="Inscrição Estadual" {...register('stateRegistration')} />
+                    <EzTextInput id="org-municipal-registration" label="Inscrição Municipal" {...register('municipalRegistration')} />
+                    <EzTextInput id="org-work-folder" label="Pasta de Trabalho" {...register('workFolder')} />
                   </div>
 
-                  <div>
-                    <div className="text-gray-500">Pasta de Trabalho</div>
-                    <div className="text-gray-900 font-medium">{orgDetail.workFolder || '—'}</div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <EzCheck
-                      id="org-visible-toggle"
-                      label="Visível para clientes"
-                      checked={orgDetail.visibleToClients !== false}
-                      disabled={updateOrgMutation.isPending}
-                      onChange={(e) => updateOrgMutation.mutate({ visibleToClients: e.target.checked })}
-                    />
-                  </div>
-                  <div>
-                    <div className="text-gray-500">Agentes inteligentes</div>
-                    <div className="text-gray-900 font-medium">-- / 0 disponíveis / 0 em uso</div>
-                  </div>
-
-                  <div className="col-span-2">
-                    <div className="text-gray-500">Anotações</div>
-                    <div className="text-gray-900 font-medium">{orgDetail.notes || '—'}</div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <EzCheck
-                      id="org-quarterly-toggle"
-                      label="Faturamento quarteirizado"
-                      checked={orgDetail.quarterlyBilling === true}
-                      disabled={updateOrgMutation.isPending}
-                      onChange={(e) => updateOrgMutation.mutate({ quarterlyBilling: e.target.checked })}
-                    />
-                  </div>
+                  {cnpjLookupError && (
+                    <EzAlert variant="error" onClose={() => setCnpjLookupError(null)}>
+                      {cnpjLookupError}
+                    </EzAlert>
+                  )}
                 </div>
-              </EzCardItem>
 
-              <EzTabs
+                <div className="bg-white rounded-[8px] border border-gray-200 p-4 space-y-4">
+                  <div className="border-b border-gray-100 pb-2.5">
+                    <h3 className="text-sm font-semibold text-gray-900">Parâmetros & Faturamento</h3>
+                    <p className="text-xs text-gray-500">Configurações de visibilidade, cobrança e observações do cliente.</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                    <EzTextInput id="org-billing-emails-create" label="E-mails de Faturamento" placeholder="ex: financeiro@cliente.com" {...register('billingEmails')} />
+                    <EzTextInput id="org-billing-due-day-create" label="Dia de Vencimento" type="number" min="1" max="31" placeholder="ex: 10" {...register('billingDueDay')} />
+                    <div className="flex flex-col justify-center space-y-2 pt-2">
+                      <EzCheck id="org-visible" label="Visível para clientes" {...register('visibleToClients')} />
+                      <EzCheck id="org-quarterly" label="Faturamento quarteirizado" {...register('quarterlyBilling')} />
+                    </div>
+                  </div>
+
+                  <EzTextArea id="org-notes" label="Anotações" rows={3} {...register('notes')} />
+                </div>
+
+                <div className="flex justify-end gap-3 pt-2">
+                  <EzButton type="button" variant="tertiary" onClick={backToList}>
+                    Cancelar
+                  </EzButton>
+                  <EzButton type="submit" disabled={createMutation.isPending}>
+                    Cadastrar
+                  </EzButton>
+                </div>
+              </form>
+            )}
+
+            {mode === 'form' && detailOrgId && (
+              isLoadingDetail || !orgDetail ? (
+                <div className="p-8">
+                  <EzSpinner label="Carregando…" />
+                </div>
+              ) : (
+                <div className="p-5 space-y-5">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-[18px] font-semibold text-gray-900">{orgDetail.name}</h2>
+                    <div className="flex items-center gap-2 text-sm">
+                      <EzCheck
+                        id="org-active-toggle"
+                        label="Cliente ativo"
+                        checked={orgDetail.active !== false}
+                        disabled={updateOrgMutation.isPending}
+                        onChange={(e) => updateOrgMutation.mutate({ active: e.target.checked })}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Painel principal padronizado (Sankhya ERP Form Mode) */}
+                  <div className="bg-white rounded-[8px] border border-gray-200 p-4 space-y-4">
+                    <div className="border-b border-gray-100 pb-2.5 flex items-center justify-between">
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-900">Dados do Parceiro / Cliente</h3>
+                        <p className="text-xs text-gray-500">Campos cadastrais principais padronizados no padrão Sankhya ERP.</p>
+                      </div>
+                      <div className="text-xs text-gray-400 font-mono">
+                        ID: {orgDetail.id}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 text-sm">
+                      <div className="space-y-1">
+                        <span className="text-xs font-medium text-gray-500">Nome Fantasia</span>
+                        <div className="text-gray-900 font-medium text-sm">{orgDetail.name || '—'}</div>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-xs font-medium text-gray-500">Razão Social</span>
+                        <div className="text-gray-900 font-medium text-sm">{orgDetail.legalName || '—'}</div>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-xs font-medium text-gray-500">CPF/CNPJ</span>
+                        <div className="text-gray-900 font-medium text-sm font-mono">
+                          {orgDetail.documentType === 'CPF' ? (orgDetail.cpf || '—') : (formatCnpj(orgDetail.cnpj) || '—')}
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <span className="text-xs font-medium text-gray-500">Inscrição Estadual</span>
+                        <div className="text-gray-900 font-medium text-sm">{orgDetail.stateRegistration || '—'}</div>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-xs font-medium text-gray-500">Inscrição Municipal</span>
+                        <div className="text-gray-900 font-medium text-sm">{orgDetail.municipalRegistration || '—'}</div>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-xs font-medium text-gray-500">Recursos cadastrados</span>
+                        <div className="text-gray-900 font-medium text-sm">-- / 0 disponíveis / 0 em uso</div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <span className="text-xs font-medium text-gray-500">Pasta de Trabalho</span>
+                        <div className="text-gray-900 font-medium text-sm">{orgDetail.workFolder || '—'}</div>
+                      </div>
+                      <div className="flex items-center gap-2 pt-3">
+                        <EzCheck
+                          id="org-visible-toggle"
+                          label="Visível para clientes"
+                          checked={orgDetail.visibleToClients !== false}
+                          disabled={updateOrgMutation.isPending}
+                          onChange={(e) => updateOrgMutation.mutate({ visibleToClients: e.target.checked })}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-xs font-medium text-gray-500">Agentes inteligentes</span>
+                        <div className="text-gray-900 font-medium text-sm">-- / 0 disponíveis / 0 em uso</div>
+                      </div>
+
+                      <div className="col-span-1 md:col-span-2 space-y-1">
+                        <span className="text-xs font-medium text-gray-500">Anotações</span>
+                        <div className="text-gray-900 font-medium text-sm">{orgDetail.notes || '—'}</div>
+                      </div>
+                      <div className="flex items-center gap-2 pt-3">
+                        <EzCheck
+                          id="org-quarterly-toggle"
+                          label="Faturamento quarteirizado"
+                          checked={orgDetail.quarterlyBilling === true}
+                          disabled={updateOrgMutation.isPending}
+                          onChange={(e) => updateOrgMutation.mutate({ quarterlyBilling: e.target.checked })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <EzTabs
                 tabs={[
                   { id: 'users', label: 'Usuários' },
                   { id: 'resources', label: 'Recursos' },
@@ -1483,6 +1658,8 @@ export function OrganizationsPage() {
             </div>
           )
         )}
+          </div>
+        )}
       </div>
 
       {isScreenConfigModalOpen && (
@@ -1503,6 +1680,62 @@ export function OrganizationsPage() {
           initialTab={screenConfigInitialTab}
         />
       )}
+
+      {/* Modal: Cadastrar Parceiro por CNPJ (Sankhya / Receita Federal parity) */}
+      <EzModal
+        isOpen={isCnpjModalOpen}
+        onClose={() => {
+          setIsCnpjModalOpen(false);
+          setCnpjModalError(null);
+        }}
+        title="Cadastrar Parceiro por CNPJ"
+        maxWidth="md"
+        footer={
+          <div className="flex items-center justify-end gap-2">
+            <EzButton
+              variant="secondary"
+              size="small"
+              onClick={() => setIsCnpjModalOpen(false)}
+            >
+              Cancelar
+            </EzButton>
+            <EzButton
+              variant="primary"
+              size="small"
+              disabled={isLookingUpCnpjModal || !cnpjModalInput.trim()}
+              onClick={handleCnpjModalSubmit}
+            >
+              {isLookingUpCnpjModal ? 'Consultando…' : 'Consultar e Abrir Cadastro'}
+            </EzButton>
+          </div>
+        }
+      >
+        <div className="space-y-3 p-1">
+          <p className="text-xs text-gray-600">
+            Informe o CNPJ da empresa. Os dados cadastrais (Razão Social, Nome Fantasia, Endereço) serão consultados automaticamente na Receita Federal para pré-preenchimento do formulário.
+          </p>
+          <div className="space-y-1">
+            <label htmlFor="cnpj-modal-input" className="text-xs font-medium text-gray-700">
+              CNPJ
+            </label>
+            <EzTextInput
+              id="cnpj-modal-input"
+              placeholder="00.000.000/0000-00"
+              value={cnpjModalInput}
+              onChange={(e) => setCnpjModalInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleCnpjModalSubmit();
+              }}
+              autoFocus
+            />
+          </div>
+          {cnpjModalError && (
+            <EzAlert variant="error" onClose={() => setCnpjModalError(null)}>
+              {cnpjModalError}
+            </EzAlert>
+          )}
+        </div>
+      </EzModal>
     </EzPageLayout>
   );
 }

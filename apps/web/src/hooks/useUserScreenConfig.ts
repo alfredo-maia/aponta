@@ -1,26 +1,36 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '../stores/authStore';
 
+export interface SavedFilter {
+  id: string;
+  name: string;
+  criteria: Record<string, any>;
+}
+
 export interface UserScreenConfig {
   grid: {
     columnVisibility: Record<string, boolean>;
     density: 'compact' | 'comfortable';
+    columnOrder?: string[];
   };
   form: {
     layout: 'CASCADE' | 'SIDE_BY_SIDE';
   };
   viewMode: 'GRID' | 'FORM';
+  savedFilters: SavedFilter[];
 }
 
 const DEFAULT_CONFIG: UserScreenConfig = {
   grid: {
     columnVisibility: {},
     density: 'compact',
+    columnOrder: undefined,
   },
   form: {
     layout: 'CASCADE',
   },
   viewMode: 'GRID',
+  savedFilters: [],
 };
 
 function getStorageKey(userId: string | null | undefined, screenId: string): string {
@@ -44,11 +54,13 @@ export function useUserScreenConfig(
     grid: {
       columnVisibility: initialDefaults?.grid?.columnVisibility ?? DEFAULT_CONFIG.grid.columnVisibility,
       density: initialDefaults?.grid?.density ?? DEFAULT_CONFIG.grid.density,
+      columnOrder: initialDefaults?.grid?.columnOrder ?? DEFAULT_CONFIG.grid.columnOrder,
     },
     form: {
       layout: initialDefaults?.form?.layout ?? DEFAULT_CONFIG.form.layout,
     },
     viewMode: initialDefaults?.viewMode ?? DEFAULT_CONFIG.viewMode,
+    savedFilters: initialDefaults?.savedFilters ?? DEFAULT_CONFIG.savedFilters,
   };
 
   const loadConfig = useCallback((): UserScreenConfig => {
@@ -60,11 +72,13 @@ export function useUserScreenConfig(
         grid: {
           columnVisibility: { ...resolvedDefaults.grid.columnVisibility, ...(parsed.grid?.columnVisibility ?? {}) },
           density: parsed.grid?.density ?? resolvedDefaults.grid.density,
+          columnOrder: parsed.grid?.columnOrder ?? resolvedDefaults.grid.columnOrder,
         },
         form: {
           layout: parsed.form?.layout ?? resolvedDefaults.form.layout,
         },
         viewMode: parsed.viewMode ?? resolvedDefaults.viewMode,
+        savedFilters: Array.isArray(parsed.savedFilters) ? parsed.savedFilters : resolvedDefaults.savedFilters,
       };
     } catch {
       return resolvedDefaults;
@@ -87,6 +101,27 @@ export function useUserScreenConfig(
           grid: {
             ...prev.grid,
             columnVisibility: nextColVis,
+          },
+        };
+        try {
+          localStorage.setItem(getStorageKey(userId, screenId), JSON.stringify(next));
+        } catch {
+          // ignore storage error
+        }
+        return next;
+      });
+    },
+    [userId, screenId]
+  );
+
+  const setColumnOrder = useCallback(
+    (columnOrder: string[]) => {
+      setConfig((prev) => {
+        const next: UserScreenConfig = {
+          ...prev,
+          grid: {
+            ...prev.grid,
+            columnOrder,
           },
         };
         try {
@@ -160,6 +195,45 @@ export function useUserScreenConfig(
     [userId, screenId]
   );
 
+  const saveFilter = useCallback(
+    (name: string, criteria: Record<string, any>) => {
+      setConfig((prev) => {
+        const id = `filter_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        const nextSaved = [...(prev.savedFilters ?? []), { id, name, criteria }];
+        const next: UserScreenConfig = {
+          ...prev,
+          savedFilters: nextSaved,
+        };
+        try {
+          localStorage.setItem(getStorageKey(userId, screenId), JSON.stringify(next));
+        } catch {
+          // ignore storage error
+        }
+        return next;
+      });
+    },
+    [userId, screenId]
+  );
+
+  const deleteFilter = useCallback(
+    (filterId: string) => {
+      setConfig((prev) => {
+        const nextSaved = (prev.savedFilters ?? []).filter((f) => f.id !== filterId);
+        const next: UserScreenConfig = {
+          ...prev,
+          savedFilters: nextSaved,
+        };
+        try {
+          localStorage.setItem(getStorageKey(userId, screenId), JSON.stringify(next));
+        } catch {
+          // ignore storage error
+        }
+        return next;
+      });
+    },
+    [userId, screenId]
+  );
+
   const restoreDefaults = useCallback(() => {
     try {
       localStorage.removeItem(getStorageKey(userId, screenId));
@@ -173,9 +247,12 @@ export function useUserScreenConfig(
   return {
     config,
     setColumnVisibility,
+    setColumnOrder,
     setDensity,
     setFormLayout,
     setViewMode,
+    saveFilter,
+    deleteFilter,
     restoreDefaults,
   };
 }

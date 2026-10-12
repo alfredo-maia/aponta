@@ -168,6 +168,19 @@ export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'childre
    * Initial column visibility configuration (map of column id to boolean).
    */
   initialColumnVisibility?: Record<string, boolean>;
+  /**
+   * Enables dragging column headers to reorder columns in the grid (Sankhya parity).
+   * @default true
+   */
+  enableColumnReorder?: boolean;
+  /**
+   * Custom column order (list of column ids).
+   */
+  columnOrder?: string[];
+  /**
+   * Callback fired when column order changes via drag-and-drop.
+   */
+  onColumnOrderChange?: (newOrder: string[]) => void;
 };
 
 const inArrayFilter: FilterFn<any> = (row, columnId, filterValue: unknown) => {
@@ -1130,6 +1143,9 @@ function EzEntityGridInner<T>(
     zebraStriping = true,
     enableKeyboardNavigation = true,
     initialColumnVisibility,
+    enableColumnReorder = true,
+    columnOrder,
+    onColumnOrderChange,
     className,
     ...props
   }: EzEntityGridProps<T>,
@@ -1147,6 +1163,16 @@ function EzEntityGridInner<T>(
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     initialColumnVisibility ?? {}
   );
+  const [columnOrderState, setColumnOrderState] = useState<string[]>(() => columnOrder ?? []);
+  useEffect(() => {
+    if (columnOrder) {
+      setColumnOrderState(columnOrder);
+    }
+  }, [columnOrder]);
+
+  const [draggedColId, setDraggedColId] = useState<string | null>(null);
+  const [dragOverColId, setDragOverColId] = useState<string | null>(null);
+
   const [localPinnedColumns, setLocalPinnedColumns] = useState<{ left: string[]; right: string[] }>({
     left: pinnedColumns?.left ?? [],
     right: pinnedColumns?.right ?? [],
@@ -1266,6 +1292,7 @@ function EzEntityGridInner<T>(
       expanded,
       columnFilters,
       columnVisibility,
+      columnOrder: columnOrderState.length > 0 ? columnOrderState : undefined,
     },
     enableRowSelection: selectable,
     enableGrouping: grouping.length > 0,
@@ -1274,6 +1301,11 @@ function EzEntityGridInner<T>(
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onColumnOrderChange: (updater) => {
+      const nextOrder = typeof updater === 'function' ? updater(columnOrderState) : updater;
+      setColumnOrderState(nextOrder);
+      onColumnOrderChange?.(nextOrder);
+    },
     onPaginationChange: setPagination,
     onExpandedChange: setExpanded,
     filterFns: {
@@ -1290,6 +1322,48 @@ function EzEntityGridInner<T>(
     getPaginationRowModel: getPaginationRowModel(),
     paginateExpandedRows: false,
   });
+
+  const handleDragStart = (e: React.DragEvent, colId: string) => {
+    setDraggedColId(colId);
+    e.dataTransfer.setData('text/plain', colId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, colId: string) => {
+    if (enableColumnReorder && colId !== '__rowNumber__' && colId !== 'select') {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (dragOverColId !== colId) {
+        setDragOverColId(colId);
+      }
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, targetColId: string) => {
+    e.preventDefault();
+    setDragOverColId(null);
+    const sourceColId = e.dataTransfer.getData('text/plain') || draggedColId;
+    setDraggedColId(null);
+    if (!sourceColId || sourceColId === targetColId) return;
+    if (targetColId === '__rowNumber__' || targetColId === 'select') return;
+
+    const currentOrder = table.getAllLeafColumns().map((c) => c.id);
+    const sourceIndex = currentOrder.indexOf(sourceColId);
+    const targetIndex = currentOrder.indexOf(targetColId);
+    if (sourceIndex === -1 || targetIndex === -1) return;
+
+    const nextOrder = [...currentOrder];
+    nextOrder.splice(sourceIndex, 1);
+    nextOrder.splice(targetIndex, 0, sourceColId);
+
+    setColumnOrderState(nextOrder);
+    onColumnOrderChange?.(nextOrder);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedColId(null);
+    setDragOverColId(null);
+  };
 
   const filterButtonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const columnMenuButtonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
@@ -1599,18 +1673,30 @@ function EzEntityGridInner<T>(
                   header.column.id !== 'select' &&
                   header.column.getCanFilter();
                 const isFiltered = header.column.getIsFiltered();
+                const isSpecialCol = header.column.id === '__rowNumber__' || header.column.id === 'select';
+                const isDraggable = enableColumnReorder && !isSpecialCol;
 
                 return (
                   <th
                     key={header.id}
                     ref={registerHeaderCellRef(header.column.id)}
                     data-pinned={pinned || undefined}
+                    draggable={isDraggable}
+                    onDragStart={isDraggable ? (e) => handleDragStart(e, header.column.id) : undefined}
+                    onDragOver={isDraggable ? (e) => handleDragOver(e, header.column.id) : undefined}
+                    onDrop={isDraggable ? (e) => handleDrop(e, header.column.id) : undefined}
+                    onDragEnd={isDraggable ? handleDragEnd : undefined}
+                    data-dragged={draggedColId === header.column.id ? 'true' : undefined}
+                    data-dragover={dragOverColId === header.column.id ? 'true' : undefined}
                     style={pinnedStyle(header.column.id, pinned)}
                     className={cn(
-                      'relative px-4 text-[13px] font-semibold text-gray-700 select-none bg-gray-80',
+                      'relative px-4 text-[13px] font-semibold text-gray-700 select-none bg-gray-80 transition-colors',
                       currentDensity === 'compact' ? 'py-1.5' : 'py-3',
                       !isLast && 'border-r border-gray-100',
                       canSort && 'cursor-pointer',
+                      isDraggable && 'cursor-grab active:cursor-grabbing',
+                      dragOverColId === header.column.id && 'border-l-2 border-l-brand-600 bg-brand-50/50',
+                      draggedColId === header.column.id && 'opacity-40',
                       pinned && 'sticky z-10',
                       pinned === 'left' && 'shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
                       pinned === 'right' && 'shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.15)]'

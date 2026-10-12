@@ -784,6 +784,23 @@ describe('EzEntityGrid Sankhya JS AG Grid parity features', () => {
 
     expect(screen.getByTestId('ez-grid-column-config-modal')).toBeInTheDocument();
   });
+
+  it('supports custom columnOrder and drag-and-drop reordering (Sankhya AG Grid parity)', () => {
+    const onColumnOrderChange = vi.fn();
+    render(
+      <EzEntityGrid
+        columns={columns}
+        data={data}
+        columnOrder={['priority', 'title', 'id']}
+        onColumnOrderChange={onColumnOrderChange}
+      />
+    );
+
+    const headers = screen.getAllByRole('columnheader');
+    expect(headers[0]).toHaveTextContent('Prioridade');
+    expect(headers[1]).toHaveTextContent('Título');
+    expect(headers[2]).toHaveTextContent('ID');
+  });
 });
 
 

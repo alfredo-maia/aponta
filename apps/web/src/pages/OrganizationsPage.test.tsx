@@ -140,8 +140,7 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     expect(within(rowB).getByText('Empresa B')).toBeInTheDocument();
     expect(within(rowB).getByText('0')).toBeInTheDocument();
 
-    expect(screen.getByTitle(/modo lista/i)).toBeInTheDocument();
-    expect(screen.getByTitle(/modo formulário/i)).toBeInTheDocument();
+    expect(screen.getByTestId('ez-toolbar-mode-toggle-button')).toBeInTheDocument();
   });
 
   it('switches to the full-page form via "Novo Cliente" and validates it', async () => {
@@ -527,7 +526,23 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     });
   });
 
-  it('groups organizations by status (Ativo/Inativo) when "Agrupar por status" is toggled on', async () => {
+  it('supports inline editing of cells and Cadastrar por CNPJ via toolbar actions (Sankhya parity)', async () => {
+    vi.mocked(api.patch).mockResolvedValue({ data: { id: 'org-1', active: false } });
+    vi.mocked(api.get).mockImplementation((url: string, config?: any) => {
+      if (url === '/organizations') return Promise.resolve({ data: orgs });
+      if (url === '/organizations/cnpj-lookup') {
+        return Promise.resolve({
+          data: {
+            cnpj: '19131243000197',
+            legalName: 'Parceiro CNPJ S/A',
+            tradeName: 'Parceiro CNPJ',
+            address: { zipCode: '01310100', street: 'Av Paulista', neighborhood: 'Bela Vista', city: 'SP', state: 'SP', complement: null },
+          },
+        });
+      }
+      return Promise.reject(new Error(`Unexpected GET ${url}`));
+    });
+
     loginAs('ADMIN');
     const user = userEvent.setup();
     renderPage();
@@ -536,24 +551,24 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
       expect(screen.getByText('Empresa A')).toBeInTheDocument();
     });
 
-    // Flat by default: no group header rows, both orgs visible as leaf rows.
-    expect(screen.queryByTestId('ez-entity-grid-group-row')).not.toBeInTheDocument();
+    // 1. Inline edit: toggle status directly from the grid cell
+    const statusButtons = screen.getAllByTitle(/alternar status/i);
+    expect(statusButtons.length).toBeGreaterThan(0);
+    await user.click(statusButtons[0]);
+    expect(api.patch).toHaveBeenCalledWith('/organizations/org-1', { active: false });
 
-    await user.click(screen.getByLabelText(/agrupar por status/i));
+    // 2. Toolbar action: Cadastrar por CNPJ
+    await user.click(screen.getByTestId('ez-toolbar-actions-button'));
+    await user.click(screen.getByRole('menuitem', { name: /cadastrar por cnpj/i }));
 
-    const groupRows = await screen.findAllByTestId('ez-entity-grid-group-row');
-    expect(groupRows).toHaveLength(1); // both orgs are active -> single "Ativo" group
-    expect(groupRows[0]).toHaveTextContent('Ativo');
-    expect(screen.queryByText('Empresa A')).not.toBeInTheDocument();
+    expect(screen.getByText('Cadastrar Parceiro por CNPJ')).toBeInTheDocument();
+    await user.type(screen.getByLabelText(/cnpj/i), '19131243000197');
+    await user.click(screen.getByRole('button', { name: /consultar e abrir cadastro/i }));
 
-    await user.click(groupRows[0]);
-    expect(screen.getByText('Empresa A')).toBeInTheDocument();
-    expect(screen.getByText('Empresa B')).toBeInTheDocument();
-
-    // Toggling off returns to the flat view.
-    await user.click(screen.getByLabelText(/agrupar por status/i));
-    expect(screen.queryByTestId('ez-entity-grid-group-row')).not.toBeInTheDocument();
-    expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Nova Empresa')).toBeInTheDocument();
+      expect(screen.getByLabelText(/razão social/i)).toHaveValue('Parceiro CNPJ S/A');
+    });
   });
 
   it('renders Sankhya standard entity toolbar, filter drawer, and screen config modal (br.com.sankhya.core.cad.parceiros parity)', async () => {

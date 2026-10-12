@@ -62,6 +62,10 @@ export interface EzEntityToolbarProps extends Omit<HTMLAttributes<HTMLDivElement
   onOpenAttachments?: () => void;
   /** Count of attachments to show as badge. */
   attachmentCount?: number;
+  /** Custom aria-label for insert button. @default 'Incluir' */
+  insertAriaLabel?: string;
+  /** Custom tooltip for insert button. @default 'Incluir (Novo registro)' */
+  insertTooltip?: string;
   /** Custom actions shown inside the "Ações" menu. */
   actions?: EzEntityToolbarAction[];
   /** Record count label shown on the far right (e.g. "1 - 10 de 25"). */
@@ -82,6 +86,8 @@ export const EzEntityToolbar = forwardRef<HTMLDivElement, EzEntityToolbarProps>(
       isFilterOpen = false,
       onToggleFilter,
       onInsert,
+      insertAriaLabel,
+      insertTooltip,
       onPrevious,
       hasPrevious = false,
       onNext,
@@ -283,8 +289,8 @@ export const EzEntityToolbar = forwardRef<HTMLDivElement, EzEntityToolbarProps>(
             <button
               type="button"
               data-testid="ez-toolbar-insert-button"
-              aria-label="Incluir"
-              title="Incluir (Novo registro)"
+              aria-label={insertAriaLabel ?? 'Incluir'}
+              title={insertTooltip ?? 'Incluir (Novo registro)'}
               onClick={onInsert}
               className="inline-flex items-center justify-center h-[32px] w-[32px] rounded-[6px] text-gray-600 hover:text-brand-600 hover:bg-brand-50 border border-gray-200 transition-colors cursor-pointer"
             >
