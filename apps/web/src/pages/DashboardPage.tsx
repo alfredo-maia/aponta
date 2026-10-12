@@ -420,260 +420,280 @@ export function DashboardPage() {
       {data && (
         <>
           {/* TAB: TICKETS */}
+          {/*
+            TiFlux does not sync row heights across the two columns — each
+            column fills independently top-to-bottom (masonry-style), so a
+            short KPI card never gets stretched to match a tall chart card
+            next to it. We replicate that with two flex-col columns inside a
+            flex-row wrapper instead of a CSS grid (grid auto-placement syncs
+            row heights, which is what was causing the dead-space gaps).
+            Left column hugs together the short KPI-row cards; right column
+            anchors the two tall chart cards — matching TiFlux's own
+            grouping of "Resumo de tickets"/stat cards vs. "Minhas horas
+            apontadas"/"Tickets em andamento" observed in the reference
+            screenshots.
+          */}
           {activeTab === 'tickets' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <TiFluxCard title="Resumo de tickets">
-                <KpiRow
-                  items={[
-                    {
-                      label: 'Todos',
-                      value: data.ticketSummary?.total ?? data.openCount + data.closedCount,
-                      icon: <Ticket className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-teal-600',
-                      to: '/tickets',
-                    },
-                    {
-                      label: 'Meus',
-                      value: data.ticketSummary?.mine ?? 0,
-                      icon: <UserCheck className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-teal-600',
-                      to: '/tickets?mine=true',
-                    },
-                    {
-                      label: 'Não atendidos',
-                      value: data.ticketSummary?.unattended ?? 0,
-                      icon: <MessageSquareDot className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-blue-600',
-                      to: '/tickets?unassigned=true',
-                    },
-                    {
-                      label: 'Em andamento',
-                      value: data.ticketSummary?.inProgress ?? data.byStatus?.IN_PROGRESS ?? 0,
-                      icon: <Activity className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-green-600',
-                      to: '/tickets?status=IN_PROGRESS',
-                    },
-                    {
-                      label: 'Pausados',
-                      value: data.ticketSummary?.paused ?? 0,
-                      icon: <PauseCircle className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-amber-500',
-                      to: '/tickets?paused=true',
-                    },
-                    {
-                      label: 'Vencidos',
-                      value: data.ticketSummary?.overdue ?? data.slaBreachedCount,
-                      icon: <AlertTriangle className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-red-600',
-                      to: '/tickets?overdue=true',
-                    },
-                  ]}
-                />
-              </TiFluxCard>
+            <div className="flex flex-col gap-5">
+              <div className="flex flex-col lg:flex-row gap-5">
+                <div className="flex flex-col gap-5 lg:flex-1 min-w-0">
+                  <TiFluxCard title="Resumo de tickets">
+                    <KpiRow
+                      items={[
+                        {
+                          label: 'Todos',
+                          value: data.ticketSummary?.total ?? data.openCount + data.closedCount,
+                          icon: <Ticket className="w-[18px] h-[18px]" />,
+                          colorClass: 'text-teal-600',
+                          to: '/tickets',
+                        },
+                        {
+                          label: 'Meus',
+                          value: data.ticketSummary?.mine ?? 0,
+                          icon: <UserCheck className="w-[18px] h-[18px]" />,
+                          colorClass: 'text-teal-600',
+                          to: '/tickets?mine=true',
+                        },
+                        {
+                          label: 'Não atendidos',
+                          value: data.ticketSummary?.unattended ?? 0,
+                          icon: <MessageSquareDot className="w-[18px] h-[18px]" />,
+                          colorClass: 'text-blue-600',
+                          to: '/tickets?unassigned=true',
+                        },
+                        {
+                          label: 'Em andamento',
+                          value: data.ticketSummary?.inProgress ?? data.byStatus?.IN_PROGRESS ?? 0,
+                          icon: <Activity className="w-[18px] h-[18px]" />,
+                          colorClass: 'text-green-600',
+                          to: '/tickets?status=IN_PROGRESS',
+                        },
+                        {
+                          label: 'Pausados',
+                          value: data.ticketSummary?.paused ?? 0,
+                          icon: <PauseCircle className="w-[18px] h-[18px]" />,
+                          colorClass: 'text-amber-500',
+                          to: '/tickets?paused=true',
+                        },
+                        {
+                          label: 'Vencidos',
+                          value: data.ticketSummary?.overdue ?? data.slaBreachedCount,
+                          icon: <AlertTriangle className="w-[18px] h-[18px]" />,
+                          colorClass: 'text-red-600',
+                          to: '/tickets?overdue=true',
+                        },
+                      ]}
+                    />
+                  </TiFluxCard>
 
-              <TiFluxCard
-                title="Minhas horas apontadas"
-                className="lg:row-span-2"
-                bodyClassName="p-5 flex flex-col"
-              >
-                <div className="flex items-center gap-10 mb-5">
-                  <div>
-                    <span className="text-[12px] text-gray-500 font-medium block mb-1">Ontem</span>
-                    <span className="flex items-center gap-1.5 text-[19px] font-bold text-teal-600">
-                      <UserCheck className="w-[18px] h-[18px]" />
-                      {formatHoursAsClock(yesterdayHours)}
-                    </span>
+                  <TiFluxCard title="Vencimento de atendimento">
+                    <KpiRow
+                      items={[
+                        {
+                          label: 'Todos',
+                          value: data.responseDeadlines?.total ?? 0,
+                          icon: <Timer className="w-[18px] h-[18px]" />,
+                          colorClass: 'text-gray-600',
+                        },
+                        {
+                          label: 'Hoje',
+                          value: data.responseDeadlines?.today ?? 0,
+                          icon: <AlertTriangle className="w-[18px] h-[18px]" />,
+                          colorClass: 'text-amber-500',
+                        },
+                        {
+                          label: 'Amanhã',
+                          value: data.responseDeadlines?.tomorrow ?? 0,
+                          icon: <AlertTriangle className="w-[18px] h-[18px]" />,
+                          colorClass: 'text-indigo-500',
+                        },
+                        {
+                          label: 'Depois',
+                          value: data.responseDeadlines?.later ?? 0,
+                          icon: <AlertTriangle className="w-[18px] h-[18px]" />,
+                          colorClass: 'text-emerald-500',
+                        },
+                      ]}
+                    />
+                  </TiFluxCard>
+
+                  <TiFluxCard title="Vencimento de solução">
+                    <KpiRow
+                      items={[
+                        {
+                          label: 'Todos',
+                          value: data.solutionDeadlines?.total ?? 0,
+                          icon: <Timer className="w-[18px] h-[18px]" />,
+                          colorClass: 'text-gray-600',
+                        },
+                        {
+                          label: 'Hoje',
+                          value: data.solutionDeadlines?.today ?? 0,
+                          icon: <AlertTriangle className="w-[18px] h-[18px]" />,
+                          colorClass: 'text-amber-500',
+                        },
+                        {
+                          label: 'Amanhã',
+                          value: data.solutionDeadlines?.tomorrow ?? 0,
+                          icon: <AlertTriangle className="w-[18px] h-[18px]" />,
+                          colorClass: 'text-indigo-500',
+                        },
+                        {
+                          label: 'Depois',
+                          value: data.solutionDeadlines?.later ?? 0,
+                          icon: <AlertTriangle className="w-[18px] h-[18px]" />,
+                          colorClass: 'text-emerald-500',
+                        },
+                      ]}
+                    />
+                  </TiFluxCard>
+
+                  <TiFluxCard title="Tickets sem respostas">
+                    <KpiRow
+                      items={[
+                        {
+                          label: 'Todos',
+                          value: data.unansweredTickets?.total ?? 0,
+                          icon: <MessageSquareDot className="w-[18px] h-[18px]" />,
+                          colorClass: 'text-teal-600',
+                        },
+                        {
+                          label: 'Meus',
+                          value: data.unansweredTickets?.mine ?? 0,
+                          icon: <UserCircle2 className="w-[18px] h-[18px]" />,
+                          colorClass: 'text-amber-500',
+                        },
+                      ]}
+                    />
+                  </TiFluxCard>
+
+                  {/* TiFlux pairs these two small rating cards side-by-side
+                      instead of stacking them — same idea applied here so
+                      the column keeps hugging tightly instead of doubling
+                      the vertical space for two one-line cards. */}
+                  <div className="flex flex-col sm:flex-row gap-5">
+                    <TiFluxCard title="Avaliação geral de tickets (30 dias)" className="sm:flex-1 min-w-0">
+                      {!data.csatGeneral30d || data.csatGeneral30d.count === 0 ? (
+                        <EmptyState />
+                      ) : (
+                        <div>
+                          <div className="flex items-baseline gap-2 mb-2">
+                            <span className="text-[30px] font-black text-gray-900 leading-none">
+                              {data.csatGeneral30d.avg?.toFixed(1) ?? '—'}
+                            </span>
+                            <span className="text-amber-400 text-sm">
+                              <Star className="w-4 h-4 inline fill-amber-400" />
+                            </span>
+                          </div>
+                          <p className="text-[12px] text-gray-500">
+                            {data.csatGeneral30d.count} avaliações · {data.csatGeneral30d.satisfactionRate ?? 0}% satisfeitos
+                          </p>
+                        </div>
+                      )}
+                    </TiFluxCard>
+
+                    <TiFluxCard title="Avaliação dos meus tickets (30 dias)" className="sm:flex-1 min-w-0">
+                      {!data.csatMine30d || data.csatMine30d.count === 0 ? (
+                        <EmptyState />
+                      ) : (
+                        <div>
+                          <div className="flex items-baseline gap-2 mb-2">
+                            <span className="text-[30px] font-black text-gray-900 leading-none">
+                              {data.csatMine30d.avg?.toFixed(1) ?? '—'}
+                            </span>
+                            <span className="text-amber-400 text-sm">
+                              <Star className="w-4 h-4 inline fill-amber-400" />
+                            </span>
+                          </div>
+                          <p className="text-[12px] text-gray-500">
+                            {data.csatMine30d.count} avaliações · {data.csatMine30d.satisfactionRate ?? 0}% satisfeitos
+                          </p>
+                        </div>
+                      )}
+                    </TiFluxCard>
                   </div>
-                  <div>
-                    <span className="text-[12px] text-gray-500 font-medium block mb-1">Hoje</span>
-                    <span className="flex items-center gap-1.5 text-[19px] font-bold text-amber-500">
-                      <Clock className="w-[18px] h-[18px]" />
-                      {formatHoursAsClock(todayHours)}
-                    </span>
-                  </div>
-                  <div className="ml-auto flex items-center gap-3 text-[11px] text-gray-500">
-                    <span>
-                      Apontadas <strong className="text-gray-700">{hoursLoggedTotal}H</strong>
-                    </span>
-                    <span>
-                      Faltantes <strong className="text-gray-700">{hoursRemainingTotal}H</strong>
-                    </span>
-                    <span>
-                      Meta <strong className="text-gray-700">{hoursTargetTotal}H</strong>
-                    </span>
-                  </div>
+
+                  <TiFluxCard title="Últimas notificações">
+                    {!data.recentNotifications || data.recentNotifications.length === 0 ? (
+                      <EmptyState />
+                    ) : (
+                      <div className="space-y-2.5 max-h-48 overflow-y-auto no-scrollbar">
+                        {data.recentNotifications.map((notif) => (
+                          <div key={notif.id} className="flex items-start gap-2.5 text-xs py-1.5">
+                            <Bell className="w-3.5 h-3.5 text-gray-400 mt-0.5 shrink-0" />
+                            <div className="min-w-0">
+                              <span className="font-mono text-brand-700 font-bold mr-1.5 text-[11px]">{notif.protocol}</span>
+                              <span className="text-gray-700">{notif.title}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </TiFluxCard>
                 </div>
 
-                {weekDays.length === 0 ? (
-                  <EmptyState />
-                ) : (
-                  <LineChart
-                    series={[{ name: 'Horas apontadas', color: '#008561', values: weekDays.map((d) => d.loggedHours) }]}
-                    xLabels={weekDays.map((d) => formatDateLabel(d.date))}
-                  />
-                )}
-              </TiFluxCard>
-
-              <TiFluxCard
-                title="Tickets em andamento"
-                className="lg:col-span-1"
-                tabs={
-                  <EzTabs
-                    tabs={[
-                      { id: 'byAssignee', label: 'Por responsável' },
-                      { id: 'byServiceDesk', label: 'Por mesa' },
-                      { id: 'byOrganization', label: 'Por cliente' },
-                      { id: 'byResource', label: 'Por tipo de recurso' },
-                    ]}
-                    activeTab={pieGrouping}
-                    onChange={(val) => setPieGrouping(val as PieGrouping)}
-                    variant="line"
-                  />
-                }
-              >
-                <TicketsPieChart data={pieData} />
-              </TiFluxCard>
-
-              <TiFluxCard title="Vencimento de atendimento">
-                <KpiRow
-                  items={[
-                    {
-                      label: 'Todos',
-                      value: data.responseDeadlines?.total ?? 0,
-                      icon: <Timer className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-gray-600',
-                    },
-                    {
-                      label: 'Hoje',
-                      value: data.responseDeadlines?.today ?? 0,
-                      icon: <AlertTriangle className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-amber-500',
-                    },
-                    {
-                      label: 'Amanhã',
-                      value: data.responseDeadlines?.tomorrow ?? 0,
-                      icon: <AlertTriangle className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-indigo-500',
-                    },
-                    {
-                      label: 'Depois',
-                      value: data.responseDeadlines?.later ?? 0,
-                      icon: <AlertTriangle className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-emerald-500',
-                    },
-                  ]}
-                />
-              </TiFluxCard>
-
-              <TiFluxCard title="Vencimento de solução">
-                <KpiRow
-                  items={[
-                    {
-                      label: 'Todos',
-                      value: data.solutionDeadlines?.total ?? 0,
-                      icon: <Timer className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-gray-600',
-                    },
-                    {
-                      label: 'Hoje',
-                      value: data.solutionDeadlines?.today ?? 0,
-                      icon: <AlertTriangle className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-amber-500',
-                    },
-                    {
-                      label: 'Amanhã',
-                      value: data.solutionDeadlines?.tomorrow ?? 0,
-                      icon: <AlertTriangle className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-indigo-500',
-                    },
-                    {
-                      label: 'Depois',
-                      value: data.solutionDeadlines?.later ?? 0,
-                      icon: <AlertTriangle className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-emerald-500',
-                    },
-                  ]}
-                />
-              </TiFluxCard>
-
-              <TiFluxCard title="Tickets sem respostas">
-                <KpiRow
-                  items={[
-                    {
-                      label: 'Todos',
-                      value: data.unansweredTickets?.total ?? 0,
-                      icon: <MessageSquareDot className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-teal-600',
-                    },
-                    {
-                      label: 'Meus',
-                      value: data.unansweredTickets?.mine ?? 0,
-                      icon: <UserCircle2 className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-amber-500',
-                    },
-                  ]}
-                />
-              </TiFluxCard>
-
-              <TiFluxCard title="Avaliação geral de tickets (30 dias)">
-                {!data.csatGeneral30d || data.csatGeneral30d.count === 0 ? (
-                  <EmptyState />
-                ) : (
-                  <div>
-                    <div className="flex items-baseline gap-2 mb-2">
-                      <span className="text-[30px] font-black text-gray-900 leading-none">
-                        {data.csatGeneral30d.avg?.toFixed(1) ?? '—'}
-                      </span>
-                      <span className="text-amber-400 text-sm">
-                        <Star className="w-4 h-4 inline fill-amber-400" />
-                      </span>
-                    </div>
-                    <p className="text-[12px] text-gray-500">
-                      {data.csatGeneral30d.count} avaliações · {data.csatGeneral30d.satisfactionRate ?? 0}% satisfeitos
-                    </p>
-                  </div>
-                )}
-              </TiFluxCard>
-
-              <TiFluxCard title="Avaliação dos meus tickets (30 dias)">
-                {!data.csatMine30d || data.csatMine30d.count === 0 ? (
-                  <EmptyState />
-                ) : (
-                  <div>
-                    <div className="flex items-baseline gap-2 mb-2">
-                      <span className="text-[30px] font-black text-gray-900 leading-none">
-                        {data.csatMine30d.avg?.toFixed(1) ?? '—'}
-                      </span>
-                      <span className="text-amber-400 text-sm">
-                        <Star className="w-4 h-4 inline fill-amber-400" />
-                      </span>
-                    </div>
-                    <p className="text-[12px] text-gray-500">
-                      {data.csatMine30d.count} avaliações · {data.csatMine30d.satisfactionRate ?? 0}% satisfeitos
-                    </p>
-                  </div>
-                )}
-              </TiFluxCard>
-
-              <TiFluxCard title="Últimas notificações">
-                {!data.recentNotifications || data.recentNotifications.length === 0 ? (
-                  <EmptyState />
-                ) : (
-                  <div className="space-y-2.5 max-h-48 overflow-y-auto no-scrollbar">
-                    {data.recentNotifications.map((notif) => (
-                      <div key={notif.id} className="flex items-start gap-2.5 text-xs py-1.5">
-                        <Bell className="w-3.5 h-3.5 text-gray-400 mt-0.5 shrink-0" />
-                        <div className="min-w-0">
-                          <span className="font-mono text-brand-700 font-bold mr-1.5 text-[11px]">{notif.protocol}</span>
-                          <span className="text-gray-700">{notif.title}</span>
-                        </div>
+                <div className="flex flex-col gap-5 lg:flex-1 min-w-0">
+                  <TiFluxCard title="Minhas horas apontadas" bodyClassName="p-5 flex flex-col">
+                    <div className="flex items-center gap-10 mb-5">
+                      <div>
+                        <span className="text-[12px] text-gray-500 font-medium block mb-1">Ontem</span>
+                        <span className="flex items-center gap-1.5 text-[19px] font-bold text-teal-600">
+                          <UserCheck className="w-[18px] h-[18px]" />
+                          {formatHoursAsClock(yesterdayHours)}
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </TiFluxCard>
+                      <div>
+                        <span className="text-[12px] text-gray-500 font-medium block mb-1">Hoje</span>
+                        <span className="flex items-center gap-1.5 text-[19px] font-bold text-amber-500">
+                          <Clock className="w-[18px] h-[18px]" />
+                          {formatHoursAsClock(todayHours)}
+                        </span>
+                      </div>
+                      <div className="ml-auto flex items-center gap-3 text-[11px] text-gray-500">
+                        <span>
+                          Apontadas <strong className="text-gray-700">{hoursLoggedTotal}H</strong>
+                        </span>
+                        <span>
+                          Faltantes <strong className="text-gray-700">{hoursRemainingTotal}H</strong>
+                        </span>
+                        <span>
+                          Meta <strong className="text-gray-700">{hoursTargetTotal}H</strong>
+                        </span>
+                      </div>
+                    </div>
 
-              <TiFluxCard title="Chamados abertos por status" className="lg:col-span-2">
+                    {weekDays.length === 0 ? (
+                      <EmptyState />
+                    ) : (
+                      <LineChart
+                        series={[{ name: 'Horas apontadas', color: '#008561', values: weekDays.map((d) => d.loggedHours) }]}
+                        xLabels={weekDays.map((d) => formatDateLabel(d.date))}
+                      />
+                    )}
+                  </TiFluxCard>
+
+                  <TiFluxCard
+                    title="Tickets em andamento"
+                    tabs={
+                      <EzTabs
+                        tabs={[
+                          { id: 'byAssignee', label: 'Por responsável' },
+                          { id: 'byServiceDesk', label: 'Por mesa' },
+                          { id: 'byOrganization', label: 'Por cliente' },
+                          { id: 'byResource', label: 'Por tipo de recurso' },
+                        ]}
+                        activeTab={pieGrouping}
+                        onChange={(val) => setPieGrouping(val as PieGrouping)}
+                        variant="line"
+                      />
+                    }
+                  >
+                    <TicketsPieChart data={pieData} />
+                  </TiFluxCard>
+                </div>
+              </div>
+
+              <TiFluxCard title="Chamados abertos por status">
                 {Object.keys(data.byStatus).length === 0 ? (
                   <EmptyState label="Nenhum chamado aberto no momento." />
                 ) : (
@@ -693,8 +713,8 @@ export function DashboardPage() {
           {/* TAB: CHATS */}
           {activeTab === 'chats' && (
             <div className="space-y-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <TiFluxCard title="Meus chats">
+              <div className="flex flex-col md:flex-row gap-5">
+                <TiFluxCard title="Meus chats" className="md:flex-1 min-w-0">
                   <KpiRow
                     items={[
                       {
@@ -725,7 +745,7 @@ export function DashboardPage() {
                   />
                 </TiFluxCard>
 
-                <TiFluxCard title="Todos os chats">
+                <TiFluxCard title="Todos os chats" className="md:flex-1 min-w-0">
                   <KpiRow
                     items={[
                       {
@@ -844,167 +864,183 @@ export function DashboardPage() {
           )}
 
           {/* TAB: RECURSO */}
+          {/* Two independent columns, same reasoning as the Tickets tab:
+              each "Meus"/"Todos" pair hugs its own rating card below it
+              instead of both columns being stretched to a shared row
+              height. */}
           {activeTab === 'recurso' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <TiFluxCard title="Meus compromissos">
-                <KpiRow
-                  items={[
-                    {
-                      label: 'Todos',
-                      value: data.myAppointments?.total ?? 0,
-                      icon: <Calendar className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-gray-600',
-                    },
-                    {
-                      label: 'Hoje',
-                      value: data.myAppointments?.today ?? 0,
-                      icon: <Calendar className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-amber-500',
-                    },
-                    {
-                      label: 'Semana',
-                      value: data.myAppointments?.week ?? 0,
-                      icon: <Calendar className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-indigo-500',
-                    },
-                    {
-                      label: 'Mês',
-                      value: data.myAppointments?.month ?? 0,
-                      icon: <Calendar className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-teal-600',
-                    },
-                  ]}
-                />
-              </TiFluxCard>
+            <div className="flex flex-col md:flex-row gap-5">
+              <div className="flex flex-col gap-5 md:flex-1 min-w-0">
+                <TiFluxCard title="Meus compromissos">
+                  <KpiRow
+                    items={[
+                      {
+                        label: 'Todos',
+                        value: data.myAppointments?.total ?? 0,
+                        icon: <Calendar className="w-[18px] h-[18px]" />,
+                        colorClass: 'text-gray-600',
+                      },
+                      {
+                        label: 'Hoje',
+                        value: data.myAppointments?.today ?? 0,
+                        icon: <Calendar className="w-[18px] h-[18px]" />,
+                        colorClass: 'text-amber-500',
+                      },
+                      {
+                        label: 'Semana',
+                        value: data.myAppointments?.week ?? 0,
+                        icon: <Calendar className="w-[18px] h-[18px]" />,
+                        colorClass: 'text-indigo-500',
+                      },
+                      {
+                        label: 'Mês',
+                        value: data.myAppointments?.month ?? 0,
+                        icon: <Calendar className="w-[18px] h-[18px]" />,
+                        colorClass: 'text-teal-600',
+                      },
+                    ]}
+                  />
+                </TiFluxCard>
 
-              <TiFluxCard title="Todos os compromissos">
-                <KpiRow
-                  items={[
-                    {
-                      label: 'Todos',
-                      value: data.allAppointments?.total ?? 0,
-                      icon: <Briefcase className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-gray-600',
-                    },
-                    {
-                      label: 'Hoje',
-                      value: data.allAppointments?.today ?? 0,
-                      icon: <Briefcase className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-amber-500',
-                    },
-                    {
-                      label: 'Semana',
-                      value: data.allAppointments?.week ?? 0,
-                      icon: <Briefcase className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-indigo-500',
-                    },
-                    {
-                      label: 'Mês',
-                      value: data.allAppointments?.month ?? 0,
-                      icon: <Briefcase className="w-[18px] h-[18px]" />,
-                      colorClass: 'text-teal-600',
-                    },
-                  ]}
-                />
-              </TiFluxCard>
+                <TiFluxCard title="Avaliação geral de tickets (30 dias)">
+                  {!data.csatGeneral30d || data.csatGeneral30d.count === 0 ? (
+                    <EmptyState />
+                  ) : (
+                    <p className="text-[13px] text-gray-600">
+                      {data.csatGeneral30d.avg?.toFixed(1)} de média em {data.csatGeneral30d.count} avaliações.
+                    </p>
+                  )}
+                </TiFluxCard>
+              </div>
 
-              <TiFluxCard title="Avaliação geral de tickets (30 dias)">
-                {!data.csatGeneral30d || data.csatGeneral30d.count === 0 ? (
-                  <EmptyState />
-                ) : (
-                  <p className="text-[13px] text-gray-600">
-                    {data.csatGeneral30d.avg?.toFixed(1)} de média em {data.csatGeneral30d.count} avaliações.
-                  </p>
-                )}
-              </TiFluxCard>
+              <div className="flex flex-col gap-5 md:flex-1 min-w-0">
+                <TiFluxCard title="Todos os compromissos">
+                  <KpiRow
+                    items={[
+                      {
+                        label: 'Todos',
+                        value: data.allAppointments?.total ?? 0,
+                        icon: <Briefcase className="w-[18px] h-[18px]" />,
+                        colorClass: 'text-gray-600',
+                      },
+                      {
+                        label: 'Hoje',
+                        value: data.allAppointments?.today ?? 0,
+                        icon: <Briefcase className="w-[18px] h-[18px]" />,
+                        colorClass: 'text-amber-500',
+                      },
+                      {
+                        label: 'Semana',
+                        value: data.allAppointments?.week ?? 0,
+                        icon: <Briefcase className="w-[18px] h-[18px]" />,
+                        colorClass: 'text-indigo-500',
+                      },
+                      {
+                        label: 'Mês',
+                        value: data.allAppointments?.month ?? 0,
+                        icon: <Briefcase className="w-[18px] h-[18px]" />,
+                        colorClass: 'text-teal-600',
+                      },
+                    ]}
+                  />
+                </TiFluxCard>
 
-              <TiFluxCard title="Avaliação dos meus tickets (30 dias)">
-                {!data.csatMine30d || data.csatMine30d.count === 0 ? (
-                  <EmptyState />
-                ) : (
-                  <p className="text-[13px] text-gray-600">
-                    {data.csatMine30d.avg?.toFixed(1)} de média em {data.csatMine30d.count} avaliações.
-                  </p>
-                )}
-              </TiFluxCard>
+                <TiFluxCard title="Avaliação dos meus tickets (30 dias)">
+                  {!data.csatMine30d || data.csatMine30d.count === 0 ? (
+                    <EmptyState />
+                  ) : (
+                    <p className="text-[13px] text-gray-600">
+                      {data.csatMine30d.avg?.toFixed(1)} de média em {data.csatMine30d.count} avaliações.
+                    </p>
+                  )}
+                </TiFluxCard>
+              </div>
             </div>
           )}
 
           {/* TAB: HORAS */}
+          {/* Matches the live TiFlux "Horas" tab capture: left column hugs
+              the 30-day trend chart together with "Últimas notificações"
+              right below it, while "Minhas horas apontadas" anchors the
+              right column on its own, independent height. */}
           {activeTab === 'horas' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <TiFluxCard title="Minhas horas apontadas">
-                <div className="flex items-center gap-10 mb-5">
-                  <div>
-                    <span className="text-[12px] text-gray-500 font-medium block mb-1">Ontem</span>
-                    <span className="flex items-center gap-1.5 text-[19px] font-bold text-teal-600">
-                      <UserCheck className="w-[18px] h-[18px]" />
-                      {formatHoursAsClock(yesterdayHours)}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[12px] text-gray-500 font-medium block mb-1">Hoje</span>
-                    <span className="flex items-center gap-1.5 text-[19px] font-bold text-amber-500">
-                      <Clock className="w-[18px] h-[18px]" />
-                      {formatHoursAsClock(todayHours)}
-                    </span>
-                  </div>
-                </div>
+            <div className="flex flex-col lg:flex-row gap-5">
+              <div className="flex flex-col gap-5 lg:flex-1 min-w-0">
+                <TiFluxCard title="Tickets nos últimos 30 dias">
+                  {trend30d.length === 0 ? (
+                    <EmptyState />
+                  ) : (
+                    <LineChart
+                      series={[
+                        { name: 'Tickets criados', color: '#f59e0b', values: trend30d.map((d) => d.created) },
+                        { name: 'Tickets fechados', color: '#14b8a6', values: trend30d.map((d) => d.closed) },
+                        { name: 'Tickets cancelados', color: '#6366f1', values: trend30d.map((d) => d.cancelled) },
+                      ]}
+                      xLabels={trend30d.map((d) => formatDateLabel(d.date))}
+                    />
+                  )}
+                </TiFluxCard>
 
-                {weekDays.length === 0 ? (
-                  <EmptyState />
-                ) : (
-                  <LineChart
-                    series={[{ name: 'Horas apontadas', color: '#008561', values: weekDays.map((d) => d.loggedHours) }]}
-                    xLabels={weekDays.map((d) => formatDateLabel(d.date))}
-                  />
-                )}
-
-                <div className="mt-5 pt-4 border-t border-gray-100 flex items-center gap-6 text-[12px] text-gray-500">
-                  <span>
-                    Horas apontadas <strong className="text-gray-800">{hoursLoggedTotal}H</strong>
-                  </span>
-                  <span>
-                    Horas faltantes <strong className="text-gray-800">{hoursRemainingTotal}H</strong>
-                  </span>
-                  <span>
-                    Meta mensal <strong className="text-gray-800">{hoursTargetTotal}H</strong>
-                  </span>
-                </div>
-              </TiFluxCard>
-
-              <TiFluxCard title="Tickets nos últimos 30 dias">
-                {trend30d.length === 0 ? (
-                  <EmptyState />
-                ) : (
-                  <LineChart
-                    series={[
-                      { name: 'Tickets criados', color: '#f59e0b', values: trend30d.map((d) => d.created) },
-                      { name: 'Tickets fechados', color: '#14b8a6', values: trend30d.map((d) => d.closed) },
-                      { name: 'Tickets cancelados', color: '#6366f1', values: trend30d.map((d) => d.cancelled) },
-                    ]}
-                    xLabels={trend30d.map((d) => formatDateLabel(d.date))}
-                  />
-                )}
-              </TiFluxCard>
-
-              <TiFluxCard title="Últimas notificações" className="lg:col-span-2">
-                {!data.recentNotifications || data.recentNotifications.length === 0 ? (
-                  <EmptyState />
-                ) : (
-                  <div className="space-y-2.5 max-h-48 overflow-y-auto no-scrollbar">
-                    {data.recentNotifications.map((notif) => (
-                      <div key={notif.id} className="flex items-start gap-2.5 text-xs py-1.5">
-                        <Bell className="w-3.5 h-3.5 text-gray-400 mt-0.5 shrink-0" />
-                        <div className="min-w-0">
-                          <span className="font-mono text-brand-700 font-bold mr-1.5 text-[11px]">{notif.protocol}</span>
-                          <span className="text-gray-700">{notif.title}</span>
+                <TiFluxCard title="Últimas notificações">
+                  {!data.recentNotifications || data.recentNotifications.length === 0 ? (
+                    <EmptyState />
+                  ) : (
+                    <div className="space-y-2.5 max-h-48 overflow-y-auto no-scrollbar">
+                      {data.recentNotifications.map((notif) => (
+                        <div key={notif.id} className="flex items-start gap-2.5 text-xs py-1.5">
+                          <Bell className="w-3.5 h-3.5 text-gray-400 mt-0.5 shrink-0" />
+                          <div className="min-w-0">
+                            <span className="font-mono text-brand-700 font-bold mr-1.5 text-[11px]">{notif.protocol}</span>
+                            <span className="text-gray-700">{notif.title}</span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                  )}
+                </TiFluxCard>
+              </div>
+
+              <div className="flex flex-col gap-5 lg:flex-1 min-w-0">
+                <TiFluxCard title="Minhas horas apontadas">
+                  <div className="flex items-center gap-10 mb-5">
+                    <div>
+                      <span className="text-[12px] text-gray-500 font-medium block mb-1">Ontem</span>
+                      <span className="flex items-center gap-1.5 text-[19px] font-bold text-teal-600">
+                        <UserCheck className="w-[18px] h-[18px]" />
+                        {formatHoursAsClock(yesterdayHours)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[12px] text-gray-500 font-medium block mb-1">Hoje</span>
+                      <span className="flex items-center gap-1.5 text-[19px] font-bold text-amber-500">
+                        <Clock className="w-[18px] h-[18px]" />
+                        {formatHoursAsClock(todayHours)}
+                      </span>
+                    </div>
                   </div>
-                )}
-              </TiFluxCard>
+
+                  {weekDays.length === 0 ? (
+                    <EmptyState />
+                  ) : (
+                    <LineChart
+                      series={[{ name: 'Horas apontadas', color: '#008561', values: weekDays.map((d) => d.loggedHours) }]}
+                      xLabels={weekDays.map((d) => formatDateLabel(d.date))}
+                    />
+                  )}
+
+                  <div className="mt-5 pt-4 border-t border-gray-100 flex items-center gap-6 text-[12px] text-gray-500">
+                    <span>
+                      Horas apontadas <strong className="text-gray-800">{hoursLoggedTotal}H</strong>
+                    </span>
+                    <span>
+                      Horas faltantes <strong className="text-gray-800">{hoursRemainingTotal}H</strong>
+                    </span>
+                    <span>
+                      Meta mensal <strong className="text-gray-800">{hoursTargetTotal}H</strong>
+                    </span>
+                  </div>
+                </TiFluxCard>
+              </div>
             </div>
           )}
         </>
