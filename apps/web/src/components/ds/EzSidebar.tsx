@@ -13,8 +13,8 @@ export const EzSidebarNavigator = forwardRef<HTMLElement, EzSidebarNavigatorProp
       <nav
         ref={ref}
         className={cn(
-          'flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300',
-          collapsed ? 'w-[64px]' : 'w-[240px]',
+          'flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300 shrink-0',
+          collapsed ? 'w-[64px] min-w-[64px]' : 'w-[240px] min-w-[240px]',
           className
         )}
         {...props}
