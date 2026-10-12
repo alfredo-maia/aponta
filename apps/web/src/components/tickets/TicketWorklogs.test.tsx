@@ -53,10 +53,8 @@ function loginAs(role: 'ADMIN' | 'AGENT' | 'CLIENT', id = 'u-1') {
     token: 'fake-token',
     user: {
       sub: id,
-      id,
       email: 'user@aponta.com',
       role,
-      name: 'Usuário Teste',
     },
   });
 }

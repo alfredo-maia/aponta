@@ -40,6 +40,8 @@ Variáveis de ambiente (ver `.env.example`):
 - `create_ticket` — abre um novo ticket em nome do dono do token.
 - `change_ticket_status` — transiciona status (requer AGENT ou ADMIN).
 - `assign_ticket` — atribui ticket a um agente (requer AGENT ou ADMIN).
+- `create_worklog` — aponta horas trabalhadas em um ticket (requer AGENT ou ADMIN).
+- `list_worklogs` — lista apontamentos de horas de um ticket (requer AGENT ou ADMIN).
 
 ### Relatórios
 - `get_workload_report` — minutos apontados (Worklogs) agregados por agente.
