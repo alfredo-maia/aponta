@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Search, Trash2 } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
@@ -15,6 +15,10 @@ import {
   EzComboBox,
   EzEmptyCard,
   EzEntityGrid,
+  EzEntityToolbar,
+  EzEntityScreenConfigModal,
+  EzFilterDrawer,
+  EzTag,
   EzMultiSelect,
   EzPageHeader,
   EzPageLayout,
@@ -23,6 +27,7 @@ import {
   EzTextArea,
   EzTextInput,
 } from '../components/ds';
+import { useUserScreenConfig } from '../hooks/useUserScreenConfig';
 
 interface OrganizationAddress {
   id: string;
@@ -169,6 +174,41 @@ export function OrganizationsPage() {
   const [profileDraft, setProfileDraft] = useState<{ serviceType: string; healthStatus: string } | null>(null);
   const [linkDeskId, setLinkDeskId] = useState<string>('');
   const [newGroupMemberIds, setNewGroupMemberIds] = useState<(string | number)[]>([]);
+
+  // Sankhya Parity (br.com.sankhya.core.cad.parceiros): toolbar, drawer, personalização por usuário
+  const {
+    config: screenConfig,
+    setColumnVisibility,
+    setDensity,
+    setFormLayout,
+    restoreDefaults,
+  } = useUserScreenConfig('organizations', {
+    grid: {
+      columnVisibility: {
+        legalName: true,
+        document: true,
+        stateRegistration: false,
+        municipalRegistration: false,
+        workFolder: false,
+        serviceType: false,
+        healthStatus: false,
+      },
+      density: 'compact',
+    },
+    form: {
+      layout: 'CASCADE',
+    },
+    viewMode: 'GRID',
+  });
+
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  const [filterSearch, setFilterSearch] = useState('');
+  const [filterStatus, setFilterStatus] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
+  const [filterDocType, setFilterDocType] = useState<'ALL' | 'CNPJ' | 'CPF'>('ALL');
+  const [isScreenConfigModalOpen, setIsScreenConfigModalOpen] = useState(false);
+  const [screenConfigInitialTab, setScreenConfigInitialTab] = useState<'grid' | 'form'>('grid');
+  const [selectedOrgs, setSelectedOrgs] = useState<Organization[]>([]);
+  const [focusedIndex, setFocusedIndex] = useState(0);
 
   const { data: orgs, isLoading: isLoadingOrgs } = useQuery({
     queryKey: ['organizations'],
@@ -417,39 +457,183 @@ export function OrganizationsPage() {
 
   const userOptions = (usersList ?? []).map((u) => ({ label: `${u.name} (${u.email})`, value: u.id }));
 
-  const orgColumns: ColumnDef<Organization>[] = [
-    {
-      accessorKey: 'name',
-      header: 'Nome',
-      cell: ({ row }) => (
-        <button
-          type="button"
-          onClick={() => openDetail(row.original.id)}
-          className="text-left font-medium text-brand-700 hover:underline"
-        >
-          {row.original.name}
-        </button>
-      ),
-    },
-    {
-      id: 'status',
-      header: 'Status',
-      // accessorFn dá ao EzEntityGrid um valor textual real para agrupar (groupBy=['status']);
-      // sem isso a coluna seria apenas de exibição (sem accessor) e agruparia tudo em "undefined".
-      accessorFn: (org) => (org.active === false ? 'Inativo' : 'Ativo'),
-      cell: ({ row }) =>
-        row.original.active === false ? (
-          <span className="text-xs font-medium text-gray-500 bg-gray-90 px-2 py-0.5 rounded-full">
-            Inativo
-          </span>
-        ) : (
-          <span className="text-xs text-gray-500">Ativo</span>
+  const orgColumns = useMemo<ColumnDef<Organization>[]>(
+    () => [
+      {
+        accessorKey: 'name',
+        header: 'Nome',
+        cell: ({ row }) => (
+          <button
+            type="button"
+            onClick={() => openDetail(row.original.id)}
+            className="text-left font-medium text-brand-700 hover:underline cursor-pointer"
+          >
+            {row.original.name}
+          </button>
         ),
-    },
+      },
+      {
+        accessorKey: 'legalName',
+        header: 'Razão Social',
+        cell: ({ row }) => (
+          <span className="text-gray-900 text-xs">
+            {row.original.legalName || '—'}
+          </span>
+        ),
+      },
+      {
+        id: 'document',
+        header: 'CPF / CNPJ',
+        cell: ({ row }) => {
+          const doc = row.original.documentType === 'CPF' ? row.original.cpf : row.original.cnpj;
+          if (!doc) return <span className="text-gray-400 text-xs">—</span>;
+          return (
+            <span className="font-mono text-xs text-gray-700">
+              {row.original.documentType === 'CPF' ? doc : formatCnpj(doc)}
+            </span>
+          );
+        },
+      },
+      {
+        id: 'status',
+        header: 'Status',
+        // accessorFn dá ao EzEntityGrid um valor textual real para agrupar (groupBy=['status']);
+        accessorFn: (org) => (org.active === false ? 'Inativo' : 'Ativo'),
+        cell: ({ row }) =>
+          row.original.active === false ? (
+            <span className="text-xs font-medium text-gray-500 bg-gray-90 px-2 py-0.5 rounded-full">
+              Inativo
+            </span>
+          ) : (
+            <span className="text-xs text-gray-500">Ativo</span>
+          ),
+      },
+      {
+        id: 'clientes',
+        header: 'Clientes',
+        cell: ({ row }) => <span className="text-xs text-gray-500">{row.original._count?.users || 0}</span>,
+      },
+      {
+        accessorKey: 'stateRegistration',
+        header: 'Inscrição Estadual',
+        cell: ({ row }) => (
+          <span className="text-gray-600 text-xs">
+            {row.original.stateRegistration || '—'}
+          </span>
+        ),
+      },
+      {
+        accessorKey: 'municipalRegistration',
+        header: 'Inscrição Municipal',
+        cell: ({ row }) => (
+          <span className="text-gray-600 text-xs">
+            {row.original.municipalRegistration || '—'}
+          </span>
+        ),
+      },
+      {
+        accessorKey: 'workFolder',
+        header: 'Pasta de Trabalho',
+        cell: ({ row }) => (
+          <span className="text-gray-500 font-mono text-xs truncate max-w-xs block">
+            {row.original.workFolder || '—'}
+          </span>
+        ),
+      },
+      {
+        accessorKey: 'serviceType',
+        header: 'Perfil',
+        cell: ({ row }) => (
+          <span className="text-gray-600 text-xs">
+            {row.original.serviceType || '—'}
+          </span>
+        ),
+      },
+      {
+        accessorKey: 'healthStatus',
+        header: 'Saúde',
+        cell: ({ row }) => (
+          <span className="text-gray-600 text-xs">
+            {row.original.healthStatus || '—'}
+          </span>
+        ),
+      },
+    ],
+    []
+  );
+
+  const screenConfigColumns = useMemo(() => {
+    return orgColumns.map((c) => {
+      const colId = (c as any).accessorKey ?? c.id ?? '';
+      const label = typeof c.header === 'string' ? c.header : colId;
+      const isVisible = screenConfig.grid.columnVisibility[colId] !== false;
+      return { id: colId, label, isVisible };
+    });
+  }, [orgColumns, screenConfig.grid.columnVisibility]);
+
+  const filteredOrgs = useMemo(() => {
+    return (orgs ?? []).filter((org) => {
+      if (filterStatus === 'ACTIVE' && org.active === false) return false;
+      if (filterStatus === 'INACTIVE' && org.active !== false) return false;
+      if (filterDocType === 'CNPJ' && org.documentType === 'CPF') return false;
+      if (filterDocType === 'CPF' && org.documentType !== 'CPF') return false;
+      if (filterSearch.trim()) {
+        const query = filterSearch.toLowerCase().trim();
+        const matchesName = org.name.toLowerCase().includes(query);
+        const matchesLegal = org.legalName?.toLowerCase().includes(query);
+        const matchesCnpj = org.cnpj?.includes(query);
+        const matchesCpf = org.cpf?.includes(query);
+        if (!matchesName && !matchesLegal && !matchesCnpj && !matchesCpf) return false;
+      }
+      return true;
+    });
+  }, [orgs, filterStatus, filterDocType, filterSearch]);
+
+  const handlePrevious = () => {
+    if (focusedIndex > 0) {
+      setFocusedIndex((prev) => prev - 1);
+      setSelectedOrgs([filteredOrgs[focusedIndex - 1]]);
+    }
+  };
+
+  const handleNext = () => {
+    if (focusedIndex < filteredOrgs.length - 1) {
+      setFocusedIndex((prev) => prev + 1);
+      setSelectedOrgs([filteredOrgs[focusedIndex + 1]]);
+    }
+  };
+
+  const handleDelete = () => {
+    if (selectedOrgs.length === 0) return;
+    const confirmMsg = `Deseja inativar ${selectedOrgs.length} empresa(s) selecionada(s)?`;
+    if (window.confirm(confirmMsg)) {
+      selectedOrgs.forEach((o) => {
+        updateOrgMutation.mutate({ active: false });
+      });
+      setSelectedOrgs([]);
+    }
+  };
+
+  const handleClone = () => {
+    const active = selectedOrgs[0] ?? filteredOrgs[focusedIndex];
+    if (!active) return;
+    setValue('name', `${active.name} (Cópia)`);
+    setValue('legalName', active.legalName ?? '');
+    setValue('documentType', active.documentType ?? 'CNPJ');
+    setValue('workFolder', active.workFolder ?? '');
+    setDetailOrgId(null);
+    setMode('form');
+  };
+
+  const toolbarActions = [
     {
-      id: 'clientes',
-      header: 'Clientes',
-      cell: ({ row }) => <span className="text-xs text-gray-500">{row.original._count?.users || 0}</span>,
+      label: 'Consultar CNPJ na Receita',
+      onClick: () => {
+        const active = selectedOrgs[0] ?? filteredOrgs[focusedIndex];
+        if (active?.cnpj) {
+          cnpjLookupMutation.mutate(active.cnpj);
+        }
+      },
     },
   ];
 
@@ -477,37 +661,153 @@ export function OrganizationsPage() {
           isLoadingOrgs ? (
             <EzSpinner label="Carregando…" />
           ) : (
-            <EzCardItem flat className="overflow-hidden">
-              {orgs?.length === 0 ? (
-                <div className="p-4">
-                  <EzEmptyCard title="Nenhuma empresa cadastrada ainda." />
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-center justify-end gap-2 px-4 py-2 border-b border-gray-200">
-                    <EzCheck
-                      id="org-group-by-status"
-                      label="Agrupar por status"
-                      checked={groupByStatus}
-                      onChange={(e) => setGroupByStatus(e.target.checked)}
-                    />
+            <div className="bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs flex flex-col">
+              {/* Sankhya Standard Entity Toolbar */}
+              <EzEntityToolbar
+                viewMode="GRID"
+                onToggleViewMode={(nextMode) => {
+                  if (nextMode === 'FORM') {
+                    const active = selectedOrgs[0] ?? filteredOrgs[focusedIndex] ?? filteredOrgs[0];
+                    if (active) {
+                      openDetail(active.id);
+                    } else {
+                      reset();
+                      setDetailOrgId(null);
+                      setMode('form');
+                    }
+                  }
+                }}
+                isFilterOpen={isFilterPanelOpen}
+                onToggleFilter={() => setIsFilterPanelOpen((prev) => !prev)}
+                onInsert={() => {
+                  reset();
+                  setDetailOrgId(null);
+                  setMode('form');
+                }}
+                hasPrevious={focusedIndex > 0}
+                onPrevious={handlePrevious}
+                hasNext={focusedIndex < filteredOrgs.length - 1}
+                onNext={handleNext}
+                selectedCount={selectedOrgs.length}
+                onDelete={handleDelete}
+                onClone={handleClone}
+                onRefresh={() => void queryClient.invalidateQueries({ queryKey: ['organizations'] })}
+                onOpenGridConfig={() => {
+                  setScreenConfigInitialTab('grid');
+                  setIsScreenConfigModalOpen(true);
+                }}
+                onOpenFormConfig={() => {
+                  setScreenConfigInitialTab('form');
+                  setIsScreenConfigModalOpen(true);
+                }}
+                onOpenScreenConfig={() => {
+                  setScreenConfigInitialTab('grid');
+                  setIsScreenConfigModalOpen(true);
+                }}
+                recordCountText={`${filteredOrgs.length === 0 ? 0 : 1} - ${filteredOrgs.length} de ${filteredOrgs.length}`}
+                actions={toolbarActions}
+              />
+
+              <div className="flex flex-1 overflow-hidden min-h-[420px]">
+                {/* Lateral Filter Drawer */}
+                <EzFilterDrawer
+                  isOpen={isFilterPanelOpen}
+                  onClose={() => setIsFilterPanelOpen(false)}
+                  onClear={() => {
+                    setFilterSearch('');
+                    setFilterStatus('ALL');
+                    setFilterDocType('ALL');
+                  }}
+                  title="Filtros de Clientes"
+                >
+                  <div className="p-4 space-y-4">
+                    <div className="space-y-1.5">
+                      <label htmlFor="filter-search-input" className="text-xs font-medium text-gray-700">
+                        Buscar Parceiro
+                      </label>
+                      <EzTextInput
+                        id="filter-search-input"
+                        placeholder="Nome, Razão Social, CNPJ…"
+                        value={filterSearch}
+                        onChange={(e) => setFilterSearch(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label htmlFor="filter-status-select" className="text-xs font-medium text-gray-700">
+                        Status
+                      </label>
+                      <EzComboBox
+                        id="filter-status-select"
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value as any)}
+                      >
+                        <option value="ALL">Todos os status</option>
+                        <option value="ACTIVE">Apenas Ativos</option>
+                        <option value="INACTIVE">Apenas Inativos</option>
+                      </EzComboBox>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label htmlFor="filter-doctype-select" className="text-xs font-medium text-gray-700">
+                        Tipo de Documento
+                      </label>
+                      <EzComboBox
+                        id="filter-doctype-select"
+                        value={filterDocType}
+                        onChange={(e) => setFilterDocType(e.target.value as any)}
+                      >
+                        <option value="ALL">Todos os documentos</option>
+                        <option value="CNPJ">Pessoa Jurídica (CNPJ)</option>
+                        <option value="CPF">Pessoa Física (CPF)</option>
+                      </EzComboBox>
+                    </div>
                   </div>
-                  <EzEntityGrid
-                    columns={orgColumns}
-                    data={orgs ?? []}
-                    showRowNumbers
-                    showGridCornerMenu
-                    enableColumnMenu
-                    enableColumnFilters
-                    zebraStriping
-                    density="compact"
-                    showStatusBar
-                    groupBy={groupByStatus ? ['status'] : undefined}
-                    pageSize={groupByStatus ? undefined : 10}
-                  />
-                </>
-              )}
-            </EzCardItem>
+                </EzFilterDrawer>
+
+                {/* Grid Content */}
+                <div className="flex-1 p-3 overflow-x-auto min-w-0 flex flex-col">
+                  {orgs?.length === 0 ? (
+                    <div className="p-4">
+                      <EzEmptyCard title="Nenhuma empresa cadastrada ainda." />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-end gap-2 px-2 py-1.5 border-b border-gray-100 mb-2">
+                        <EzCheck
+                          id="org-group-by-status"
+                          label="Agrupar por status"
+                          checked={groupByStatus}
+                          onChange={(e) => setGroupByStatus(e.target.checked)}
+                        />
+                      </div>
+                      <EzEntityGrid
+                        columns={orgColumns}
+                        data={filteredOrgs}
+                        showRowNumbers
+                        selectable
+                        showGridCornerMenu
+                        enableColumnMenu
+                        enableColumnFilters
+                        zebraStriping
+                        density={screenConfig.grid.density}
+                        initialColumnVisibility={screenConfig.grid.columnVisibility}
+                        showStatusBar
+                        groupBy={groupByStatus ? ['status'] : undefined}
+                        pageSize={groupByStatus ? undefined : 10}
+                        onSelectionChange={(selected) => {
+                          setSelectedOrgs(selected);
+                          if (selected.length > 0) {
+                            const idx = filteredOrgs.findIndex((o) => o.id === selected[0].id);
+                            if (idx !== -1) setFocusedIndex(idx);
+                          }
+                        }}
+                      />
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
           )
         )}
 
@@ -988,6 +1288,22 @@ export function OrganizationsPage() {
           )
         )}
       </div>
+
+      {isScreenConfigModalOpen && (
+        <EzEntityScreenConfigModal
+          columns={screenConfigColumns}
+          onToggleColumn={(colId) =>
+            setColumnVisibility(colId, !screenConfig.grid.columnVisibility[colId])
+          }
+          density={screenConfig.grid.density}
+          onDensityChange={setDensity}
+          formLayout={screenConfig.form.layout}
+          onFormLayoutChange={setFormLayout}
+          onRestoreDefaults={restoreDefaults}
+          onClose={() => setIsScreenConfigModalOpen(false)}
+          initialTab={screenConfigInitialTab}
+        />
+      )}
     </EzPageLayout>
   );
 }

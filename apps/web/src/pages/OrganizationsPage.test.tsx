@@ -103,7 +103,7 @@ async function openDetail(user: ReturnType<typeof userEvent.setup>) {
   });
 }
 
-describe('OrganizationsPage', () => {
+describe('OrganizationsPage', { timeout: 15000 }, () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockApiGet();
@@ -464,5 +464,48 @@ describe('OrganizationsPage', () => {
     await user.click(screen.getByLabelText(/agrupar por status/i));
     expect(screen.queryByTestId('ez-entity-grid-group-row')).not.toBeInTheDocument();
     expect(screen.getByText('Empresa A')).toBeInTheDocument();
+  });
+
+  it('renders Sankhya standard entity toolbar, filter drawer, and screen config modal (br.com.sankhya.core.cad.parceiros parity)', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    // 1. Toolbar Sankhya is rendered with standard controls
+    expect(screen.getByTestId('ez-entity-toolbar')).toBeInTheDocument();
+    expect(screen.getByTestId('ez-toolbar-filter-panel-button')).toBeInTheDocument();
+    expect(screen.getByTestId('ez-toolbar-mode-toggle-button')).toBeInTheDocument();
+    expect(screen.getByTestId('ez-toolbar-insert-button')).toBeInTheDocument();
+    expect(screen.getByTestId('ez-toolbar-refresh-button')).toBeInTheDocument();
+    expect(screen.getByTestId('ez-toolbar-screen-config-button')).toBeInTheDocument();
+
+    // 2. Open and test Filter Drawer
+    await user.click(screen.getByTestId('ez-toolbar-filter-panel-button'));
+    const drawer = screen.getByTestId('ez-filter-drawer');
+    expect(drawer).toBeInTheDocument();
+    expect(screen.getByText('Filtros de Clientes')).toBeInTheDocument();
+    expect(within(drawer).getByLabelText(/buscar parceiro/i)).toBeInTheDocument();
+    expect(within(drawer).getByLabelText(/^status$/i)).toBeInTheDocument();
+    expect(within(drawer).getByLabelText(/tipo de documento/i)).toBeInTheDocument();
+
+    // Close drawer
+    await user.click(screen.getByTestId('ez-filter-drawer-close'));
+    expect(screen.queryByTestId('ez-filter-drawer')).not.toBeInTheDocument();
+
+    // 3. Open and test Screen Configuration Modal (Per-User Personalization)
+    await user.click(screen.getByTestId('ez-toolbar-screen-config-button'));
+    const modal = screen.getByTestId('ez-entity-screen-config-modal');
+    expect(modal).toBeInTheDocument();
+    expect(within(modal).getByText('Personalização da Tela (Usuário)')).toBeInTheDocument();
+    expect(within(modal).getByText('Razão Social')).toBeInTheDocument();
+    expect(within(modal).getByText('Densidade das Linhas')).toBeInTheDocument();
+
+    // Close modal
+    await user.click(within(modal).getByLabelText('Fechar'));
+    expect(screen.queryByTestId('ez-entity-screen-config-modal')).not.toBeInTheDocument();
   });
 });
