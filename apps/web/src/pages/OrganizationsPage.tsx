@@ -18,7 +18,6 @@ import {
   EzEntityToolbar,
   EzEntityScreenConfigModal,
   EzFilterDrawer,
-  EzTag,
   EzMultiSelect,
   EzPageHeader,
   EzPageLayout,
@@ -424,15 +423,6 @@ export function OrganizationsPage() {
     },
   });
 
-  if (!isAdmin) {
-    return (
-      <div className="space-y-2">
-        <h1 className="text-[20px] font-semibold text-gray-900">Empresas</h1>
-        <p className="text-sm text-gray-500">Somente administradores podem gerenciar empresas.</p>
-      </div>
-    );
-  }
-
   const openDetail = (orgId: string) => {
     setDetailTab('users');
     setDetailOrgId(orgId);
@@ -636,6 +626,15 @@ export function OrganizationsPage() {
       },
     },
   ];
+
+  if (!isAdmin) {
+    return (
+      <div className="space-y-2">
+        <h1 className="text-[20px] font-semibold text-gray-900">Empresas</h1>
+        <p className="text-sm text-gray-500">Somente administradores podem gerenciar empresas.</p>
+      </div>
+    );
+  }
 
   return (
     <EzPageLayout
