@@ -81,7 +81,7 @@ describe('SchedulePage', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Alinhamento Semanal')).toBeInTheDocument();
-      expect(screen.getByText('Agente Silva')).toBeInTheDocument();
+      expect(screen.getAllByText('Agente Silva').length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText('Acme Corp')).toBeInTheDocument();
       expect(screen.getByText('Compromisso')).toBeInTheDocument();
     });
