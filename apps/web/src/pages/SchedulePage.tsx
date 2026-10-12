@@ -32,7 +32,8 @@ const TYPE_LABELS: Record<AppointmentType, string> = {
   ABSENCE: 'Ausência',
 };
 
-const HOURS = Array.from({ length: 20 }, (_, i) => i + 4); // 04 to 23
+const GRID_START_HOUR = 0;
+const HOURS = Array.from({ length: 24 }, (_, i) => i + GRID_START_HOUR); // 00 to 23
 
 const ATTENDANT_COLORS = [
   '#7ea119', // olive green
@@ -80,6 +81,7 @@ export function SchedulePage() {
   // Ações dropdown menu
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const actionsRef = useRef<HTMLDivElement>(null);
+  const gridBodyRef = useRef<HTMLDivElement>(null);
 
   // Modals state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -96,6 +98,13 @@ export function SchedulePage() {
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // On mount, scroll the time grid to business hours instead of midnight
+  useEffect(() => {
+    if (gridBodyRef.current) {
+      gridBodyRef.current.scrollTop = Math.max((6 - GRID_START_HOUR) * 56, 0);
+    }
   }, []);
 
   // Compute week start (Sunday = DOM) and end (Saturday = SÁB)
@@ -249,7 +258,7 @@ export function SchedulePage() {
           const startHour = s.getHours() + s.getMinutes() / 60;
           const endHour = e.getHours() + e.getMinutes() / 60;
 
-          const top = Math.max((startHour - 4) * 56, 0);
+          const top = Math.max((startHour - GRID_START_HOUR) * 56, 0);
           const duration = Math.max(endHour - startHour, 0.5);
           const height = Math.max(duration * 56 - 4, 32);
 
@@ -319,7 +328,7 @@ export function SchedulePage() {
   // Current time line calculation
   const now = new Date();
   const currentHour = now.getHours() + now.getMinutes() / 60;
-  const currentTimeTop = (currentHour - 4) * 56;
+  const currentTimeTop = (currentHour - GRID_START_HOUR) * 56;
   const todayDateStr = formatDateKey(now);
 
   const toggleAllAttendants = () => {
@@ -711,7 +720,7 @@ export function SchedulePage() {
                 </div>
 
                 {/* Grid Body: Time slots + Event columns */}
-                <div className="grid grid-cols-[56px_repeat(7,1fr)] relative">
+                <div ref={gridBodyRef} className="grid grid-cols-[56px_repeat(7,1fr)] relative overflow-y-auto max-h-[640px]">
                   {/* Left Time Gutter Column */}
                   <div className="border-r border-gray-200 text-right pr-2 py-1 select-none text-[11px] text-gray-500 font-medium">
                     {HOURS.map((hour) => {
