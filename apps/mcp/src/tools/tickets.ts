@@ -108,4 +108,54 @@ export function registerTicketTools(server: McpServer, api: AxiosInstance) {
       }
     },
   );
+
+  server.registerTool(
+    'create_worklog',
+    {
+      title: 'Criar Apontamento de Horas (Worklog)',
+      description:
+        'Registra apontamento de horas trabalhadas em um ticket. Requer papel AGENT ou ADMIN no token.',
+      inputSchema: {
+        ticketId: z.string().uuid().describe('UUID do Ticket'),
+        minutes: z.number().int().positive().describe('Minutos trabalhados no chamado (ex: 60 para 1 hora)'),
+        description: z.string().min(1).describe('Descrição detalhada das atividades realizadas'),
+        billable: z.boolean().optional().describe('Se as horas são faturáveis (default: true)'),
+        authorId: z.string().uuid().optional().describe('UUID do técnico (apenas ADMIN pode apontar para terceiros)'),
+      },
+    },
+    async ({ ticketId, minutes, description, billable, authorId }) => {
+      try {
+        const { data } = await api.post(`/tickets/${ticketId}/worklogs`, {
+          minutes,
+          description,
+          billable,
+          authorId,
+        });
+        return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      } catch (error) {
+        return { content: [{ type: 'text', text: describeApiError(error) }], isError: true };
+      }
+    },
+  );
+
+  server.registerTool(
+    'list_worklogs',
+    {
+      title: 'Listar Apontamentos de Horas do Ticket',
+      description:
+        'Retorna a lista de apontamentos de horas registrados em um ticket. Requer papel AGENT ou ADMIN no token.',
+      inputSchema: {
+        ticketId: z.string().uuid().describe('UUID do Ticket'),
+      },
+    },
+    async ({ ticketId }) => {
+      try {
+        const { data } = await api.get(`/tickets/${ticketId}/worklogs`);
+        return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      } catch (error) {
+        return { content: [{ type: 'text', text: describeApiError(error) }], isError: true };
+      }
+    },
+  );
 }
+

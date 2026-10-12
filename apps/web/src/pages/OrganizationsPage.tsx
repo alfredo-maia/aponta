@@ -1292,7 +1292,10 @@ export function OrganizationsPage() {
         <EzEntityScreenConfigModal
           columns={screenConfigColumns}
           onToggleColumn={(colId) =>
-            setColumnVisibility(colId, !screenConfig.grid.columnVisibility[colId])
+            setColumnVisibility((prev) => ({
+              ...prev,
+              [colId]: !prev[colId],
+            }))
           }
           density={screenConfig.grid.density}
           onDensityChange={setDensity}

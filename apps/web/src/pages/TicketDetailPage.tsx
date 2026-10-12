@@ -5,6 +5,7 @@ import { TicketComments } from '../components/tickets/TicketComments';
 import { TicketDetail } from '../components/tickets/TicketDetail';
 import { TicketAttachments } from '../components/tickets/TicketAttachments';
 import { TicketCsat } from '../components/tickets/TicketCsat';
+import { TicketWorklogs } from '../components/tickets/TicketWorklogs';
 import { useTicket } from '../hooks/useTicket';
 import { useAuthStore } from '../stores/authStore';
 import { EzSpinner, EzAlert } from '../components/ds';
@@ -49,11 +50,14 @@ export function TicketDetailPage() {
 
       <TicketAttachments ticketId={ticket.id} />
       {!isClient && (
-        <section className="space-y-4">
-          <h2 className="text-[16px] font-semibold text-gray-900">Comentários</h2>
-          <TicketComments ticketId={ticket.id} />
-          <CommentForm ticketId={ticket.id} />
-        </section>
+        <>
+          <TicketWorklogs ticketId={ticket.id} />
+          <section className="space-y-4">
+            <h2 className="text-[16px] font-semibold text-gray-900">Comentários</h2>
+            <TicketComments ticketId={ticket.id} />
+            <CommentForm ticketId={ticket.id} />
+          </section>
+        </>
       )}
     </div>
   );

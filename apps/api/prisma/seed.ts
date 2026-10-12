@@ -103,6 +103,49 @@ async function main() {
     console.log(
       `Assigned ${user.email} as agent of: ${serviceDesk.name}, ${secondaryServiceDesk.name}`,
     );
+
+    // Seed sample ticket and worklogs if needed (paridade com critério DMTE-12)
+    let sampleTicket = await prisma.ticket.findFirst({
+      where: { serviceDeskId: serviceDesk.id },
+    });
+    if (!sampleTicket) {
+      sampleTicket = await prisma.ticket.create({
+        data: {
+          protocol: 'AP-2026-0001',
+          title: 'Chamado de Exemplo para Apontamento de Horas',
+          description: 'Ticket inicial de teste criado pelo seed.',
+          serviceDeskId: serviceDesk.id,
+          requesterId: user.id,
+          agentId: user.id,
+        },
+      });
+      console.log(`Created sample ticket: ${sampleTicket.protocol}`);
+    }
+
+    const existingWorklog = await prisma.worklog.findFirst({
+      where: { ticketId: sampleTicket.id },
+    });
+    if (!existingWorklog) {
+      await prisma.worklog.createMany({
+        data: [
+          {
+            ticketId: sampleTicket.id,
+            authorId: user.id,
+            description: 'Análise inicial do chamado e diagnóstico',
+            minutes: 45,
+            billable: true,
+          },
+          {
+            ticketId: sampleTicket.id,
+            authorId: user.id,
+            description: 'Configuração de ambiente e execução de testes',
+            minutes: 90,
+            billable: true,
+          },
+        ],
+      });
+      console.log(`Seeded sample worklogs for ticket: ${sampleTicket.protocol}`);
+    }
   } finally {
     await prisma.$disconnect();
   }

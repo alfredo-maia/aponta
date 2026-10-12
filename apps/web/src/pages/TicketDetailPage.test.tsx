@@ -249,6 +249,22 @@ describe('TicketDetailPage', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('should show the worklogs section for agents and admins', async () => {
+    setRole('AGENT');
+    renderPage();
+
+    await screen.findByText('Printer not working');
+    expect(screen.getByTestId('ticket-worklogs-section')).toBeInTheDocument();
+  });
+
+  it('should hide the worklogs section for clients', async () => {
+    setRole('CLIENT');
+    renderPage();
+
+    await screen.findByText('Printer not working');
+    expect(screen.queryByTestId('ticket-worklogs-section')).not.toBeInTheDocument();
+  });
+
   describe('Agent assignment', () => {
     it('hides the assignment dropdown from clients', async () => {
       setRole('CLIENT');

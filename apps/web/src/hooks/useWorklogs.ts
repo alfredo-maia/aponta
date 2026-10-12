@@ -1,0 +1,68 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { api } from '../lib/api';
+
+export interface WorklogAuthor {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface Worklog {
+  id: string;
+  description: string;
+  minutes: number;
+  billable: boolean;
+  ticketId: string;
+  authorId: string;
+  createdAt: string;
+  author: WorklogAuthor;
+}
+
+export interface CreateWorklogInput {
+  minutes: number;
+  description: string;
+  billable?: boolean;
+  authorId?: string;
+}
+
+export function useWorklogs(ticketId?: string) {
+  return useQuery({
+    queryKey: ['tickets', ticketId, 'worklogs'],
+    queryFn: async () => {
+      if (!ticketId) return [];
+      const res = await api.get<Worklog[]>(`/tickets/${ticketId}/worklogs`);
+      return res.data;
+    },
+    enabled: Boolean(ticketId),
+  });
+}
+
+export function useCreateWorklog(ticketId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: CreateWorklogInput) => {
+      const res = await api.post<Worklog>(`/tickets/${ticketId}/worklogs`, input);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tickets', ticketId, 'worklogs'] });
+      queryClient.invalidateQueries({ queryKey: ['reports'] });
+    },
+  });
+}
+
+export function useDeleteWorklog(ticketId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (worklogId: string) => {
+      const res = await api.delete(`/tickets/${ticketId}/worklogs/${worklogId}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tickets', ticketId, 'worklogs'] });
+      queryClient.invalidateQueries({ queryKey: ['reports'] });
+    },
+  });
+}
