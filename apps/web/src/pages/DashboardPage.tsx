@@ -15,13 +15,16 @@ import {
   AlertCircle,
   HelpCircle,
   Ticket,
+  Activity,
+  PauseCircle,
+  Sparkles,
+  Building2,
+  ShieldCheck,
 } from 'lucide-react';
 import { useDashboardSummary } from '../hooks/useReports';
 import { useAuthStore } from '../stores/authStore';
 import {
-  EzCardItem,
   EzSpinner,
-  EzTile,
   EzTabs,
   EzTag,
   EzBadge,
@@ -56,6 +59,101 @@ function getGreeting(date = new Date()): string {
 type DashboardTab = 'tickets' | 'chats' | 'recurso' | 'horas';
 type PieGrouping = 'byAssignee' | 'byServiceDesk' | 'byOrganization' | 'byResource';
 type PeriodFilter = 'todos' | 'hoje' | 'semana' | 'mes';
+
+interface TiFluxCardProps {
+  icon?: React.ReactNode;
+  iconBgClass?: string;
+  title: string;
+  subtitle?: string;
+  badge?: React.ReactNode;
+  actions?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+}
+
+function TiFluxCard({
+  icon,
+  iconBgClass = 'bg-brand-50 text-brand-700 border-brand-100',
+  title,
+  subtitle,
+  badge,
+  actions,
+  children,
+  className,
+}: TiFluxCardProps) {
+  return (
+    <div
+      className={cn(
+        'bg-white rounded-2xl border border-gray-200/80 shadow-xs hover:shadow-sm transition-all duration-200 p-5 flex flex-col justify-between',
+        className
+      )}
+    >
+      <div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 mb-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            {icon && (
+              <div
+                className={cn(
+                  'w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border',
+                  iconBgClass
+                )}
+              >
+                {icon}
+              </div>
+            )}
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-[15px] font-bold text-gray-900 leading-tight">
+                  {title}
+                </h3>
+                {badge}
+              </div>
+              {subtitle && (
+                <p className="text-[12px] text-gray-500 font-normal mt-0.5">
+                  {subtitle}
+                </p>
+              )}
+            </div>
+          </div>
+          {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+interface SegmentedControlProps<T extends string> {
+  options: { id: T; label: string }[];
+  value: T;
+  onChange: (val: T) => void;
+}
+
+function SegmentedControl<T extends string>({
+  options,
+  value,
+  onChange,
+}: SegmentedControlProps<T>) {
+  return (
+    <div className="inline-flex p-1 bg-gray-100/90 rounded-xl gap-0.5 border border-gray-200/50">
+      {options.map((opt) => (
+        <button
+          key={opt.id}
+          type="button"
+          onClick={() => onChange(opt.id)}
+          className={cn(
+            'px-2.5 py-1 text-[11px] font-medium rounded-lg transition-all',
+            value === opt.id
+              ? 'bg-white text-gray-900 shadow-xs font-semibold'
+              : 'text-gray-500 hover:text-gray-800'
+          )}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 export function DashboardPage() {
   const { data, isLoading, isError } = useDashboardSummary();
@@ -101,8 +199,8 @@ export function DashboardPage() {
     return currentPieData.reduce((acc, curr) => acc + curr.count, 0);
   }, [currentPieData]);
 
-  // Palette colors for pie chart
-  const pieColors = ['#0284c7', '#0d9488', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981', '#6366f1'];
+  // TiFlux palette colors for donut chart
+  const pieColors = ['#0284c7', '#008561', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981', '#6366f1'];
 
   // Hours calculation
   const monthlyDays = data?.monthlyHours?.days || [];
@@ -112,28 +210,49 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* 2.1 Cabeçalho com saudação e emoji antes */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2 border-b border-gray-100">
-        <div>
-          <h1 className="text-[22px] font-bold text-gray-900 tracking-tight flex items-center gap-2">
-            {greetingText}
-          </h1>
-          <p className="text-[13px] text-gray-500 mt-0.5">
-            Visão consolidada e métricas operacionais em tempo real (Estilo TiFlux)
-          </p>
+      {/* 2.1 Cabeçalho com saudação e emoji antes no padrão executivo TiFlux */}
+      <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs p-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-50 text-brand-700 border border-brand-100">
+                <Sparkles className="w-3 h-3 text-brand-600" />
+                Painel TiFlux Integrado
+              </span>
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Operação em Tempo Real
+              </span>
+            </div>
+            <h1 className="text-[24px] font-bold text-gray-900 tracking-tight flex items-center gap-2">
+              {greetingText}
+            </h1>
+            <p className="text-[13px] text-gray-500 mt-0.5">
+              Visão consolidada e métricas operacionais em tempo real (Estilo TiFlux)
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-50 border border-gray-200/70 text-xs text-gray-600 font-medium">
+              <Calendar className="w-4 h-4 text-gray-500" />
+              <span>Hoje: {new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 2.2 Abas modernas estilo TiFlux */}
+        <div className="mt-5 pt-4 border-t border-gray-100">
+          <EzTabs
+            tabs={tabsConfig}
+            activeTab={activeTab}
+            onChange={(tabId) => setActiveTab(tabId as DashboardTab)}
+            variant="line"
+          />
         </div>
       </div>
 
-      {/* 2.2 Abas modernas estilo TiFlux */}
-      <EzTabs
-        tabs={tabsConfig}
-        activeTab={activeTab}
-        onChange={(tabId) => setActiveTab(tabId as DashboardTab)}
-        variant="line"
-      />
-
       {isLoading && (
-        <div className="flex justify-center p-12">
+        <div className="flex justify-center p-12 bg-white rounded-2xl border border-gray-200 shadow-xs">
           <EzSpinner label="Carregando métricas..." />
         </div>
       )}
@@ -149,670 +268,732 @@ export function DashboardPage() {
           {/* TAB 1: TICKETS */}
           {activeTab === 'tickets' && (
             <div className="space-y-6">
-              {/* 2.3 Resumo de tickets */}
-              <div>
-                <h2 className="text-[15px] font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                  <Ticket className="w-4 h-4 text-brand-600" />
-                  Resumo de Tickets
-                </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              {/* 2.3 Resumo de tickets no padrão TiFlux */}
+              <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs p-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-brand-50 border border-brand-100 text-brand-700 flex items-center justify-center shrink-0">
+                      <Ticket className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-[16px] font-bold text-gray-900">Resumo de Tickets</h2>
+                      <p className="text-[12px] text-gray-500">Métricas operacionais consolidadas dos chamados</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Fila atualizada</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+                  {/* Todos */}
                   <div
                     onClick={() => setTicketFilterSelection('todos')}
                     className={cn(
-                      'cursor-pointer transition-all rounded-[14px] p-3.5 border flex flex-col justify-between bg-white',
+                      'cursor-pointer transition-all duration-200 rounded-xl p-4 border flex flex-col justify-between relative overflow-hidden group',
                       ticketFilterSelection === 'todos'
-                        ? 'border-brand-500 shadow-sm ring-1 ring-brand-400'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'bg-slate-50/90 border-slate-500 ring-2 ring-slate-400/40 shadow-xs'
+                        : 'bg-white border-gray-200 hover:border-slate-300 hover:shadow-xs'
                     )}
                   >
-                    <span className="text-[12px] font-medium text-gray-500">Todos</span>
-                    <span className="text-[22px] font-bold text-gray-900 mt-1">
-                      {data.ticketSummary?.total ?? data.openCount + data.closedCount}
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Todos</span>
+                      <Inbox className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors" />
+                    </div>
+                    <div className="mt-2.5">
+                      <span className="text-[28px] font-extrabold text-slate-900 leading-none">
+                        {data.ticketSummary?.total ?? data.openCount + data.closedCount}
+                      </span>
+                      <span className="text-[11px] text-slate-400 block mt-1">Total de chamados</span>
+                    </div>
+                    <div className="h-1 w-full bg-slate-200 rounded-full mt-3 overflow-hidden">
+                      <div className="h-full bg-slate-600 w-full" />
+                    </div>
                   </div>
 
+                  {/* Meus */}
                   <div
                     onClick={() => setTicketFilterSelection('meus')}
                     className={cn(
-                      'cursor-pointer transition-all rounded-[14px] p-3.5 border flex flex-col justify-between bg-white',
+                      'cursor-pointer transition-all duration-200 rounded-xl p-4 border flex flex-col justify-between relative overflow-hidden group',
                       ticketFilterSelection === 'meus'
-                        ? 'border-brand-500 shadow-sm ring-1 ring-brand-400'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'bg-brand-50/60 border-brand-500 ring-2 ring-brand-400/40 shadow-xs'
+                        : 'bg-white border-gray-200 hover:border-brand-300 hover:shadow-xs'
                     )}
                   >
-                    <span className="text-[12px] font-medium text-gray-500">Meus</span>
-                    <span className="text-[22px] font-bold text-brand-700 mt-1">
-                      {data.ticketSummary?.mine ?? 0}
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-brand-600">Meus</span>
+                      <UserCheck className="w-4 h-4 text-brand-500 group-hover:text-brand-700 transition-colors" />
+                    </div>
+                    <div className="mt-2.5">
+                      <span className="text-[28px] font-extrabold text-brand-700 leading-none">
+                        {data.ticketSummary?.mine ?? 0}
+                      </span>
+                      <span className="text-[11px] text-brand-500/80 block mt-1">Sob sua responsabilidade</span>
+                    </div>
+                    <div className="h-1 w-full bg-brand-100 rounded-full mt-3 overflow-hidden">
+                      <div className="h-full bg-brand-600 w-full" />
+                    </div>
                   </div>
 
+                  {/* Não atendidos */}
                   <div
                     onClick={() => setTicketFilterSelection('nao_atendidos')}
                     className={cn(
-                      'cursor-pointer transition-all rounded-[14px] p-3.5 border flex flex-col justify-between bg-white',
+                      'cursor-pointer transition-all duration-200 rounded-xl p-4 border flex flex-col justify-between relative overflow-hidden group',
                       ticketFilterSelection === 'nao_atendidos'
-                        ? 'border-amber-500 shadow-sm ring-1 ring-amber-400'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'bg-amber-50/60 border-amber-500 ring-2 ring-amber-400/40 shadow-xs'
+                        : 'bg-white border-gray-200 hover:border-amber-300 hover:shadow-xs'
                     )}
                   >
-                    <span className="text-[12px] font-medium text-gray-500">Não atendidos</span>
-                    <span className="text-[22px] font-bold text-amber-600 mt-1">
-                      {data.ticketSummary?.unattended ?? 0}
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600">Não atendidos</span>
+                      <Clock className="w-4 h-4 text-amber-500 group-hover:text-amber-700 transition-colors" />
+                    </div>
+                    <div className="mt-2.5">
+                      <span className="text-[28px] font-extrabold text-amber-600 leading-none">
+                        {data.ticketSummary?.unattended ?? 0}
+                      </span>
+                      <span className="text-[11px] text-amber-500/80 block mt-1">Aguardando atendimento</span>
+                    </div>
+                    <div className="h-1 w-full bg-amber-100 rounded-full mt-3 overflow-hidden">
+                      <div className="h-full bg-amber-500 w-full" />
+                    </div>
                   </div>
 
+                  {/* Em andamento */}
                   <div
                     onClick={() => setTicketFilterSelection('em_andamento')}
                     className={cn(
-                      'cursor-pointer transition-all rounded-[14px] p-3.5 border flex flex-col justify-between bg-white',
+                      'cursor-pointer transition-all duration-200 rounded-xl p-4 border flex flex-col justify-between relative overflow-hidden group',
                       ticketFilterSelection === 'em_andamento'
-                        ? 'border-blue-500 shadow-sm ring-1 ring-blue-400'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'bg-blue-50/60 border-blue-500 ring-2 ring-blue-400/40 shadow-xs'
+                        : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-xs'
                     )}
                   >
-                    <span className="text-[12px] font-medium text-gray-500">Em andamento</span>
-                    <span className="text-[22px] font-bold text-blue-600 mt-1">
-                      {data.ticketSummary?.inProgress ?? data.byStatus?.IN_PROGRESS ?? 0}
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600">Em andamento</span>
+                      <Activity className="w-4 h-4 text-blue-500 group-hover:text-blue-700 transition-colors" />
+                    </div>
+                    <div className="mt-2.5">
+                      <span className="text-[28px] font-extrabold text-blue-600 leading-none">
+                        {data.ticketSummary?.inProgress ?? data.byStatus?.IN_PROGRESS ?? 0}
+                      </span>
+                      <span className="text-[11px] text-blue-500/80 block mt-1">Em execução ativa</span>
+                    </div>
+                    <div className="h-1 w-full bg-blue-100 rounded-full mt-3 overflow-hidden">
+                      <div className="h-full bg-blue-500 w-full" />
+                    </div>
                   </div>
 
+                  {/* Pausados */}
                   <div
                     onClick={() => setTicketFilterSelection('pausados')}
                     className={cn(
-                      'cursor-pointer transition-all rounded-[14px] p-3.5 border flex flex-col justify-between bg-white',
+                      'cursor-pointer transition-all duration-200 rounded-xl p-4 border flex flex-col justify-between relative overflow-hidden group',
                       ticketFilterSelection === 'pausados'
-                        ? 'border-purple-500 shadow-sm ring-1 ring-purple-400'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'bg-purple-50/60 border-purple-500 ring-2 ring-purple-400/40 shadow-xs'
+                        : 'bg-white border-gray-200 hover:border-purple-300 hover:shadow-xs'
                     )}
                   >
-                    <span className="text-[12px] font-medium text-gray-500">Pausados</span>
-                    <span className="text-[22px] font-bold text-purple-600 mt-1">
-                      {data.ticketSummary?.paused ?? 0}
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-purple-600">Pausados</span>
+                      <PauseCircle className="w-4 h-4 text-purple-500 group-hover:text-purple-700 transition-colors" />
+                    </div>
+                    <div className="mt-2.5">
+                      <span className="text-[28px] font-extrabold text-purple-600 leading-none">
+                        {data.ticketSummary?.paused ?? 0}
+                      </span>
+                      <span className="text-[11px] text-purple-500/80 block mt-1">Aguardando terceiros</span>
+                    </div>
+                    <div className="h-1 w-full bg-purple-100 rounded-full mt-3 overflow-hidden">
+                      <div className="h-full bg-purple-500 w-full" />
+                    </div>
                   </div>
 
+                  {/* Vencidos */}
                   <div
                     onClick={() => setTicketFilterSelection('vencidos')}
                     className={cn(
-                      'cursor-pointer transition-all rounded-[14px] p-3.5 border flex flex-col justify-between bg-white',
+                      'cursor-pointer transition-all duration-200 rounded-xl p-4 border flex flex-col justify-between relative overflow-hidden group',
                       ticketFilterSelection === 'vencidos'
-                        ? 'border-red-500 shadow-sm ring-1 ring-red-400'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'bg-red-50/60 border-red-500 ring-2 ring-red-400/40 shadow-xs'
+                        : 'bg-white border-gray-200 hover:border-red-300 hover:shadow-xs'
                     )}
                   >
-                    <span className="text-[12px] font-medium text-gray-500">Vencidos</span>
-                    <span className="text-[22px] font-bold text-red-600 mt-1">
-                      {data.ticketSummary?.overdue ?? data.slaBreachedCount}
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-red-600">Vencidos</span>
+                      <AlertTriangle className="w-4 h-4 text-red-500 group-hover:text-red-700 transition-colors" />
+                    </div>
+                    <div className="mt-2.5">
+                      <span className="text-[28px] font-extrabold text-red-600 leading-none">
+                        {data.ticketSummary?.overdue ?? data.slaBreachedCount}
+                      </span>
+                      <span className="text-[11px] text-red-500/80 block mt-1">SLA ultrapassado</span>
+                    </div>
+                    <div className="h-1 w-full bg-red-100 rounded-full mt-3 overflow-hidden">
+                      <div className="h-full bg-red-500 w-full" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* KPI Summary Tiles Padronizados no Estilo TiFlux */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs p-4 flex items-center gap-4 hover:shadow-sm transition-all">
+                  <div className="w-12 h-12 rounded-xl bg-brand-50 border border-brand-100 text-brand-700 flex items-center justify-center shrink-0">
+                    <Inbox className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="text-[12px] font-semibold uppercase tracking-wider text-gray-500 block">
+                      Chamados Abertos
+                    </span>
+                    <span className="text-[24px] font-extrabold text-gray-900 leading-tight">
+                      {data.openCount}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs p-4 flex items-center gap-4 hover:shadow-sm transition-all">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="text-[12px] font-semibold uppercase tracking-wider text-gray-500 block">
+                      Chamados Fechados
+                    </span>
+                    <span className="text-[24px] font-extrabold text-emerald-700 leading-tight">
+                      {data.closedCount}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs p-4 flex items-center gap-4 hover:shadow-sm transition-all">
+                  <div className="w-12 h-12 rounded-xl bg-red-50 border border-red-100 text-red-700 flex items-center justify-center shrink-0">
+                    <AlertTriangle className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="text-[12px] font-semibold uppercase tracking-wider text-gray-500 block">
+                      SLA Estourado
+                    </span>
+                    <span className="text-[24px] font-extrabold text-red-600 leading-tight">
+                      {data.slaBreachedCount}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs p-4 flex items-center gap-4 hover:shadow-sm transition-all">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                    <Clock className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="text-[12px] font-semibold uppercase tracking-wider text-gray-500 block">
+                      Tempo Médio de Resolução
+                    </span>
+                    <span className="text-[24px] font-extrabold text-gray-900 leading-tight">
+                      {data.avgResolutionMinutes !== null ? formatMinutes(data.avgResolutionMinutes) : '—'}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* KPI Summary Tiles (Compatibilidade e Visão Geral) */}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <EzTile
-                  icon={<Inbox className="h-6 w-6" />}
-                  iconVariant="brand"
-                  label="Chamados Abertos"
-                  value={data.openCount}
-                />
-                <EzTile
-                  icon={<CheckCircle2 className="h-6 w-6" />}
-                  iconVariant="green"
-                  label="Chamados Fechados"
-                  value={data.closedCount}
-                />
-                <EzTile
-                  icon={<AlertTriangle className="h-6 w-6" />}
-                  iconVariant="red"
-                  label="SLA Estourado"
-                  value={data.slaBreachedCount}
-                />
-                <EzTile
-                  icon={<Clock className="h-6 w-6" />}
-                  iconVariant="petroleum"
-                  label="Tempo Médio de Resolução"
-                  value={
-                    data.avgResolutionMinutes !== null
-                      ? formatMinutes(data.avgResolutionMinutes)
-                      : '—'
-                  }
-                />
-              </div>
-
               {/* Grid 2 colunas: Gráfico de Pizza (3.5) + Quadrantes de Prazos (2.8, 3.0, 3.1) */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* 3.5 Tickets em andamento - Gráfico de pizza interativo */}
-                <EzCardItem className="lg:col-span-7 p-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                    <div>
-                      <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2">
-                        <PieChartIcon className="w-4 h-4 text-brand-600" />
-                        Tickets em andamento
-                      </h3>
-                      <p className="text-[12px] text-gray-500">
-                        Distribuição proporcional variando pelo critério selecionado
-                      </p>
-                    </div>
+                {/* 3.5 Tickets em andamento - Gráfico de pizza/donut interativo */}
+                <div className="lg:col-span-7">
+                  <TiFluxCard
+                    icon={<PieChartIcon className="w-5 h-5 text-brand-700" />}
+                    title="Tickets em andamento"
+                    subtitle="Distribuição proporcional variando pelo critério selecionado"
+                    actions={
+                      <SegmentedControl
+                        options={[
+                          { id: 'byAssignee', label: 'Por responsável' },
+                          { id: 'byServiceDesk', label: 'Por mesa' },
+                          { id: 'byOrganization', label: 'Por cliente' },
+                          { id: 'byResource', label: 'Por tipo de recurso' },
+                        ]}
+                        value={pieGrouping}
+                        onChange={(val) => setPieGrouping(val as PieGrouping)}
+                      />
+                    }
+                  >
+                    {currentPieData.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center p-12 text-center text-gray-400">
+                        <Inbox className="w-10 h-10 mb-2 opacity-40" />
+                        <p className="text-sm font-medium">Nenhum ticket em andamento encontrado.</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col sm:flex-row items-center justify-around gap-6 pt-2">
+                        {/* Gráfico Donut SVG */}
+                        <div className="relative w-48 h-48 shrink-0 flex items-center justify-center">
+                          <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
+                            {(() => {
+                              let cumulativePercent = 0;
+                              return currentPieData.map((slice, index) => {
+                                const percent = totalPieCount > 0 ? (slice.count / totalPieCount) * 100 : 0;
+                                const strokeDasharray = `${percent} ${100 - percent}`;
+                                const strokeDashoffset = -cumulativePercent;
+                                cumulativePercent += percent;
+                                const color = pieColors[index % pieColors.length];
+                                return (
+                                  <circle
+                                    key={slice.name}
+                                    cx="50"
+                                    cy="50"
+                                    r="34"
+                                    fill="transparent"
+                                    stroke={color}
+                                    strokeWidth="16"
+                                    strokeDasharray={strokeDasharray}
+                                    strokeDashoffset={strokeDashoffset}
+                                    pathLength="100"
+                                    className="transition-all duration-300 hover:opacity-80"
+                                  />
+                                );
+                              });
+                            })()}
+                          </svg>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+                            <span className="text-[26px] font-extrabold text-gray-900 leading-none">
+                              {totalPieCount}
+                            </span>
+                            <span className="text-[11px] text-gray-500 font-medium uppercase tracking-wider mt-1">
+                              Em Curso
+                            </span>
+                          </div>
+                        </div>
 
-                    {/* Filtros do gráfico de pizza */}
-                    <div className="flex flex-wrap gap-1 bg-gray-100 p-1 rounded-lg">
-                      <button
-                        type="button"
-                        onClick={() => setPieGrouping('byAssignee')}
-                        className={cn(
-                          'px-2.5 py-1 text-[11px] font-medium rounded-md transition-colors',
-                          pieGrouping === 'byAssignee'
-                            ? 'bg-white text-gray-900 shadow-xs'
-                            : 'text-gray-600 hover:text-gray-900'
-                        )}
-                      >
-                        Por responsável
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPieGrouping('byServiceDesk')}
-                        className={cn(
-                          'px-2.5 py-1 text-[11px] font-medium rounded-md transition-colors',
-                          pieGrouping === 'byServiceDesk'
-                            ? 'bg-white text-gray-900 shadow-xs'
-                            : 'text-gray-600 hover:text-gray-900'
-                        )}
-                      >
-                        Por mesa
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPieGrouping('byOrganization')}
-                        className={cn(
-                          'px-2.5 py-1 text-[11px] font-medium rounded-md transition-colors',
-                          pieGrouping === 'byOrganization'
-                            ? 'bg-white text-gray-900 shadow-xs'
-                            : 'text-gray-600 hover:text-gray-900'
-                        )}
-                      >
-                        Por cliente
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPieGrouping('byResource')}
-                        className={cn(
-                          'px-2.5 py-1 text-[11px] font-medium rounded-md transition-colors',
-                          pieGrouping === 'byResource'
-                            ? 'bg-white text-gray-900 shadow-xs'
-                            : 'text-gray-600 hover:text-gray-900'
-                        )}
-                      >
-                        Por tipo de recurso
-                      </button>
-                    </div>
-                  </div>
-
-                  {currentPieData.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center p-8 text-center text-gray-400">
-                      <Inbox className="w-10 h-10 mb-2 opacity-50" />
-                      <p className="text-sm">Nenhum ticket em andamento encontrado.</p>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col sm:flex-row items-center justify-around gap-6 pt-2">
-                      {/* Gráfico Donut SVG */}
-                      <div className="relative w-44 h-44 shrink-0 flex items-center justify-center">
-                        <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
-                          {(() => {
-                            let cumulativePercent = 0;
-                            return currentPieData.map((slice, index) => {
-                              const percent = totalPieCount > 0 ? (slice.count / totalPieCount) * 100 : 0;
-                              const strokeDasharray = `${percent} ${100 - percent}`;
-                              const strokeDashoffset = -cumulativePercent;
-                              cumulativePercent += percent;
-                              const color = pieColors[index % pieColors.length];
-                              return (
-                                <circle
-                                  key={slice.name}
-                                  cx="50"
-                                  cy="50"
-                                  r="35"
-                                  fill="transparent"
-                                  stroke={color}
-                                  strokeWidth="18"
-                                  strokeDasharray={strokeDasharray}
-                                  strokeDashoffset={strokeDashoffset}
-                                  pathLength="100"
-                                  className="transition-all duration-300 hover:opacity-85"
-                                />
-                              );
-                            });
-                          })()}
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-                          <span className="text-[20px] font-bold text-gray-900 leading-none">
-                            {totalPieCount}
-                          </span>
-                          <span className="text-[11px] text-gray-500 font-medium mt-0.5">Tickets</span>
+                        {/* Legenda Padronizada */}
+                        <div className="flex flex-col gap-2.5 flex-1 max-h-52 overflow-y-auto w-full no-scrollbar pr-1">
+                          {currentPieData.map((slice, index) => {
+                            const percent =
+                              totalPieCount > 0 ? Math.round((slice.count / totalPieCount) * 100) : 0;
+                            const color = pieColors[index % pieColors.length];
+                            return (
+                              <div
+                                key={slice.name}
+                                className="flex items-center justify-between text-xs p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                              >
+                                <div className="flex items-center gap-2.5 truncate pr-2">
+                                  <span
+                                    className="w-3 h-3 rounded-full shrink-0 shadow-2xs"
+                                    style={{ backgroundColor: color }}
+                                  />
+                                  <span className="text-gray-800 truncate font-semibold">{slice.name}</span>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <span className="font-bold text-gray-900">{slice.count}</span>
+                                  <span className="text-gray-400 w-8 text-right text-[11px] font-medium">
+                                    {percent}%
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
+                    )}
+                  </TiFluxCard>
+                </div>
 
-                      {/* Legenda */}
-                      <div className="flex flex-col gap-2.5 flex-1 max-h-48 overflow-y-auto w-full no-scrollbar">
-                        {currentPieData.map((slice, index) => {
-                          const percent =
-                            totalPieCount > 0 ? Math.round((slice.count / totalPieCount) * 100) : 0;
-                          const color = pieColors[index % pieColors.length];
-                          return (
-                            <div key={slice.name} className="flex items-center justify-between text-xs">
-                              <div className="flex items-center gap-2 truncate pr-2">
-                                <span
-                                  className="w-2.5 h-2.5 rounded-full shrink-0"
-                                  style={{ backgroundColor: color }}
-                                />
-                                <span className="text-gray-700 truncate font-medium">{slice.name}</span>
-                              </div>
-                              <div className="flex items-center gap-2 shrink-0">
-                                <span className="font-semibold text-gray-900">{slice.count}</span>
-                                <span className="text-gray-400 w-8 text-right text-[11px]">
-                                  {percent}%
-                                </span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </EzCardItem>
-
-                {/* Quadrantes de Vencimento e SLA (2.8, 3.0, 3.1) */}
-                <div className="lg:col-span-5 flex flex-col gap-4">
+                {/* Quadrantes de Vencimento e SLA (2.8, 3.0, 3.1) Padronizados */}
+                <div className="lg:col-span-5 flex flex-col gap-5">
                   {/* 2.8 Vencimento de atendimento */}
-                  <EzCardItem className="p-4">
-                    <div className="flex items-center justify-between mb-2.5">
-                      <span className="text-[13px] font-semibold text-gray-900 flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-brand-600" />
-                        Vencimento de atendimento
-                      </span>
-                      <div className="flex gap-1 text-[11px]">
-                        {(['todos', 'hoje', 'amanha', 'depois'] as const).map((t) => (
-                          <button
-                            key={t}
-                            type="button"
-                            onClick={() => setDeadlineTab(t)}
-                            className={cn(
-                              'px-2 py-0.5 rounded capitalize font-medium transition-colors',
-                              deadlineTab === t
-                                ? 'bg-brand-100 text-brand-700'
-                                : 'text-gray-500 hover:text-gray-800'
-                            )}
-                          >
-                            {t === 'amanha' ? 'Amanhã' : t}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-4 gap-2 text-center pt-1">
-                      <div className="bg-gray-50 p-2 rounded-lg">
-                        <span className="text-[10px] text-gray-500 block">Todos</span>
-                        <span className="text-[16px] font-bold text-gray-900">
+                  <TiFluxCard
+                    icon={<Clock className="w-4 h-4 text-brand-700" />}
+                    title="Vencimento de atendimento"
+                    subtitle="Prazos para primeira resposta"
+                    actions={
+                      <SegmentedControl
+                        options={[
+                          { id: 'todos', label: 'Todos' },
+                          { id: 'hoje', label: 'Hoje' },
+                          { id: 'amanha', label: 'Amanhã' },
+                          { id: 'depois', label: 'Depois' },
+                        ]}
+                        value={deadlineTab}
+                        onChange={(val) => setDeadlineTab(val as any)}
+                      />
+                    }
+                  >
+                    <div className="grid grid-cols-4 gap-2.5 text-center">
+                      <div className="bg-gray-50 border border-gray-100 p-2.5 rounded-xl">
+                        <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold block">Todos</span>
+                        <span className="text-[18px] font-extrabold text-gray-900 mt-0.5 block">
                           {data.responseDeadlines?.total ?? 0}
                         </span>
                       </div>
-                      <div className="bg-red-50 p-2 rounded-lg">
-                        <span className="text-[10px] text-red-600 font-medium block">Hoje</span>
-                        <span className="text-[16px] font-bold text-red-700">
+                      <div className="bg-red-50/70 border border-red-100 p-2.5 rounded-xl">
+                        <span className="text-[10px] text-red-600 font-semibold uppercase tracking-wider block">Hoje</span>
+                        <span className="text-[18px] font-extrabold text-red-700 mt-0.5 block">
                           {data.responseDeadlines?.today ?? 0}
                         </span>
                       </div>
-                      <div className="bg-amber-50 p-2 rounded-lg">
-                        <span className="text-[10px] text-amber-600 font-medium block">Amanhã</span>
-                        <span className="text-[16px] font-bold text-amber-700">
+                      <div className="bg-amber-50/70 border border-amber-100 p-2.5 rounded-xl">
+                        <span className="text-[10px] text-amber-600 font-semibold uppercase tracking-wider block">Amanhã</span>
+                        <span className="text-[18px] font-extrabold text-amber-700 mt-0.5 block">
                           {data.responseDeadlines?.tomorrow ?? 0}
                         </span>
                       </div>
-                      <div className="bg-blue-50 p-2 rounded-lg">
-                        <span className="text-[10px] text-blue-600 font-medium block">Depois</span>
-                        <span className="text-[16px] font-bold text-blue-700">
+                      <div className="bg-blue-50/70 border border-blue-100 p-2.5 rounded-xl">
+                        <span className="text-[10px] text-blue-600 font-semibold uppercase tracking-wider block">Depois</span>
+                        <span className="text-[18px] font-extrabold text-blue-700 mt-0.5 block">
                           {data.responseDeadlines?.later ?? 0}
                         </span>
                       </div>
                     </div>
-                  </EzCardItem>
+                  </TiFluxCard>
 
                   {/* 3.0 Vencimento de solução */}
-                  <EzCardItem className="p-4">
-                    <div className="flex items-center justify-between mb-2.5">
-                      <span className="text-[13px] font-semibold text-gray-900 flex items-center gap-1.5">
-                        <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
-                        Vencimento de solução
-                      </span>
-                      <div className="flex gap-1 text-[11px]">
-                        {(['todos', 'hoje', 'amanha', 'depois'] as const).map((t) => (
-                          <button
-                            key={t}
-                            type="button"
-                            onClick={() => setSolutionTab(t)}
-                            className={cn(
-                              'px-2 py-0.5 rounded capitalize font-medium transition-colors',
-                              solutionTab === t
-                                ? 'bg-amber-100 text-amber-800'
-                                : 'text-gray-500 hover:text-gray-800'
-                            )}
-                          >
-                            {t === 'amanha' ? 'Amanhã' : t}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-4 gap-2 text-center pt-1">
-                      <div className="bg-gray-50 p-2 rounded-lg">
-                        <span className="text-[10px] text-gray-500 block">Todos</span>
-                        <span className="text-[16px] font-bold text-gray-900">
+                  <TiFluxCard
+                    icon={<AlertCircle className="w-4 h-4 text-amber-700" />}
+                    iconBgClass="bg-amber-50 text-amber-700 border-amber-100"
+                    title="Vencimento de solução"
+                    subtitle="Prazos para encerramento do chamado"
+                    actions={
+                      <SegmentedControl
+                        options={[
+                          { id: 'todos', label: 'Todos' },
+                          { id: 'hoje', label: 'Hoje' },
+                          { id: 'amanha', label: 'Amanhã' },
+                          { id: 'depois', label: 'Depois' },
+                        ]}
+                        value={solutionTab}
+                        onChange={(val) => setSolutionTab(val as any)}
+                      />
+                    }
+                  >
+                    <div className="grid grid-cols-4 gap-2.5 text-center">
+                      <div className="bg-gray-50 border border-gray-100 p-2.5 rounded-xl">
+                        <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold block">Todos</span>
+                        <span className="text-[18px] font-extrabold text-gray-900 mt-0.5 block">
                           {data.solutionDeadlines?.total ?? 0}
                         </span>
                       </div>
-                      <div className="bg-red-50 p-2 rounded-lg">
-                        <span className="text-[10px] text-red-600 font-medium block">Hoje</span>
-                        <span className="text-[16px] font-bold text-red-700">
+                      <div className="bg-red-50/70 border border-red-100 p-2.5 rounded-xl">
+                        <span className="text-[10px] text-red-600 font-semibold uppercase tracking-wider block">Hoje</span>
+                        <span className="text-[18px] font-extrabold text-red-700 mt-0.5 block">
                           {data.solutionDeadlines?.today ?? 0}
                         </span>
                       </div>
-                      <div className="bg-amber-50 p-2 rounded-lg">
-                        <span className="text-[10px] text-amber-600 font-medium block">Amanhã</span>
-                        <span className="text-[16px] font-bold text-amber-700">
+                      <div className="bg-amber-50/70 border border-amber-100 p-2.5 rounded-xl">
+                        <span className="text-[10px] text-amber-600 font-semibold uppercase tracking-wider block">Amanhã</span>
+                        <span className="text-[18px] font-extrabold text-amber-700 mt-0.5 block">
                           {data.solutionDeadlines?.tomorrow ?? 0}
                         </span>
                       </div>
-                      <div className="bg-blue-50 p-2 rounded-lg">
-                        <span className="text-[10px] text-blue-600 font-medium block">Depois</span>
-                        <span className="text-[16px] font-bold text-blue-700">
+                      <div className="bg-blue-50/70 border border-blue-100 p-2.5 rounded-xl">
+                        <span className="text-[10px] text-blue-600 font-semibold uppercase tracking-wider block">Depois</span>
+                        <span className="text-[18px] font-extrabold text-blue-700 mt-0.5 block">
                           {data.solutionDeadlines?.later ?? 0}
                         </span>
                       </div>
                     </div>
-                  </EzCardItem>
+                  </TiFluxCard>
 
                   {/* 3.1 Tickets sem respostas */}
-                  <EzCardItem className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[13px] font-semibold text-gray-900 flex items-center gap-1.5">
-                        <HelpCircle className="w-3.5 h-3.5 text-purple-600" />
-                        Tickets sem respostas
-                      </span>
-                      <div className="flex gap-1 text-[11px]">
-                        <button
-                          type="button"
-                          onClick={() => setUnansweredTab('todos')}
-                          className={cn(
-                            'px-2 py-0.5 rounded font-medium transition-colors',
-                            unansweredTab === 'todos'
-                              ? 'bg-purple-100 text-purple-800'
-                              : 'text-gray-500 hover:text-gray-800'
-                          )}
-                        >
-                          Todos
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setUnansweredTab('meus')}
-                          className={cn(
-                            'px-2 py-0.5 rounded font-medium transition-colors',
-                            unansweredTab === 'meus'
-                              ? 'bg-purple-100 text-purple-800'
-                              : 'text-gray-500 hover:text-gray-800'
-                          )}
-                        >
-                          Meus
-                        </button>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 text-center pt-1">
-                      <div className="bg-purple-50 p-2.5 rounded-lg">
-                        <span className="text-[11px] text-purple-700 font-medium block">Todos sem resposta</span>
-                        <span className="text-[18px] font-bold text-purple-900">
+                  <TiFluxCard
+                    icon={<HelpCircle className="w-4 h-4 text-purple-700" />}
+                    iconBgClass="bg-purple-50 text-purple-700 border-purple-100"
+                    title="Tickets sem respostas"
+                    subtitle="Chamados pendentes de interação"
+                    actions={
+                      <SegmentedControl
+                        options={[
+                          { id: 'todos', label: 'Todos' },
+                          { id: 'meus', label: 'Meus' },
+                        ]}
+                        value={unansweredTab}
+                        onChange={(val) => setUnansweredTab(val as any)}
+                      />
+                    }
+                  >
+                    <div className="grid grid-cols-2 gap-3 text-center">
+                      <div className="bg-purple-50/70 border border-purple-100 p-3 rounded-xl">
+                        <span className="text-[11px] text-purple-700 font-semibold uppercase tracking-wider block">
+                          Todos sem resposta
+                        </span>
+                        <span className="text-[20px] font-extrabold text-purple-900 mt-0.5 block">
                           {data.unansweredTickets?.total ?? 0}
                         </span>
                       </div>
-                      <div className="bg-indigo-50 p-2.5 rounded-lg">
-                        <span className="text-[11px] text-indigo-700 font-medium block">Meus sem resposta</span>
-                        <span className="text-[18px] font-bold text-indigo-900">
+                      <div className="bg-indigo-50/70 border border-indigo-100 p-3 rounded-xl">
+                        <span className="text-[11px] text-indigo-700 font-semibold uppercase tracking-wider block">
+                          Meus sem resposta
+                        </span>
+                        <span className="text-[20px] font-extrabold text-indigo-900 mt-0.5 block">
                           {data.unansweredTickets?.mine ?? 0}
                         </span>
                       </div>
                     </div>
-                  </EzCardItem>
+                  </TiFluxCard>
                 </div>
               </div>
 
               {/* Grid 3 colunas: CSAT Geral (3.2), CSAT Meus (3.3) e Últimas Notificações (3.4) */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* 3.2 Avaliação geral de tickets (30 dias) */}
-                <EzCardItem className="p-5 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-[14px] font-semibold text-gray-900 flex items-center gap-1.5">
-                        <Star className="w-4 h-4 text-amber-500 fill-amber-400" />
-                        Avaliação geral de tickets
-                      </h3>
-                      <EzBadge size="small" colorClass="bg-gray-100 text-gray-600">30 dias</EzBadge>
-                    </div>
-                    <p className="text-[12px] text-gray-500">Média de satisfação geral (CSAT)</p>
-                  </div>
-
-                  <div className="my-4 flex items-baseline gap-3">
-                    <span className="text-[32px] font-bold text-gray-900 leading-none">
+                <TiFluxCard
+                  icon={<Star className="w-4 h-4 text-amber-500 fill-amber-400" />}
+                  iconBgClass="bg-amber-50 text-amber-600 border-amber-100"
+                  title="Avaliação geral de tickets"
+                  subtitle="Média de satisfação geral (CSAT)"
+                  badge={<EzBadge size="small" colorClass="bg-gray-100 text-gray-700">30 dias</EzBadge>}
+                >
+                  <div className="my-2 flex items-baseline gap-3">
+                    <span className="text-[36px] font-black text-gray-900 leading-none">
                       {data.csatGeneral30d?.avg !== null && data.csatGeneral30d?.avg !== undefined
                         ? data.csatGeneral30d.avg.toFixed(1)
                         : '5.0'}
                     </span>
-                    <div className="flex items-center text-amber-400 text-sm">
+                    <div className="flex items-center text-amber-400 text-base">
                       {'★'.repeat(5)}
                     </div>
+                  </div>
+
+                  <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden mb-3">
+                    <div
+                      className="h-full bg-green-500 rounded-full"
+                      style={{ width: `${data.csatGeneral30d?.satisfactionRate ?? 98}%` }}
+                    />
                   </div>
 
                   <div className="pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
                     <span>{data.csatGeneral30d?.count ?? 0} avaliações</span>
-                    <span className="font-semibold text-green-600">
+                    <span className="font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-full border border-green-100">
                       {data.csatGeneral30d?.satisfactionRate ?? 98}% satisfeitos
                     </span>
                   </div>
-                </EzCardItem>
+                </TiFluxCard>
 
                 {/* 3.3 Avaliação dos meus tickets (30 dias) */}
-                <EzCardItem className="p-5 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-[14px] font-semibold text-gray-900 flex items-center gap-1.5">
-                        <UserCheck className="w-4 h-4 text-brand-600" />
-                        Avaliação dos meus tickets
-                      </h3>
-                      <EzBadge size="small" colorClass="bg-brand-50 text-brand-700">30 dias</EzBadge>
-                    </div>
-                    <p className="text-[12px] text-gray-500">Nota atribuída aos seus chamados</p>
-                  </div>
-
-                  <div className="my-4 flex items-baseline gap-3">
-                    <span className="text-[32px] font-bold text-brand-700 leading-none">
+                <TiFluxCard
+                  icon={<UserCheck className="w-4 h-4 text-brand-700" />}
+                  title="Avaliação dos meus tickets"
+                  subtitle="Nota atribuída aos seus chamados"
+                  badge={<EzBadge size="small" colorClass="bg-brand-50 text-brand-700">30 dias</EzBadge>}
+                >
+                  <div className="my-2 flex items-baseline gap-3">
+                    <span className="text-[36px] font-black text-brand-700 leading-none">
                       {data.csatMine30d?.avg !== null && data.csatMine30d?.avg !== undefined
                         ? data.csatMine30d.avg.toFixed(1)
                         : '5.0'}
                     </span>
-                    <div className="flex items-center text-amber-400 text-sm">
+                    <div className="flex items-center text-amber-400 text-base">
                       {'★'.repeat(5)}
                     </div>
                   </div>
 
+                  <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden mb-3">
+                    <div
+                      className="h-full bg-brand-500 rounded-full"
+                      style={{ width: `${data.csatMine30d?.satisfactionRate ?? 100}%` }}
+                    />
+                  </div>
+
                   <div className="pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
                     <span>{data.csatMine30d?.count ?? 0} avaliações</span>
-                    <span className="font-semibold text-green-600">
+                    <span className="font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-full border border-green-100">
                       {data.csatMine30d?.satisfactionRate ?? 100}% satisfeitos
                     </span>
                   </div>
-                </EzCardItem>
+                </TiFluxCard>
 
                 {/* 3.4 Últimas notificações */}
-                <EzCardItem className="p-5 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-[14px] font-semibold text-gray-900 flex items-center gap-1.5">
-                        <Bell className="w-4 h-4 text-blue-600" />
-                        Últimas notificações
-                      </h3>
-                      <span className="text-[11px] text-gray-400">Atividades</span>
-                    </div>
-                    <p className="text-[12px] text-gray-500">Atualizações recentes do sistema</p>
-                  </div>
-
-                  <div className="my-3 space-y-2.5 max-h-40 overflow-y-auto no-scrollbar">
+                <TiFluxCard
+                  icon={<Bell className="w-4 h-4 text-blue-600" />}
+                  iconBgClass="bg-blue-50 text-blue-600 border-blue-100"
+                  title="Últimas notificações"
+                  subtitle="Atualizações recentes do sistema"
+                  badge={<EzBadge size="small" colorClass="bg-blue-50 text-blue-700">Ao Vivo</EzBadge>}
+                >
+                  <div className="my-2 space-y-2.5 max-h-40 overflow-y-auto no-scrollbar">
                     {data.recentNotifications && data.recentNotifications.length > 0 ? (
                       data.recentNotifications.map((notif) => (
-                        <div key={notif.id} className="flex items-start gap-2.5 text-xs">
-                          <span className="w-2 h-2 rounded-full bg-brand-500 mt-1 shrink-0" />
+                        <div
+                          key={notif.id}
+                          className="flex items-start gap-2.5 text-xs p-2 rounded-xl bg-gray-50/70 border border-gray-100 hover:bg-gray-50 transition-colors"
+                        >
+                          <span className="w-2 h-2 rounded-full bg-brand-500 mt-1.5 shrink-0" />
                           <div className="flex-1 truncate">
-                            <span className="font-mono text-brand-700 font-semibold mr-1">
+                            <span className="font-mono text-brand-700 font-bold mr-1.5 text-[11px]">
                               {notif.protocol}
                             </span>
-                            <span className="text-gray-700">{notif.title}</span>
+                            <span className="text-gray-800 font-medium">{notif.title}</span>
                           </div>
                         </div>
                       ))
                     ) : (
-                      <p className="text-xs text-gray-400 italic">Sem notificações recentes.</p>
+                      <p className="text-xs text-gray-400 italic py-4 text-center">Sem notificações recentes.</p>
                     )}
                   </div>
 
                   <div className="pt-2 border-t border-gray-100 text-right">
-                    <span className="text-[11px] font-medium text-brand-600 cursor-pointer hover:underline">
+                    <span className="text-[11px] font-semibold text-brand-600 cursor-pointer hover:underline">
                       Ver histórico completo
                     </span>
                   </div>
-                </EzCardItem>
+                </TiFluxCard>
               </div>
 
               {/* Chamados Abertos por Status (Lista original de conformidade) */}
-              <EzCardItem className="p-5">
-                <h3 className="mb-4 text-[15px] font-semibold text-gray-900">
-                  Chamados Abertos por Status
-                </h3>
+              <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs p-5">
+                <div className="flex items-center justify-between pb-3 mb-4 border-b border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-gray-50 border border-gray-200 text-gray-700 flex items-center justify-center">
+                      <ShieldCheck className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-[15px] font-bold text-gray-900">
+                        Chamados Abertos por Status
+                      </h3>
+                      <p className="text-[12px] text-gray-500">Distribuição operacional das filas</p>
+                    </div>
+                  </div>
+                </div>
+
                 {Object.keys(data.byStatus).length === 0 ? (
-                  <p className="text-sm text-gray-500">Nenhum chamado aberto no momento.</p>
+                  <p className="text-sm text-gray-500 py-4 text-center">Nenhum chamado aberto no momento.</p>
                 ) : (
                   <ul className="divide-y divide-gray-100">
                     {Object.entries(data.byStatus).map(([status, count]) => (
-                      <li key={status} className="flex items-center justify-between py-2.5 text-sm">
-                        <span className="text-gray-700 font-medium">
+                      <li key={status} className="flex items-center justify-between py-3 text-sm hover:bg-gray-50/60 px-2 rounded-lg transition-colors">
+                        <span className="text-gray-800 font-semibold flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-brand-500" />
                           {STATUS_LABELS[status] ?? status}
                         </span>
-                        <span className="font-semibold text-gray-900 bg-gray-100 px-2.5 py-0.5 rounded-full text-xs">
+                        <span className="font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded-full text-xs border border-gray-200/60">
                           {count}
                         </span>
                       </li>
                     ))}
                   </ul>
                 )}
-              </EzCardItem>
+              </div>
             </div>
           )}
 
           {/* TAB 2: CHATS */}
           {activeTab === 'chats' && (
             <div className="space-y-6">
-              {/* 2.4 Meus chats & 2.6 Todos os chats */}
+              {/* 2.4 Meus chats & 2.6 Todos os chats no padrão TiFlux */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* 2.4 Meus chats */}
-                <EzCardItem className="p-5">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2">
-                      <MessageSquare className="w-4 h-4 text-brand-600" />
-                      Meus chats
-                    </h3>
-                    <EzBadge colorClass="bg-brand-50 text-brand-700">Atendente</EzBadge>
-                  </div>
+                <TiFluxCard
+                  icon={<MessageSquare className="w-5 h-5 text-brand-700" />}
+                  title="Meus chats"
+                  subtitle="Desempenho pessoal nos atendimentos instantâneos"
+                  badge={<EzBadge colorClass="bg-brand-50 text-brand-700">Atendente</EzBadge>}
+                >
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="p-3 rounded-xl bg-blue-50 text-center">
-                      <span className="text-[11px] text-blue-700 font-medium block">Em atendimento</span>
-                      <span className="text-[20px] font-bold text-blue-900 mt-1 block">
+                    <div className="p-3.5 rounded-xl bg-blue-50/80 border border-blue-100 text-center">
+                      <span className="text-[11px] text-blue-700 font-bold uppercase tracking-wider block">
+                        Em atendimento
+                      </span>
+                      <span className="text-[24px] font-extrabold text-blue-900 mt-1 block">
                         {data.myChats?.inProgress ?? 1}
                       </span>
                     </div>
-                    <div className="p-3 rounded-xl bg-amber-50 text-center">
-                      <span className="text-[11px] text-amber-700 font-medium block">Aguardando resposta</span>
-                      <span className="text-[20px] font-bold text-amber-900 mt-1 block">
+                    <div className="p-3.5 rounded-xl bg-amber-50/80 border border-amber-100 text-center">
+                      <span className="text-[11px] text-amber-700 font-bold uppercase tracking-wider block">
+                        Aguardando resposta
+                      </span>
+                      <span className="text-[24px] font-extrabold text-amber-900 mt-1 block">
                         {data.myChats?.waitingResponse ?? 0}
                       </span>
                     </div>
-                    <div className="p-3 rounded-xl bg-gray-50 text-center">
-                      <span className="text-[11px] text-gray-600 font-medium block">Média de espera</span>
-                      <span className="text-[20px] font-bold text-gray-900 mt-1 block">
+                    <div className="p-3.5 rounded-xl bg-gray-50 border border-gray-200/80 text-center">
+                      <span className="text-[11px] text-gray-600 font-bold uppercase tracking-wider block">
+                        Média de espera
+                      </span>
+                      <span className="text-[24px] font-extrabold text-gray-900 mt-1 block">
                         {data.myChats?.avgWaitMinutes ? `${data.myChats.avgWaitMinutes}m` : '3m'}
                       </span>
                     </div>
-                    <div className="p-3 rounded-xl bg-gray-50 text-center">
-                      <span className="text-[11px] text-gray-600 font-medium block">Média de atendimento</span>
-                      <span className="text-[20px] font-bold text-gray-900 mt-1 block">
+                    <div className="p-3.5 rounded-xl bg-gray-50 border border-gray-200/80 text-center">
+                      <span className="text-[11px] text-gray-600 font-bold uppercase tracking-wider block">
+                        Média de atendimento
+                      </span>
+                      <span className="text-[24px] font-extrabold text-gray-900 mt-1 block">
                         {data.myChats?.avgServiceMinutes ? `${data.myChats.avgServiceMinutes}m` : '18m'}
                       </span>
                     </div>
                   </div>
-                </EzCardItem>
+                </TiFluxCard>
 
                 {/* 2.6 Todos os chats */}
-                <EzCardItem className="p-5">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2">
-                      <Users className="w-4 h-4 text-brand-600" />
-                      Todos os chats
-                    </h3>
-                    <EzBadge colorClass="bg-gray-100 text-gray-700">Geral</EzBadge>
-                  </div>
+                <TiFluxCard
+                  icon={<Users className="w-5 h-5 text-brand-700" />}
+                  title="Todos os chats"
+                  subtitle="Visão consolidada de todas as filas da empresa"
+                  badge={<EzBadge colorClass="bg-gray-100 text-gray-700">Geral</EzBadge>}
+                >
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="p-3 rounded-xl bg-blue-50 text-center">
-                      <span className="text-[11px] text-blue-700 font-medium block">Em atendimento</span>
-                      <span className="text-[20px] font-bold text-blue-900 mt-1 block">
+                    <div className="p-3.5 rounded-xl bg-blue-50/80 border border-blue-100 text-center">
+                      <span className="text-[11px] text-blue-700 font-bold uppercase tracking-wider block">
+                        Em atendimento
+                      </span>
+                      <span className="text-[24px] font-extrabold text-blue-900 mt-1 block">
                         {data.allChats?.inProgress ?? data.openCount}
                       </span>
                     </div>
-                    <div className="p-3 rounded-xl bg-amber-50 text-center">
-                      <span className="text-[11px] text-amber-700 font-medium block">Aguardando resposta</span>
-                      <span className="text-[20px] font-bold text-amber-900 mt-1 block">
+                    <div className="p-3.5 rounded-xl bg-amber-50/80 border border-amber-100 text-center">
+                      <span className="text-[11px] text-amber-700 font-bold uppercase tracking-wider block">
+                        Aguardando resposta
+                      </span>
+                      <span className="text-[24px] font-extrabold text-amber-900 mt-1 block">
                         {data.allChats?.waitingResponse ?? 2}
                       </span>
                     </div>
-                    <div className="p-3 rounded-xl bg-gray-50 text-center">
-                      <span className="text-[11px] text-gray-600 font-medium block">Média de espera</span>
-                      <span className="text-[20px] font-bold text-gray-900 mt-1 block">
+                    <div className="p-3.5 rounded-xl bg-gray-50 border border-gray-200/80 text-center">
+                      <span className="text-[11px] text-gray-600 font-bold uppercase tracking-wider block">
+                        Média de espera
+                      </span>
+                      <span className="text-[24px] font-extrabold text-gray-900 mt-1 block">
                         {data.allChats?.avgWaitMinutes ? `${data.allChats.avgWaitMinutes}m` : '5m'}
                       </span>
                     </div>
-                    <div className="p-3 rounded-xl bg-gray-50 text-center">
-                      <span className="text-[11px] text-gray-600 font-medium block">Média de atendimento</span>
-                      <span className="text-[20px] font-bold text-gray-900 mt-1 block">
+                    <div className="p-3.5 rounded-xl bg-gray-50 border border-gray-200/80 text-center">
+                      <span className="text-[11px] text-gray-600 font-bold uppercase tracking-wider block">
+                        Média de atendimento
+                      </span>
+                      <span className="text-[24px] font-extrabold text-gray-900 mt-1 block">
                         {data.allChats?.avgServiceMinutes ? `${data.allChats.avgServiceMinutes}m` : '22m'}
                       </span>
                     </div>
                   </div>
-                </EzCardItem>
+                </TiFluxCard>
               </div>
 
               {/* 2.7 Chats por departamentos com a lista */}
-              <EzCardItem className="p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-[15px] font-semibold text-gray-900">
-                      Chats por departamentos
-                    </h3>
-                    <p className="text-[12px] text-gray-500">Métricas consolidadas por mesa e fila</p>
+              <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs p-5">
+                <div className="flex items-center justify-between pb-3 mb-4 border-b border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-brand-50 border border-brand-100 text-brand-700 flex items-center justify-center">
+                      <Building2 className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-[15px] font-bold text-gray-900">
+                        Chats por departamentos
+                      </h3>
+                      <p className="text-[12px] text-gray-500">Métricas consolidadas por mesa e fila de atendimento</p>
+                    </div>
                   </div>
                   <EzTag label="Ao Vivo" variant="ocean" />
                 </div>
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto rounded-xl border border-gray-100">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-gray-100 text-gray-500 uppercase tracking-wider text-[11px]">
-                        <th className="py-2.5 px-3">Departamento</th>
-                        <th className="py-2.5 px-3">Todos</th>
-                        <th className="py-2.5 px-3">Em Atendimento</th>
-                        <th className="py-2.5 px-3">Fila de espera</th>
-                        <th className="py-2.5 px-3">Aguardando Resposta</th>
-                        <th className="py-2.5 px-3">Média de espera</th>
-                        <th className="py-2.5 px-3">Média de atendimento</th>
+                      <tr className="bg-gray-50/90 border-b border-gray-200 text-gray-500 uppercase tracking-wider text-[11px]">
+                        <th className="py-3 px-4 font-bold">Departamento</th>
+                        <th className="py-3 px-4 font-bold">Todos</th>
+                        <th className="py-3 px-4 font-bold">Em Atendimento</th>
+                        <th className="py-3 px-4 font-bold">Fila de espera</th>
+                        <th className="py-3 px-4 font-bold">Aguardando Resposta</th>
+                        <th className="py-3 px-4 font-bold">Média de espera</th>
+                        <th className="py-3 px-4 font-bold">Média de atendimento</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -837,39 +1018,44 @@ export function DashboardPage() {
                         },
                       ]).map((dept, idx) => (
                         <tr key={idx} className="hover:bg-gray-50/70 transition-colors">
-                          <td className="py-3 px-3 font-semibold text-gray-900">{dept.department}</td>
-                          <td className="py-3 px-3 text-gray-700">{dept.total}</td>
-                          <td className="py-3 px-3 text-blue-600 font-medium">{dept.inProgress}</td>
-                          <td className="py-3 px-3 text-amber-600 font-medium">{dept.waitingQueue}</td>
-                          <td className="py-3 px-3 text-purple-600 font-medium">{dept.waitingResponse}</td>
-                          <td className="py-3 px-3 text-gray-600">{dept.avgWait}</td>
-                          <td className="py-3 px-3 text-gray-600">{dept.avgService}</td>
+                          <td className="py-3.5 px-4 font-bold text-gray-900">{dept.department}</td>
+                          <td className="py-3.5 px-4 text-gray-700 font-semibold">{dept.total}</td>
+                          <td className="py-3.5 px-4 text-blue-600 font-bold">{dept.inProgress}</td>
+                          <td className="py-3.5 px-4 text-amber-600 font-bold">{dept.waitingQueue}</td>
+                          <td className="py-3.5 px-4 text-purple-600 font-bold">{dept.waitingResponse}</td>
+                          <td className="py-3.5 px-4 text-gray-600 font-medium">{dept.avgWait}</td>
+                          <td className="py-3.5 px-4 text-gray-600 font-medium">{dept.avgService}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-              </EzCardItem>
+              </div>
 
               {/* 2.9 Chats por atendentes com a lista */}
-              <EzCardItem className="p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-[15px] font-semibold text-gray-900">
-                      Chats por atendentes
-                    </h3>
-                    <p className="text-[12px] text-gray-500">Status dos consultores e volume em curso</p>
+              <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs p-5">
+                <div className="flex items-center justify-between pb-3 mb-4 border-b border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-gray-50 border border-gray-200 text-gray-700 flex items-center justify-center">
+                      <Users className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-[15px] font-bold text-gray-900">
+                        Chats por atendentes
+                      </h3>
+                      <p className="text-[12px] text-gray-500">Status dos consultores e volume em curso</p>
+                    </div>
                   </div>
                   <EzTag label="Equipe" variant="gray" />
                 </div>
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto rounded-xl border border-gray-100">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-gray-100 text-gray-500 uppercase tracking-wider text-[11px]">
-                        <th className="py-2.5 px-3">Atendente</th>
-                        <th className="py-2.5 px-3">Status</th>
-                        <th className="py-2.5 px-3">Em andamento</th>
-                        <th className="py-2.5 px-3">Grupo de atendente</th>
+                      <tr className="bg-gray-50/90 border-b border-gray-200 text-gray-500 uppercase tracking-wider text-[11px]">
+                        <th className="py-3 px-4 font-bold">Atendente</th>
+                        <th className="py-3 px-4 font-bold">Status</th>
+                        <th className="py-3 px-4 font-bold">Em andamento</th>
+                        <th className="py-3 px-4 font-bold">Grupo de atendente</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -879,26 +1065,26 @@ export function DashboardPage() {
                         { name: 'Consultor DM', status: 'online', inProgress: 1, group: 'N2 Especialistas' },
                       ]).map((ag, idx) => (
                         <tr key={idx} className="hover:bg-gray-50/70 transition-colors">
-                          <td className="py-3 px-3 font-semibold text-gray-900 flex items-center gap-2">
-                            <span className="w-6 h-6 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-[10px]">
+                          <td className="py-3.5 px-4 font-bold text-gray-900 flex items-center gap-2.5">
+                            <span className="w-7 h-7 rounded-full bg-brand-100 text-brand-800 flex items-center justify-center font-bold text-[11px] border border-brand-200">
                               {ag.name.charAt(0)}
                             </span>
                             {ag.name}
                           </td>
-                          <td className="py-3 px-3">
+                          <td className="py-3.5 px-4">
                             <span
                               className={cn(
-                                'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium',
-                                ag.status === 'online' && 'bg-green-100 text-green-700',
-                                ag.status === 'busy' && 'bg-amber-100 text-amber-700',
-                                ag.status === 'away' && 'bg-gray-100 text-gray-600',
-                                ag.status === 'offline' && 'bg-red-100 text-red-600'
+                                'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border',
+                                ag.status === 'online' && 'bg-green-50 text-green-700 border-green-200',
+                                ag.status === 'busy' && 'bg-amber-50 text-amber-700 border-amber-200',
+                                ag.status === 'away' && 'bg-gray-50 text-gray-600 border-gray-200',
+                                ag.status === 'offline' && 'bg-red-50 text-red-600 border-red-200'
                               )}
                             >
                               <span
                                 className={cn(
-                                  'w-1.5 h-1.5 rounded-full',
-                                  ag.status === 'online' && 'bg-green-500',
+                                  'w-2 h-2 rounded-full',
+                                  ag.status === 'online' && 'bg-green-500 animate-pulse',
                                   ag.status === 'busy' && 'bg-amber-500',
                                   ag.status === 'away' && 'bg-gray-400',
                                   ag.status === 'offline' && 'bg-red-500'
@@ -911,14 +1097,14 @@ export function DashboardPage() {
                                 : 'Ausente'}
                             </span>
                           </td>
-                          <td className="py-3 px-3 font-semibold text-blue-600">{ag.inProgress}</td>
-                          <td className="py-3 px-3 text-gray-600">{ag.group}</td>
+                          <td className="py-3.5 px-4 font-extrabold text-blue-600 text-sm">{ag.inProgress}</td>
+                          <td className="py-3.5 px-4 text-gray-600 font-medium">{ag.group}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-              </EzCardItem>
+              </div>
             </div>
           )}
 
@@ -927,35 +1113,23 @@ export function DashboardPage() {
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* 3.6 Meus compromissos */}
-                <EzCardItem className="p-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-                    <div>
-                      <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-brand-600" />
-                        Meus compromissos
-                      </h3>
-                      <p className="text-[12px] text-gray-500">Agendamentos atribuídos a você</p>
-                    </div>
-
-                    <div className="flex gap-1 bg-gray-100 p-1 rounded-lg text-[11px]">
-                      {(['todos', 'hoje', 'semana', 'mes'] as const).map((period) => (
-                        <button
-                          key={period}
-                          type="button"
-                          onClick={() => setMyApptFilter(period)}
-                          className={cn(
-                            'px-2 py-0.5 rounded capitalize font-medium transition-colors',
-                            myApptFilter === period
-                              ? 'bg-white text-gray-900 shadow-xs'
-                              : 'text-gray-500 hover:text-gray-800'
-                          )}
-                        >
-                          {period === 'mes' ? 'Mês' : period}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
+                <TiFluxCard
+                  icon={<Calendar className="w-5 h-5 text-brand-700" />}
+                  title="Meus compromissos"
+                  subtitle="Agendamentos atribuídos diretamente a você"
+                  actions={
+                    <SegmentedControl
+                      options={[
+                        { id: 'todos', label: 'Todos' },
+                        { id: 'hoje', label: 'Hoje' },
+                        { id: 'semana', label: 'Semana' },
+                        { id: 'mes', label: 'Mês' },
+                      ]}
+                      value={myApptFilter}
+                      onChange={(val) => setMyApptFilter(val as PeriodFilter)}
+                    />
+                  }
+                >
                   <div className="space-y-3">
                     {(data.myAppointments?.items || [
                       {
@@ -975,52 +1149,40 @@ export function DashboardPage() {
                     ]).map((item) => (
                       <div
                         key={item.id}
-                        className="p-3 rounded-xl border border-gray-100 bg-gray-50/50 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                        className="p-3.5 rounded-xl border border-gray-100 bg-gray-50/60 flex items-center justify-between hover:bg-gray-50 transition-colors"
                       >
                         <div className="truncate pr-2">
-                          <h4 className="text-xs font-semibold text-gray-900 truncate">{item.title}</h4>
-                          <span className="text-[11px] text-gray-500 block mt-0.5">
+                          <h4 className="text-xs font-bold text-gray-900 truncate">{item.title}</h4>
+                          <span className="text-[11px] text-gray-500 block mt-1 font-medium">
                             {item.client} • {item.time}
                           </span>
                         </div>
-                        <EzBadge size="small" colorClass="bg-brand-50 text-brand-700">
+                        <EzBadge size="small" colorClass="bg-brand-50 text-brand-700 font-semibold">
                           {item.status}
                         </EzBadge>
                       </div>
                     ))}
                   </div>
-                </EzCardItem>
+                </TiFluxCard>
 
                 {/* 3.7 Todos os compromissos */}
-                <EzCardItem className="p-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-                    <div>
-                      <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2">
-                        <Briefcase className="w-4 h-4 text-brand-600" />
-                        Todos os compromissos
-                      </h3>
-                      <p className="text-[12px] text-gray-500">Agenda global da equipe de recursos</p>
-                    </div>
-
-                    <div className="flex gap-1 bg-gray-100 p-1 rounded-lg text-[11px]">
-                      {(['todos', 'hoje', 'semana', 'mes'] as const).map((period) => (
-                        <button
-                          key={period}
-                          type="button"
-                          onClick={() => setAllApptFilter(period)}
-                          className={cn(
-                            'px-2 py-0.5 rounded capitalize font-medium transition-colors',
-                            allApptFilter === period
-                              ? 'bg-white text-gray-900 shadow-xs'
-                              : 'text-gray-500 hover:text-gray-800'
-                          )}
-                        >
-                          {period === 'mes' ? 'Mês' : period}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
+                <TiFluxCard
+                  icon={<Briefcase className="w-5 h-5 text-brand-700" />}
+                  title="Todos os compromissos"
+                  subtitle="Agenda global da equipe de recursos técnicos"
+                  actions={
+                    <SegmentedControl
+                      options={[
+                        { id: 'todos', label: 'Todos' },
+                        { id: 'hoje', label: 'Hoje' },
+                        { id: 'semana', label: 'Semana' },
+                        { id: 'mes', label: 'Mês' },
+                      ]}
+                      value={allApptFilter}
+                      onChange={(val) => setAllApptFilter(val as PeriodFilter)}
+                    />
+                  }
+                >
                   <div className="space-y-3">
                     {(data.allAppointments?.items || [
                       {
@@ -1050,21 +1212,21 @@ export function DashboardPage() {
                     ]).map((item) => (
                       <div
                         key={item.id}
-                        className="p-3 rounded-xl border border-gray-100 bg-gray-50/50 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                        className="p-3.5 rounded-xl border border-gray-100 bg-gray-50/60 flex items-center justify-between hover:bg-gray-50 transition-colors"
                       >
                         <div className="truncate pr-2">
-                          <h4 className="text-xs font-semibold text-gray-900 truncate">{item.title}</h4>
-                          <span className="text-[11px] text-gray-500 block mt-0.5">
-                            {item.client} • {item.time} • <strong className="text-gray-700">{item.agent}</strong>
+                          <h4 className="text-xs font-bold text-gray-900 truncate">{item.title}</h4>
+                          <span className="text-[11px] text-gray-500 block mt-1 font-medium">
+                            {item.client} • {item.time} • <strong className="text-gray-800">{item.agent}</strong>
                           </span>
                         </div>
-                        <EzBadge size="small" colorClass="bg-purple-50 text-purple-700">
+                        <EzBadge size="small" colorClass="bg-purple-50 text-purple-700 font-semibold">
                           {item.status}
                         </EzBadge>
                       </div>
                     ))}
                   </div>
-                </EzCardItem>
+                </TiFluxCard>
               </div>
             </div>
           )}
@@ -1073,47 +1235,51 @@ export function DashboardPage() {
           {activeTab === 'horas' && (
             <div className="space-y-6">
               {/* 2.5 Minhas horas apontadas */}
-              <EzCardItem className="p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                  <div>
-                    <h2 className="text-[16px] font-bold text-gray-900 flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-brand-600" />
-                      Minhas horas apontadas
-                    </h2>
-                    <p className="text-[13px] text-gray-500 mt-0.5">
-                      Meta diária de 8H, horas apontadas e horas faltantes por dia do mês
-                    </p>
+              <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-brand-50 border border-brand-100 text-brand-700 flex items-center justify-center shrink-0">
+                      <Clock className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-[16px] font-bold text-gray-900">
+                        Minhas horas apontadas
+                      </h2>
+                      <p className="text-[13px] text-gray-500 mt-0.5">
+                        Meta diária de 8H, horas apontadas e horas faltantes por dia do mês
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Resumo do Mês em Badges */}
+                  {/* Resumo do Mês em Badges Padronizados */}
                   <div className="flex flex-wrap items-center gap-3">
-                    <div className="px-3.5 py-1.5 rounded-xl bg-brand-50 border border-brand-100 text-xs">
-                      <span className="text-brand-600 block text-[11px]">Horas Apontadas</span>
-                      <strong className="text-[15px] text-brand-900 font-bold">{hoursLoggedTotal}H</strong>
+                    <div className="px-4 py-2 rounded-xl bg-brand-50 border border-brand-100 text-xs shadow-2xs">
+                      <span className="text-brand-600 block text-[11px] font-bold uppercase tracking-wider">Horas Apontadas</span>
+                      <strong className="text-[18px] text-brand-900 font-extrabold">{hoursLoggedTotal}H</strong>
                     </div>
-                    <div className="px-3.5 py-1.5 rounded-xl bg-amber-50 border border-amber-100 text-xs">
-                      <span className="text-amber-600 block text-[11px]">Horas Faltantes</span>
-                      <strong className="text-[15px] text-amber-900 font-bold">{hoursRemainingTotal}H</strong>
+                    <div className="px-4 py-2 rounded-xl bg-amber-50 border border-amber-100 text-xs shadow-2xs">
+                      <span className="text-amber-600 block text-[11px] font-bold uppercase tracking-wider">Horas Faltantes</span>
+                      <strong className="text-[18px] text-amber-900 font-extrabold">{hoursRemainingTotal}H</strong>
                     </div>
-                    <div className="px-3.5 py-1.5 rounded-xl bg-gray-50 border border-gray-200 text-xs">
-                      <span className="text-gray-500 block text-[11px]">Meta Mensal</span>
-                      <strong className="text-[15px] text-gray-800 font-bold">{hoursTargetTotal}H</strong>
+                    <div className="px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 text-xs shadow-2xs">
+                      <span className="text-gray-500 block text-[11px] font-bold uppercase tracking-wider">Meta Mensal</span>
+                      <strong className="text-[18px] text-gray-800 font-extrabold">{hoursTargetTotal}H</strong>
                     </div>
                   </div>
                 </div>
 
                 {/* Legenda do gráfico */}
-                <div className="flex items-center gap-5 text-xs text-gray-600 mb-4 pb-2 border-b border-gray-100">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-xs bg-brand-600" />
+                <div className="flex items-center gap-6 text-xs text-gray-600 mb-4 pb-2 border-b border-gray-100 font-medium">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3.5 h-3.5 rounded-xs bg-brand-600" />
                     <span>Horas Apontadas</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-xs bg-amber-300" />
+                  <div className="flex items-center gap-2">
+                    <span className="w-3.5 h-3.5 rounded-xs bg-amber-300" />
                     <span>Horas Faltantes</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-1 bg-gray-400" />
+                  <div className="flex items-center gap-2">
+                    <span className="w-3.5 h-1 bg-gray-400" />
                     <span>Meta Diária (8H)</span>
                   </div>
                 </div>
@@ -1121,9 +1287,9 @@ export function DashboardPage() {
                 {/* Gráfico de Colunas Diárias do Mês */}
                 <div className="relative pt-6 pb-2 overflow-x-auto no-scrollbar">
                   {/* Linha de referência da Meta de 8H */}
-                  <div className="relative h-60 min-w-[700px] flex items-end justify-between gap-1 border-b border-gray-200">
+                  <div className="relative h-64 min-w-[720px] flex items-end justify-between gap-1.5 border-b border-gray-200">
                     <div className="absolute left-0 right-0 top-[20%] border-t border-dashed border-gray-300 pointer-events-none z-0">
-                      <span className="absolute -top-3 left-0 text-[10px] text-gray-400 bg-white px-1">
+                      <span className="absolute -top-3 left-0 text-[10px] text-gray-400 bg-white px-1 font-semibold">
                         Meta 8H
                       </span>
                     </div>
@@ -1142,12 +1308,12 @@ export function DashboardPage() {
                           className="flex flex-col items-center flex-1 h-full justify-end group relative z-10"
                         >
                           {/* Tooltip Hover */}
-                          <div className="absolute -top-12 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity bg-gray-900 text-white text-[11px] rounded-md px-2 py-1 shadow-lg whitespace-nowrap z-20">
+                          <div className="absolute -top-12 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity bg-gray-900 text-white text-[11px] rounded-lg px-2.5 py-1.5 shadow-xl whitespace-nowrap z-20 font-medium">
                             Dia {d.day}: {d.loggedHours}H apontadas ({d.remainingHours}H faltantes)
                           </div>
 
                           {/* Coluna composta com as três áreas */}
-                          <div className="w-full max-w-[18px] bg-gray-100 rounded-t-[4px] flex flex-col justify-end overflow-hidden h-[80%]">
+                          <div className="w-full max-w-[20px] bg-gray-100 rounded-t-md flex flex-col justify-end overflow-hidden h-[80%] border-t border-x border-gray-200/40">
                             {/* Área de Horas Faltantes (se meta > apontadas) */}
                             {remainingPct > 0 && (
                               <div
@@ -1165,7 +1331,7 @@ export function DashboardPage() {
                           </div>
 
                           {/* Rótulo do dia */}
-                          <span className="text-[10px] text-gray-500 mt-2 font-medium">
+                          <span className="text-[10px] text-gray-500 mt-2 font-semibold">
                             {d.day}
                           </span>
                         </div>
@@ -1173,7 +1339,7 @@ export function DashboardPage() {
                     })}
                   </div>
                 </div>
-              </EzCardItem>
+              </div>
             </div>
           )}
         </>
