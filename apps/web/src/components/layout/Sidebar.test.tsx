@@ -121,23 +121,31 @@ describe('Sidebar', () => {
     expect(reportsButton?.className).toContain('bg-brand-100');
   });
 
-  it('renders Chats and Agenda as disabled "Em breve" items that do not navigate (Issue #45/#46 not shipped yet)', async () => {
+  it('renders Chats as a disabled "Em breve" item that does not navigate (Issue #45 not shipped yet)', async () => {
     const user = userEvent.setup();
     loginAs('ADMIN');
     renderSidebar();
 
     const chatsButton = screen.getByRole('button', { name: /chats/i });
-    const agendaButton = screen.getByRole('button', { name: /agenda/i });
     expect(chatsButton).toBeDisabled();
-    expect(agendaButton).toBeDisabled();
 
     const emBreveBadges = screen.getAllByText('Em breve');
-    expect(emBreveBadges).toHaveLength(2);
+    expect(emBreveBadges).toHaveLength(1);
 
     await user.click(chatsButton);
-    await user.click(agendaButton);
     expect(mockNavigate).not.toHaveBeenCalledWith('/chats');
-    expect(mockNavigate).not.toHaveBeenCalledWith('/schedule');
+  });
+
+  it('navigates to /schedule when Agenda is clicked', async () => {
+    const user = userEvent.setup();
+    loginAs('ADMIN');
+    renderSidebar();
+
+    const agendaButton = screen.getByRole('button', { name: /agenda/i });
+    expect(agendaButton).toBeEnabled();
+
+    await user.click(agendaButton);
+    expect(mockNavigate).toHaveBeenCalledWith('/schedule');
   });
 
   it('navigates to /tickets/new when "Novo Ticket" is clicked', async () => {

@@ -24,6 +24,7 @@ import { SchedulingModule } from "./scheduling/scheduling.module";
 import { ApiTokensModule } from './api-tokens/api-tokens.module';
 import { HealthModule } from './health/health.module';
 import { WorklogsModule } from './worklogs/worklogs.module';
+import { AgendaModule } from './agenda/agenda.module';
 import { LoggerModule } from 'nestjs-pino';
 
 @Module({
@@ -87,6 +88,7 @@ import { LoggerModule } from 'nestjs-pino';
     ApiTokensModule,
     HealthModule,
     WorklogsModule,
+    AgendaModule,
   ],
   controllers: [AppController],
   providers: [

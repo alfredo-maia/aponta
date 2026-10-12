@@ -7,6 +7,7 @@ import { registerReportTools } from './tools/reports';
 import { registerVaultTools } from './tools/vault';
 import { registerContractTools } from './tools/contracts';
 import { registerArticleTools } from './tools/articles';
+import { registerAgendaTools } from './tools/agenda';
 
 async function main() {
   // Fails fast with a clear message if APONTA_API_URL/APONTA_API_TOKEN
@@ -23,6 +24,7 @@ async function main() {
   registerVaultTools(server, api);
   registerContractTools(server, api);
   registerArticleTools(server, api);
+  registerAgendaTools(server, api);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

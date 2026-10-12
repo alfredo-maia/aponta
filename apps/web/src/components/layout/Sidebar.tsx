@@ -35,7 +35,7 @@ const NAV_ITEMS = [
   { to: '/service-desks', label: 'Recursos', icon: <Box /> },
   { to: '/contracts', label: 'Contratos', icon: <FileSignature /> },
   { to: '/reports', label: 'Relatórios', icon: <BarChart3 /> },
-  { to: '/schedule', label: 'Agenda', icon: <CalendarDays />, disabled: true },
+  { to: '/schedule', label: 'Agenda', icon: <CalendarDays /> },
   { to: '/knowledge', label: 'Conhecimentos', icon: <BookOpen /> },
   { to: '/vault', label: 'Cofre de Senhas', icon: <Key /> },
   { to: '/settings', label: 'Configurações', icon: <Settings /> },
@@ -54,7 +54,7 @@ const ROLE_VISIBILITY: Record<string, string[]> = {
     'Agenda', 'Conhecimentos', 'Cofre de Senhas', 'Configurações',
   ],
   CLIENT_MASTER: [
-    'Tickets', 'Contratos', 'Relatórios', 'Conhecimentos', 'Configurações',
+    'Tickets', 'Contratos', 'Relatórios', 'Agenda', 'Conhecimentos', 'Configurações',
   ],
   CLIENT: ['Tickets', 'Conhecimentos', 'Configurações'],
 };

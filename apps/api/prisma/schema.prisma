@@ -70,6 +70,7 @@ model Organization {
   users     User[]
   credentials Credential[]
   contracts Contract[]
+  appointments Appointment[]
   addresses OrganizationAddress[]
   contacts  OrganizationContact[]
   /// Tiflux-parity: Mesa<->Cliente é N:N (confirmado ao vivo: 1 mesa pode servir
@@ -126,6 +127,7 @@ model User {
   attachments TicketAttachment[]
   worklogs    Worklog[]
   apiTokens   ApiToken[]
+  appointments Appointment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -255,6 +257,7 @@ model Ticket {
   checklists  TicketChecklist[]
   attachments TicketAttachment[]
   worklogs    Worklog[]
+  appointments Appointment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -431,3 +434,31 @@ model ApiToken {
 
   @@index([prefix])
 }
+
+enum AppointmentType {
+  APPOINTMENT
+  ABSENCE
+  ALLOCATION
+}
+
+model Appointment {
+  id             String          @id @default(uuid())
+  title          String
+  description    String?
+  startTime      DateTime
+  endTime        DateTime
+  type           AppointmentType @default(APPOINTMENT)
+  userId         String
+  user           User            @relation(fields: [userId], references: [id])
+  organizationId String?
+  organization   Organization?   @relation(fields: [organizationId], references: [id])
+  ticketId       String?
+  ticket         Ticket?         @relation(fields: [ticketId], references: [id])
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([startTime, endTime])
+}
+

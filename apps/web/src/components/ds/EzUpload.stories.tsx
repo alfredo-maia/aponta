@@ -60,7 +60,7 @@ export const Interativo: Story = {
             multiple
             accept=".pdf,.png,.jpg"
             message="Formatos aceitos: PDF, PNG ou JPG — anexos do chamado"
-            onChange={(newFiles) => setFiles((current) => [...current, ...newFiles])}
+            onChange={(newFiles: any[]) => setFiles((current) => [...current, ...newFiles])}
           />
           {files.map((file, index) => (
             <EzFileItem
