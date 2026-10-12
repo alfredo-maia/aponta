@@ -471,6 +471,60 @@ describe('TicketDetailPage', () => {
     });
   });
 
+  describe('Tab navigation', () => {
+    it('switches between tabs and shows respective tab panels for agents', async () => {
+      setRole('AGENT');
+      const user = userEvent.setup();
+      renderPage();
+
+      await screen.findByText('Printer not working');
+
+      expect(screen.getByTestId('tab-panel-geral')).not.toHaveClass('hidden');
+
+      const apontamentosTab = screen.getByRole('tab', { name: /apontamentos/i });
+      await user.click(apontamentosTab);
+
+      expect(screen.getByTestId('tab-panel-apontamentos')).not.toHaveClass('hidden');
+      expect(screen.getByTestId('tab-panel-geral')).toHaveClass('hidden');
+
+      const comunicacaoTab = screen.getByRole('tab', { name: /comunicação/i });
+      await user.click(comunicacaoTab);
+
+      expect(screen.getByTestId('tab-panel-comunicacao')).not.toHaveClass('hidden');
+      expect(screen.getByTestId('tab-panel-apontamentos')).toHaveClass('hidden');
+    });
+
+    it('quick Apontamento header button activates apontamentos tab', async () => {
+      setRole('AGENT');
+      const user = userEvent.setup();
+      renderPage();
+
+      await screen.findByText('Printer not working');
+
+      const quickBtn = screen.getByTestId('header-quick-worklog-button');
+      await user.click(quickBtn);
+
+      expect(screen.getByTestId('tab-panel-apontamentos')).not.toHaveClass('hidden');
+      expect(screen.getByTestId('tab-panel-geral')).toHaveClass('hidden');
+    });
+
+    it('hides non-client tabs from clients', async () => {
+      setRole('CLIENT');
+      renderPage();
+
+      await screen.findByText('Printer not working');
+
+      expect(screen.getByRole('tab', { name: /informações gerais/i })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: /comunicação/i })).toBeInTheDocument();
+
+      expect(screen.queryByRole('tab', { name: /apontamentos/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('tab', { name: /categoria/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('tab', { name: /compromissos/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('tab', { name: /github/i })).not.toBeInTheDocument();
+      expect(screen.queryByTestId('header-quick-worklog-button')).not.toBeInTheDocument();
+    });
+  });
+
   describe('Back button', () => {
     it('shows a "Voltar" link that navigates back to the ticket list', async () => {
       setRole('AGENT');
