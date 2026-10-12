@@ -21,7 +21,7 @@
  * apps/api/src/users/users.service.ts, so it authenticates identically to a
  * real registration through AuthService.validateUser's bcrypt.compare.
  */
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient, Role, AttendanceType } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import * as bcrypt from 'bcryptjs';
 
@@ -132,14 +132,20 @@ async function main() {
             ticketId: sampleTicket.id,
             authorId: user.id,
             description: 'Análise inicial do chamado e diagnóstico',
+            startTime: new Date('2026-10-01T08:00:00Z'),
+            endTime: new Date('2026-10-01T08:45:00Z'),
             minutes: 45,
+            attendanceType: AttendanceType.REMOTE,
             billable: true,
           },
           {
             ticketId: sampleTicket.id,
             authorId: user.id,
             description: 'Configuração de ambiente e execução de testes',
+            startTime: new Date('2026-10-01T13:00:00Z'),
+            endTime: new Date('2026-10-01T14:30:00Z'),
             minutes: 90,
+            attendanceType: AttendanceType.ON_SITE,
             billable: true,
           },
         ],

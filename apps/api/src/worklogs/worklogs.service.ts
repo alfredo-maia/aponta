@@ -1,9 +1,10 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Role } from '@prisma/client';
+import { AttendanceType, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWorklogDto } from './dto/create-worklog.dto';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
@@ -29,6 +30,19 @@ export class WorklogsService {
       throw new ForbiddenException('Clientes não têm permissão para registrar apontamentos');
     }
 
+    const start = new Date(dto.startTime);
+    const end = new Date(dto.endTime);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      throw new BadRequestException('Horário de início ou término inválido');
+    }
+
+    if (end <= start) {
+      throw new BadRequestException('O horário de término deve ser posterior ao horário de início');
+    }
+
+    const minutes = Math.round((end.getTime() - start.getTime()) / 60000);
+
     let authorId = currentUser.id;
 
     if (currentUser.role === Role.ADMIN) {
@@ -52,7 +66,10 @@ export class WorklogsService {
         ticketId,
         authorId,
         description: dto.description.trim(),
-        minutes: dto.minutes,
+        minutes,
+        startTime: start,
+        endTime: end,
+        attendanceType: dto.attendanceType ?? AttendanceType.REMOTE,
         billable: dto.billable !== undefined ? dto.billable : true,
       },
       include: {

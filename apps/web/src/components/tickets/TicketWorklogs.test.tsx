@@ -1,10 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../stores/authStore';
-import { TicketWorklogs, formatWorklogMinutes } from './TicketWorklogs';
+import { TicketWorklogs, formatWorklogMinutes, formatAttendanceType } from './TicketWorklogs';
 
 vi.mock('../../lib/api', () => ({
   api: {
@@ -19,6 +19,9 @@ const mockWorklogs = [
     id: 'wl-1',
     description: 'Diagnóstico e análise',
     minutes: 60,
+    startTime: '2026-10-12T08:00:00.000Z',
+    endTime: '2026-10-12T09:00:00.000Z',
+    attendanceType: 'REMOTE',
     billable: true,
     ticketId: 't-1',
     authorId: 'u-1',
@@ -29,6 +32,9 @@ const mockWorklogs = [
     id: 'wl-2',
     description: 'Reunião interna sobre escopo',
     minutes: 30,
+    startTime: '2026-10-12T14:00:00.000Z',
+    endTime: '2026-10-12T14:30:00.000Z',
+    attendanceType: 'ON_SITE',
     billable: false,
     ticketId: 't-1',
     authorId: 'u-2',
@@ -36,6 +42,8 @@ const mockWorklogs = [
     author: { id: 'u-2', name: 'Gestor Santos', email: 'santos@aponta.com' },
   },
 ];
+
+const todayStr = () => new Date().toISOString().split('T')[0];
 
 function renderComponent(ticketId = 't-1') {
   const queryClient = new QueryClient({
@@ -72,6 +80,11 @@ describe('TicketWorklogs', () => {
     expect(formatWorklogMinutes(125)).toBe('2h 5m');
   });
 
+  it('formatAttendanceType translates the attendance type enum', () => {
+    expect(formatAttendanceType('REMOTE')).toBe('Remoto');
+    expect(formatAttendanceType('ON_SITE')).toBe('Presencial');
+  });
+
   it('renders worklogs list and summary header correctly', async () => {
     loginAs('AGENT', 'u-1');
     vi.mocked(api.get).mockResolvedValueOnce({ data: mockWorklogs });
@@ -88,6 +101,8 @@ describe('TicketWorklogs', () => {
     expect(screen.getByText('1h 30m')).toBeInTheDocument(); // total 90m
     expect(screen.getByText('Faturável')).toBeInTheDocument();
     expect(screen.getByText('Não Faturável')).toBeInTheDocument();
+    expect(within(screen.getByTestId('worklog-item-wl-1')).getByText('Remoto')).toBeInTheDocument();
+    expect(within(screen.getByTestId('worklog-item-wl-2')).getByText('Presencial')).toBeInTheDocument();
   });
 
   it('renders empty state when no worklogs exist', async () => {
@@ -126,30 +141,86 @@ describe('TicketWorklogs', () => {
 
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith('/tickets/t-1/worklogs', {
-        minutes: 30,
+        startTime: `${todayStr()}T08:00:00Z`,
+        endTime: `${todayStr()}T08:30:00Z`,
+        attendanceType: 'REMOTE',
         description: 'Implementação de feature',
         billable: true,
       });
     });
   });
 
-  it('quick chip buttons update the minutes value', async () => {
+  it('allows choosing attendance type and a custom time range, sending them on submit', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    vi.mocked(api.post).mockResolvedValueOnce({
+      data: { id: 'wl-new', description: 'Visita técnica', minutes: 120, billable: true, author: { id: 'u-1', name: 'Usuário Teste' } },
+    });
+
+    const user = userEvent.setup();
+    renderComponent();
+
+    await user.type(screen.getByTestId('worklog-description-input'), 'Visita técnica');
+    await user.selectOptions(screen.getByTestId('worklog-attendance-type-select'), 'ON_SITE');
+
+    const startInput = screen.getByTestId('worklog-start-time-input') as HTMLInputElement;
+    fireEvent.change(startInput, { target: { value: '09:00' } });
+
+    const endInput = screen.getByTestId('worklog-end-time-input') as HTMLInputElement;
+    fireEvent.change(endInput, { target: { value: '11:00' } });
+
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith('/tickets/t-1/worklogs', {
+        startTime: `${todayStr()}T09:00:00Z`,
+        endTime: `${todayStr()}T11:00:00Z`,
+        attendanceType: 'ON_SITE',
+        description: 'Visita técnica',
+        billable: true,
+      });
+    });
+  });
+
+  it('blocks submission when the end time is not after the start time', async () => {
     loginAs('AGENT', 'u-1');
     vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
 
     const user = userEvent.setup();
     renderComponent();
 
-    const minutesInput = screen.getByTestId('worklog-minutes-input') as HTMLInputElement;
-    expect(minutesInput.value).toBe('30');
+    await user.type(screen.getByTestId('worklog-description-input'), 'Horário inválido');
+    fireEvent.change(screen.getByTestId('worklog-start-time-input'), { target: { value: '10:00' } });
+    fireEvent.change(screen.getByTestId('worklog-end-time-input'), { target: { value: '09:00' } });
+
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+
+    await waitFor(() => {
+      expect(screen.getByText('O horário de término deve ser posterior ao horário de início.')).toBeInTheDocument();
+    });
+    expect(api.post).not.toHaveBeenCalled();
+  });
+
+  it('quick chip buttons update the end time and the computed duration', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+
+    const user = userEvent.setup();
+    renderComponent();
+
+    const endInput = screen.getByTestId('worklog-end-time-input') as HTMLInputElement;
+    expect(endInput.value).toBe('08:30');
+    expect(screen.getByTestId('worklog-computed-duration')).toHaveTextContent('30 min');
 
     const chip1h = screen.getByRole('button', { name: '1h' });
     await user.click(chip1h);
-    expect(minutesInput.value).toBe('60');
+    expect(endInput.value).toBe('09:00');
+    expect(screen.getByTestId('worklog-computed-duration')).toHaveTextContent('1h');
 
-    const chip2h = screen.getByRole('button', { name: '2h' });
-    await user.click(chip2h);
-    expect(minutesInput.value).toBe('120');
+    const chipExtend = screen.getByRole('button', { name: '+15m' });
+    await user.click(chipExtend);
+    expect(endInput.value).toBe('09:15');
+    expect(screen.getByTestId('worklog-computed-duration')).toHaveTextContent('1h 15m');
   });
 
   it('allows deleting own worklog when confirmed', async () => {

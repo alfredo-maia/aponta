@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
-import { Role } from '@prisma/client';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { AttendanceType, Role } from '@prisma/client';
 import { WorklogsService } from './worklogs.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
@@ -59,7 +59,7 @@ describe('WorklogsService', () => {
   });
 
   describe('create', () => {
-    it('should allow AGENT to create a worklog for themselves', async () => {
+    it('should allow AGENT to create a worklog for themselves, deriving minutes from the time range', async () => {
       mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
       mockPrisma.worklog.create.mockResolvedValue({
         id: 'wl-1',
@@ -73,7 +73,11 @@ describe('WorklogsService', () => {
 
       const result = await service.create(
         'ticket-1',
-        { minutes: 60, description: 'Análise de banco' },
+        {
+          startTime: '2026-10-13T08:00:00Z',
+          endTime: '2026-10-13T09:00:00Z',
+          description: 'Análise de banco',
+        },
         agentUser,
       );
 
@@ -83,6 +87,9 @@ describe('WorklogsService', () => {
           ticketId: 'ticket-1',
           authorId: 'agent-1',
           minutes: 60,
+          startTime: new Date('2026-10-13T08:00:00Z'),
+          endTime: new Date('2026-10-13T09:00:00Z'),
+          attendanceType: AttendanceType.REMOTE,
           description: 'Análise de banco',
           billable: true,
         },
@@ -92,13 +99,69 @@ describe('WorklogsService', () => {
       });
     });
 
+    it('should accept an explicit ON_SITE attendanceType', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-3' });
+
+      await service.create(
+        'ticket-1',
+        {
+          startTime: '2026-10-13T08:00:00Z',
+          endTime: '2026-10-13T08:30:00Z',
+          attendanceType: AttendanceType.ON_SITE,
+          description: 'Visita técnica',
+        },
+        agentUser,
+      );
+
+      expect(mockPrisma.worklog.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ attendanceType: AttendanceType.ON_SITE, minutes: 30 }),
+        }),
+      );
+    });
+
+    it('should throw BadRequestException when endTime is not after startTime', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+
+      await expect(
+        service.create(
+          'ticket-1',
+          {
+            startTime: '2026-10-13T09:00:00Z',
+            endTime: '2026-10-13T08:00:00Z',
+            description: 'Horário inválido',
+          },
+          agentUser,
+        ),
+      ).rejects.toThrow(BadRequestException);
+      expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException when startTime or endTime cannot be parsed', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+
+      await expect(
+        service.create(
+          'ticket-1',
+          { startTime: 'not-a-date', endTime: '2026-10-13T08:00:00Z', description: 'Teste' },
+          agentUser,
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
     it('should throw ForbiddenException when AGENT tries to log for another user', async () => {
       mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
 
       await expect(
         service.create(
           'ticket-1',
-          { minutes: 30, description: 'Trabalho', authorId: 'other-user' },
+          {
+            startTime: '2026-10-13T08:00:00Z',
+            endTime: '2026-10-13T08:30:00Z',
+            description: 'Trabalho',
+            authorId: 'other-user',
+          },
           agentUser,
         ),
       ).rejects.toThrow(ForbiddenException);
@@ -119,7 +182,13 @@ describe('WorklogsService', () => {
 
       const result = await service.create(
         'ticket-1',
-        { minutes: 120, description: 'Desenvolvimento', billable: false, authorId: 'agent-2' },
+        {
+          startTime: '2026-10-13T08:00:00Z',
+          endTime: '2026-10-13T10:00:00Z',
+          description: 'Desenvolvimento',
+          billable: false,
+          authorId: 'agent-2',
+        },
         adminUser,
       );
 
@@ -128,6 +197,9 @@ describe('WorklogsService', () => {
           ticketId: 'ticket-1',
           authorId: 'agent-2',
           minutes: 120,
+          startTime: new Date('2026-10-13T08:00:00Z'),
+          endTime: new Date('2026-10-13T10:00:00Z'),
+          attendanceType: AttendanceType.REMOTE,
           description: 'Desenvolvimento',
           billable: false,
         },
@@ -145,7 +217,12 @@ describe('WorklogsService', () => {
       await expect(
         service.create(
           'ticket-1',
-          { minutes: 45, description: 'Task', authorId: 'non-existent' },
+          {
+            startTime: '2026-10-13T08:00:00Z',
+            endTime: '2026-10-13T08:45:00Z',
+            description: 'Task',
+            authorId: 'non-existent',
+          },
           adminUser,
         ),
       ).rejects.toThrow(NotFoundException);
@@ -157,7 +234,7 @@ describe('WorklogsService', () => {
       await expect(
         service.create(
           'invalid-ticket',
-          { minutes: 60, description: 'Task' },
+          { startTime: '2026-10-13T08:00:00Z', endTime: '2026-10-13T09:00:00Z', description: 'Task' },
           agentUser,
         ),
       ).rejects.toThrow(NotFoundException);
@@ -169,7 +246,11 @@ describe('WorklogsService', () => {
       await expect(
         service.create(
           'ticket-1',
-          { minutes: 60, description: 'Tentativa cliente' },
+          {
+            startTime: '2026-10-13T08:00:00Z',
+            endTime: '2026-10-13T09:00:00Z',
+            description: 'Tentativa cliente',
+          },
           clientUser,
         ),
       ).rejects.toThrow(ForbiddenException);

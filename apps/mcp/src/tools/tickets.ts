@@ -117,16 +117,20 @@ export function registerTicketTools(server: McpServer, api: AxiosInstance) {
         'Registra apontamento de horas trabalhadas em um ticket. Requer papel AGENT ou ADMIN no token.',
       inputSchema: {
         ticketId: z.string().uuid().describe('UUID do Ticket'),
-        minutes: z.number().int().positive().describe('Minutos trabalhados no chamado (ex: 60 para 1 hora)'),
+        startTime: z.string().datetime().describe('Horário de início do apontamento (ISO 8601, ex: 2026-10-13T08:00:00Z)'),
+        endTime: z.string().datetime().describe('Horário de término do apontamento (ISO 8601); a duração é calculada automaticamente'),
+        attendanceType: z.enum(['REMOTE', 'ON_SITE']).optional().describe('Tipo de atendimento (default: REMOTE)'),
         description: z.string().min(1).describe('Descrição detalhada das atividades realizadas'),
         billable: z.boolean().optional().describe('Se as horas são faturáveis (default: true)'),
         authorId: z.string().uuid().optional().describe('UUID do técnico (apenas ADMIN pode apontar para terceiros)'),
       },
     },
-    async ({ ticketId, minutes, description, billable, authorId }) => {
+    async ({ ticketId, startTime, endTime, attendanceType, description, billable, authorId }) => {
       try {
         const { data } = await api.post(`/tickets/${ticketId}/worklogs`, {
-          minutes,
+          startTime,
+          endTime,
+          attendanceType,
           description,
           billable,
           authorId,

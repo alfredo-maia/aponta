@@ -410,16 +410,24 @@ model Contract {
   updatedAt          DateTime     @updatedAt
 }
 
+enum AttendanceType {
+  REMOTE
+  ON_SITE
+}
+
 model Worklog {
-  id          String   @id @default(uuid())
-  description String
-  minutes     Int      // Tempo apontado
-  billable    Boolean  @default(true)
-  ticketId    String
-  ticket      Ticket   @relation(fields: [ticketId], references: [id])
-  authorId    String
-  author      User     @relation(fields: [authorId], references: [id])
-  createdAt   DateTime @default(now())
+  id             String         @id @default(uuid())
+  description    String
+  minutes        Int      // Tempo apontado, derivado de (endTime - startTime)
+  startTime      DateTime
+  endTime        DateTime
+  attendanceType AttendanceType @default(REMOTE)
+  billable       Boolean        @default(true)
+  ticketId       String
+  ticket         Ticket         @relation(fields: [ticketId], references: [id])
+  authorId       String
+  author         User           @relation(fields: [authorId], references: [id])
+  createdAt      DateTime       @default(now())
 }
 
 model ApiToken {

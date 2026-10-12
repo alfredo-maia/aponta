@@ -1,11 +1,26 @@
-import { IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import { IsBoolean, IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { AttendanceType } from '@prisma/client';
 
 export class CreateWorklogDto {
-  @ApiProperty({ description: 'Minutos trabalhados no chamado', example: 60 })
-  @IsInt()
-  @Min(1)
-  minutes!: number;
+  @ApiProperty({ description: 'Dia e horário de início do apontamento (ISO 8601)', example: '2026-10-13T08:00:00Z' })
+  @IsDateString()
+  @IsNotEmpty()
+  startTime!: string;
+
+  @ApiProperty({ description: 'Dia e horário de término do apontamento (ISO 8601)', example: '2026-10-13T09:00:00Z' })
+  @IsDateString()
+  @IsNotEmpty()
+  endTime!: string;
+
+  @ApiPropertyOptional({
+    description: 'Tipo de atendimento',
+    enum: AttendanceType,
+    default: AttendanceType.REMOTE,
+  })
+  @IsOptional()
+  @IsEnum(AttendanceType)
+  attendanceType?: AttendanceType;
 
   @ApiProperty({ description: 'Descrição das atividades executadas', example: 'Análise de logs e correção de query' })
   @IsString()

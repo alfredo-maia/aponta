@@ -7,10 +7,15 @@ export interface WorklogAuthor {
   email: string;
 }
 
+export type AttendanceType = 'REMOTE' | 'ON_SITE';
+
 export interface Worklog {
   id: string;
   description: string;
   minutes: number;
+  startTime: string;
+  endTime: string;
+  attendanceType: AttendanceType;
   billable: boolean;
   ticketId: string;
   authorId: string;
@@ -19,7 +24,9 @@ export interface Worklog {
 }
 
 export interface CreateWorklogInput {
-  minutes: number;
+  startTime: string;
+  endTime: string;
+  attendanceType?: AttendanceType;
   description: string;
   billable?: boolean;
   authorId?: string;

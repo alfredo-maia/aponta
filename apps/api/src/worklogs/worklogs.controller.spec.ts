@@ -35,7 +35,11 @@ describe('WorklogsController', () => {
 
   describe('create', () => {
     it('should delegate to service with ticketId, dto and user', async () => {
-      const dto = { minutes: 90, description: 'Correção bug' };
+      const dto = {
+        startTime: '2026-10-13T08:00:00Z',
+        endTime: '2026-10-13T09:30:00Z',
+        description: 'Correção bug',
+      };
       service.create.mockResolvedValue({ id: 'wl-1', ...dto });
 
       const result = await controller.create('t-1', dto, { user: agentUser });
