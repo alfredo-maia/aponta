@@ -49,6 +49,14 @@ export interface TicketFiltersInput {
   status?: TicketStatus;
   search?: string;
   page?: number;
+  /** "Meus" KPI: tickets assigned to the current user. */
+  mine?: boolean;
+  /** "Não atendidos" KPI: open tickets with no agent assigned. */
+  unassigned?: boolean;
+  /** "Pausados" KPI: ON_HOLD / PENDING_CUSTOMER / PENDING_APPROVAL. */
+  paused?: boolean;
+  /** "Vencidos" KPI: SLA response or resolve deadline breached. */
+  overdue?: boolean;
 }
 
 /**
@@ -62,7 +70,7 @@ export interface TicketFiltersInput {
  * combination.
  */
 export function useTickets(filters: TicketFiltersInput = {}) {
-  const { serviceDeskId, status, search, page } = filters;
+  const { serviceDeskId, status, search, page, mine, unassigned, paused, overdue } = filters;
 
   return useQuery({
     queryKey: [
@@ -72,6 +80,10 @@ export function useTickets(filters: TicketFiltersInput = {}) {
         status: status ?? null,
         search: search ?? null,
         page: page ?? 1,
+        mine: mine ?? false,
+        unassigned: unassigned ?? false,
+        paused: paused ?? false,
+        overdue: overdue ?? false,
       },
     ],
     queryFn: async () => {
@@ -80,6 +92,10 @@ export function useTickets(filters: TicketFiltersInput = {}) {
           ...(serviceDeskId ? { serviceDeskId } : {}),
           ...(status ? { status } : {}),
           ...(search ? { search } : {}),
+          ...(mine ? { mine: 'true' } : {}),
+          ...(unassigned ? { unassigned: 'true' } : {}),
+          ...(paused ? { paused: 'true' } : {}),
+          ...(overdue ? { overdue: 'true' } : {}),
           page: page ?? 1,
           limit: 20,
         },

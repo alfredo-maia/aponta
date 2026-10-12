@@ -503,6 +503,126 @@ describe('TicketsService', () => {
         resolveSlaStatus: null,
       });
     });
+
+    it('filters to tickets assigned to the current user when mine=true (dashboard "Meus" KPI)', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { mine: 'true' },
+        { id: 'agent-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: { agentId: 'agent-1' },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('filters to open tickets with no agent when unassigned=true (dashboard "Não atendidos" KPI)', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { unassigned: 'true' },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: {
+          agentId: null,
+          status: { notIn: [TicketStatus.RESOLVED, TicketStatus.CLOSED] },
+        },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('filters to ON_HOLD/PENDING_CUSTOMER/PENDING_APPROVAL when paused=true (dashboard "Pausados" KPI)', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { paused: 'true' },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: {
+          status: {
+            in: [TicketStatus.ON_HOLD, TicketStatus.PENDING_CUSTOMER, TicketStatus.PENDING_APPROVAL],
+          },
+        },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('filters to SLA-breached open tickets when overdue=true, computed in memory and paginated manually (dashboard "Vencidos" KPI)', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-01-02T00:00:00.000Z'));
+      mockPrismaService.ticket.findMany.mockResolvedValue([
+        {
+          id: 'breached-response',
+          status: TicketStatus.OPEN,
+          createdAt: new Date('2026-01-01T00:00:00.000Z'),
+          responseDeadline: new Date('2026-01-01T10:00:00.000Z'), // already past "now"
+          resolveDeadline: null,
+          slaAccumulatedPauseTime: 0,
+          slaPausedAt: null,
+        },
+        {
+          id: 'on-track',
+          status: TicketStatus.OPEN,
+          createdAt: new Date('2026-01-01T00:00:00.000Z'),
+          responseDeadline: new Date('2026-01-10T00:00:00.000Z'), // far in the future
+          resolveDeadline: new Date('2026-01-10T00:00:00.000Z'),
+          slaAccumulatedPauseTime: 0,
+          slaPausedAt: null,
+        },
+      ]);
+
+      const result = await service.findAll(
+        { overdue: 'true' },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      // Overdue can't be a Prisma `where`, so it fetches the open candidate
+      // set (no skip/take — pagination happens after the in-memory filter)
+      // and excludes closed/resolved tickets at the DB level.
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: { status: { notIn: [TicketStatus.RESOLVED, TicketStatus.CLOSED] } },
+        orderBy: { createdAt: 'desc' },
+      });
+      expect(mockPrismaService.ticket.count).not.toHaveBeenCalled();
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]).toMatchObject({ id: 'breached-response', responseSlaStatus: 'BREACHED' });
+      expect(result.meta).toEqual({ total: 1, page: 1, limit: 20, totalPages: 1 });
+    });
+
+    it('paginates the in-memory overdue result set using page/limit', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-01-02T00:00:00.000Z'));
+      const breachedTickets = Array.from({ length: 3 }, (_, i) => ({
+        id: `breached-${i}`,
+        status: TicketStatus.OPEN,
+        createdAt: new Date('2026-01-01T00:00:00.000Z'),
+        responseDeadline: new Date('2026-01-01T10:00:00.000Z'),
+        resolveDeadline: null,
+        slaAccumulatedPauseTime: 0,
+        slaPausedAt: null,
+      }));
+      mockPrismaService.ticket.findMany.mockResolvedValue(breachedTickets);
+
+      const result = await service.findAll(
+        { overdue: 'true', page: '2', limit: '2' },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]).toMatchObject({ id: 'breached-2' });
+      expect(result.meta).toEqual({ total: 3, page: 2, limit: 2, totalPages: 2 });
+    });
   });
 
   describe('findOne', () => {

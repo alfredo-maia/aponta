@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
@@ -63,15 +63,17 @@ function mockApiGet(ticketData: unknown[] = tickets) {
   });
 }
 
-function renderDashboard() {
+function renderDashboard(initialEntries: string[] = ['/tickets']) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   return render(
     <QueryClientProvider client={queryClient}>
       {/* TicketCard links to the ticket detail route, so a router context is
-          required even though these tests never navigate. */}
-      <MemoryRouter>
+          required even though these tests never navigate.
+          `initialEntries` lets tests simulate arriving via a URL that
+          already carries filters, e.g. a dashboard KPI link. */}
+      <MemoryRouter initialEntries={initialEntries}>
         <TicketsPage />
       </MemoryRouter>
     </QueryClientProvider>,
@@ -413,6 +415,65 @@ describe('TicketsPage', () => {
     // Close drawer
     await user.click(screen.getByTestId('ez-filter-drawer-close'));
     expect(screen.queryByTestId('ez-filter-drawer')).not.toBeInTheDocument();
+  });
+
+  it('seeds filters from the URL query string, e.g. a dashboard KPI link (?mine=true)', async () => {
+    mockApiGet();
+    renderDashboard(['/tickets?mine=true']);
+
+    await screen.findByText('Printer not working');
+
+    expect(api.get).toHaveBeenCalledWith(
+      expect.stringContaining('/tickets'),
+      expect.objectContaining({ params: expect.objectContaining({ mine: 'true' }) }),
+    );
+  });
+
+  it('seeds the "overdue" and "unassigned" boolean filters from the URL too', async () => {
+    mockApiGet();
+    renderDashboard(['/tickets?overdue=true']);
+
+    await screen.findByText('Printer not working');
+
+    expect(api.get).toHaveBeenCalledWith(
+      expect.stringContaining('/tickets'),
+      expect.objectContaining({ params: expect.objectContaining({ overdue: 'true' }) }),
+    );
+  });
+
+  it('reflects a filter change made via the UI back into the URL (bookmarkable/shareable)', async () => {
+    mockApiGet();
+    const user = userEvent.setup();
+
+    // Probe component rendered alongside TicketsPage to read the
+    // MemoryRouter's current location — the only way to assert the URL
+    // itself (rather than just the outgoing API request) changed.
+    function LocationProbe() {
+      const location = useLocation();
+      return <div data-testid="location-probe">{location.pathname + location.search}</div>;
+    }
+
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/tickets']}>
+          <LocationProbe />
+          <TicketsPage />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    await screen.findByText('Printer not working');
+    await screen.findByRole('option', { name: 'Suporte N1' });
+    expect(screen.getByTestId('location-probe')).toHaveTextContent('/tickets');
+
+    vi.mocked(api.get).mockClear();
+    mockApiGet();
+
+    await user.selectOptions(screen.getByLabelText(/departamento/i), 'sd-1');
+    await waitFor(() => {
+      expect(screen.getByTestId('location-probe')).toHaveTextContent('serviceDeskId=sd-1');
+    });
   });
 
   it('opens screen configuration modal via toolbar gear button', async () => {

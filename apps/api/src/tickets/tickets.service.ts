@@ -18,6 +18,17 @@ import { getSlaStatus } from '../scheduling/sla-status';
 const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
 const FOREIGN_KEY_VIOLATION = 'P2003';
 
+/** Mirrors ReportsService's CLOSED_STATUSES — a closed/resolved ticket is
+ * never "open", "unassigned-and-open" or "overdue" in the dashboard's KPI
+ * semantics, so query filters that rely on that distinction reuse it. */
+const CLOSED_STATUSES: TicketStatus[] = [TicketStatus.RESOLVED, TicketStatus.CLOSED];
+
+const PAUSED_STATUSES: TicketStatus[] = [
+  TicketStatus.ON_HOLD,
+  TicketStatus.PENDING_CUSTOMER,
+  TicketStatus.PENDING_APPROVAL,
+];
+
 /**
  * SLA offsets in hours, per priority, as specified in the task brief.
  */
@@ -415,11 +426,68 @@ export class TicketsService {
       ];
     }
 
+    // These mirror the exact KPI definitions ReportsService.getSummary()
+    // uses for "Resumo de tickets", so a dashboard KPI and the ticket list
+    // it links to ("Meus" -> ?mine=true, "Não atendidos" -> ?unassigned=true,
+    // "Pausados" -> ?paused=true) always agree on what they counted.
+    // "Em andamento" needs no new filter — it's just ?status=IN_PROGRESS.
+    const wantsMine = query.mine === 'true';
+    const wantsUnassigned = query.unassigned === 'true';
+    const wantsPaused = query.paused === 'true';
+    const wantsOverdue = query.overdue === 'true';
+
+    if (wantsMine) {
+      where.agentId = currentUser.id;
+    }
+    if (wantsUnassigned) {
+      where.agentId = null;
+      // "Não atendidos" counts an open ticket with no agent — never a
+      // closed/resolved one — so constrain status unless the caller
+      // already asked for a specific one.
+      if (!where.status) {
+        where.status = { notIn: CLOSED_STATUSES };
+      }
+    }
+    if (wantsPaused) {
+      where.status = { in: PAUSED_STATUSES };
+    }
+
     const page = Math.max(parseInt(query.page ?? '1', 10) || 1, 1);
     const limit = Math.min(
       Math.max(parseInt(query.limit ?? '20', 10) || 20, 1),
       100,
     );
+
+    if (wantsOverdue) {
+      // SLA breach ("Vencidos") depends on `now` and accumulated pause
+      // time, so it can't be expressed as a Prisma `where` clause — it's
+      // computed the same way ReportsService.getSummary() does: exclude
+      // already-closed tickets at the DB level (decorateWithSlaStatus
+      // never flags those as BREACHED anyway), fetch the candidate set,
+      // then filter + paginate in memory.
+      if (!where.status) {
+        where.status = { notIn: CLOSED_STATUSES };
+      }
+
+      const candidates = await this.prisma.ticket.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+      });
+      const breached = candidates
+        .map((t) => this.decorateWithSlaStatus(t))
+        .filter(
+          (t) => t.responseSlaStatus === 'BREACHED' || t.resolveSlaStatus === 'BREACHED',
+        );
+
+      const total = breached.length;
+      const start = (page - 1) * limit;
+      const data = breached.slice(start, start + limit);
+
+      return {
+        data,
+        meta: { total, page, limit, totalPages: Math.max(Math.ceil(total / limit), 1) },
+      };
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.ticket.findMany({

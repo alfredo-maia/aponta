@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import type { ColumnDef } from '@tanstack/react-table';
 import { TicketFilters } from '../components/tickets/TicketFilters';
 import { TicketList } from '../components/tickets/TicketList';
@@ -28,11 +28,59 @@ import { cn } from '../components/ds/utils';
 
 type ViewMode = 'list' | 'kanban' | 'grid';
 
+/**
+ * Reads the initial `TicketFiltersInput` from the URL so a link like
+ * `/tickets?mine=true` or `/tickets?overdue=true` (e.g. from the dashboard's
+ * "Resumo de tickets" KPIs) pre-filters the list on load.
+ */
+function parseFiltersFromSearchParams(params: URLSearchParams): TicketFiltersInput {
+  const filters: TicketFiltersInput = {};
+  const serviceDeskId = params.get('serviceDeskId');
+  if (serviceDeskId) filters.serviceDeskId = serviceDeskId;
+  const status = params.get('status');
+  if (status) filters.status = status as TicketFiltersInput['status'];
+  const search = params.get('search');
+  if (search) filters.search = search;
+  const page = Number(params.get('page'));
+  if (Number.isFinite(page) && page > 1) filters.page = page;
+  if (params.get('mine') === 'true') filters.mine = true;
+  if (params.get('unassigned') === 'true') filters.unassigned = true;
+  if (params.get('paused') === 'true') filters.paused = true;
+  if (params.get('overdue') === 'true') filters.overdue = true;
+  return filters;
+}
+
+/** Inverse of `parseFiltersFromSearchParams` — keeps the URL bookmarkable/shareable. */
+function filtersToSearchParams(filters: TicketFiltersInput): URLSearchParams {
+  const params = new URLSearchParams();
+  if (filters.serviceDeskId) params.set('serviceDeskId', filters.serviceDeskId);
+  if (filters.status) params.set('status', filters.status);
+  if (filters.search) params.set('search', filters.search);
+  if (filters.page && filters.page > 1) params.set('page', String(filters.page));
+  if (filters.mine) params.set('mine', 'true');
+  if (filters.unassigned) params.set('unassigned', 'true');
+  if (filters.paused) params.set('paused', 'true');
+  if (filters.overdue) params.set('overdue', 'true');
+  return params;
+}
+
 export function TicketsPage() {
-  const [filters, setFilters] = useState<TicketFiltersInput>({});
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filters, setFilters] = useState<TicketFiltersInput>(() =>
+    parseFiltersFromSearchParams(searchParams),
+  );
   const { data, isLoading, isError, refetch } = useTickets(filters);
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
+
+  // One-way sync: filters state -> URL, so every change the user makes via
+  // TicketFilters/pagination/clearing stays reflected in a shareable,
+  // bookmarkable URL and survives a back-button navigation. `replace` avoids
+  // piling up a history entry per keystroke/filter tweak.
+  useEffect(() => {
+    setSearchParams(filtersToSearchParams(filters), { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
 
   // Agentes default to Kanban, Clients default to list
   const [viewMode, setViewMode] = useState<ViewMode>(user?.role === 'CLIENT' ? 'list' : 'kanban');
