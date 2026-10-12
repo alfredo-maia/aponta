@@ -86,8 +86,10 @@ export class MonthlyHoursSummaryDto {
 export class ChatQuadrantDto {
   @ApiProperty() inProgress!: number;
   @ApiProperty() waitingResponse!: number;
-  @ApiProperty() avgWaitMinutes!: number;
-  @ApiProperty() avgServiceMinutes!: number;
+  @ApiPropertyOptional({ description: 'null: no real chat backend to source this from yet' })
+  avgWaitMinutes!: number | null;
+  @ApiPropertyOptional({ description: 'null: no real chat backend to source this from yet' })
+  avgServiceMinutes!: number | null;
 }
 
 export class ChatDepartmentItemDto {
@@ -96,32 +98,25 @@ export class ChatDepartmentItemDto {
   @ApiProperty() inProgress!: number;
   @ApiProperty() waitingQueue!: number;
   @ApiProperty() waitingResponse!: number;
-  @ApiProperty() avgWait!: string;
-  @ApiProperty() avgService!: string;
+  @ApiPropertyOptional({ description: 'null: no real chat backend to source this from yet' })
+  avgWait!: string | null;
+  @ApiPropertyOptional({ description: 'null: no real chat backend to source this from yet' })
+  avgService!: string | null;
 }
 
 export class ChatAgentItemDto {
   @ApiProperty() name!: string;
-  @ApiProperty() status!: 'online' | 'busy' | 'away' | 'offline';
+  @ApiPropertyOptional({ description: 'null: no real presence source yet' })
+  status!: 'online' | 'busy' | 'away' | 'offline' | null;
   @ApiProperty() inProgress!: number;
   @ApiProperty() group!: string;
 }
 
-export class AppointmentItemDto {
-  @ApiProperty() id!: string;
-  @ApiProperty() title!: string;
-  @ApiProperty() client!: string;
-  @ApiProperty() time!: string;
-  @ApiProperty() status!: string;
-  @ApiPropertyOptional() agent?: string;
-}
-
 export class AppointmentSummaryDto {
-  @ApiProperty() total!: number;
+  @ApiProperty({ description: 'Contagem real, derivada da tabela Appointment' }) total!: number;
   @ApiProperty() today!: number;
   @ApiProperty() week!: number;
   @ApiProperty() month!: number;
-  @ApiProperty({ type: [AppointmentItemDto] }) items!: AppointmentItemDto[];
 }
 
 export class TicketTrendDayDto {

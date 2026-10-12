@@ -80,8 +80,8 @@ export interface MonthlyHoursSummary {
 export interface ChatQuadrant {
   inProgress: number;
   waitingResponse: number;
-  avgWaitMinutes: number;
-  avgServiceMinutes: number;
+  avgWaitMinutes: number | null;
+  avgServiceMinutes: number | null;
 }
 
 export interface ChatDepartmentItem {
@@ -90,24 +90,15 @@ export interface ChatDepartmentItem {
   inProgress: number;
   waitingQueue: number;
   waitingResponse: number;
-  avgWait: string;
-  avgService: string;
+  avgWait: string | null;
+  avgService: string | null;
 }
 
 export interface ChatAgentItem {
   name: string;
-  status: 'online' | 'busy' | 'away' | 'offline';
+  status: 'online' | 'busy' | 'away' | 'offline' | null;
   inProgress: number;
   group: string;
-}
-
-export interface AppointmentItem {
-  id: string;
-  title: string;
-  client: string;
-  time: string;
-  status: string;
-  agent?: string;
 }
 
 export interface AppointmentSummary {
@@ -115,7 +106,6 @@ export interface AppointmentSummary {
   today: number;
   week: number;
   month: number;
-  items: AppointmentItem[];
 }
 
 export interface TicketTrendDay {

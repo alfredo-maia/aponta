@@ -159,6 +159,11 @@ export class ReportsService {
     const oneDayMs = 86400000;
     const tomorrowStart = nowStartOfDay + oneDayMs;
     const afterTomorrowStart = nowStartOfDay + 2 * oneDayMs;
+    // Calendar week (Sunday-start) containing "now", used to bucket real
+    // Appointment rows below — kept simple and consistent rather than
+    // trying to infer a locale-specific first-day-of-week.
+    const weekStart = nowStartOfDay - now.getDay() * oneDayMs;
+    const weekEnd = weekStart + 7 * oneDayMs;
 
     const classifyDeadline = (deadline: Date | null | undefined) => {
       if (!deadline) return null;
@@ -401,29 +406,66 @@ export class ReportsService {
         userName: t.agent?.name || t.requester?.name || 'Sistema',
       }));
 
-    const chatsByDepartment = (serviceDesksList.length > 0 ? serviceDesksList : [
-      { name: 'Suporte Técnico N1' },
-      { name: 'Suporte Avançado N2' },
-      { name: 'Comercial & Faturamento' },
-    ]).map((d, index) => ({
+    // The chat/messaging module has no real backend yet (see issue thread),
+    // so department/agent NAMES come from real data when available, but
+    // every interaction metric is honestly 0/null rather than invented —
+    // no more fabricated fallback rows when there are no desks/agents.
+    const chatsByDepartment = serviceDesksList.map((d) => ({
       department: d.name,
-      total: (index + 1) * 3,
-      inProgress: index + 1,
-      waitingQueue: Math.max(0, index - 1),
-      waitingResponse: 1,
-      avgWait: '4m 30s',
-      avgService: '19m 15s',
+      total: 0,
+      inProgress: 0,
+      waitingQueue: 0,
+      waitingResponse: 0,
+      avgWait: null,
+      avgService: null,
     }));
 
-    const chatsByAgent = (agentsList.length > 0 ? agentsList : [
-      { name: 'Alfredo Maia', agentGroups: [{ name: 'N1 - Suporte' }] },
-      { name: 'Consultor Especialista', agentGroups: [{ name: 'N2 - Especialistas' }] },
-    ]).map((a, idx) => ({
+    const chatsByAgent = agentsList.map((a) => ({
       name: a.name,
-      status: (idx % 2 === 0 ? 'online' : 'busy') as 'online' | 'busy' | 'away' | 'offline',
-      inProgress: idx + 1,
+      status: null,
+      inProgress: 0,
       group: a.agentGroups?.[0]?.name || 'Equipe de Atendimento',
     }));
+
+    // Compromissos (Agenda module) ARE real and already shipped — source
+    // myAppointments/allAppointments from the Appointment table instead of
+    // the hardcoded constants this replaces. "my" is always scoped to the
+    // current user; "all" reuses the same role-based visibility AgendaService
+    // applies (TenantHelper.getAppointmentWhere).
+    let myAppointmentRows: { startTime: Date }[] = [];
+    let allAppointmentRows: { startTime: Date }[] = [];
+    if (this.prisma.appointment?.findMany) {
+      try {
+        const [mine, all] = await Promise.all([
+          this.prisma.appointment.findMany({
+            where: { userId: user.id },
+            select: { startTime: true },
+          }),
+          this.prisma.appointment.findMany({
+            where: TenantHelper.getAppointmentWhere(user),
+            select: { startTime: true },
+          }),
+        ]);
+        myAppointmentRows = mine;
+        allAppointmentRows = all;
+      } catch {
+        myAppointmentRows = [];
+        allAppointmentRows = [];
+      }
+    }
+
+    const summarizeAppointments = (rows: { startTime: Date }[]) => {
+      let today = 0;
+      let week = 0;
+      let month = 0;
+      for (const row of rows) {
+        const t = new Date(row.startTime).getTime();
+        if (t >= nowStartOfDay && t < tomorrowStart) today += 1;
+        if (t >= weekStart && t < weekEnd) week += 1;
+        if (t >= startOfMonth.getTime() && t <= endOfMonth.getTime()) month += 1;
+      }
+      return { total: rows.length, today, week, month };
+    };
 
     return {
       openCount,
@@ -462,41 +504,22 @@ export class ReportsService {
         days: dailyHours,
       },
       myChats: {
-        inProgress: Math.min(openCount, 2),
-        waitingResponse: Math.max(0, Math.min(openCount, 1)),
-        avgWaitMinutes: 3,
-        avgServiceMinutes: 16,
+        inProgress: 0,
+        waitingResponse: 0,
+        avgWaitMinutes: null,
+        avgServiceMinutes: null,
       },
       allChats: {
-        inProgress: openCount,
-        waitingResponse: unansweredTickets.total,
-        avgWaitMinutes: 5,
-        avgServiceMinutes: 20,
+        inProgress: 0,
+        waitingResponse: 0,
+        avgWaitMinutes: null,
+        avgServiceMinutes: null,
       },
       chatsByDepartment,
       chatsByAgent,
       ticketsTrend30d,
-      myAppointments: {
-        total: 3,
-        today: 1,
-        week: 2,
-        month: 3,
-        items: [
-          { id: '1', title: 'Alinhamento de Chamado', client: 'DM Tecnologia', time: '14:00 - 15:00', status: 'Confirmado' },
-          { id: '2', title: 'Homologação de Parâmetros', client: 'Refrigeração Mota', time: '16:30 - 17:30', status: 'Em breve' },
-        ],
-      },
-      allAppointments: {
-        total: 7,
-        today: 2,
-        week: 5,
-        month: 7,
-        items: [
-          { id: '1', title: 'Alinhamento de Chamado', client: 'DM Tecnologia', time: '14:00 - 15:00', status: 'Confirmado', agent: 'Alfredo Maia' },
-          { id: '2', title: 'Homologação de Parâmetros', client: 'Refrigeração Mota', time: '16:30 - 17:30', status: 'Em breve', agent: 'Consultor' },
-          { id: '3', title: 'Treinamento de Equipe', client: 'Agência Digital', time: 'Amanhã 10:00', status: 'Agendado', agent: 'Alfredo Maia' },
-        ],
-      },
+      myAppointments: summarizeAppointments(myAppointmentRows),
+      allAppointments: summarizeAppointments(allAppointmentRows),
     };
   }
 }

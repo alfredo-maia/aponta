@@ -275,5 +275,77 @@ describe('ReportsService', () => {
       const otherBuckets = trend.filter((b) => b.date !== dateKey(today));
       expect(otherBuckets.every((b) => b.created === 0 && b.closed === 0)).toBe(true);
     });
+
+    it('reports honest zero/null chat metrics with real desk/agent names, never fabricated interaction numbers', async () => {
+      mockPrisma.ticket.findMany.mockResolvedValue([]);
+      mockPrisma.serviceDesk = { findMany: jest.fn().mockResolvedValue([{ id: 'sd-1', name: 'Suporte N1' }]) };
+      mockPrisma.user = {
+        findMany: jest.fn().mockResolvedValue([{ id: 'u1', name: 'Agente Real', agentGroups: [{ name: 'N1' }] }]),
+      };
+      mockPrisma.appointment = { findMany: jest.fn().mockResolvedValue([]) };
+
+      const res = await service.getSummary({ id: 'admin', role: Role.ADMIN });
+
+      expect(res.chatsByDepartment).toEqual([
+        { department: 'Suporte N1', total: 0, inProgress: 0, waitingQueue: 0, waitingResponse: 0, avgWait: null, avgService: null },
+      ]);
+      expect(res.chatsByAgent).toEqual([{ name: 'Agente Real', status: null, inProgress: 0, group: 'N1' }]);
+      expect(res.myChats).toEqual({ inProgress: 0, waitingResponse: 0, avgWaitMinutes: null, avgServiceMinutes: null });
+      expect(res.allChats).toEqual({ inProgress: 0, waitingResponse: 0, avgWaitMinutes: null, avgServiceMinutes: null });
+    });
+
+    it('returns empty chat department/agent arrays when there are none, instead of fabricated fallback rows', async () => {
+      mockPrisma.ticket.findMany.mockResolvedValue([]);
+      mockPrisma.serviceDesk = { findMany: jest.fn().mockResolvedValue([]) };
+      mockPrisma.user = { findMany: jest.fn().mockResolvedValue([]) };
+      mockPrisma.appointment = { findMany: jest.fn().mockResolvedValue([]) };
+
+      const res = await service.getSummary({ id: 'admin', role: Role.ADMIN });
+
+      expect(res.chatsByDepartment).toEqual([]);
+      expect(res.chatsByAgent).toEqual([]);
+    });
+
+    it('computes myAppointments/allAppointments as real counts from the Appointment table (Agenda module)', async () => {
+      mockPrisma.ticket.findMany.mockResolvedValue([]);
+      mockPrisma.serviceDesk = { findMany: jest.fn().mockResolvedValue([]) };
+      mockPrisma.user = { findMany: jest.fn().mockResolvedValue([]) };
+
+      const now = new Date();
+      const findManyAppointment = jest
+        .fn()
+        .mockResolvedValueOnce([{ startTime: now }])
+        .mockResolvedValueOnce([{ startTime: now }, { startTime: now }]);
+      mockPrisma.appointment = { findMany: findManyAppointment };
+
+      // AGENT: TenantHelper.getAppointmentWhere also scopes "all" to { userId: user.id }.
+      const res = await service.getSummary({ id: 'agent-1', role: Role.AGENT });
+
+      expect(findManyAppointment).toHaveBeenNthCalledWith(1, {
+        where: { userId: 'agent-1' },
+        select: { startTime: true },
+      });
+      expect(findManyAppointment).toHaveBeenNthCalledWith(2, {
+        where: { userId: 'agent-1' },
+        select: { startTime: true },
+      });
+
+      expect(res.myAppointments).toEqual({ total: 1, today: 1, week: 1, month: 1 });
+      expect(res.allAppointments).toEqual({ total: 2, today: 2, week: 2, month: 2 });
+      expect(res.myAppointments).not.toHaveProperty('items');
+    });
+
+    it('falls back to empty appointment summaries when the Appointment model is unavailable', async () => {
+      mockPrisma.ticket.findMany.mockResolvedValue([]);
+      mockPrisma.serviceDesk = { findMany: jest.fn().mockResolvedValue([]) };
+      mockPrisma.user = { findMany: jest.fn().mockResolvedValue([]) };
+      // No mockPrisma.appointment at all — mirrors the defensive optional-chain
+      // guard already used for serviceDesk/user/worklog in this service.
+
+      const res = await service.getSummary({ id: 'admin', role: Role.ADMIN });
+
+      expect(res.myAppointments).toEqual({ total: 0, today: 0, week: 0, month: 0 });
+      expect(res.allAppointments).toEqual({ total: 0, today: 0, week: 0, month: 0 });
+    });
   });
 });
