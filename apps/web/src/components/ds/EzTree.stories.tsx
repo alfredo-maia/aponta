@@ -82,7 +82,7 @@ export const Interactive: Story = {
             nodes={categoriasChamado}
             defaultExpandedIds={['software']}
             selectedId={selectedId}
-            onSelect={(node) => setSelectedId(node.id)}
+            onSelect={(node: any) => setSelectedId(node.id)}
           />
         </div>
       );

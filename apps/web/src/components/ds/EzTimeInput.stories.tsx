@@ -61,7 +61,7 @@ export const Interactive: Story = {
           id="time-input-interactive"
           label="Horário previsto de atendimento"
           value={hora}
-          onChange={(e) => setHora(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHora(e.target.value)}
           message={hora ? `Atendimento agendado para ${hora}.` : undefined}
         />
       );

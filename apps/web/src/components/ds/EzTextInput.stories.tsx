@@ -73,7 +73,7 @@ export const Interativo: Story = {
         <EzTextInput
           label="Assunto do chamado"
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
           message="Visível na listagem de chamados do atendente."
         />
       );

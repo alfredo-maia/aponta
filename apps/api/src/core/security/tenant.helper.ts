@@ -1,4 +1,4 @@
-import { Prisma, Role } from '@prisma/client';
+import { AppointmentType, Prisma, Role } from '@prisma/client';
 import { CurrentUserPayload } from '../../tickets/decorators/current-user.decorator';
 
 export class TenantHelper {
@@ -35,6 +35,24 @@ export class TenantHelper {
       return { active: true }; // Only see active contracts broadly, minus financials
     }
     // Fail-closed for standard CLIENT
+    return { id: '00000000-0000-0000-0000-000000000000' };
+  }
+
+  static getAppointmentWhere(user: CurrentUserPayload): Prisma.AppointmentWhereInput {
+    if (user.role === Role.ADMIN) return {};
+    if (user.role === Role.CLIENT_MASTER) {
+      if (!user.organizationId) {
+        return { id: '00000000-0000-0000-0000-000000000000' };
+      }
+      return {
+        organizationId: user.organizationId,
+        type: { not: AppointmentType.ABSENCE },
+      };
+    }
+    if (user.role === Role.AGENT || user.role === Role.AGENT_MASTER) {
+      return { userId: user.id };
+    }
+    // Fail-closed for standard CLIENT and unmapped roles
     return { id: '00000000-0000-0000-0000-000000000000' };
   }
 }

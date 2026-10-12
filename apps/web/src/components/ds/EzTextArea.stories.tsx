@@ -56,7 +56,7 @@ export const Interativo: Story = {
         <EzTextArea
           label="Descrição do chamado"
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
           message="Visível para o cliente e para a equipe de suporte."
         />
       );
