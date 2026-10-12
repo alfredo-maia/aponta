@@ -79,6 +79,13 @@ export * from './EzTileMedium';
 export * from './EzTimeInput';
 export * from './EzTree';
 export * from './EzUnderface';
+export * from './EzEntityToolbar';
+export * from './EzEntityScreenConfigModal';
+export * from './EzFilterDrawer';
+export * from './EzTaskbar';
+export * from './EzFilterBar';
+export * from './EzLayoutFormConfig';
+export * from './EzSimpleCrud';
 // Nota: EzEmptyCard (já exportado via EzCardItem), EzFileItem (já exportado via
 // EzUpload) e EzListItem (já exportado via EzList) têm implementações
 // standalone equivalentes em EzEmptyCard.tsx/EzFileItem.tsx/EzListItem.tsx

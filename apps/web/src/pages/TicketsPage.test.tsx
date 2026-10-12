@@ -370,4 +370,63 @@ describe('TicketsPage', () => {
     expect(screen.getByText('AP-000002')).toBeInTheDocument();
     expect(screen.getByText('VPN access request')).toBeInTheDocument();
   });
+
+  it('switches between Grid Mode and Form Mode with tabs in Sankhya toolbar', async () => {
+    mockApiGet();
+    const user = userEvent.setup();
+    renderDashboard();
+
+    await user.click(screen.getByRole('button', { name: 'Grade' }));
+    expect(await screen.findByText('AP-000001')).toBeInTheDocument();
+
+    // Toggle to Form Mode
+    const modeBtn = screen.getByTestId('ez-toolbar-mode-toggle-button');
+    await user.click(modeBtn);
+
+    // Form Mode renders with tabs
+    expect(screen.getByTestId('ticket-form-mode')).toBeInTheDocument();
+    expect(screen.getByText('Geral')).toBeInTheDocument();
+    expect(screen.getByText('Atendimento & SLA')).toBeInTheDocument();
+    expect(screen.getByText('Anexos & Tarefas')).toBeInTheDocument();
+    expect(screen.getByText('Avaliação CSAT')).toBeInTheDocument();
+
+    // Click back to grid
+    await user.click(screen.getByTestId('ticket-form-back-button'));
+    expect(screen.queryByTestId('ticket-form-mode')).not.toBeInTheDocument();
+    expect(screen.getByText('AP-000001')).toBeInTheDocument();
+  });
+
+  it('opens and closes filter drawer via toolbar filter button', async () => {
+    mockApiGet();
+    const user = userEvent.setup();
+    renderDashboard();
+
+    await user.click(screen.getByRole('button', { name: 'Grade' }));
+    await screen.findByText('AP-000001');
+
+    const filterBtn = screen.getByTestId('ez-toolbar-filter-panel-button');
+    await user.click(filterBtn);
+
+    expect(screen.getByTestId('ez-filter-drawer')).toBeInTheDocument();
+    expect(screen.getByText('Filtros de Chamados')).toBeInTheDocument();
+
+    // Close drawer
+    await user.click(screen.getByTestId('ez-filter-drawer-close'));
+    expect(screen.queryByTestId('ez-filter-drawer')).not.toBeInTheDocument();
+  });
+
+  it('opens screen configuration modal via toolbar gear button', async () => {
+    mockApiGet();
+    const user = userEvent.setup();
+    renderDashboard();
+
+    await user.click(screen.getByRole('button', { name: 'Grade' }));
+    await screen.findByText('AP-000001');
+
+    const configBtn = screen.getByTestId('ez-toolbar-screen-config-button');
+    await user.click(configBtn);
+
+    expect(screen.getByTestId('ez-entity-screen-config-modal')).toBeInTheDocument();
+    expect(screen.getByText('Personalização da Tela (Usuário)')).toBeInTheDocument();
+  });
 });
