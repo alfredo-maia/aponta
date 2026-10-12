@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, within } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../lib/api';
 import { DashboardPage } from './DashboardPage';
@@ -16,7 +17,11 @@ function renderDashboard() {
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <DashboardPage />
+      {/* The "Resumo de tickets" KPIs are now <Link>s to /tickets, so a
+          router context is required even though these tests never navigate. */}
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 }
@@ -100,6 +105,30 @@ describe('DashboardPage', () => {
     expect(resumoCard.getByText('72')).toBeInTheDocument();
   });
 
+  it('renders each "Resumo de tickets" KPI as a link to the matching filtered ticket list', async () => {
+    vi.mocked(api.get).mockResolvedValue({
+      data: {
+        openCount: 5,
+        closedCount: 12,
+        slaBreachedCount: 2,
+        avgResolutionMinutes: 125,
+        byStatus: { OPEN: 3, IN_PROGRESS: 2 },
+        ticketSummary: { total: 74, mine: 4, unattended: 11, inProgress: 73, paused: 9, overdue: 72 },
+      },
+    });
+    renderDashboard();
+
+    await screen.findByTestId('card-resumo-de-tickets');
+    const scoped = card('card-resumo-de-tickets');
+
+    expect(scoped.getByRole('link', { name: /todos/i })).toHaveAttribute('href', '/tickets');
+    expect(scoped.getByRole('link', { name: /meus/i })).toHaveAttribute('href', '/tickets?mine=true');
+    expect(scoped.getByRole('link', { name: /não atendidos/i })).toHaveAttribute('href', '/tickets?unassigned=true');
+    expect(scoped.getByRole('link', { name: /em andamento/i })).toHaveAttribute('href', '/tickets?status=IN_PROGRESS');
+    expect(scoped.getByRole('link', { name: /pausados/i })).toHaveAttribute('href', '/tickets?paused=true');
+    expect(scoped.getByRole('link', { name: /vencidos/i })).toHaveAttribute('href', '/tickets?overdue=true');
+  });
+
   it('renders the open-tickets-by-status breakdown', async () => {
     vi.mocked(api.get).mockResolvedValue({
       data: {
@@ -170,6 +199,58 @@ describe('DashboardPage', () => {
 
     await user.click(pieCard.getByRole('tab', { name: 'Por mesa' }));
     expect(pieCard.getByText('Mesa Central')).toBeInTheDocument();
+  });
+
+  it('scales the pie chart to the card width instead of a fixed small box', async () => {
+    vi.mocked(api.get).mockResolvedValue({
+      data: {
+        openCount: 2,
+        closedCount: 5,
+        slaBreachedCount: 0,
+        avgResolutionMinutes: 45,
+        byStatus: { OPEN: 2 },
+        inProgressBreakdown: {
+          byAssignee: [{ name: 'Joana', count: 5 }],
+          byServiceDesk: [],
+          byOrganization: [],
+          byResource: [],
+        },
+      },
+    });
+    renderDashboard();
+
+    const pieCard = within(await screen.findByTestId('card-tickets-em-andamento'));
+    const svg = pieCard.getByRole('img', { name: /tickets em andamento/i });
+    // No longer pinned to a fixed 208px (w-52 h-52) box — it fills whatever
+    // its (responsive) wrapper gives it.
+    expect(svg.getAttribute('class') ?? '').not.toContain('w-52');
+    expect(svg.getAttribute('class') ?? '').toContain('w-full');
+  });
+
+  it('scales the "Minhas horas apontadas" line chart with responsive height classes instead of a fixed pixel height', async () => {
+    vi.mocked(api.get).mockResolvedValue({
+      data: {
+        openCount: 0,
+        closedCount: 0,
+        slaBreachedCount: 0,
+        avgResolutionMinutes: null,
+        byStatus: {},
+        monthlyHours: {
+          targetHoursTotal: 40,
+          loggedHoursTotal: 10,
+          remainingHoursTotal: 30,
+          days: [{ day: 1, date: '2026-10-01', targetHours: 8, loggedHours: 2, remainingHours: 6 }],
+        },
+      },
+    });
+    renderDashboard();
+
+    const horasCard = within(await screen.findByTestId('card-minhas-horas-apontadas'));
+    const svg = horasCard.getByRole('img', { name: /gráfico de linha/i });
+    expect(svg).not.toHaveAttribute('style', expect.stringContaining('height'));
+    const classes = svg.getAttribute('class') ?? '';
+    expect(classes).toContain('w-full');
+    expect(classes).toMatch(/h-\d+/);
   });
 
   it('switches to Chats tab and renders chat KPI rows, departments and agents tables', async () => {

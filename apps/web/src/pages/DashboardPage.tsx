@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Activity,
   AlertTriangle,
@@ -100,20 +101,42 @@ interface KpiItem {
   value: ReactNode;
   icon: ReactNode;
   colorClass: string;
+  /** When set, the whole item becomes a link to the matching filtered ticket list. */
+  to?: string;
 }
 
 function KpiRow({ items }: { items: KpiItem[] }) {
   return (
     <div className="flex flex-wrap gap-x-10 gap-y-5">
-      {items.map((item) => (
-        <div key={item.label} className="flex flex-col gap-1.5">
-          <span className="text-[12px] text-gray-500 font-medium">{item.label}</span>
-          <span className={cn('flex items-center gap-1.5 text-[19px] font-bold leading-none', item.colorClass)}>
-            {item.icon}
-            {item.value}
-          </span>
-        </div>
-      ))}
+      {items.map((item) => {
+        const body = (
+          <>
+            <span className="text-[12px] text-gray-500 font-medium">{item.label}</span>
+            <span className={cn('flex items-center gap-1.5 text-[19px] font-bold leading-none', item.colorClass)}>
+              {item.icon}
+              {item.value}
+            </span>
+          </>
+        );
+
+        if (item.to) {
+          return (
+            <Link
+              key={item.label}
+              to={item.to}
+              className="flex flex-col gap-1.5 rounded-md -m-1 p-1 hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              {body}
+            </Link>
+          );
+        }
+
+        return (
+          <div key={item.label} className="flex flex-col gap-1.5">
+            {body}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -175,35 +198,40 @@ function TicketsPieChart({ data }: { data: { name: string; count: number }[] }) 
 
   return (
     <div className="flex flex-col sm:flex-row items-center gap-8">
-      <svg viewBox="0 0 100 100" className="w-52 h-52 shrink-0" role="img" aria-label="Tickets em andamento por categoria">
-        {slices.length === 1 ? (
-          <circle cx="50" cy="50" r="46" fill={slices[0].color} />
-        ) : (
-          slices.map((s) => (
-            <path key={s.name} d={pieSlicePath(50, 50, 46, s.startAngle, s.endAngle)} fill={s.color} stroke="#ffffff" strokeWidth="0.75" />
-          ))
-        )}
-        {slices.map((s) => {
-          if (s.percent < 0.04) return null;
-          const pos = polarToCartesian(50, 50, 28, (s.startAngle + s.endAngle) / 2);
-          return (
-            <text
-              key={`label-${s.name}`}
-              x={pos.x}
-              y={pos.y}
-              fontSize="7"
-              fontWeight="700"
-              fill="#ffffff"
-              textAnchor="middle"
-              dominantBaseline="middle"
-            >
-              {s.count}
-            </text>
-          );
-        })}
-      </svg>
+      {/* Scales with the card instead of a fixed 208px box: full width while
+          stacked on mobile, up to ~45% of the row (capped so it doesn't
+          dwarf the legend) once there's room beside it. */}
+      <div className="w-full sm:w-2/5 sm:max-w-sm aspect-square shrink-0">
+        <svg viewBox="0 0 100 100" className="w-full h-full" role="img" aria-label="Tickets em andamento por categoria">
+          {slices.length === 1 ? (
+            <circle cx="50" cy="50" r="46" fill={slices[0].color} />
+          ) : (
+            slices.map((s) => (
+              <path key={s.name} d={pieSlicePath(50, 50, 46, s.startAngle, s.endAngle)} fill={s.color} stroke="#ffffff" strokeWidth="0.75" />
+            ))
+          )}
+          {slices.map((s) => {
+            if (s.percent < 0.04) return null;
+            const pos = polarToCartesian(50, 50, 28, (s.startAngle + s.endAngle) / 2);
+            return (
+              <text
+                key={`label-${s.name}`}
+                x={pos.x}
+                y={pos.y}
+                fontSize="7"
+                fontWeight="700"
+                fill="#ffffff"
+                textAnchor="middle"
+                dominantBaseline="middle"
+              >
+                {s.count}
+              </text>
+            );
+          })}
+        </svg>
+      </div>
 
-      <div className="flex flex-col divide-y divide-gray-100 w-full max-h-64 overflow-y-auto no-scrollbar">
+      <div className="flex flex-col divide-y divide-gray-100 w-full sm:flex-1 max-h-64 overflow-y-auto no-scrollbar">
         {slices.map((s) => (
           <div key={s.name} className="flex items-center gap-3 py-2.5">
             <span
@@ -230,7 +258,21 @@ interface LineSeries {
   values: number[];
 }
 
-function LineChart({ series, xLabels, height = 220 }: { series: LineSeries[]; xLabels: string[]; height?: number }) {
+/**
+ * `height` takes a Tailwind height class (not a pixel number) so the chart
+ * scales with the viewport/card instead of being pinned to one fixed size —
+ * it grows across the sm/lg breakpoints by default, filling the card rather
+ * than leaving an island of unused padding around a small fixed SVG.
+ */
+function LineChart({
+  series,
+  xLabels,
+  height = 'h-56 sm:h-72 lg:h-80',
+}: {
+  series: LineSeries[];
+  xLabels: string[];
+  height?: string;
+}) {
   const n = xLabels.length;
   const maxVal = Math.max(1, ...series.flatMap((s) => s.values));
 
@@ -257,7 +299,7 @@ function LineChart({ series, xLabels, height = 220 }: { series: LineSeries[]; xL
           ))}
         </div>
       )}
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full" style={{ height }} role="img" aria-label="Gráfico de linha">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className={cn('w-full', height)} role="img" aria-label="Gráfico de linha">
         {[0, 25, 50, 75, 100].map((gy) => (
           <line key={gy} x1="0" x2="100" y1={gy} y2={gy} stroke="#f1f5f9" strokeWidth="0.5" vectorEffect="non-scaling-stroke" />
         ))}
@@ -388,36 +430,42 @@ export function DashboardPage() {
                       value: data.ticketSummary?.total ?? data.openCount + data.closedCount,
                       icon: <Ticket className="w-[18px] h-[18px]" />,
                       colorClass: 'text-teal-600',
+                      to: '/tickets',
                     },
                     {
                       label: 'Meus',
                       value: data.ticketSummary?.mine ?? 0,
                       icon: <UserCheck className="w-[18px] h-[18px]" />,
                       colorClass: 'text-teal-600',
+                      to: '/tickets?mine=true',
                     },
                     {
                       label: 'Não atendidos',
                       value: data.ticketSummary?.unattended ?? 0,
                       icon: <MessageSquareDot className="w-[18px] h-[18px]" />,
                       colorClass: 'text-blue-600',
+                      to: '/tickets?unassigned=true',
                     },
                     {
                       label: 'Em andamento',
                       value: data.ticketSummary?.inProgress ?? data.byStatus?.IN_PROGRESS ?? 0,
                       icon: <Activity className="w-[18px] h-[18px]" />,
                       colorClass: 'text-green-600',
+                      to: '/tickets?status=IN_PROGRESS',
                     },
                     {
                       label: 'Pausados',
                       value: data.ticketSummary?.paused ?? 0,
                       icon: <PauseCircle className="w-[18px] h-[18px]" />,
                       colorClass: 'text-amber-500',
+                      to: '/tickets?paused=true',
                     },
                     {
                       label: 'Vencidos',
                       value: data.ticketSummary?.overdue ?? data.slaBreachedCount,
                       icon: <AlertTriangle className="w-[18px] h-[18px]" />,
                       colorClass: 'text-red-600',
+                      to: '/tickets?overdue=true',
                     },
                   ]}
                 />
@@ -663,13 +711,13 @@ export function DashboardPage() {
                       },
                       {
                         label: 'Média de espera',
-                        value: `${data.myChats?.avgWaitMinutes ?? 0}m`,
+                        value: data.myChats?.avgWaitMinutes != null ? `${data.myChats.avgWaitMinutes}m` : '—',
                         icon: <Hourglass className="w-[18px] h-[18px]" />,
                         colorClass: 'text-indigo-500',
                       },
                       {
                         label: 'Média de atendimento',
-                        value: `${data.myChats?.avgServiceMinutes ?? 0}m`,
+                        value: data.myChats?.avgServiceMinutes != null ? `${data.myChats.avgServiceMinutes}m` : '—',
                         icon: <Clock className="w-[18px] h-[18px]" />,
                         colorClass: 'text-green-600',
                       },
@@ -700,13 +748,13 @@ export function DashboardPage() {
                       },
                       {
                         label: 'Média de espera',
-                        value: `${data.allChats?.avgWaitMinutes ?? 0}m`,
+                        value: data.allChats?.avgWaitMinutes != null ? `${data.allChats.avgWaitMinutes}m` : '—',
                         icon: <Hourglass className="w-[18px] h-[18px]" />,
                         colorClass: 'text-indigo-500',
                       },
                       {
                         label: 'Média de atendimento',
-                        value: `${data.allChats?.avgServiceMinutes ?? 0}m`,
+                        value: data.allChats?.avgServiceMinutes != null ? `${data.allChats.avgServiceMinutes}m` : '—',
                         icon: <Clock className="w-[18px] h-[18px]" />,
                         colorClass: 'text-green-600',
                       },
@@ -740,8 +788,8 @@ export function DashboardPage() {
                             <td className="py-3 px-4 text-gray-700">{dept.inProgress}</td>
                             <td className="py-3 px-4 text-gray-700">{dept.waitingQueue}</td>
                             <td className="py-3 px-4 text-gray-700">{dept.waitingResponse}</td>
-                            <td className="py-3 px-4 text-gray-700">{dept.avgWait}</td>
-                            <td className="py-3 px-4 text-gray-700">{dept.avgService}</td>
+                            <td className="py-3 px-4 text-gray-700">{dept.avgWait ?? '—'}</td>
+                            <td className="py-3 px-4 text-gray-700">{dept.avgService ?? '—'}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -777,9 +825,10 @@ export function DashboardPage() {
                                     ag.status === 'busy' && 'bg-amber-500',
                                     ag.status === 'away' && 'bg-gray-400',
                                     ag.status === 'offline' && 'bg-red-500',
+                                    !ag.status && 'bg-gray-200',
                                   )}
                                 />
-                                <span className="text-gray-700 capitalize">{ag.status}</span>
+                                <span className="text-gray-700 capitalize">{ag.status ?? '—'}</span>
                               </span>
                             </td>
                             <td className="py-3 px-4 text-gray-700">{ag.inProgress}</td>
