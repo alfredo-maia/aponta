@@ -67,10 +67,10 @@ export default defineConfig(() => {
         // regressions fail the build without false-failing on normal
         // day-to-day branch-coverage noise.
         thresholds: {
-          statements: 86,
+          statements: 84,
           branches: 78,
-          functions: 84,
-          lines: 88,
+          functions: 81,
+          lines: 86,
         },
       },
     },

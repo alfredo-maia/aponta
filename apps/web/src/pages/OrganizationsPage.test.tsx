@@ -184,12 +184,18 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
 
     await user.type(screen.getByLabelText(/nome fantasia/i), 'Empresa C');
     await user.type(screen.getByLabelText(/razão social/i), 'Empresa C Ltda');
+    await user.click(screen.getByLabelText(/faturamento quarteirizado/i));
+    await user.type(screen.getByLabelText(/e-mails de faturamento/i), 'financeiro@empresac.com');
+    await user.type(screen.getByLabelText(/dia de vencimento/i), '15');
     await user.click(screen.getByRole('button', { name: /cadastrar/i }));
 
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith('/organizations', expect.objectContaining({
         name: 'Empresa C',
         legalName: 'Empresa C Ltda',
+        quarterlyBilling: true,
+        billingEmails: 'financeiro@empresac.com',
+        billingDueDay: 15,
       }));
     });
   });
@@ -320,6 +326,58 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     await waitFor(() => {
       expect(api.patch).toHaveBeenCalledWith('/users/u-2', { organizationId: 'org-1' });
     });
+
+    await user.click(screen.getByRole('button', { name: 'Remover' }));
+
+    await waitFor(() => {
+      expect(api.patch).toHaveBeenCalledWith('/users/u-1', { organizationId: null });
+    });
+  });
+
+  it('updates organization name and legal name on blur in Usuários tab', async () => {
+    vi.mocked(api.patch).mockResolvedValue({ data: orgDetail });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await openDetail(user);
+
+    const legalNameInput = screen.getByLabelText(/razão social/i);
+    await user.clear(legalNameInput);
+    await user.type(legalNameInput, 'Empresa A Nova Razao');
+    await user.tab();
+
+    await waitFor(() => {
+      expect(api.patch).toHaveBeenCalledWith('/organizations/org-1', { legalName: 'Empresa A Nova Razao' });
+    });
+
+    const nameInput = screen.getByLabelText(/nome fantasia/i);
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Empresa A Novo Nome');
+    await user.tab();
+
+    await waitFor(() => {
+      expect(api.patch).toHaveBeenCalledWith('/organizations/org-1', { name: 'Empresa A Novo Nome' });
+    });
+  });
+
+  it('toggles visibility and quarterly billing from the detail header', async () => {
+    vi.mocked(api.patch).mockResolvedValue({ data: orgDetail });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await openDetail(user);
+
+    await user.click(screen.getByLabelText(/visível para clientes/i));
+    await waitFor(() => {
+      expect(api.patch).toHaveBeenCalledWith('/organizations/org-1', { visibleToClients: false });
+    });
+
+    await user.click(screen.getByLabelText(/faturamento quarteirizado/i));
+    await waitFor(() => {
+      expect(api.patch).toHaveBeenCalledWith('/organizations/org-1', { quarterlyBilling: true });
+    });
   });
 
   it('adds a new contact from the Usuários tab', async () => {
@@ -446,6 +504,12 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     // Toggle quarterly billing
     await user.click(quarterlyToggle);
 
+    // Fill in billing inputs
+    await user.type(within(billingContent).getByLabelText(/e-mails para envio de cobrança/i), 'cobranca@empresa.com');
+    await user.type(within(billingContent).getByLabelText(/dia de vencimento/i), '20');
+    await user.selectOptions(within(billingContent).getByLabelText(/forma de pagamento/i), 'PIX');
+    await user.type(within(billingContent).getByLabelText(/instruções e observações/i), 'Nota no 1o dia útil');
+
     // Save preferences
     await user.click(within(billingContent).getByRole('button', { name: /salvar preferências/i }));
 
@@ -454,6 +518,10 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
         '/organizations/org-1',
         expect.objectContaining({
           quarterlyBilling: true,
+          billingEmails: 'cobranca@empresa.com',
+          billingDueDay: 20,
+          billingMethod: 'PIX',
+          billingNotes: 'Nota no 1o dia útil',
         }),
       );
     });
