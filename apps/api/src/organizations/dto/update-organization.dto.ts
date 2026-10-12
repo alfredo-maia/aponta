@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsEnum, IsBoolean } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsEnum, IsBoolean, IsInt, Min, Max } from 'class-validator';
 import { DocumentType } from '@prisma/client';
 
 export class UpdateOrganizationDto {
@@ -55,7 +55,26 @@ export class UpdateOrganizationDto {
   @IsBoolean()
   visibleToClients?: boolean;
 
+  /** Tiflux-parity (#58): faturamento quarteirizado e preferências */
   @IsOptional()
   @IsBoolean()
   quarterlyBilling?: boolean;
+
+  @IsOptional()
+  @IsString()
+  billingEmails?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(31)
+  billingDueDay?: number;
+
+  @IsOptional()
+  @IsString()
+  billingMethod?: string;
+
+  @IsOptional()
+  @IsString()
+  billingNotes?: string;
 }

@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Organization" ADD COLUMN IF NOT EXISTS "billingEmails" TEXT,
+ADD COLUMN IF NOT EXISTS "billingDueDay" INTEGER,
+ADD COLUMN IF NOT EXISTS "billingMethod" TEXT,
+ADD COLUMN IF NOT EXISTS "billingNotes" TEXT;

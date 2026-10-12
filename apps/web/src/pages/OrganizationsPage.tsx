@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
 import { useState, useMemo } from 'react';
-import { Search, Trash2 } from 'lucide-react';
+import { Search, Trash2, CreditCard } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
   EzAlert,
@@ -74,6 +74,10 @@ interface Organization {
   notes?: string | null;
   visibleToClients?: boolean;
   quarterlyBilling?: boolean;
+  billingEmails?: string | null;
+  billingDueDay?: number | null;
+  billingMethod?: string | null;
+  billingNotes?: string | null;
   _count?: { users: number };
 }
 
@@ -119,6 +123,13 @@ const orgFormSchema = z.object({
   notes: z.string().trim().optional(),
   visibleToClients: z.boolean().optional(),
   quarterlyBilling: z.boolean().optional(),
+  billingEmails: z.string().trim().optional(),
+  billingDueDay: z.string().refine(
+    (val) => !val || (!isNaN(Number(val)) && Number.isInteger(Number(val)) && Number(val) >= 1 && Number(val) <= 31),
+    { message: 'Dia de vencimento deve ser entre 1 e 31' },
+  ).optional(),
+  billingMethod: z.string().optional(),
+  billingNotes: z.string().trim().optional(),
 });
 
 type OrgFormValues = z.infer<typeof orgFormSchema>;
@@ -171,6 +182,13 @@ export function OrganizationsPage() {
   const [detailTab, setDetailTab] = useState<DetailTab>('users');
   const [cnpjLookupError, setCnpjLookupError] = useState<string | null>(null);
   const [profileDraft, setProfileDraft] = useState<{ serviceType: string; healthStatus: string } | null>(null);
+  const [billingDraft, setBillingDraft] = useState<{
+    quarterlyBilling?: boolean;
+    billingEmails?: string;
+    billingDueDay?: number | string;
+    billingMethod?: string;
+    billingNotes?: string;
+  } | null>(null);
   const [linkDeskId, setLinkDeskId] = useState<string>('');
   const [newGroupMemberIds, setNewGroupMemberIds] = useState<(string | number)[]>([]);
 
@@ -288,7 +306,11 @@ export function OrganizationsPage() {
 
   const createMutation = useMutation({
     mutationFn: async (values: OrgFormValues) => {
-      const { data } = await api.post<Organization>('/organizations', values);
+      const payload = {
+        ...values,
+        billingDueDay: values.billingDueDay ? parseInt(values.billingDueDay, 10) : undefined,
+      };
+      const { data } = await api.post<Organization>('/organizations', payload);
       return data;
     },
     onSuccess: (data) => {
@@ -427,6 +449,7 @@ export function OrganizationsPage() {
     setDetailTab('users');
     setDetailOrgId(orgId);
     setProfileDraft(null);
+    setBillingDraft(null);
     setMode('form');
   };
 
@@ -886,6 +909,11 @@ export function OrganizationsPage() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-3">
+                <EzTextInput id="org-billing-emails-create" label="E-mails de Faturamento" placeholder="ex: financeiro@cliente.com" {...register('billingEmails')} />
+                <EzTextInput id="org-billing-due-day-create" label="Dia de Vencimento" type="number" min="1" max="31" placeholder="ex: 10" {...register('billingDueDay')} />
+              </div>
+
               <EzTextArea id="org-notes" label="Anotações" rows={3} {...register('notes')} />
 
               <div className="flex justify-end">
@@ -1278,10 +1306,179 @@ export function OrganizationsPage() {
               )}
 
               {detailTab === 'billing' && (
-                <EzEmptyCard
-                  title="Módulo de Faturamento (escopo da issue #58)"
-                  description="SMS/e-mail de cobrança, integração Asaas/ContaAzul, faturamento em lote por dia de vencimento. O toggle 'Faturamento quarteirizado' já está disponível no painel acima."
-                />
+                <div className="space-y-6" data-testid="org-billing-tab-content">
+                  <div className="bg-white p-5 rounded-[12px] border border-gray-200 space-y-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3">
+                      <div className="flex items-center gap-2">
+                        <CreditCard className="w-5 h-5 text-brand-600" />
+                        <div>
+                          <h4 className="text-sm font-semibold text-gray-900">
+                            Preferências de Faturamento & Cobrança (Tiflux-parity)
+                          </h4>
+                          <p className="text-xs text-gray-500">
+                            Configurações de regime financeiro, faturamento quarteirizado e canais de cobrança.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[12px] text-gray-500">Regime atual:</span>
+                        <span
+                          className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
+                            (billingDraft?.quarterlyBilling ?? orgDetail.quarterlyBilling)
+                              ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                              : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                          }`}
+                        >
+                          {(billingDraft?.quarterlyBilling ?? orgDetail.quarterlyBilling)
+                            ? 'Faturamento Quarteirizado'
+                            : 'Faturamento Direto'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Faturamento Quarteirizado card */}
+                    <div className="p-4 rounded-[8px] bg-gray-50 border border-gray-200 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <EzCheck
+                          id="org-billing-quarterly-checkbox"
+                          label="Habilitar faturamento quarteirizado"
+                          checked={billingDraft?.quarterlyBilling ?? (orgDetail.quarterlyBilling === true)}
+                          disabled={updateOrgMutation.isPending}
+                          onChange={(e) =>
+                            setBillingDraft((prev) => ({
+                              ...prev,
+                              quarterlyBilling: e.target.checked,
+                            }))
+                          }
+                        />
+                      </div>
+                      <p className="text-[12px] text-gray-600 pl-6">
+                        Quando ativado, os apontamentos de horas e ordens de serviço deste cliente serão direcionados para o regime de faturamento quarteirizado por organização / parceiro.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <EzTextInput
+                          id="org-billing-emails"
+                          label="E-mails para Envio de Cobrança / Faturas"
+                          placeholder="ex: financeiro@empresa.com.br, faturas@empresa.com.br"
+                          value={billingDraft?.billingEmails ?? (orgDetail.billingEmails || '')}
+                          onChange={(e) =>
+                            setBillingDraft((prev) => ({
+                              ...prev,
+                              billingEmails: e.target.value,
+                            }))
+                          }
+                        />
+                        <span className="text-[11px] text-gray-400 block">
+                          E-mails que receberão as notificações e relatórios de faturamento (separados por vírgula).
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <EzTextInput
+                            id="org-billing-due-day"
+                            label="Dia de Vencimento"
+                            type="number"
+                            min="1"
+                            max="31"
+                            placeholder="ex: 10"
+                            value={
+                              billingDraft?.billingDueDay !== undefined
+                                ? String(billingDraft.billingDueDay)
+                                : (orgDetail.billingDueDay ? String(orgDetail.billingDueDay) : '')
+                            }
+                            onChange={(e) =>
+                              setBillingDraft((prev) => ({
+                                ...prev,
+                                billingDueDay: e.target.value ? parseInt(e.target.value, 10) : '',
+                              }))
+                            }
+                          />
+                          <span className="text-[11px] text-gray-400 block">
+                            Dia do mês (1 a 31).
+                          </span>
+                        </div>
+
+                        <div className="space-y-1">
+                          <EzComboBox
+                            id="org-billing-method"
+                            label="Forma de Pagamento"
+                            value={billingDraft?.billingMethod ?? (orgDetail.billingMethod || 'BOLETO')}
+                            onChange={(e) =>
+                              setBillingDraft((prev) => ({
+                                ...prev,
+                                billingMethod: e.target.value,
+                              }))
+                            }
+                          >
+                            <option value="BOLETO">Boleto Bancário</option>
+                            <option value="PIX">PIX</option>
+                            <option value="TRANSFERENCIA">Transferência</option>
+                            <option value="CARTAO">Cartão de Crédito</option>
+                          </EzComboBox>
+                          <span className="text-[11px] text-gray-400 block">
+                            Método preferencial.
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <EzTextArea
+                        id="org-billing-notes"
+                        label="Instruções e Observações de Faturamento"
+                        placeholder="Ex: Emissão de nota com ordem de compra específica; chave PIX CNPJ; faturamento consolidado mensal..."
+                        rows={3}
+                        value={billingDraft?.billingNotes ?? (orgDetail.billingNotes || '')}
+                        onChange={(e) =>
+                          setBillingDraft((prev) => ({
+                            ...prev,
+                            billingNotes: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div className="flex justify-end pt-2 border-t border-gray-100">
+                      <EzButton
+                        size="small"
+                        disabled={updateOrgMutation.isPending}
+                        onClick={() => {
+                          const payload: Partial<Organization> = {
+                            ...(billingDraft?.quarterlyBilling !== undefined
+                              ? { quarterlyBilling: billingDraft.quarterlyBilling }
+                              : {}),
+                            ...(billingDraft?.billingEmails !== undefined
+                              ? { billingEmails: billingDraft.billingEmails }
+                              : {}),
+                            ...(billingDraft?.billingDueDay !== undefined
+                              ? {
+                                  billingDueDay:
+                                    typeof billingDraft.billingDueDay === 'number'
+                                      ? billingDraft.billingDueDay
+                                      : null,
+                                }
+                              : {}),
+                            ...(billingDraft?.billingMethod !== undefined
+                              ? { billingMethod: billingDraft.billingMethod }
+                              : {}),
+                            ...(billingDraft?.billingNotes !== undefined
+                              ? { billingNotes: billingDraft.billingNotes }
+                              : {}),
+                          };
+                          updateOrgMutation.mutate(payload, {
+                            onSuccess: () => setBillingDraft(null),
+                          });
+                        }}
+                      >
+                        Salvar Preferências de Faturamento
+                      </EzButton>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           )

@@ -47,6 +47,23 @@ describe('OrganizationsService', () => {
       expect(mockPrisma.organization.create).toHaveBeenCalledWith({ data: dto });
       expect(result).toEqual({ id: 'org-1', ...dto });
     });
+
+    it('creates organization with quarterly billing and billing preferences', async () => {
+      const dto = {
+        name: 'Financeira XYZ',
+        quarterlyBilling: true,
+        billingEmails: 'financeiro@xyz.com,contato@xyz.com',
+        billingDueDay: 15,
+        billingMethod: 'BOLETO',
+        billingNotes: 'Enviar nota fiscal com 5 dias de antecedência',
+      };
+      mockPrisma.organization.create.mockResolvedValue({ id: 'org-1', ...dto });
+
+      const result = await service.create(dto);
+      expect(mockPrisma.organization.create).toHaveBeenCalledWith({ data: dto });
+      expect(result.quarterlyBilling).toBe(true);
+      expect(result.billingDueDay).toBe(15);
+    });
   });
 
   describe('findAll', () => {
@@ -137,6 +154,24 @@ describe('OrganizationsService', () => {
         data: { name: 'New Name' },
       });
       expect(result).toEqual({ id: 'org-1', name: 'New Name' });
+    });
+
+    it('updates quarterly billing and billing preferences', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue({ id: 'org-1', users: [] });
+      const billingUpdate = {
+        quarterlyBilling: true,
+        billingEmails: 'faturamento@empresa.com',
+        billingDueDay: 10,
+        billingMethod: 'PIX',
+      };
+      mockPrisma.organization.update.mockResolvedValue({ id: 'org-1', ...billingUpdate });
+
+      const result = await service.update('org-1', billingUpdate as any);
+      expect(mockPrisma.organization.update).toHaveBeenCalledWith({
+        where: { id: 'org-1' },
+        data: billingUpdate,
+      });
+      expect(result.quarterlyBilling).toBe(true);
     });
   });
 

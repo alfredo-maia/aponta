@@ -423,7 +423,8 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     });
   });
 
-  it('shows a stub pointing to issue #58 in the Faturamento tab', async () => {
+  it('renders billing preferences and updates quarterly billing in Faturamento tab (issue #58)', async () => {
+    vi.mocked(api.patch).mockResolvedValue({ data: { ...orgDetail, quarterlyBilling: true } });
     loginAs('ADMIN');
     const user = userEvent.setup();
     renderPage();
@@ -432,8 +433,29 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
 
     await user.click(screen.getByRole('tab', { name: /faturamento/i }));
 
+    const billingContent = screen.getByTestId('org-billing-tab-content');
+    expect(billingContent).toBeInTheDocument();
+
+    const quarterlyToggle = within(billingContent).getByLabelText(/habilitar faturamento quarteirizado/i);
+    expect(quarterlyToggle).toBeInTheDocument();
+    expect(within(billingContent).getByLabelText(/e-mails para envio de cobrança/i)).toBeInTheDocument();
+    expect(within(billingContent).getByLabelText(/dia de vencimento/i)).toBeInTheDocument();
+    expect(within(billingContent).getByLabelText(/forma de pagamento/i)).toBeInTheDocument();
+    expect(within(billingContent).getByLabelText(/instruções e observações/i)).toBeInTheDocument();
+
+    // Toggle quarterly billing
+    await user.click(quarterlyToggle);
+
+    // Save preferences
+    await user.click(within(billingContent).getByRole('button', { name: /salvar preferências/i }));
+
     await waitFor(() => {
-      expect(screen.getByText(/issue #58/i)).toBeInTheDocument();
+      expect(api.patch).toHaveBeenCalledWith(
+        '/organizations/org-1',
+        expect.objectContaining({
+          quarterlyBilling: true,
+        }),
+      );
     });
   });
 

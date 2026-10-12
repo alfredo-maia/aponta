@@ -63,6 +63,10 @@ model Organization {
   notes                  String?
   visibleToClients       Boolean  @default(true)
   quarterlyBilling       Boolean  @default(false)
+  billingEmails          String?
+  billingDueDay          Int?
+  billingMethod          String?
+  billingNotes           String?
   users     User[]
   credentials Credential[]
   contracts Contract[]
