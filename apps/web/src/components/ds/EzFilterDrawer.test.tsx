@@ -65,7 +65,7 @@ describe('EzFilterDrawer', () => {
       { id: 'f-1', name: 'Ativos VIP', criteria: { status: 'ACTIVE' } },
     ];
 
-    const { rerender } = render(
+    render(
       <EzFilterDrawer
         isOpen={true}
         onClose={vi.fn()}

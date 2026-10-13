@@ -5,12 +5,11 @@ import { z } from 'zod';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
 import { useState, useMemo } from 'react';
-import { Search, Trash2, CreditCard, Building2, Plus } from 'lucide-react';
+import { Search, Trash2, CreditCard, Plus } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
   EzAlert,
   EzButton,
-  EzCardItem,
   EzCheck,
   EzComboBox,
   EzEmptyCard,
