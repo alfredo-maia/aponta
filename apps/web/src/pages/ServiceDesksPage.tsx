@@ -9,8 +9,18 @@ import { useAuthStore } from '../stores/authStore';
 import { ServiceDeskEditor } from '../components/ServiceDeskEditor';
 import { BusinessHoursEditor } from '../components/BusinessHoursEditor';
 import { ServiceDeskSlaEditor } from '../components/ServiceDeskSlaEditor';
-import { EzAlert, EzButton, EzCardItem, EzEmptyCard, EzSpinner, EzTextInput } from '../components/ds';
+import {
+  EzAlert,
+  EzButton,
+  EzCardItem,
+  EzEmptyCard,
+  EzEntityScreenConfigModal,
+  EzEntityToolbar,
+  EzSpinner,
+  EzTextInput,
+} from '../components/ds';
 import { EzEntityGrid } from '../components/ds/EzEntityGrid';
+import { useUserScreenConfig } from '../hooks/useUserScreenConfig';
 
 interface ServiceDesk {
   id: string;
@@ -67,19 +77,45 @@ function serviceDeskColumns(
 
 /**
  * ADMIN-only page for managing departments (API resource: "service desk").
- * The create-ticket form (TicketForm) reads its dropdown from
- * `GET /service-desks` but had no UI anywhere to populate that list — an
- * ADMIN previously had to call the API directly. This page closes that
- * gap: list existing departments and a form to create new ones, matching
- * the API's ADMIN-only `POST /service-desks` guard
- * (service-desks.controller.ts) on the client side too so non-admins get
- * an immediate, clear message instead of a silent 403 from a hidden form.
+ *
+ * Standardized on the Sankhya ERP grid pattern (parity with
+ * OrganizationsPage / TicketsPage): EzEntityToolbar for Incluir / Recarregar
+ * / Excluir / Duplicar / Configurar colunas, plus per-user column
+ * configuration via useUserScreenConfig. Scope kept proportional to this
+ * screen's size — no Endereços/Contatos/Relacionamentos tabs, since a
+ * department has none of that; the existing ADMIN-only guard and the
+ * ServiceDeskEditor / ServiceDeskSlaEditor / BusinessHoursEditor detail
+ * editors are untouched.
  */
 export function ServiceDesksPage() {
   const user = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
   const isAdmin = user?.role === 'ADMIN';
+
+  // Sankhya parity: Modo Grade (lista) / Modo Formulário (criação ou
+  // detalhe), controlado pela EzEntityToolbar — mesmo padrão de
+  // OrganizationsPage/TicketsPage.
+  const [mode, setMode] = useState<'list' | 'form'>('list');
   const [selectedDeskId, setSelectedDeskId] = useState<string | null>(null);
+  const [selectedDesks, setSelectedDesks] = useState<ServiceDesk[]>([]);
+  const [isScreenConfigModalOpen, setIsScreenConfigModalOpen] = useState(false);
+
+  const {
+    config: screenConfig,
+    setColumnVisibility,
+    setDensity,
+    setFormLayout,
+    restoreDefaults,
+  } = useUserScreenConfig('service-desks', {
+    grid: {
+      columnVisibility: {},
+      density: 'compact',
+    },
+    form: {
+      layout: 'CASCADE',
+    },
+    viewMode: 'GRID',
+  });
 
   const { data: serviceDesks, isLoading } = useQuery({
     queryKey: ['service-desks'],
@@ -103,13 +139,14 @@ export function ServiceDesksPage() {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<ServiceDeskFormValues>({
     resolver: zodResolver(serviceDeskFormSchema),
     defaultValues: { name: '' },
   });
 
-  const mutation = useMutation({
+  const createMutation = useMutation({
     mutationFn: async (values: ServiceDeskFormValues) => {
       const { data } = await api.post<ServiceDesk>('/service-desks', values);
       return data;
@@ -117,8 +154,52 @@ export function ServiceDesksPage() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['service-desks'] });
       reset();
+      setMode('list');
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (deskId: string) => {
+      await api.delete(`/service-desks/${deskId}`);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['service-desks'] });
+    },
+  });
+
+  const openDetail = (deskId: string) => {
+    setSelectedDeskId(deskId);
+    setMode('form');
+  };
+
+  const backToList = () => {
+    setMode('list');
+    setSelectedDeskId(null);
+  };
+
+  const handleInsert = () => {
+    reset();
+    setSelectedDeskId(null);
+    setMode('form');
+  };
+
+  const handleClone = () => {
+    const active = selectedDesks[0];
+    if (!active) return;
+    reset();
+    setValue('name', `${active.name} (Cópia)`);
+    setSelectedDeskId(null);
+    setMode('form');
+  };
+
+  const handleDelete = () => {
+    if (selectedDesks.length === 0) return;
+    const confirmMsg = `Deseja excluir ${selectedDesks.length} departamento(s) selecionado(s)?`;
+    if (window.confirm(confirmMsg)) {
+      selectedDesks.forEach((desk) => deleteMutation.mutate(desk.id));
+      setSelectedDesks([]);
+    }
+  };
 
   if (!isAdmin) {
     return (
@@ -132,89 +213,148 @@ export function ServiceDesksPage() {
     );
   }
 
+  const serviceDeskGridColumns = serviceDeskColumns(openDetail);
+  const screenConfigColumns = serviceDeskGridColumns.map((c) => {
+    const colId = (c as { accessorKey?: string }).accessorKey ?? c.id ?? '';
+    const label = typeof c.header === 'string' ? c.header : colId;
+    const isVisible = screenConfig.grid.columnVisibility[colId] !== false;
+    return { id: colId, label, isVisible };
+  });
+
+  const totalCount = serviceDesks?.length ?? 0;
+  const activeDesk = serviceDesks?.find((desk) => desk.id === selectedDeskId) ?? null;
+  const recordCountText =
+    mode === 'form' && selectedDeskId
+      ? `1 de ${totalCount}`
+      : `${totalCount === 0 ? 0 : 1} - ${totalCount} de ${totalCount}`;
+
   return (
     <div className="space-y-6">
       <h1 className="text-[20px] font-semibold text-gray-900">Departamentos</h1>
 
-      <form
-        onSubmit={handleSubmit((values) => mutation.mutate(values))}
-        noValidate
-        className="flex max-w-lg items-end gap-3"
-      >
-        <EzCardItem flat className="flex-1 flex-row items-end gap-3 p-4">
-          <div className="flex-1">
-            <EzTextInput
-              id="service-desk-name"
-              label="Nome"
-              hasError={!!errors.name}
-              message={errors.name?.message}
-              {...register('name')}
-            />
-          </div>
-          <EzButton type="submit" disabled={mutation.isPending}>
-            Criar
-          </EzButton>
-        </EzCardItem>
-      </form>
-      {mutation.isError && (
-        <EzAlert variant="error">Falha ao criar o departamento. Tente novamente.</EzAlert>
-      )}
-
       {isLoading ? (
         <EzSpinner label="Carregando…" />
-      ) : selectedDeskId === null ? (
-        (serviceDesks ?? []).length === 0 ? (
-          <EzCardItem flat className="max-w-2xl overflow-hidden">
-            <div className="p-4">
-              <EzEmptyCard title="Nenhum departamento cadastrado ainda." />
-            </div>
-          </EzCardItem>
-        ) : (
-          <EzEntityGrid
-            data={serviceDesks ?? []}
-            columns={serviceDeskColumns(setSelectedDeskId)}
-            pageSize={10}
-          />
-        )
       ) : (
-        (() => {
-          const selectedDesk = serviceDesks?.find((desk) => desk.id === selectedDeskId);
-          if (!selectedDesk) return null;
-          return (
-            <div className="max-w-2xl space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-[16px] font-semibold text-gray-900">{selectedDesk.name}</h2>
-                <EzButton
-                  type="button"
-                  variant="secondary"
-                  size="small"
-                  onClick={() => setSelectedDeskId(null)}
+        <div className="bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs flex flex-col">
+          <EzEntityToolbar
+            viewMode={mode === 'list' ? 'GRID' : 'FORM'}
+            onToggleViewMode={(nextMode) => {
+              if (nextMode === 'FORM') {
+                const active = selectedDesks[0] ?? serviceDesks?.[0];
+                if (active) {
+                  openDetail(active.id);
+                } else {
+                  handleInsert();
+                }
+              } else {
+                backToList();
+              }
+            }}
+            onInsert={handleInsert}
+            insertAriaLabel="Novo Departamento"
+            insertTooltip="Novo Departamento"
+            selectedCount={selectedDesks.length}
+            onDelete={handleDelete}
+            onClone={handleClone}
+            onRefresh={() => void queryClient.invalidateQueries({ queryKey: ['service-desks'] })}
+            onOpenGridConfig={() => setIsScreenConfigModalOpen(true)}
+            onOpenScreenConfig={() => setIsScreenConfigModalOpen(true)}
+            recordCountText={recordCountText}
+          />
+
+          <div className="p-3">
+            {mode === 'form' ? (
+              selectedDeskId === null ? (
+                <form
+                  onSubmit={handleSubmit((values) => createMutation.mutate(values))}
+                  noValidate
+                  className="max-w-lg space-y-3"
                 >
-                  Voltar
-                </EzButton>
-              </div>
-              <EzCardItem flat className="p-4">
-                <ServiceDeskEditor desk={selectedDesk} agents={agents ?? []} />
-                <ServiceDeskSlaEditor
-                  deskId={selectedDesk.id}
-                  initial={{
-                    organizationId: selectedDesk.organizationId ?? selectedDesk.organization?.id ?? null,
-                    organizationName: selectedDesk.organization?.name ?? null,
-                    slaCriticalResponseHours: selectedDesk.slaCriticalResponseHours,
-                    slaCriticalResolveHours: selectedDesk.slaCriticalResolveHours,
-                    slaHighResponseHours: selectedDesk.slaHighResponseHours,
-                    slaHighResolveHours: selectedDesk.slaHighResolveHours,
-                    slaMediumResponseHours: selectedDesk.slaMediumResponseHours,
-                    slaMediumResolveHours: selectedDesk.slaMediumResolveHours,
-                    slaLowResponseHours: selectedDesk.slaLowResponseHours,
-                    slaLowResolveHours: selectedDesk.slaLowResolveHours,
-                  }}
-                />
-                <BusinessHoursEditor serviceDeskId={selectedDesk.id} />
-              </EzCardItem>
-            </div>
-          );
-        })()
+                  <EzCardItem flat className="flex-row items-end gap-3 p-4">
+                    <div className="flex-1">
+                      <EzTextInput
+                        id="service-desk-name"
+                        label="Nome"
+                        hasError={!!errors.name}
+                        message={errors.name?.message}
+                        {...register('name')}
+                      />
+                    </div>
+                    <EzButton type="submit" disabled={createMutation.isPending}>
+                      Criar
+                    </EzButton>
+                  </EzCardItem>
+                  {createMutation.isError && (
+                    <EzAlert variant="error">Falha ao criar o departamento. Tente novamente.</EzAlert>
+                  )}
+                </form>
+              ) : activeDesk ? (
+                <div className="max-w-2xl space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-[16px] font-semibold text-gray-900">{activeDesk.name}</h2>
+                    <EzButton type="button" variant="secondary" size="small" onClick={backToList}>
+                      Voltar
+                    </EzButton>
+                  </div>
+                  <EzCardItem flat className="p-4">
+                    <ServiceDeskEditor desk={activeDesk} agents={agents ?? []} />
+                    <ServiceDeskSlaEditor
+                      deskId={activeDesk.id}
+                      initial={{
+                        organizationId: activeDesk.organizationId ?? activeDesk.organization?.id ?? null,
+                        organizationName: activeDesk.organization?.name ?? null,
+                        slaCriticalResponseHours: activeDesk.slaCriticalResponseHours,
+                        slaCriticalResolveHours: activeDesk.slaCriticalResolveHours,
+                        slaHighResponseHours: activeDesk.slaHighResponseHours,
+                        slaHighResolveHours: activeDesk.slaHighResolveHours,
+                        slaMediumResponseHours: activeDesk.slaMediumResponseHours,
+                        slaMediumResolveHours: activeDesk.slaMediumResolveHours,
+                        slaLowResponseHours: activeDesk.slaLowResponseHours,
+                        slaLowResolveHours: activeDesk.slaLowResolveHours,
+                      }}
+                    />
+                    <BusinessHoursEditor serviceDeskId={activeDesk.id} />
+                  </EzCardItem>
+                </div>
+              ) : null
+            ) : (serviceDesks ?? []).length === 0 ? (
+              <EzEmptyCard title="Nenhum departamento cadastrado ainda." />
+            ) : (
+              <EzEntityGrid
+                data={serviceDesks ?? []}
+                columns={serviceDeskGridColumns}
+                selectable
+                showRowNumbers
+                enableColumnMenu
+                enableColumnFilters
+                zebraStriping
+                density={screenConfig.grid.density}
+                initialColumnVisibility={screenConfig.grid.columnVisibility}
+                onSelectionChange={setSelectedDesks}
+                pageSize={10}
+              />
+            )}
+          </div>
+        </div>
+      )}
+
+      {isScreenConfigModalOpen && (
+        <EzEntityScreenConfigModal
+          columns={screenConfigColumns}
+          onToggleColumn={(colId) => {
+            setColumnVisibility((prev) => ({
+              ...prev,
+              [colId]: prev[colId] === false ? true : false,
+            }));
+          }}
+          density={screenConfig.grid.density}
+          onDensityChange={setDensity}
+          formLayout={screenConfig.form.layout}
+          onFormLayoutChange={setFormLayout}
+          onRestoreDefaults={restoreDefaults}
+          onClose={() => setIsScreenConfigModalOpen(false)}
+          initialTab="grid"
+        />
       )}
     </div>
   );
