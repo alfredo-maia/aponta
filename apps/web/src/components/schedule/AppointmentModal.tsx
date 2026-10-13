@@ -335,16 +335,14 @@ export function AppointmentModal({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-semibold text-gray-700 mb-1">Início</label>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2">
               <EzDateInput
-                className="flex-1 min-w-0"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 disabled={!canEdit || isSubmitting}
                 required
               />
               <EzTimeInput
-                className="w-[128px] shrink-0"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
                 disabled={!canEdit || isSubmitting}
@@ -355,16 +353,14 @@ export function AppointmentModal({
 
           <div>
             <label className="block text-xs font-semibold text-gray-700 mb-1">Término</label>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2">
               <EzDateInput
-                className="flex-1 min-w-0"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
                 disabled={!canEdit || isSubmitting}
                 required
               />
               <EzTimeInput
-                className="w-[128px] shrink-0"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
                 disabled={!canEdit || isSubmitting}
