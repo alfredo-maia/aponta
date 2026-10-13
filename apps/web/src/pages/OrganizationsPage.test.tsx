@@ -108,6 +108,10 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     vi.clearAllMocks();
     mockApiGet();
     useAuthStore.setState({ token: null, user: null });
+    // A couple of tests below exercise useUserScreenConfig's localStorage
+    // persistence; keep each test's screen-config state isolated so test
+    // order never matters.
+    localStorage.clear();
   });
 
   it('shows an access-denied message for non-ADMIN roles', () => {
@@ -612,5 +616,226 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     // Close modal
     await user.click(within(modal).getByLabelText('Fechar'));
     expect(screen.queryByTestId('ez-entity-screen-config-modal')).not.toBeInTheDocument();
+  });
+
+  it('filters the grid by search text, status, and document type (Sankhya filter drawer)', async () => {
+    const filterableOrgs = [
+      { id: 'org-1', name: 'Empresa A', cnpj: '19131243000197', documentType: 'CNPJ', active: true, _count: { users: 2 } },
+      { id: 'org-2', name: 'Empresa B', documentType: 'CPF', active: false, _count: { users: 0 } },
+    ];
+    vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url === '/organizations') return Promise.resolve({ data: filterableOrgs });
+      if (url === '/users') return Promise.resolve({ data: users });
+      if (url === '/service-desks') return Promise.resolve({ data: serviceDesks });
+      return Promise.reject(new Error(`Unexpected GET ${url}`));
+    });
+
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+      expect(screen.getByText('Empresa B')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId('ez-toolbar-filter-panel-button'));
+    const drawer = screen.getByTestId('ez-filter-drawer');
+
+    // Search text narrows to the matching name only.
+    await user.type(within(drawer).getByLabelText(/buscar parceiro/i), 'Empresa A');
+    expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    expect(screen.queryByText('Empresa B')).not.toBeInTheDocument();
+    await user.clear(within(drawer).getByLabelText(/buscar parceiro/i));
+
+    // Status filter narrows to inactive organizations only.
+    await user.selectOptions(within(drawer).getByLabelText(/^status$/i), 'INACTIVE');
+    expect(screen.queryByText('Empresa A')).not.toBeInTheDocument();
+    expect(screen.getByText('Empresa B')).toBeInTheDocument();
+    await user.selectOptions(within(drawer).getByLabelText(/^status$/i), 'ALL');
+
+    // Document type filter narrows to CPF-only partners.
+    await user.selectOptions(within(drawer).getByLabelText(/tipo de documento/i), 'CPF');
+    expect(screen.queryByText('Empresa A')).not.toBeInTheDocument();
+    expect(screen.getByText('Empresa B')).toBeInTheDocument();
+
+    // Clearing the drawer resets every filter back to showing both.
+    await user.click(screen.getByTestId('ez-filter-drawer-clear'));
+    expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    expect(screen.getByText('Empresa B')).toBeInTheDocument();
+  });
+
+  it('saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId('ez-toolbar-filter-panel-button'));
+    const drawer = screen.getByTestId('ez-filter-drawer');
+
+    await user.type(within(drawer).getByLabelText(/buscar parceiro/i), 'Empresa A');
+    await user.click(within(drawer).getByTestId('ez-filter-drawer-save-btn'));
+    await user.type(within(drawer).getByTestId('ez-filter-drawer-name-input'), 'Só Empresa A');
+    await user.click(within(drawer).getByTestId('ez-filter-drawer-confirm-save'));
+
+    const savedList = await within(drawer).findByTestId('ez-filter-drawer-saved-list');
+    expect(within(savedList).getByText('Só Empresa A')).toBeInTheDocument();
+
+    // Clear the live filter, then re-apply it from the saved entry.
+    await user.clear(within(drawer).getByLabelText(/buscar parceiro/i));
+    await user.click(within(savedList).getByText('Só Empresa A'));
+    expect(within(drawer).getByLabelText(/buscar parceiro/i)).toHaveValue('Empresa A');
+
+    // Delete the saved filter.
+    await user.click(within(savedList).getByLabelText(/excluir filtro só empresa a/i));
+    expect(within(drawer).queryByText('Só Empresa A')).not.toBeInTheDocument();
+  });
+
+  it('navigates between organizations from the detail view using toolbar Anterior/Próximo', async () => {
+    const orgBDetail = {
+      ...orgDetail,
+      id: 'org-2',
+      name: 'Empresa B',
+      legalName: 'Empresa B Ltda',
+      serviceDesks: [],
+      agentGroups: [],
+      addresses: [],
+      contacts: [],
+    };
+    vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url === '/organizations') return Promise.resolve({ data: orgs });
+      if (url === '/users') return Promise.resolve({ data: users });
+      if (url === '/service-desks') return Promise.resolve({ data: serviceDesks });
+      if (url === '/organizations/org-1') return Promise.resolve({ data: orgDetail });
+      if (url === '/organizations/org-2') return Promise.resolve({ data: orgBDetail });
+      return Promise.reject(new Error(`Unexpected GET ${url}`));
+    });
+
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await openDetail(user);
+
+    await user.click(screen.getByTestId('ez-toolbar-next-button'));
+    await waitFor(() => {
+      expect(screen.getByText('Empresa B Ltda')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId('ez-toolbar-previous-button'));
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A Ltda')).toBeInTheDocument();
+    });
+  });
+
+  it('duplicates a selected organization into a prefilled Nova Empresa form (Duplicar)', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    const rowCheckboxes = screen.getAllByRole('checkbox');
+    await user.click(rowCheckboxes[1]); // select "Empresa A"
+
+    await user.click(screen.getByTestId('ez-toolbar-clone-button'));
+
+    expect(screen.getByText('Nova Empresa')).toBeInTheDocument();
+    expect(screen.getByLabelText(/nome fantasia/i)).toHaveValue('Empresa A (Cópia)');
+  });
+
+  it('persists column visibility toggles to the per-user screen config (localStorage)', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId('ez-toolbar-screen-config-button'));
+    const modal = screen.getByTestId('ez-entity-screen-config-modal');
+    await user.click(within(modal).getByTestId('ez-screen-config-toggle-stateRegistration'));
+
+    expect(within(modal).getByTestId('ez-screen-config-toggle-stateRegistration')).toBeChecked();
+    const persisted = JSON.parse(localStorage.getItem('aponta_screen_config_u-1_organizations') ?? '{}');
+    expect(persisted.grid.columnVisibility.stateRegistration).toBe(true);
+  });
+
+  it('edits the optional grid columns (IE, IM, Pasta, Perfil, Saúde) once made visible via screen config', async () => {
+    vi.mocked(api.patch).mockResolvedValue({ data: {} });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+
+    // Simulate a returning user who already revealed these optional
+    // columns via the screen configurator in a previous session — the
+    // toggle persists to localStorage (useUserScreenConfig) and is read
+    // back as EzEntityGrid's *initial* column visibility on mount (see the
+    // dedicated persistence test above for the toggle-write side).
+    localStorage.setItem(
+      'aponta_screen_config_u-1_organizations',
+      JSON.stringify({
+        grid: {
+          columnVisibility: {
+            stateRegistration: true,
+            municipalRegistration: true,
+            workFolder: true,
+            serviceType: true,
+            healthStatus: true,
+          },
+          density: 'compact',
+        },
+        form: { layout: 'CASCADE' },
+        viewMode: 'GRID',
+        savedFilters: [],
+      }),
+    );
+
+    renderPage();
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    // EzTextEdit cells render as a plain "click to edit" button showing the
+    // placeholder until clicked; clicking swaps it for a real <input> (see
+    // EzTextEdit.tsx), which is what we then type into and blur to commit.
+    async function editFirstCell(placeholder: string, text: string, expectedPatch: Record<string, string>) {
+      await user.click(screen.getAllByRole('button', { name: placeholder })[0]);
+      const input = screen.getAllByPlaceholderText(placeholder)[0];
+      await user.type(input, text);
+      await user.tab();
+      await waitFor(() => {
+        expect(api.patch).toHaveBeenCalledWith('/organizations/org-1', expectedPatch);
+      });
+    }
+
+    await editFirstCell('IE', '789', { stateRegistration: '789' });
+    await editFirstCell('IM', '321', { municipalRegistration: '321' });
+    await editFirstCell('/pasta', '/novo', { workFolder: '/novo' });
+    await editFirstCell('Perfil', 'Premium', { serviceType: 'Premium' });
+    await editFirstCell('Saúde', 'OK', { healthStatus: 'OK' });
+  });
+
+  it('restores default screen configuration from the config modal', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId('ez-toolbar-screen-config-button'));
+    const modal = screen.getByTestId('ez-entity-screen-config-modal');
+    await user.click(within(modal).getByTestId('ez-config-density-comfortable'));
+    await user.click(within(modal).getByText('Restaurar Padrão'));
+
+    expect(within(modal).getByTestId('ez-config-density-compact')).toHaveClass('bg-brand-600');
   });
 });
