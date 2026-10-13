@@ -46,6 +46,7 @@ export interface TicketsPage {
 
 export interface TicketFiltersInput {
   serviceDeskId?: string;
+  organizationId?: string;
   status?: TicketStatus;
   search?: string;
   page?: number;
@@ -72,13 +73,14 @@ export interface TicketFiltersInput {
  * combination.
  */
 export function useTickets(filters: TicketFiltersInput = {}) {
-  const { serviceDeskId, status, search, page, mine, unassigned, paused, overdue, notClosed } = filters;
+  const { serviceDeskId, organizationId, status, search, page, mine, unassigned, paused, overdue, notClosed } = filters;
 
   return useQuery({
     queryKey: [
       'tickets',
       {
         serviceDeskId: serviceDeskId ?? null,
+        organizationId: organizationId ?? null,
         status: status ?? null,
         search: search ?? null,
         page: page ?? 1,
@@ -93,6 +95,7 @@ export function useTickets(filters: TicketFiltersInput = {}) {
       const { data } = await api.get<TicketsPage>('/tickets', {
         params: {
           ...(serviceDeskId ? { serviceDeskId } : {}),
+          ...(organizationId ? { organizationId } : {}),
           ...(status ? { status } : {}),
           ...(search ? { search } : {}),
           ...(mine ? { mine: 'true' } : {}),

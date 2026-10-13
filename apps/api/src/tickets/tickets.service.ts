@@ -415,6 +415,9 @@ export class TicketsService {
     if (query.serviceDeskId) {
       where.serviceDeskId = query.serviceDeskId;
     }
+    if (query.organizationId) {
+      where.requester = { organizationId: query.organizationId };
+    }
     if (query.status) {
       where.status = query.status;
     }

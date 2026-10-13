@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Appointment, AppointmentType, CreateAppointmentInput, UpdateAppointmentInput } from '../../hooks/useAppointments';
-import { useTickets } from '../../hooks/useTickets';
+import { Ticket } from '../../hooks/useTickets';
+import { useAuthStore } from '../../stores/authStore';
+import { TicketSearchModal } from './TicketSearchModal';
 import { EzButton, EzModal, EzTextInput, EzBadge } from '../ds';
 import { Search, Trash2, Unlink, User as UserIcon } from 'lucide-react';
 
@@ -48,12 +50,10 @@ export function AppointmentModal({
   const [organizationId, setOrganizationId] = useState('');
   const [organizationName, setOrganizationName] = useState('');
   const [linkedTicket, setLinkedTicket] = useState<LinkedTicket | null>(null);
-  const [ticketSearch, setTicketSearch] = useState('');
-  const [debouncedTicketSearch, setDebouncedTicketSearch] = useState('');
   const [isTicketSearchOpen, setIsTicketSearchOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const ticketSearchRef = useRef<HTMLDivElement>(null);
+  const userRole = useAuthStore((state) => state.user?.role);
 
   useEffect(() => {
     if (appointment) {
@@ -92,35 +92,11 @@ export function AppointmentModal({
       setOrganizationName('');
       setLinkedTicket(null);
     }
-    setTicketSearch('');
     setIsTicketSearchOpen(false);
     setError(null);
   }, [appointment, initialDate, initialType, isOpen]);
 
-  // Debounce the ticket search term so we don't query on every keystroke
-  useEffect(() => {
-    const handle = setTimeout(() => setDebouncedTicketSearch(ticketSearch.trim()), 300);
-    return () => clearTimeout(handle);
-  }, [ticketSearch]);
-
-  // Close the ticket search dropdown on click outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (ticketSearchRef.current && !ticketSearchRef.current.contains(event.target as Node)) {
-        setIsTicketSearchOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const ticketResults = useTickets({
-    search: debouncedTicketSearch.length >= 2 ? debouncedTicketSearch : undefined,
-    notClosed: true,
-    page: 1,
-  });
-
-  const handleSelectTicket = (ticket: { id: string; protocol: string; title: string; description: string }) => {
+  const handleSelectTicket = (ticket: Ticket) => {
     setLinkedTicket({ id: ticket.id, protocol: ticket.protocol, title: ticket.title });
     // Título e organização são derivados do chamado no backend; refletimos
     // o título aqui de imediato para feedback visual antes de salvar.
@@ -128,7 +104,6 @@ export function AppointmentModal({
     if (!description.trim()) {
       setDescription(ticket.description.length > 160 ? `${ticket.description.slice(0, 160).trim()}…` : ticket.description);
     }
-    setTicketSearch('');
     setIsTicketSearchOpen(false);
   };
 
@@ -194,8 +169,6 @@ export function AppointmentModal({
       }
     }
   };
-
-  const ticketMatches = ticketResults.data?.data ?? [];
 
   return (
     <EzModal
@@ -281,40 +254,15 @@ export function AppointmentModal({
               )}
             </div>
           ) : (
-            <div className="relative" ref={ticketSearchRef}>
-              <EzTextInput
-                placeholder="Buscar por protocolo ou título do chamado..."
-                leftIcon={<Search className="w-4 h-4" />}
-                value={ticketSearch}
-                onChange={(e) => {
-                  setTicketSearch(e.target.value);
-                  setIsTicketSearchOpen(true);
-                }}
-                onFocus={() => setIsTicketSearchOpen(true)}
-                disabled={!canEdit || isSubmitting}
-              />
-              {isTicketSearchOpen && debouncedTicketSearch.length >= 2 && (
-                <div className="absolute z-20 mt-1 w-full max-h-56 overflow-y-auto bg-white border border-gray-200 rounded-[8px] shadow-lg">
-                  {ticketResults.isLoading ? (
-                    <div className="p-3 text-xs text-gray-500">Buscando chamados não fechados...</div>
-                  ) : ticketMatches.length === 0 ? (
-                    <div className="p-3 text-xs text-gray-500">Nenhum chamado não fechado encontrado.</div>
-                  ) : (
-                    ticketMatches.map((t) => (
-                      <button
-                        key={t.id}
-                        type="button"
-                        onClick={() => handleSelectTicket(t)}
-                        className="w-full text-left px-3 py-2 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
-                      >
-                        <span className="text-xs font-bold text-brand-600">#{t.protocol}</span>
-                        <p className="text-sm text-gray-800 truncate">{t.title}</p>
-                      </button>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
+            <button
+              type="button"
+              onClick={() => setIsTicketSearchOpen(true)}
+              disabled={!canEdit || isSubmitting}
+              className="w-full flex items-center gap-2 px-3 h-[42px] text-sm text-gray-500 border border-gray-300 rounded-[8px] bg-white hover:border-gray-400 disabled:bg-gray-80 disabled:cursor-not-allowed transition-colors"
+            >
+              <Search className="w-4 h-4 shrink-0" />
+              Buscar chamado por protocolo, título, cliente ou mesa...
+            </button>
           )}
         </div>
 
@@ -421,6 +369,13 @@ export function AppointmentModal({
           />
         </div>
       </form>
+
+      <TicketSearchModal
+        isOpen={isTicketSearchOpen}
+        onClose={() => setIsTicketSearchOpen(false)}
+        onSelect={handleSelectTicket}
+        showOrganizationFilter={userRole !== 'CLIENT_MASTER'}
+      />
     </EzModal>
   );
 }

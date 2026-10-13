@@ -171,15 +171,23 @@ describe('AppointmentModal', () => {
     fireEvent.click(screen.getByRole('button', { name: /desvincular chamado/i }));
 
     expect(screen.queryByText('#T-1001')).not.toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/buscar por protocolo ou título/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /buscar chamado por protocolo/i })).toBeInTheDocument();
   });
 
-  it('searches non-closed tickets and links the selected one', async () => {
-    vi.mocked(api.get).mockResolvedValue({
-      data: {
-        data: [{ id: 'tick-9', protocol: 'T-9', title: 'Chamado de teste', description: 'Detalhe do chamado de teste' }],
-        meta: { total: 1, page: 1, limit: 20, totalPages: 1 },
-      },
+  it('opens the ticket search modal with Cliente/Mesa filters and links the selected ticket', async () => {
+    vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url === '/organizations') {
+        return Promise.resolve({ data: [{ id: 'org-9', name: 'Acme Corp' }] });
+      }
+      if (url === '/service-desks') {
+        return Promise.resolve({ data: [{ id: 'sd-1', name: 'Suporte N1' }] });
+      }
+      return Promise.resolve({
+        data: {
+          data: [{ id: 'tick-9', protocol: 'T-9', title: 'Chamado de teste', description: 'Detalhe do chamado de teste', status: 'OPEN' }],
+          meta: { total: 1, page: 1, limit: 20, totalPages: 1 },
+        },
+      });
     });
 
     renderModal(
@@ -191,7 +199,13 @@ describe('AppointmentModal', () => {
       />
     );
 
-    const searchInput = screen.getByPlaceholderText(/buscar por protocolo ou título/i);
+    fireEvent.click(screen.getByRole('button', { name: /buscar chamado por protocolo/i }));
+
+    expect(screen.getByText('Buscar Chamado')).toBeInTheDocument();
+    expect(await screen.findByText('Acme Corp')).toBeInTheDocument();
+    expect(screen.getByText('Suporte N1')).toBeInTheDocument();
+
+    const searchInput = screen.getByPlaceholderText(/buscar por protocolo, título ou descrição/i);
     fireEvent.change(searchInput, { target: { value: 'teste' } });
 
     await waitFor(
@@ -206,6 +220,7 @@ describe('AppointmentModal', () => {
     const option = await screen.findByText('Chamado de teste');
     fireEvent.click(option);
 
+    expect(screen.queryByText('Buscar Chamado')).not.toBeInTheDocument();
     expect(screen.getByText('#T-9')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Chamado de teste')).toBeInTheDocument();
   });

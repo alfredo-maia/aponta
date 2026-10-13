@@ -23,6 +23,11 @@ export class TicketQueryDto {
   @IsUUID()
   serviceDeskId?: string;
 
+  @ApiPropertyOptional({ description: 'Filtrar por UUID da organização/cliente do solicitante' })
+  @IsOptional()
+  @IsUUID()
+  organizationId?: string;
+
   @ApiPropertyOptional({ description: 'Filtrar por Status', enum: TicketStatus })
   @IsOptional()
   @IsEnum(TicketStatus)
