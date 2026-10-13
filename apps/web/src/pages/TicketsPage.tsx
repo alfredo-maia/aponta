@@ -296,6 +296,15 @@ export function TicketsPage() {
     []
   );
 
+  // TiFlux parity: the grid view comes grouped by Estágio (status) by
+  // default, with per-group counters, so users don't need to configure
+  // grouping manually first. Memoized so the array identity stays stable
+  // across re-renders — EzEntityGrid re-syncs its internal grouping state
+  // whenever this prop's reference changes, which would otherwise clobber
+  // a manual regroup the user made via its corner menu on every parent
+  // re-render.
+  const defaultTicketGroupBy = useMemo(() => ['status'], []);
+
   const screenConfigColumns = useMemo(() => {
     return ticketGridColumns.map((c) => {
       const colId = (c as any).accessorKey ?? c.id ?? '';
@@ -501,6 +510,7 @@ export function TicketsPage() {
                   enableColumnMenu
                   enableColumnFilters
                   zebraStriping
+                  groupBy={defaultTicketGroupBy}
                   density={screenConfig.grid.density}
                   initialColumnVisibility={screenConfig.grid.columnVisibility}
                   onSelectionChange={(selected) => {

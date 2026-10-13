@@ -367,10 +367,45 @@ describe('TicketsPage', () => {
     const gridButton = screen.getByRole('button', { name: 'Grade' });
     await user.click(gridButton);
 
-    expect(await screen.findByText('AP-000001')).toBeInTheDocument();
+    // Grouped by status by default (see dedicated grouping test below), so
+    // tickets live inside their (collapsed) stage group rather than as
+    // bare top-level text until a group is expanded.
+    const groupRows = await screen.findAllByTestId('ez-entity-grid-group-row');
+    await user.click(groupRows[0]);
+    await user.click(screen.getAllByTestId('ez-entity-grid-group-row')[1]);
+
+    expect(screen.getByText('AP-000001')).toBeInTheDocument();
     expect(screen.getByText('Printer not working')).toBeInTheDocument();
     expect(screen.getByText('AP-000002')).toBeInTheDocument();
     expect(screen.getByText('VPN access request')).toBeInTheDocument();
+  });
+
+  it('groups the Grade view by status (Estágio) by default, TiFlux parity, with per-group counters', async () => {
+    mockApiGet();
+    const user = userEvent.setup();
+    renderDashboard();
+
+    await user.click(screen.getByRole('button', { name: 'Grade' }));
+
+    // Two tickets, two distinct statuses (OPEN, IN_PROGRESS) => two
+    // collapsed group rows, each with a "1" count badge, with no manual
+    // grouping action from the user.
+    const groupRows = await screen.findAllByTestId('ez-entity-grid-group-row');
+    expect(groupRows).toHaveLength(2);
+    expect(groupRows.some((row) => row.textContent?.includes('OPEN'))).toBe(true);
+    expect(groupRows.some((row) => row.textContent?.includes('IN_PROGRESS'))).toBe(true);
+    groupRows.forEach((row) => expect(row).toHaveTextContent('1'));
+
+    // Tickets are not visible as bare rows until their group is expanded.
+    expect(screen.queryByText('AP-000001')).not.toBeInTheDocument();
+
+    const openGroupRow = groupRows.find((row) => row.textContent?.includes('OPEN'));
+    await user.click(openGroupRow as HTMLElement);
+
+    expect(await screen.findByText('AP-000001')).toBeInTheDocument();
+    expect(screen.getByText('Printer not working')).toBeInTheDocument();
+    // The other, still-collapsed group's ticket stays hidden.
+    expect(screen.queryByText('AP-000002')).not.toBeInTheDocument();
   });
 
   it('switches between Grid Mode and Form Mode with tabs in Sankhya toolbar', async () => {
@@ -379,7 +414,7 @@ describe('TicketsPage', () => {
     renderDashboard();
 
     await user.click(screen.getByRole('button', { name: 'Grade' }));
-    expect(await screen.findByText('AP-000001')).toBeInTheDocument();
+    expect(await screen.findAllByTestId('ez-entity-grid-group-row')).toHaveLength(2);
 
     // Toggle to Form Mode
     const modeBtn = screen.getByTestId('ez-toolbar-mode-toggle-button');
@@ -395,7 +430,7 @@ describe('TicketsPage', () => {
     // Click back to grid
     await user.click(screen.getByTestId('ticket-form-back-button'));
     expect(screen.queryByTestId('ticket-form-mode')).not.toBeInTheDocument();
-    expect(screen.getByText('AP-000001')).toBeInTheDocument();
+    expect(await screen.findAllByTestId('ez-entity-grid-group-row')).toHaveLength(2);
   });
 
   it('opens and closes filter drawer via toolbar filter button', async () => {
@@ -404,7 +439,7 @@ describe('TicketsPage', () => {
     renderDashboard();
 
     await user.click(screen.getByRole('button', { name: 'Grade' }));
-    await screen.findByText('AP-000001');
+    await screen.findAllByTestId('ez-entity-grid-group-row');
 
     const filterBtn = screen.getByTestId('ez-toolbar-filter-panel-button');
     await user.click(filterBtn);
@@ -482,7 +517,7 @@ describe('TicketsPage', () => {
     renderDashboard();
 
     await user.click(screen.getByRole('button', { name: 'Grade' }));
-    await screen.findByText('AP-000001');
+    await screen.findAllByTestId('ez-entity-grid-group-row');
 
     const configBtn = screen.getByTestId('ez-toolbar-screen-config-button');
     await user.click(configBtn);
