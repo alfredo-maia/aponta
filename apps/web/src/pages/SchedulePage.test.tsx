@@ -24,7 +24,7 @@ const mockAppointments = [
     description: 'Sprint Review',
     startTime: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 0, 0).toISOString(),
     endTime: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 11, 0, 0).toISOString(),
-    type: 'APPOINTMENT',
+    type: 'AGENDA',
     userId: 'agent-1',
     user: { id: 'agent-1', name: 'Agente Silva', email: 'silva@aponta.com' },
     organizationId: 'org-1',
@@ -83,7 +83,7 @@ describe('SchedulePage', () => {
       expect(screen.getByText('Alinhamento Semanal')).toBeInTheDocument();
       expect(screen.getAllByText('Agente Silva').length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText('Acme Corp')).toBeInTheDocument();
-      expect(screen.getByText('Compromisso')).toBeInTheDocument();
+      expect(screen.getAllByText('Agenda').length).toBeGreaterThanOrEqual(2);
     });
   });
 
@@ -107,12 +107,12 @@ describe('SchedulePage', () => {
     renderPage();
 
     const select = screen.getByLabelText(/filtrar por tipo/i);
-    await user.selectOptions(select, 'ALLOCATION');
+    await user.selectOptions(select, 'VACATION');
 
     expect(api.get).toHaveBeenCalledWith(
       '/appointments',
       expect.objectContaining({
-        params: expect.objectContaining({ type: 'ALLOCATION' }),
+        params: expect.objectContaining({ type: 'VACATION' }),
       }),
     );
   });
@@ -131,5 +131,74 @@ describe('SchedulePage', () => {
     renderPage();
 
     expect(screen.queryByPlaceholderText(/filtrar id do técnico/i)).not.toBeInTheDocument();
+  });
+
+  it('switches to Dia view and shows a single-day grid', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.get).mockResolvedValue({ data: mockAppointments });
+    loginAs('AGENT');
+    renderPage();
+
+    await user.click(screen.getByRole('button', { name: 'Dia' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Alinhamento Semanal')).toBeInTheDocument();
+      // Dia view's header title is a single full date (e.g. "Terça-feira, 13 de ...")
+      // instead of the week range title ("11 – 17 de outubro de 2026") shown in Semana.
+      expect(screen.getByText(/^[A-ZÀ-Ú][a-zà-ú-]+, \d{2} de /)).toBeInTheDocument();
+    });
+  });
+
+  it('switches to Mês view and shows the month grid with appointment chips', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.get).mockResolvedValue({ data: mockAppointments });
+    loginAs('AGENT');
+    renderPage();
+
+    await user.click(screen.getByRole('button', { name: 'Mês' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('DOM')).toBeInTheDocument();
+      expect(screen.getByText('SÁB')).toBeInTheDocument();
+      expect(screen.getByText('Alinhamento Semanal')).toBeInTheDocument();
+    });
+  });
+
+  it('switches to Lista view and shows a chronological list of appointments', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.get).mockResolvedValue({ data: mockAppointments });
+    loginAs('AGENT');
+    renderPage();
+
+    await user.click(screen.getByRole('button', { name: 'Lista' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Alinhamento Semanal')).toBeInTheDocument();
+      expect(screen.getAllByText('Agente Silva').length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  it('shows an empty state in Lista view when there are no appointments', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.get).mockResolvedValue({ data: [] });
+    loginAs('AGENT');
+    renderPage();
+
+    await user.click(screen.getByRole('button', { name: 'Lista' }));
+
+    expect(screen.getByText(/nenhum compromisso no período selecionado/i)).toBeInTheDocument();
+  });
+
+  it('navigates to the previous and next week, and back to today', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.get).mockResolvedValue({ data: [] });
+    loginAs('AGENT');
+    renderPage();
+
+    await user.click(screen.getByTitle('Semana anterior'));
+    await user.click(screen.getByTitle('Próxima semana'));
+    await user.click(screen.getByText('Hoje'));
+
+    expect(api.get).toHaveBeenCalled();
   });
 });

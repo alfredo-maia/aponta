@@ -56,7 +56,16 @@ export class AgendaService {
       include: {
         user: { select: { id: true, name: true, email: true } },
         organization: { select: { id: true, name: true } },
-        ticket: { select: { id: true, protocol: true, title: true } },
+        ticket: {
+          select: {
+            id: true,
+            protocol: true,
+            title: true,
+            description: true,
+            status: true,
+            requester: { select: { id: true, name: true, email: true } },
+          },
+        },
       },
       orderBy: { startTime: 'asc' },
     });
@@ -72,7 +81,16 @@ export class AgendaService {
       include: {
         user: { select: { id: true, name: true, email: true } },
         organization: { select: { id: true, name: true } },
-        ticket: { select: { id: true, protocol: true, title: true } },
+        ticket: {
+          select: {
+            id: true,
+            protocol: true,
+            title: true,
+            description: true,
+            status: true,
+            requester: { select: { id: true, name: true, email: true } },
+          },
+        },
       },
     });
 
@@ -109,13 +127,22 @@ export class AgendaService {
       targetOrgId = user.organizationId ?? undefined;
     }
 
+    let title = dto.title;
+    let description = dto.description;
+    if (dto.ticketId) {
+      const link = await this.resolveTicketLinkage(dto.ticketId, user);
+      title = link.title;
+      targetOrgId = link.organizationId ?? targetOrgId;
+      description = description ?? link.descriptionSummary;
+    }
+
     return this.prisma.appointment.create({
       data: {
-        title: dto.title,
-        description: dto.description,
+        title,
+        description,
         startTime: start,
         endTime: end,
-        type: dto.type ?? AppointmentType.APPOINTMENT,
+        type: dto.type ?? AppointmentType.AGENDA,
         userId: targetUserId,
         organizationId: targetOrgId,
         ticketId: dto.ticketId,
@@ -123,9 +150,51 @@ export class AgendaService {
       include: {
         user: { select: { id: true, name: true, email: true } },
         organization: { select: { id: true, name: true } },
-        ticket: { select: { id: true, protocol: true, title: true } },
+        ticket: {
+          select: {
+            id: true,
+            protocol: true,
+            title: true,
+            description: true,
+            status: true,
+            requester: { select: { id: true, name: true, email: true } },
+          },
+        },
       },
     });
+  }
+
+  /**
+   * When an appointment is linked to a ticket, its title mirrors the
+   * ticket's title and its client organization is derived from the
+   * ticket's requester — both are authoritative on the ticket, not
+   * independently editable on the appointment (DMTE-18 review feedback).
+   */
+  private async resolveTicketLinkage(ticketId: string, user: CurrentUserPayload) {
+    const ticketWhere = TenantHelper.getTicketWhere(user);
+    const ticket = await this.prisma.ticket.findFirst({
+      where: { id: ticketId, ...ticketWhere },
+      select: {
+        title: true,
+        description: true,
+        requester: { select: { organizationId: true } },
+      },
+    });
+
+    if (!ticket) {
+      throw new NotFoundException('Chamado vinculado não encontrado');
+    }
+
+    const descriptionSummary =
+      ticket.description.length > 160
+        ? `${ticket.description.slice(0, 160).trim()}…`
+        : ticket.description;
+
+    return {
+      title: ticket.title,
+      organizationId: ticket.requester.organizationId ?? undefined,
+      descriptionSummary,
+    };
   }
 
   async update(id: string, dto: UpdateAppointmentDto, user: CurrentUserPayload) {
@@ -146,22 +215,41 @@ export class AgendaService {
       throw new BadRequestException('A data de término deve ser posterior à data de início');
     }
 
+    let title = dto.title;
+    let description = dto.description;
+    let organizationId = dto.organizationId;
+    if (dto.ticketId) {
+      const link = await this.resolveTicketLinkage(dto.ticketId, user);
+      title = link.title;
+      organizationId = link.organizationId ?? organizationId;
+      description = description ?? link.descriptionSummary;
+    }
+
     return this.prisma.appointment.update({
       where: { id },
       data: {
-        title: dto.title,
-        description: dto.description,
+        title,
+        description,
         startTime: dto.startTime ? start : undefined,
         endTime: dto.endTime ? end : undefined,
         type: dto.type,
         userId: user.role === Role.ADMIN && dto.userId ? dto.userId : undefined,
-        organizationId: dto.organizationId !== undefined ? dto.organizationId : undefined,
+        organizationId: organizationId !== undefined ? organizationId : undefined,
         ticketId: dto.ticketId !== undefined ? dto.ticketId : undefined,
       },
       include: {
         user: { select: { id: true, name: true, email: true } },
         organization: { select: { id: true, name: true } },
-        ticket: { select: { id: true, protocol: true, title: true } },
+        ticket: {
+          select: {
+            id: true,
+            protocol: true,
+            title: true,
+            description: true,
+            status: true,
+            requester: { select: { id: true, name: true, email: true } },
+          },
+        },
       },
     });
   }

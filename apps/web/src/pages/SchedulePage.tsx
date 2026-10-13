@@ -27,8 +27,8 @@ function formatDateKey(d: Date): string {
 }
 
 const TYPE_LABELS: Record<AppointmentType, string> = {
-  APPOINTMENT: 'Compromisso',
-  ALLOCATION: 'Alocação',
+  AGENDA: 'Agenda',
+  VACATION: 'Férias',
   ABSENCE: 'Ausência',
 };
 
@@ -63,8 +63,8 @@ export function SchedulePage() {
   const [viewMode, setViewMode] = useState<'mes' | 'semana' | 'dia' | 'lista'>('semana');
 
   // Filter types toggles (TiFlux "Filtrar" panel)
-  const [showCompromissos, setShowCompromissos] = useState(true);
-  const [showApontamentos, setShowApontamentos] = useState(true);
+  const [showAgenda, setShowAgenda] = useState(true);
+  const [showFerias, setShowFerias] = useState(true);
   const [showAusencias, setShowAusencias] = useState(true);
 
   // Fallback single filter for test selector compatibility
@@ -88,6 +88,7 @@ export function SchedulePage() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [modalInitialDate, setModalInitialDate] = useState<string | null>(null);
+  const [modalInitialType, setModalInitialType] = useState<AppointmentType>('AGENDA');
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -107,8 +108,8 @@ export function SchedulePage() {
     }
   }, []);
 
-  // Compute week start (Sunday = DOM) and end (Saturday = SÁB)
-  const { weekDays, weekStartISO, weekEndISO, headerPeriodTitle } = useMemo(() => {
+  // Compute week start (Sunday = DOM) and end (Saturday = SÁB) of currentDate's week
+  const { weekDays, weekStartISO, weekEndISO } = useMemo(() => {
     const d = new Date(currentDate);
     const dayOfWeek = d.getDay(); // 0 is Sunday, 1 is Monday...
     const sunday = new Date(d);
@@ -126,31 +127,95 @@ export function SchedulePage() {
       days.push(dayDate);
     }
 
-    const startDay = sunday.getDate();
-    const endDay = saturday.getDate();
-    const monthName = saturday.toLocaleDateString('pt-BR', { month: 'long' });
-    const year = saturday.getFullYear();
+    return { weekDays: days, weekStartISO: sunday.toISOString(), weekEndISO: saturday.toISOString() };
+  }, [currentDate]);
 
-    const title = `${startDay} – ${endDay} de ${monthName} de ${year}`;
+  // Month grid: 6 weeks (42 days) padded so the calendar always starts on
+  // a Sunday and ends on a Saturday, covering the full visible range.
+  const { monthWeeks, monthGridStartISO, monthGridEndISO, monthLabel } = useMemo(() => {
+    const d = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const firstWeekday = d.getDay();
+    const gridStart = new Date(d);
+    gridStart.setDate(d.getDate() - firstWeekday);
+    gridStart.setHours(0, 0, 0, 0);
+
+    const allDays: Date[] = [];
+    for (let i = 0; i < 42; i++) {
+      const dayDate = new Date(gridStart);
+      dayDate.setDate(gridStart.getDate() + i);
+      allDays.push(dayDate);
+    }
+
+    const weeks: Date[][] = [];
+    for (let i = 0; i < allDays.length; i += 7) {
+      weeks.push(allDays.slice(i, i + 7));
+    }
+
+    const gridEnd = new Date(allDays[allDays.length - 1]);
+    gridEnd.setHours(23, 59, 59, 999);
 
     return {
-      weekDays: days,
-      weekStartISO: sunday.toISOString(),
-      weekEndISO: saturday.toISOString(),
-      headerPeriodTitle: title,
+      monthWeeks: weeks,
+      monthGridStartISO: gridStart.toISOString(),
+      monthGridEndISO: gridEnd.toISOString(),
+      monthLabel: currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
     };
   }, [currentDate]);
 
-  // Query appointments for current week
+  // Days actually rendered by the time-grid (Semana shows the week, Dia shows just one column)
+  const visibleDays = useMemo(() => {
+    if (viewMode === 'dia') {
+      const d = new Date(currentDate);
+      d.setHours(0, 0, 0, 0);
+      return [d];
+    }
+    return weekDays;
+  }, [viewMode, currentDate, weekDays]);
+
+  const visibleRange = useMemo(() => {
+    if (viewMode === 'dia') {
+      const start = new Date(currentDate);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(currentDate);
+      end.setHours(23, 59, 59, 999);
+      return { startISO: start.toISOString(), endISO: end.toISOString() };
+    }
+    if (viewMode === 'mes') {
+      return { startISO: monthGridStartISO, endISO: monthGridEndISO };
+    }
+    // 'semana' and 'lista' both work off the current week's range
+    return { startISO: weekStartISO, endISO: weekEndISO };
+  }, [viewMode, currentDate, weekStartISO, weekEndISO, monthGridStartISO, monthGridEndISO]);
+
+  const headerPeriodTitle = useMemo(() => {
+    if (viewMode === 'dia') {
+      const label = currentDate.toLocaleDateString('pt-BR', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      });
+      return label.charAt(0).toUpperCase() + label.slice(1);
+    }
+    if (viewMode === 'mes') {
+      return monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
+    }
+    const sunday = weekDays[0];
+    const saturday = weekDays[6];
+    const monthName = saturday.toLocaleDateString('pt-BR', { month: 'long' });
+    return `${sunday.getDate()} – ${saturday.getDate()} de ${monthName} de ${saturday.getFullYear()}`;
+  }, [viewMode, currentDate, weekDays, monthLabel]);
+
+  // Query appointments for the currently visible range (day/week/month)
   const queryFilters = useMemo(() => {
     const resolvedType = filterTypeSelect !== 'ALL' ? filterTypeSelect : undefined;
     return {
-      startTime: weekStartISO,
-      endTime: weekEndISO,
+      startTime: visibleRange.startISO,
+      endTime: visibleRange.endISO,
       type: resolvedType,
       userId: filterUserId || undefined,
     };
-  }, [weekStartISO, weekEndISO, filterTypeSelect, filterUserId]);
+  }, [visibleRange, filterTypeSelect, filterUserId]);
 
   const {
     appointments,
@@ -197,8 +262,8 @@ export function SchedulePage() {
   const filteredAppointments = useMemo(() => {
     return appointments.filter((app) => {
       // Type filter
-      if (app.type === 'APPOINTMENT' && !showCompromissos) return false;
-      if (app.type === 'ALLOCATION' && !showApontamentos) return false;
+      if (app.type === 'AGENDA' && !showAgenda) return false;
+      if (app.type === 'VACATION' && !showFerias) return false;
       if (app.type === 'ABSENCE' && !showAusencias) return false;
 
       // Attendant filter
@@ -207,13 +272,13 @@ export function SchedulePage() {
       }
       return true;
     });
-  }, [appointments, showCompromissos, showApontamentos, showAusencias, selectAllAttendants, selectedAttendantIds]);
+  }, [appointments, showAgenda, showFerias, showAusencias, selectAllAttendants, selectedAttendantIds]);
 
   // Layout algorithm: Calculate vertical position and horizontal overlap per day
   const appointmentsByDay = useMemo(() => {
     const map: Record<string, PositionedAppointment[]> = {};
 
-    weekDays.forEach((day) => {
+    visibleDays.forEach((day) => {
       const dateStr = formatDateKey(day);
       map[dateStr] = [];
     });
@@ -263,8 +328,8 @@ export function SchedulePage() {
           const height = Math.max(duration * 56 - 4, 32);
 
           let color = attendantColorMap.get(app.userId) || '#7ea119';
-          if (app.type === 'APPOINTMENT') color = '#8e24aa';
-          if (app.type === 'ALLOCATION') color = '#7ea119';
+          if (app.type === 'AGENDA') color = '#8e24aa';
+          if (app.type === 'VACATION') color = '#7ea119';
           if (app.type === 'ABSENCE') color = '#d97706';
 
           positioned.push({
@@ -282,18 +347,22 @@ export function SchedulePage() {
     });
 
     return map;
-  }, [filteredAppointments, weekDays, attendantColorMap]);
+  }, [filteredAppointments, visibleDays, attendantColorMap]);
 
-  // Navigation handlers
+  // Navigation handlers: step size follows the active view (day/week/month)
   const handlePrevWeek = () => {
     const next = new Date(currentDate);
-    next.setDate(currentDate.getDate() - 7);
+    if (viewMode === 'dia') next.setDate(currentDate.getDate() - 1);
+    else if (viewMode === 'mes') next.setMonth(currentDate.getMonth() - 1);
+    else next.setDate(currentDate.getDate() - 7);
     setCurrentDate(next);
   };
 
   const handleNextWeek = () => {
     const next = new Date(currentDate);
-    next.setDate(currentDate.getDate() + 7);
+    if (viewMode === 'dia') next.setDate(currentDate.getDate() + 1);
+    else if (viewMode === 'mes') next.setMonth(currentDate.getMonth() + 1);
+    else next.setDate(currentDate.getDate() + 7);
     setCurrentDate(next);
   };
 
@@ -302,9 +371,10 @@ export function SchedulePage() {
   };
 
   // Open creation modal
-  const handleOpenCreate = (dateStr?: string, hour?: number) => {
+  const handleOpenCreate = (dateStr?: string, hour?: number, type: AppointmentType = 'AGENDA') => {
     setSelectedAppointment(null);
     setModalInitialDate(dateStr || null);
+    setModalInitialType(type);
     setIsCreateModalOpen(true);
     setIsActionsOpen(false);
   };
@@ -398,23 +468,23 @@ export function SchedulePage() {
                   <div className="absolute right-0 mt-1.5 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 animate-in fade-in zoom-in-95">
                     <button
                       type="button"
-                      onClick={() => handleOpenCreate()}
+                      onClick={() => handleOpenCreate(undefined, undefined, 'AGENDA')}
                       className="w-full text-left px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                     >
                       <Plus className="w-3.5 h-3.5 text-[#00a884]" />
-                      Novo Compromisso
+                      Nova Agenda
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleOpenCreate()}
+                      onClick={() => handleOpenCreate(undefined, undefined, 'VACATION')}
                       className="w-full text-left px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                     >
                       <Clock className="w-3.5 h-3.5 text-[#8e24aa]" />
-                      Novo Apontamento
+                      Novas Férias
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleOpenCreate()}
+                      onClick={() => handleOpenCreate(undefined, undefined, 'ABSENCE')}
                       className="w-full text-left px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                     >
                       <UserIcon className="w-3.5 h-3.5 text-[#d97706]" />
@@ -434,8 +504,8 @@ export function SchedulePage() {
             className="sr-only"
           >
             <option value="ALL">Todos os Tipos</option>
-            <option value="APPOINTMENT">Compromissos</option>
-            <option value="ALLOCATION">Alocações</option>
+            <option value="AGENDA">Agenda</option>
+            <option value="VACATION">Férias</option>
             <option value="ABSENCE">Ausências</option>
           </select>
         </div>
@@ -492,11 +562,11 @@ export function SchedulePage() {
               <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-800 select-none">
                 <input
                   type="checkbox"
-                  checked={showCompromissos && showApontamentos && showAusencias}
+                  checked={showAgenda && showFerias && showAusencias}
                   onChange={(e) => {
                     const checked = e.target.checked;
-                    setShowCompromissos(checked);
-                    setShowApontamentos(checked);
+                    setShowAgenda(checked);
+                    setShowFerias(checked);
                     setShowAusencias(checked);
                   }}
                   className="w-3.5 h-3.5 rounded text-[#00a884] focus:ring-[#00a884]"
@@ -509,23 +579,23 @@ export function SchedulePage() {
               <label className="flex items-center gap-2 cursor-pointer select-none text-gray-700">
                 <input
                   type="checkbox"
-                  checked={showCompromissos}
-                  onChange={(e) => setShowCompromissos(e.target.checked)}
+                  checked={showAgenda}
+                  onChange={(e) => setShowAgenda(e.target.checked)}
                   className="w-3.5 h-3.5 rounded text-[#8e24aa] focus:ring-[#8e24aa]"
                 />
                 <span className="w-2 h-2 rounded-full bg-[#8e24aa] inline-block" />
-                <span>Compromissos</span>
+                <span>Agenda</span>
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer select-none text-gray-700">
                 <input
                   type="checkbox"
-                  checked={showApontamentos}
-                  onChange={(e) => setShowApontamentos(e.target.checked)}
+                  checked={showFerias}
+                  onChange={(e) => setShowFerias(e.target.checked)}
                   className="w-3.5 h-3.5 rounded text-[#7ea119] focus:ring-[#7ea119]"
                 />
                 <span className="w-2 h-2 rounded-full bg-[#7ea119] inline-block" />
-                <span>Apontamentos</span>
+                <span>Férias</span>
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer select-none text-gray-700">
@@ -689,16 +759,36 @@ export function SchedulePage() {
             <div className="flex items-center justify-center h-96">
               <EzSpinner size={32} />
             </div>
+          ) : viewMode === 'mes' ? (
+            <MonthView
+              monthWeeks={monthWeeks}
+              currentDate={currentDate}
+              todayDateStr={todayDateStr}
+              appointments={filteredAppointments}
+              onSelectDay={(day) => {
+                setCurrentDate(day);
+                setViewMode('dia');
+              }}
+              onSelectAppointment={handleOpenDetail}
+            />
+          ) : viewMode === 'lista' ? (
+            <ListView appointments={filteredAppointments} onSelectAppointment={handleOpenDetail} />
           ) : (
             <div className="overflow-x-auto flex-1 flex flex-col">
-              <div className="min-w-[800px] flex flex-col flex-1">
-                {/* Day Header Row: Time gutter header + 7 day columns */}
-                <div className="grid grid-cols-[56px_repeat(7,1fr)] border-b border-gray-200 bg-gray-50/70 text-center font-medium text-xs">
+              <div
+                ref={gridBodyRef}
+                className="min-w-[800px] flex flex-col flex-1 overflow-y-auto max-h-[640px]"
+              >
+                {/* Day Header Row: Time gutter header + day columns (sticky so it scrolls in lockstep with the body, keeping columns aligned) */}
+                <div
+                  className="sticky top-0 z-20 grid border-b border-gray-200 bg-gray-50/70 text-center font-medium text-xs"
+                  style={{ gridTemplateColumns: `56px repeat(${visibleDays.length}, 1fr)` }}
+                >
                   {/* Empty top-left time cell */}
                   <div className="border-r border-gray-200 h-10" />
 
-                  {/* 7 Columns: DOM, SEG, TER, QUA, QUI, SEX, SÁB */}
-                  {weekDays.map((day) => {
+                  {/* Day columns: DOM, SEG, TER, QUA, QUI, SEX, SÁB (or a single day in "Dia") */}
+                  {visibleDays.map((day) => {
                     const dateStr = formatDateKey(day);
                     const isToday = dateStr === todayDateStr;
                     const dayName = day.toLocaleDateString('pt-BR', { weekday: 'short' }).toUpperCase();
@@ -720,12 +810,15 @@ export function SchedulePage() {
                 </div>
 
                 {/* Grid Body: Time slots + Event columns */}
-                <div ref={gridBodyRef} className="grid grid-cols-[56px_repeat(7,1fr)] relative overflow-y-auto max-h-[640px]">
+                <div
+                  className="grid relative"
+                  style={{ gridTemplateColumns: `56px repeat(${visibleDays.length}, 1fr)` }}
+                >
                   {/* Left Time Gutter Column */}
                   <div className="border-r border-gray-200 text-right pr-2 py-1 select-none text-[11px] text-gray-500 font-medium">
                     {HOURS.map((hour) => {
                       const isCurrentHour =
-                        now.getHours() === hour && weekDays.some((d) => formatDateKey(d) === todayDateStr);
+                        now.getHours() === hour && visibleDays.some((d) => formatDateKey(d) === todayDateStr);
 
                       return (
                         <div
@@ -743,8 +836,8 @@ export function SchedulePage() {
                     })}
                   </div>
 
-                  {/* 7 Day Event Columns */}
-                  {weekDays.map((day) => {
+                  {/* Day Event Columns */}
+                  {visibleDays.map((day) => {
                     const dateStr = formatDateKey(day);
                     const isToday = dateStr === todayDateStr;
                     const dayPositionedApps = appointmentsByDay[dateStr] || [];
@@ -866,6 +959,7 @@ export function SchedulePage() {
         onClose={() => setIsCreateModalOpen(false)}
         appointment={selectedAppointment}
         initialDate={modalInitialDate}
+        initialType={modalInitialType}
         canEdit={canCreate}
         onSave={async (data) => {
           if ('id' in data) {
@@ -879,6 +973,152 @@ export function SchedulePage() {
         }}
       />
     </EzPageLayout>
+  );
+}
+
+const MONTH_TYPE_COLORS: Record<AppointmentType, string> = {
+  AGENDA: '#8e24aa',
+  VACATION: '#7ea119',
+  ABSENCE: '#d97706',
+};
+
+interface MonthViewProps {
+  monthWeeks: Date[][];
+  currentDate: Date;
+  todayDateStr: string;
+  appointments: Appointment[];
+  onSelectDay: (day: Date) => void;
+  onSelectAppointment: (appointment: Appointment) => void;
+}
+
+function MonthView({ monthWeeks, currentDate, todayDateStr, appointments, onSelectDay, onSelectAppointment }: MonthViewProps) {
+  const byDay = useMemo(() => {
+    const map: Record<string, Appointment[]> = {};
+    appointments.forEach((app) => {
+      const key = formatDateKey(new Date(app.startTime));
+      if (!map[key]) map[key] = [];
+      map[key].push(app);
+    });
+    Object.values(map).forEach((list) =>
+      list.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+    );
+    return map;
+  }, [appointments]);
+
+  const currentMonth = currentDate.getMonth();
+  const WEEKDAY_LABELS = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
+
+  return (
+    <div className="flex-1 overflow-y-auto p-2">
+      <div className="grid grid-cols-7 border-b border-gray-200 text-center text-[11px] font-bold text-gray-500 uppercase">
+        {WEEKDAY_LABELS.map((label) => (
+          <div key={label} className="py-2">{label}</div>
+        ))}
+      </div>
+      <div className="grid grid-cols-7">
+        {monthWeeks.flat().map((day) => {
+          const dateStr = formatDateKey(day);
+          const isToday = dateStr === todayDateStr;
+          const isCurrentMonth = day.getMonth() === currentMonth;
+          const dayApps = byDay[dateStr] || [];
+          const visible = dayApps.slice(0, 3);
+          const overflow = dayApps.length - visible.length;
+
+          return (
+            <div
+              key={dateStr}
+              onClick={() => onSelectDay(day)}
+              className={`min-h-[96px] border-r border-b border-gray-100 p-1.5 cursor-pointer hover:bg-gray-50 transition-colors last:border-r-0 ${
+                isCurrentMonth ? 'bg-white' : 'bg-gray-50/50'
+              }`}
+            >
+              <span
+                className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold ${
+                  isToday ? 'bg-[#00a884] text-white' : isCurrentMonth ? 'text-gray-800' : 'text-gray-400'
+                }`}
+              >
+                {day.getDate()}
+              </span>
+              <div className="mt-1 space-y-0.5">
+                {visible.map((app) => (
+                  <button
+                    key={app.id}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectAppointment(app);
+                    }}
+                    className="w-full truncate text-left text-[10px] px-1 py-0.5 rounded text-white"
+                    style={{ backgroundColor: MONTH_TYPE_COLORS[app.type] }}
+                    title={app.title}
+                  >
+                    {app.title}
+                  </button>
+                ))}
+                {overflow > 0 && (
+                  <span className="block text-[10px] text-gray-500 px-1">+{overflow} mais</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+interface ListViewProps {
+  appointments: Appointment[];
+  onSelectAppointment: (appointment: Appointment) => void;
+}
+
+function ListView({ appointments, onSelectAppointment }: ListViewProps) {
+  const sorted = useMemo(
+    () => [...appointments].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()),
+    [appointments]
+  );
+
+  if (sorted.length === 0) {
+    return (
+      <div className="flex-1 flex items-center justify-center text-sm text-gray-400 p-8">
+        Nenhum compromisso no período selecionado.
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
+      {sorted.map((app) => {
+        const start = new Date(app.startTime);
+        const end = new Date(app.endTime);
+        return (
+          <button
+            key={app.id}
+            type="button"
+            onClick={() => onSelectAppointment(app)}
+            className="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors"
+          >
+            <div className="w-1.5 h-10 rounded-full shrink-0" style={{ backgroundColor: MONTH_TYPE_COLORS[app.type] }} />
+            <div className="min-w-[150px] text-xs text-gray-600">
+              <div className="font-semibold text-gray-800">
+                {start.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+              </div>
+              <div>
+                {start.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} –{' '}
+                {end.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">
+                {app.ticket?.protocol ? `#${app.ticket.protocol} - ${app.title}` : app.title}
+              </p>
+              {app.user && <p className="text-xs text-gray-500 truncate">{app.user.name}</p>}
+            </div>
+            <span className="text-[10px] font-semibold uppercase text-gray-400 shrink-0">{TYPE_LABELS[app.type]}</span>
+          </button>
+        );
+      })}
+    </div>
   );
 }
 

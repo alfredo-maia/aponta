@@ -57,6 +57,8 @@ export interface TicketFiltersInput {
   paused?: boolean;
   /** "Vencidos" KPI: SLA response or resolve deadline breached. */
   overdue?: boolean;
+  /** Only tickets not yet RESOLVED/CLOSED — used by the Agenda ticket picker. */
+  notClosed?: boolean;
 }
 
 /**
@@ -70,7 +72,7 @@ export interface TicketFiltersInput {
  * combination.
  */
 export function useTickets(filters: TicketFiltersInput = {}) {
-  const { serviceDeskId, status, search, page, mine, unassigned, paused, overdue } = filters;
+  const { serviceDeskId, status, search, page, mine, unassigned, paused, overdue, notClosed } = filters;
 
   return useQuery({
     queryKey: [
@@ -84,6 +86,7 @@ export function useTickets(filters: TicketFiltersInput = {}) {
         unassigned: unassigned ?? false,
         paused: paused ?? false,
         overdue: overdue ?? false,
+        notClosed: notClosed ?? false,
       },
     ],
     queryFn: async () => {
@@ -96,6 +99,7 @@ export function useTickets(filters: TicketFiltersInput = {}) {
           ...(unassigned ? { unassigned: 'true' } : {}),
           ...(paused ? { paused: 'true' } : {}),
           ...(overdue ? { overdue: 'true' } : {}),
+          ...(notClosed ? { notClosed: 'true' } : {}),
           page: page ?? 1,
           limit: 20,
         },

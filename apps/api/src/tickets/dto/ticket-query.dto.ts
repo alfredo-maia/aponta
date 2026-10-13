@@ -47,4 +47,9 @@ export class TicketQueryDto {
   @IsOptional()
   @IsIn(['true', 'false'])
   overdue?: string;
+
+  @ApiPropertyOptional({ description: 'Somente chamados não fechados (exclui RESOLVED e CLOSED) — usado para vincular um chamado a um compromisso da Agenda', example: 'true' })
+  @IsOptional()
+  @IsIn(['true', 'false'])
+  notClosed?: string;
 }

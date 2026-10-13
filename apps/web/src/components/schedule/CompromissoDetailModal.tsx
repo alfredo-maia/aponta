@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Appointment } from '../../hooks/useAppointments';
 import { EzModal } from '../ds';
-import { Calendar, Bell, Pencil, Trash2 } from 'lucide-react';
+import { Calendar, Bell, Pencil, Trash2, UserCircle } from 'lucide-react';
 
 interface CompromissoDetailModalProps {
   isOpen: boolean;
@@ -113,6 +113,14 @@ export function CompromissoDetailModal({
               {attendantName}
             </span>
           </div>
+
+          {/* Ticket requester, when the appointment is linked to a ticket */}
+          {appointment.ticket?.requester && (
+            <div className="flex items-center gap-3 text-xs text-gray-600">
+              <UserCircle className="w-4 h-4 text-gray-700 shrink-0" />
+              <span>Solicitante: {appointment.ticket.requester.name}</span>
+            </div>
+          )}
 
           {/* Reminder row */}
           <div className="flex items-center gap-3 text-xs text-gray-600">

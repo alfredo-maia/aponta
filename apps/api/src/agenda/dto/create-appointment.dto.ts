@@ -24,9 +24,9 @@ export class CreateAppointmentDto {
   endTime!: string;
 
   @ApiPropertyOptional({
-    description: 'Tipo de compromisso',
+    description: 'Tipo de compromisso: AGENDA (geral), ABSENCE (ausência) ou VACATION (férias)',
     enum: AppointmentType,
-    default: AppointmentType.APPOINTMENT,
+    default: AppointmentType.AGENDA,
   })
   @IsOptional()
   @IsEnum(AppointmentType)

@@ -100,7 +100,7 @@ describe('AgendaController', () => {
         title: 'Teste',
         startTime: '2026-10-15T10:00:00Z',
         endTime: '2026-10-15T11:00:00Z',
-        type: AppointmentType.APPOINTMENT,
+        type: AppointmentType.AGENDA,
       };
       mockAgendaService.create.mockResolvedValue({ id: 'app-1', ...dto });
       await controller.create(dto, mockUser);

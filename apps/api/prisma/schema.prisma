@@ -444,9 +444,9 @@ model ApiToken {
 }
 
 enum AppointmentType {
-  APPOINTMENT
+  AGENDA
   ABSENCE
-  ALLOCATION
+  VACATION
 }
 
 model Appointment {
@@ -455,7 +455,7 @@ model Appointment {
   description    String?
   startTime      DateTime
   endTime        DateTime
-  type           AppointmentType @default(APPOINTMENT)
+  type           AppointmentType @default(AGENDA)
   userId         String
   user           User            @relation(fields: [userId], references: [id])
   organizationId String?

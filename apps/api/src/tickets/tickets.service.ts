@@ -418,6 +418,9 @@ export class TicketsService {
     if (query.status) {
       where.status = query.status;
     }
+    if (query.notClosed === 'true' && !where.status) {
+      where.status = { notIn: CLOSED_STATUSES };
+    }
     if (query.search) {
       where.OR = [
         { title: { contains: query.search, mode: 'insensitive' } },

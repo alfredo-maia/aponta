@@ -33,7 +33,7 @@ describe('AgendaService', () => {
     description: 'Sprint planning',
     startTime: new Date('2026-10-15T10:00:00Z'),
     endTime: new Date('2026-10-15T11:00:00Z'),
-    type: AppointmentType.APPOINTMENT,
+    type: AppointmentType.AGENDA,
     userId: 'agent-1',
     organizationId: 'org-1',
     ticketId: null,
@@ -152,7 +152,7 @@ describe('AgendaService', () => {
         title: 'Atendimento Remoto',
         startTime: '2026-10-16T14:00:00Z',
         endTime: '2026-10-16T15:00:00Z',
-        type: AppointmentType.ALLOCATION,
+        type: AppointmentType.VACATION,
       };
 
       await service.create(dto, agentUser);
@@ -160,7 +160,7 @@ describe('AgendaService', () => {
         data: expect.objectContaining({
           title: 'Atendimento Remoto',
           userId: 'agent-1',
-          type: AppointmentType.ALLOCATION,
+          type: AppointmentType.VACATION,
         }),
         include: expect.any(Object),
       });

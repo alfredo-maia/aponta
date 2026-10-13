@@ -15,7 +15,7 @@ export function registerAgendaTools(server: McpServer, api: AxiosInstance) {
         endTime: z.string().optional().describe('Fim do período de busca (ISO 8601)'),
         userId: z.string().uuid().optional().describe('Filtrar por UUID de técnico/usuário (Admin/Agent Master)'),
         organizationId: z.string().uuid().optional().describe('Filtrar por UUID da organização/cliente'),
-        type: z.enum(['APPOINTMENT', 'ABSENCE', 'ALLOCATION']).optional().describe('Tipo de compromisso'),
+        type: z.enum(['AGENDA', 'ABSENCE', 'VACATION']).optional().describe('Tipo de compromisso'),
       },
     },
     async (params) => {
@@ -39,7 +39,7 @@ export function registerAgendaTools(server: McpServer, api: AxiosInstance) {
         startTime: z.string().describe('Data e hora de início (ISO 8601)'),
         endTime: z.string().describe('Data e hora de término (ISO 8601)'),
         type: z
-          .enum(['APPOINTMENT', 'ABSENCE', 'ALLOCATION'])
+          .enum(['AGENDA', 'ABSENCE', 'VACATION'])
           .optional()
           .describe('Tipo do compromisso (APPOINTMENT, ABSENCE, ALLOCATION)'),
         userId: z.string().uuid().optional().describe('UUID do técnico responsável (Admin pode especificar)'),

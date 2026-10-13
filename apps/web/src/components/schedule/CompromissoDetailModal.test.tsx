@@ -9,7 +9,7 @@ const mockAppointment: Appointment = {
   description: 'REALIZAR AS PARAMETRIZAÇÕES DE BACKOFFICE DA BASE',
   startTime: '2026-10-13T08:00:00.000Z',
   endTime: '2026-10-13T10:00:00.000Z',
-  type: 'APPOINTMENT',
+  type: 'AGENDA',
   organizationId: 'org-1',
   ticketId: 'tick-4650',
   userId: 'user-jg',
@@ -17,7 +17,12 @@ const mockAppointment: Appointment = {
   updatedAt: '2026-10-12T10:00:00.000Z',
   user: { id: 'user-jg', name: 'José Gomes', email: 'jg@aponta.com' },
   organization: { id: 'org-1', name: 'Alumipremium' },
-  ticket: { id: 'tick-4650', title: 'Configurações', protocol: '4650' },
+  ticket: {
+    id: 'tick-4650',
+    title: 'Configurações',
+    protocol: '4650',
+    requester: { id: 'req-1', name: 'Cliente Alumipremium', email: 'contato@alumipremium.com' },
+  },
 };
 
 describe('CompromissoDetailModal', () => {
@@ -37,6 +42,7 @@ describe('CompromissoDetailModal', () => {
     expect(screen.getByText(/13\/10\/2026 - 13\/10\/2026/)).toBeInTheDocument();
     expect(screen.getByText('José Gomes')).toBeInTheDocument();
     expect(screen.getByText('0 minutos antes')).toBeInTheDocument();
+    expect(screen.getByText('Solicitante: Cliente Alumipremium')).toBeInTheDocument();
     expect(screen.getByText('REALIZAR AS PARAMETRIZAÇÕES DE BACKOFFICE DA BASE')).toBeInTheDocument();
     expect(screen.getByText('Concluído')).toBeInTheDocument();
   });

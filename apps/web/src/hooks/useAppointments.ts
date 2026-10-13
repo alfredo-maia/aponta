@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 
-export type AppointmentType = 'APPOINTMENT' | 'ABSENCE' | 'ALLOCATION';
+export type AppointmentType = 'AGENDA' | 'ABSENCE' | 'VACATION';
 
 export interface Appointment {
   id: string;
@@ -15,7 +15,14 @@ export interface Appointment {
   organizationId?: string | null;
   organization?: { id: string; name: string } | null;
   ticketId?: string | null;
-  ticket?: { id: string; protocol: string; title: string } | null;
+  ticket?: {
+    id: string;
+    protocol: string;
+    title: string;
+    description?: string;
+    status?: string;
+    requester?: { id: string; name: string; email: string };
+  } | null;
   createdAt: string;
   updatedAt: string;
 }
