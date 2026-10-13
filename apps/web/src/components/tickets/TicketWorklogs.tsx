@@ -14,7 +14,9 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../stores/authStore';
-import { useWorklogs, useCreateWorklog, useDeleteWorklog, Worklog, AttendanceType } from '../../hooks/useWorklogs';
+import { useWorklogs, useCreateWorklog, useDeleteWorklog, Worklog, AttendanceType, ValuationType } from '../../hooks/useWorklogs';
+import type { TicketStatus } from '../../hooks/useTickets';
+import { statusLabels } from './TicketCard';
 import { EzSpinner, EzAlert, EzTag } from '../ds';
 
 interface TicketWorklogsProps {
@@ -42,6 +44,27 @@ export function formatDurationBadge(minutes: number): string {
 export function formatAttendanceType(type: AttendanceType): string {
   return type === 'ON_SITE' ? 'Presencial' : 'Remoto';
 }
+
+export function formatWorklogValue(value: number | null): string {
+  return value === null || value === undefined ? '—' : `R$ ${value.toFixed(2).replace('.', ',')}`;
+}
+
+const valuationTypeLabels: Record<ValuationType, string> = {
+  CONTRACT: 'Contrato',
+  GUARANTEE: 'Garantia',
+  MANUAL: 'Valor manual',
+};
+
+const ticketStatusOptions: TicketStatus[] = [
+  'OPEN',
+  'IN_PROGRESS',
+  'PENDING_CUSTOMER',
+  'ON_HOLD',
+  'PENDING_APPROVAL',
+  'ESCALATED',
+  'RESOLVED',
+  'CLOSED',
+];
 
 function todayStr(): string {
   return new Date().toISOString().split('T')[0];
@@ -87,6 +110,10 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
   const [attendanceType, setAttendanceType] = useState<AttendanceType>('REMOTE');
   const [description, setDescription] = useState<string>('');
   const [billable, setBillable] = useState<boolean>(true);
+  const [valuationType, setValuationType] = useState<ValuationType>('CONTRACT');
+  const [manualValue, setManualValue] = useState<string>('');
+  const [nextStatus, setNextStatus] = useState<string>('');
+  const [sendAsReply, setSendAsReply] = useState<boolean>(false);
   const [selectedAuthorId, setSelectedAuthorId] = useState<string>('');
   const [formError, setFormError] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState<boolean>(true);
@@ -125,6 +152,15 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
       return;
     }
 
+    let parsedManualValue: number | undefined;
+    if (valuationType === 'MANUAL') {
+      parsedManualValue = Number(manualValue);
+      if (!manualValue.trim() || Number.isNaN(parsedManualValue)) {
+        setFormError('Informe um valor manual válido.');
+        return;
+      }
+    }
+
     try {
       await createMutation.mutateAsync({
         startTime: toISO(day, startTimeOfDay),
@@ -132,6 +168,10 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
         attendanceType,
         description: description.trim(),
         billable,
+        valuationType,
+        ...(valuationType === 'MANUAL' ? { value: parsedManualValue } : {}),
+        ...(nextStatus ? { nextStatus: nextStatus as TicketStatus } : {}),
+        ...(sendAsReply ? { sendAsReply: true } : {}),
         ...(isAdmin && selectedAuthorId ? { authorId: selectedAuthorId } : {}),
       });
       setDescription('');
@@ -140,6 +180,10 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
       setEndTimeOfDay('08:30');
       setAttendanceType('REMOTE');
       setBillable(true);
+      setValuationType('CONTRACT');
+      setManualValue('');
+      setNextStatus('');
+      setSendAsReply(false);
       setSelectedAuthorId('');
     } catch {
       setFormError('Falha ao registrar o apontamento. Tente novamente.');
@@ -349,6 +393,61 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
                 </label>
               </div>
 
+              {/* Tipo de valorização */}
+              <div className="space-y-1">
+                <label className="text-[12px] font-medium text-gray-700 block">Tipo de Valorização</label>
+                <select
+                  data-testid="worklog-valuation-type-select"
+                  value={valuationType}
+                  onChange={(e) => {
+                    const next = e.target.value as ValuationType;
+                    setValuationType(next);
+                    if (next === 'GUARANTEE') setBillable(false);
+                  }}
+                  className="w-full px-3 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white"
+                >
+                  <option value="CONTRACT">Contrato</option>
+                  <option value="GUARANTEE">Garantia</option>
+                  <option value="MANUAL">Valor manual</option>
+                </select>
+              </div>
+
+              {/* Valor manual (só quando valuationType = MANUAL) */}
+              {valuationType === 'MANUAL' && (
+                <div className="space-y-1">
+                  <label className="text-[12px] font-medium text-gray-700 block">Valor (R$)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    data-testid="worklog-manual-value-input"
+                    value={manualValue}
+                    onChange={(e) => setManualValue(e.target.value)}
+                    placeholder="0,00"
+                    className="w-full px-3 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white"
+                    required
+                  />
+                </div>
+              )}
+
+              {/* Próximo estágio (opcional) */}
+              <div className="space-y-1">
+                <label className="text-[12px] font-medium text-gray-700 block">Próximo Estágio</label>
+                <select
+                  data-testid="worklog-next-status-select"
+                  value={nextStatus}
+                  onChange={(e) => setNextStatus(e.target.value)}
+                  className="w-full px-3 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white"
+                >
+                  <option value="">Não alterar</option>
+                  {ticketStatusOptions.map((status) => (
+                    <option key={status} value={status}>
+                      {statusLabels[status]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {/* Admin Author Select */}
               {isAdmin && (
                 <div className="space-y-1">
@@ -383,6 +482,17 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
                 required
               />
             </div>
+
+            <label className="flex items-center gap-2 cursor-pointer text-[13px] text-gray-800">
+              <input
+                type="checkbox"
+                data-testid="worklog-send-as-reply-checkbox"
+                checked={sendAsReply}
+                onChange={(e) => setSendAsReply(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+              />
+              <span>Enviar apontamento também como resposta ao cliente</span>
+            </label>
 
             <div className="flex justify-end pt-1">
               <button
@@ -524,7 +634,10 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
                         </td>
 
                         <td className="py-3 px-3 font-mono text-gray-700">
-                          {wl.billable ? `R$ ${((wl.minutes / 60) * 100).toFixed(2).replace('.', ',')}` : '—'}
+                          <div className="flex items-center gap-1.5">
+                            <span>{formatWorklogValue(wl.value)}</span>
+                            <span className="text-[10px] text-gray-400">({valuationTypeLabels[wl.valuationType]})</span>
+                          </div>
                         </td>
 
                         <td className="py-3 px-3 text-right">

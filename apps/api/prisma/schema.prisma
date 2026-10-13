@@ -415,6 +415,12 @@ enum AttendanceType {
   ON_SITE
 }
 
+enum ValuationType {
+  CONTRACT
+  GUARANTEE
+  MANUAL
+}
+
 model Worklog {
   id             String         @id @default(uuid())
   description    String
@@ -423,6 +429,8 @@ model Worklog {
   endTime        DateTime
   attendanceType AttendanceType @default(REMOTE)
   billable       Boolean        @default(true)
+  valuationType  ValuationType  @default(CONTRACT)
+  value          Float?   // Valor calculado (CONTRACT), 0 (GUARANTEE) ou informado manualmente (MANUAL)
   ticketId       String
   ticket         Ticket         @relation(fields: [ticketId], references: [id])
   authorId       String

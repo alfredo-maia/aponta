@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../stores/authStore';
-import { TicketWorklogs, formatWorklogMinutes, formatAttendanceType } from './TicketWorklogs';
+import { TicketWorklogs, formatWorklogMinutes, formatAttendanceType, formatWorklogValue } from './TicketWorklogs';
 
 vi.mock('../../lib/api', () => ({
   api: {
@@ -23,6 +23,8 @@ const mockWorklogs = [
     endTime: '2026-10-12T09:00:00.000Z',
     attendanceType: 'REMOTE',
     billable: true,
+    valuationType: 'CONTRACT',
+    value: 100,
     ticketId: 't-1',
     authorId: 'u-1',
     createdAt: '2026-10-12T01:00:00.000Z',
@@ -36,6 +38,8 @@ const mockWorklogs = [
     endTime: '2026-10-12T14:30:00.000Z',
     attendanceType: 'ON_SITE',
     billable: false,
+    valuationType: 'GUARANTEE',
+    value: 0,
     ticketId: 't-1',
     authorId: 'u-2',
     createdAt: '2026-10-12T02:00:00.000Z',
@@ -85,6 +89,12 @@ describe('TicketWorklogs', () => {
     expect(formatAttendanceType('ON_SITE')).toBe('Presencial');
   });
 
+  it('formatWorklogValue formats a monetary value or a dash when null', () => {
+    expect(formatWorklogValue(100)).toBe('R$ 100,00');
+    expect(formatWorklogValue(0)).toBe('R$ 0,00');
+    expect(formatWorklogValue(null)).toBe('—');
+  });
+
   it('renders worklogs list and summary header correctly', async () => {
     loginAs('AGENT', 'u-1');
     vi.mocked(api.get).mockResolvedValueOnce({ data: mockWorklogs });
@@ -103,6 +113,9 @@ describe('TicketWorklogs', () => {
     expect(screen.getByText('Não Faturável')).toBeInTheDocument();
     expect(within(screen.getByTestId('worklog-item-wl-1')).getByText('Remoto')).toBeInTheDocument();
     expect(within(screen.getByTestId('worklog-item-wl-2')).getByText('Presencial')).toBeInTheDocument();
+    expect(within(screen.getByTestId('worklog-item-wl-1')).getByText('R$ 100,00')).toBeInTheDocument();
+    expect(within(screen.getByTestId('worklog-item-wl-1')).getByText('(Contrato)')).toBeInTheDocument();
+    expect(within(screen.getByTestId('worklog-item-wl-2')).getByText('(Garantia)')).toBeInTheDocument();
   });
 
   it('renders empty state when no worklogs exist', async () => {
@@ -146,6 +159,7 @@ describe('TicketWorklogs', () => {
         attendanceType: 'REMOTE',
         description: 'Implementação de feature',
         billable: true,
+        valuationType: 'CONTRACT',
       });
     });
   });
@@ -178,6 +192,7 @@ describe('TicketWorklogs', () => {
         attendanceType: 'ON_SITE',
         description: 'Visita técnica',
         billable: true,
+        valuationType: 'CONTRACT',
       });
     });
   });
@@ -221,6 +236,119 @@ describe('TicketWorklogs', () => {
     await user.click(chipExtend);
     expect(endInput.value).toBe('09:15');
     expect(screen.getByTestId('worklog-computed-duration')).toHaveTextContent('1h 15m');
+  });
+
+  it('sends valuationType MANUAL with the entered value', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    vi.mocked(api.post).mockResolvedValueOnce({ data: { id: 'wl-new' } });
+
+    const user = userEvent.setup();
+    renderComponent();
+
+    await user.type(screen.getByTestId('worklog-description-input'), 'Ajuste pontual');
+    await user.selectOptions(screen.getByTestId('worklog-valuation-type-select'), 'MANUAL');
+
+    const valueInput = screen.getByTestId('worklog-manual-value-input');
+    await user.type(valueInput, '250');
+
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith(
+        '/tickets/t-1/worklogs',
+        expect.objectContaining({ valuationType: 'MANUAL', value: 250 }),
+      );
+    });
+  });
+
+  it('blocks submission when valuationType is MANUAL without a value', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+
+    const user = userEvent.setup();
+    renderComponent();
+
+    await user.type(screen.getByTestId('worklog-description-input'), 'Sem valor');
+    await user.selectOptions(screen.getByTestId('worklog-valuation-type-select'), 'MANUAL');
+
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Informe um valor manual válido.')).toBeInTheDocument();
+    });
+    expect(api.post).not.toHaveBeenCalled();
+  });
+
+  it('unchecks billable automatically when GUARANTEE is selected', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+
+    const user = userEvent.setup();
+    renderComponent();
+
+    const billableCheckbox = screen.getByTestId('worklog-billable-checkbox') as HTMLInputElement;
+    expect(billableCheckbox.checked).toBe(true);
+
+    await user.selectOptions(screen.getByTestId('worklog-valuation-type-select'), 'GUARANTEE');
+    expect(billableCheckbox.checked).toBe(false);
+  });
+
+  it('sends nextStatus when a next stage is chosen', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    vi.mocked(api.post).mockResolvedValueOnce({ data: { id: 'wl-new' } });
+
+    const user = userEvent.setup();
+    renderComponent();
+
+    await user.type(screen.getByTestId('worklog-description-input'), 'Resolvido no atendimento');
+    await user.selectOptions(screen.getByTestId('worklog-next-status-select'), 'RESOLVED');
+
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith(
+        '/tickets/t-1/worklogs',
+        expect.objectContaining({ nextStatus: 'RESOLVED' }),
+      );
+    });
+  });
+
+  it('does not send nextStatus when "Não alterar" stays selected', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    vi.mocked(api.post).mockResolvedValueOnce({ data: { id: 'wl-new' } });
+
+    renderComponent();
+    await userEvent.setup().type(screen.getByTestId('worklog-description-input'), 'Sem mudança de estágio');
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+
+    await waitFor(() => {
+      const callArgs = vi.mocked(api.post).mock.calls[0][1] as Record<string, unknown>;
+      expect(callArgs).not.toHaveProperty('nextStatus');
+    });
+  });
+
+  it('sends sendAsReply when the checkbox is checked', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    vi.mocked(api.post).mockResolvedValueOnce({ data: { id: 'wl-new' } });
+
+    const user = userEvent.setup();
+    renderComponent();
+
+    await user.type(screen.getByTestId('worklog-description-input'), 'Resposta ao cliente');
+    await user.click(screen.getByTestId('worklog-send-as-reply-checkbox'));
+
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith(
+        '/tickets/t-1/worklogs',
+        expect.objectContaining({ sendAsReply: true }),
+      );
+    });
   });
 
   it('allows deleting own worklog when confirmed', async () => {

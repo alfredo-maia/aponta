@@ -1,6 +1,6 @@
-import { IsBoolean, IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsBoolean, IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { AttendanceType } from '@prisma/client';
+import { AttendanceType, TicketStatus, ValuationType } from '@prisma/client';
 
 export class CreateWorklogDto {
   @ApiProperty({ description: 'Dia e horário de início do apontamento (ISO 8601)', example: '2026-10-13T08:00:00Z' })
@@ -36,4 +36,34 @@ export class CreateWorklogDto {
   @IsUUID()
   @IsOptional()
   authorId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Novo status do chamado a aplicar ao salvar o apontamento (paridade "Próximo estágio" do TiFlux)',
+    enum: TicketStatus,
+  })
+  @IsOptional()
+  @IsEnum(TicketStatus)
+  nextStatus?: TicketStatus;
+
+  @ApiPropertyOptional({
+    description: 'Se true, publica a descrição do apontamento como um comentário visível ao cliente',
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  sendAsReply?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Tipo de valorização do apontamento',
+    enum: ValuationType,
+    default: ValuationType.CONTRACT,
+  })
+  @IsOptional()
+  @IsEnum(ValuationType)
+  valuationType?: ValuationType;
+
+  @ApiPropertyOptional({ description: 'Valor manual do apontamento (obrigatório quando valuationType = MANUAL)' })
+  @IsOptional()
+  @IsNumber()
+  value?: number;
 }

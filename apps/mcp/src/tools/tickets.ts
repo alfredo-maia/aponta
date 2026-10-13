@@ -123,9 +123,19 @@ export function registerTicketTools(server: McpServer, api: AxiosInstance) {
         description: z.string().min(1).describe('Descrição detalhada das atividades realizadas'),
         billable: z.boolean().optional().describe('Se as horas são faturáveis (default: true)'),
         authorId: z.string().uuid().optional().describe('UUID do técnico (apenas ADMIN pode apontar para terceiros)'),
+        nextStatus: z
+          .enum(['ESCALATED', 'PENDING_CUSTOMER', 'ON_HOLD', 'PENDING_APPROVAL', 'OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'])
+          .optional()
+          .describe('Novo status do ticket a aplicar ao salvar o apontamento (opcional)'),
+        sendAsReply: z.boolean().optional().describe('Se true, publica a descrição também como resposta visível ao cliente'),
+        valuationType: z
+          .enum(['CONTRACT', 'GUARANTEE', 'MANUAL'])
+          .optional()
+          .describe('Tipo de valorização: CONTRACT calcula pelo contrato do cliente, GUARANTEE zera o valor, MANUAL usa o campo value (default: CONTRACT)'),
+        value: z.number().optional().describe('Valor manual do apontamento (obrigatório quando valuationType = MANUAL)'),
       },
     },
-    async ({ ticketId, startTime, endTime, attendanceType, description, billable, authorId }) => {
+    async ({ ticketId, startTime, endTime, attendanceType, description, billable, authorId, nextStatus, sendAsReply, valuationType, value }) => {
       try {
         const { data } = await api.post(`/tickets/${ticketId}/worklogs`, {
           startTime,
@@ -134,6 +144,10 @@ export function registerTicketTools(server: McpServer, api: AxiosInstance) {
           description,
           billable,
           authorId,
+          nextStatus,
+          sendAsReply,
+          valuationType,
+          value,
         });
         return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
       } catch (error) {

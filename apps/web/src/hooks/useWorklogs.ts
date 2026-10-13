@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
+import type { TicketStatus } from './useTickets';
 
 export interface WorklogAuthor {
   id: string;
@@ -8,6 +9,7 @@ export interface WorklogAuthor {
 }
 
 export type AttendanceType = 'REMOTE' | 'ON_SITE';
+export type ValuationType = 'CONTRACT' | 'GUARANTEE' | 'MANUAL';
 
 export interface Worklog {
   id: string;
@@ -17,6 +19,8 @@ export interface Worklog {
   endTime: string;
   attendanceType: AttendanceType;
   billable: boolean;
+  valuationType: ValuationType;
+  value: number | null;
   ticketId: string;
   authorId: string;
   createdAt: string;
@@ -30,6 +34,10 @@ export interface CreateWorklogInput {
   description: string;
   billable?: boolean;
   authorId?: string;
+  nextStatus?: TicketStatus;
+  sendAsReply?: boolean;
+  valuationType?: ValuationType;
+  value?: number;
 }
 
 export function useWorklogs(ticketId?: string) {
@@ -54,6 +62,7 @@ export function useCreateWorklog(ticketId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tickets', ticketId, 'worklogs'] });
+      queryClient.invalidateQueries({ queryKey: ['tickets', ticketId] });
       queryClient.invalidateQueries({ queryKey: ['reports'] });
     },
   });

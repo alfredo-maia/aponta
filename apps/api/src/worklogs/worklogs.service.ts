@@ -4,14 +4,18 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { AttendanceType, Role } from '@prisma/client';
+import { AttendanceType, Prisma, Role, ValuationType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWorklogDto } from './dto/create-worklog.dto';
+import { CommentsService } from '../comments/comments.service';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 @Injectable()
 export class WorklogsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly commentsService: CommentsService,
+  ) {}
 
   async create(
     ticketId: string,
@@ -20,6 +24,7 @@ export class WorklogsService {
   ) {
     const ticket = await this.prisma.ticket.findUnique({
       where: { id: ticketId },
+      include: { requester: { include: { organization: true } } },
     });
 
     if (!ticket) {
@@ -61,17 +66,34 @@ export class WorklogsService {
       }
     }
 
-    return this.prisma.worklog.create({
-      data: {
-        ticketId,
-        authorId,
-        description: dto.description.trim(),
-        minutes,
-        startTime: start,
-        endTime: end,
-        attendanceType: dto.attendanceType ?? AttendanceType.REMOTE,
-        billable: dto.billable !== undefined ? dto.billable : true,
-      },
+    const description = dto.description.trim();
+    let billable = dto.billable !== undefined ? dto.billable : true;
+
+    let valuationType: ValuationType | undefined;
+    let value: number | null | undefined;
+
+    if (dto.valuationType) {
+      valuationType = dto.valuationType;
+      value = await this.computeValuation(dto.valuationType, dto.value, minutes, ticket);
+      if (dto.valuationType === ValuationType.GUARANTEE && dto.billable === undefined) {
+        billable = false;
+      }
+    }
+
+    const data: Prisma.WorklogUncheckedCreateInput = {
+      ticketId,
+      authorId,
+      description,
+      minutes,
+      startTime: start,
+      endTime: end,
+      attendanceType: dto.attendanceType ?? AttendanceType.REMOTE,
+      billable,
+      ...(valuationType ? { valuationType, value } : {}),
+    };
+
+    const worklog = await this.prisma.worklog.create({
+      data,
       include: {
         author: {
           select: {
@@ -82,6 +104,57 @@ export class WorklogsService {
         },
       },
     });
+
+    if (dto.nextStatus) {
+      await this.prisma.ticket.update({
+        where: { id: ticketId },
+        data: { status: dto.nextStatus },
+      });
+    }
+
+    if (dto.sendAsReply) {
+      await this.commentsService.create(
+        ticketId,
+        { content: description, isInternal: false },
+        currentUser,
+      );
+    }
+
+    return worklog;
+  }
+
+  private async computeValuation(
+    valuationType: ValuationType,
+    manualValue: number | undefined,
+    minutes: number,
+    ticket: { requester?: { organization?: { id: string } | null } | null },
+  ): Promise<number | null> {
+    if (valuationType === ValuationType.MANUAL) {
+      if (manualValue === undefined || manualValue === null) {
+        throw new BadRequestException('Informe o valor manual do apontamento');
+      }
+      return manualValue;
+    }
+
+    if (valuationType === ValuationType.GUARANTEE) {
+      return 0;
+    }
+
+    const organizationId = ticket.requester?.organization?.id;
+    if (!organizationId) {
+      return null;
+    }
+
+    const contract = await this.prisma.contract.findFirst({
+      where: { organizationId, active: true },
+    });
+
+    if (!contract || !contract.monthlyValue || !contract.hoursLimit) {
+      return null;
+    }
+
+    const hourlyRate = contract.monthlyValue / contract.hoursLimit;
+    return Math.round(hourlyRate * (minutes / 60) * 100) / 100;
   }
 
   async findByTicket(

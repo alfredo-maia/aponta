@@ -1,8 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
-import { AttendanceType, Role } from '@prisma/client';
+import { AttendanceType, Role, TicketStatus, ValuationType } from '@prisma/client';
 import { WorklogsService } from './worklogs.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { CommentsService } from '../comments/comments.service';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 describe('WorklogsService', () => {
@@ -10,9 +11,13 @@ describe('WorklogsService', () => {
   let mockPrisma: {
     ticket: {
       findUnique: jest.Mock;
+      update: jest.Mock;
     };
     user: {
       findUnique: jest.Mock;
+    };
+    contract: {
+      findFirst: jest.Mock;
     };
     worklog: {
       create: jest.Mock;
@@ -21,6 +26,7 @@ describe('WorklogsService', () => {
       delete: jest.Mock;
     };
   };
+  let mockCommentsService: { create: jest.Mock };
 
   const agentUser: CurrentUserPayload = { id: 'agent-1', role: Role.AGENT };
   const adminUser: CurrentUserPayload = { id: 'admin-1', role: Role.ADMIN };
@@ -32,9 +38,13 @@ describe('WorklogsService', () => {
     mockPrisma = {
       ticket: {
         findUnique: jest.fn(),
+        update: jest.fn(),
       },
       user: {
         findUnique: jest.fn(),
+      },
+      contract: {
+        findFirst: jest.fn(),
       },
       worklog: {
         create: jest.fn(),
@@ -43,11 +53,13 @@ describe('WorklogsService', () => {
         delete: jest.fn(),
       },
     };
+    mockCommentsService = { create: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         WorklogsService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: CommentsService, useValue: mockCommentsService },
       ],
     }).compile();
 
@@ -254,6 +266,232 @@ describe('WorklogsService', () => {
           clientUser,
         ),
       ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should update the ticket status when nextStatus is provided', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-4' });
+
+      await service.create(
+        'ticket-1',
+        {
+          startTime: '2026-10-13T08:00:00Z',
+          endTime: '2026-10-13T09:00:00Z',
+          description: 'Resolvido',
+          nextStatus: TicketStatus.RESOLVED,
+        },
+        agentUser,
+      );
+
+      expect(mockPrisma.ticket.update).toHaveBeenCalledWith({
+        where: { id: 'ticket-1' },
+        data: { status: TicketStatus.RESOLVED },
+      });
+    });
+
+    it('should not touch the ticket status when nextStatus is not provided', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-5' });
+
+      await service.create(
+        'ticket-1',
+        { startTime: '2026-10-13T08:00:00Z', endTime: '2026-10-13T09:00:00Z', description: 'Sem mudança' },
+        agentUser,
+      );
+
+      expect(mockPrisma.ticket.update).not.toHaveBeenCalled();
+    });
+
+    it('should publish the description as a non-internal comment when sendAsReply is true', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-6' });
+      mockCommentsService.create.mockResolvedValue({ id: 'c-1' });
+
+      await service.create(
+        'ticket-1',
+        {
+          startTime: '2026-10-13T08:00:00Z',
+          endTime: '2026-10-13T09:00:00Z',
+          description: 'Diagnóstico concluído',
+          sendAsReply: true,
+        },
+        agentUser,
+      );
+
+      expect(mockCommentsService.create).toHaveBeenCalledWith(
+        'ticket-1',
+        { content: 'Diagnóstico concluído', isInternal: false },
+        agentUser,
+      );
+    });
+
+    it('should not create a comment when sendAsReply is omitted', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-7' });
+
+      await service.create(
+        'ticket-1',
+        { startTime: '2026-10-13T08:00:00Z', endTime: '2026-10-13T09:00:00Z', description: 'Sem resposta' },
+        agentUser,
+      );
+
+      expect(mockCommentsService.create).not.toHaveBeenCalled();
+    });
+
+    it('should store the manual value when valuationType is MANUAL', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-8' });
+
+      await service.create(
+        'ticket-1',
+        {
+          startTime: '2026-10-13T08:00:00Z',
+          endTime: '2026-10-13T09:00:00Z',
+          description: 'Ajuste pontual',
+          valuationType: ValuationType.MANUAL,
+          value: 250,
+        },
+        agentUser,
+      );
+
+      expect(mockPrisma.worklog.create).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ valuationType: ValuationType.MANUAL, value: 250 }) }),
+      );
+    });
+
+    it('should throw BadRequestException when valuationType is MANUAL without a value', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+
+      await expect(
+        service.create(
+          'ticket-1',
+          {
+            startTime: '2026-10-13T08:00:00Z',
+            endTime: '2026-10-13T09:00:00Z',
+            description: 'Sem valor',
+            valuationType: ValuationType.MANUAL,
+          },
+          agentUser,
+        ),
+      ).rejects.toThrow(BadRequestException);
+      expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
+    });
+
+    it('should zero the value and default billable to false when valuationType is GUARANTEE', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-9' });
+
+      await service.create(
+        'ticket-1',
+        {
+          startTime: '2026-10-13T08:00:00Z',
+          endTime: '2026-10-13T09:00:00Z',
+          description: 'Retrabalho em garantia',
+          valuationType: ValuationType.GUARANTEE,
+        },
+        agentUser,
+      );
+
+      expect(mockPrisma.worklog.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ valuationType: ValuationType.GUARANTEE, value: 0, billable: false }),
+        }),
+      );
+    });
+
+    it('should respect an explicit billable flag even under GUARANTEE', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-10' });
+
+      await service.create(
+        'ticket-1',
+        {
+          startTime: '2026-10-13T08:00:00Z',
+          endTime: '2026-10-13T09:00:00Z',
+          description: 'Garantia faturável por acordo',
+          valuationType: ValuationType.GUARANTEE,
+          billable: true,
+        },
+        agentUser,
+      );
+
+      expect(mockPrisma.worklog.create).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ billable: true, value: 0 }) }),
+      );
+    });
+
+    it('should compute value from the organization active contract when valuationType is CONTRACT', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue({
+        ...validTicket,
+        requester: { organization: { id: 'org-1' } },
+      });
+      mockPrisma.contract.findFirst.mockResolvedValue({
+        id: 'contract-1',
+        organizationId: 'org-1',
+        active: true,
+        monthlyValue: 6000,
+        hoursLimit: 60,
+      });
+      mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-11' });
+
+      await service.create(
+        'ticket-1',
+        {
+          startTime: '2026-10-13T08:00:00Z',
+          endTime: '2026-10-13T09:00:00Z', // 60 minutes = 1h
+          description: 'Atendimento contratual',
+          valuationType: ValuationType.CONTRACT,
+        },
+        agentUser,
+      );
+
+      expect(mockPrisma.contract.findFirst).toHaveBeenCalledWith({
+        where: { organizationId: 'org-1', active: true },
+      });
+      // hourlyRate = 6000 / 60 = 100; 1h -> 100
+      expect(mockPrisma.worklog.create).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ valuationType: ValuationType.CONTRACT, value: 100 }) }),
+      );
+    });
+
+    it('should leave value null under CONTRACT when there is no active contract', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue({
+        ...validTicket,
+        requester: { organization: { id: 'org-2' } },
+      });
+      mockPrisma.contract.findFirst.mockResolvedValue(null);
+      mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-12' });
+
+      await service.create(
+        'ticket-1',
+        {
+          startTime: '2026-10-13T08:00:00Z',
+          endTime: '2026-10-13T09:00:00Z',
+          description: 'Sem contrato ativo',
+          valuationType: ValuationType.CONTRACT,
+        },
+        agentUser,
+      );
+
+      expect(mockPrisma.worklog.create).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ valuationType: ValuationType.CONTRACT, value: null }) }),
+      );
+    });
+
+    it('should not include valuationType/value in the create payload when valuationType is omitted', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-13' });
+
+      await service.create(
+        'ticket-1',
+        { startTime: '2026-10-13T08:00:00Z', endTime: '2026-10-13T09:00:00Z', description: 'Padrão' },
+        agentUser,
+      );
+
+      const callArgs = mockPrisma.worklog.create.mock.calls[0][0];
+      expect(callArgs.data).not.toHaveProperty('valuationType');
+      expect(callArgs.data).not.toHaveProperty('value');
+      expect(mockPrisma.contract.findFirst).not.toHaveBeenCalled();
     });
   });
 
