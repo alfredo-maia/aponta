@@ -109,6 +109,12 @@ export function useTickets(filters: TicketFiltersInput = {}) {
       });
       return data;
     },
+    // Defensive: normalize so `.data` is always an array for every consumer,
+    // even if the backend/proxy ever returns an unexpected payload shape.
+    select: (page) => ({
+      ...page,
+      data: Array.isArray(page?.data) ? page.data : [],
+    }),
   });
 }
 

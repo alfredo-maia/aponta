@@ -99,7 +99,7 @@ export function TicketSearchModal({
                 className="w-full h-[38px] px-3 text-sm border border-gray-300 rounded-[8px] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
                 <option value="">Todos os clientes</option>
-                {(organizationsQuery.data ?? []).map((org) => (
+                {(Array.isArray(organizationsQuery.data) ? organizationsQuery.data : []).map((org) => (
                   <option key={org.id} value={org.id}>
                     {org.name}
                   </option>
@@ -117,7 +117,7 @@ export function TicketSearchModal({
               className="w-full h-[38px] px-3 text-sm border border-gray-300 rounded-[8px] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
               <option value="">Todas as mesas</option>
-              {(serviceDesksQuery.data ?? []).map((sd) => (
+              {(Array.isArray(serviceDesksQuery.data) ? serviceDesksQuery.data : []).map((sd) => (
                 <option key={sd.id} value={sd.id}>
                   {sd.name}
                 </option>

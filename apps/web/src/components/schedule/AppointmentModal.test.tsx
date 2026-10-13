@@ -7,7 +7,17 @@ import { api } from '../../lib/api';
 
 vi.mock('../../lib/api', () => ({
   api: {
-    get: vi.fn().mockResolvedValue({ data: { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } } }),
+    // Discriminate by URL: /organizations and /service-desks return plain
+    // arrays (real shape), /tickets returns the paginated {data, meta} shape.
+    // A one-size-fits-all mock previously masked a real "`.map` is not a
+    // function" crash when a non-array endpoint was called through a mock
+    // shaped for the other endpoint.
+    get: vi.fn().mockImplementation((url: string) => {
+      if (url === '/organizations' || url === '/service-desks') {
+        return Promise.resolve({ data: [] });
+      }
+      return Promise.resolve({ data: { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } } });
+    }),
     post: vi.fn(),
     patch: vi.fn(),
     delete: vi.fn(),

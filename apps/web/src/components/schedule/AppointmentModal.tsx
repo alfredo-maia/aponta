@@ -1,10 +1,17 @@
 import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../../lib/api';
 import { Appointment, AppointmentType, CreateAppointmentInput, UpdateAppointmentInput } from '../../hooks/useAppointments';
 import { Ticket } from '../../hooks/useTickets';
 import { useAuthStore } from '../../stores/authStore';
 import { TicketSearchModal } from './TicketSearchModal';
-import { EzButton, EzModal, EzTextInput, EzBadge } from '../ds';
+import { EzButton, EzModal, EzTextInput, EzBadge, EzSearch, EzDateInput, EzTimeInput } from '../ds';
 import { Search, Trash2, Unlink, User as UserIcon } from 'lucide-react';
+
+interface OrganizationOption {
+  id: string;
+  name: string;
+}
 
 interface AppointmentModalProps {
   isOpen: boolean;
@@ -54,6 +61,19 @@ export function AppointmentModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const userRole = useAuthStore((state) => state.user?.role);
+
+  const organizationsQuery = useQuery({
+    queryKey: ['organizations', 'appointment-picker'],
+    queryFn: async () => {
+      const { data } = await api.get<OrganizationOption[]>('/organizations');
+      return data;
+    },
+    enabled: isOpen && !linkedTicket,
+  });
+  const organizationOptions = (Array.isArray(organizationsQuery.data) ? organizationsQuery.data : []).map((org) => ({
+    label: org.name,
+    value: org.id,
+  }));
 
   useEffect(() => {
     if (appointment) {
@@ -301,11 +321,12 @@ export function AppointmentModal({
               message="Derivada do solicitante do chamado vinculado"
             />
           ) : (
-            <EzTextInput
-              label="ID da Organização (Opcional)"
-              placeholder="UUID da Organização"
-              value={organizationId}
-              onChange={(e) => setOrganizationId(e.target.value)}
+            <EzSearch
+              label="Organização (Opcional)"
+              placeholder="Buscar cliente..."
+              options={organizationOptions}
+              value={organizationId || null}
+              onChange={(value) => setOrganizationId(value ? String(value) : '')}
               disabled={!canEdit || isSubmitting}
             />
           )}
@@ -315,20 +336,18 @@ export function AppointmentModal({
           <div>
             <label className="block text-xs font-semibold text-gray-700 mb-1">Início</label>
             <div className="flex gap-2">
-              <input
-                type="date"
+              <EzDateInput
+                className="flex-1 min-w-0"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 disabled={!canEdit || isSubmitting}
-                className="w-2/3 h-[42px] px-2 text-sm border border-gray-300 rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-500"
                 required
               />
-              <input
-                type="time"
+              <EzTimeInput
+                className="w-[128px] shrink-0"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
                 disabled={!canEdit || isSubmitting}
-                className="w-1/3 h-[42px] px-2 text-sm border border-gray-300 rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-500"
                 required
               />
             </div>
@@ -337,20 +356,18 @@ export function AppointmentModal({
           <div>
             <label className="block text-xs font-semibold text-gray-700 mb-1">Término</label>
             <div className="flex gap-2">
-              <input
-                type="date"
+              <EzDateInput
+                className="flex-1 min-w-0"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
                 disabled={!canEdit || isSubmitting}
-                className="w-2/3 h-[42px] px-2 text-sm border border-gray-300 rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-500"
                 required
               />
-              <input
-                type="time"
+              <EzTimeInput
+                className="w-[128px] shrink-0"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
                 disabled={!canEdit || isSubmitting}
-                className="w-1/3 h-[42px] px-2 text-sm border border-gray-300 rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-500"
                 required
               />
             </div>

@@ -93,7 +93,9 @@ export function useAppointments(filters: AppointmentFilters = {}) {
   });
 
   return {
-    appointments: query.data ?? [],
+    // Defensive: never let a malformed/non-array response (proxy error page,
+    // unexpected payload shape) crash every .filter()/.map() call downstream.
+    appointments: Array.isArray(query.data) ? query.data : [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
