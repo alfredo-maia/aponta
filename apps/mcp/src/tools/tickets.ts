@@ -17,6 +17,11 @@ export function registerTicketTools(server: McpServer, api: AxiosInstance) {
           .optional()
           .describe('Filtrar por status do ticket'),
         serviceDeskId: z.string().uuid().optional().describe('Filtrar por UUID de um Service Desk específico'),
+        organizationId: z.string().uuid().optional().describe('Filtrar por UUID da organização/cliente do solicitante'),
+        notClosed: z
+          .boolean()
+          .optional()
+          .describe('Somente chamados não fechados (exclui RESOLVED/CLOSED) — útil para encontrar um chamado a vincular a um compromisso da Agenda'),
         page: z.string().optional(),
         limit: z.string().optional(),
       },
