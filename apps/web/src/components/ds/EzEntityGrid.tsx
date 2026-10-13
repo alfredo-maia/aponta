@@ -155,6 +155,16 @@ export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'childre
    */
   enableColumnMenu?: boolean;
   /**
+   * Shows the "Agrupar por este campo" entry in the column header menu.
+   * @default true
+   */
+  enableColumnGrouping?: boolean;
+  /**
+   * Header label of the row number column (when `showRowNumbers` is on).
+   * @default '#'
+   */
+  rowNumberLabel?: string;
+  /**
    * Enables zebra striping on alternating rows (Sankhya parity).
    * @default true
    */
@@ -472,7 +482,7 @@ interface EzColumnMenuPopoverProps {
   onSortDesc: () => void;
   onOpenFilter: () => void;
   onTogglePin: () => void;
-  onToggleGroup: () => void;
+  onToggleGroup?: () => void;
   onHideColumn?: () => void;
   onOpenColumnConfig?: () => void;
   onClose: () => void;
@@ -634,7 +644,8 @@ function EzColumnMenuPopover({
         )}
       </button>
 
-      <button
+      {onToggleGroup && (
+<button
         type="button"
         data-testid="ez-grid-column-menu-group"
         onClick={() => {
@@ -646,6 +657,7 @@ function EzColumnMenuPopover({
         <Rows className="w-3.5 h-3.5 text-gray-500" />
         {isGrouped ? 'Desagrupar' : 'Agrupar por este campo'}
       </button>
+)}
 
       {onHideColumn && (
         <button
@@ -1126,6 +1138,8 @@ function EzEntityGridInner<T>(
     onApplyAll,
     selectable = false,
     showRowNumbers = false,
+    enableColumnGrouping = true,
+    rowNumberLabel = '#',
     onSelectionChange,
     pageSize,
     pageSizeOptions,
@@ -1241,7 +1255,7 @@ function EzEntityGridInner<T>(
         id: '__rowNumber__',
         enableSorting: false,
         header: () => (
-          <span className="text-gray-400 font-mono text-[11px] select-none text-center block w-6">#</span>
+          <span className="text-gray-400 font-mono text-[11px] select-none text-center block min-w-6">{rowNumberLabel}</span>
         ),
         cell: ({ row }) => (
           <span
@@ -1278,7 +1292,7 @@ function EzEntityGridInner<T>(
       });
     }
     return [...leadingCols, ...columns];
-  }, [columns, selectable, showRowNumbers]);
+  }, [columns, selectable, showRowNumbers, rowNumberLabel]);
 
   const table = useReactTable<T>({
     data,
@@ -2048,7 +2062,7 @@ function EzEntityGridInner<T>(
             onSortDesc={() => col.toggleSorting(true)}
             onOpenFilter={() => setActiveFilterColumnId(activeMenuColumnId)}
             onTogglePin={() => handleToggleColumnPin(col.id)}
-            onToggleGroup={() => handleToggleColumnGroup(col.id)}
+            onToggleGroup={enableColumnGrouping ? () => handleToggleColumnGroup(col.id) : undefined}
             onHideColumn={() => col.toggleVisibility(false)}
             onOpenColumnConfig={() => setIsColumnConfigModalOpen(true)}
             onClose={() => setActiveMenuColumnId(null)}

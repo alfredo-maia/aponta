@@ -30,6 +30,8 @@ export interface EzEntityToolbarProps extends Omit<HTMLAttributes<HTMLDivElement
   viewMode: 'GRID' | 'FORM';
   /** Fired when the user switches between grid and form mode. */
   onToggleViewMode: (mode: 'GRID' | 'FORM') => void;
+  /** Shows the Grade/Formulário toggle (and its dropdown) on the left. @default true */
+  showViewModeToggle?: boolean;
   /** Whether the filter panel is open. */
   isFilterOpen?: boolean;
   /** Fired when the user clicks the filter panel toggle button. */
@@ -83,6 +85,7 @@ export const EzEntityToolbar = forwardRef<HTMLDivElement, EzEntityToolbarProps>(
     {
       viewMode,
       onToggleViewMode,
+      showViewModeToggle = true,
       isFilterOpen = false,
       onToggleFilter,
       onInsert,
@@ -164,6 +167,8 @@ export const EzEntityToolbar = forwardRef<HTMLDivElement, EzEntityToolbarProps>(
 
           <span className="w-px h-5 bg-gray-200 mx-0.5" />
 
+          {showViewModeToggle && (
+          <>
           {/* 2. Alternador Modo Grade / Formulário com seta de configuração */}
           <div className="relative inline-flex items-center rounded-[6px] border border-gray-200 bg-white" ref={modeMenuRef}>
             <button
@@ -282,7 +287,10 @@ export const EzEntityToolbar = forwardRef<HTMLDivElement, EzEntityToolbarProps>(
             )}
           </div>
 
+
           <span className="w-px h-5 bg-gray-200 mx-0.5" />
+          </>
+          )}
 
           {/* 3. Botão Incluir (+) */}
           {onInsert && (

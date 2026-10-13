@@ -4,14 +4,15 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
-import { useState, useMemo } from 'react';
-import { Search, Trash2, CreditCard, Plus } from 'lucide-react';
+import { useState, useMemo, useRef } from 'react';
+import { Search, Trash2, CreditCard, Plus, ExternalLink, RefreshCw, FilePlus } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
   EzAlert,
   EzButton,
   EzCheck,
   EzComboBox,
+  EzDynamicFilter,
   EzEmptyCard,
   EzEntityGrid,
   EzEntityToolbar,
@@ -27,6 +28,8 @@ import {
   EzTextEdit,
   EzTextInput,
 } from '../components/ds';
+import { applyDynamicFilters } from '../components/ds/EzDynamicFilter';
+import type { EzDynamicFilterField, EzDynamicFilterRule } from '../components/ds/EzDynamicFilter';
 import { cn } from '../components/ds/utils';
 import { useUserScreenConfig } from '../hooks/useUserScreenConfig';
 
@@ -162,6 +165,33 @@ const agentGroupFormSchema = z.object({
 
 type AgentGroupFormValues = z.infer<typeof agentGroupFormSchema>;
 
+// Campos filtráveis dinamicamente (um por coluna da grade) - padrão Sankhya.
+const ORG_FILTER_FIELDS: EzDynamicFilterField[] = [
+  { id: 'name', label: 'Nome', getValue: (o: Organization) => o.name },
+  { id: 'legalName', label: 'Razão Social', getValue: (o: Organization) => o.legalName },
+  {
+    id: 'document',
+    label: 'CPF / CNPJ',
+    getValue: (o: Organization) => (o.documentType === 'CPF' ? o.cpf : o.cnpj),
+  },
+  {
+    id: 'status',
+    label: 'Status',
+    type: 'select',
+    options: [
+      { label: 'Ativo', value: 'Ativo' },
+      { label: 'Inativo', value: 'Inativo' },
+    ],
+    getValue: (o: Organization) => (o.active === false ? 'Inativo' : 'Ativo'),
+  },
+  { id: 'clientes', label: 'Clientes', type: 'number', getValue: (o: Organization) => o._count?.users ?? 0 },
+  { id: 'stateRegistration', label: 'Inscrição Estadual', getValue: (o: Organization) => o.stateRegistration },
+  { id: 'municipalRegistration', label: 'Inscrição Municipal', getValue: (o: Organization) => o.municipalRegistration },
+  { id: 'workFolder', label: 'Pasta de Trabalho', getValue: (o: Organization) => o.workFolder },
+  { id: 'serviceType', label: 'Perfil', getValue: (o: Organization) => o.serviceType },
+  { id: 'healthStatus', label: 'Saúde', getValue: (o: Organization) => o.healthStatus },
+];
+
 function formatCnpj(value?: string | null) {
   if (!value) return '';
   const digits = value.replace(/\D/g, '');
@@ -227,6 +257,7 @@ export function OrganizationsPage() {
   const [filterSearch, setFilterSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
   const [filterDocType, setFilterDocType] = useState<'ALL' | 'CNPJ' | 'CPF'>('ALL');
+  const [dynamicRules, setDynamicRules] = useState<EzDynamicFilterRule[]>([]);
   const [isScreenConfigModalOpen, setIsScreenConfigModalOpen] = useState(false);
   const [screenConfigInitialTab, setScreenConfigInitialTab] = useState<'grid' | 'form'>('grid');
   const [selectedOrgs, setSelectedOrgs] = useState<Organization[]>([]);
@@ -315,6 +346,8 @@ export function OrganizationsPage() {
     defaultValues: { name: '' },
   });
 
+  const pendingAddressRef = useRef<AddressFormValues | null>(null);
+
   const createMutation = useMutation({
     mutationFn: async (values: OrgFormValues) => {
       const payload = {
@@ -322,6 +355,15 @@ export function OrganizationsPage() {
         billingDueDay: values.billingDueDay ? parseInt(values.billingDueDay, 10) : undefined,
       };
       const { data } = await api.post<Organization>('/organizations', payload);
+      const pendingAddress = pendingAddressRef.current;
+      pendingAddressRef.current = null;
+      if (pendingAddress && (pendingAddress.zipCode || pendingAddress.street)) {
+        try {
+          await api.post(`/organizations/${data.id}/addresses`, pendingAddress);
+        } catch {
+          // endereço é complementar: não bloqueia o cadastro
+        }
+      }
       return data;
     },
     onSuccess: (data) => {
@@ -402,6 +444,14 @@ export function OrganizationsPage() {
       setValue('legalName', data.legalName);
       setValue('name', data.tradeName || data.legalName);
       if (data.address) {
+        pendingAddressRef.current = {
+          zipCode: data.address.zipCode ?? '',
+          street: data.address.street ?? '',
+          neighborhood: data.address.neighborhood ?? '',
+          city: data.address.city ?? '',
+          state: data.address.state ?? '',
+          complement: data.address.complement ?? '',
+        };
         resetAddressForm({
           zipCode: data.address.zipCode ?? '',
           street: data.address.street ?? '',
@@ -542,13 +592,28 @@ export function OrganizationsPage() {
         accessorKey: 'name',
         header: 'Nome',
         cell: ({ row }) => (
-          <button
-            type="button"
-            onClick={() => openDetail(row.original.id)}
-            className="text-left font-medium text-brand-700 hover:underline cursor-pointer"
-          >
-            {row.original.name}
-          </button>
+          <div className="flex items-center gap-1.5">
+            <EzTextEdit
+              value={row.original.name || ''}
+              placeholder="Nome"
+              className="text-xs font-medium text-brand-700"
+              onChange={(val) => {
+                const next = val.trim();
+                if (next && next !== (row.original.name || '')) {
+                  inlinePatchMutation.mutate({ id: row.original.id, data: { name: next } });
+                }
+              }}
+            />
+            <button
+              type="button"
+              aria-label={`Abrir cadastro de ${row.original.name}`}
+              title="Abrir cadastro (modo formulário)"
+              onClick={() => openDetail(row.original.id)}
+              className="text-gray-400 hover:text-brand-700 cursor-pointer"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+            </button>
+          </div>
         ),
       },
       {
@@ -571,12 +636,23 @@ export function OrganizationsPage() {
         id: 'document',
         header: 'CPF / CNPJ',
         cell: ({ row }) => {
-          const doc = row.original.documentType === 'CPF' ? row.original.cpf : row.original.cnpj;
-          if (!doc) return <span className="text-gray-400 text-xs">—</span>;
+          const isCpf = row.original.documentType === 'CPF';
+          const doc = isCpf ? row.original.cpf : row.original.cnpj;
           return (
-            <span className="font-mono text-xs text-gray-700">
-              {row.original.documentType === 'CPF' ? doc : formatCnpj(doc)}
-            </span>
+            <EzTextEdit
+              value={doc ? (isCpf ? doc : formatCnpj(doc)) : ''}
+              placeholder={isCpf ? 'CPF' : 'CNPJ'}
+              className="font-mono text-xs text-gray-700"
+              onChange={(val) => {
+                const digits = val.replace(/\D/g, '');
+                if (digits !== (doc || '').replace(/\D/g, '')) {
+                  inlinePatchMutation.mutate({
+                    id: row.original.id,
+                    data: isCpf ? { cpf: digits } : { cnpj: digits },
+                  });
+                }
+              }}
+            />
           );
         },
       },
@@ -704,7 +780,7 @@ export function OrganizationsPage() {
   }, [orgColumns, screenConfig.grid.columnVisibility]);
 
   const filteredOrgs = useMemo(() => {
-    return (orgs ?? []).filter((org) => {
+    const base = (orgs ?? []).filter((org) => {
       if (filterStatus === 'ACTIVE' && org.active === false) return false;
       if (filterStatus === 'INACTIVE' && org.active !== false) return false;
       if (filterDocType === 'CNPJ' && org.documentType === 'CPF') return false;
@@ -719,7 +795,8 @@ export function OrganizationsPage() {
       }
       return true;
     });
-  }, [orgs, filterStatus, filterDocType, filterSearch]);
+    return applyDynamicFilters(base, dynamicRules, ORG_FILTER_FIELDS);
+  }, [orgs, filterStatus, filterDocType, filterSearch, dynamicRules]);
 
   const handlePrevious = () => {
     if (focusedIndex > 0) {
@@ -774,6 +851,15 @@ export function OrganizationsPage() {
 
   const toolbarActions = [
     {
+      label: 'Cadastrar manualmente',
+      icon: FilePlus,
+      onClick: () => {
+        reset();
+        setDetailOrgId(null);
+        setMode('form');
+      },
+    },
+    {
       label: 'Cadastrar por CNPJ',
       icon: Plus,
       onClick: () => {
@@ -792,6 +878,23 @@ export function OrganizationsPage() {
         }
       },
     },
+    {
+      label: 'Atualizar dados pela Receita',
+      icon: RefreshCw,
+      onClick: () => {
+        const active = selectedOrgs[0] ?? filteredOrgs[focusedIndex];
+        if (!active?.cnpj) return;
+        api
+          .get<CnpjLookupResult>('/organizations/cnpj-lookup', { params: { cnpj: active.cnpj } })
+          .then(({ data }) =>
+            inlinePatchMutation.mutate({
+              id: active.id,
+              data: { legalName: data.legalName, ...(data.tradeName ? { name: data.tradeName } : {}) },
+            }),
+          )
+          .catch(() => setCnpjLookupError('CNPJ não encontrado ou inválido. Verifique e tente novamente.'));
+      },
+    },
   ];
 
   if (!isAdmin) {
@@ -807,7 +910,7 @@ export function OrganizationsPage() {
     <EzPageLayout
       header={
         <EzPageHeader
-          title={<span className="text-[18px] font-semibold text-gray-900">Clientes</span>}
+          title="Clientes"
           showBackButton={mode === 'form'}
           onBack={backToList}
         />
@@ -821,6 +924,7 @@ export function OrganizationsPage() {
             {/* Sankhya Standard Entity Toolbar */}
             <EzEntityToolbar
               viewMode={mode === 'list' ? 'GRID' : 'FORM'}
+              showViewModeToggle={false}
               onToggleViewMode={(nextMode) => {
                 if (nextMode === 'FORM') {
                   const active = selectedOrgs[0] ?? filteredOrgs[focusedIndex] ?? filteredOrgs[0];
@@ -837,13 +941,6 @@ export function OrganizationsPage() {
               }}
               isFilterOpen={isFilterPanelOpen}
               onToggleFilter={() => setIsFilterPanelOpen((prev) => !prev)}
-              onInsert={() => {
-                reset();
-                setDetailOrgId(null);
-                setMode('form');
-              }}
-              insertAriaLabel="Novo Cliente"
-              insertTooltip="Novo Cliente"
               hasPrevious={focusedIndex > 0}
               onPrevious={handlePrevious}
               hasNext={focusedIndex < filteredOrgs.length - 1}
@@ -872,7 +969,7 @@ export function OrganizationsPage() {
               recordCountText={
                 mode === 'form' && detailOrgId
                   ? `${focusedIndex >= 0 ? focusedIndex + 1 : 1} de ${filteredOrgs.length}`
-                  : `${filteredOrgs.length === 0 ? 0 : 1} - ${filteredOrgs.length} de ${filteredOrgs.length}`
+                  : undefined
               }
               actions={toolbarActions}
             />
@@ -887,6 +984,7 @@ export function OrganizationsPage() {
                     setFilterSearch('');
                     setFilterStatus('ALL');
                     setFilterDocType('ALL');
+                    setDynamicRules([]);
                     setActiveSavedFilterId(null);
                   }}
                   title="Filtros de Clientes"
@@ -897,12 +995,14 @@ export function OrganizationsPage() {
                     if (sf.criteria.search !== undefined) setFilterSearch(sf.criteria.search);
                     if (sf.criteria.status !== undefined) setFilterStatus(sf.criteria.status);
                     if (sf.criteria.docType !== undefined) setFilterDocType(sf.criteria.docType);
+                    setDynamicRules(Array.isArray(sf.criteria.rules) ? sf.criteria.rules : []);
                   }}
                   onSaveCurrentFilter={(name) => {
                     saveFilter(name, {
                       search: filterSearch,
                       status: filterStatus,
                       docType: filterDocType,
+                      rules: dynamicRules,
                     });
                   }}
                   onDeleteSavedFilter={(id) => {
@@ -952,6 +1052,12 @@ export function OrganizationsPage() {
                         <option value="CPF">Pessoa Física (CPF)</option>
                       </EzComboBox>
                     </div>
+
+                    <EzDynamicFilter
+                      fields={ORG_FILTER_FIELDS}
+                      rules={dynamicRules}
+                      onChange={setDynamicRules}
+                    />
                   </div>
                 </EzFilterDrawer>
 
@@ -966,6 +1072,8 @@ export function OrganizationsPage() {
                       columns={orgColumns}
                       data={filteredOrgs}
                       showRowNumbers
+                      rowNumberLabel="Código"
+                      enableColumnGrouping={false}
                       selectable
                       showGridCornerMenu
                       enableColumnMenu

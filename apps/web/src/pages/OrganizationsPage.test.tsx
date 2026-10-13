@@ -97,7 +97,7 @@ async function openDetail(user: ReturnType<typeof userEvent.setup>) {
   await waitFor(() => {
     expect(screen.getByText('Empresa A')).toBeInTheDocument();
   });
-  await user.click(screen.getByRole('button', { name: 'Empresa A' }));
+  await user.click(screen.getByRole('button', { name: /abrir cadastro de empresa a/i }));
   await waitFor(() => {
     expect(screen.getByText('Empresa A Ltda')).toBeInTheDocument();
   });
@@ -144,10 +144,14 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     expect(within(rowB).getByText('Empresa B')).toBeInTheDocument();
     expect(within(rowB).getByText('0')).toBeInTheDocument();
 
-    expect(screen.getByTestId('ez-toolbar-mode-toggle-button')).toBeInTheDocument();
+    // Removidos a pedido: alternador Grade/Formulário e botão Novo Cliente.
+    expect(screen.queryByTestId('ez-toolbar-mode-toggle-button')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('ez-toolbar-insert-button')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /novo cliente/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Código' })).toBeInTheDocument();
   });
 
-  it('switches to the full-page form via "Novo Cliente" and validates it', async () => {
+  it('switches to the full-page form via Ações > Cadastrar manualmente and validates it', async () => {
     loginAs('ADMIN');
     const user = userEvent.setup();
     renderPage();
@@ -156,7 +160,8 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
       expect(screen.getByText('Empresa A')).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole('button', { name: /novo cliente/i }));
+    await user.click(screen.getByTestId('ez-toolbar-actions-button'));
+    await user.click(screen.getByRole('menuitem', { name: /cadastrar manualmente/i }));
 
     await waitFor(() => {
       expect(screen.getByText('Nova Empresa')).toBeInTheDocument();
@@ -180,7 +185,8 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
       expect(screen.getByText('Empresa A')).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole('button', { name: /novo cliente/i }));
+    await user.click(screen.getByTestId('ez-toolbar-actions-button'));
+    await user.click(screen.getByRole('menuitem', { name: /cadastrar manualmente/i }));
     await waitFor(() => {
       expect(screen.getByText('Nova Empresa')).toBeInTheDocument();
     });
@@ -226,7 +232,8 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     await waitFor(() => {
       expect(screen.getByText('Empresa A')).toBeInTheDocument();
     });
-    await user.click(screen.getByRole('button', { name: /novo cliente/i }));
+    await user.click(screen.getByTestId('ez-toolbar-actions-button'));
+    await user.click(screen.getByRole('menuitem', { name: /cadastrar manualmente/i }));
     await waitFor(() => {
       expect(screen.getByText('Nova Empresa')).toBeInTheDocument();
     });
@@ -248,7 +255,8 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     await waitFor(() => {
       expect(screen.getByText('Empresa A')).toBeInTheDocument();
     });
-    await user.click(screen.getByRole('button', { name: /novo cliente/i }));
+    await user.click(screen.getByTestId('ez-toolbar-actions-button'));
+    await user.click(screen.getByRole('menuitem', { name: /cadastrar manualmente/i }));
     await waitFor(() => {
       expect(screen.getByText('Nova Empresa')).toBeInTheDocument();
     });
@@ -587,8 +595,6 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     // 1. Toolbar Sankhya is rendered with standard controls
     expect(screen.getByTestId('ez-entity-toolbar')).toBeInTheDocument();
     expect(screen.getByTestId('ez-toolbar-filter-panel-button')).toBeInTheDocument();
-    expect(screen.getByTestId('ez-toolbar-mode-toggle-button')).toBeInTheDocument();
-    expect(screen.getByTestId('ez-toolbar-insert-button')).toBeInTheDocument();
     expect(screen.getByTestId('ez-toolbar-refresh-button')).toBeInTheDocument();
     expect(screen.getByTestId('ez-toolbar-screen-config-button')).toBeInTheDocument();
 
@@ -837,5 +843,47 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     await user.click(within(modal).getByText('Restaurar Padrão'));
 
     expect(within(modal).getByTestId('ez-config-density-compact')).toHaveClass('bg-brand-600');
+  });
+
+  it('filters dynamically by any column using the rule builder (Sankhya Filtros parity)', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId('ez-toolbar-filter-panel-button'));
+    const drawer = screen.getByTestId('ez-filter-drawer');
+    await user.click(within(drawer).getByTestId('ez-dynamic-filter-add'));
+
+    const rule = within(drawer).getByTestId('ez-dynamic-filter-rule');
+    const fieldOptions = within(within(rule).getByLabelText('Campo')).getAllByRole('option').map((o) => o.textContent);
+    expect(fieldOptions).toEqual(
+      expect.arrayContaining(['Nome', 'Razão Social', 'CPF / CNPJ', 'Status', 'Clientes', 'Inscrição Estadual', 'Perfil', 'Saúde']),
+    );
+
+    await user.type(within(rule).getByLabelText('Valor'), 'Empresa B');
+    expect(screen.queryByText('Empresa A')).not.toBeInTheDocument();
+    expect(screen.getByText('Empresa B')).toBeInTheDocument();
+
+    await user.click(screen.getByTestId('ez-filter-drawer-clear'));
+    expect(screen.getByText('Empresa A')).toBeInTheDocument();
+  });
+
+  it('does not offer grouping and shows the record count in a single place', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText(/agrupar/i)).not.toBeInTheDocument();
+    expect(screen.getAllByText(/1\s?-\s?2 de 2/)).toHaveLength(1);
+    expect(screen.queryByText(/^Total:/)).not.toBeInTheDocument();
+    void user;
   });
 });

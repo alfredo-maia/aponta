@@ -82,6 +82,7 @@ export * from './EzUnderface';
 export * from './EzEntityToolbar';
 export * from './EzEntityScreenConfigModal';
 export * from './EzFilterDrawer';
+export * from './EzDynamicFilter';
 export * from './EzTaskbar';
 export * from './EzFilterBar';
 export * from './EzLayoutFormConfig';
