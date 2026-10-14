@@ -494,25 +494,38 @@ export function TicketWorklogs({
           </div>
         </div>
 
-        {/* Creation Form Modal (EzModal - TiFlux Parity) */}
+        {/* Creation Form Modal (TiFlux Modal Parity) */}
         <EzModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          title="Novo Apontamento"
-          maxWidth="xl"
+          title={
+            <div className="flex items-center gap-2.5 text-[14px] font-normal text-gray-700">
+              <div className="w-7 h-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-[12px] shrink-0">
+                {(user?.email?.[0] || 'U').toUpperCase()}
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-gray-500">Você está apontando como:</span>
+                <span className="font-semibold text-gray-900">{user?.email?.split('@')[0] || 'Atendente'}</span>
+                <span className="text-gray-400 text-[12px]">({user?.email})</span>
+              </div>
+            </div>
+          }
+          maxWidth="2xl"
         >
-          <form onSubmit={handleSubmit} className="p-1 space-y-4" data-testid="worklog-form">
-
+          <form onSubmit={handleSubmit} className="space-y-4 pt-1" data-testid="worklog-form">
             {formError && (
               <EzAlert variant="error" className="py-2 text-[12px]">
                 {formError}
               </EzAlert>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-              {/* Day */}
+            {/* Row 1: Dia, Horário, Atendimento */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+              {/* Dia */}
               <div className="space-y-1">
-                <label className="text-[12px] font-medium text-gray-700 block">Dia</label>
+                <label className="text-[12px] font-medium text-gray-700 block">
+                  Dia <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="date"
                   data-testid="worklog-day-input"
@@ -523,9 +536,11 @@ export function TicketWorklogs({
                 />
               </div>
 
-              {/* Horário (início - fim) + Quick chips */}
+              {/* Horário (início - fim) + chips */}
               <div className="space-y-1">
-                <label className="text-[12px] font-medium text-gray-700 block">Horário</label>
+                <label className="text-[12px] font-medium text-gray-700 block">
+                  Horário <span className="text-red-500">*</span>
+                </label>
                 <div className="flex items-center gap-1.5">
                   <input
                     type="time"
@@ -546,7 +561,7 @@ export function TicketWorklogs({
                   />
                 </div>
                 <div className="flex items-center gap-1 pt-1">
-                  <span className="text-[12px] text-gray-500 font-mono shrink-0" data-testid="worklog-computed-duration">
+                  <span className="text-[11px] text-gray-500 font-mono shrink-0" data-testid="worklog-computed-duration">
                     {computedMinutes > 0 ? formatWorklogMinutes(computedMinutes) : '—'}
                   </span>
                   <button
@@ -573,9 +588,11 @@ export function TicketWorklogs({
                 </div>
               </div>
 
-              {/* Tipo de atendimento */}
+              {/* Atendimento */}
               <div className="space-y-1">
-                <label className="text-[12px] font-medium text-gray-700 block">Tipo de Atendimento</label>
+                <label className="text-[12px] font-medium text-gray-700 block">
+                  Atendimento <span className="text-red-500">*</span>
+                </label>
                 <select
                   data-testid="worklog-attendance-type-select"
                   value={attendanceType}
@@ -586,23 +603,75 @@ export function TicketWorklogs({
                   <option value="ON_SITE">Presencial</option>
                 </select>
               </div>
+            </div>
 
-              {/* Billable Checkbox */}
+            {/* Row 2: Deslocamento, Próximo Estágio, Técnico Responsável (se admin) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
               <div className="space-y-1">
-                <label className="text-[12px] font-medium text-gray-700 block">Tipo de Cobrança</label>
-                <label className="flex items-center gap-2 mt-2 cursor-pointer text-[13px] text-gray-800">
-                  <input
-                    type="checkbox"
-                    data-testid="worklog-billable-checkbox"
-                    checked={billable}
-                    onChange={(e) => setBillable(e.target.checked)}
-                    className="w-4 h-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
-                  />
-                  <span>Horas Faturáveis ao Cliente</span>
-                </label>
+                <label className="text-[12px] font-medium text-gray-700 block">Deslocamento</label>
+                <select
+                  disabled
+                  className="w-full px-3 py-1.5 text-[13px] border border-gray-200 rounded-[6px] bg-gray-50 text-gray-400 cursor-not-allowed"
+                >
+                  <option>Nenhum</option>
+                </select>
               </div>
 
-              {/* Tipo de valorização */}
+              <div className="space-y-1">
+                <label className="text-[12px] font-medium text-gray-700 block">Próximo Estágio</label>
+                <select
+                  data-testid="worklog-next-status-select"
+                  value={nextStatus}
+                  onChange={(e) => setNextStatus(e.target.value)}
+                  className="w-full px-3 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white"
+                >
+                  <option value="">Não alterar</option>
+                  {ticketStatusOptions.map((status) => (
+                    <option key={status} value={status}>
+                      {statusLabels[status]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {isAdmin ? (
+                <div className="space-y-1">
+                  <label className="text-[12px] font-medium text-gray-700 block">Técnico Responsável</label>
+                  <select
+                    data-testid="worklog-author-select"
+                    value={selectedAuthorId}
+                    onChange={(e) => setSelectedAuthorId(e.target.value)}
+                    className="w-full px-3 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white"
+                  >
+                    <option value="">Eu mesmo ({user?.email})</option>
+                    {agents.map((agent) => (
+                      <option key={agent.id} value={agent.id}>
+                        {agent.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <label className="text-[12px] font-medium text-gray-700 block">Tipo de Cobrança</label>
+                  <div className="pt-2">
+                    <label className="inline-flex items-center gap-2 cursor-pointer text-[13px] text-gray-700">
+                      <input
+                        type="checkbox"
+                        data-testid="worklog-billable-checkbox"
+                        checked={billable}
+                        onChange={(e) => setBillable(e.target.checked)}
+                        className="w-4 h-4 rounded border-gray-300 text-[#00B5A5] focus:ring-[#00B5A5]"
+                      />
+                      <span>Faturável ao cliente</span>
+                    </label>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Row 3: Valorização e Cobrança */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 items-end">
               <div className="space-y-1">
                 <label className="text-[12px] font-medium text-gray-700 block">Tipo de Valorização</label>
                 <select
@@ -621,8 +690,7 @@ export function TicketWorklogs({
                 </select>
               </div>
 
-              {/* Valor manual (só quando valuationType = MANUAL) */}
-              {valuationType === 'MANUAL' && (
+              {valuationType === 'MANUAL' ? (
                 <div className="space-y-1">
                   <label className="text-[12px] font-medium text-gray-700 block">Valor (R$)</label>
                   <input
@@ -637,55 +705,42 @@ export function TicketWorklogs({
                     required
                   />
                 </div>
+              ) : (
+                <div className="space-y-1">
+                  <label className="text-[12px] font-medium text-gray-700 block">Valor</label>
+                  <input
+                    type="text"
+                    disabled
+                    value={valuationType === 'GUARANTEE' ? 'R$ 0,00' : 'Incluso no contrato'}
+                    className="w-full px-3 py-1.5 text-[13px] border border-gray-200 rounded-[6px] bg-gray-50 text-gray-500 cursor-not-allowed"
+                  />
+                </div>
               )}
 
-              {/* Próximo estágio (opcional) */}
-              <div className="space-y-1">
-                <label className="text-[12px] font-medium text-gray-700 block">Próximo Estágio</label>
-                <select
-                  data-testid="worklog-next-status-select"
-                  value={nextStatus}
-                  onChange={(e) => setNextStatus(e.target.value)}
-                  className="w-full px-3 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white"
-                >
-                  <option value="">Não alterar</option>
-                  {ticketStatusOptions.map((status) => (
-                    <option key={status} value={status}>
-                      {statusLabels[status]}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Admin Author Select */}
               {isAdmin && (
-                <div className="space-y-1">
-                  <label className="text-[12px] font-medium text-gray-700 block">Técnico Responsável</label>
-                  <select
-                    data-testid="worklog-author-select"
-                    value={selectedAuthorId}
-                    onChange={(e) => setSelectedAuthorId(e.target.value)}
-                    className="w-full px-3 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white"
-                  >
-                    <option value="">Eu mesmo ({user?.email})</option>
-                    {agents.map((agent) => (
-                      <option key={agent.id} value={agent.id}>
-                        {agent.name}
-                      </option>
-                    ))}
-                  </select>
+                <div className="pt-2">
+                  <label className="inline-flex items-center gap-2 cursor-pointer text-[13px] text-gray-700">
+                    <input
+                      type="checkbox"
+                      data-testid="worklog-billable-checkbox"
+                      checked={billable}
+                      onChange={(e) => setBillable(e.target.checked)}
+                      className="w-4 h-4 rounded border-gray-300 text-[#00B5A5] focus:ring-[#00B5A5]"
+                    />
+                    <span>Faturável ao cliente</span>
+                  </label>
                 </div>
               )}
             </div>
 
-            {/* Description textarea */}
+            {/* Row 4: Descrição */}
             <div className="space-y-1">
               <label className="text-[12px] font-medium text-gray-700 block">
                 Descrição <span className="text-red-500">*</span>
               </label>
               <textarea
                 data-testid="worklog-description-input"
-                rows={2}
+                rows={3}
                 maxLength={5000}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -698,19 +753,22 @@ export function TicketWorklogs({
               </div>
             </div>
 
-            <label className="flex items-center gap-2 cursor-pointer text-[13px] text-gray-800">
-              <input
-                type="checkbox"
-                data-testid="worklog-send-as-reply-checkbox"
-                checked={sendAsReply}
-                onChange={(e) => setSendAsReply(e.target.checked)}
-                className="w-4 h-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
-              />
-              <span>Enviar apontamento também como resposta</span>
-            </label>
+            {/* Checkbox: Enviar também como resposta */}
+            <div className="pt-1">
+              <label className="inline-flex items-center gap-2 cursor-pointer text-[13px] text-gray-700">
+                <input
+                  type="checkbox"
+                  data-testid="worklog-send-as-reply-checkbox"
+                  checked={sendAsReply}
+                  onChange={(e) => setSendAsReply(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-300 text-[#00B5A5] focus:ring-[#00B5A5]"
+                />
+                <span>Enviar apontamento também como resposta</span>
+              </label>
+            </div>
 
-            {/* Action buttons (TiFlux parity: Salvar e fechar ticket / Salvar e criar novo apontamento / Salvar) */}
-            <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
+            {/* Action buttons (TiFlux parity) */}
+            <div className="flex flex-wrap items-center justify-end gap-2.5 pt-3 border-t border-gray-100">
               <button
                 type="button"
                 data-testid="worklog-submit-close-button"
@@ -733,7 +791,7 @@ export function TicketWorklogs({
                 type="submit"
                 data-testid="worklog-submit-button"
                 disabled={createMutation.isPending}
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 text-[13px] font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-[6px] transition-colors disabled:opacity-50 cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 text-[13px] font-medium text-white bg-[#00B5A5] hover:bg-[#009E90] rounded-[6px] transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
               >
                 {createMutation.isPending ? (
                   <>

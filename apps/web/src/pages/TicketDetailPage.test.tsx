@@ -494,15 +494,15 @@ describe('TicketDetailPage', () => {
       expect(screen.getByTestId('tab-panel-apontamentos')).toHaveClass('hidden');
     });
 
-    it('quick Apontamento header button activates apontamentos tab', async () => {
+    it('Apontamentos tab activates tab-panel-apontamentos when clicked', async () => {
       setRole('AGENT');
       const user = userEvent.setup();
       renderPage();
 
       await screen.findByText('Printer not working');
 
-      const quickBtn = screen.getByTestId('header-quick-worklog-button');
-      await user.click(quickBtn);
+      const apontamentosTab = screen.getByRole('tab', { name: /apontamentos/i });
+      await user.click(apontamentosTab);
 
       expect(screen.getByTestId('tab-panel-apontamentos')).not.toHaveClass('hidden');
       expect(screen.getByTestId('tab-panel-geral')).toHaveClass('hidden');

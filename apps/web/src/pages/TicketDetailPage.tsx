@@ -79,20 +79,7 @@ export function TicketDetailPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            {!isClient && (
-              <button
-                type="button"
-                data-testid="header-quick-worklog-button"
-                onClick={() => {
-                  setActiveTab('apontamentos');
-                  setIsWorklogModalOpen(true);
-                }}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-[13px] font-medium text-white bg-[#00B5A5] hover:bg-[#009E90] rounded-[6px] shadow-xs transition-colors cursor-pointer"
-              >
-                <Play className="w-3.5 h-3.5 fill-current" />
-                Apontamento
-              </button>
-            )}
+            {/* Action buttons if any */}
           </div>
         </div>
 
