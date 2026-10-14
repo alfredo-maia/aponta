@@ -19,6 +19,7 @@ export function TicketDetailPage() {
 
   const initialTab = searchParams.get('tab') || 'geral';
   const [activeTab, setActiveTab] = useState<string>(initialTab);
+  const [isWorklogModalOpen, setIsWorklogModalOpen] = useState<boolean>(false);
 
   if (isLoading) {
     return (
@@ -82,7 +83,10 @@ export function TicketDetailPage() {
               <button
                 type="button"
                 data-testid="header-quick-worklog-button"
-                onClick={() => setActiveTab('apontamentos')}
+                onClick={() => {
+                  setActiveTab('apontamentos');
+                  setIsWorklogModalOpen(true);
+                }}
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-[13px] font-medium text-white bg-[#00B5A5] hover:bg-[#009E90] rounded-[6px] shadow-xs transition-colors cursor-pointer"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
@@ -147,7 +151,11 @@ export function TicketDetailPage() {
           {/* Tab: Apontamentos (Worklog) */}
           {!isClient && (
             <div className={activeTab === 'apontamentos' ? 'block' : 'hidden'} data-testid="tab-panel-apontamentos">
-              <TicketWorklogs ticketId={ticket.id} />
+              <TicketWorklogs
+                ticketId={ticket.id}
+                isModalOpen={isWorklogModalOpen}
+                onModalOpenChange={setIsWorklogModalOpen}
+              />
             </div>
           )}
 

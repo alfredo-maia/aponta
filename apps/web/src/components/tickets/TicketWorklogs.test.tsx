@@ -49,13 +49,13 @@ const mockWorklogs = [
 
 const todayStr = () => new Date().toISOString().split('T')[0];
 
-function renderComponent(ticketId = 't-1') {
+function renderComponent(ticketId = 't-1', defaultModalOpen = true, props = {}) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <TicketWorklogs ticketId={ticketId} />
+      <TicketWorklogs ticketId={ticketId} defaultModalOpen={defaultModalOpen} {...props} />
     </QueryClientProvider>,
   );
 }
@@ -427,4 +427,49 @@ describe('TicketWorklogs', () => {
     expect(window.confirm).toHaveBeenCalled();
     expect(api.delete).toHaveBeenCalledWith('/tickets/t-1/worklogs/wl-1');
   });
+
+  it('renders modal closed by default when defaultModalOpen is false and opens upon "+ Apontamento" click', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+
+    const user = userEvent.setup();
+    renderComponent('t-1', false);
+
+    expect(screen.queryByTestId('worklog-form')).not.toBeInTheDocument();
+
+    const openBtn = screen.getByTestId('open-worklog-modal-btn');
+    await user.click(openBtn);
+
+    expect(screen.getByTestId('worklog-form')).toBeInTheDocument();
+  });
+
+  it('handles activity timer start, pause, and stop to open apontamento modal', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+
+    const user = userEvent.setup();
+    renderComponent('t-1', false);
+
+    // Initial display 00:00:00
+    expect(screen.getByTestId('worklog-timer-display')).toHaveTextContent('00:00:00');
+    expect(screen.queryByTestId('worklog-form')).not.toBeInTheDocument();
+
+    // Start timer
+    await user.click(screen.getByTestId('worklog-timer-start-btn'));
+
+    // Pause button appears
+    expect(screen.getByTestId('worklog-timer-pause-btn')).toBeInTheDocument();
+    expect(screen.getByTestId('worklog-timer-stop-btn')).toBeInTheDocument();
+
+    // Pause timer
+    await user.click(screen.getByTestId('worklog-timer-pause-btn'));
+    expect(screen.getByTestId('worklog-timer-resume-btn')).toBeInTheDocument();
+
+    // Stop timer and log work
+    await user.click(screen.getByTestId('worklog-timer-stop-btn'));
+
+    // Modal should now be open
+    expect(screen.getByTestId('worklog-form')).toBeInTheDocument();
+  });
 });
+

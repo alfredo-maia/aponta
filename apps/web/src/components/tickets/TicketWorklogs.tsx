@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Clock,
   Plus,
@@ -9,6 +9,10 @@ import {
   ChevronDown,
   ChevronUp,
   User,
+  Play,
+  Pause,
+  Square,
+  X,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
@@ -16,10 +20,20 @@ import { useAuthStore } from '../../stores/authStore';
 import { useWorklogs, useCreateWorklog, useDeleteWorklog, Worklog, AttendanceType, ValuationType } from '../../hooks/useWorklogs';
 import type { TicketStatus } from '../../hooks/useTickets';
 import { statusLabels } from './TicketCard';
-import { EzSpinner, EzAlert, EzTag } from '../ds';
+import { EzSpinner, EzAlert, EzTag, EzModal } from '../ds';
 
-interface TicketWorklogsProps {
+export interface TicketWorklogsProps {
   ticketId: string;
+  defaultModalOpen?: boolean;
+  isModalOpen?: boolean;
+  onModalOpenChange?: (open: boolean) => void;
+}
+
+export function formatTimerSeconds(seconds: number): string {
+  const hrs = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+  return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
 
 export function formatWorklogMinutes(minutes: number): string {
@@ -85,13 +99,122 @@ function formatTimeOfDay(iso: string): string {
   return new Date(iso).toISOString().slice(11, 16);
 }
 
-export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
+export function TicketWorklogs({
+  ticketId,
+  defaultModalOpen = false,
+  isModalOpen: controlledModalOpen,
+  onModalOpenChange,
+}: TicketWorklogsProps) {
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.role === 'ADMIN';
+
+  const [internalModalOpen, setInternalModalOpen] = useState<boolean>(defaultModalOpen);
+  const isModalOpen = controlledModalOpen !== undefined ? controlledModalOpen : internalModalOpen;
+  const setIsModalOpen = (open: boolean) => {
+    setInternalModalOpen(open);
+    onModalOpenChange?.(open);
+  };
 
   const { data: worklogs = [], isLoading, isError } = useWorklogs(ticketId);
   const createMutation = useCreateWorklog(ticketId);
   const deleteMutation = useDeleteWorklog(ticketId);
+
+  // Activity Timer state (persisted in localStorage per ticket)
+  const timerStorageKey = `aponta_activity_timer_${ticketId}`;
+  const [timerActive, setTimerActive] = useState<boolean>(() => {
+    try {
+      return !!localStorage.getItem(timerStorageKey);
+    } catch {
+      return false;
+    }
+  });
+  const [timerPaused, setTimerPaused] = useState<boolean>(false);
+  const [timerSeconds, setTimerSeconds] = useState<number>(0);
+  const [timerStartISO, setTimerStartISO] = useState<string | null>(() => {
+    try {
+      const raw = localStorage.getItem(timerStorageKey);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return parsed.startISO || null;
+      }
+    } catch {
+      // ignore
+    }
+    return null;
+  });
+
+  useEffect(() => {
+    if (!timerActive || timerPaused || !timerStartISO) return;
+
+    const startMs = new Date(timerStartISO).getTime();
+    setTimerSeconds(Math.max(0, Math.floor((Date.now() - startMs) / 1000)));
+
+    const interval = setInterval(() => {
+      const elapsed = Math.max(0, Math.floor((Date.now() - startMs) / 1000));
+      setTimerSeconds(elapsed);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timerActive, timerPaused, timerStartISO]);
+
+  const handleStartTimer = () => {
+    const now = new Date();
+    const iso = now.toISOString();
+    setTimerStartISO(iso);
+    setTimerActive(true);
+    setTimerPaused(false);
+    setTimerSeconds(0);
+    try {
+      localStorage.setItem(timerStorageKey, JSON.stringify({ startISO: iso }));
+    } catch {
+      // ignore
+    }
+  };
+
+  const handlePauseTimer = () => {
+    setTimerPaused(true);
+  };
+
+  const handleResumeTimer = () => {
+    setTimerPaused(false);
+  };
+
+  const handleStopTimer = () => {
+    const now = new Date();
+    const start = timerStartISO ? new Date(timerStartISO) : new Date(now.getTime() - timerSeconds * 1000);
+    const dayStr = start.toISOString().split('T')[0];
+    const startStr = formatTimeOfDay(start.toISOString());
+    let endStr = formatTimeOfDay(now.toISOString());
+    if (startStr === endStr) {
+      endStr = addMinutesToTime(startStr, Math.max(1, Math.ceil(timerSeconds / 60)));
+    }
+
+    setDay(dayStr);
+    setStartTimeOfDay(startStr);
+    setEndTimeOfDay(endStr);
+    setTimerActive(false);
+    setTimerPaused(false);
+    setTimerSeconds(0);
+    setTimerStartISO(null);
+    try {
+      localStorage.removeItem(timerStorageKey);
+    } catch {
+      // ignore
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleCancelTimer = () => {
+    setTimerActive(false);
+    setTimerPaused(false);
+    setTimerSeconds(0);
+    setTimerStartISO(null);
+    try {
+      localStorage.removeItem(timerStorageKey);
+    } catch {
+      // ignore
+    }
+  };
 
   // Agent list for Admin author reassignment
   const { data: agents = [] } = useQuery({
@@ -115,7 +238,6 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
   const [sendAsReply, setSendAsReply] = useState<boolean>(false);
   const [selectedAuthorId, setSelectedAuthorId] = useState<string>('');
   const [formError, setFormError] = useState<string | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState<boolean>(true);
   const [expandAll, setExpandAll] = useState<boolean>(true);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
@@ -200,6 +322,7 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
         setNextStatus('');
         setSendAsReply(false);
         setSelectedAuthorId('');
+        setIsModalOpen(false);
       }
     } catch {
       setFormError('Falha ao registrar o apontamento. Tente novamente.');
@@ -274,7 +397,70 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
             <h2 className="text-[16px] font-semibold text-gray-900">Apontamento de Horas (Worklog)</h2>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Activity Timer Controls */}
+            <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-[6px] text-[13px]">
+              <Clock className="w-3.5 h-3.5 text-gray-500" />
+              <span className="font-mono font-bold text-gray-800 min-w-[62px]" data-testid="worklog-timer-display">
+                {formatTimerSeconds(timerSeconds)}
+              </span>
+              {!timerActive ? (
+                <button
+                  type="button"
+                  data-testid="worklog-timer-start-btn"
+                  onClick={handleStartTimer}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded cursor-pointer"
+                  title="Iniciar cronômetro desta atividade"
+                >
+                  <Play className="w-3 h-3 fill-current" />
+                  Iniciar
+                </button>
+              ) : (
+                <div className="flex items-center gap-1">
+                  {timerPaused ? (
+                    <button
+                      type="button"
+                      data-testid="worklog-timer-resume-btn"
+                      onClick={handleResumeTimer}
+                      className="inline-flex items-center px-1.5 py-0.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded cursor-pointer"
+                      title="Retomar cronômetro"
+                    >
+                      <Play className="w-3 h-3 fill-current" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      data-testid="worklog-timer-pause-btn"
+                      onClick={handlePauseTimer}
+                      className="inline-flex items-center px-1.5 py-0.5 text-[11px] font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded cursor-pointer"
+                      title="Pausar cronômetro"
+                    >
+                      <Pause className="w-3 h-3 fill-current" />
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    data-testid="worklog-timer-stop-btn"
+                    onClick={handleStopTimer}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-300 rounded cursor-pointer"
+                    title="Parar cronômetro e abrir formulário de apontamento"
+                  >
+                    <Square className="w-3 h-3 fill-current" />
+                    Apontar
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="worklog-timer-cancel-btn"
+                    onClick={handleCancelTimer}
+                    className="p-0.5 text-gray-400 hover:text-red-600 rounded cursor-pointer"
+                    title="Descartar cronômetro"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+            </div>
+
             {worklogs.length > 0 && (
               <div className="hidden sm:flex items-center gap-2 text-[13px]">
                 <span className="font-semibold text-gray-800">Total:</span>
@@ -298,7 +484,8 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
 
             <button
               type="button"
-              onClick={() => setIsFormOpen((prev) => !prev)}
+              data-testid="open-worklog-modal-btn"
+              onClick={() => setIsModalOpen(true)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-[#00B5A5] hover:bg-[#009E90] rounded-[6px] shadow-xs transition-colors cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -307,13 +494,14 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
           </div>
         </div>
 
-        {/* Creation Form */}
-        {isFormOpen && (
-          <form onSubmit={handleSubmit} className="p-4 rounded-[8px] bg-gray-50 border border-gray-200 space-y-3" data-testid="worklog-form">
-            <h3 className="text-[13px] font-semibold text-gray-800 flex items-center gap-1.5">
-              <Plus className="w-4 h-4 text-brand-600" />
-              Novo Apontamento
-            </h3>
+        {/* Creation Form Modal (EzModal - TiFlux Parity) */}
+        <EzModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title="Novo Apontamento"
+          maxWidth="xl"
+        >
+          <form onSubmit={handleSubmit} className="p-1 space-y-4" data-testid="worklog-form">
 
             {formError && (
               <EzAlert variant="error" className="py-2 text-[12px]">
@@ -558,7 +746,7 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
               </button>
             </div>
           </form>
-        )}
+        </EzModal>
 
         {/* Worklogs Table / List Header Controls */}
         <div className="flex items-center justify-between pt-1">
