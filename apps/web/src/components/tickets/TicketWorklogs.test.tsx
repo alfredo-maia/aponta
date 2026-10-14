@@ -351,6 +351,61 @@ describe('TicketWorklogs', () => {
     });
   });
 
+  it('renders TiFlux-parity action buttons and checkbox text', () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+
+    renderComponent();
+
+    expect(screen.getByText('Enviar apontamento também como resposta')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Salvar e fechar ticket' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Salvar e criar novo apontamento' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Salvar' })).toBeInTheDocument();
+  });
+
+  it('submits with nextStatus CLOSED when "Salvar e fechar ticket" is clicked', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    vi.mocked(api.post).mockResolvedValueOnce({ data: { id: 'wl-new' } });
+
+    const user = userEvent.setup();
+    renderComponent();
+
+    await user.type(screen.getByTestId('worklog-description-input'), 'Encerrando chamado');
+    await user.click(screen.getByTestId('worklog-submit-close-button'));
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith(
+        '/tickets/t-1/worklogs',
+        expect.objectContaining({ nextStatus: 'CLOSED' }),
+      );
+    });
+  });
+
+  it('submits and advances start time to previous end time when "Salvar e criar novo apontamento" is clicked', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    vi.mocked(api.post).mockResolvedValueOnce({ data: { id: 'wl-new' } });
+
+    const user = userEvent.setup();
+    renderComponent();
+
+    await user.type(screen.getByTestId('worklog-description-input'), 'Primeira etapa');
+    await user.click(screen.getByTestId('worklog-submit-new-button'));
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith(
+        '/tickets/t-1/worklogs',
+        expect.objectContaining({ description: 'Primeira etapa' }),
+      );
+    });
+
+    // Form resets description and sets start time to previous end time ('08:30')
+    expect(screen.getByTestId('worklog-description-input')).toHaveValue('');
+    expect(screen.getByTestId('worklog-start-time-input')).toHaveValue('08:30');
+    expect(screen.getByTestId('worklog-end-time-input')).toHaveValue('09:00');
+  });
+
   it('allows deleting own worklog when confirmed', async () => {
     loginAs('AGENT', 'u-1');
     vi.mocked(api.get).mockResolvedValueOnce({ data: mockWorklogs });

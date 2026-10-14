@@ -3,7 +3,6 @@ import {
   Clock,
   Plus,
   Trash2,
-  CheckCircle2,
   Headphones,
   ListOrdered,
   Car,
@@ -138,8 +137,7 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
     setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const executeSubmit = async (mode: 'NORMAL' | 'CLOSE_TICKET' | 'SAVE_AND_NEW' = 'NORMAL') => {
     setFormError(null);
 
     if (!description.trim()) {
@@ -161,6 +159,13 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
       }
     }
 
+    const effectiveNextStatus =
+      mode === 'CLOSE_TICKET'
+        ? ('CLOSED' as TicketStatus)
+        : nextStatus
+          ? (nextStatus as TicketStatus)
+          : undefined;
+
     try {
       await createMutation.mutateAsync({
         startTime: toISO(day, startTimeOfDay),
@@ -170,24 +175,40 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
         billable,
         valuationType,
         ...(valuationType === 'MANUAL' ? { value: parsedManualValue } : {}),
-        ...(nextStatus ? { nextStatus: nextStatus as TicketStatus } : {}),
+        ...(effectiveNextStatus ? { nextStatus: effectiveNextStatus } : {}),
         ...(sendAsReply ? { sendAsReply: true } : {}),
         ...(isAdmin && selectedAuthorId ? { authorId: selectedAuthorId } : {}),
       });
-      setDescription('');
-      setDay(todayStr());
-      setStartTimeOfDay('08:00');
-      setEndTimeOfDay('08:30');
-      setAttendanceType('REMOTE');
-      setBillable(true);
-      setValuationType('CONTRACT');
-      setManualValue('');
-      setNextStatus('');
-      setSendAsReply(false);
-      setSelectedAuthorId('');
+
+      if (mode === 'SAVE_AND_NEW') {
+        const nextStart = endTimeOfDay;
+        const nextEnd = addMinutesToTime(nextStart, 30);
+        setStartTimeOfDay(nextStart);
+        setEndTimeOfDay(nextEnd);
+        setDescription('');
+        setManualValue('');
+        setSendAsReply(false);
+      } else {
+        setDescription('');
+        setDay(todayStr());
+        setStartTimeOfDay('08:00');
+        setEndTimeOfDay('08:30');
+        setAttendanceType('REMOTE');
+        setBillable(true);
+        setValuationType('CONTRACT');
+        setManualValue('');
+        setNextStatus('');
+        setSendAsReply(false);
+        setSelectedAuthorId('');
+      }
     } catch {
       setFormError('Falha ao registrar o apontamento. Tente novamente.');
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await executeSubmit('NORMAL');
   };
 
   const handleDelete = async (worklogId: string) => {
@@ -471,16 +492,22 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
 
             {/* Description textarea */}
             <div className="space-y-1">
-              <label className="text-[12px] font-medium text-gray-700 block">Descrição da Atividade</label>
+              <label className="text-[12px] font-medium text-gray-700 block">
+                Descrição <span className="text-red-500">*</span>
+              </label>
               <textarea
                 data-testid="worklog-description-input"
                 rows={2}
+                maxLength={5000}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Ex: Análise da procedure no Sankhya, teste de validação e correção do bug..."
                 className="w-full px-3 py-2 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white"
                 required
               />
+              <div className="flex justify-end text-[11px] text-gray-400">
+                {description.length}/5000
+              </div>
             </div>
 
             <label className="flex items-center gap-2 cursor-pointer text-[13px] text-gray-800">
@@ -491,10 +518,29 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
                 onChange={(e) => setSendAsReply(e.target.checked)}
                 className="w-4 h-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
               />
-              <span>Enviar apontamento também como resposta ao cliente</span>
+              <span>Enviar apontamento também como resposta</span>
             </label>
 
-            <div className="flex justify-end pt-1">
+            {/* Action buttons (TiFlux parity: Salvar e fechar ticket / Salvar e criar novo apontamento / Salvar) */}
+            <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
+              <button
+                type="button"
+                data-testid="worklog-submit-close-button"
+                disabled={createMutation.isPending}
+                onClick={() => executeSubmit('CLOSE_TICKET')}
+                className="px-3.5 py-1.5 text-[13px] font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-[6px] transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                Salvar e fechar ticket
+              </button>
+              <button
+                type="button"
+                data-testid="worklog-submit-new-button"
+                disabled={createMutation.isPending}
+                onClick={() => executeSubmit('SAVE_AND_NEW')}
+                className="px-3.5 py-1.5 text-[13px] font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-[6px] transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                Salvar e criar novo apontamento
+              </button>
               <button
                 type="submit"
                 data-testid="worklog-submit-button"
@@ -507,10 +553,7 @@ export function TicketWorklogs({ ticketId }: TicketWorklogsProps) {
                     Salvando…
                   </>
                 ) : (
-                  <>
-                    <CheckCircle2 className="w-4 h-4" />
-                    Apontar Horas
-                  </>
+                  'Salvar'
                 )}
               </button>
             </div>
