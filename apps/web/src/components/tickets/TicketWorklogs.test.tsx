@@ -14,6 +14,48 @@ vi.mock('../../lib/api', () => ({
   },
 }));
 
+vi.mock('../ds', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../ds')>();
+  return {
+    ...actual,
+    EzRichText: ({
+      testId,
+      value,
+      onChange,
+      onUploadImage,
+      spellCheck = true,
+      lang = 'pt-BR',
+    }: {
+      testId?: string;
+      value?: string;
+      onChange?: (html: string) => void;
+      onUploadImage?: (file: File) => Promise<string>;
+      spellCheck?: boolean;
+      lang?: string;
+    }) => (
+      <textarea
+        data-testid={testId}
+        value={value ?? ''}
+        spellCheck={spellCheck}
+        lang={lang}
+        autoCorrect="on"
+        onChange={(e) => onChange?.(e.target.value)}
+        onPaste={async (e) => {
+          const items = e.clipboardData?.items;
+          if (!items || !onUploadImage) return;
+          const imageItem = Array.from(items).find((item) => item.type.startsWith('image/'));
+          if (!imageItem) return;
+          const file = imageItem.getAsFile();
+          if (!file) return;
+          e.preventDefault();
+          const url = await onUploadImage(file);
+          onChange?.(`${value ?? ''}<img src="${url}" alt="${file.name}">`);
+        }}
+      />
+    ),
+  };
+});
+
 const mockWorklogs = [
   {
     id: 'wl-1',
@@ -520,13 +562,13 @@ describe('TicketWorklogs', () => {
     expect(localStorage.getItem('aponta_worklog_draft_t-draft-1')).toBeNull();
   });
 
-  it('handles pasting image screenshot, uploading attachment and appending markdown', async () => {
+  it('handles pasting image screenshot, uploading attachment and inserting it inline', async () => {
     loginAs('AGENT', 'u-1');
     vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
     vi.mocked(api.post).mockResolvedValueOnce({
       data: {
         id: 'att-paste-1',
-        url: 'https://cdn.aponta.com/screenshots/tela.png',
+        fileUrl: 'https://cdn.aponta.com/screenshots/tela.png',
         originalName: 'evidencia_erro.png',
       },
     });
@@ -536,7 +578,6 @@ describe('TicketWorklogs', () => {
     const descInput = screen.getByTestId('worklog-description-input');
     fireEvent.change(descInput, { target: { value: 'Identificado erro na tela:' } });
 
-    // Mock paste event with an image file
     const file = new File(['fake-image-bytes'], 'screenshot.png', { type: 'image/png' });
     const clipboardData = {
       items: [
@@ -562,11 +603,34 @@ describe('TicketWorklogs', () => {
 
     await waitFor(() => {
       expect(descInput).toHaveValue(
-        'Identificado erro na tela:\n\n![evidencia_erro.png](https://cdn.aponta.com/screenshots/tela.png)\n',
+        'Identificado erro na tela:<img src="https://cdn.aponta.com/screenshots/tela.png" alt="screenshot.png">',
       );
-      expect(screen.getByTestId('worklog-attached-images-container')).toBeInTheDocument();
-      expect(screen.getByText('evidencia_erro.png')).toBeInTheDocument();
     });
+  });
+
+  it('keeps filled fields after closing the modal with X and reopening', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+
+    const user = userEvent.setup();
+    renderComponent('t-1', true);
+
+    await user.type(screen.getByTestId('worklog-description-input'), 'Texto que não pode se perder');
+    await user.click(screen.getByLabelText('Fechar'));
+
+    expect(screen.queryByTestId('worklog-form')).not.toBeInTheDocument();
+
+    await user.click(screen.getByTestId('open-worklog-modal-btn'));
+    expect(screen.getByTestId('worklog-description-input')).toHaveValue('Texto que não pode se perder');
+  });
+
+  it('renders the apontamento modal at 5xl width', () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+
+    renderComponent('t-1', true);
+
+    expect(screen.getByRole('dialog').className).toMatch(/max-w-5xl/);
   });
 });
 

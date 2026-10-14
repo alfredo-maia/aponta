@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeAll } from 'vitest';
-import { EzRichText } from './EzRichText';
+import { collectImageFiles, EzRichText } from './EzRichText';
 
 /**
  * NOTE: jsdom has no real layout engine — ProseMirror's focus/selection
@@ -166,5 +166,32 @@ describe('EzRichText', () => {
     const { container } = render(<EzRichText value="" onChange={vi.fn()} />);
 
     expect(container.querySelector('label')).not.toBeInTheDocument();
+  });
+
+  it('enables Portuguese spellcheck on the contenteditable surface', async () => {
+    render(<EzRichText testId="rt" value="" onChange={vi.fn()} />);
+
+    await waitFor(() => {
+      const editable = screen.getByTestId('rt').querySelector('[contenteditable="true"]');
+      expect(editable).toHaveAttribute('spellcheck', 'true');
+      expect(editable).toHaveAttribute('lang', 'pt-BR');
+      expect(editable).toHaveAttribute('autocorrect', 'on');
+    });
+  });
+
+  it('collects image files from clipboard data for paste-to-upload', () => {
+    const file = new File(['fake-image-bytes'], 'screenshot.png', { type: 'image/png' });
+    const clipboardData = {
+      files: [file],
+      items: [
+        {
+          type: 'image/png',
+          getAsFile: () => file,
+        },
+      ],
+    } as unknown as DataTransfer;
+
+    expect(collectImageFiles(clipboardData)).toEqual([file]);
+    expect(collectImageFiles(null)).toEqual([]);
   });
 });

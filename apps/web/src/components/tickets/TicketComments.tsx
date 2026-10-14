@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { EzAlert, EzSpinner, EzTag } from '../ds';
+import { RichContentView } from './RichContentView';
 
 export interface TicketComment {
   id: string;
@@ -76,9 +77,9 @@ export function TicketComments({ ticketId }: TicketCommentsProps) {
               <EzTag label="Nota interna" variant="petroleum" />
             )}
           </div>
-          <p className="whitespace-pre-wrap text-sm text-gray-900">
-            {comment.content}
-          </p>
+          <div className="text-sm text-gray-900">
+            <RichContentView content={comment.content} />
+          </div>
         </li>
       ))}
     </ul>

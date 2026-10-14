@@ -13,8 +13,6 @@ import {
   Pause,
   Square,
   X,
-  ExternalLink,
-  Image as ImageIcon,
   CheckCircle2,
 } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -23,75 +21,11 @@ import { useAuthStore } from '../../stores/authStore';
 import { useWorklogs, useCreateWorklog, useDeleteWorklog, Worklog, AttendanceType, ValuationType } from '../../hooks/useWorklogs';
 import type { TicketStatus } from '../../hooks/useTickets';
 import { statusLabels } from './TicketCard';
-import { EzSpinner, EzAlert, EzTag, EzModal } from '../ds';
+import { EzSpinner, EzAlert, EzTag, EzModal, EzRichText } from '../ds';
+import { isBlankRichText, RichContentView } from './RichContentView';
 
 export function WorklogDescriptionView({ description }: { description: string }) {
-  // Regex to match markdown images: ![alt](url)
-  const imageRegex = /!\[(.*?)\]\((.*?)\)/g;
-  const parts: Array<{ type: 'text' | 'image'; content: string; alt?: string }> = [];
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-
-  while ((match = imageRegex.exec(description)) !== null) {
-    if (match.index > lastIndex) {
-      parts.push({ type: 'text', content: description.substring(lastIndex, match.index) });
-    }
-    parts.push({ type: 'image', alt: match[1], content: match[2] });
-    lastIndex = imageRegex.lastIndex;
-  }
-
-  if (lastIndex < description.length) {
-    parts.push({ type: 'text', content: description.substring(lastIndex) });
-  }
-
-  if (parts.length === 0) {
-    return <span className="whitespace-pre-wrap">{description}</span>;
-  }
-
-  return (
-    <div className="space-y-2">
-      {parts.map((part, idx) => {
-        if (part.type === 'text') {
-          if (!part.content.trim()) return null;
-          return (
-            <div key={idx} className="whitespace-pre-wrap text-gray-800 leading-relaxed">
-              {part.content.trim()}
-            </div>
-          );
-        }
-        return (
-          <div
-            key={idx}
-            className="my-2 border border-gray-200 rounded-[8px] overflow-hidden bg-gray-50 max-w-lg shadow-2xs group"
-          >
-            <div className="p-1 bg-white border-b border-gray-100 flex items-center justify-between text-[11px] text-gray-500 px-2.5">
-              <span className="font-medium truncate flex items-center gap-1.5">
-                <ImageIcon className="w-3.5 h-3.5 text-gray-400" />
-                {part.alt || 'Evidência anexada'}
-              </span>
-              <a
-                href={part.content}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-brand-600 hover:text-brand-800 hover:underline shrink-0 font-medium"
-              >
-                <ExternalLink className="w-3 h-3" />
-                Abrir em tamanho real
-              </a>
-            </div>
-            <a href={part.content} target="_blank" rel="noreferrer" className="block overflow-hidden bg-black/2 p-1">
-              <img
-                src={part.content}
-                alt={part.alt || 'Evidência'}
-                className="max-h-64 w-auto object-contain mx-auto rounded transition-transform duration-200 hover:scale-[1.01]"
-                loading="lazy"
-              />
-            </a>
-          </div>
-        );
-      })}
-    </div>
-  );
+  return <RichContentView content={description} />;
 }
 
 export interface TicketWorklogsProps {
@@ -322,23 +256,37 @@ export function TicketWorklogs({
   const [nextStatus, setNextStatus] = useState<string>(initialDraft?.nextStatus || '');
   const [sendAsReply, setSendAsReply] = useState<boolean>(initialDraft?.sendAsReply !== undefined ? initialDraft.sendAsReply : false);
   const [selectedAuthorId, setSelectedAuthorId] = useState<string>(initialDraft?.selectedAuthorId || '');
-  const [attachedImages, setAttachedImages] = useState<Array<{ id: string; url: string; name: string }>>(
-    Array.isArray(initialDraft?.attachedImages) ? initialDraft.attachedImages : [],
-  );
   const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
-  const [hasDraftLoaded, setHasDraftLoaded] = useState<boolean>(Boolean(initialDraft?.description || initialDraft?.attachedImages?.length));
+  const [hasDraftLoaded, setHasDraftLoaded] = useState<boolean>(
+    Boolean(
+      initialDraft &&
+        (initialDraft.description ||
+          initialDraft.manualValue ||
+          initialDraft.nextStatus ||
+          initialDraft.sendAsReply ||
+          initialDraft.startTimeOfDay !== '08:00' ||
+          initialDraft.endTimeOfDay !== '08:30'),
+    ),
+  );
 
   const [formError, setFormError] = useState<string | null>(null);
   const [expandAll, setExpandAll] = useState<boolean>(true);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
-  // Auto-save draft on every change (persists only when there is worklog content)
+  // Auto-save draft on every change, including close via X / overlay / refresh.
   useEffect(() => {
     const hasMeaningfulChanges = Boolean(
-      description.trim() ||
+      !isBlankRichText(description) ||
       manualValue.trim() ||
-      attachedImages.length > 0
+      nextStatus ||
+      sendAsReply ||
+      selectedAuthorId ||
+      attendanceType !== 'REMOTE' ||
+      valuationType !== 'CONTRACT' ||
+      startTimeOfDay !== '08:00' ||
+      endTimeOfDay !== '08:30' ||
+      day !== todayStr(),
     );
 
     if (!hasMeaningfulChanges) {
@@ -363,7 +311,6 @@ export function TicketWorklogs({
         nextStatus,
         sendAsReply,
         selectedAuthorId,
-        attachedImages,
       };
       localStorage.setItem(draftStorageKey, JSON.stringify(draft));
     } catch {
@@ -382,7 +329,6 @@ export function TicketWorklogs({
     nextStatus,
     sendAsReply,
     selectedAuthorId,
-    attachedImages,
   ]);
 
   const handleClearDraft = () => {
@@ -402,12 +348,11 @@ export function TicketWorklogs({
     setNextStatus('');
     setSendAsReply(false);
     setSelectedAuthorId('');
-    setAttachedImages([]);
     setHasDraftLoaded(false);
     setFormError(null);
   };
 
-  const handleUploadImageFile = async (file: File) => {
+  const handleUploadImageFile = async (file: File): Promise<string> => {
     setIsUploadingImage(true);
     setUploadError(null);
     try {
@@ -417,50 +362,20 @@ export function TicketWorklogs({
         : `evidencia_${new Date().toISOString().replace(/[:.]/g, '-')}.png`;
       formData.append('file', file, cleanFileName);
 
-      const res = await api.post<{ id: string; url: string; originalName: string }>(
+      const res = await api.post<{ id: string; fileUrl: string; originalName: string }>(
         `/tickets/${ticketId}/attachments`,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } },
       );
 
-      const attachmentUrl = res.data.url;
-      const attachmentName = res.data.originalName || cleanFileName;
-      const newImage = { id: res.data.id, url: attachmentUrl, name: attachmentName };
-
-      setAttachedImages((prev) => [...prev, newImage]);
-
-      // Append clean Markdown image tag
-      const markdown = `\n![${attachmentName}](${attachmentUrl})\n`;
-      setDescription((prev) => (prev ? `${prev.trimEnd()}\n${markdown}` : markdown.trimStart()));
-
       queryClient.invalidateQueries({ queryKey: ['attachments', ticketId] });
+      return res.data.fileUrl;
     } catch {
       setUploadError('Falha ao processar e anexar imagem colada. Tente novamente.');
+      throw new Error('image-upload-failed');
     } finally {
       setIsUploadingImage(false);
     }
-  };
-
-  const handlePasteDescription = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-
-    const imageItem = Array.from(items).find((item) => item.type.startsWith('image/'));
-    if (imageItem) {
-      const file = imageItem.getAsFile();
-      if (file) {
-        e.preventDefault();
-        await handleUploadImageFile(file);
-      }
-    }
-  };
-
-  const handleRemoveAttachedImage = (imageUrl: string) => {
-    setAttachedImages((prev) => prev.filter((img) => img.url !== imageUrl));
-    setDescription((prev) => {
-      const escaped = imageUrl.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-      return prev.replace(new RegExp(`!?\\[[^\\]]*\\]\\(${escaped}\\)`, 'g'), '').trim();
-    });
   };
 
   const computedMinutes = Math.round(
@@ -484,7 +399,7 @@ export function TicketWorklogs({
   const executeSubmit = async (mode: 'NORMAL' | 'CLOSE_TICKET' | 'SAVE_AND_NEW' = 'NORMAL') => {
     setFormError(null);
 
-    if (!description.trim()) {
+    if (isBlankRichText(description)) {
       setFormError('Por favor, descreva as atividades executadas.');
       return;
     }
@@ -515,7 +430,7 @@ export function TicketWorklogs({
         startTime: toISO(day, startTimeOfDay),
         endTime: toISO(day, endTimeOfDay),
         attendanceType,
-        description: description.trim(),
+        description: description.trim() || description,
         billable,
         valuationType,
         ...(valuationType === 'MANUAL' ? { value: parsedManualValue } : {}),
@@ -529,7 +444,6 @@ export function TicketWorklogs({
       } catch {
         // ignore
       }
-      setAttachedImages([]);
       setHasDraftLoaded(false);
 
       if (mode === 'SAVE_AND_NEW') {
@@ -740,7 +654,8 @@ export function TicketWorklogs({
               </div>
             </div>
           }
-          maxWidth="4xl"
+          maxWidth="5xl"
+          className="sm:max-h-[92vh]"
         >
           <form onSubmit={handleSubmit} className="space-y-4 pt-1" data-testid="worklog-form">
             {hasDraftLoaded && (
@@ -990,33 +905,26 @@ export function TicketWorklogs({
                   Descrição <span className="text-red-500">*</span>
                 </label>
                 <span className="text-[11px] text-gray-400">
-                  Dica: você pode colar imagens diretamente com <kbd className="px-1 py-0.5 bg-gray-100 border border-gray-200 rounded text-[10px] font-mono text-gray-600">Ctrl+V</kbd>
+                  Cole imagens com <kbd className="px-1 py-0.5 bg-gray-100 border border-gray-200 rounded text-[10px] font-mono text-gray-600">Ctrl+V</kbd> — elas entram no documento com o mesmo visual que o cliente vê
                 </span>
               </div>
-              <textarea
-                data-testid="worklog-description-input"
-                rows={5}
-                maxLength={5000}
+              <EzRichText
+                testId="worklog-description-input"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                onPaste={handlePasteDescription}
+                onChange={setDescription}
+                onUploadImage={handleUploadImageFile}
                 spellCheck={true}
                 lang="pt-BR"
-                autoCorrect="on"
-                autoCapitalize="sentences"
-                placeholder="Ex: Análise da procedure no Sankhya, teste de validação e correção do bug... (cole capturas de tela diretamente aqui para anexá-las com elegância)"
-                className="w-full px-3.5 py-2.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white leading-relaxed resize-y"
-                required
+                minHeightClass="min-h-[240px]"
               />
               <div className="flex items-center justify-between text-[11px] text-gray-400">
                 <span className="text-gray-500 flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
                   Corretor ortográfico ativo (pt-BR)
                 </span>
-                <span>{description.length}/5000</span>
+                <span>Use o ícone de olho para pré-visualizar o documento do cliente</span>
               </div>
 
-              {/* Uploading Image Indicator */}
               {isUploadingImage && (
                 <div
                   data-testid="worklog-uploading-indicator"
@@ -1027,64 +935,10 @@ export function TicketWorklogs({
                 </div>
               )}
 
-              {/* Upload Error */}
               {uploadError && (
                 <EzAlert variant="error" className="py-1.5 text-[12px]">
                   {uploadError}
                 </EzAlert>
-              )}
-
-              {/* Attached Images Preview Gallery */}
-              {attachedImages.length > 0 && (
-                <div className="pt-1.5 space-y-1.5" data-testid="worklog-attached-images-container">
-                  <span className="text-[11px] font-semibold text-gray-600 flex items-center gap-1.5">
-                    <ImageIcon className="w-3.5 h-3.5 text-brand-600" />
-                    Evidências anexadas ({attachedImages.length}):
-                  </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                    {attachedImages.map((img) => (
-                      <div
-                        key={img.url}
-                        className="flex items-center gap-2 p-2 bg-gray-50 border border-gray-200 rounded-[6px] text-[12px] shadow-2xs group hover:bg-white transition-all"
-                      >
-                        <a
-                          href={img.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="shrink-0 overflow-hidden rounded border border-gray-200 w-10 h-10 bg-white flex items-center justify-center"
-                        >
-                          <img
-                            src={img.url}
-                            alt={img.name}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                          />
-                        </a>
-                        <div className="min-w-0 flex-1">
-                          <span className="block truncate font-medium text-gray-700 text-[11px]" title={img.name}>
-                            {img.name}
-                          </span>
-                          <a
-                            href={img.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-0.5 text-[10px] text-brand-600 hover:text-brand-800 hover:underline font-medium"
-                          >
-                            Abrir <ExternalLink className="w-2.5 h-2.5" />
-                          </a>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveAttachedImage(img.url)}
-                          className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer shrink-0"
-                          title="Remover anexo"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               )}
             </div>
 

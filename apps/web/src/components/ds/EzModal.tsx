@@ -10,7 +10,7 @@ export interface EzModalProps extends Omit<HTMLAttributes<HTMLDivElement>, 'titl
   footer?: ReactNode;
   /** Prevent closing when clicking outside */
   preventOutsideClose?: boolean;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | 'full';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | 'full';
 }
 
 /**
@@ -55,6 +55,7 @@ export const EzModal = forwardRef<HTMLDivElement, EzModalProps>(
       '2xl': 'max-w-2xl',
       '3xl': 'max-w-3xl',
       '4xl': 'max-w-4xl',
+      '5xl': 'max-w-5xl',
       'full': 'max-w-[calc(100%-2rem)]',
     }[maxWidth];
 

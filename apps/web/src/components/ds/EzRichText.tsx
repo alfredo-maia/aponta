@@ -1,5 +1,6 @@
-import { forwardRef, useEffect, useState } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
+import type { EditorView } from '@tiptap/pm/view';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
@@ -52,6 +53,56 @@ export interface EzRichTextProps {
    * plain contenteditable div, not a native <textarea>/<input>).
    */
   testId?: string;
+  /**
+   * Uploads a pasted/dropped image and returns a durable URL.
+   * When provided, clipboard images are uploaded instead of being
+   * inlined as base64 — required for client-facing documentation.
+   */
+  onUploadImage?: (file: File) => Promise<string>;
+  /**
+   * Native browser spellcheck on the contenteditable surface.
+   */
+  spellCheck?: boolean;
+  /**
+   * BCP 47 language tag used by the native spellchecker.
+   */
+  lang?: string;
+  /**
+   * Extra class for the editor min-height.
+   */
+  minHeightClass?: string;
+}
+
+function normalizeEditorHtml(html: string | undefined): string {
+  const value = (html || '').trim();
+  if (!value || value === '<p></p>') return '';
+  return value;
+}
+
+export function collectImageFiles(data: DataTransfer | null): File[] {
+  if (!data) return [];
+  const files: File[] = [];
+  if (data.files?.length) {
+    for (const file of Array.from(data.files)) {
+      if (file.type.startsWith('image/')) files.push(file);
+    }
+  }
+  if (files.length === 0 && data.items) {
+    for (const item of Array.from(data.items)) {
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) files.push(file);
+      }
+    }
+  }
+  return files;
+}
+
+function insertImageAtCursor(view: EditorView, url: string, alt: string) {
+  const image = view.state.schema.nodes.image;
+  if (!image) return;
+  const node = image.create({ src: url, alt });
+  view.dispatch(view.state.tr.replaceSelectionWith(node).scrollIntoView());
 }
 
 /**
@@ -59,8 +110,26 @@ export interface EzRichTextProps {
  * Features: Bold, Italic, Underline, Bullet List, Numbered List, Link, Image, and Preview Mode.
  */
 export const EzRichText = forwardRef<HTMLDivElement, EzRichTextProps>(
-  ({ label, message, hasError = false, value = '', onChange, disabled = false, className, testId }, ref) => {
+  (
+    {
+      label,
+      message,
+      hasError = false,
+      value = '',
+      onChange,
+      disabled = false,
+      className,
+      testId,
+      onUploadImage,
+      spellCheck = true,
+      lang = 'pt-BR',
+      minHeightClass = 'min-h-[120px]',
+    },
+    ref,
+  ) => {
     const [isPreview, setIsPreview] = useState(false);
+    const onUploadImageRef = useRef(onUploadImage);
+    onUploadImageRef.current = onUploadImage;
 
     const editor = useEditor({
       extensions: [
@@ -74,7 +143,7 @@ export const EzRichText = forwardRef<HTMLDivElement, EzRichTextProps>(
         }),
         Image.configure({
           HTMLAttributes: {
-            class: 'max-w-full h-auto rounded-md my-2',
+            class: 'max-w-full h-auto rounded-lg border border-gray-200 my-3 shadow-sm',
           },
         }),
       ],
@@ -85,8 +154,50 @@ export const EzRichText = forwardRef<HTMLDivElement, EzRichTextProps>(
       },
       editorProps: {
         attributes: {
-          class:
-            'prose prose-sm max-w-none focus:outline-none min-h-[120px] p-4 text-gray-900',
+          class: cn(
+            'prose prose-sm max-w-none focus:outline-none p-4 text-gray-900',
+            minHeightClass,
+          ),
+          spellcheck: spellCheck ? 'true' : 'false',
+          lang,
+          autocorrect: 'on',
+          autocapitalize: 'sentences',
+        },
+        handlePaste(_view, event) {
+          const upload = onUploadImageRef.current;
+          if (!upload) return false;
+          const files = collectImageFiles(event.clipboardData ?? null);
+          if (files.length === 0) return false;
+          event.preventDefault();
+          void (async () => {
+            for (const file of files) {
+              try {
+                const url = await upload(file);
+                insertImageAtCursor(_view, url, file.name || 'Evidência anexada');
+              } catch {
+                // Consumer is responsible for surfacing upload errors.
+              }
+            }
+          })();
+          return true;
+        },
+        handleDrop(_view, event) {
+          const upload = onUploadImageRef.current;
+          if (!upload) return false;
+          const files = collectImageFiles(event.dataTransfer ?? null);
+          if (files.length === 0) return false;
+          event.preventDefault();
+          void (async () => {
+            for (const file of files) {
+              try {
+                const url = await upload(file);
+                insertImageAtCursor(_view, url, file.name || 'Evidência anexada');
+              } catch {
+                // Consumer is responsible for surfacing upload errors.
+              }
+            }
+          })();
+          return true;
         },
       },
     });
@@ -96,6 +207,14 @@ export const EzRichText = forwardRef<HTMLDivElement, EzRichTextProps>(
         editor.setEditable(!disabled && !isPreview);
       }
     }, [disabled, isPreview, editor]);
+
+    useEffect(() => {
+      if (!editor) return;
+      const current = normalizeEditorHtml(editor.getHTML());
+      const next = normalizeEditorHtml(value);
+      if (current === next) return;
+      editor.commands.setContent(value || '', { emitUpdate: false });
+    }, [value, editor]);
 
     // Toolbar button component
     const ToolbarButton = ({
