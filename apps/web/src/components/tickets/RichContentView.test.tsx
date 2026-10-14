@@ -53,6 +53,8 @@ describe('RichContentView', () => {
     expect(screen.getByText('Segue evidência:')).toBeInTheDocument();
     const image = screen.getByAltText('Tela do erro');
     expect(image.closest('a')).toHaveAttribute('href', '/uploads/shot.png');
+    expect(image).toHaveClass('max-w-full');
+    expect(image).not.toHaveClass('max-h-80');
     expect(screen.queryByText(/<img/i)).not.toBeInTheDocument();
   });
 

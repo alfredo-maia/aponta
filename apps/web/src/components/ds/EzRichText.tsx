@@ -371,7 +371,7 @@ export const EzRichText = forwardRef<HTMLDivElement, EzRichTextProps>(
               <div
                 data-testid="rich-text-preview"
                 className={cn(
-                  'prose prose-sm max-w-none p-4 text-gray-900 [&_img]:mx-auto [&_img]:block [&_img]:max-h-80 [&_img]:rounded-lg [&_p]:min-h-[1.5em]',
+                  'prose prose-sm max-w-none p-4 text-gray-900 [&_img]:mx-auto [&_img]:block [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-lg [&_p]:min-h-[1.5em]',
                   minHeightClass,
                 )}
               >

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
+import { preparePastedImage } from '../../lib/preparePastedImage';
 import { useAuthStore } from '../../stores/authStore';
 import { useWorklogs, useCreateWorklog, useDeleteWorklog, Worklog, AttendanceType, ValuationType } from '../../hooks/useWorklogs';
 import type { TicketStatus } from '../../hooks/useTickets';
@@ -377,8 +378,9 @@ export function TicketWorklogs({
         ? file.name
         : `evidencia_${new Date().toISOString().replace(/[:.]/g, '-')}.png`;
       const mimeType = file.type && file.type.startsWith('image/') ? file.type : 'image/png';
-      const uploadFile = file.type === mimeType ? file : new File([file], cleanFileName, { type: mimeType });
-      formData.append('file', uploadFile, cleanFileName);
+      const typedFile = file.type === mimeType ? file : new File([file], cleanFileName, { type: mimeType });
+      const uploadFile = await preparePastedImage(typedFile);
+      formData.append('file', uploadFile, uploadFile.name || cleanFileName);
 
       const res = await api.post<{ id: string; fileUrl: string; originalName: string }>(
         `/tickets/${ticketId}/attachments`,

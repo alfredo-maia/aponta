@@ -53,7 +53,7 @@ function InlineImage({ src, alt }: { src: string; alt: string }) {
       <img
         src={src}
         alt={alt || 'Evidência'}
-        className="block mx-auto max-h-80 w-auto max-w-full rounded-lg object-contain"
+        className="block mx-auto w-auto max-w-full h-auto rounded-lg object-contain"
         loading="lazy"
       />
     </a>
