@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   addMinutesToTime,
+  brasiliaDatePtBr,
   brasiliaDateString,
   brasiliaTimeString,
   prefillFromTimer,
@@ -12,6 +13,7 @@ describe('brasiliaTime', () => {
   it('formats a UTC instant as Brasília date and time', () => {
     const utcEvening = new Date('2026-10-14T22:15:00.000Z');
     expect(brasiliaDateString(utcEvening)).toBe('2026-10-14');
+    expect(brasiliaDatePtBr(utcEvening)).toBe('14/10/2026');
     expect(brasiliaTimeString(utcEvening)).toBe('19:15');
   });
 

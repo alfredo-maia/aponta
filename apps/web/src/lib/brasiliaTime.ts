@@ -17,6 +17,15 @@ export function brasiliaDateString(date: Date = new Date()): string {
   return `${year}-${month}-${day}`;
 }
 
+export function brasiliaDatePtBr(date: Date = new Date()): string {
+  return new Intl.DateTimeFormat('pt-BR', {
+    timeZone: BRASILIA_TZ,
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(date);
+}
+
 export function brasiliaTimeString(date: Date = new Date()): string {
   const parts = new Intl.DateTimeFormat('en-GB', {
     timeZone: BRASILIA_TZ,

@@ -20,7 +20,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import {
   addMinutesToTime,
+  brasiliaDatePtBr,
   brasiliaDateString,
+  brasiliaTimeString,
   prefillFromTimer,
   storedIsoToWallClock,
   wallClockToStoredIso,
@@ -139,29 +141,40 @@ export function TicketWorklogs({
   const createMutation = useCreateWorklog(ticketId);
   const deleteMutation = useDeleteWorklog(ticketId);
 
-  // Activity Timer state (persisted in localStorage per ticket)
+  // Activity Timer / pré-apontamento (persisted in localStorage per ticket)
   const timerStorageKey = `aponta_activity_timer_${ticketId}`;
-  const [timerActive, setTimerActive] = useState<boolean>(() => {
-    try {
-      return !!localStorage.getItem(timerStorageKey);
-    } catch {
-      return false;
-    }
-  });
-  const [timerPaused, setTimerPaused] = useState<boolean>(false);
-  const [timerSeconds, setTimerSeconds] = useState<number>(0);
-  const [timerStartISO, setTimerStartISO] = useState<string | null>(() => {
+  const readTimerStore = () => {
     try {
       const raw = localStorage.getItem(timerStorageKey);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        return parsed.startISO || null;
+      if (!raw) return null;
+      return JSON.parse(raw) as { startISO?: string; endISO?: string; paused?: boolean };
+    } catch {
+      return null;
+    }
+  };
+  const [timerStartISO, setTimerStartISO] = useState<string | null>(() => readTimerStore()?.startISO || null);
+  const [timerEndISO, setTimerEndISO] = useState<string | null>(() => readTimerStore()?.endISO || null);
+  const [timerPaused, setTimerPaused] = useState<boolean>(() => Boolean(readTimerStore()?.paused));
+  const [timerActive, setTimerActive] = useState<boolean>(() => {
+    const stored = readTimerStore();
+    return Boolean(stored?.startISO && !stored?.endISO);
+  });
+  const [timerSeconds, setTimerSeconds] = useState<number>(0);
+
+  const persistTimer = (next: { startISO?: string | null; endISO?: string | null; paused?: boolean }) => {
+    try {
+      if (!next.startISO) {
+        localStorage.removeItem(timerStorageKey);
+        return;
       }
+      localStorage.setItem(
+        timerStorageKey,
+        JSON.stringify({ startISO: next.startISO, endISO: next.endISO || undefined, paused: next.paused }),
+      );
     } catch {
       // ignore
     }
-    return null;
-  });
+  };
 
   useEffect(() => {
     if (!timerActive || timerPaused || !timerStartISO) return;
@@ -178,44 +191,49 @@ export function TicketWorklogs({
   }, [timerActive, timerPaused, timerStartISO]);
 
   const handleStartTimer = () => {
-    const now = new Date();
-    const iso = now.toISOString();
+    const iso = new Date().toISOString();
     setTimerStartISO(iso);
+    setTimerEndISO(null);
     setTimerActive(true);
     setTimerPaused(false);
     setTimerSeconds(0);
-    try {
-      localStorage.setItem(timerStorageKey, JSON.stringify({ startISO: iso }));
-    } catch {
-      // ignore
-    }
+    persistTimer({ startISO: iso, endISO: null, paused: false });
   };
 
   const handlePauseTimer = () => {
     setTimerPaused(true);
+    persistTimer({ startISO: timerStartISO, endISO: timerEndISO, paused: true });
   };
 
   const handleResumeTimer = () => {
     setTimerPaused(false);
+    persistTimer({ startISO: timerStartISO, endISO: null, paused: false });
   };
 
   const handleStopTimer = () => {
     const now = new Date();
     const start = timerStartISO ? new Date(timerStartISO) : new Date(now.getTime() - timerSeconds * 1000);
-    const prefill = prefillFromTimer(start, now, timerSeconds);
+    const startISO = start.toISOString();
+    const endISO = now.toISOString();
+    setTimerStartISO(startISO);
+    setTimerEndISO(endISO);
+    setTimerActive(false);
+    setTimerPaused(false);
+    persistTimer({ startISO, endISO, paused: false });
+  };
 
+  const applyPreToForm = () => {
+    if (!timerStartISO) return;
+    const start = new Date(timerStartISO);
+    const end = timerEndISO ? new Date(timerEndISO) : new Date();
+    const prefill = prefillFromTimer(start, end, timerSeconds);
     setDay(prefill.day);
     setStartTimeOfDay(prefill.startTime);
     setEndTimeOfDay(prefill.endTime);
-    setTimerActive(false);
-    setTimerPaused(false);
-    setTimerSeconds(0);
-    setTimerStartISO(null);
-    try {
-      localStorage.removeItem(timerStorageKey);
-    } catch {
-      // ignore
-    }
+  };
+
+  const handleOpenFromPre = () => {
+    applyPreToForm();
     setIsModalOpen(true);
   };
 
@@ -224,11 +242,8 @@ export function TicketWorklogs({
     setTimerPaused(false);
     setTimerSeconds(0);
     setTimerStartISO(null);
-    try {
-      localStorage.removeItem(timerStorageKey);
-    } catch {
-      // ignore
-    }
+    setTimerEndISO(null);
+    persistTimer({ startISO: null });
   };
 
   // Agent list for Admin author reassignment
@@ -495,6 +510,7 @@ export function TicketWorklogs({
         // ignore
       }
       setHasDraftLoaded(false);
+      handleCancelTimer();
 
       if (mode === 'SAVE_AND_NEW') {
         const nextStart = endTimeOfDay;
@@ -637,10 +653,10 @@ export function TicketWorklogs({
                     data-testid="worklog-timer-stop-btn"
                     onClick={handleStopTimer}
                     className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-300 rounded cursor-pointer"
-                    title="Parar cronômetro e abrir formulário de apontamento"
+                    title="Parar cronômetro e registrar o fim do pré-apontamento"
                   >
                     <Square className="w-3 h-3 fill-current" />
-                    Apontar
+                    Parar
                   </button>
                   <button
                     type="button"
@@ -682,7 +698,10 @@ export function TicketWorklogs({
               size="small"
               leftIcon={Plus}
               label="Apontamento"
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => {
+                if (timerStartISO) applyPreToForm();
+                setIsModalOpen(true);
+              }}
             />
           </div>
         </div>
@@ -1007,6 +1026,95 @@ export function TicketWorklogs({
             </div>
           </form>
         </EzModal>
+
+        {timerStartISO && (
+          <div className="space-y-2" data-testid="worklog-pre-appointments">
+            <span className="text-[13px] font-medium text-gray-700">Pré-apontamentos</span>
+            <div className="overflow-x-auto border border-gray-200 rounded-[8px]">
+              <table className="w-full text-left border-collapse text-[13px]">
+                <thead>
+                  <tr className="bg-gray-50/80 border-b border-gray-200 text-gray-500 text-[12px] font-medium">
+                    <th className="py-2.5 px-3">Atendente</th>
+                    <th className="py-2.5 px-3">Data do pré-apontamento</th>
+                    <th className="py-2.5 px-3">Início</th>
+                    <th className="py-2.5 px-3">Fim</th>
+                    <th className="py-2.5 px-3 text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white">
+                  <tr data-testid="worklog-pre-appointment-row">
+                    <td className="py-3 px-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                          <User className="w-3.5 h-3.5" />
+                        </div>
+                        <span data-testid="worklog-pre-attendant" className="font-medium text-gray-900">
+                          {user?.email?.split('@')[0] || 'Técnico'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-3 text-gray-700" data-testid="worklog-pre-date">
+                      {brasiliaDatePtBr(new Date(timerStartISO))}
+                    </td>
+                    <td className="py-3 px-3 font-mono text-gray-800" data-testid="worklog-pre-start">
+                      {brasiliaTimeString(new Date(timerStartISO))}
+                    </td>
+                    <td className="py-3 px-3 font-mono text-gray-800" data-testid="worklog-pre-end">
+                      {timerEndISO ? brasiliaTimeString(new Date(timerEndISO)) : '--'}
+                    </td>
+                    <td className="py-3 px-3 text-right">
+                      <div className="inline-flex items-center gap-1">
+                        {timerActive && (
+                          timerPaused ? (
+                            <button
+                              type="button"
+                              data-testid="worklog-pre-resume-btn"
+                              onClick={handleResumeTimer}
+                              className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded cursor-pointer"
+                              title="Retomar"
+                            >
+                              <Play className="w-3.5 h-3.5 fill-current" />
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              data-testid="worklog-pre-pause-btn"
+                              onClick={handlePauseTimer}
+                              className="p-1.5 text-amber-600 hover:bg-amber-50 rounded cursor-pointer"
+                              title="Pausar"
+                            >
+                              <Pause className="w-3.5 h-3.5 fill-current" />
+                            </button>
+                          )
+                        )}
+                        {timerEndISO && (
+                          <button
+                            type="button"
+                            data-testid="worklog-pre-convert-btn"
+                            onClick={handleOpenFromPre}
+                            className="p-1.5 text-brand-700 hover:bg-brand-50 rounded cursor-pointer"
+                            title="Abrir apontamento com estes horários"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          data-testid="worklog-pre-delete-btn"
+                          onClick={handleCancelTimer}
+                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded cursor-pointer"
+                          title="Remover pré-apontamento"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* Worklogs Table / List Header Controls */}
         <div className="flex items-center justify-between pt-1 gap-2">

@@ -532,14 +532,19 @@ describe('TicketWorklogs', () => {
     await user.click(screen.getByTestId('worklog-timer-pause-btn'));
     expect(screen.getByTestId('worklog-timer-resume-btn')).toBeInTheDocument();
 
+    // Start creates the TiFlux-style pré-apontamento row
+    expect(screen.getByTestId('worklog-pre-appointments')).toBeInTheDocument();
+    expect(screen.getByTestId('worklog-pre-end')).toHaveTextContent('--');
+
     // Stop timer and log work
     await user.click(screen.getByTestId('worklog-timer-stop-btn'));
 
-    // Modal should now be open
-    expect(screen.getByTestId('worklog-form')).toBeInTheDocument();
+    // Modal stays closed; the pré-apontamento now has an end time
+    expect(screen.queryByTestId('worklog-form')).not.toBeInTheDocument();
+    expect(screen.getByTestId('worklog-pre-end')).not.toHaveTextContent('--');
   });
 
-  it('pre-fills a Brasília pre-apontamento when the activity timer stops', async () => {
+  it('lists a Brasília pré-apontamento while the timer runs and converts it into the form', async () => {
     loginAs('AGENT', 'u-1');
     vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
     vi.useFakeTimers();
@@ -548,9 +553,21 @@ describe('TicketWorklogs', () => {
     try {
       renderComponent('t-1', false);
       fireEvent.click(screen.getByTestId('worklog-timer-start-btn'));
+
+      expect(screen.getByTestId('worklog-pre-appointments')).toBeInTheDocument();
+      expect(screen.getByTestId('worklog-pre-attendant')).toHaveTextContent('user');
+      expect(screen.getByTestId('worklog-pre-date')).toHaveTextContent('14/10/2026');
+      expect(screen.getByTestId('worklog-pre-start')).toHaveTextContent('19:15');
+      expect(screen.getByTestId('worklog-pre-end')).toHaveTextContent('--');
+      expect(screen.queryByTestId('worklog-form')).not.toBeInTheDocument();
+
       vi.setSystemTime(new Date('2026-10-14T22:45:00.000Z'));
       fireEvent.click(screen.getByTestId('worklog-timer-stop-btn'));
 
+      expect(screen.getByTestId('worklog-pre-end')).toHaveTextContent('19:45');
+      expect(screen.queryByTestId('worklog-form')).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId('worklog-pre-convert-btn'));
       expect(screen.getByTestId('worklog-form')).toBeInTheDocument();
       expect(screen.getByTestId('worklog-day-input')).toHaveValue('2026-10-14');
       expect(screen.getByTestId('worklog-start-time-input')).toHaveValue('19:15');
