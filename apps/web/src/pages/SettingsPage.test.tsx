@@ -26,7 +26,7 @@ describe('SettingsPage', () => {
     ).toHaveAttribute('href', '/my-account');
   });
 
-  it('should render a link to Departamentos only for ADMIN', () => {
+  it('should render a link to Mesa only for ADMIN', () => {
     useAuthStore.setState({
       token: 'fake-token',
       user: { sub: 'u-1', email: 'admin@aponta.com', role: 'ADMIN' },
@@ -39,11 +39,11 @@ describe('SettingsPage', () => {
     );
 
     expect(
-      screen.getByRole('link', { name: /departamentos/i }),
+      screen.getByRole('link', { name: /^mesa$/i }),
     ).toHaveAttribute('href', '/service-desks');
   });
 
-  it('should not render the Departamentos link for a non-ADMIN user', () => {
+  it('should not render the Mesa link for a non-ADMIN user', () => {
     useAuthStore.setState({
       token: 'fake-token',
       user: { sub: 'u-1', email: 'client@aponta.com', role: 'CLIENT' },
@@ -56,7 +56,7 @@ describe('SettingsPage', () => {
     );
 
     expect(
-      screen.queryByRole('link', { name: /departamentos/i }),
+      screen.queryByRole('link', { name: /^mesa$/i }),
     ).not.toBeInTheDocument();
   });
 });

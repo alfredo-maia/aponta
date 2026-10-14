@@ -184,7 +184,7 @@ export function TicketsPage() {
       },
       {
         accessorKey: 'serviceDeskId',
-        header: 'Mesa / Fila',
+        header: 'Mesa',
         cell: ({ row }) => (
           <span className="text-gray-700 text-[12px] font-mono">
             {row.original.serviceDeskId}

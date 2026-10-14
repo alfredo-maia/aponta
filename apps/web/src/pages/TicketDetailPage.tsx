@@ -9,8 +9,15 @@ import { TicketCsat } from '../components/tickets/TicketCsat';
 import { formatTimerSeconds, TicketWorklogs } from '../components/tickets/TicketWorklogs';
 import { useActivityTimer } from '../hooks/useActivityTimer';
 import { useTicket } from '../hooks/useTicket';
+import { Ticket } from '../hooks/useTickets';
 import { useAuthStore } from '../stores/authStore';
 import { EzSpinner, EzAlert, EzTabs, EzTabItem } from '../components/ds';
+
+function isTicketSectionEnabled(ticket: Ticket, key: string): boolean {
+  const sections = ticket.serviceDesk?.ticketSections;
+  if (!sections || sections.length === 0) return true;
+  return sections.some((section) => section.key === key && section.enabled);
+}
 
 export function TicketDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -43,24 +50,26 @@ export function TicketDetailPage() {
   }
 
   const isClient = user?.role === 'CLIENT';
+  const sectionOn = (key: string) => isTicketSectionEnabled(ticket, key);
 
-  const tabs: EzTabItem[] = isClient
+  const tabs: EzTabItem[] = (isClient
     ? [
-        { id: 'geral', label: 'Informações gerais' },
-        { id: 'comunicacao', label: 'Comunicação' },
+        { id: 'geral', label: 'Informações gerais', section: 'GENERAL_INFO' },
+        { id: 'comunicacao', label: 'Comunicação', section: 'COMMUNICATION' },
       ]
     : [
-        { id: 'geral', label: 'Informações gerais' },
-        { id: 'categoria', label: 'Categoria' },
-        { id: 'tipo_atendimento', label: 'Tipo de Atendimento' },
-        { id: 'apontamentos', label: 'Apontamentos' },
-        { id: 'comunicacao', label: 'Comunicação' },
-        { id: 'compromissos', label: 'Compromissos' },
-        { id: 'valorizacao', label: 'Valorização' },
-        { id: 'assinatura', label: 'Assinatura eletrônica' },
-        { id: 'github', label: 'GitHub' },
-        { id: 'historico', label: 'Histórico' },
-      ];
+        { id: 'geral', label: 'Informações gerais', section: 'GENERAL_INFO' },
+        { id: 'categoria', label: 'Categoria', section: 'CATEGORY' },
+        { id: 'tipo_atendimento', label: 'Tipo de Atendimento', section: 'SERVICE_TYPE' },
+        { id: 'apontamentos', label: 'Apontamentos', section: 'WORKLOGS' },
+        { id: 'comunicacao', label: 'Comunicação', section: 'COMMUNICATION' },
+        { id: 'compromissos', label: 'Compromissos', section: 'APPOINTMENTS' },
+        { id: 'valorizacao', label: 'Valorização', section: 'VALUATION' },
+        { id: 'assinatura', label: 'Assinatura eletrônica', section: 'E_SIGNATURE' },
+        { id: 'github', label: 'GitHub', section: 'GITHUB' },
+        { id: 'historico', label: 'Histórico', section: 'HISTORY' },
+      ]
+  ).filter((tab) => sectionOn(tab.section));
 
   return (
     <div className="space-y-4">
@@ -133,12 +142,14 @@ export function TicketDetailPage() {
           {/* Tab: Informações gerais */}
           <div className={activeTab === 'geral' ? 'space-y-6' : 'hidden'} data-testid="tab-panel-geral">
             <TicketDetail ticket={ticket} />
-            <TicketCsat ticket={ticket} />
+            {ticket.serviceDesk?.evaluationEnabled !== false && (
+              <TicketCsat ticket={ticket} />
+            )}
             <TicketAttachments ticketId={ticket.id} />
           </div>
 
           {/* Tab: Categoria */}
-          {!isClient && (
+          {!isClient && sectionOn('CATEGORY') && (
             <div className={activeTab === 'categoria' ? 'space-y-4' : 'hidden'} data-testid="tab-panel-categoria">
               <h3 className="text-[16px] font-semibold text-gray-900 border-b border-gray-100 pb-3">Categoria</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
@@ -161,7 +172,7 @@ export function TicketDetailPage() {
           )}
 
           {/* Tab: Tipo de Atendimento */}
-          {!isClient && (
+          {!isClient && sectionOn('SERVICE_TYPE') && (
             <div className={activeTab === 'tipo_atendimento' ? 'space-y-4' : 'hidden'} data-testid="tab-panel-tipo-atendimento">
               <h3 className="text-[16px] font-semibold text-gray-900 border-b border-gray-100 pb-3">Tipo de Atendimento</h3>
               <div className="p-4 rounded-[8px] bg-gray-50 border border-gray-200">
@@ -172,7 +183,7 @@ export function TicketDetailPage() {
           )}
 
           {/* Tab: Apontamentos (Worklog) */}
-          {!isClient && (
+          {!isClient && sectionOn('WORKLOGS') && (
             <div className={activeTab === 'apontamentos' ? 'block' : 'hidden'} data-testid="tab-panel-apontamentos">
               <TicketWorklogs
                 ticketId={ticket.id}
@@ -184,6 +195,7 @@ export function TicketDetailPage() {
           )}
 
           {/* Tab: Comunicação */}
+          {sectionOn('COMMUNICATION') && (
           <div className={activeTab === 'comunicacao' ? 'space-y-6' : 'hidden'} data-testid="tab-panel-comunicacao">
             <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
               <span className="px-3 py-1 text-[13px] font-medium bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200">
@@ -205,9 +217,10 @@ export function TicketDetailPage() {
               <TicketComments ticketId={ticket.id} />
             </div>
           </div>
+          )}
 
           {/* Tab: Compromissos */}
-          {!isClient && (
+          {!isClient && sectionOn('APPOINTMENTS') && (
             <div className={activeTab === 'compromissos' ? 'space-y-4' : 'hidden'} data-testid="tab-panel-compromissos">
               <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                 <h3 className="text-[16px] font-semibold text-gray-900">Compromissos</h3>
@@ -222,7 +235,7 @@ export function TicketDetailPage() {
           )}
 
           {/* Tab: Valorização */}
-          {!isClient && (
+          {!isClient && sectionOn('VALUATION') && (
             <div className={activeTab === 'valorizacao' ? 'space-y-6' : 'hidden'} data-testid="tab-panel-valorizacao">
               <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                 <h3 className="text-[16px] font-semibold text-gray-900">Valorização</h3>
@@ -240,7 +253,7 @@ export function TicketDetailPage() {
           )}
 
           {/* Tab: Assinatura eletrônica */}
-          {!isClient && (
+          {!isClient && sectionOn('E_SIGNATURE') && (
             <div className={activeTab === 'assinatura' ? 'space-y-4' : 'hidden'} data-testid="tab-panel-assinatura">
               <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                 <h3 className="text-[16px] font-semibold text-gray-900">Assinatura eletrônica</h3>
@@ -255,7 +268,7 @@ export function TicketDetailPage() {
           )}
 
           {/* Tab: GitHub */}
-          {!isClient && (
+          {!isClient && sectionOn('GITHUB') && (
             <div className={activeTab === 'github' ? 'space-y-4' : 'hidden'} data-testid="tab-panel-github">
               <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                 <h3 className="text-[16px] font-semibold text-gray-900">Integrações GitHub</h3>
@@ -275,7 +288,7 @@ export function TicketDetailPage() {
           )}
 
           {/* Tab: Histórico */}
-          {!isClient && (
+          {!isClient && sectionOn('HISTORY') && (
             <div className={activeTab === 'historico' ? 'space-y-4' : 'hidden'} data-testid="tab-panel-historico">
               <div className="text-[16px] font-semibold text-gray-900 border-b border-gray-100 pb-3">Histórico de Alterações</div>
               <p className="text-[13px] text-gray-500">Consulte a aba "Informações gerais" para a trilha completa de auditoria do chamado.</p>

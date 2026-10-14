@@ -258,9 +258,10 @@ describe('ServiceDesksController', () => {
     it('findAll delegates to the service', async () => {
       mockServiceDesksService.findAll.mockResolvedValue([]);
 
-      const result = await controller.findAll();
+      const user = { id: 'admin-1', role: Role.ADMIN };
+      const result = await controller.findAll(user);
 
-      expect(mockServiceDesksService.findAll).toHaveBeenCalled();
+      expect(mockServiceDesksService.findAll).toHaveBeenCalledWith(user);
       expect(result).toEqual([]);
     });
 

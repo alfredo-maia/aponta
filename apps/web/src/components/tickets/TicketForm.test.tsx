@@ -50,7 +50,7 @@ function mockApiGet(overrides: Record<string, unknown> = {}) {
 
 async function fillRequiredFields(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText(/título \(assunto\)/i), 'Algo quebrou');
-  await user.selectOptions(screen.getByLabelText(/mesa de serviço/i), 'sd-1');
+  await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
   const editable = screen
     .getByTestId('ticket-description')
     .querySelector('[contenteditable="true"]') as HTMLElement;
@@ -71,7 +71,7 @@ describe('TicketForm', () => {
 
     expect(screen.getByLabelText(/título \(assunto\)/i)).toBeInTheDocument();
     expect(screen.getByText(/descrição detalhada/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/mesa de serviço/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^mesa/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/prioridade/i)).toBeInTheDocument();
   });
 
@@ -124,7 +124,7 @@ describe('TicketForm', () => {
     await waitFor(() => expect(api.get).toHaveBeenCalledWith('/service-desks'));
 
     expect(screen.getByLabelText(/título \(assunto\)/i)).toBeDisabled();
-    expect(screen.getByLabelText(/mesa de serviço/i)).toBeDisabled();
+    expect(screen.getByLabelText(/^mesa/i)).toBeDisabled();
     expect(screen.getByLabelText(/prioridade/i)).toBeDisabled();
     expect(screen.getByLabelText(/título \(assunto\)/i)).toHaveValue('Troca de Teclado');
   });

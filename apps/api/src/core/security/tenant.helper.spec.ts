@@ -24,8 +24,24 @@ describe('TenantHelper', () => {
   it('should restrict AGENT and AGENT_MASTER to their service desks', () => {
     const agent: CurrentUserPayload = { id: 'agent1', role: Role.AGENT };
     const agentMaster: CurrentUserPayload = { id: 'agent2', role: Role.AGENT_MASTER };
-    expect(TenantHelper.getTicketWhere(agent)).toEqual({ serviceDesk: { agents: { some: { id: 'agent1' } } } });
-    expect(TenantHelper.getTicketWhere(agentMaster)).toEqual({ serviceDesk: { agents: { some: { id: 'agent2' } } } });
+    expect(TenantHelper.getTicketWhere(agent)).toEqual({
+      serviceDesk: {
+        OR: [
+          { agents: { some: { id: 'agent1' } } },
+          { agentGroups: { some: { members: { some: { id: 'agent1' } } } } },
+          { allowCrossDeskInteraction: true },
+        ],
+      },
+    });
+    expect(TenantHelper.getTicketWhere(agentMaster)).toEqual({
+      serviceDesk: {
+        OR: [
+          { agents: { some: { id: 'agent2' } } },
+          { agentGroups: { some: { members: { some: { id: 'agent2' } } } } },
+          { allowCrossDeskInteraction: true },
+        ],
+      },
+    });
   });
 
   it('should return empty where clause for ADMIN', () => {
@@ -38,6 +54,30 @@ describe('TenantHelper', () => {
     const user = { id: 'unknown', role: 'SPY' as Role };
     const where = TenantHelper.getTicketWhere(user);
     expect(where).toHaveProperty('id', '00000000-0000-0000-0000-000000000000');
+  });
+
+  describe('getServiceDeskWhere', () => {
+    it('returns empty where for ADMIN', () => {
+      const user: CurrentUserPayload = { id: 'admin1', role: Role.ADMIN };
+      expect(TenantHelper.getServiceDeskWhere(user)).toEqual({});
+    });
+
+    it('filters CLIENT to active non-internal desks of their org or global', () => {
+      const user: CurrentUserPayload = {
+        id: 'c1',
+        role: Role.CLIENT,
+        organizationId: 'org1',
+      };
+      expect(TenantHelper.getServiceDeskWhere(user)).toEqual({
+        active: true,
+        acceptingNewTickets: true,
+        internalUse: false,
+        OR: [
+          { organizations: { none: {} } },
+          { organizations: { some: { id: 'org1' } } },
+        ],
+      });
+    });
   });
 
   describe('getAppointmentWhere', () => {

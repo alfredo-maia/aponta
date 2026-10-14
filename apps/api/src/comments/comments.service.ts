@@ -4,6 +4,7 @@ import { Comment, Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
+import { assertListedAgentMayMutate } from '../service-desks/desk-policy';
 
 @Injectable()
 export class CommentsService {
@@ -23,10 +24,17 @@ export class CommentsService {
     dto: CreateCommentDto,
     currentUser: CurrentUserPayload,
   ): Promise<Comment> {
-    await this.assertTicketVisibleTo(ticketId, currentUser);
+    const ticketForAuth = await this.assertTicketVisibleTo(ticketId, currentUser);
 
     const isInternal =
       currentUser.role === Role.CLIENT ? false : (dto.isInternal ?? false);
+
+    if (isInternal && ticketForAuth.serviceDesk) {
+      assertListedAgentMayMutate({
+        desk: ticketForAuth.serviceDesk,
+        user: currentUser,
+      });
+    }
 
     const comment = await this.prisma.comment.create({
       data: {
@@ -93,9 +101,18 @@ export class CommentsService {
   private async assertTicketVisibleTo(
     ticketId: string,
     currentUser: CurrentUserPayload,
-  ): Promise<void> {
+  ) {
     const ticket = await this.prisma.ticket.findUnique({
       where: { id: ticketId },
+      include: {
+        serviceDesk: {
+          select: {
+            listedGroupsOnly: true,
+            agents: { select: { id: true } },
+            agentGroups: { select: { members: { select: { id: true } } } },
+          },
+        },
+      },
     });
     if (!ticket) {
       throw new NotFoundException(`Ticket with ID ${ticketId} not found`);
@@ -108,5 +125,6 @@ export class CommentsService {
       // existence of other users' tickets to a CLIENT.
       throw new NotFoundException(`Ticket with ID ${ticketId} not found`);
     }
+    return ticket;
   }
 }

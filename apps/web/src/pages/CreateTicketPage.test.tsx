@@ -82,7 +82,7 @@ describe('CreateTicketPage', () => {
       expect(api.get).toHaveBeenCalledWith('/service-desks');
     });
 
-    const select = screen.getByLabelText(/mesa de serviço/i) as HTMLSelectElement;
+    const select = screen.getByLabelText(/^mesa/i) as HTMLSelectElement;
     await waitFor(() => {
       expect(screen.getByRole('option', { name: 'Suporte N1' })).toBeInTheDocument();
     });
@@ -109,7 +109,7 @@ describe('CreateTicketPage', () => {
     });
 
     await user.type(screen.getByLabelText(/título \(assunto\)/i), 'Impressora não liga');
-    await user.selectOptions(screen.getByLabelText(/mesa de serviço/i), 'sd-1');
+    await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
 
     // EzRichText (Tiptap) is not a plain <textarea>/<input> and its
     // contenteditable surface can't be driven by userEvent.type() under
@@ -260,7 +260,7 @@ describe('CreateTicketPage', () => {
     });
 
     await user.type(screen.getByLabelText(/título \(assunto\)/i), 'Impressora não liga');
-    await user.selectOptions(screen.getByLabelText(/mesa de serviço/i), 'sd-1');
+    await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
 
     const editable = screen
       .getByTestId('ticket-description')
@@ -349,7 +349,7 @@ describe('CreateTicketPage', () => {
     });
 
     await user.type(screen.getByLabelText(/título \(assunto\)/i), 'Ticket com anexo');
-    await user.selectOptions(screen.getByLabelText(/mesa de serviço/i), 'sd-1');
+    await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
 
     const editable = screen
       .getByTestId('ticket-description')

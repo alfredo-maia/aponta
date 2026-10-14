@@ -31,6 +31,9 @@ function mockApiGet() {
     if (url === '/organizations') {
       return Promise.resolve({ data: organizations });
     }
+    if (url === '/users/agents') {
+      return Promise.resolve({ data: [] });
+    }
     return Promise.reject(new Error(`Unexpected GET ${url}`));
   });
 }
@@ -181,6 +184,10 @@ describe('ServiceDesksPage', () => {
     // into the detail view (Sankhya "Modo Formulário") where the full
     // editors (incl. SLA) live.
     await user.click(screen.getByText('Suporte N1'));
+
+    expect(await screen.findByRole('tab', { name: 'Informações básicas' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Parâmetros' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Estágio' })).toBeDisabled();
 
     const editSlaButton = await screen.findByRole('button', { name: /editar cliente e sla/i });
     await user.click(editSlaButton);

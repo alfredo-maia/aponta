@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { NotFoundException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { CommentsService } from './comments.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -154,6 +154,26 @@ describe('CommentsService', () => {
         include: expect.any(Object),
         data: expect.objectContaining({ authorId: 'agent-1' }),
       });
+    });
+
+    it('blocks unlisted agents from internal comments when listedGroupsOnly', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        ...ownedTicket,
+        serviceDesk: {
+          listedGroupsOnly: true,
+          agents: [],
+          agentGroups: [],
+        },
+      });
+
+      await expect(
+        service.create(
+          'ticket-1',
+          { content: 'Internal note', isInternal: true },
+          agentUser,
+        ),
+      ).rejects.toThrow(ForbiddenException);
+      expect(mockPrismaService.comment.create).not.toHaveBeenCalled();
     });
   });
 

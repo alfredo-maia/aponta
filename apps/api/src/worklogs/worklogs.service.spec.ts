@@ -71,6 +71,30 @@ describe('WorklogsService', () => {
   });
 
   describe('create', () => {
+    it('blocks unlisted agents when the mesa has listedGroupsOnly', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue({
+        ...validTicket,
+        serviceDesk: {
+          listedGroupsOnly: true,
+          agents: [],
+          agentGroups: [],
+        },
+      });
+
+      await expect(
+        service.create(
+          'ticket-1',
+          {
+            startTime: '2026-10-13T08:00:00.000Z',
+            endTime: '2026-10-13T09:00:00.000Z',
+            description: 'Blocked',
+          },
+          agentUser,
+        ),
+      ).rejects.toThrow(ForbiddenException);
+      expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
+    });
+
     it('should allow AGENT to create a worklog for themselves, deriving minutes from the time range', async () => {
       mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
       mockPrisma.worklog.create.mockResolvedValue({

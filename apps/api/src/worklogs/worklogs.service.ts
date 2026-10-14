@@ -9,6 +9,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateWorklogDto } from './dto/create-worklog.dto';
 import { CommentsService } from '../comments/comments.service';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
+import { assertListedAgentMayMutate } from '../service-desks/desk-policy';
 
 @Injectable()
 export class WorklogsService {
@@ -24,7 +25,16 @@ export class WorklogsService {
   ) {
     const ticket = await this.prisma.ticket.findUnique({
       where: { id: ticketId },
-      include: { requester: { include: { organization: true } } },
+      include: {
+        requester: { include: { organization: true } },
+        serviceDesk: {
+          select: {
+            listedGroupsOnly: true,
+            agents: { select: { id: true } },
+            agentGroups: { select: { members: { select: { id: true } } } },
+          },
+        },
+      },
     });
 
     if (!ticket) {
@@ -33,6 +43,10 @@ export class WorklogsService {
 
     if (currentUser.role === Role.CLIENT) {
       throw new ForbiddenException('Clientes não têm permissão para registrar apontamentos');
+    }
+
+    if (ticket.serviceDesk) {
+      assertListedAgentMayMutate({ desk: ticket.serviceDesk, user: currentUser });
     }
 
     const start = new Date(dto.startTime);

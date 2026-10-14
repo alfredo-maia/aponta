@@ -15,7 +15,24 @@ vi.mock('../lib/api', () => ({
   },
 }));
 
-const ticket = {
+const ticket: {
+  id: string;
+  protocol: string;
+  title: string;
+  description: string;
+  status: string;
+  priority: string;
+  requesterId: string;
+  agentId: string;
+  serviceDeskId: string;
+  responseDeadline: string;
+  resolveDeadline: string;
+  createdAt: string;
+  updatedAt: string;
+  serviceDesk?: {
+    ticketSections: { key: string; enabled: boolean; sortOrder: number }[];
+  };
+} = {
   id: 't-1',
   protocol: 'AP-000001',
   title: 'Printer not working',
@@ -530,6 +547,23 @@ describe('TicketDetailPage', () => {
 
       expect(screen.getByTestId('tab-panel-apontamentos')).not.toHaveClass('hidden');
       expect(screen.getByTestId('tab-panel-geral')).toHaveClass('hidden');
+    });
+
+    it('hides ticket sections disabled on the mesa', async () => {
+      setRole('AGENT');
+      ticket.serviceDesk = {
+        ticketSections: [
+          { key: 'GENERAL_INFO', enabled: true, sortOrder: 0 },
+          { key: 'WORKLOGS', enabled: false, sortOrder: 1 },
+          { key: 'COMMUNICATION', enabled: true, sortOrder: 2 },
+        ],
+      };
+      renderPage();
+
+      await screen.findByText('Printer not working');
+      expect(screen.queryByRole('tab', { name: /apontamentos/i })).not.toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: /comunicação/i })).toBeInTheDocument();
+      delete ticket.serviceDesk;
     });
 
     it('hides non-client tabs from clients', async () => {

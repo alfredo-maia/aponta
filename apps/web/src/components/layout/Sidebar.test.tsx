@@ -41,15 +41,15 @@ describe('Sidebar', () => {
     expect(screen.queryByText('Cofre de Senhas')).not.toBeInTheDocument();
     expect(screen.queryByText('Contratos')).not.toBeInTheDocument();
     expect(screen.queryByText('Clientes')).not.toBeInTheDocument();
-    expect(screen.queryByText('Recursos')).not.toBeInTheDocument();
+    expect(screen.queryByText('Mesa')).not.toBeInTheDocument();
   });
 
-  it('shows the full ADMIN menu including Clientes and Recursos, in the fixed order', () => {
+  it('shows the full ADMIN menu including Clientes and Mesa, in the fixed order', () => {
     loginAs('ADMIN');
     renderSidebar();
 
     const expectedOrder = [
-      'Dashboard', 'Tickets', 'Chats', 'Clientes', 'Recursos',
+      'Dashboard', 'Tickets', 'Chats', 'Clientes', 'Mesa',
       'Contratos', 'Relatórios', 'Agenda', 'Conhecimentos',
       'Cofre de Senhas', 'Configurações',
     ];
@@ -61,7 +61,7 @@ describe('Sidebar', () => {
     expect(renderedLabels).toEqual(expectedOrder);
   });
 
-  it('shows the AGENT_MASTER menu (vault/contracts/reports, no Clientes/Recursos)', () => {
+  it('shows the AGENT_MASTER menu (vault/contracts/reports, no Clientes/Mesa)', () => {
     loginAs('AGENT_MASTER');
     renderSidebar();
 
@@ -69,7 +69,7 @@ describe('Sidebar', () => {
     expect(screen.getByText('Contratos')).toBeInTheDocument();
     expect(screen.getByText('Relatórios')).toBeInTheDocument();
     expect(screen.queryByText('Clientes')).not.toBeInTheDocument();
-    expect(screen.queryByText('Recursos')).not.toBeInTheDocument();
+    expect(screen.queryByText('Mesa')).not.toBeInTheDocument();
   });
 
   it('shows the AGENT menu with access to Relatórios/Carga', () => {

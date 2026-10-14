@@ -12,6 +12,7 @@
  * Seeded data (documented here as the single source of truth for what
  * apps/web-e2e specs log in with / select):
  *   - User:         agent@aponta.com / Password123! (role AGENT)
+ *   - User:         admin@aponta.com / Password123! (role ADMIN)
  *   - ServiceDesk:  "General Support" (primary; used by tickets.spec.ts)
  *   - ServiceDesk:  "IT Infrastructure" (secondary; lets dashboard.spec.ts
  *     prove the service-desk filter actually narrows results, not just
@@ -34,6 +35,13 @@ const SEED_AGENT = {
   role: Role.AGENT,
 };
 
+const SEED_ADMIN = {
+  name: 'Seed Admin',
+  email: 'admin@aponta.com',
+  password: 'Password123!',
+  role: Role.ADMIN,
+};
+
 const SEED_SERVICE_DESK_NAME = 'General Support';
 const SEED_SERVICE_DESK_SECONDARY_NAME = 'IT Infrastructure';
 
@@ -45,6 +53,7 @@ async function main() {
 
   try {
     const hashedPassword = await bcrypt.hash(SEED_AGENT.password, SALT_ROUNDS);
+    const hashedAdminPassword = await bcrypt.hash(SEED_ADMIN.password, SALT_ROUNDS);
 
     const user = await prisma.user.upsert({
       where: { email: SEED_AGENT.email },
@@ -57,6 +66,18 @@ async function main() {
       },
     });
     console.log(`Seeded user: ${user.email} (role ${user.role})`);
+
+    const admin = await prisma.user.upsert({
+      where: { email: SEED_ADMIN.email },
+      update: {},
+      create: {
+        name: SEED_ADMIN.name,
+        email: SEED_ADMIN.email,
+        password: hashedAdminPassword,
+        role: SEED_ADMIN.role,
+      },
+    });
+    console.log(`Seeded user: ${admin.email} (role ${admin.role})`);
 
     let serviceDesk = await prisma.serviceDesk.findFirst({
       where: { name: SEED_SERVICE_DESK_NAME },

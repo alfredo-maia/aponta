@@ -15,7 +15,7 @@ export function SettingsPage() {
   const links = [
     { to: '/my-account', label: 'Minha Conta', icon: User },
     ...(isAdmin
-      ? [{ to: '/service-desks', label: 'Departamentos', icon: Box }]
+      ? [{ to: '/service-desks', label: 'Mesa', icon: Box }]
       : []),
   ];
 

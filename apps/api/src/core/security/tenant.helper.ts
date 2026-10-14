@@ -11,7 +11,43 @@ export class TenantHelper {
         : { requesterId: user.id };
     }
     if (user.role === Role.AGENT || user.role === Role.AGENT_MASTER) {
-      return { serviceDesk: { agents: { some: { id: user.id } } } };
+      return {
+        serviceDesk: {
+          OR: [
+            { agents: { some: { id: user.id } } },
+            { agentGroups: { some: { members: { some: { id: user.id } } } } },
+            { allowCrossDeskInteraction: true },
+          ],
+        },
+      };
+    }
+    return { id: '00000000-0000-0000-0000-000000000000' };
+  }
+
+  static getServiceDeskWhere(user: CurrentUserPayload): Prisma.ServiceDeskWhereInput {
+    if (user.role === Role.ADMIN) return {};
+    if (user.role === Role.CLIENT || user.role === Role.CLIENT_MASTER) {
+      const orgFilter = user.organizationId
+        ? [
+            { organizations: { none: {} } },
+            { organizations: { some: { id: user.organizationId } } },
+          ]
+        : [{ organizations: { none: {} } }];
+      return {
+        active: true,
+        acceptingNewTickets: true,
+        internalUse: false,
+        OR: orgFilter,
+      };
+    }
+    if (user.role === Role.AGENT || user.role === Role.AGENT_MASTER) {
+      return {
+        OR: [
+          { agents: { some: { id: user.id } } },
+          { agentGroups: { some: { members: { some: { id: user.id } } } } },
+          { allowCrossDeskInteraction: true, active: true },
+        ],
+      };
     }
     return { id: '00000000-0000-0000-0000-000000000000' };
   }

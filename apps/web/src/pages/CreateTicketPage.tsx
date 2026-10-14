@@ -57,11 +57,13 @@ export function CreateTicketPage() {
         description: string;
         serviceDeskId: string;
         priority?: TicketPriority;
+        attachmentCount?: number;
       } = {
         title: values.title,
         description: values.description,
         serviceDeskId: values.serviceDeskId,
         priority: values.priority,
+        attachmentCount: values.attachments?.length ?? 0,
       };
       if (selectedCatalogItem) {
         payload.catalogItemId = selectedCatalogItem.id;

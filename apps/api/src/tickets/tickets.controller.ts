@@ -18,6 +18,7 @@ import { AssignTicketDto } from './dto/assign-ticket.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import { ChangeServiceDeskDto } from "./dto/change-service-desk.dto";
 import { UpdateParentDto } from "./dto/update-parent.dto";
+import { AddSlaHoursDto } from './dto/add-sla-hours.dto';
 import { JwtOrTokenAuthGuard } from '../auth/guards/jwt-or-token-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -43,7 +44,7 @@ export class TicketsController {
     @Body() createTicketDto: CreateTicketDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.ticketsService.create(createTicketDto, req.user.id);
+    return this.ticketsService.create(createTicketDto, req.user);
   }
 
   @Get()
@@ -101,6 +102,26 @@ export class TicketsController {
       changeStatusDto.status,
       req.user,
     );
+  }
+
+  @Post(':id/cancel')
+  @UseGuards(RolesGuard)
+  @Roles(Role.AGENT, Role.AGENT_MASTER, Role.ADMIN)
+  @ApiOperation({ summary: 'Cancel a ticket', description: 'Closes the ticket as cancelled when the mesa allows it' })
+  cancel(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.ticketsService.cancel(id, req.user);
+  }
+
+  @Post(':id/sla/add-hours')
+  @UseGuards(RolesGuard)
+  @Roles(Role.AGENT, Role.AGENT_MASTER, Role.ADMIN)
+  @ApiOperation({ summary: 'Add SLA hours', description: 'Extends response and resolve deadlines when the mesa allows it' })
+  addSlaHours(
+    @Param('id') id: string,
+    @Body() dto: AddSlaHoursDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.ticketsService.addSlaHours(id, dto.hours, req.user);
   }
 
   @Patch(':id/service-desk')

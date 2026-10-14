@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Role, ServiceDeskSectionKey, TicketPriority } from '@prisma/client';
 import { ServiceDesksService } from './service-desks.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { HolidaysImportService } from './holidays-import.service';
+import { DESK_INCLUDE, DEFAULT_DESK_PRIORITIES, DEFAULT_DESK_SECTIONS } from './desk-defaults';
+import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 const mockPrismaService = {
   serviceDesk: {
@@ -10,6 +13,12 @@ const mockPrismaService = {
     findUnique: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
+  },
+  serviceDeskPriority: {
+    updateMany: jest.fn(),
+  },
+  serviceDeskTicketSection: {
+    updateMany: jest.fn(),
   },
   businessHour: {
     findMany: jest.fn(),
@@ -28,10 +37,8 @@ const mockHolidaysImportService = {
   fetchNationalHolidays: jest.fn(),
 };
 
-const EXPECTED_INCLUDE = {
-  agents: { select: { id: true, name: true, email: true } },
-  organizations: { select: { id: true, name: true } },
-};
+const EXPECTED_INCLUDE = DESK_INCLUDE;
+const adminUser: CurrentUserPayload = { id: 'admin-1', role: Role.ADMIN };
 
 describe('ServiceDesksService', () => {
   let service: ServiceDesksService;
@@ -67,18 +74,23 @@ describe('ServiceDesksService', () => {
     const result = await service.create(createDto);
     expect(result).toEqual(expecteddesk);
     expect(prisma.serviceDesk.create).toHaveBeenCalledWith({
-      data: createDto,
+      data: {
+        ...createDto,
+        priorities: { create: DEFAULT_DESK_PRIORITIES },
+        ticketSections: { create: DEFAULT_DESK_SECTIONS },
+      },
       include: EXPECTED_INCLUDE,
     });
   });
 
-  it('should find all service desks', async () => {
+  it('should find all service desks for the caller', async () => {
     const expected = [{ id: '1', name: 'Desk 1' }, { id: '2', name: 'Desk 2' }];
     mockPrismaService.serviceDesk.findMany.mockResolvedValue(expected);
 
-    const result = await service.findAll();
+    const result = await service.findAll(adminUser);
     expect(result).toEqual(expected);
     expect(prisma.serviceDesk.findMany).toHaveBeenCalledWith({
+      where: {},
       include: EXPECTED_INCLUDE,
     });
   });
@@ -98,6 +110,7 @@ describe('ServiceDesksService', () => {
   it('should update a service desk', async () => {
     const updateDto = { name: 'New Name' };
     const expected = { id: '1', name: 'New Name' };
+    mockPrismaService.serviceDesk.findUnique.mockResolvedValue(expected);
     mockPrismaService.serviceDesk.update.mockResolvedValue(expected);
 
     const result = await service.update('1', updateDto);
@@ -105,7 +118,27 @@ describe('ServiceDesksService', () => {
     expect(prisma.serviceDesk.update).toHaveBeenCalledWith({
       where: { id: '1' },
       data: updateDto,
-      include: EXPECTED_INCLUDE,
+    });
+  });
+
+  it('should persist priority and section patches', async () => {
+    mockPrismaService.serviceDesk.findUnique.mockResolvedValue({ id: '1', name: 'Desk' });
+    mockPrismaService.serviceDesk.update.mockResolvedValue({ id: '1' });
+    mockPrismaService.serviceDeskPriority.updateMany.mockResolvedValue({ count: 1 });
+    mockPrismaService.serviceDeskTicketSection.updateMany.mockResolvedValue({ count: 1 });
+
+    await service.update('1', {
+      priorities: [{ ticketPriority: TicketPriority.LOW, enabled: false }],
+      ticketSections: [{ key: ServiceDeskSectionKey.GITHUB, enabled: true }],
+    });
+
+    expect(mockPrismaService.serviceDeskPriority.updateMany).toHaveBeenCalledWith({
+      where: { serviceDeskId: '1', ticketPriority: 'LOW' },
+      data: { enabled: false },
+    });
+    expect(mockPrismaService.serviceDeskTicketSection.updateMany).toHaveBeenCalledWith({
+      where: { serviceDeskId: '1', key: 'GITHUB' },
+      data: { enabled: true },
     });
   });
 

@@ -38,6 +38,26 @@ enum TicketPriority {
   CRITICAL
 }
 
+enum ServiceDeskReviewType {
+  INTERNAL
+  CLIENT
+  BOTH
+}
+
+enum ServiceDeskSectionKey {
+  GENERAL_INFO
+  CATEGORY
+  SERVICE_TYPE
+  WORKLOGS
+  COMMUNICATION
+  APPOINTMENTS
+  VALUATION
+  E_SIGNATURE
+  GITHUB
+  HISTORY
+  TROUBLESHOOTING
+}
+
 enum DocumentType {
   CNPJ
   CPF
@@ -109,6 +129,7 @@ model User {
   name     String
   email    String  @unique
   phone    String?
+  extension String?
   password String
   role     Role    @default(AGENT)
 
@@ -134,10 +155,12 @@ model User {
 }
 
 model ServiceDesk {
-  id      String   @id @default(uuid())
-  name    String
-  tickets Ticket[]
-  agents  User[]   @relation("AgentServiceDesks")
+  id          String  @id @default(uuid())
+  name        String
+  displayName String?
+  description String?
+  tickets     Ticket[]
+  agents      User[]   @relation("AgentServiceDesks")
 
   /// Tiflux-parity (#57): Mesa<->Cliente é N:N (confirmado ao vivo: 1 mesa
   /// pode servir vários clientes; cada cliente vê suas mesas em
@@ -147,8 +170,10 @@ model ServiceDesk {
   organizations Organization[]
   agentGroups   AgentGroup[]
 
-  businessHours BusinessHour[]
-  holidays      Holiday[]
+  businessHours  BusinessHour[]
+  holidays       Holiday[]
+  priorities     ServiceDeskPriority[]
+  ticketSections ServiceDeskTicketSection[]
 
   /// Per-desk SLA targets (hours), overriding the global defaults in
   /// tickets.service.ts's SLA_HOURS when set. Each pair is nullable
@@ -163,8 +188,72 @@ model ServiceDesk {
   slaLowResponseHours      Int?
   slaLowResolveHours       Int?
 
+  active                   Boolean @default(true)
+  acceptingNewTickets      Boolean @default(true)
+  internalUse              Boolean @default(false)
+  worklogsWithValuation    Boolean @default(true)
+  allowCrossDeskInteraction Boolean @default(false)
+  allowCancelTicket        Boolean @default(true)
+  catalogRequiredOnOpen    Boolean @default(false)
+  slaControlEnabled        Boolean @default(true)
+  allowAddSlaHours         Boolean @default(false)
+  allowPauseResumeSla      Boolean @default(true)
+  reviewFlowEnabled        Boolean @default(false)
+  evaluationEnabled        Boolean @default(false)
+  openByAgentsOnly         Boolean @default(false)
+
+  requireRequesterName       Boolean @default(false)
+  requireRequesterEmail      Boolean @default(false)
+  requireRequesterPhone      Boolean @default(false)
+  requireRequesterExtension  Boolean @default(false)
+  requireResourceGroup       Boolean @default(false)
+  requireAttachments         Boolean @default(false)
+
+  listedGroupsOnly         Boolean @default(false)
+  unlistedCanCreateTicket  Boolean @default(true)
+
+  defaultOpenStatus   TicketStatus @default(OPEN)
+  defaultClosedStatus TicketStatus @default(CLOSED)
+
+  allowReopenUnbilled          Boolean @default(true)
+  allowReopenBilled            Boolean @default(false)
+  reopenDefaultReplyUnbilled   String?
+  reopenDefaultReplyBilled     String?
+
+  reviewType            ServiceDeskReviewType?
+  reviewDeadlineDays    Int?
+  reviewNotifyEmail     Boolean @default(false)
+  reviewReminder        Boolean @default(false)
+  reviewReapplyReopen   Boolean @default(false)
+
   createdAt           DateTime             @default(now())
   serviceCatalogItems ServiceCatalogItem[]
+}
+
+model ServiceDeskPriority {
+  id             String         @id @default(uuid())
+  serviceDeskId  String
+  serviceDesk    ServiceDesk    @relation(fields: [serviceDeskId], references: [id], onDelete: Cascade)
+  ticketPriority TicketPriority
+  label          String
+  icon           String?
+  sortOrder      Int            @default(0)
+  enabled        Boolean        @default(true)
+
+  @@unique([serviceDeskId, ticketPriority])
+  @@index([serviceDeskId])
+}
+
+model ServiceDeskTicketSection {
+  id            String                @id @default(uuid())
+  serviceDeskId String
+  serviceDesk   ServiceDesk           @relation(fields: [serviceDeskId], references: [id], onDelete: Cascade)
+  key           ServiceDeskSectionKey
+  enabled       Boolean               @default(true)
+  sortOrder     Int                   @default(0)
+
+  @@unique([serviceDeskId, key])
+  @@index([serviceDeskId])
 }
 
 /// Tiflux-parity (#57): Grupo de Atendentes é uma entidade POR CLIENTE
@@ -253,6 +342,8 @@ model Ticket {
   parentTicketId String?
   parentTicket   Ticket?       @relation("ParentChildTickets", fields: [parentTicketId], references: [id])
   subTickets     Ticket[]      @relation("ParentChildTickets")
+
+  resourceGroup String?
 
   checklists  TicketChecklist[]
   attachments TicketAttachment[]

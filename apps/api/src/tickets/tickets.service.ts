@@ -14,6 +14,15 @@ import { CurrentUserPayload } from './decorators/current-user.decorator';
 import { TenantHelper } from '../core/security/tenant.helper';
 import { addBusinessHours } from '../scheduling/business-hours';
 import { getSlaStatus } from '../scheduling/sla-status';
+import {
+  assertDeskAllowsAddSlaHours,
+  assertDeskAllowsCancel,
+  assertDeskAllowsOpen,
+  assertDeskAllowsPauseResume,
+  assertDeskAllowsReopen,
+  assertListedAgentMayMutate,
+  isTicketBilled,
+} from '../service-desks/desk-policy';
 
 const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
 const FOREIGN_KEY_VIOLATION = 'P2003';
@@ -238,8 +247,9 @@ export class TicketsService {
    */
   async create(
     dto: CreateTicketDto,
-    requesterId: string,
+    user: CurrentUserPayload,
   ): Promise<Ticket> {
+    const requesterId = user.id;
     let priority = dto.priority ?? TicketPriority.MEDIUM;
     let serviceDeskId = dto.serviceDeskId;
 
@@ -251,20 +261,14 @@ export class TicketsService {
       }
     }
 
-
     const createdAt = new Date();
-    const [serviceDesk, businessHours, holidays] = await Promise.all([
+    const [serviceDesk, businessHours, holidays, requester] = await Promise.all([
       this.prisma.serviceDesk.findUnique({
         where: { id: serviceDeskId },
-        select: {
-          slaCriticalResponseHours: true,
-          slaCriticalResolveHours: true,
-          slaHighResponseHours: true,
-          slaHighResolveHours: true,
-          slaMediumResponseHours: true,
-          slaMediumResolveHours: true,
-          slaLowResponseHours: true,
-          slaLowResolveHours: true,
+        include: {
+          priorities: true,
+          agents: { select: { id: true } },
+          agentGroups: { include: { members: { select: { id: true } } } },
         },
       }),
       this.prisma.businessHour.findMany({
@@ -273,14 +277,35 @@ export class TicketsService {
       this.prisma.holiday.findMany({
         where: { serviceDeskId: serviceDeskId },
       }),
+      this.prisma.user.findUnique({
+        where: { id: requesterId },
+        select: { name: true, email: true, phone: true, extension: true },
+      }),
     ]);
-    const { responseDeadline, resolveDeadline } = calculateSla(
-      createdAt,
+    if (!serviceDesk) {
+      throw new BadRequestException(
+        'Invalid serviceDeskId: service desk does not exist',
+      );
+    }
+    assertDeskAllowsOpen({
+      desk: serviceDesk,
+      user,
+      requester: requester ?? { name: '', email: '', phone: null, extension: null },
+      catalogItemId: dto.catalogItemId,
       priority,
-      businessHours,
-      holidays,
-      serviceDesk ? buildSlaOverrides(serviceDesk) : undefined,
-    );
+      resourceGroup: dto.resourceGroup,
+      attachmentCount: dto.attachmentCount ?? 0,
+    });
+    const slaEnabled = serviceDesk.slaControlEnabled !== false;
+    const { responseDeadline, resolveDeadline } = slaEnabled
+      ? calculateSla(
+          createdAt,
+          priority,
+          businessHours,
+          holidays,
+          buildSlaOverrides(serviceDesk),
+        )
+      : { responseDeadline: null, resolveDeadline: null };
     const year = createdAt.getUTCFullYear();
     const yearPrefix = `AP-${year}-`;
 
@@ -309,10 +334,11 @@ export class TicketsService {
               description: dto.description,
               serviceDeskId: serviceDeskId,
               requesterId,
-              status: TicketStatus.OPEN,
+              status: serviceDesk.defaultOpenStatus ?? TicketStatus.OPEN,
               priority,
               responseDeadline,
               resolveDeadline,
+              resourceGroup: dto.resourceGroup,
             },
             include: {
               requester: { select: { email: true } },
@@ -521,7 +547,32 @@ export class TicketsService {
         requester: { select: { organizationId: true } },
         parentTicket: { select: { id: true, protocol: true, title: true, status: true } },
         subTickets: { select: { id: true, protocol: true, title: true, status: true } },
-        serviceDesk: { select: { agents: { where: { id: currentUser.id }, select: { id: true } } } }
+        serviceDesk: {
+          select: {
+            id: true,
+            name: true,
+            displayName: true,
+            allowCrossDeskInteraction: true,
+            allowCancelTicket: true,
+            allowAddSlaHours: true,
+            allowPauseResumeSla: true,
+            evaluationEnabled: true,
+            slaControlEnabled: true,
+            listedGroupsOnly: true,
+            ticketSections: {
+              select: { key: true, enabled: true, sortOrder: true },
+              orderBy: { sortOrder: 'asc' },
+            },
+            priorities: {
+              select: { ticketPriority: true, enabled: true, label: true, sortOrder: true },
+              orderBy: { sortOrder: 'asc' },
+            },
+            agents: { where: { id: currentUser.id }, select: { id: true } },
+            agentGroups: {
+              select: { members: { where: { id: currentUser.id }, select: { id: true } } },
+            },
+          },
+        },
       }
     });
 
@@ -539,17 +590,23 @@ export class TicketsService {
       isAuthorized = ticket.requesterId === currentUser.id || 
                      (!!currentUser.organizationId && (ticket as Ticket & { requester?: any, serviceDesk?: any }).requester?.organizationId === currentUser.organizationId);
     } else if (currentUser.role === Role.AGENT || currentUser.role === Role.AGENT_MASTER) {
-      // Authorized if the agent is assigned to this ticket's service desk
-      isAuthorized = (ticket as Ticket & { requester?: any, serviceDesk?: any }).serviceDesk?.agents?.length > 0;
+      const desk = (ticket as Ticket & { requester?: any, serviceDesk?: any }).serviceDesk;
+      isAuthorized =
+        desk?.agents?.length > 0 ||
+        desk?.agentGroups?.some((g: { members?: { id: string }[] }) => (g.members?.length ?? 0) > 0) ||
+        desk?.allowCrossDeskInteraction === true;
     }
 
     if (!isAuthorized) {
       throw new NotFoundException(`Ticket with ID ${id} not found`);
     }
 
-    // strip out the included relations we used only for authorization
-    delete (ticket as Ticket & { requester?: any, serviceDesk?: any }).requester;
-    delete (ticket as Ticket & { requester?: any, serviceDesk?: any }).serviceDesk;
+    delete (ticket as Ticket & { requester?: any }).requester;
+    const desk = (ticket as Ticket & { serviceDesk?: { agents?: unknown; agentGroups?: unknown } }).serviceDesk;
+    if (desk) {
+      delete desk.agents;
+      delete desk.agentGroups;
+    }
 
     return this.decorateWithSlaStatus(ticket);
   }
@@ -568,6 +625,7 @@ export class TicketsService {
     if (!existing) {
       throw new NotFoundException(`Ticket with ID ${id} not found`);
     }
+    await this.assertListedMutation(existing.serviceDeskId, currentUser);
 
     const data: Prisma.TicketUpdateInput = {};
     if (dto.title !== undefined) {
@@ -638,6 +696,7 @@ export class TicketsService {
     if (!existing) {
       throw new NotFoundException(`Ticket with ID ${id} not found`);
     }
+    await this.assertListedMutation(existing.serviceDeskId, currentUser);
 
     try {
       const ticket = await this.prisma.ticket.update({
@@ -688,10 +747,32 @@ export class TicketsService {
       throw new NotFoundException(`Ticket with ID ${id} not found`);
     }
 
+    const desk = await this.loadDeskPolicy(existing.serviceDeskId);
+    if (desk) {
+      assertListedAgentMayMutate({ desk, user: currentUser });
+      assertDeskAllowsPauseResume(desk, existing.status, newStatus);
+    }
+
     const isReopenByAdmin =
       existing.status === TicketStatus.CLOSED &&
       newStatus === TicketStatus.OPEN &&
       currentUser.role === 'ADMIN';
+
+    let reopenReply: string | null = null;
+    if (isReopenByAdmin && desk) {
+      const worklogs = await this.prisma.worklog.findMany({
+        where: { ticketId: id },
+        select: { billable: true, valuationType: true, value: true },
+      });
+      const billed = isTicketBilled(worklogs);
+      assertDeskAllowsReopen(desk, billed);
+      const reply = billed
+        ? desk.reopenDefaultReplyBilled
+        : desk.reopenDefaultReplyUnbilled;
+      if (reply?.trim()) {
+        reopenReply = reply.trim();
+      }
+    }
 
     // RBAC Security Check: Only ADMIN or CLIENT_MASTER can approve/move out of PENDING_APPROVAL
     if (existing.status === TicketStatus.PENDING_APPROVAL || newStatus === TicketStatus.PENDING_APPROVAL) {
@@ -714,22 +795,29 @@ export class TicketsService {
 
     const updateData: Prisma.TicketUpdateInput = { status: newStatus };
     
-    if (newStatus === TicketStatus.RESOLVED && !existing.csatToken) {
+    if (
+      newStatus === TicketStatus.RESOLVED &&
+      !existing.csatToken &&
+      desk?.evaluationEnabled === true
+    ) {
        updateData.csatToken = randomUUID();
     }
 
-    // SLA Mathematics Logic
-    // se entrou em PENDING_CUSTOMER, congela!
-    if (newStatus === TicketStatus.PENDING_CUSTOMER) {
-       updateData.slaPausedAt = new Date();
+    const slaPauseStatuses: TicketStatus[] = [
+      TicketStatus.PENDING_CUSTOMER,
+      TicketStatus.ON_HOLD,
+    ];
+    const enteringPause =
+      slaPauseStatuses.includes(newStatus) && !slaPauseStatuses.includes(existing.status);
+    const leavingPause =
+      slaPauseStatuses.includes(existing.status) && !slaPauseStatuses.includes(newStatus);
+    if (enteringPause) {
+      updateData.slaPausedAt = new Date();
     }
-    // se SAÍU de PENDING_CUSTOMER, descongela e computa os minutos!
-    if (existing.status === TicketStatus.PENDING_CUSTOMER && newStatus !== TicketStatus.PENDING_CUSTOMER) {
-       if (existing.slaPausedAt) {
-         const diffMinutes = Math.floor((new Date().getTime() - existing.slaPausedAt.getTime()) / 60000);
-         updateData.slaAccumulatedPauseTime = existing.slaAccumulatedPauseTime + diffMinutes;
-         updateData.slaPausedAt = null;
-       }
+    if (leavingPause && existing.slaPausedAt) {
+      const diffMinutes = Math.floor((new Date().getTime() - existing.slaPausedAt.getTime()) / 60000);
+      updateData.slaAccumulatedPauseTime = existing.slaAccumulatedPauseTime + diffMinutes;
+      updateData.slaPausedAt = null;
     }
 
     const ticket = await this.prisma.ticket.update({
@@ -748,11 +836,135 @@ export class TicketsService {
       },
     });
 
+    if (reopenReply) {
+      await this.prisma.comment.create({
+        data: {
+          content: reopenReply,
+          isInternal: false,
+          ticketId: id,
+          authorId: currentUser.id,
+        },
+      });
+    }
+
     this.eventEmitter.emit('ticket.status_changed', {
       ticket,
       requesterEmail: ticket.requester?.email,
     });
     return ticket;
+  }
+
+  async cancel(id: string, currentUser: CurrentUserPayload): Promise<Ticket> {
+    const existing = await this.prisma.ticket.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`Ticket with ID ${id} not found`);
+    }
+    if (existing.status === TicketStatus.CLOSED) {
+      throw new BadRequestException('Este ticket já está fechado.');
+    }
+
+    const desk = await this.loadDeskPolicy(existing.serviceDeskId);
+    if (!desk) {
+      throw new BadRequestException(
+        'Invalid serviceDeskId: service desk does not exist',
+      );
+    }
+    assertDeskAllowsCancel(desk);
+    assertListedAgentMayMutate({ desk, user: currentUser });
+
+    const closedStatus = desk.defaultClosedStatus ?? TicketStatus.CLOSED;
+    const ticket = await this.prisma.ticket.update({
+      where: { id },
+      data: { status: closedStatus },
+      include: { requester: { select: { email: true } } },
+    });
+
+    await this.prisma.ticketAudit.create({
+      data: {
+        action: 'cancelled',
+        prevVal: existing.status,
+        newVal: closedStatus,
+        ticketId: id,
+        userId: currentUser.id,
+      },
+    });
+
+    this.eventEmitter.emit('ticket.status_changed', {
+      ticket,
+      requesterEmail: ticket.requester?.email,
+    });
+    return ticket;
+  }
+
+  async addSlaHours(
+    id: string,
+    hours: number,
+    currentUser: CurrentUserPayload,
+  ): Promise<Ticket> {
+    const existing = await this.prisma.ticket.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`Ticket with ID ${id} not found`);
+    }
+
+    const desk = await this.loadDeskPolicy(existing.serviceDeskId);
+    if (!desk) {
+      throw new BadRequestException(
+        'Invalid serviceDeskId: service desk does not exist',
+      );
+    }
+    assertDeskAllowsAddSlaHours(desk);
+    assertListedAgentMayMutate({ desk, user: currentUser });
+
+    const [businessHours, holidays] = await Promise.all([
+      this.prisma.businessHour.findMany({
+        where: { serviceDeskId: existing.serviceDeskId },
+      }),
+      this.prisma.holiday.findMany({
+        where: { serviceDeskId: existing.serviceDeskId },
+      }),
+    ]);
+
+    const now = new Date();
+    const responseBase = existing.responseDeadline ?? now;
+    const resolveBase = existing.resolveDeadline ?? now;
+    const ticket = await this.prisma.ticket.update({
+      where: { id },
+      data: {
+        responseDeadline: addBusinessHours(responseBase, hours, businessHours, holidays),
+        resolveDeadline: addBusinessHours(resolveBase, hours, businessHours, holidays),
+      },
+    });
+
+    await this.prisma.ticketAudit.create({
+      data: {
+        action: 'SLA_HOURS_ADDED',
+        prevVal: String(hours),
+        newVal: String(hours),
+        ticketId: id,
+        userId: currentUser.id,
+      },
+    });
+
+    return ticket;
+  }
+
+  private async loadDeskPolicy(serviceDeskId: string) {
+    return this.prisma.serviceDesk.findUnique({
+      where: { id: serviceDeskId },
+      include: {
+        agents: { select: { id: true } },
+        agentGroups: { include: { members: { select: { id: true } } } },
+      },
+    });
+  }
+
+  private async assertListedMutation(
+    serviceDeskId: string,
+    currentUser: CurrentUserPayload,
+  ): Promise<void> {
+    const desk = await this.loadDeskPolicy(serviceDeskId);
+    if (!desk) return;
+    assertListedAgentMayMutate({ desk, user: currentUser });
   }
 
   /**

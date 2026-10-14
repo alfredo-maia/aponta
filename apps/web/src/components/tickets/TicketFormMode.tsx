@@ -136,7 +136,7 @@ export function TicketFormMode({
             </div>
 
             <div className="space-y-1">
-              <label className="text-[12px] font-medium text-gray-700">Mesa / Fila</label>
+              <label className="text-[12px] font-medium text-gray-700">Mesa</label>
               <div className="flex items-center gap-2 px-3 py-1.5 text-[13px] bg-gray-50 border border-gray-200 rounded-[6px] text-gray-700">
                 <Building className="w-3.5 h-3.5 text-gray-400" />
                 <span className="font-mono">{ticket.serviceDeskId}</span>

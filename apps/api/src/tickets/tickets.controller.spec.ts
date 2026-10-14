@@ -18,6 +18,8 @@ const mockTicketsService = {
   changeStatus: jest.fn(),
   changeServiceDesk: jest.fn(),
   findAudits: jest.fn(),
+  cancel: jest.fn(),
+  addSlaHours: jest.fn(),
 };
 
 describe('TicketsController', () => {
@@ -51,7 +53,7 @@ describe('TicketsController', () => {
 
       expect(mockTicketsService.create).toHaveBeenCalledWith(
         dto,
-        'client-1',
+        req.user,
       );
     });
   });
@@ -279,6 +281,51 @@ describe('TicketsController', () => {
       expect(
         Reflect.getMetadata(ROLES_KEY, controller.findAudits),
       ).toBeUndefined();
+    });
+  });
+
+  describe('cancel', () => {
+    it('delegates to the service with the caller user', async () => {
+      const req = { user: { id: 'agent-1', role: Role.AGENT } };
+      mockTicketsService.cancel.mockResolvedValue({ id: 't1' });
+
+      await controller.cancel('t1', req as never);
+
+      expect(mockTicketsService.cancel).toHaveBeenCalledWith('t1', {
+        id: 'agent-1',
+        role: Role.AGENT,
+      });
+    });
+
+    it('requires AGENT, AGENT_MASTER or ADMIN', () => {
+      expect(Reflect.getMetadata(ROLES_KEY, controller.cancel)).toEqual([
+        Role.AGENT,
+        Role.AGENT_MASTER,
+        Role.ADMIN,
+      ]);
+    });
+  });
+
+  describe('addSlaHours', () => {
+    it('delegates hours and the caller user to the service', async () => {
+      const req = { user: { id: 'agent-1', role: Role.AGENT } };
+      mockTicketsService.addSlaHours.mockResolvedValue({ id: 't1' });
+
+      await controller.addSlaHours('t1', { hours: 2 }, req as never);
+
+      expect(mockTicketsService.addSlaHours).toHaveBeenCalledWith(
+        't1',
+        2,
+        { id: 'agent-1', role: Role.AGENT },
+      );
+    });
+
+    it('requires AGENT, AGENT_MASTER or ADMIN', () => {
+      expect(Reflect.getMetadata(ROLES_KEY, controller.addSlaHours)).toEqual([
+        Role.AGENT,
+        Role.AGENT_MASTER,
+        Role.ADMIN,
+      ]);
     });
   });
 });

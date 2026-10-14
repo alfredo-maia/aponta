@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, Min } from 'class-validator';
 import { TicketPriority } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -33,4 +33,15 @@ export class CreateTicketDto {
   @IsOptional()
   @IsEnum(TicketPriority)
   priority?: TicketPriority;
+
+  @ApiPropertyOptional({ description: 'Grupo de recurso informado na abertura, quando a mesa exige.' })
+  @IsOptional()
+  @IsString()
+  resourceGroup?: string;
+
+  @ApiPropertyOptional({ description: 'Quantidade de anexos que o cliente enviará após o create.' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  attachmentCount?: number;
 }

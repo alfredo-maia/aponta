@@ -32,7 +32,7 @@ const NAV_ITEMS = [
   { to: '/', label: 'Tickets', icon: <Ticket /> },
   { to: '/chats', label: 'Chats', icon: <MessageSquare />, disabled: true },
   { to: '/organizations', label: 'Clientes', icon: <Users /> },
-  { to: '/service-desks', label: 'Recursos', icon: <Box /> },
+  { to: '/service-desks', label: 'Mesa', icon: <Box /> },
   { to: '/contracts', label: 'Contratos', icon: <FileSignature /> },
   { to: '/reports', label: 'Relatórios', icon: <BarChart3 /> },
   { to: '/schedule', label: 'Agenda', icon: <CalendarDays /> },

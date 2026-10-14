@@ -28,6 +28,13 @@ export interface Ticket {
   parentTicketId?: string | null;
   parentTicket?: { id: string; protocol: string; title: string; status: TicketStatus; } | null;
   subTickets?: { id: string; protocol: string; title: string; status: TicketStatus; }[];
+  serviceDesk?: {
+    id?: string;
+    name?: string;
+    displayName?: string | null;
+    evaluationEnabled?: boolean;
+    ticketSections?: { key: string; enabled: boolean; sortOrder: number }[];
+  };
   createdAt: string;
   updatedAt: string;
 }

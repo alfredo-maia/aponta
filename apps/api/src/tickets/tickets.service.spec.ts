@@ -3,6 +3,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Prisma, Role, TicketPriority, TicketStatus } from '@prisma/client';
 import {
   BadRequestException,
+  ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
 import { TicketsService } from './tickets.service';
@@ -35,6 +36,9 @@ describe('TicketsService', () => {
     holiday: { findMany: jest.Mock };
     ticketAudit: { create: jest.Mock; findMany: jest.Mock };
     serviceDesk: { findUnique: jest.Mock };
+    user: { findUnique: jest.Mock };
+    worklog: { findMany: jest.Mock };
+    comment: { create: jest.Mock };
     $transaction: jest.Mock;
   };
 
@@ -65,7 +69,55 @@ describe('TicketsService', () => {
         findMany: jest.fn().mockResolvedValue([]),
       },
       serviceDesk: {
-        findUnique: jest.fn(),
+        findUnique: jest.fn().mockResolvedValue({
+          slaCriticalResponseHours: null,
+          slaCriticalResolveHours: null,
+          slaHighResponseHours: null,
+          slaHighResolveHours: null,
+          slaMediumResponseHours: null,
+          slaMediumResolveHours: null,
+          slaLowResponseHours: null,
+          slaLowResolveHours: null,
+          slaControlEnabled: true,
+          defaultOpenStatus: TicketStatus.OPEN,
+          active: true,
+          acceptingNewTickets: true,
+          internalUse: false,
+          openByAgentsOnly: false,
+          catalogRequiredOnOpen: false,
+          requireRequesterName: false,
+          requireRequesterEmail: false,
+          requireRequesterPhone: false,
+          requireRequesterExtension: false,
+          requireResourceGroup: false,
+          requireAttachments: false,
+          listedGroupsOnly: false,
+          unlistedCanCreateTicket: true,
+          allowCancelTicket: true,
+          allowAddSlaHours: false,
+          allowPauseResumeSla: true,
+          allowReopenUnbilled: true,
+          allowReopenBilled: false,
+          evaluationEnabled: false,
+          defaultClosedStatus: TicketStatus.CLOSED,
+          priorities: [],
+          agents: [],
+          agentGroups: [],
+        }),
+      },
+      worklog: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      comment: {
+        create: jest.fn().mockResolvedValue({}),
+      },
+      user: {
+        findUnique: jest.fn().mockResolvedValue({
+          name: 'Requester',
+          email: 'requester@aponta.com',
+          phone: '11999999999',
+          extension: null,
+        }),
       },
       $transaction: jest.fn(async (cb: (tx: unknown) => unknown) => cb(mockTx)),
     };
@@ -101,7 +153,7 @@ describe('TicketsService', () => {
         serviceDeskId: 'desk-1',
       };
 
-      const result = await service.create(dto, 'requester-1');
+      const result = await service.create(dto, { id: 'requester-1', role: Role.AGENT });
 
       expect(mockTx.ticket.create).toHaveBeenCalledWith({
         include: { requester: { select: { email: true } } },
@@ -140,7 +192,7 @@ describe('TicketsService', () => {
             serviceDeskId: 'desk-1',
             priority,
           },
-          'requester-1',
+          { id: 'requester-1', role: Role.AGENT },
         )) as unknown as {
           responseDeadline: Date;
           resolveDeadline: Date;
@@ -182,7 +234,7 @@ describe('TicketsService', () => {
           serviceDeskId: 'desk-1',
           priority: TicketPriority.CRITICAL,
         },
-        'requester-1',
+        { id: 'requester-1', role: Role.AGENT },
       )) as unknown as { responseDeadline: Date; resolveDeadline: Date };
 
       // 1h response: fits inside today's remaining window (17:00 -> 18:00).
@@ -213,7 +265,7 @@ describe('TicketsService', () => {
           serviceDeskId: 'desk-1',
           priority: TicketPriority.CRITICAL,
         },
-        'requester-1',
+        { id: 'requester-1', role: Role.AGENT },
       )) as unknown as { responseDeadline: Date; resolveDeadline: Date };
 
       expect(result.responseDeadline.toISOString()).toBe(
@@ -231,7 +283,7 @@ describe('TicketsService', () => {
       mockTx.ticket.findFirst.mockResolvedValueOnce(null);
       const first = (await service.create(
         { title: 't1', description: 'd1', serviceDeskId: 'desk-1' },
-        'requester-1',
+        { id: 'requester-1', role: Role.AGENT },
       )) as unknown as { protocol: string };
       expect(first.protocol).toBe('AP-2026-0001');
 
@@ -240,7 +292,7 @@ describe('TicketsService', () => {
       });
       const second = (await service.create(
         { title: 't2', description: 'd2', serviceDeskId: 'desk-1' },
-        'requester-1',
+        { id: 'requester-1', role: Role.AGENT },
       )) as unknown as { protocol: string };
       expect(second.protocol).toBe('AP-2026-0002');
     });
@@ -262,7 +314,7 @@ describe('TicketsService', () => {
 
       const result = (await service.create(
         { title: 't', description: 'd', serviceDeskId: 'desk-1' },
-        'requester-1',
+        { id: 'requester-1', role: Role.AGENT },
       )) as unknown as { protocol: string };
 
       expect(result.protocol).toBe('AP-2026-0006');
@@ -279,7 +331,7 @@ describe('TicketsService', () => {
 
       await service.create(
         { title: 't', description: 'd', serviceDeskId: 'desk-1' },
-        'requester-1',
+        { id: 'requester-1', role: Role.AGENT },
       );
 
       expect(mockTx.ticket.findFirst).toHaveBeenCalledWith({
@@ -310,7 +362,7 @@ describe('TicketsService', () => {
 
       const result = (await service.create(
         { title: 't', description: 'd', serviceDeskId: 'desk-1' },
-        'requester-1',
+        { id: 'requester-1', role: Role.AGENT },
       )) as unknown as { protocol: string };
 
       expect(result.protocol).toBe('AP-2026-0002');
@@ -327,7 +379,7 @@ describe('TicketsService', () => {
       await expect(
         service.create(
           { title: 't', description: 'd', serviceDeskId: 'desk-1' },
-          'requester-1',
+          { id: 'requester-1', role: Role.AGENT },
         ),
       ).rejects.toThrow();
     });
@@ -342,7 +394,7 @@ describe('TicketsService', () => {
       await expect(
         service.create(
           { title: 't', description: 'd', serviceDeskId: 'bad-desk' },
-          'requester-1',
+          { id: 'requester-1', role: Role.AGENT },
         ),
       ).rejects.toThrow();
       expect(mockTx.ticket.create).toHaveBeenCalledTimes(1);
@@ -362,7 +414,13 @@ describe('TicketsService', () => {
         where: { 
           serviceDeskId: 'desk-1', 
           status: TicketStatus.OPEN,
-          serviceDesk: { agents: { some: { id: 'agent-1' } } } 
+          serviceDesk: {
+            OR: [
+              { agents: { some: { id: 'agent-1' } } },
+              { agentGroups: { some: { members: { some: { id: 'agent-1' } } } } },
+              { allowCrossDeskInteraction: true },
+            ],
+          }, 
         },
         skip: 0,
         take: 20,
@@ -639,14 +697,13 @@ describe('TicketsService', () => {
         role: Role.AGENT,
       });
 
-      // The service deletes relations before returning
-      const expected = {
+      expect(result).toEqual({
         id: 't1',
         requesterId: 'someone-else',
+        serviceDesk: {},
         responseSlaStatus: null,
         resolveSlaStatus: null,
-      };
-      expect(result).toEqual(expected);
+      });
     });
 
     it('returns the ticket for CLIENT when they are the requester', async () => {
@@ -680,6 +737,27 @@ describe('TicketsService', () => {
       await expect(
         service.findOne('missing', { id: 'admin-1', role: Role.ADMIN }),
       ).rejects.toThrow(NotFoundException);
+    });
+
+    it('returns the ticket for AGENT when the mesa allows cross-desk interaction', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        requesterId: 'someone-else',
+        serviceDesk: { agents: [], allowCrossDeskInteraction: true, ticketSections: [] },
+      });
+
+      const result = await service.findOne('t1', {
+        id: 'agent-1',
+        role: Role.AGENT,
+      });
+
+      expect(result).toEqual({
+        id: 't1',
+        requesterId: 'someone-else',
+        serviceDesk: { allowCrossDeskInteraction: true, ticketSections: [] },
+        responseSlaStatus: null,
+        resolveSlaStatus: null,
+      });
     });
 
     it('decorates the ticket with responseSlaStatus/resolveSlaStatus when deadlines are present', async () => {
@@ -915,7 +993,16 @@ describe('TicketsService', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('generates a csatToken when transitioning to RESOLVED and none exists yet', async () => {
+    it('generates a csatToken when transitioning to RESOLVED and evaluation is enabled', async () => {
+      mockPrismaService.serviceDesk.findUnique.mockResolvedValue({
+        evaluationEnabled: true,
+        listedGroupsOnly: false,
+        allowPauseResumeSla: true,
+        allowReopenUnbilled: true,
+        allowReopenBilled: false,
+        agents: [],
+        agentGroups: [],
+      });
       mockPrismaService.ticket.findUnique.mockResolvedValue({
         id: 't1',
         status: TicketStatus.IN_PROGRESS,
@@ -1185,6 +1272,190 @@ describe('TicketsService', () => {
       await expect(service.findAudits('missing')).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  describe('cancel', () => {
+    it('closes the ticket with defaultClosedStatus and writes a cancelled audit', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.OPEN,
+        serviceDeskId: 'desk-1',
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.CLOSED,
+      });
+
+      const result = await service.cancel('t1', actingUser);
+
+      expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
+        where: { id: 't1' },
+        data: { status: TicketStatus.CLOSED },
+        include: { requester: { select: { email: true } } },
+      });
+      expect(mockPrismaService.ticketAudit.create).toHaveBeenCalledWith({
+        data: {
+          action: 'cancelled',
+          prevVal: TicketStatus.OPEN,
+          newVal: TicketStatus.CLOSED,
+          ticketId: 't1',
+          userId: actingUser.id,
+        },
+      });
+      expect(result.status).toBe(TicketStatus.CLOSED);
+    });
+
+    it('returns 403 when the mesa forbids cancel', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.OPEN,
+        serviceDeskId: 'desk-1',
+      });
+      mockPrismaService.serviceDesk.findUnique.mockResolvedValue({
+        allowCancelTicket: false,
+        listedGroupsOnly: false,
+        agents: [],
+        agentGroups: [],
+      });
+
+      await expect(service.cancel('t1', actingUser)).rejects.toThrow(ForbiddenException);
+      expect(mockPrismaService.ticket.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('addSlaHours', () => {
+    it('extends both deadlines when the mesa allows it', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-01-15T10:00:00.000Z'));
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        serviceDeskId: 'desk-1',
+        responseDeadline: new Date('2026-01-15T12:00:00.000Z'),
+        resolveDeadline: new Date('2026-01-16T10:00:00.000Z'),
+      });
+      mockPrismaService.serviceDesk.findUnique.mockResolvedValue({
+        allowAddSlaHours: true,
+        slaControlEnabled: true,
+        listedGroupsOnly: false,
+        agents: [],
+        agentGroups: [],
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({ id: 't1' });
+
+      await service.addSlaHours('t1', 2, actingUser);
+
+      expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
+        where: { id: 't1' },
+        data: {
+          responseDeadline: new Date('2026-01-15T14:00:00.000Z'),
+          resolveDeadline: new Date('2026-01-16T12:00:00.000Z'),
+        },
+      });
+    });
+
+    it('returns 403 when the mesa forbids adding hours', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        serviceDeskId: 'desk-1',
+        responseDeadline: new Date('2026-01-15T12:00:00.000Z'),
+        resolveDeadline: new Date('2026-01-16T10:00:00.000Z'),
+      });
+
+      await expect(service.addSlaHours('t1', 2, actingUser)).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+  });
+
+  describe('mesa reopen and pause policy', () => {
+    it('forbids billed reopen when allowReopenBilled is false', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.CLOSED,
+        serviceDeskId: 'desk-1',
+      });
+      mockPrismaService.worklog.findMany.mockResolvedValue([
+        { billable: true, valuationType: 'CONTRACT', value: null },
+      ]);
+
+      await expect(
+        service.changeStatus('t1', TicketStatus.OPEN, {
+          id: 'admin-1',
+          role: Role.ADMIN,
+        }),
+      ).rejects.toThrow(ForbiddenException);
+      expect(mockPrismaService.ticket.update).not.toHaveBeenCalled();
+    });
+
+    it('posts the default reopen reply when configured', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.CLOSED,
+        serviceDeskId: 'desk-1',
+      });
+      mockPrismaService.serviceDesk.findUnique.mockResolvedValue({
+        listedGroupsOnly: false,
+        allowPauseResumeSla: true,
+        allowReopenUnbilled: true,
+        allowReopenBilled: false,
+        reopenDefaultReplyUnbilled: 'Reaberto pela mesa.',
+        agents: [],
+        agentGroups: [],
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.OPEN,
+      });
+
+      await service.changeStatus('t1', TicketStatus.OPEN, {
+        id: 'admin-1',
+        role: Role.ADMIN,
+      });
+
+      expect(mockPrismaService.comment.create).toHaveBeenCalledWith({
+        data: {
+          content: 'Reaberto pela mesa.',
+          isInternal: false,
+          ticketId: 't1',
+          authorId: 'admin-1',
+        },
+      });
+    });
+
+    it('forbids pause when allowPauseResumeSla is false', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.IN_PROGRESS,
+        serviceDeskId: 'desk-1',
+      });
+      mockPrismaService.serviceDesk.findUnique.mockResolvedValue({
+        listedGroupsOnly: false,
+        allowPauseResumeSla: false,
+        agents: [],
+        agentGroups: [],
+      });
+
+      await expect(
+        service.changeStatus('t1', TicketStatus.ON_HOLD, actingUser),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('forbids unlisted agents from changing status when listedGroupsOnly', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.OPEN,
+        serviceDeskId: 'desk-1',
+      });
+      mockPrismaService.serviceDesk.findUnique.mockResolvedValue({
+        listedGroupsOnly: true,
+        allowPauseResumeSla: true,
+        agents: [],
+        agentGroups: [],
+      });
+
+      await expect(
+        service.changeStatus('t1', TicketStatus.IN_PROGRESS, actingUser),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 });

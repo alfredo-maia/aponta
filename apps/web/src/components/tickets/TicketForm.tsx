@@ -23,7 +23,17 @@ import {
 import { useState } from 'react';
 import { CalendarClock } from 'lucide-react';
 
-interface ServiceDesk { id: string; name: string; }
+interface ServiceDesk {
+  id: string;
+  name: string;
+  displayName?: string | null;
+  active?: boolean;
+  acceptingNewTickets?: boolean;
+  internalUse?: boolean;
+  catalogRequiredOnOpen?: boolean;
+  requireAttachments?: boolean;
+  priorities?: { ticketPriority: TicketPriority; enabled: boolean; label?: string }[];
+}
 interface Organization { id: string; name: string; active?: boolean }
 interface UserData { id: string; name: string; organizationId?: string }
 
@@ -39,7 +49,7 @@ export const ticketFormSchema = z.object({
   // these fields — see CreateTicketPage's mutationFn). They stay as
   // optional UI affordances until that backend work lands.
   organizationId: z.string().optional(),
-  serviceDeskId: z.string().min(1, 'Mesa de Serviço é obrigatória'),
+  serviceDeskId: z.string().min(1, 'Mesa é obrigatória'),
   requesterId: z.string().optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
   parentId: z.string().optional(),
@@ -111,9 +121,18 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
   });
 
   const watchOrgId = watch('organizationId');
+  const watchDeskId = watch('serviceDeskId');
   const [showSchedule, setShowSchedule] = useState(false);
 
-  const availableDesks = serviceDesks; 
+  const availableDesks = serviceDesks.filter((desk) => {
+    if (desk.active === false || desk.acceptingNewTickets === false) return false;
+    if (isClientBase && desk.internalUse === true) return false;
+    return true;
+  });
+  const selectedDesk = availableDesks.find((desk) => desk.id === watchDeskId);
+  const availablePriorities = selectedDesk?.priorities?.length
+    ? selectedDesk.priorities.filter((priority) => priority.enabled)
+    : priorities.map((p) => ({ ticketPriority: p, enabled: true, label: priorityLabels[p] })); 
 
   const availableRequesters = users.filter(u => {
     if (currentUser?.role === 'CLIENT') return u.id === currentUser?.sub;
@@ -128,7 +147,11 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
 
   return (
     <form
-      onSubmit={handleSubmit((data) => onSubmit(data))}
+      onSubmit={handleSubmit((data) => {
+        if (selectedDesk?.catalogRequiredOnOpen && !catalogOverride) return;
+        if (selectedDesk?.requireAttachments && !(data.attachments?.length)) return;
+        onSubmit(data);
+      })}
       noValidate
       className="w-full space-y-6 bg-white p-6 md:p-8 rounded-[16px] border border-gray-100 shadow-[0_1px_8px_rgba(0,0,0,0.04)]"
     >
@@ -157,7 +180,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
           render={({ field }) => (
             <EzComboBox
               id="ticket-service-desk"
-              label="Mesa de Serviço"
+              label="Mesa"
               value={field.value}
               onChange={field.onChange}
               hasError={!!errors.serviceDeskId}
@@ -166,10 +189,15 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
               disabled={!!catalogOverride}
             >
               <option value="">Selecione uma mesa</option>
-              {availableDesks.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+              {availableDesks.map(d => <option key={d.id} value={d.id}>{d.displayName || d.name}</option>)}
             </EzComboBox>
           )}
         />
+        {selectedDesk?.catalogRequiredOnOpen && !catalogOverride && (
+          <p className="text-sm text-amber-700 md:col-span-2">
+            Esta mesa exige um item do catálogo. Selecione o catálogo antes de abrir o ticket.
+          </p>
+        )}
 
         <Controller
           name="requesterId"
@@ -202,7 +230,11 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
               message={errors.priority?.message}
               disabled={!!catalogOverride}
             >
-              {priorities.map(p => <option key={p} value={p}>{priorityLabels[p]}</option>)}
+              {availablePriorities.map((p) => (
+                <option key={p.ticketPriority} value={p.ticketPriority}>
+                  {p.label ?? priorityLabels[p.ticketPriority]}
+                </option>
+              ))}
             </EzComboBox>
           )}
         />
@@ -241,7 +273,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
           render={({ field }) => (
             <div className="space-y-2">
               <EzUpload
-                label="Anexar arquivos (Imagens, PDF, Docs)"
+                label={selectedDesk?.requireAttachments ? 'Anexos (obrigatório nesta mesa)' : 'Anexar arquivos (Imagens, PDF, Docs)'}
                 accept="image/*,.pdf,.doc,.docx"
                 multiple
                 onChange={(files) => field.onChange([...(field.value || []), ...files])}
