@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import {
   Clock,
   Plus,
@@ -14,6 +14,7 @@ import {
   Square,
   X,
   CheckCircle2,
+  Funnel,
 } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
@@ -21,7 +22,8 @@ import { useAuthStore } from '../../stores/authStore';
 import { useWorklogs, useCreateWorklog, useDeleteWorklog, Worklog, AttendanceType, ValuationType } from '../../hooks/useWorklogs';
 import type { TicketStatus } from '../../hooks/useTickets';
 import { statusLabels } from './TicketCard';
-import { EzSpinner, EzAlert, EzTag, EzModal, EzRichText } from '../ds';
+import { EzSpinner, EzAlert, EzTag, EzModal, EzRichText, EzButton, EzPopover } from '../ds';
+import { cn } from '../ds/utils';
 import { isBlankRichText, RichContentView } from './RichContentView';
 
 export function WorklogDescriptionView({ description }: { description: string }) {
@@ -271,8 +273,10 @@ export function TicketWorklogs({
   );
 
   const [formError, setFormError] = useState<string | null>(null);
-  const [expandAll, setExpandAll] = useState<boolean>(true);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [filterAuthorId, setFilterAuthorId] = useState<string>('');
+  const [filterAttendance, setFilterAttendance] = useState<'' | AttendanceType>('');
 
   // Auto-save draft on every change, including close via X / overlay / refresh.
   useEffect(() => {
@@ -392,8 +396,45 @@ export function TicketWorklogs({
     worklogs.map((wl) => wl.authorId || (wl.author as { id?: string })?.id).filter(Boolean),
   ).size;
 
+  const authorOptions = Array.from(
+    new Map(
+      worklogs
+        .map((wl) => {
+          const id = wl.authorId || wl.author?.id || '';
+          return [id, wl.author?.name || 'Técnico'] as const;
+        })
+        .filter(([id]) => Boolean(id)),
+    ).entries(),
+  );
+
+  const visibleWorklogs = worklogs
+    .filter((wl) => {
+      const authorId = wl.authorId || wl.author?.id || '';
+      if (filterAuthorId && authorId !== filterAuthorId) return false;
+      if (filterAttendance && wl.attendanceType !== filterAttendance) return false;
+      return true;
+    })
+    .slice()
+    .sort((a, b) => {
+      const delta = new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+      return sortDir === 'asc' ? delta : -delta;
+    });
+
+  const visibleTotalMinutes = visibleWorklogs.reduce((acc, wl) => acc + wl.minutes, 0);
+  const visibleTotalValue = visibleWorklogs.reduce((acc, wl) => acc + (wl.value ?? 0), 0);
+  const allRowsExpanded =
+    visibleWorklogs.length > 0 && visibleWorklogs.every((wl) => Boolean(expandedRows[wl.id]));
+
   const toggleRow = (id: string) => {
     setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const toggleExpandAll = () => {
+    if (allRowsExpanded) {
+      setExpandedRows({});
+      return;
+    }
+    setExpandedRows(Object.fromEntries(visibleWorklogs.map((wl) => [wl.id, true])));
   };
 
   const executeSubmit = async (mode: 'NORMAL' | 'CLOSE_TICKET' | 'SAVE_AND_NEW' = 'NORMAL') => {
@@ -626,15 +667,14 @@ export function TicketWorklogs({
               </div>
             )}
 
-            <button
+            <EzButton
               type="button"
               data-testid="open-worklog-modal-btn"
+              size="small"
+              leftIcon={Plus}
+              label="Apontamento"
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-[#00B5A5] hover:bg-[#009E90] rounded-[6px] shadow-xs transition-colors cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              + Apontamento
-            </button>
+            />
           </div>
         </div>
 
@@ -916,6 +956,7 @@ export function TicketWorklogs({
                 spellCheck={true}
                 lang="pt-BR"
                 minHeightClass="min-h-[240px]"
+                renderPreview={(html) => <RichContentView content={html} />}
               />
               <div className="flex items-center justify-between text-[11px] text-gray-400">
                 <span className="text-gray-500 flex items-center gap-1.5">
@@ -956,64 +997,121 @@ export function TicketWorklogs({
               </label>
             </div>
 
-            {/* Action buttons (TiFlux parity) */}
+            {/* Action buttons (DS / Storybook EzButton) */}
             <div className="flex flex-wrap items-center justify-end gap-2.5 pt-3 border-t border-gray-100">
-              <button
+              <EzButton
                 type="button"
                 data-testid="worklog-submit-close-button"
+                variant="tertiary"
+                size="small"
                 disabled={createMutation.isPending}
+                label="Salvar e fechar ticket"
                 onClick={() => executeSubmit('CLOSE_TICKET')}
-                className="px-3.5 py-1.5 text-[13px] font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-[6px] transition-colors disabled:opacity-50 cursor-pointer"
-              >
-                Salvar e fechar ticket
-              </button>
-              <button
+              />
+              <EzButton
                 type="button"
                 data-testid="worklog-submit-new-button"
+                variant="secondary"
+                size="small"
                 disabled={createMutation.isPending}
+                label="Salvar e criar novo apontamento"
                 onClick={() => executeSubmit('SAVE_AND_NEW')}
-                className="px-3.5 py-1.5 text-[13px] font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-[6px] transition-colors disabled:opacity-50 cursor-pointer"
-              >
-                Salvar e criar novo apontamento
-              </button>
-              <button
+              />
+              <EzButton
                 type="submit"
                 data-testid="worklog-submit-button"
+                size="small"
                 disabled={createMutation.isPending}
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 text-[13px] font-medium text-white bg-[#00B5A5] hover:bg-[#009E90] rounded-[6px] transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
-              >
-                {createMutation.isPending ? (
-                  <>
-                    <EzSpinner size={16} />
-                    Salvando…
-                  </>
-                ) : (
-                  'Salvar'
-                )}
-              </button>
+                label={createMutation.isPending ? 'Salvando…' : 'Salvar'}
+              />
             </div>
           </form>
         </EzModal>
 
         {/* Worklogs Table / List Header Controls */}
-        <div className="flex items-center justify-between pt-1">
+        <div className="flex items-center justify-between pt-1 gap-2">
           <span className="text-[13px] font-medium text-gray-700">Histórico de Apontamentos</span>
           {worklogs.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setExpandAll((prev) => !prev)}
-              className="inline-flex items-center gap-1 px-2.5 py-1 text-[12px] font-medium text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-[6px] border border-gray-200 cursor-pointer"
-            >
-              {expandAll ? (
-                <>
-                  <ChevronUp className="w-3.5 h-3.5" /> Recolher todos
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="w-3.5 h-3.5" /> Expandir todos
-                </>
-              )}
-            </button>
+            <div className="flex items-center gap-2">
+              <EzPopover
+                align="right"
+                trigger={
+                  <button
+                    type="button"
+                    data-testid="worklog-filter-funnel-btn"
+                    className={cn(
+                      'inline-flex items-center gap-1 px-2.5 py-1 text-[12px] font-medium rounded-[6px] border cursor-pointer',
+                      filterAuthorId || filterAttendance
+                        ? 'text-brand-700 bg-brand-50 border-brand-200'
+                        : 'text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border-gray-200',
+                    )}
+                    title="Filtrar histórico"
+                  >
+                    <Funnel className="w-3.5 h-3.5" />
+                    Filtros
+                  </button>
+                }
+                content={
+                  <div className="w-64 space-y-3" data-testid="worklog-filter-popover">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-medium text-gray-600">Atendente</label>
+                      <select
+                        data-testid="worklog-filter-author"
+                        value={filterAuthorId}
+                        onChange={(e) => setFilterAuthorId(e.target.value)}
+                        className="w-full px-2 py-1.5 text-[12px] border border-gray-300 rounded-[6px] bg-white"
+                      >
+                        <option value="">Todos</option>
+                        {authorOptions.map(([id, name]) => (
+                          <option key={id} value={id}>
+                            {name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-medium text-gray-600">Atendimento</label>
+                      <select
+                        data-testid="worklog-filter-attendance"
+                        value={filterAttendance}
+                        onChange={(e) => setFilterAttendance(e.target.value as '' | AttendanceType)}
+                        className="w-full px-2 py-1.5 text-[12px] border border-gray-300 rounded-[6px] bg-white"
+                      >
+                        <option value="">Todos</option>
+                        <option value="REMOTE">Remoto</option>
+                        <option value="ON_SITE">Presencial</option>
+                      </select>
+                    </div>
+                    <EzButton
+                      type="button"
+                      variant="tertiary"
+                      size="x-small"
+                      label="Limpar filtros"
+                      onClick={() => {
+                        setFilterAuthorId('');
+                        setFilterAttendance('');
+                      }}
+                    />
+                  </div>
+                }
+              />
+              <button
+                type="button"
+                data-testid="worklog-expand-all-btn"
+                onClick={toggleExpandAll}
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-[12px] font-medium text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-[6px] border border-gray-200 cursor-pointer"
+              >
+                {allRowsExpanded ? (
+                  <>
+                    <ChevronUp className="w-3.5 h-3.5" /> Recolher todos
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="w-3.5 h-3.5" /> Expandir todos
+                  </>
+                )}
+              </button>
+            </div>
           )}
         </div>
 
@@ -1044,7 +1142,21 @@ export function TicketWorklogs({
                   <tr className="bg-gray-50/80 border-b border-gray-200 text-gray-500 text-[12px] font-medium">
                     <th className="py-2.5 px-3 w-8"></th>
                     <th className="py-2.5 px-3">Atendente</th>
-                    <th className="py-2.5 px-3">Data do apontamento</th>
+                    <th className="py-2.5 px-3">
+                      <button
+                        type="button"
+                        data-testid="worklog-sort-day-btn"
+                        onClick={() => setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))}
+                        className="inline-flex items-center gap-1 hover:text-gray-800 cursor-pointer"
+                      >
+                        Data do apontamento
+                        {sortDir === 'asc' ? (
+                          <ChevronUp className="w-3 h-3" />
+                        ) : (
+                          <ChevronDown className="w-3 h-3" />
+                        )}
+                      </button>
+                    </th>
                     <th className="py-2.5 px-3">Atendimento</th>
                     <th className="py-2.5 px-3">Deslocamento</th>
                     <th className="py-2.5 px-3">Contrato / Serviço avulso</th>
@@ -1053,15 +1165,15 @@ export function TicketWorklogs({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-white">
-                  {worklogs.map((wl: Worklog) => {
+                  {visibleWorklogs.map((wl: Worklog) => {
                     const canDelete = isAdmin || wl.authorId === user?.sub;
-                    const isRowExpanded = expandAll || Boolean(expandedRows[wl.id]);
+                    const isRowExpanded = Boolean(expandedRows[wl.id]);
                     const formattedDate = new Date(wl.startTime).toLocaleDateString('pt-BR');
                     const formattedRange = `${formatTimeOfDay(wl.startTime)} - ${formatTimeOfDay(wl.endTime)}`;
 
                     return (
+                      <Fragment key={wl.id}>
                       <tr
-                        key={wl.id}
                         data-testid={`worklog-item-${wl.id}`}
                         className="hover:bg-gray-50/60 transition-colors group"
                       >
@@ -1133,35 +1245,39 @@ export function TicketWorklogs({
                           )}
                         </td>
                       </tr>
+                      {isRowExpanded && (
+                        <tr data-testid={`worklog-detail-${wl.id}`} className="bg-gray-50/70">
+                          <td colSpan={8} className="px-4 py-3">
+                            <div className="text-[12px] bg-white p-3 rounded-[6px] border border-gray-200 text-gray-800">
+                              <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+                                Detalhamento das atividades
+                              </span>
+                              <WorklogDescriptionView description={wl.description} />
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                      </Fragment>
                     );
                   })}
                 </tbody>
+                <tfoot>
+                  <tr className="bg-gray-50 border-t border-gray-200 text-[12px]">
+                    <td colSpan={6} className="py-2.5 px-3 font-medium text-gray-600">
+                      Total de horas:{' '}
+                      <strong className="text-gray-900 font-mono" data-testid="worklog-footer-hours">
+                        {formatWorklogMinutes(visibleTotalMinutes)}
+                      </strong>
+                    </td>
+                    <td className="py-2.5 px-3 font-medium text-gray-600" colSpan={2}>
+                      Total do valor:{' '}
+                      <strong className="text-gray-900 font-mono" data-testid="worklog-footer-value">
+                        {formatWorklogValue(visibleTotalValue)}
+                      </strong>
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
-
-              {/* Expanded descriptions accordion view for clarity */}
-              {worklogs.some((wl) => expandAll || expandedRows[wl.id]) && (
-                <div className="p-3 bg-gray-50/50 border-t border-gray-100 space-y-2">
-                  <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block">
-                    Detalhamento das Atividades:
-                  </span>
-                  {worklogs
-                    .filter((wl) => expandAll || expandedRows[wl.id])
-                    .map((wl) => (
-                      <div
-                        key={`desc-${wl.id}`}
-                        className="text-[12px] bg-white p-3 rounded-[6px] border border-gray-200 text-gray-800 space-y-1.5 shadow-2xs"
-                      >
-                        <div className="font-semibold text-gray-900 flex items-center gap-2">
-                          <User className="w-3.5 h-3.5 text-gray-400" />
-                          <span>{wl.author?.name || 'Técnico'}</span>
-                        </div>
-                        <div className="pt-0.5">
-                          <WorklogDescriptionView description={wl.description} />
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              )}
             </div>
           )}
         </div>

@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import type { EditorView } from '@tiptap/pm/view';
 import StarterKit from '@tiptap/starter-kit';
@@ -71,6 +71,11 @@ export interface EzRichTextProps {
    * Extra class for the editor min-height.
    */
   minHeightClass?: string;
+  /**
+   * Optional renderer used by the preview (eye) mode so the technician
+   * sees the same layout the client will receive.
+   */
+  renderPreview?: (html: string) => ReactNode;
 }
 
 function normalizeEditorHtml(html: string | undefined): string {
@@ -98,11 +103,37 @@ export function collectImageFiles(data: DataTransfer | null): File[] {
   return files;
 }
 
-function insertImageAtCursor(view: EditorView, url: string, alt: string) {
+export function insertImageAtCursor(view: EditorView, url: string, alt: string) {
   const image = view.state.schema.nodes.image;
   if (!image) return;
-  const node = image.create({ src: url, alt });
-  view.dispatch(view.state.tr.replaceSelectionWith(node).scrollIntoView());
+  const imageNode = image.create({ src: url, alt });
+  let tr = view.state.tr.replaceSelectionWith(imageNode);
+  const paragraph = view.state.schema.nodes.paragraph;
+  if (paragraph) {
+    tr = tr.insert(tr.selection.from, paragraph.create());
+  }
+  view.dispatch(tr.scrollIntoView());
+}
+
+export function tryHandleImageFiles(
+  view: EditorView,
+  data: DataTransfer | null,
+  upload?: (file: File) => Promise<string>,
+): boolean {
+  if (!upload) return false;
+  const files = collectImageFiles(data);
+  if (files.length === 0) return false;
+  void (async () => {
+    for (const file of files) {
+      try {
+        const url = await upload(file);
+        insertImageAtCursor(view, url, file.name || 'Evidência anexada');
+      } catch {
+        // Consumer surfaces upload errors.
+      }
+    }
+  })();
+  return true;
 }
 
 /**
@@ -124,6 +155,7 @@ export const EzRichText = forwardRef<HTMLDivElement, EzRichTextProps>(
       spellCheck = true,
       lang = 'pt-BR',
       minHeightClass = 'min-h-[120px]',
+      renderPreview,
     },
     ref,
   ) => {
@@ -143,7 +175,7 @@ export const EzRichText = forwardRef<HTMLDivElement, EzRichTextProps>(
         }),
         Image.configure({
           HTMLAttributes: {
-            class: 'max-w-full h-auto rounded-lg border border-gray-200 my-3 shadow-sm',
+            class: 'block mx-auto max-w-full h-auto rounded-lg my-4',
           },
         }),
       ],
@@ -164,39 +196,17 @@ export const EzRichText = forwardRef<HTMLDivElement, EzRichTextProps>(
           autocapitalize: 'sentences',
         },
         handlePaste(_view, event) {
-          const upload = onUploadImageRef.current;
-          if (!upload) return false;
-          const files = collectImageFiles(event.clipboardData ?? null);
-          if (files.length === 0) return false;
+          if (!tryHandleImageFiles(_view, event.clipboardData ?? null, onUploadImageRef.current)) {
+            return false;
+          }
           event.preventDefault();
-          void (async () => {
-            for (const file of files) {
-              try {
-                const url = await upload(file);
-                insertImageAtCursor(_view, url, file.name || 'Evidência anexada');
-              } catch {
-                // Consumer is responsible for surfacing upload errors.
-              }
-            }
-          })();
           return true;
         },
         handleDrop(_view, event) {
-          const upload = onUploadImageRef.current;
-          if (!upload) return false;
-          const files = collectImageFiles(event.dataTransfer ?? null);
-          if (files.length === 0) return false;
+          if (!tryHandleImageFiles(_view, event.dataTransfer ?? null, onUploadImageRef.current)) {
+            return false;
+          }
           event.preventDefault();
-          void (async () => {
-            for (const file of files) {
-              try {
-                const url = await upload(file);
-                insertImageAtCursor(_view, url, file.name || 'Evidência anexada');
-              } catch {
-                // Consumer is responsible for surfacing upload errors.
-              }
-            }
-          })();
           return true;
         },
       },
@@ -345,19 +355,37 @@ export const EzRichText = forwardRef<HTMLDivElement, EzRichTextProps>(
               icon={isPreview ? EyeOff : Eye}
               title={isPreview ? 'Sair do Preview' : 'Visualizar Preview'}
               active={isPreview}
-              onClick={() => setIsPreview(!isPreview)}
+              onClick={() => setIsPreview((prev) => !prev)}
             />
           </div>
 
-          {/* Editor Area */}
+          {/* Editor / Preview Area */}
           <div
             data-testid={testId}
             className={cn(
               'w-full max-h-[400px] overflow-y-auto',
-              isPreview ? 'bg-gray-80' : 'bg-white'
+              isPreview ? 'bg-gray-50' : 'bg-white',
             )}
           >
-            <EditorContent editor={editor} />
+            {isPreview ? (
+              <div
+                data-testid="rich-text-preview"
+                className={cn(
+                  'prose prose-sm max-w-none p-4 text-gray-900 [&_img]:mx-auto [&_img]:block [&_img]:max-h-80 [&_img]:rounded-lg [&_p]:min-h-[1.5em]',
+                  minHeightClass,
+                )}
+              >
+                {renderPreview
+                  ? renderPreview(editor?.getHTML() || value || '')
+                  : (
+                    <div
+                      dangerouslySetInnerHTML={{ __html: editor?.getHTML() || value || '' }}
+                    />
+                  )}
+              </div>
+            ) : (
+              <EditorContent editor={editor} />
+            )}
           </div>
         </div>
 

@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeAll } from 'vitest';
-import { collectImageFiles, EzRichText } from './EzRichText';
+import { collectImageFiles, EzRichText, tryHandleImageFiles } from './EzRichText';
 
 /**
  * NOTE: jsdom has no real layout engine — ProseMirror's focus/selection
@@ -57,6 +57,22 @@ describe('EzRichText', () => {
 
     await user.click(screen.getByTitle('Visualizar Preview'));
     expect(screen.getByTitle('Sair do Preview')).toBeInTheDocument();
+    expect(screen.getByTestId('rich-text-preview')).toHaveTextContent('Hello');
+  });
+
+  it('renders a custom preview when renderPreview is provided', async () => {
+    const user = userEvent.setup();
+    render(
+      <EzRichText
+        testId="rt"
+        value="<p>Cliente vê isto</p>"
+        onChange={vi.fn()}
+        renderPreview={(html) => <div data-testid="custom-preview">{html}</div>}
+      />,
+    );
+
+    await user.click(screen.getByTitle('Visualizar Preview'));
+    expect(screen.getByTestId('custom-preview')).toHaveTextContent('Cliente vê isto');
   });
 
   it('shows the error message when hasError is set', () => {
@@ -193,5 +209,51 @@ describe('EzRichText', () => {
 
     expect(collectImageFiles(clipboardData)).toEqual([file]);
     expect(collectImageFiles(null)).toEqual([]);
+  });
+
+  it('uploads pasted images through tryHandleImageFiles and ignores empty clipboards', async () => {
+    const file = new File(['bytes'], 'shot.png', { type: 'image/png' });
+    const upload = vi.fn().mockResolvedValue('/uploads/shot.png');
+    const imageCreate = vi.fn(() => ({ type: 'image' }));
+    const paragraphCreate = vi.fn(() => ({ type: 'paragraph' }));
+    const tr = {
+      replaceSelectionWith: vi.fn().mockReturnThis(),
+      insert: vi.fn().mockReturnThis(),
+      scrollIntoView: vi.fn().mockReturnThis(),
+      selection: { from: 1 },
+    };
+    const view = {
+      state: {
+        schema: { nodes: { image: { create: imageCreate }, paragraph: { create: paragraphCreate } } },
+        tr,
+      },
+      dispatch: vi.fn(),
+    } as unknown as Parameters<typeof tryHandleImageFiles>[0];
+
+    expect(tryHandleImageFiles(view, null, upload)).toBe(false);
+    expect(
+      tryHandleImageFiles(view, { files: [], items: [] } as unknown as DataTransfer, upload),
+    ).toBe(false);
+
+    const handled = tryHandleImageFiles(
+      view,
+      { files: [file], items: [{ type: 'image/png', getAsFile: () => file }] } as unknown as DataTransfer,
+      upload,
+    );
+    expect(handled).toBe(true);
+    await waitFor(() => {
+      expect(upload).toHaveBeenCalledWith(file);
+      expect(view.dispatch).toHaveBeenCalled();
+    });
+
+    const failingUpload = vi.fn().mockRejectedValue(new Error('fail'));
+    expect(
+      tryHandleImageFiles(
+        view,
+        { files: [file], items: [{ type: 'image/png', getAsFile: () => file }] } as unknown as DataTransfer,
+        failingUpload,
+      ),
+    ).toBe(true);
+    await waitFor(() => expect(failingUpload).toHaveBeenCalled());
   });
 });

@@ -147,11 +147,12 @@ describe('TicketWorklogs', () => {
     expect(screen.getByTestId('ticket-worklogs-section')).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByText('Diagnóstico e análise')).toBeInTheDocument();
-      expect(screen.getByText('Reunião interna sobre escopo')).toBeInTheDocument();
+      expect(screen.getByTestId('worklog-item-wl-1')).toBeInTheDocument();
+      expect(screen.getByTestId('worklog-item-wl-2')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('1h 30m')).toBeInTheDocument(); // total 90m
+    expect(screen.queryByText('Diagnóstico e análise')).not.toBeInTheDocument();
+    expect(screen.getAllByText('1h 30m').length).toBeGreaterThan(0);
     expect(screen.getByText('Faturável')).toBeInTheDocument();
     expect(screen.getByText('Não Faturável')).toBeInTheDocument();
     expect(within(screen.getByTestId('worklog-item-wl-1')).getByText('Remoto')).toBeInTheDocument();
@@ -631,6 +632,67 @@ describe('TicketWorklogs', () => {
     renderComponent('t-1', true);
 
     expect(screen.getByRole('dialog').className).toMatch(/max-w-5xl/);
+  });
+
+  it('expands and collapses activity details per row and in bulk', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: mockWorklogs });
+
+    const user = userEvent.setup();
+    renderComponent('t-1', false);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('worklog-item-wl-1')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId('worklog-detail-wl-1')).not.toBeInTheDocument();
+
+    await user.click(screen.getByTestId('worklog-expand-all-btn'));
+    expect(screen.getByTestId('worklog-detail-wl-1')).toBeInTheDocument();
+    expect(screen.getByText('Diagnóstico e análise')).toBeInTheDocument();
+
+    await user.click(screen.getByTestId('worklog-expand-all-btn'));
+    expect(screen.queryByTestId('worklog-detail-wl-1')).not.toBeInTheDocument();
+  });
+
+  it('filters the history by attendant and attendance type via the funnel', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: mockWorklogs });
+
+    const user = userEvent.setup();
+    renderComponent('t-1', false);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('worklog-item-wl-1')).toBeInTheDocument();
+      expect(screen.getByTestId('worklog-item-wl-2')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId('worklog-filter-funnel-btn'));
+    await user.selectOptions(screen.getByTestId('worklog-filter-author'), 'u-1');
+
+    expect(screen.getByTestId('worklog-item-wl-1')).toBeInTheDocument();
+    expect(screen.queryByTestId('worklog-item-wl-2')).not.toBeInTheDocument();
+
+    await user.selectOptions(screen.getByTestId('worklog-filter-attendance'), 'ON_SITE');
+    expect(screen.queryByTestId('worklog-item-wl-1')).not.toBeInTheDocument();
+  });
+
+  it('sorts worklogs by day and shows filtered totals in the footer', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: mockWorklogs });
+
+    const user = userEvent.setup();
+    renderComponent('t-1', false);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('worklog-footer-hours')).toHaveTextContent('1h 30m');
+    });
+    expect(screen.getByTestId('worklog-footer-value')).toHaveTextContent('R$ 100,00');
+
+    const rowsBefore = screen.getAllByTestId(/worklog-item-/).map((el) => el.getAttribute('data-testid'));
+    await user.click(screen.getByTestId('worklog-sort-day-btn'));
+    const rowsAfter = screen.getAllByTestId(/worklog-item-/).map((el) => el.getAttribute('data-testid'));
+    expect(rowsAfter).not.toEqual(rowsBefore);
   });
 });
 

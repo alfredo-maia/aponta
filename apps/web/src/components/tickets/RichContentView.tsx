@@ -1,4 +1,3 @@
-import { ExternalLink, Image as ImageIcon } from 'lucide-react';
 import { createElement, type ReactNode } from 'react';
 
 const HTML_TAG_RE = /<\/?(p|div|span|br|strong|b|em|i|u|ul|ol|li|a|img|h[1-3]|blockquote)\b/i;
@@ -48,33 +47,16 @@ export function isSafeMediaUrl(raw: string | null | undefined): boolean {
   return /^https?:\/\//i.test(url);
 }
 
-function EvidenceImage({ src, alt }: { src: string; alt: string }) {
+function InlineImage({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="my-2 border border-gray-200 rounded-[8px] overflow-hidden bg-gray-50 max-w-lg shadow-2xs">
-      <div className="p-1 bg-white border-b border-gray-100 flex items-center justify-between text-[11px] text-gray-500 px-2.5">
-        <span className="font-medium truncate flex items-center gap-1.5">
-          <ImageIcon className="w-3.5 h-3.5 text-gray-400" />
-          {alt || 'Evidência anexada'}
-        </span>
-        <a
-          href={src}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1 text-brand-600 hover:text-brand-800 hover:underline shrink-0 font-medium"
-        >
-          <ExternalLink className="w-3 h-3" />
-          Abrir em tamanho real
-        </a>
-      </div>
-      <a href={src} target="_blank" rel="noreferrer" className="block overflow-hidden bg-black/2 p-1">
-        <img
-          src={src}
-          alt={alt || 'Evidência'}
-          className="max-h-64 w-auto object-contain mx-auto rounded transition-transform duration-200 hover:scale-[1.01]"
-          loading="lazy"
-        />
-      </a>
-    </div>
+    <a href={src} target="_blank" rel="noreferrer" className="block my-4">
+      <img
+        src={src}
+        alt={alt || 'Evidência'}
+        className="block mx-auto max-h-80 w-auto max-w-full rounded-lg object-contain"
+        loading="lazy"
+      />
+    </a>
   );
 }
 
@@ -103,7 +85,7 @@ function renderNode(node: ChildNode, key: number): ReactNode {
   if (tag === 'img') {
     const src = el.getAttribute('src');
     if (!isSafeMediaUrl(src)) return null;
-    return <EvidenceImage key={key} src={src!} alt={el.getAttribute('alt') || ''} />;
+    return <InlineImage key={key} src={src!} alt={el.getAttribute('alt') || ''} />;
   }
 
   if (tag === 'br') {
@@ -181,7 +163,7 @@ function MarkdownContent({ content }: { content: string }) {
           );
         }
         if (!isSafeMediaUrl(part.content)) return null;
-        return <EvidenceImage key={idx} src={part.content} alt={part.alt || ''} />;
+        return <InlineImage key={idx} src={part.content} alt={part.alt || ''} />;
       })}
     </div>
   );

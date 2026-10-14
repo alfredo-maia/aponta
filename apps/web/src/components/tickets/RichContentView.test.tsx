@@ -34,17 +34,15 @@ describe('RichContentView', () => {
     expect(screen.getByText('Diagnóstico concluído')).toBeInTheDocument();
   });
 
-  it('renders markdown images as elegant evidence cards', () => {
+  it('renders markdown images centered and clickable', () => {
     render(
       <RichContentView content={'Erro na tela:\n![evidencia.png](https://cdn.aponta.com/tela.png)'} />,
     );
 
     expect(screen.getByText('Erro na tela:')).toBeInTheDocument();
-    expect(screen.getByAltText('evidencia.png')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /abrir em tamanho real/i })).toHaveAttribute(
-      'href',
-      'https://cdn.aponta.com/tela.png',
-    );
+    const image = screen.getByAltText('evidencia.png');
+    expect(image).toBeInTheDocument();
+    expect(image.closest('a')).toHaveAttribute('href', 'https://cdn.aponta.com/tela.png');
   });
 
   it('renders html images without exposing raw markup to the client', () => {
@@ -53,7 +51,8 @@ describe('RichContentView', () => {
     );
 
     expect(screen.getByText('Segue evidência:')).toBeInTheDocument();
-    expect(screen.getByAltText('Tela do erro')).toBeInTheDocument();
+    const image = screen.getByAltText('Tela do erro');
+    expect(image.closest('a')).toHaveAttribute('href', '/uploads/shot.png');
     expect(screen.queryByText(/<img/i)).not.toBeInTheDocument();
   });
 
@@ -65,5 +64,14 @@ describe('RichContentView', () => {
     expect(screen.getByText('Ok')).toBeInTheDocument();
     expect(screen.queryByAltText('x')).not.toBeInTheDocument();
     expect(document.querySelector('script')).toBeNull();
+  });
+
+  it('keeps safe links and unwraps unknown tags', () => {
+    render(
+      <RichContentView content='<p>Veja <a href="https://aponta.dev">o portal</a> e <unknown>texto</unknown></p>' />,
+    );
+
+    expect(screen.getByRole('link', { name: 'o portal' })).toHaveAttribute('href', 'https://aponta.dev');
+    expect(screen.getByText('texto')).toBeInTheDocument();
   });
 });
