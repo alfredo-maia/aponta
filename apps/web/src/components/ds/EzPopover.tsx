@@ -19,9 +19,22 @@ export const EzPopover = forwardRef<HTMLDivElement, EzPopoverProps>(
 
     useEffect(() => {
       const handleOutsideClick = (e: MouseEvent) => {
-        if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-          setIsOpen(false);
+        const target = e.target as HTMLElement | null;
+        if (!target) return;
+        if (containerRef.current?.contains(target)) return;
+        // Native <select> option lists render outside this React tree.
+        // Closing on that mousedown would drop the popover before change.
+        if (target.tagName === 'OPTION' || target.tagName === 'SELECT' || target.closest('select')) {
+          return;
         }
+        const active = document.activeElement;
+        if (
+          active instanceof HTMLSelectElement &&
+          containerRef.current?.contains(active)
+        ) {
+          return;
+        }
+        setIsOpen(false);
       };
       document.addEventListener('mousedown', handleOutsideClick);
       return () => document.removeEventListener('mousedown', handleOutsideClick);

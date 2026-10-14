@@ -376,12 +376,13 @@ export function TicketWorklogs({
       const cleanFileName = file.name && file.name !== 'image.png'
         ? file.name
         : `evidencia_${new Date().toISOString().replace(/[:.]/g, '-')}.png`;
-      formData.append('file', file, cleanFileName);
+      const mimeType = file.type && file.type.startsWith('image/') ? file.type : 'image/png';
+      const uploadFile = file.type === mimeType ? file : new File([file], cleanFileName, { type: mimeType });
+      formData.append('file', uploadFile, cleanFileName);
 
       const res = await api.post<{ id: string; fileUrl: string; originalName: string }>(
         `/tickets/${ticketId}/attachments`,
         formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } },
       );
 
       queryClient.invalidateQueries({ queryKey: ['attachments', ticketId] });
@@ -1144,6 +1145,17 @@ export function TicketWorklogs({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-white">
+                  {visibleWorklogs.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={8}
+                        className="py-8 px-3 text-center text-[13px] text-gray-500"
+                        data-testid="worklog-filter-empty"
+                      >
+                        Nenhum apontamento corresponde aos filtros selecionados.
+                      </td>
+                    </tr>
+                  )}
                   {visibleWorklogs.map((wl: Worklog) => {
                     const canDelete = isAdmin || wl.authorId === user?.sub;
                     const isRowExpanded = Boolean(expandedRows[wl.id]);

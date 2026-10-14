@@ -617,9 +617,6 @@ describe('TicketWorklogs', () => {
       expect(api.post).toHaveBeenCalledWith(
         '/tickets/t-1/attachments',
         expect.any(FormData),
-        expect.objectContaining({
-          headers: { 'Content-Type': 'multipart/form-data' },
-        }),
       );
     });
 
@@ -698,6 +695,9 @@ describe('TicketWorklogs', () => {
 
     await user.selectOptions(screen.getByTestId('worklog-filter-attendance'), 'ON_SITE');
     expect(screen.queryByTestId('worklog-item-wl-1')).not.toBeInTheDocument();
+    expect(screen.getByTestId('worklog-filter-empty')).toHaveTextContent(
+      'Nenhum apontamento corresponde aos filtros selecionados.',
+    );
   });
 
   it('sorts worklogs by day and shows filtered totals in the footer', async () => {
