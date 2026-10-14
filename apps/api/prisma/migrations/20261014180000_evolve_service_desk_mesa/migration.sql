@@ -95,34 +95,34 @@ ALTER TABLE "ServiceDeskTicketSection" ADD CONSTRAINT "ServiceDeskTicketSection_
 
 -- Backfill default priorities for existing desks
 INSERT INTO "ServiceDeskPriority" ("id", "serviceDeskId", "ticketPriority", "label", "icon", "sortOrder", "enabled")
-SELECT d.id || '-prio-CRITICAL', d.id, 'CRITICAL', 'Crítica', 'critical', 0, true FROM "ServiceDesk" d
+SELECT d.id || '-prio-CRITICAL', d.id, 'CRITICAL'::"TicketPriority", 'Crítica', 'critical', 0, true FROM "ServiceDesk" d
 UNION ALL
-SELECT d.id || '-prio-HIGH', d.id, 'HIGH', 'Alta', 'high', 1, true FROM "ServiceDesk" d
+SELECT d.id || '-prio-HIGH', d.id, 'HIGH'::"TicketPriority", 'Alta', 'high', 1, true FROM "ServiceDesk" d
 UNION ALL
-SELECT d.id || '-prio-MEDIUM', d.id, 'MEDIUM', 'Média', 'medium', 2, true FROM "ServiceDesk" d
+SELECT d.id || '-prio-MEDIUM', d.id, 'MEDIUM'::"TicketPriority", 'Média', 'medium', 2, true FROM "ServiceDesk" d
 UNION ALL
-SELECT d.id || '-prio-LOW', d.id, 'LOW', 'Baixa', 'low', 3, true FROM "ServiceDesk" d;
+SELECT d.id || '-prio-LOW', d.id, 'LOW'::"TicketPriority", 'Baixa', 'low', 3, true FROM "ServiceDesk" d;
 
 -- Backfill ticket sections: enabled for modules Aponta already renders
 INSERT INTO "ServiceDeskTicketSection" ("id", "serviceDeskId", "key", "enabled", "sortOrder")
-SELECT d.id || '-sec-GENERAL_INFO', d.id, 'GENERAL_INFO', true, 0 FROM "ServiceDesk" d
+SELECT d.id || '-sec-GENERAL_INFO', d.id, 'GENERAL_INFO'::"ServiceDeskSectionKey", true, 0 FROM "ServiceDesk" d
 UNION ALL
-SELECT d.id || '-sec-CATEGORY', d.id, 'CATEGORY', true, 1 FROM "ServiceDesk" d
+SELECT d.id || '-sec-CATEGORY', d.id, 'CATEGORY'::"ServiceDeskSectionKey", true, 1 FROM "ServiceDesk" d
 UNION ALL
-SELECT d.id || '-sec-SERVICE_TYPE', d.id, 'SERVICE_TYPE', false, 2 FROM "ServiceDesk" d
+SELECT d.id || '-sec-SERVICE_TYPE', d.id, 'SERVICE_TYPE'::"ServiceDeskSectionKey", false, 2 FROM "ServiceDesk" d
 UNION ALL
-SELECT d.id || '-sec-WORKLOGS', d.id, 'WORKLOGS', true, 3 FROM "ServiceDesk" d
+SELECT d.id || '-sec-WORKLOGS', d.id, 'WORKLOGS'::"ServiceDeskSectionKey", true, 3 FROM "ServiceDesk" d
 UNION ALL
-SELECT d.id || '-sec-COMMUNICATION', d.id, 'COMMUNICATION', true, 4 FROM "ServiceDesk" d
+SELECT d.id || '-sec-COMMUNICATION', d.id, 'COMMUNICATION'::"ServiceDeskSectionKey", true, 4 FROM "ServiceDesk" d
 UNION ALL
-SELECT d.id || '-sec-APPOINTMENTS', d.id, 'APPOINTMENTS', true, 5 FROM "ServiceDesk" d
+SELECT d.id || '-sec-APPOINTMENTS', d.id, 'APPOINTMENTS'::"ServiceDeskSectionKey", true, 5 FROM "ServiceDesk" d
 UNION ALL
-SELECT d.id || '-sec-VALUATION', d.id, 'VALUATION', true, 6 FROM "ServiceDesk" d
+SELECT d.id || '-sec-VALUATION', d.id, 'VALUATION'::"ServiceDeskSectionKey", true, 6 FROM "ServiceDesk" d
 UNION ALL
-SELECT d.id || '-sec-E_SIGNATURE', d.id, 'E_SIGNATURE', false, 7 FROM "ServiceDesk" d
+SELECT d.id || '-sec-E_SIGNATURE', d.id, 'E_SIGNATURE'::"ServiceDeskSectionKey", false, 7 FROM "ServiceDesk" d
 UNION ALL
-SELECT d.id || '-sec-GITHUB', d.id, 'GITHUB', false, 8 FROM "ServiceDesk" d
+SELECT d.id || '-sec-GITHUB', d.id, 'GITHUB'::"ServiceDeskSectionKey", false, 8 FROM "ServiceDesk" d
 UNION ALL
-SELECT d.id || '-sec-HISTORY', d.id, 'HISTORY', true, 9 FROM "ServiceDesk" d
+SELECT d.id || '-sec-HISTORY', d.id, 'HISTORY'::"ServiceDeskSectionKey", true, 9 FROM "ServiceDesk" d
 UNION ALL
-SELECT d.id || '-sec-TROUBLESHOOTING', d.id, 'TROUBLESHOOTING', false, 10 FROM "ServiceDesk" d;
+SELECT d.id || '-sec-TROUBLESHOOTING', d.id, 'TROUBLESHOOTING'::"ServiceDeskSectionKey", false, 10 FROM "ServiceDesk" d;
