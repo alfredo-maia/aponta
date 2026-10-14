@@ -22,7 +22,19 @@ import { useAuthStore } from '../../stores/authStore';
 import { useWorklogs, useCreateWorklog, useDeleteWorklog, Worklog, AttendanceType, ValuationType } from '../../hooks/useWorklogs';
 import type { TicketStatus } from '../../hooks/useTickets';
 import { statusLabels } from './TicketCard';
-import { EzSpinner, EzAlert, EzTag, EzModal, EzRichText, EzButton, EzPopover } from '../ds';
+import {
+  EzSpinner,
+  EzAlert,
+  EzTag,
+  EzModal,
+  EzRichText,
+  EzButton,
+  EzPopover,
+  EzComboBox,
+  EzDateInput,
+  EzTimeInput,
+  EzTextInput,
+} from '../ds';
 import { cn } from '../ds/utils';
 import { isBlankRichText, RichContentView } from './RichContentView';
 
@@ -726,43 +738,35 @@ export function TicketWorklogs({
 
             {/* Row 1: Dia, Horário, Atendimento */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-              {/* Dia */}
-              <div className="space-y-1">
-                <label className="text-[12px] font-medium text-gray-700 block">
-                  Dia <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  data-testid="worklog-day-input"
-                  value={day}
-                  onChange={(e) => setDay(e.target.value)}
-                  className="w-full px-3 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white"
-                  required
-                />
-              </div>
+              <EzDateInput
+                id="worklog-day"
+                label="Dia"
+                required
+                data-testid="worklog-day-input"
+                value={day}
+                onChange={(e) => setDay(e.target.value)}
+              />
 
               {/* Horário (início - fim) + chips */}
-              <div className="space-y-1">
-                <label className="text-[12px] font-medium text-gray-700 block">
-                  Horário <span className="text-red-500">*</span>
-                </label>
+              <div className="flex flex-col w-full gap-1.5">
+                <span className="text-[14px] font-medium leading-none mb-0.5 text-gray-900 select-none">
+                  Horário <span className="ml-1 text-red-600">*</span>
+                </span>
                 <div className="flex items-center gap-1.5">
-                  <input
-                    type="time"
+                  <EzTimeInput
                     data-testid="worklog-start-time-input"
                     value={startTimeOfDay}
                     onChange={(e) => setStartTimeOfDay(e.target.value)}
-                    className="w-full px-2 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white"
                     required
+                    aria-label="Horário de início"
                   />
                   <span className="text-gray-400 shrink-0">–</span>
-                  <input
-                    type="time"
+                  <EzTimeInput
                     data-testid="worklog-end-time-input"
                     value={endTimeOfDay}
                     onChange={(e) => setEndTimeOfDay(e.target.value)}
-                    className="w-full px-2 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white"
                     required
+                    aria-label="Horário de término"
                   />
                 </div>
                 <div className="flex items-center gap-1 pt-1">
@@ -793,69 +797,55 @@ export function TicketWorklogs({
                 </div>
               </div>
 
-              {/* Atendimento */}
-              <div className="space-y-1">
-                <label className="text-[12px] font-medium text-gray-700 block">
-                  Atendimento <span className="text-red-500">*</span>
-                </label>
-                <select
-                  data-testid="worklog-attendance-type-select"
-                  value={attendanceType}
-                  onChange={(e) => setAttendanceType(e.target.value as AttendanceType)}
-                  className="w-full px-3 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white"
-                >
-                  <option value="REMOTE">Remoto</option>
-                  <option value="ON_SITE">Presencial</option>
-                </select>
-              </div>
+              <EzComboBox
+                id="worklog-attendance-type"
+                data-testid="worklog-attendance-type-select"
+                label="Atendimento"
+                required
+                value={attendanceType}
+                onChange={(e) => setAttendanceType(e.target.value as AttendanceType)}
+              >
+                <option value="REMOTE">Remoto</option>
+                <option value="ON_SITE">Presencial</option>
+              </EzComboBox>
             </div>
 
             {/* Row 2: Deslocamento, Próximo Estágio, Técnico Responsável (se admin) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-              <div className="space-y-1">
-                <label className="text-[12px] font-medium text-gray-700 block">Deslocamento</label>
-                <select
-                  disabled
-                  className="w-full px-3 py-1.5 text-[13px] border border-gray-200 rounded-[6px] bg-gray-50 text-gray-400 cursor-not-allowed"
-                >
-                  <option>Nenhum</option>
-                </select>
-              </div>
+              <EzComboBox id="worklog-displacement" label="Deslocamento" disabled>
+                <option value="">Nenhum</option>
+              </EzComboBox>
 
-              <div className="space-y-1">
-                <label className="text-[12px] font-medium text-gray-700 block">Próximo Estágio</label>
-                <select
-                  data-testid="worklog-next-status-select"
-                  value={nextStatus}
-                  onChange={(e) => setNextStatus(e.target.value)}
-                  className="w-full px-3 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white"
-                >
-                  <option value="">Não alterar</option>
-                  {ticketStatusOptions.map((status) => (
-                    <option key={status} value={status}>
-                      {statusLabels[status]}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <EzComboBox
+                id="worklog-next-status"
+                data-testid="worklog-next-status-select"
+                label="Próximo Estágio"
+                value={nextStatus}
+                onChange={(e) => setNextStatus(e.target.value)}
+              >
+                <option value="">Não alterar</option>
+                {ticketStatusOptions.map((status) => (
+                  <option key={status} value={status}>
+                    {statusLabels[status]}
+                  </option>
+                ))}
+              </EzComboBox>
 
               {isAdmin ? (
-                <div className="space-y-1">
-                  <label className="text-[12px] font-medium text-gray-700 block">Técnico Responsável</label>
-                  <select
-                    data-testid="worklog-author-select"
-                    value={selectedAuthorId}
-                    onChange={(e) => setSelectedAuthorId(e.target.value)}
-                    className="w-full px-3 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white"
-                  >
-                    <option value="">Eu mesmo ({user?.email})</option>
-                    {agents.map((agent) => (
-                      <option key={agent.id} value={agent.id}>
-                        {agent.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <EzComboBox
+                  id="worklog-author"
+                  data-testid="worklog-author-select"
+                  label="Técnico Responsável"
+                  value={selectedAuthorId}
+                  onChange={(e) => setSelectedAuthorId(e.target.value)}
+                >
+                  <option value="">Eu mesmo ({user?.email})</option>
+                  {agents.map((agent) => (
+                    <option key={agent.id} value={agent.id}>
+                      {agent.name}
+                    </option>
+                  ))}
+                </EzComboBox>
               ) : (
                 <div className="space-y-1">
                   <label className="text-[12px] font-medium text-gray-700 block">Tipo de Cobrança</label>
@@ -877,49 +867,42 @@ export function TicketWorklogs({
 
             {/* Row 3: Valorização e Cobrança */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 items-end">
-              <div className="space-y-1">
-                <label className="text-[12px] font-medium text-gray-700 block">Tipo de Valorização</label>
-                <select
-                  data-testid="worklog-valuation-type-select"
-                  value={valuationType}
-                  onChange={(e) => {
-                    const next = e.target.value as ValuationType;
-                    setValuationType(next);
-                    if (next === 'GUARANTEE') setBillable(false);
-                  }}
-                  className="w-full px-3 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white"
-                >
-                  <option value="CONTRACT">Contrato</option>
-                  <option value="GUARANTEE">Garantia</option>
-                  <option value="MANUAL">Valor manual</option>
-                </select>
-              </div>
+              <EzComboBox
+                id="worklog-valuation-type"
+                data-testid="worklog-valuation-type-select"
+                label="Tipo de Valorização"
+                value={valuationType}
+                onChange={(e) => {
+                  const next = e.target.value as ValuationType;
+                  setValuationType(next);
+                  if (next === 'GUARANTEE') setBillable(false);
+                }}
+              >
+                <option value="CONTRACT">Contrato</option>
+                <option value="GUARANTEE">Garantia</option>
+                <option value="MANUAL">Valor manual</option>
+              </EzComboBox>
 
               {valuationType === 'MANUAL' ? (
-                <div className="space-y-1">
-                  <label className="text-[12px] font-medium text-gray-700 block">Valor (R$)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    data-testid="worklog-manual-value-input"
-                    value={manualValue}
-                    onChange={(e) => setManualValue(e.target.value)}
-                    placeholder="0,00"
-                    className="w-full px-3 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white"
-                    required
-                  />
-                </div>
+                <EzTextInput
+                  id="worklog-manual-value"
+                  label="Valor (R$)"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  data-testid="worklog-manual-value-input"
+                  value={manualValue}
+                  onChange={(e) => setManualValue(e.target.value)}
+                  placeholder="0,00"
+                  required
+                />
               ) : (
-                <div className="space-y-1">
-                  <label className="text-[12px] font-medium text-gray-700 block">Valor</label>
-                  <input
-                    type="text"
-                    disabled
-                    value={valuationType === 'GUARANTEE' ? 'R$ 0,00' : 'Incluso no contrato'}
-                    className="w-full px-3 py-1.5 text-[13px] border border-gray-200 rounded-[6px] bg-gray-50 text-gray-500 cursor-not-allowed"
-                  />
-                </div>
+                <EzTextInput
+                  id="worklog-value-display"
+                  label="Valor"
+                  disabled
+                  value={valuationType === 'GUARANTEE' ? 'R$ 0,00' : 'Incluso no contrato'}
+                />
               )}
 
               {isAdmin && (
@@ -1053,35 +1036,31 @@ export function TicketWorklogs({
                 }
                 content={
                   <div className="w-64 space-y-3" data-testid="worklog-filter-popover">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-medium text-gray-600">Atendente</label>
-                      <select
-                        data-testid="worklog-filter-author"
-                        value={filterAuthorId}
-                        onChange={(e) => setFilterAuthorId(e.target.value)}
-                        className="w-full px-2 py-1.5 text-[12px] border border-gray-300 rounded-[6px] bg-white"
-                      >
-                        <option value="">Todos</option>
-                        {authorOptions.map(([id, name]) => (
-                          <option key={id} value={id}>
-                            {name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-medium text-gray-600">Atendimento</label>
-                      <select
-                        data-testid="worklog-filter-attendance"
-                        value={filterAttendance}
-                        onChange={(e) => setFilterAttendance(e.target.value as '' | AttendanceType)}
-                        className="w-full px-2 py-1.5 text-[12px] border border-gray-300 rounded-[6px] bg-white"
-                      >
-                        <option value="">Todos</option>
-                        <option value="REMOTE">Remoto</option>
-                        <option value="ON_SITE">Presencial</option>
-                      </select>
-                    </div>
+                    <EzComboBox
+                      id="worklog-filter-author"
+                      data-testid="worklog-filter-author"
+                      label="Atendente"
+                      value={filterAuthorId}
+                      onChange={(e) => setFilterAuthorId(e.target.value)}
+                    >
+                      <option value="">Todos</option>
+                      {authorOptions.map(([id, name]) => (
+                        <option key={id} value={id}>
+                          {name}
+                        </option>
+                      ))}
+                    </EzComboBox>
+                    <EzComboBox
+                      id="worklog-filter-attendance"
+                      data-testid="worklog-filter-attendance"
+                      label="Atendimento"
+                      value={filterAttendance}
+                      onChange={(e) => setFilterAttendance(e.target.value as '' | AttendanceType)}
+                    >
+                      <option value="">Todos</option>
+                      <option value="REMOTE">Remoto</option>
+                      <option value="ON_SITE">Presencial</option>
+                    </EzComboBox>
                     <EzButton
                       type="button"
                       variant="tertiary"

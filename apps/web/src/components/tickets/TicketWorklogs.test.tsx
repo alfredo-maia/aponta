@@ -175,6 +175,27 @@ describe('TicketWorklogs', () => {
     });
   });
 
+  it('uses the DS EzComboBox (Storybook) for every worklog selector', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+
+    renderComponent();
+
+    const attendance = screen.getByTestId('worklog-attendance-type-select');
+    const nextStatus = screen.getByTestId('worklog-next-status-select');
+    const valuation = screen.getByTestId('worklog-valuation-type-select');
+
+    expect(attendance.tagName).toBe('SELECT');
+    expect(nextStatus.tagName).toBe('SELECT');
+    expect(valuation.tagName).toBe('SELECT');
+    expect(attendance.parentElement).toHaveClass('rounded-[12px]');
+    expect(nextStatus.parentElement).toHaveClass('rounded-[12px]');
+    expect(valuation.parentElement).toHaveClass('rounded-[12px]');
+    expect(screen.getByLabelText(/Tipo de Valorização/)).toBe(valuation);
+    expect(screen.getByLabelText(/Próximo Estágio/)).toBe(nextStatus);
+    expect(screen.getByLabelText(/Deslocamento/)).toBeDisabled();
+  });
+
   it('allows filling the form and submitting a new worklog', async () => {
     loginAs('AGENT', 'u-1');
     vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
@@ -668,7 +689,9 @@ describe('TicketWorklogs', () => {
     });
 
     await user.click(screen.getByTestId('worklog-filter-funnel-btn'));
-    await user.selectOptions(screen.getByTestId('worklog-filter-author'), 'u-1');
+    const filterAuthor = screen.getByTestId('worklog-filter-author');
+    expect(filterAuthor.parentElement).toHaveClass('rounded-[12px]');
+    await user.selectOptions(filterAuthor, 'u-1');
 
     expect(screen.getByTestId('worklog-item-wl-1')).toBeInTheDocument();
     expect(screen.queryByTestId('worklog-item-wl-2')).not.toBeInTheDocument();
