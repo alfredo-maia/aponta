@@ -74,6 +74,7 @@ function loginAs(role: 'ADMIN' | 'AGENT' | 'CLIENT', id = 'u-1') {
 describe('TicketWorklogs', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
     useAuthStore.setState({ token: null, user: null });
   });
 
@@ -471,5 +472,102 @@ describe('TicketWorklogs', () => {
     // Modal should now be open
     expect(screen.getByTestId('worklog-form')).toBeInTheDocument();
   });
+
+  it('renders modal with spellcheck and portuguese language attributes', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+
+    renderComponent('t-1', true);
+
+    const descInput = screen.getByTestId('worklog-description-input') as HTMLTextAreaElement;
+    expect(descInput.getAttribute('spellcheck')).toBe('true');
+    expect(descInput.getAttribute('lang')).toBe('pt-BR');
+    expect(descInput.getAttribute('autocorrect')).toBe('on');
+    expect(screen.getByText(/Corretor ortográfico ativo/i)).toBeInTheDocument();
+  });
+
+  it('saves worklog draft in localStorage and restores it automatically', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+
+    const user = userEvent.setup();
+    const { unmount } = renderComponent('t-draft-1', true);
+
+    const descInput = screen.getByTestId('worklog-description-input');
+    await user.type(descInput, 'Rascunho de análise técnica');
+
+    // Verify localStorage has saved the draft
+    await waitFor(() => {
+      const saved = localStorage.getItem('aponta_worklog_draft_t-draft-1');
+      expect(saved).not.toBeNull();
+      expect(JSON.parse(saved!)).toMatchObject({
+        description: 'Rascunho de análise técnica',
+      });
+    });
+
+    unmount();
+
+    // Re-mount component and verify draft is restored
+    renderComponent('t-draft-1', true);
+    expect(screen.getByTestId('worklog-draft-alert')).toBeInTheDocument();
+    expect(screen.getByTestId('worklog-description-input')).toHaveValue('Rascunho de análise técnica');
+
+    // Discard draft button clears the form and localStorage
+    const clearBtn = screen.getByTestId('worklog-clear-draft-btn');
+    await user.click(clearBtn);
+
+    expect(screen.getByTestId('worklog-description-input')).toHaveValue('');
+    expect(localStorage.getItem('aponta_worklog_draft_t-draft-1')).toBeNull();
+  });
+
+  it('handles pasting image screenshot, uploading attachment and appending markdown', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    vi.mocked(api.post).mockResolvedValueOnce({
+      data: {
+        id: 'att-paste-1',
+        url: 'https://cdn.aponta.com/screenshots/tela.png',
+        originalName: 'evidencia_erro.png',
+      },
+    });
+
+    renderComponent('t-1', true);
+
+    const descInput = screen.getByTestId('worklog-description-input');
+    fireEvent.change(descInput, { target: { value: 'Identificado erro na tela:' } });
+
+    // Mock paste event with an image file
+    const file = new File(['fake-image-bytes'], 'screenshot.png', { type: 'image/png' });
+    const clipboardData = {
+      items: [
+        {
+          type: 'image/png',
+          getAsFile: () => file,
+        },
+      ],
+      types: ['Files'],
+    };
+
+    fireEvent.paste(descInput, { clipboardData });
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith(
+        '/tickets/t-1/attachments',
+        expect.any(FormData),
+        expect.objectContaining({
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }),
+      );
+    });
+
+    await waitFor(() => {
+      expect(descInput).toHaveValue(
+        'Identificado erro na tela:\n\n![evidencia_erro.png](https://cdn.aponta.com/screenshots/tela.png)\n',
+      );
+      expect(screen.getByTestId('worklog-attached-images-container')).toBeInTheDocument();
+      expect(screen.getByText('evidencia_erro.png')).toBeInTheDocument();
+    });
+  });
 });
+
 

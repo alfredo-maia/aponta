@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Play } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { CommentForm } from '../components/tickets/CommentForm';
 import { TicketComments } from '../components/tickets/TicketComments';
 import { TicketDetail } from '../components/tickets/TicketDetail';
