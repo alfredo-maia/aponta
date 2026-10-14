@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../stores/authStore';
+import { brasiliaDateString } from '../../lib/brasiliaTime';
 import { TicketWorklogs, formatWorklogMinutes, formatAttendanceType, formatWorklogValue } from './TicketWorklogs';
 
 vi.mock('../../lib/api', () => ({
@@ -89,7 +90,7 @@ const mockWorklogs = [
   },
 ];
 
-const todayStr = () => new Date().toISOString().split('T')[0];
+const todayStr = () => brasiliaDateString();
 
 function renderComponent(ticketId = 't-1', defaultModalOpen = true, props = {}) {
   const queryClient = new QueryClient({
@@ -115,6 +116,7 @@ function loginAs(role: 'ADMIN' | 'AGENT' | 'CLIENT', id = 'u-1') {
 
 describe('TicketWorklogs', () => {
   beforeEach(() => {
+    vi.useRealTimers();
     vi.clearAllMocks();
     localStorage.clear();
     useAuthStore.setState({ token: null, user: null });
@@ -535,6 +537,27 @@ describe('TicketWorklogs', () => {
 
     // Modal should now be open
     expect(screen.getByTestId('worklog-form')).toBeInTheDocument();
+  });
+
+  it('pre-fills a Brasília pre-apontamento when the activity timer stops', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-14T22:15:00.000Z'));
+
+    try {
+      renderComponent('t-1', false);
+      fireEvent.click(screen.getByTestId('worklog-timer-start-btn'));
+      vi.setSystemTime(new Date('2026-10-14T22:45:00.000Z'));
+      fireEvent.click(screen.getByTestId('worklog-timer-stop-btn'));
+
+      expect(screen.getByTestId('worklog-form')).toBeInTheDocument();
+      expect(screen.getByTestId('worklog-day-input')).toHaveValue('2026-10-14');
+      expect(screen.getByTestId('worklog-start-time-input')).toHaveValue('19:15');
+      expect(screen.getByTestId('worklog-end-time-input')).toHaveValue('19:45');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('renders modal with spellcheck and portuguese language attributes', async () => {

@@ -18,6 +18,13 @@ import {
 } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
+import {
+  addMinutesToTime,
+  brasiliaDateString,
+  prefillFromTimer,
+  storedIsoToWallClock,
+  wallClockToStoredIso,
+} from '../../lib/brasiliaTime';
 import { preparePastedImage } from '../../lib/preparePastedImage';
 import { useAuthStore } from '../../stores/authStore';
 import { useWorklogs, useCreateWorklog, useDeleteWorklog, Worklog, AttendanceType, ValuationType } from '../../hooks/useWorklogs';
@@ -101,23 +108,15 @@ const ticketStatusOptions: TicketStatus[] = [
 ];
 
 function todayStr(): string {
-  return new Date().toISOString().split('T')[0];
+  return brasiliaDateString();
 }
 
 function toISO(day: string, timeOfDay: string): string {
-  return `${day}T${timeOfDay}:00Z`;
-}
-
-function addMinutesToTime(timeOfDay: string, minutesToAdd: number): string {
-  const [h, m] = timeOfDay.split(':').map(Number);
-  const total = ((h * 60 + m + minutesToAdd) % 1440 + 1440) % 1440;
-  const hh = Math.floor(total / 60);
-  const mm = total % 60;
-  return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+  return wallClockToStoredIso(day, timeOfDay);
 }
 
 function formatTimeOfDay(iso: string): string {
-  return new Date(iso).toISOString().slice(11, 16);
+  return storedIsoToWallClock(iso);
 }
 
 export function TicketWorklogs({
@@ -203,16 +202,11 @@ export function TicketWorklogs({
   const handleStopTimer = () => {
     const now = new Date();
     const start = timerStartISO ? new Date(timerStartISO) : new Date(now.getTime() - timerSeconds * 1000);
-    const dayStr = start.toISOString().split('T')[0];
-    const startStr = formatTimeOfDay(start.toISOString());
-    let endStr = formatTimeOfDay(now.toISOString());
-    if (startStr === endStr) {
-      endStr = addMinutesToTime(startStr, Math.max(1, Math.ceil(timerSeconds / 60)));
-    }
+    const prefill = prefillFromTimer(start, now, timerSeconds);
 
-    setDay(dayStr);
-    setStartTimeOfDay(startStr);
-    setEndTimeOfDay(endStr);
+    setDay(prefill.day);
+    setStartTimeOfDay(prefill.startTime);
+    setEndTimeOfDay(prefill.endTime);
     setTimerActive(false);
     setTimerPaused(false);
     setTimerSeconds(0);
