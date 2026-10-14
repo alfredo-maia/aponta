@@ -72,6 +72,9 @@ function mockApi() {
     if (url === '/tickets/t-1/audits') {
       return Promise.resolve({ data: [] });
     }
+    if (url === '/tickets/t-1/worklogs') {
+      return Promise.resolve({ data: [] });
+    }
     return Promise.reject(new Error(`Unexpected GET ${url}`));
   });
   vi.mocked(api.patch).mockImplementation((url: string, body: unknown) => {
@@ -263,6 +266,27 @@ describe('TicketDetailPage', () => {
 
     await screen.findByText('Printer not working');
     expect(screen.queryByTestId('ticket-worklogs-section')).not.toBeInTheDocument();
+  });
+
+  it('starts a TiFlux-style pré-apontamento from the header play on any tab', async () => {
+    setRole('AGENT');
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByText('Printer not working');
+    expect(screen.getByTestId('ticket-header-play-btn')).toBeInTheDocument();
+    expect(screen.getByTestId('tab-panel-geral')).not.toHaveClass('hidden');
+
+    await user.click(screen.getByTestId('ticket-header-play-btn'));
+
+    expect(screen.getByTestId('ticket-header-stop-btn')).toBeInTheDocument();
+    expect(screen.getByTestId('ticket-header-timer-display')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: /apontamentos/i }));
+
+    expect(screen.getByTestId('tab-panel-apontamentos')).not.toHaveClass('hidden');
+    expect(screen.getByTestId('worklog-pre-appointments')).toBeInTheDocument();
+    expect(screen.getByTestId('worklog-pre-end')).toHaveTextContent('--');
   });
 
   describe('Agent assignment', () => {
@@ -522,6 +546,7 @@ describe('TicketDetailPage', () => {
       expect(screen.queryByRole('tab', { name: /compromissos/i })).not.toBeInTheDocument();
       expect(screen.queryByRole('tab', { name: /github/i })).not.toBeInTheDocument();
       expect(screen.queryByTestId('header-quick-worklog-button')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('ticket-header-play-btn')).not.toBeInTheDocument();
     });
   });
 

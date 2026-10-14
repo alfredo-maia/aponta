@@ -29,6 +29,7 @@ import {
 } from '../../lib/brasiliaTime';
 import { preparePastedImage } from '../../lib/preparePastedImage';
 import { useAuthStore } from '../../stores/authStore';
+import { useActivityTimer, type ActivityTimer } from '../../hooks/useActivityTimer';
 import { useWorklogs, useCreateWorklog, useDeleteWorklog, Worklog, AttendanceType, ValuationType } from '../../hooks/useWorklogs';
 import type { TicketStatus } from '../../hooks/useTickets';
 import { statusLabels } from './TicketCard';
@@ -57,6 +58,8 @@ export interface TicketWorklogsProps {
   defaultModalOpen?: boolean;
   isModalOpen?: boolean;
   onModalOpenChange?: (open: boolean) => void;
+  /** Shared with the ticket header play/stop (TiFlux). Falls back to a local timer. */
+  timer?: ActivityTimer;
 }
 
 export function formatTimerSeconds(seconds: number): string {
@@ -126,6 +129,7 @@ export function TicketWorklogs({
   defaultModalOpen = false,
   isModalOpen: controlledModalOpen,
   onModalOpenChange,
+  timer: timerFromParent,
 }: TicketWorklogsProps) {
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.role === 'ADMIN';
@@ -141,86 +145,19 @@ export function TicketWorklogs({
   const createMutation = useCreateWorklog(ticketId);
   const deleteMutation = useDeleteWorklog(ticketId);
 
-  // Activity Timer / pré-apontamento (persisted in localStorage per ticket)
-  const timerStorageKey = `aponta_activity_timer_${ticketId}`;
-  const readTimerStore = () => {
-    try {
-      const raw = localStorage.getItem(timerStorageKey);
-      if (!raw) return null;
-      return JSON.parse(raw) as { startISO?: string; endISO?: string; paused?: boolean };
-    } catch {
-      return null;
-    }
-  };
-  const [timerStartISO, setTimerStartISO] = useState<string | null>(() => readTimerStore()?.startISO || null);
-  const [timerEndISO, setTimerEndISO] = useState<string | null>(() => readTimerStore()?.endISO || null);
-  const [timerPaused, setTimerPaused] = useState<boolean>(() => Boolean(readTimerStore()?.paused));
-  const [timerActive, setTimerActive] = useState<boolean>(() => {
-    const stored = readTimerStore();
-    return Boolean(stored?.startISO && !stored?.endISO);
-  });
-  const [timerSeconds, setTimerSeconds] = useState<number>(0);
-
-  const persistTimer = (next: { startISO?: string | null; endISO?: string | null; paused?: boolean }) => {
-    try {
-      if (!next.startISO) {
-        localStorage.removeItem(timerStorageKey);
-        return;
-      }
-      localStorage.setItem(
-        timerStorageKey,
-        JSON.stringify({ startISO: next.startISO, endISO: next.endISO || undefined, paused: next.paused }),
-      );
-    } catch {
-      // ignore
-    }
-  };
-
-  useEffect(() => {
-    if (!timerActive || timerPaused || !timerStartISO) return;
-
-    const startMs = new Date(timerStartISO).getTime();
-    setTimerSeconds(Math.max(0, Math.floor((Date.now() - startMs) / 1000)));
-
-    const interval = setInterval(() => {
-      const elapsed = Math.max(0, Math.floor((Date.now() - startMs) / 1000));
-      setTimerSeconds(elapsed);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [timerActive, timerPaused, timerStartISO]);
-
-  const handleStartTimer = () => {
-    const iso = new Date().toISOString();
-    setTimerStartISO(iso);
-    setTimerEndISO(null);
-    setTimerActive(true);
-    setTimerPaused(false);
-    setTimerSeconds(0);
-    persistTimer({ startISO: iso, endISO: null, paused: false });
-  };
-
-  const handlePauseTimer = () => {
-    setTimerPaused(true);
-    persistTimer({ startISO: timerStartISO, endISO: timerEndISO, paused: true });
-  };
-
-  const handleResumeTimer = () => {
-    setTimerPaused(false);
-    persistTimer({ startISO: timerStartISO, endISO: null, paused: false });
-  };
-
-  const handleStopTimer = () => {
-    const now = new Date();
-    const start = timerStartISO ? new Date(timerStartISO) : new Date(now.getTime() - timerSeconds * 1000);
-    const startISO = start.toISOString();
-    const endISO = now.toISOString();
-    setTimerStartISO(startISO);
-    setTimerEndISO(endISO);
-    setTimerActive(false);
-    setTimerPaused(false);
-    persistTimer({ startISO, endISO, paused: false });
-  };
+  const localTimer = useActivityTimer(ticketId);
+  const {
+    timerStartISO,
+    timerEndISO,
+    timerPaused,
+    timerActive,
+    timerSeconds,
+    handleStartTimer,
+    handlePauseTimer,
+    handleResumeTimer,
+    handleStopTimer,
+    handleCancelTimer,
+  } = timerFromParent ?? localTimer;
 
   const applyPreToForm = () => {
     if (!timerStartISO) return;
@@ -235,15 +172,6 @@ export function TicketWorklogs({
   const handleOpenFromPre = () => {
     applyPreToForm();
     setIsModalOpen(true);
-  };
-
-  const handleCancelTimer = () => {
-    setTimerActive(false);
-    setTimerPaused(false);
-    setTimerSeconds(0);
-    setTimerStartISO(null);
-    setTimerEndISO(null);
-    persistTimer({ startISO: null });
   };
 
   // Agent list for Admin author reassignment

@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, PlayCircle, Square } from 'lucide-react';
 import { CommentForm } from '../components/tickets/CommentForm';
 import { TicketComments } from '../components/tickets/TicketComments';
 import { TicketDetail } from '../components/tickets/TicketDetail';
 import { TicketAttachments } from '../components/tickets/TicketAttachments';
 import { TicketCsat } from '../components/tickets/TicketCsat';
-import { TicketWorklogs } from '../components/tickets/TicketWorklogs';
+import { formatTimerSeconds, TicketWorklogs } from '../components/tickets/TicketWorklogs';
+import { useActivityTimer } from '../hooks/useActivityTimer';
 import { useTicket } from '../hooks/useTicket';
 import { useAuthStore } from '../stores/authStore';
 import { EzSpinner, EzAlert, EzTabs, EzTabItem } from '../components/ds';
@@ -20,6 +21,7 @@ export function TicketDetailPage() {
   const initialTab = searchParams.get('tab') || 'geral';
   const [activeTab, setActiveTab] = useState<string>(initialTab);
   const [isWorklogModalOpen, setIsWorklogModalOpen] = useState<boolean>(false);
+  const activityTimer = useActivityTimer(id || '');
 
   if (isLoading) {
     return (
@@ -79,7 +81,41 @@ export function TicketDetailPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Action buttons if any */}
+            {!isClient && (
+              <div className="flex items-center gap-2" data-testid="ticket-header-timer">
+                {activityTimer.timerActive && (
+                  <span
+                    className="font-mono text-[13px] font-semibold text-gray-700"
+                    data-testid="ticket-header-timer-display"
+                  >
+                    {formatTimerSeconds(activityTimer.timerSeconds)}
+                  </span>
+                )}
+                {!activityTimer.timerActive ? (
+                  <button
+                    type="button"
+                    data-testid="ticket-header-play-btn"
+                    onClick={activityTimer.handleStartTimer}
+                    title="Iniciar pré-apontamento"
+                    aria-label="Iniciar pré-apontamento"
+                    className="inline-flex items-center justify-center w-9 h-9 rounded-full text-[#00B5A5] hover:bg-teal-50 border border-transparent hover:border-teal-200 cursor-pointer"
+                  >
+                    <PlayCircle className="w-7 h-7" />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    data-testid="ticket-header-stop-btn"
+                    onClick={activityTimer.handleStopTimer}
+                    title="Parar pré-apontamento"
+                    aria-label="Parar pré-apontamento"
+                    className="inline-flex items-center justify-center w-9 h-9 rounded-full text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 cursor-pointer"
+                  >
+                    <Square className="w-5 h-5 fill-current" />
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -142,6 +178,7 @@ export function TicketDetailPage() {
                 ticketId={ticket.id}
                 isModalOpen={isWorklogModalOpen}
                 onModalOpenChange={setIsWorklogModalOpen}
+                timer={activityTimer}
               />
             </div>
           )}
