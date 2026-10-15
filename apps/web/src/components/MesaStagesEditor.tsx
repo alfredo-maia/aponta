@@ -66,16 +66,19 @@ export function MesaStagesEditor({ deskId }: { deskId: string }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <ul className="space-y-2">
         {stages.map((stage) => (
-          <li key={stage.id} className="flex items-center justify-between gap-2 text-sm">
-            <span>
+          <li
+            key={stage.id}
+            className="flex items-center justify-between gap-3 rounded-[10px] border border-gray-200 bg-white px-4 py-3 text-sm"
+          >
+            <span className="font-medium text-gray-900">
               {stage.name}
               {stage.isInitial ? ' (inicial)' : ''}
               {stage.isFinal ? ' (final)' : ''}
             </span>
-            <span className="flex gap-2">
+            <span className="flex shrink-0 gap-2">
               <EzButton
                 type="button"
                 size="small"
@@ -127,7 +130,7 @@ export function MesaStagesEditor({ deskId }: { deskId: string }) {
 
       {editing && (
         <form
-          className="space-y-3 border-t border-gray-100 pt-3"
+          className="space-y-4 rounded-[10px] border border-gray-200 bg-gray-50/60 p-4"
           onSubmit={(event) => {
             event.preventDefault();
             updateMutation.mutate();
@@ -140,23 +143,25 @@ export function MesaStagesEditor({ deskId }: { deskId: string }) {
             onChange={(event) => setEditName(event.target.value)}
           />
           <p className="text-xs font-medium text-gray-700">Possíveis estágios</p>
-          {stages
-            .filter((stage) => stage.id !== editing.id)
-            .map((stage) => (
-              <EzCheck
-                key={stage.id}
-                id={`mesa-stage-to-${stage.id}`}
-                label={stage.name}
-                checked={editTransitions.includes(stage.id)}
-                onChange={() =>
-                  setEditTransitions((current) =>
-                    current.includes(stage.id)
-                      ? current.filter((id) => id !== stage.id)
-                      : [...current, stage.id],
-                  )
-                }
-              />
-            ))}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {stages
+              .filter((stage) => stage.id !== editing.id)
+              .map((stage) => (
+                <EzCheck
+                  key={stage.id}
+                  id={`mesa-stage-to-${stage.id}`}
+                  label={stage.name}
+                  checked={editTransitions.includes(stage.id)}
+                  onChange={() =>
+                    setEditTransitions((current) =>
+                      current.includes(stage.id)
+                        ? current.filter((id) => id !== stage.id)
+                        : [...current, stage.id],
+                    )
+                  }
+                />
+              ))}
+          </div>
           <div className="flex justify-end gap-2">
             <EzButton
               type="button"

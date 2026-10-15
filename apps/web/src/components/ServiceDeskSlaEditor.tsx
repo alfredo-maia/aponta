@@ -98,27 +98,23 @@ export function ServiceDeskSlaEditor({
 
   if (!isEditing) {
     return (
-      <div className="mt-1 flex items-center justify-between text-xs text-gray-500 border-t pt-2 border-gray-100">
-        <div>
-          Cliente vinculado:{' '}
-          <strong className="text-black">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-sm text-gray-600">
+          <span className="mb-1 block text-xs font-medium text-gray-500">Cliente vinculado</span>
+          <strong className="text-gray-900">
             {initial.organizationName ?? 'Mesa compartilhada (sem cliente)'}
           </strong>
         </div>
-        <button
-          type="button"
-          className="text-blue-600 hover:underline px-2 py-1 rounded"
-          onClick={() => setIsEditing(true)}
-        >
+        <EzButton type="button" variant="secondary" size="small" onClick={() => setIsEditing(true)}>
           Editar cliente e SLA
-        </button>
+        </EzButton>
       </div>
     );
   }
 
   return (
-    <div className="mt-2 text-sm border-t pt-2 border-gray-100 flex flex-col gap-3">
-      <div className="max-w-sm">
+    <div className="flex flex-col gap-4 text-sm">
+      <div className="max-w-md">
         <EzComboBox
           id={`desk-org-${deskId}`}
           label="Cliente vinculado (opcional)"

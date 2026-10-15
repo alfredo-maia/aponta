@@ -202,7 +202,9 @@ describe('ServiceDesksPage', () => {
     expect(await screen.findByRole('tab', { name: 'Informações básicas' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Parâmetros' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Estágio' })).toBeEnabled();
+    expect(screen.queryByRole('button', { name: /editar cliente e sla/i })).not.toBeInTheDocument();
 
+    await user.click(screen.getByRole('tab', { name: 'Clientes' }));
     const editSlaButton = await screen.findByRole('button', { name: /editar cliente e sla/i });
     await user.click(editSlaButton);
 

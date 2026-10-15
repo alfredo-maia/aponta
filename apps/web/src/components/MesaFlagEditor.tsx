@@ -33,18 +33,20 @@ export function MesaFlagEditor({
   });
 
   return (
-    <div className="flex flex-col gap-2">
-      {flags.map((flag) => (
-        <EzCheck
-          key={flag.key}
-          id={`mesa-flag-${flag.key}`}
-          label={flag.label}
-          checked={draft[flag.key] === true}
-          onChange={() =>
-            setDraft((prev) => ({ ...prev, [flag.key]: !prev[flag.key] }))
-          }
-        />
-      ))}
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
+        {flags.map((flag) => (
+          <EzCheck
+            key={flag.key}
+            id={`mesa-flag-${flag.key}`}
+            label={flag.label}
+            checked={draft[flag.key] === true}
+            onChange={() =>
+              setDraft((prev) => ({ ...prev, [flag.key]: !prev[flag.key] }))
+            }
+          />
+        ))}
+      </div>
       <div className="flex justify-end">
         <EzButton
           type="button"
