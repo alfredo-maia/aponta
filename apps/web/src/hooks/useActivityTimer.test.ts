@@ -184,4 +184,47 @@ describe('useActivityTimer', () => {
 
     await waitFor(() => expect(result.current.items).toHaveLength(0));
   });
+
+  it('treats a running row without beginning as inactive elapsed time', async () => {
+    store = [
+      {
+        id: 'pre-open',
+        beginning: '',
+        ending: null,
+        initTime: '',
+        endTime: null,
+        ticketId: 'ticket-1',
+        authorId: 'u-1',
+        createdAt: '2026-10-14T22:36:00.000Z',
+      },
+    ];
+
+    const { result } = renderHook(() => useActivityTimer('ticket-1'), { wrapper });
+
+    await waitFor(() => expect(result.current.timerActive).toBe(true));
+    expect(result.current.timerStartISO).toBe('');
+    expect(result.current.timerSeconds).toBe(0);
+  });
+
+  it('clamps elapsed seconds at zero when the start is in the future', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-14T22:36:00.000Z'));
+    store = [
+      {
+        id: 'pre-future',
+        beginning: '2026-10-14T22:40:00.000Z',
+        ending: null,
+        initTime: '19:40',
+        endTime: null,
+        ticketId: 'ticket-1',
+        authorId: 'u-1',
+        createdAt: '2026-10-14T22:36:00.000Z',
+      },
+    ];
+
+    const { result } = renderHook(() => useActivityTimer('ticket-1'), { wrapper });
+
+    await waitFor(() => expect(result.current.timerActive).toBe(true));
+    expect(result.current.timerSeconds).toBe(0);
+  });
 });

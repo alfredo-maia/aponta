@@ -684,6 +684,109 @@ describe('TicketWorklogs', () => {
     await waitFor(() => expect(screen.queryByTestId('worklog-pre-appointments')).not.toBeInTheDocument());
   });
 
+  it('prefills + Apontamento from the running pré without opening from the table', async () => {
+    loginAs('AGENT', 'u-1');
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-14T22:15:00.000Z'));
+
+    try {
+      renderComponent('t-1', false);
+      fireEvent.click(screen.getByTestId('worklog-timer-start-btn'));
+      await waitFor(() => expect(screen.getByTestId('worklog-pre-appointments')).toBeInTheDocument());
+
+      fireEvent.click(screen.getByTestId('open-worklog-modal-btn'));
+      expect(screen.getByTestId('worklog-form')).toBeInTheDocument();
+      expect(screen.getByTestId('worklog-start-time-input')).toHaveValue('19:15');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('pauses and resumes the running pré from the table row', async () => {
+    loginAs('AGENT', 'u-1');
+    const user = userEvent.setup();
+    renderComponent('t-1', false);
+
+    await user.click(screen.getByTestId('worklog-timer-start-btn'));
+    await waitFor(() => expect(screen.getByTestId('worklog-pre-pause-btn')).toBeInTheDocument());
+
+    await user.click(screen.getByTestId('worklog-pre-pause-btn'));
+    expect(screen.getByTestId('worklog-pre-resume-btn')).toBeInTheDocument();
+
+    await user.click(screen.getByTestId('worklog-pre-resume-btn'));
+    expect(screen.getByTestId('worklog-pre-pause-btn')).toBeInTheDocument();
+  });
+
+  it('falls back to the author email local-part when the name is empty', async () => {
+    loginAs('AGENT', 'u-1');
+    preStore = [
+      {
+        id: 'pre-email',
+        beginning: '2026-10-14T22:00:00.000Z',
+        ending: '2026-10-14T22:10:00.000Z',
+        initTime: '19:00',
+        endTime: '19:10',
+        ticketId: 't-1',
+        authorId: 'u-9',
+        createdAt: '2026-10-14T22:00:00.000Z',
+        author: { id: 'u-9', name: '', email: 'joao.silva@aponta.com' },
+      },
+    ];
+
+    renderComponent('t-1', false);
+
+    await waitFor(() => expect(screen.getByTestId('worklog-pre-attendant')).toHaveTextContent('joao.silva'));
+  });
+
+  it('falls back to Técnico when author and session emails are empty', async () => {
+    useAuthStore.setState({
+      token: 'fake-token',
+      user: { sub: 'u-1', email: '', role: 'AGENT' },
+    });
+    preStore = [
+      {
+        id: 'pre-anon',
+        beginning: '2026-10-14T22:00:00.000Z',
+        ending: '2026-10-14T22:10:00.000Z',
+        initTime: '19:00',
+        endTime: '19:10',
+        ticketId: 't-1',
+        authorId: 'u-9',
+        createdAt: '2026-10-14T22:00:00.000Z',
+        author: { id: 'u-9', name: '', email: '' },
+      },
+    ];
+
+    renderComponent('t-1', false);
+
+    await waitFor(() => expect(screen.getByTestId('worklog-pre-attendant')).toHaveTextContent('Técnico'));
+  });
+
+  it('prefills from derived timer times when initTime and endTime are blank', async () => {
+    loginAs('AGENT', 'u-1');
+    preStore = [
+      {
+        id: 'pre-blank',
+        beginning: '2026-10-14T22:15:00.000Z',
+        ending: '2026-10-14T22:45:00.000Z',
+        initTime: '',
+        endTime: '',
+        ticketId: 't-1',
+        authorId: 'u-1',
+        createdAt: '2026-10-14T22:15:00.000Z',
+        author: { id: 'u-1', name: 'user', email: 'user@aponta.com' },
+      },
+    ];
+
+    renderComponent('t-1', false);
+
+    await waitFor(() => expect(screen.getByTestId('worklog-pre-convert-btn')).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId('worklog-pre-convert-btn'));
+    expect(screen.getByTestId('worklog-form')).toBeInTheDocument();
+    expect(screen.getByTestId('worklog-start-time-input')).not.toHaveValue('');
+    expect(screen.getByTestId('worklog-end-time-input')).not.toHaveValue('');
+  });
+
   it('paginates the pré-apontamentos table when the list grows', async () => {
     loginAs('AGENT', 'u-1');
     const user = userEvent.setup();
@@ -706,6 +809,32 @@ describe('TicketWorklogs', () => {
 
     await user.click(screen.getByTitle('Próxima Página'));
     await waitFor(() => expect(screen.getAllByTestId('worklog-pre-appointment-row')).toHaveLength(1));
+  });
+
+  it('clamps pagination back to the last page after deleting the only row on page 2', async () => {
+    loginAs('AGENT', 'u-1');
+    const user = userEvent.setup();
+    preStore = Array.from({ length: 6 }, (_, index) => ({
+      id: `pre-clamp-${index}`,
+      beginning: `2026-10-14T22:0${index}:00.000Z`,
+      ending: `2026-10-14T22:1${index}:00.000Z`,
+      initTime: `19:0${index}`,
+      endTime: `19:1${index}`,
+      ticketId: 't-1',
+      authorId: 'u-1',
+      createdAt: `2026-10-14T22:0${index}:00.000Z`,
+      author: { id: 'u-1', name: 'user', email: 'user@aponta.com' },
+    }));
+
+    renderComponent('t-1', false);
+
+    await waitFor(() => expect(screen.getAllByTestId('worklog-pre-appointment-row')).toHaveLength(5));
+    await user.click(screen.getByTitle('Próxima Página'));
+    await waitFor(() => expect(screen.getAllByTestId('worklog-pre-appointment-row')).toHaveLength(1));
+
+    await user.click(screen.getByTestId('worklog-pre-delete-btn'));
+    await waitFor(() => expect(screen.getAllByTestId('worklog-pre-appointment-row')).toHaveLength(5));
+    expect(screen.queryByTestId('worklog-pre-pagination')).not.toBeInTheDocument();
   });
 
   it('renders modal with spellcheck and portuguese language attributes', async () => {

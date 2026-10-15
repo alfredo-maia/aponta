@@ -752,5 +752,159 @@ describe('WorklogsService', () => {
         NotFoundException,
       );
     });
+
+    it('creates using now and Brasília initTime when the payload is empty', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPrisma.preAppointment.create.mockResolvedValue({ id: 'pre-now' });
+
+      await service.createPreAppointment('ticket-1', {}, agentUser);
+
+      const data = mockPrisma.preAppointment.create.mock.calls[0][0].data;
+      expect(data.ticketId).toBe('ticket-1');
+      expect(data.authorId).toBe('agent-1');
+      expect(data.beginning).toBeInstanceOf(Date);
+      expect(data.initTime).toMatch(/^\d{2}:\d{2}$/);
+    });
+
+    it('keeps an explicit initTime from the payload', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPrisma.preAppointment.create.mockResolvedValue({ id: 'pre-init' });
+
+      await service.createPreAppointment(
+        'ticket-1',
+        { beginning: '2026-10-15T14:36:00.000Z', initTime: '19:36' },
+        agentUser,
+      );
+
+      expect(mockPrisma.preAppointment.create).toHaveBeenCalledWith({
+        data: {
+          ticketId: 'ticket-1',
+          authorId: 'agent-1',
+          beginning: new Date('2026-10-15T14:36:00.000Z'),
+          initTime: '19:36',
+        },
+        include: authorInclude,
+      });
+    });
+
+    it('blocks unlisted agents from creating pré-apontamentos on a listed mesa', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue({
+        ...validTicket,
+        serviceDesk: {
+          listedGroupsOnly: true,
+          agents: [],
+          agentGroups: [],
+        },
+      });
+
+      await expect(service.createPreAppointment('ticket-1', {}, agentUser)).rejects.toThrow(
+        ForbiddenException,
+      );
+      expect(mockPrisma.preAppointment.create).not.toHaveBeenCalled();
+    });
+
+    it('stops using now and Brasília endTime when the payload is empty', async () => {
+      mockPrisma.preAppointment.findUnique.mockResolvedValue({
+        id: 'pre-1',
+        ticketId: 'ticket-1',
+        authorId: 'agent-1',
+        beginning: new Date(Date.now() - 60_000),
+      });
+      mockPrisma.preAppointment.update.mockResolvedValue({ id: 'pre-1' });
+
+      await service.stopPreAppointment('ticket-1', 'pre-1', {}, agentUser);
+
+      const data = mockPrisma.preAppointment.update.mock.calls[0][0].data;
+      expect(data.ending).toBeInstanceOf(Date);
+      expect(data.endTime).toMatch(/^\d{2}:\d{2}$/);
+    });
+
+    it('keeps an explicit endTime from the payload', async () => {
+      mockPrisma.preAppointment.findUnique.mockResolvedValue({
+        id: 'pre-1',
+        ticketId: 'ticket-1',
+        authorId: 'agent-1',
+        beginning: new Date('2026-10-15T14:36:00.000Z'),
+      });
+      mockPrisma.preAppointment.update.mockResolvedValue({ id: 'pre-1' });
+
+      await service.stopPreAppointment(
+        'ticket-1',
+        'pre-1',
+        { ending: '2026-10-15T15:10:00.000Z', endTime: '12:10' },
+        agentUser,
+      );
+
+      expect(mockPrisma.preAppointment.update).toHaveBeenCalledWith({
+        where: { id: 'pre-1' },
+        data: {
+          ending: new Date('2026-10-15T15:10:00.000Z'),
+          endTime: '12:10',
+        },
+        include: authorInclude,
+      });
+    });
+
+    it('rejects an invalid ending', async () => {
+      mockPrisma.preAppointment.findUnique.mockResolvedValue({
+        id: 'pre-1',
+        ticketId: 'ticket-1',
+        authorId: 'agent-1',
+        beginning: new Date('2026-10-15T14:36:00.000Z'),
+      });
+
+      await expect(
+        service.stopPreAppointment('ticket-1', 'pre-1', { ending: 'not-a-date' }, agentUser),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('lets ADMIN stop and delete another user pré-apontamento', async () => {
+      mockPrisma.preAppointment.findUnique.mockResolvedValue({
+        id: 'pre-1',
+        ticketId: 'ticket-1',
+        authorId: 'agent-2',
+        beginning: new Date('2026-10-15T14:36:00.000Z'),
+      });
+      mockPrisma.preAppointment.update.mockResolvedValue({ id: 'pre-1' });
+      mockPrisma.preAppointment.delete.mockResolvedValue({ id: 'pre-1' });
+
+      await service.stopPreAppointment(
+        'ticket-1',
+        'pre-1',
+        { ending: '2026-10-15T15:10:00.000Z' },
+        adminUser,
+      );
+      await service.deletePreAppointment('ticket-1', 'pre-1', adminUser);
+
+      expect(mockPrisma.preAppointment.update).toHaveBeenCalled();
+      expect(mockPrisma.preAppointment.delete).toHaveBeenCalledWith({ where: { id: 'pre-1' } });
+    });
+
+    it('forbids AGENT from deleting another user pré-apontamento', async () => {
+      mockPrisma.preAppointment.findUnique.mockResolvedValue({
+        id: 'pre-1',
+        ticketId: 'ticket-1',
+        authorId: 'agent-2',
+      });
+
+      await expect(service.deletePreAppointment('ticket-1', 'pre-1', agentUser)).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it('throws when the pré-apontamento belongs to another ticket', async () => {
+      mockPrisma.preAppointment.findUnique.mockResolvedValue({
+        id: 'pre-1',
+        ticketId: 'other-ticket',
+        authorId: 'agent-1',
+      });
+
+      await expect(
+        service.stopPreAppointment('ticket-1', 'pre-1', {}, agentUser),
+      ).rejects.toThrow(NotFoundException);
+      await expect(service.deletePreAppointment('ticket-1', 'pre-1', agentUser)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
   });
 });

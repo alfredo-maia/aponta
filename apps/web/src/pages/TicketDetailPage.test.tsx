@@ -353,6 +353,12 @@ describe('TicketDetailPage', () => {
     expect(screen.getByTestId('tab-panel-apontamentos')).not.toHaveClass('hidden');
     expect(screen.getByTestId('worklog-pre-appointments')).toBeInTheDocument();
     expect(screen.getByTestId('worklog-pre-end')).toHaveTextContent('--');
+
+    await user.click(screen.getByTestId('ticket-header-stop-btn'));
+    await waitFor(() => {
+      expect(screen.getByTestId('ticket-header-play-btn')).toBeInTheDocument();
+    });
+    expect(screen.getByTestId('worklog-pre-end')).not.toHaveTextContent('--');
   });
 
   describe('Agent assignment', () => {
