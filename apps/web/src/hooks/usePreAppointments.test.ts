@@ -77,7 +77,7 @@ describe('usePreAppointments', () => {
     const { result } = renderHook(() => useCreatePreAppointment('t-1'), { wrapper });
 
     await act(async () => {
-      await result.current.mutateAsync();
+      await result.current.mutateAsync({});
     });
 
     expect(api.post).toHaveBeenCalledWith('/tickets/t-1/pre-appointments', {});
