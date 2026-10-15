@@ -16,6 +16,7 @@ import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { TicketQueryDto } from './dto/ticket-query.dto';
 import { AssignTicketDto } from './dto/assign-ticket.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
+import { ChangeTicketStageDto } from '../service-desks/dto/ticket-stage.dto';
 import { ChangeServiceDeskDto } from "./dto/change-service-desk.dto";
 import { UpdateParentDto } from "./dto/update-parent.dto";
 import { AddSlaHoursDto } from './dto/add-sla-hours.dto';
@@ -86,6 +87,17 @@ export class TicketsController {
     @Req() req: AuthenticatedRequest,
   ) {
     return this.ticketsService.assign(id, assignTicketDto.agentId, req.user);
+  }
+
+  @Patch(':id/stage')
+  @UseGuards(RolesGuard)
+  @Roles(Role.AGENT, Role.ADMIN)
+  changeStage(
+    @Param('id') id: string,
+    @Body() dto: ChangeTicketStageDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.ticketsService.changeStage(id, dto.stageId, req.user);
   }
 
   @Patch(':id/status')

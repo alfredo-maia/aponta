@@ -175,6 +175,7 @@ model ServiceDesk {
   holidays       Holiday[]
   priorities     ServiceDeskPriority[]
   ticketSections ServiceDeskTicketSection[]
+  stages         TicketStage[]
 
   /// Per-desk SLA targets (hours), overriding the global defaults in
   /// tickets.service.ts's SLA_HOURS when set. Each pair is nullable
@@ -331,6 +332,9 @@ model Ticket {
   serviceDeskId String
   serviceDesk   ServiceDesk @relation(fields: [serviceDeskId], references: [id])
 
+  stageId String?
+  stage   TicketStage? @relation(fields: [stageId], references: [id])
+
   responseDeadline DateTime?
   resolveDeadline  DateTime?
 
@@ -357,6 +361,35 @@ model Ticket {
 
   @@index([serviceDeskId, status])
   @@index([requesterId])
+  @@index([stageId])
+}
+
+model TicketStage {
+  id            String  @id @default(uuid())
+  serviceDeskId String
+  serviceDesk   ServiceDesk @relation(fields: [serviceDeskId], references: [id], onDelete: Cascade)
+  name          String
+  position      Int     @default(0)
+  isInitial     Boolean @default(false)
+  isFinal       Boolean @default(false)
+
+  tickets          Ticket[]
+  transitionsFrom  TicketStageTransition[] @relation("StageTransitionsFrom")
+  transitionsTo    TicketStageTransition[] @relation("StageTransitionsTo")
+
+  @@index([serviceDeskId, position])
+}
+
+model TicketStageTransition {
+  id          String      @id @default(uuid())
+  fromStageId String
+  fromStage   TicketStage @relation("StageTransitionsFrom", fields: [fromStageId], references: [id], onDelete: Cascade)
+  toStageId   String
+  toStage     TicketStage @relation("StageTransitionsTo", fields: [toStageId], references: [id], onDelete: Cascade)
+
+  @@unique([fromStageId, toStageId])
+  @@index([fromStageId])
+  @@index([toStageId])
 }
 
 model Article {

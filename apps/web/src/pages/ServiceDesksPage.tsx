@@ -10,6 +10,7 @@ import { ServiceDeskEditor } from '../components/ServiceDeskEditor';
 import { BusinessHoursEditor } from '../components/BusinessHoursEditor';
 import { ServiceDeskSlaEditor } from '../components/ServiceDeskSlaEditor';
 import { MesaFlagEditor } from '../components/MesaFlagEditor';
+import { MesaStagesEditor } from '../components/MesaStagesEditor';
 import {
   EzAlert,
   EzButton,
@@ -140,7 +141,7 @@ export function ServiceDesksPage() {
     { id: 'priorities', label: 'Prioridades' },
     { id: 'clients', label: 'Clientes' },
     { id: 'groups', label: 'Grupos de atendentes' },
-    { id: 'stages', label: 'Estágio', disabled: true },
+    { id: 'stages', label: 'Estágio' },
     { id: 'status', label: 'Status' },
     { id: 'reopen', label: 'Reabertura' },
     { id: 'sections', label: 'Seções do ticket' },
@@ -311,13 +312,13 @@ export function ServiceDesksPage() {
             recordCountText={recordCountText}
           />
 
-          <div className="p-3">
+          <div className="p-4 md:p-6">
             {mode === 'form' ? (
               selectedDeskId === null ? (
                 <form
                   onSubmit={handleSubmit((values) => createMutation.mutate(values))}
                   noValidate
-                  className="max-w-lg space-y-3"
+                  className="max-w-xl space-y-3"
                 >
                   <EzCardItem flat className="flex-row items-end gap-3 p-4">
                     <div className="flex-1">
@@ -338,23 +339,25 @@ export function ServiceDesksPage() {
                   )}
                 </form>
               ) : activeDesk ? (
-                <div className="max-w-2xl space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-[16px] font-semibold text-gray-900">{activeDesk.name}</h2>
+                <div className="w-full space-y-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <h2 className="text-[18px] font-semibold text-gray-900">{activeDesk.name}</h2>
                     <EzButton type="button" variant="secondary" size="small" onClick={backToList}>
                       Voltar
                     </EzButton>
                   </div>
                   <EzTabs
+                    variant="pills"
+                    className="flex-wrap overflow-visible"
                     tabs={mesaTabs}
                     activeTab={activeTab}
                     onChange={(tabId) => setActiveTab(String(tabId))}
                   />
-                  <EzCardItem flat className="p-4">
+                  <EzCardItem flat className="p-5 md:p-6">
                     {activeTab === 'basics' && (
-                      <>
+                      <div className="space-y-6">
                         <form
-                          className="mb-4 space-y-3"
+                          className="space-y-4"
                           onSubmit={(event) => {
                             event.preventDefault();
                             const form = event.currentTarget;
@@ -367,18 +370,20 @@ export function ServiceDesksPage() {
                               );
                           }}
                         >
-                          <EzTextInput
-                            id="mesa-display-name"
-                            name="displayName"
-                            label="Nome de exibição"
-                            defaultValue={activeDesk.displayName ?? ''}
-                          />
-                          <EzTextInput
-                            id="mesa-description"
-                            name="description"
-                            label="Descrição"
-                            defaultValue={activeDesk.description ?? ''}
-                          />
+                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <EzTextInput
+                              id="mesa-display-name"
+                              name="displayName"
+                              label="Nome de exibição"
+                              defaultValue={activeDesk.displayName ?? ''}
+                            />
+                            <EzTextInput
+                              id="mesa-description"
+                              name="description"
+                              label="Descrição"
+                              defaultValue={activeDesk.description ?? ''}
+                            />
+                          </div>
                           <div className="flex justify-end">
                             <EzButton type="submit" size="small">Salvar dados básicos</EzButton>
                           </div>
@@ -393,9 +398,9 @@ export function ServiceDesksPage() {
                           ]}
                           values={activeDesk}
                         />
-                      </>
+                      </div>
                     )}
-                    {(activeTab === 'basics' || activeTab === 'clients') && (
+                    {activeTab === 'clients' && (
                       <ServiceDeskSlaEditor
                         deskId={activeDesk.id}
                         initial={{
@@ -413,7 +418,7 @@ export function ServiceDesksPage() {
                       />
                     )}
                     {activeTab === 'groups' && (
-                      <>
+                      <div className="space-y-6">
                         <MesaFlagEditor
                           deskId={activeDesk.id}
                           flags={[
@@ -423,7 +428,7 @@ export function ServiceDesksPage() {
                           values={activeDesk}
                         />
                         <ServiceDeskEditor desk={activeDesk} agents={agents ?? []} />
-                      </>
+                      </div>
                     )}
                     {activeTab === 'hours' && (
                       <BusinessHoursEditor serviceDeskId={activeDesk.id} />
@@ -470,7 +475,7 @@ export function ServiceDesksPage() {
                       />
                     )}
                     {activeTab === 'priorities' && (
-                      <div className="space-y-2">
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         {(activeDesk.priorities ?? []).map((priority) => (
                           <EzCheck
                             key={priority.ticketPriority}
@@ -501,7 +506,7 @@ export function ServiceDesksPage() {
                       </div>
                     )}
                     {activeTab === 'sections' && (
-                      <div className="space-y-2">
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         {(activeDesk.ticketSections ?? []).map((section) => (
                           <EzCheck
                             key={section.key}
@@ -528,9 +533,12 @@ export function ServiceDesksPage() {
                         )}
                       </div>
                     )}
+                    {activeTab === 'stages' && (
+                      <MesaStagesEditor deskId={activeDesk.id} />
+                    )}
                     {activeTab === 'status' && (
                       <form
-                        className="space-y-3"
+                        className="space-y-4"
                         onSubmit={(event) => {
                           event.preventDefault();
                           const form = event.currentTarget;
@@ -546,28 +554,30 @@ export function ServiceDesksPage() {
                             );
                         }}
                       >
-                        <label className="block text-sm">
-                          <span className="mb-1 block text-gray-700">Status padrão ao abrir</span>
-                          <select
-                            name="defaultOpenStatus"
-                            defaultValue={activeDesk.defaultOpenStatus ?? 'OPEN'}
-                            className="w-full rounded-md border border-gray-200 px-3 py-2"
-                          >
-                            <option value="OPEN">Aberto</option>
-                            <option value="IN_PROGRESS">Em andamento</option>
-                          </select>
-                        </label>
-                        <label className="block text-sm">
-                          <span className="mb-1 block text-gray-700">Status padrão ao fechar</span>
-                          <select
-                            name="defaultClosedStatus"
-                            defaultValue={activeDesk.defaultClosedStatus ?? 'CLOSED'}
-                            className="w-full rounded-md border border-gray-200 px-3 py-2"
-                          >
-                            <option value="CLOSED">Fechado</option>
-                            <option value="RESOLVED">Resolvido</option>
-                          </select>
-                        </label>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                          <label className="block text-sm">
+                            <span className="mb-1 block text-gray-700">Status padrão ao abrir</span>
+                            <select
+                              name="defaultOpenStatus"
+                              defaultValue={activeDesk.defaultOpenStatus ?? 'OPEN'}
+                              className="w-full rounded-md border border-gray-200 px-3 py-2"
+                            >
+                              <option value="OPEN">Aberto</option>
+                              <option value="IN_PROGRESS">Em andamento</option>
+                            </select>
+                          </label>
+                          <label className="block text-sm">
+                            <span className="mb-1 block text-gray-700">Status padrão ao fechar</span>
+                            <select
+                              name="defaultClosedStatus"
+                              defaultValue={activeDesk.defaultClosedStatus ?? 'CLOSED'}
+                              className="w-full rounded-md border border-gray-200 px-3 py-2"
+                            >
+                              <option value="CLOSED">Fechado</option>
+                              <option value="RESOLVED">Resolvido</option>
+                            </select>
+                          </label>
+                        </div>
                         <div className="flex justify-end">
                           <EzButton type="submit" size="small">Salvar status</EzButton>
                         </div>

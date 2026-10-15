@@ -18,11 +18,20 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { CurrentUser, CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
+import { TicketStagesService } from './ticket-stages.service';
+import {
+  CreateTicketStageDto,
+  ReorderTicketStagesDto,
+  UpdateTicketStageDto,
+} from './dto/ticket-stage.dto';
 
 @Controller('service-desks')
 @UseGuards(JwtAuthGuard)
 export class ServiceDesksController {
-  constructor(private readonly serviceDesksService: ServiceDesksService) {}
+  constructor(
+    private readonly serviceDesksService: ServiceDesksService,
+    private readonly ticketStagesService: TicketStagesService,
+  ) {}
 
   @Post()
   @UseGuards(RolesGuard)
@@ -68,6 +77,43 @@ export class ServiceDesksController {
   @Get(':id/business-hours')
   getBusinessHours(@Param('id') id: string) {
     return this.serviceDesksService.getBusinessHours(id);
+  }
+
+  @Get(':id/stages')
+  listStages(@Param('id') id: string) {
+    return this.ticketStagesService.list(id);
+  }
+
+  @Post(':id/stages')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  createStage(@Param('id') id: string, @Body() dto: CreateTicketStageDto) {
+    return this.ticketStagesService.create(id, dto.name);
+  }
+
+  @Patch(':id/stages/reorder')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  reorderStages(@Param('id') id: string, @Body() dto: ReorderTicketStagesDto) {
+    return this.ticketStagesService.reorder(id, dto.ids);
+  }
+
+  @Patch(':id/stages/:stageId')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  updateStage(
+    @Param('id') id: string,
+    @Param('stageId') stageId: string,
+    @Body() dto: UpdateTicketStageDto,
+  ) {
+    return this.ticketStagesService.update(id, stageId, dto);
+  }
+
+  @Delete(':id/stages/:stageId')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  removeStage(@Param('id') id: string, @Param('stageId') stageId: string) {
+    return this.ticketStagesService.remove(id, stageId);
   }
 
   @Put(':id/business-hours')
