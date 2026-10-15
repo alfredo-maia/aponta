@@ -17,7 +17,15 @@ vi.mock('../lib/api', () => ({
 }));
 
 const serviceDesks = [
-  { id: 'sd-1', name: 'Suporte N1', createdAt: '2026-09-29T10:00:00.000Z' },
+  {
+    id: 'sd-1',
+    name: 'Suporte N1',
+    createdAt: '2026-09-29T10:00:00.000Z',
+    ticketSections: [
+      { id: 's1', key: 'GENERAL_INFO', enabled: true, sortOrder: 0 },
+      { id: 's2', key: 'WORKLOGS', enabled: true, sortOrder: 1 },
+    ],
+  },
   { id: 'sd-2', name: 'Infraestrutura', createdAt: '2026-09-29T10:00:00.000Z' },
 ];
 
@@ -149,11 +157,12 @@ describe('ServiceDesksPage', () => {
     await screen.findByText('Suporte N1');
 
     // The create form is not shown until the user explicitly asks for it.
-    expect(screen.queryByLabelText(/^nome$/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^nome \*?$/i)).not.toBeInTheDocument();
 
     await user.click(screen.getByTestId('ez-toolbar-insert-button'));
 
-    await user.type(await screen.findByLabelText(/^nome$/i), 'Financeiro');
+    const nameInput = await screen.findByRole('textbox', { name: /^nome \*$/i });
+    await user.type(nameInput, 'Financeiro');
     await user.click(screen.getByRole('button', { name: /criar/i }));
 
     await waitFor(() => {
@@ -184,6 +193,20 @@ describe('ServiceDesksPage', () => {
       screen.getByText(/não tem permissão/i),
     ).toBeInTheDocument();
     expect(api.get).not.toHaveBeenCalled();
+  });
+
+  it('shows Portuguese labels for ticket sections instead of database keys', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Suporte N1');
+    await user.click(screen.getByText('Suporte N1'));
+    await user.click(await screen.findByRole('tab', { name: 'Seções do ticket' }));
+
+    expect(await screen.findByLabelText('Informações gerais')).toBeInTheDocument();
+    expect(screen.getByLabelText('Apontamentos')).toBeInTheDocument();
+    expect(screen.queryByText('GENERAL_INFO')).not.toBeInTheDocument();
+    expect(screen.queryByText('WORKLOGS')).not.toBeInTheDocument();
   });
 
   it('should link a service desk to a client and save its SLA overrides', async () => {

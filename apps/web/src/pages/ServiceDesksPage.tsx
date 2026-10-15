@@ -16,15 +16,20 @@ import {
   EzButton,
   EzCardItem,
   EzCheck,
+  EzComboBox,
   EzEmptyCard,
   EzEntityScreenConfigModal,
   EzEntityToolbar,
+  EzPageHeader,
+  EzPageLayout,
   EzSpinner,
   EzTabs,
+  EzTextArea,
   EzTextInput,
 } from '../components/ds';
 import { EzEntityGrid } from '../components/ds/EzEntityGrid';
 import { useUserScreenConfig } from '../hooks/useUserScreenConfig';
+import { ticketSectionLabel } from '../lib/mesaLabels';
 
 interface ServiceDesk {
   id: string;
@@ -56,6 +61,8 @@ interface ServiceDesk {
 
 const serviceDeskFormSchema = z.object({
   name: z.string().trim().min(1, 'Nome é obrigatório'),
+  displayName: z.string().trim().optional(),
+  description: z.string().trim().optional(),
 });
 
 type ServiceDeskFormValues = z.infer<typeof serviceDeskFormSchema>;
@@ -192,12 +199,17 @@ export function ServiceDesksPage() {
     formState: { errors },
   } = useForm<ServiceDeskFormValues>({
     resolver: zodResolver(serviceDeskFormSchema),
-    defaultValues: { name: '' },
+    defaultValues: { name: '', displayName: '', description: '' },
   });
 
   const createMutation = useMutation({
     mutationFn: async (values: ServiceDeskFormValues) => {
-      const { data } = await api.post<ServiceDesk>('/service-desks', values);
+      const payload = {
+        name: values.name,
+        ...(values.displayName ? { displayName: values.displayName } : {}),
+        ...(values.description ? { description: values.description } : {}),
+      };
+      const { data } = await api.post<ServiceDesk>('/service-desks', payload);
       return data;
     },
     onSuccess: () => {
@@ -279,9 +291,16 @@ export function ServiceDesksPage() {
       : `${totalCount === 0 ? 0 : 1} - ${totalCount} de ${totalCount}`;
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-[20px] font-semibold text-gray-900">Mesa</h1>
-
+    <EzPageLayout
+      header={
+        <EzPageHeader
+          title={mode === 'form' && activeDesk ? activeDesk.displayName || activeDesk.name : 'Mesa'}
+          showBackButton={mode === 'form'}
+          onBack={backToList}
+        />
+      }
+    >
+    <div className="space-y-4">
       {isLoading ? (
         <EzSpinner label="Carregando…" />
       ) : (
@@ -318,34 +337,43 @@ export function ServiceDesksPage() {
                 <form
                   onSubmit={handleSubmit((values) => createMutation.mutate(values))}
                   noValidate
-                  className="max-w-xl space-y-3"
+                  className="mx-auto max-w-xl space-y-4"
                 >
-                  <EzCardItem flat className="flex-row items-end gap-3 p-4">
-                    <div className="flex-1">
-                      <EzTextInput
-                        id="service-desk-name"
-                        label="Nome"
-                        hasError={!!errors.name}
-                        message={errors.name?.message}
-                        {...register('name')}
-                      />
+                  <p className="text-sm text-gray-500">
+                    Cadastre a mesa com o nome interno e, se quiser, um nome de exibição para o cliente.
+                  </p>
+                  <EzCardItem flat className="space-y-4 p-5">
+                    <EzTextInput
+                      id="service-desk-name"
+                      label="Nome"
+                      required
+                      hasError={!!errors.name}
+                      message={errors.name?.message}
+                      {...register('name')}
+                    />
+                    <EzTextInput
+                      id="service-desk-display-name"
+                      label="Nome de exibição"
+                      {...register('displayName')}
+                    />
+                    <EzTextArea
+                      id="service-desk-description"
+                      label="Descrição"
+                      rows={3}
+                      {...register('description')}
+                    />
+                    <div className="flex justify-end">
+                      <EzButton type="submit" disabled={createMutation.isPending}>
+                        Criar
+                      </EzButton>
                     </div>
-                    <EzButton type="submit" disabled={createMutation.isPending}>
-                      Criar
-                    </EzButton>
                   </EzCardItem>
                   {createMutation.isError && (
                     <EzAlert variant="error">Falha ao criar a mesa. Tente novamente.</EzAlert>
                   )}
                 </form>
               ) : activeDesk ? (
-                <div className="w-full space-y-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <h2 className="text-[18px] font-semibold text-gray-900">{activeDesk.name}</h2>
-                    <EzButton type="button" variant="secondary" size="small" onClick={backToList}>
-                      Voltar
-                    </EzButton>
-                  </div>
+                <div className="space-y-4">
                   <EzTabs
                     variant="pills"
                     className="flex-wrap overflow-visible"
@@ -511,7 +539,7 @@ export function ServiceDesksPage() {
                           <EzCheck
                             key={section.key}
                             id={`mesa-section-${section.key}`}
-                            label={section.key}
+                            label={ticketSectionLabel(section.key)}
                             checked={section.enabled}
                             onChange={() => {
                               void api
@@ -538,7 +566,7 @@ export function ServiceDesksPage() {
                     )}
                     {activeTab === 'status' && (
                       <form
-                        className="space-y-4"
+                        className="grid max-w-xl grid-cols-1 gap-4 sm:grid-cols-2"
                         onSubmit={(event) => {
                           event.preventDefault();
                           const form = event.currentTarget;
@@ -554,31 +582,25 @@ export function ServiceDesksPage() {
                             );
                         }}
                       >
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                          <label className="block text-sm">
-                            <span className="mb-1 block text-gray-700">Status padrão ao abrir</span>
-                            <select
-                              name="defaultOpenStatus"
-                              defaultValue={activeDesk.defaultOpenStatus ?? 'OPEN'}
-                              className="w-full rounded-md border border-gray-200 px-3 py-2"
-                            >
-                              <option value="OPEN">Aberto</option>
-                              <option value="IN_PROGRESS">Em andamento</option>
-                            </select>
-                          </label>
-                          <label className="block text-sm">
-                            <span className="mb-1 block text-gray-700">Status padrão ao fechar</span>
-                            <select
-                              name="defaultClosedStatus"
-                              defaultValue={activeDesk.defaultClosedStatus ?? 'CLOSED'}
-                              className="w-full rounded-md border border-gray-200 px-3 py-2"
-                            >
-                              <option value="CLOSED">Fechado</option>
-                              <option value="RESOLVED">Resolvido</option>
-                            </select>
-                          </label>
-                        </div>
-                        <div className="flex justify-end">
+                        <EzComboBox
+                          id="mesa-default-open-status"
+                          name="defaultOpenStatus"
+                          label="Status ao abrir"
+                          defaultValue={activeDesk.defaultOpenStatus ?? 'OPEN'}
+                        >
+                          <option value="OPEN">Aberto</option>
+                          <option value="IN_PROGRESS">Em andamento</option>
+                        </EzComboBox>
+                        <EzComboBox
+                          id="mesa-default-closed-status"
+                          name="defaultClosedStatus"
+                          label="Status ao fechar"
+                          defaultValue={activeDesk.defaultClosedStatus ?? 'CLOSED'}
+                        >
+                          <option value="CLOSED">Fechado</option>
+                          <option value="RESOLVED">Resolvido</option>
+                        </EzComboBox>
+                        <div className="flex justify-end sm:col-span-2">
                           <EzButton type="submit" size="small">Salvar status</EzButton>
                         </div>
                       </form>
@@ -637,6 +659,7 @@ export function ServiceDesksPage() {
         />
       )}
     </div>
+    </EzPageLayout>
   );
 }
 
