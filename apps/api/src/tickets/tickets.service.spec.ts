@@ -36,10 +36,12 @@ describe('TicketsService', () => {
     holiday: { findMany: jest.Mock };
     ticketAudit: { create: jest.Mock; findMany: jest.Mock };
     serviceDesk: { findUnique: jest.Mock };
-    user: { findUnique: jest.Mock };
-    worklog: { findMany: jest.Mock };
-    comment: { create: jest.Mock };
-    $transaction: jest.Mock;
+      user: { findUnique: jest.Mock };
+      worklog: { findMany: jest.Mock };
+      comment: { create: jest.Mock };
+      ticketStage: { findFirst: jest.Mock };
+      ticketStageTransition: { findUnique: jest.Mock };
+      $transaction: jest.Mock;
   };
 
   const actingUser = { id: 'user-1', role: Role.AGENT };
@@ -103,6 +105,7 @@ describe('TicketsService', () => {
           priorities: [],
           agents: [],
           agentGroups: [],
+          stages: [{ id: 'stage-initial' }],
         }),
       },
       worklog: {
@@ -110,6 +113,16 @@ describe('TicketsService', () => {
       },
       comment: {
         create: jest.fn().mockResolvedValue({}),
+      },
+      ticketStage: {
+        findFirst: jest.fn().mockResolvedValue({
+          id: 'stage-initial',
+          isInitial: true,
+          isFinal: false,
+        }),
+      },
+      ticketStageTransition: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'tr-1' }),
       },
       user: {
         findUnique: jest.fn().mockResolvedValue({
@@ -164,6 +177,7 @@ describe('TicketsService', () => {
           serviceDeskId: dto.serviceDeskId,
           requesterId: 'requester-1',
           status: TicketStatus.OPEN,
+          stageId: 'stage-initial',
           priority: TicketPriority.MEDIUM,
           responseDeadline: new Date('2026-01-15T18:00:00.000Z'),
           resolveDeadline: new Date('2026-01-16T10:00:00.000Z'),
@@ -700,6 +714,7 @@ describe('TicketsService', () => {
       expect(result).toEqual({
         id: 't1',
         requesterId: 'someone-else',
+        nextStages: [],
         serviceDesk: {},
         responseSlaStatus: null,
         resolveSlaStatus: null,
@@ -754,6 +769,7 @@ describe('TicketsService', () => {
       expect(result).toEqual({
         id: 't1',
         requesterId: 'someone-else',
+        nextStages: [],
         serviceDesk: { allowCrossDeskInteraction: true, ticketSections: [] },
         responseSlaStatus: null,
         resolveSlaStatus: null,
@@ -1181,7 +1197,7 @@ describe('TicketsService', () => {
 
       expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
         where: { id: 't1' },
-        data: { serviceDeskId: 'desk-2' },
+        data: { serviceDeskId: 'desk-2', stageId: 'stage-initial' },
       });
       expect(mockPrismaService.ticketAudit.create).toHaveBeenCalledWith({
         data: {
@@ -1456,6 +1472,56 @@ describe('TicketsService', () => {
       await expect(
         service.changeStatus('t1', TicketStatus.IN_PROGRESS, actingUser),
       ).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe('changeStage', () => {
+    it('moves the ticket when the transition exists and closes on final stage', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        stageId: 'stage-initial',
+        serviceDeskId: 'desk-1',
+        status: TicketStatus.OPEN,
+      });
+      mockPrismaService.ticketStage.findFirst.mockResolvedValue({
+        id: 'stage-final',
+        isInitial: false,
+        isFinal: true,
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({
+        id: 't1',
+        stageId: 'stage-final',
+        status: TicketStatus.CLOSED,
+      });
+
+      const result = await service.changeStage('t1', 'stage-final', actingUser);
+
+      expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
+        where: { id: 't1' },
+        data: {
+          stage: { connect: { id: 'stage-final' } },
+          status: TicketStatus.CLOSED,
+        },
+      });
+      expect(result.status).toBe(TicketStatus.CLOSED);
+    });
+
+    it('rejects a transition that is not configured', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        stageId: 'stage-initial',
+        serviceDeskId: 'desk-1',
+      });
+      mockPrismaService.ticketStage.findFirst.mockResolvedValue({
+        id: 'stage-n2',
+        isInitial: false,
+        isFinal: false,
+      });
+      mockPrismaService.ticketStageTransition.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.changeStage('t1', 'stage-n2', actingUser),
+      ).rejects.toThrow('Transição de estágio não permitida');
     });
   });
 });

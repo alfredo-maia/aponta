@@ -10,6 +10,7 @@ import { ServiceDeskEditor } from '../components/ServiceDeskEditor';
 import { BusinessHoursEditor } from '../components/BusinessHoursEditor';
 import { ServiceDeskSlaEditor } from '../components/ServiceDeskSlaEditor';
 import { MesaFlagEditor } from '../components/MesaFlagEditor';
+import { MesaStagesEditor } from '../components/MesaStagesEditor';
 import {
   EzAlert,
   EzButton,
@@ -140,7 +141,7 @@ export function ServiceDesksPage() {
     { id: 'priorities', label: 'Prioridades' },
     { id: 'clients', label: 'Clientes' },
     { id: 'groups', label: 'Grupos de atendentes' },
-    { id: 'stages', label: 'Estágio', disabled: true },
+    { id: 'stages', label: 'Estágio' },
     { id: 'status', label: 'Status' },
     { id: 'reopen', label: 'Reabertura' },
     { id: 'sections', label: 'Seções do ticket' },
@@ -527,6 +528,9 @@ export function ServiceDesksPage() {
                           </p>
                         )}
                       </div>
+                    )}
+                    {activeTab === 'stages' && (
+                      <MesaStagesEditor deskId={activeDesk.id} />
                     )}
                     {activeTab === 'status' && (
                       <form

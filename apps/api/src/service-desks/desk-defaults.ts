@@ -38,6 +38,16 @@ export const DEFAULT_DESK_SECTIONS: {
   sortOrder,
 }));
 
+export const DEFAULT_DESK_STAGES: {
+  name: string;
+  position: number;
+  isInitial: boolean;
+  isFinal: boolean;
+}[] = [
+  { name: 'Pendente', position: 0, isInitial: true, isFinal: false },
+  { name: 'Fechado', position: 1, isInitial: false, isFinal: true },
+];
+
 export const DESK_INCLUDE = {
   agents: { select: { id: true, name: true, email: true } },
   organizations: { select: { id: true, name: true } },

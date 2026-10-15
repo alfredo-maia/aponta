@@ -3,7 +3,7 @@ import { Role, ServiceDeskSectionKey, TicketPriority } from '@prisma/client';
 import { ServiceDesksService } from './service-desks.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { HolidaysImportService } from './holidays-import.service';
-import { DESK_INCLUDE, DEFAULT_DESK_PRIORITIES, DEFAULT_DESK_SECTIONS } from './desk-defaults';
+import { DESK_INCLUDE, DEFAULT_DESK_PRIORITIES, DEFAULT_DESK_SECTIONS, DEFAULT_DESK_STAGES } from './desk-defaults';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 const mockPrismaService = {
@@ -29,6 +29,12 @@ const mockPrismaService = {
     findMany: jest.fn(),
     deleteMany: jest.fn(),
     createMany: jest.fn(),
+  },
+  ticketStage: {
+    findFirst: jest.fn(),
+  },
+  ticketStageTransition: {
+    create: jest.fn(),
   },
   $transaction: jest.fn(),
 };
@@ -70,6 +76,10 @@ describe('ServiceDesksService', () => {
     const expecteddesk = { id: 'uuid-123', name: 'IT Support' };
     
     mockPrismaService.serviceDesk.create.mockResolvedValue(expecteddesk);
+    mockPrismaService.ticketStage.findFirst
+      .mockResolvedValueOnce({ id: 'ini' })
+      .mockResolvedValueOnce({ id: 'fin' });
+    mockPrismaService.ticketStageTransition.create.mockResolvedValue({});
 
     const result = await service.create(createDto);
     expect(result).toEqual(expecteddesk);
@@ -78,8 +88,12 @@ describe('ServiceDesksService', () => {
         ...createDto,
         priorities: { create: DEFAULT_DESK_PRIORITIES },
         ticketSections: { create: DEFAULT_DESK_SECTIONS },
+        stages: { create: DEFAULT_DESK_STAGES },
       },
       include: EXPECTED_INCLUDE,
+    });
+    expect(prisma.ticketStageTransition.create).toHaveBeenCalledWith({
+      data: { fromStageId: 'ini', toStageId: 'fin' },
     });
   });
 

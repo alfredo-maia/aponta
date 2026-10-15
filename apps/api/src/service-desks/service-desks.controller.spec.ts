@@ -5,9 +5,18 @@ import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { Role } from '@prisma/client';
 import { ServiceDesksController } from './service-desks.controller';
 import { ServiceDesksService } from './service-desks.service';
+import { TicketStagesService } from './ticket-stages.service';
 import { ROLES_KEY } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+
+const mockTicketStagesService = {
+  list: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  reorder: jest.fn(),
+  remove: jest.fn(),
+};
 
 const mockServiceDesksService = {
   create: jest.fn(),
@@ -28,6 +37,7 @@ describe('ServiceDesksController', () => {
       controllers: [ServiceDesksController],
       providers: [
         { provide: ServiceDesksService, useValue: mockServiceDesksService },
+        { provide: TicketStagesService, useValue: mockTicketStagesService },
       ],
     }).compile();
 
@@ -74,6 +84,27 @@ describe('ServiceDesksController', () => {
       expect(
         Reflect.getMetadata(ROLES_KEY, controller.importNationalHolidays),
       ).toEqual([Role.ADMIN, Role.AGENT_MASTER]);
+    });
+
+    it('requires ADMIN on stage mutations', () => {
+      expect(Reflect.getMetadata(ROLES_KEY, controller.createStage)).toEqual([
+        Role.ADMIN,
+      ]);
+      expect(Reflect.getMetadata(ROLES_KEY, controller.updateStage)).toEqual([
+        Role.ADMIN,
+      ]);
+      expect(Reflect.getMetadata(ROLES_KEY, controller.reorderStages)).toEqual([
+        Role.ADMIN,
+      ]);
+      expect(Reflect.getMetadata(ROLES_KEY, controller.removeStage)).toEqual([
+        Role.ADMIN,
+      ]);
+    });
+
+    it('does not restrict listStages to any role', () => {
+      expect(
+        Reflect.getMetadata(ROLES_KEY, controller.listStages),
+      ).toBeUndefined();
     });
 
     it('does not restrict findAll to any role', () => {

@@ -31,7 +31,10 @@ test.describe('admin Mesa screen', () => {
     await expect(page.getByRole('tab', { name: 'Parâmetros' })).toBeVisible();
     await expect(page.getByRole('tab', { name: 'Campos obrigatórios' })).toBeVisible();
     await expect(page.getByRole('tab', { name: 'Reabertura' })).toBeVisible();
-    await expect(page.getByRole('tab', { name: 'Estágio' })).toBeDisabled();
+    await expect(page.getByRole('tab', { name: 'Estágio' })).toBeEnabled();
+    await page.getByRole('tab', { name: 'Estágio' }).click();
+    await expect(page.getByLabel('Novo estágio')).toBeVisible();
+    await expect(page.getByText(/Pendente \(inicial\)/)).toBeVisible();
 
     await page.getByRole('tab', { name: 'Parâmetros' }).click();
     await expect(page.getByLabel('Interação com outras mesas')).toBeVisible();

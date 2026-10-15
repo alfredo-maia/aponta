@@ -4,7 +4,7 @@ import { CreateServiceDeskDto } from './dto/create-service-desk.dto';
 import { UpdateServiceDeskDto } from './dto/update-service-desk.dto';
 import { UpdateBusinessHoursDto } from './dto/update-business-hours.dto';
 import { HolidaysImportService } from './holidays-import.service';
-import { DEFAULT_DESK_PRIORITIES, DEFAULT_DESK_SECTIONS, DESK_INCLUDE } from './desk-defaults';
+import { DEFAULT_DESK_PRIORITIES, DEFAULT_DESK_SECTIONS, DEFAULT_DESK_STAGES, DESK_INCLUDE } from './desk-defaults';
 import { TenantHelper } from '../core/security/tenant.helper';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
@@ -24,7 +24,7 @@ export class ServiceDesksService {
       ticketSections: _ticketSections,
       ...data
     } = createServiceDeskDto;
-    return this.prisma.serviceDesk.create({
+    const desk = await this.prisma.serviceDesk.create({
       data: {
         ...data,
         ...(agentIds && { agents: { connect: agentIds.map((id) => ({ id })) } }),
@@ -36,9 +36,24 @@ export class ServiceDesksService {
         }),
         priorities: { create: DEFAULT_DESK_PRIORITIES },
         ticketSections: { create: DEFAULT_DESK_SECTIONS },
+        stages: { create: DEFAULT_DESK_STAGES },
       },
       include: DESK_INCLUDE,
     });
+    const [initial, final] = await Promise.all([
+      this.prisma.ticketStage.findFirst({
+        where: { serviceDeskId: desk.id, isInitial: true },
+      }),
+      this.prisma.ticketStage.findFirst({
+        where: { serviceDeskId: desk.id, isFinal: true },
+      }),
+    ]);
+    if (initial && final) {
+      await this.prisma.ticketStageTransition.create({
+        data: { fromStageId: initial.id, toStageId: final.id },
+      });
+    }
+    return desk;
   }
 
   async findAll(user: CurrentUserPayload) {

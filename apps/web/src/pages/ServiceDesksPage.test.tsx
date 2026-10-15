@@ -34,6 +34,20 @@ function mockApiGet() {
     if (url === '/users/agents') {
       return Promise.resolve({ data: [] });
     }
+    if (String(url).includes('/stages')) {
+      return Promise.resolve({
+        data: [
+          {
+            id: 'st-1',
+            name: 'Pendente',
+            position: 0,
+            isInitial: true,
+            isFinal: false,
+            transitionToIds: [],
+          },
+        ],
+      });
+    }
     return Promise.reject(new Error(`Unexpected GET ${url}`));
   });
 }
@@ -187,7 +201,7 @@ describe('ServiceDesksPage', () => {
 
     expect(await screen.findByRole('tab', { name: 'Informações básicas' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Parâmetros' })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Estágio' })).toBeDisabled();
+    expect(screen.getByRole('tab', { name: 'Estágio' })).toBeEnabled();
 
     const editSlaButton = await screen.findByRole('button', { name: /editar cliente e sla/i });
     await user.click(editSlaButton);

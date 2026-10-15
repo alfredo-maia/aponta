@@ -16,6 +16,7 @@ const mockTicketsService = {
   update: jest.fn(),
   assign: jest.fn(),
   changeStatus: jest.fn(),
+  changeStage: jest.fn(),
   changeServiceDesk: jest.fn(),
   findAudits: jest.fn(),
   cancel: jest.fn(),
@@ -120,6 +121,12 @@ describe('TicketsController', () => {
     it('requires AGENT or ADMIN on changeStatus', () => {
       expect(
         Reflect.getMetadata(ROLES_KEY, controller.changeStatus),
+      ).toEqual([Role.AGENT, Role.ADMIN]);
+    });
+
+    it('requires AGENT or ADMIN on changeStage', () => {
+      expect(
+        Reflect.getMetadata(ROLES_KEY, controller.changeStage),
       ).toEqual([Role.AGENT, Role.ADMIN]);
     });
   });

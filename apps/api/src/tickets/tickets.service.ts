@@ -269,6 +269,7 @@ export class TicketsService {
           priorities: true,
           agents: { select: { id: true } },
           agentGroups: { include: { members: { select: { id: true } } } },
+          stages: { where: { isInitial: true }, take: 1, select: { id: true } },
         },
       }),
       this.prisma.businessHour.findMany({
@@ -335,6 +336,7 @@ export class TicketsService {
               serviceDeskId: serviceDeskId,
               requesterId,
               status: serviceDesk.defaultOpenStatus ?? TicketStatus.OPEN,
+              stageId: serviceDesk.stages[0]?.id,
               priority,
               responseDeadline,
               resolveDeadline,
@@ -573,6 +575,21 @@ export class TicketsService {
             },
           },
         },
+        stage: {
+          select: {
+            id: true,
+            name: true,
+            isInitial: true,
+            isFinal: true,
+            transitionsFrom: {
+              select: {
+                toStage: {
+                  select: { id: true, name: true, isFinal: true, position: true },
+                },
+              },
+            },
+          },
+        },
       }
     });
 
@@ -608,7 +625,16 @@ export class TicketsService {
       delete desk.agentGroups;
     }
 
-    return this.decorateWithSlaStatus(ticket);
+    const withNextStages = ticket as Ticket & {
+      stage?: {
+        transitionsFrom?: { toStage: { id: string; name: string; isFinal: boolean; position: number } }[];
+      };
+      nextStages?: { id: string; name: string; isFinal: boolean; position: number }[];
+    };
+    withNextStages.nextStages =
+      withNextStages.stage?.transitionsFrom?.map((item) => item.toStage) ?? [];
+
+    return this.decorateWithSlaStatus(withNextStages);
   }
 
   /**
@@ -737,6 +763,67 @@ export class TicketsService {
    * rejected, EXCEPT CLOSED -> OPEN ("reopen"), which is allowed only for
    * ADMIN callers.
    */
+  async changeStage(
+    id: string,
+    stageId: string,
+    currentUser: CurrentUserPayload,
+  ): Promise<Ticket> {
+    const existing = await this.prisma.ticket.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`Ticket with ID ${id} not found`);
+    }
+
+    const desk = await this.loadDeskPolicy(existing.serviceDeskId);
+    if (desk) {
+      assertListedAgentMayMutate({ desk, user: currentUser });
+    }
+
+    const target = await this.prisma.ticketStage.findFirst({
+      where: { id: stageId, serviceDeskId: existing.serviceDeskId },
+    });
+    if (!target) {
+      throw new BadRequestException('Estágio não pertence à mesa do ticket');
+    }
+
+    if (existing.stageId) {
+      const allowed = await this.prisma.ticketStageTransition.findUnique({
+        where: {
+          fromStageId_toStageId: {
+            fromStageId: existing.stageId,
+            toStageId: stageId,
+          },
+        },
+      });
+      if (!allowed) {
+        throw new BadRequestException('Transição de estágio não permitida');
+      }
+    } else if (!target.isInitial) {
+      throw new BadRequestException('Ticket sem estágio só pode ir para o inicial');
+    }
+
+    const updateData: Prisma.TicketUpdateInput = {
+      stage: { connect: { id: stageId } },
+    };
+    if (target.isFinal) {
+      updateData.status = desk?.defaultClosedStatus ?? TicketStatus.CLOSED;
+    }
+
+    const updated = await this.prisma.ticket.update({
+      where: { id },
+      data: updateData,
+    });
+    await this.prisma.ticketAudit.create({
+      data: {
+        ticketId: id,
+        userId: currentUser.id,
+        action: 'STAGE_CHANGED',
+        prevVal: existing.stageId,
+        newVal: stageId,
+      },
+    });
+    return updated;
+  }
+
   async changeStatus(
     id: string,
     newStatus: TicketStatus,
@@ -995,9 +1082,14 @@ export class TicketsService {
       );
     }
 
+    const initialStage = await this.prisma.ticketStage.findFirst({
+      where: { serviceDeskId, isInitial: true },
+      select: { id: true },
+    });
+
     const ticket = await this.prisma.ticket.update({
       where: { id },
-      data: { serviceDeskId },
+      data: { serviceDeskId, stageId: initialStage?.id ?? null },
     });
 
     await this.prisma.ticketAudit.create({
