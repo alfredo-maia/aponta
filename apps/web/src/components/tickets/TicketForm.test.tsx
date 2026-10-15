@@ -244,6 +244,54 @@ describe('TicketForm', () => {
     });
   });
 
+  it('hides inactive, closed and internal desks from the Mesa options', async () => {
+    mockApiGet({
+      serviceDesks: [
+        { id: 'sd-ok', name: 'Mesa aberta' },
+        { id: 'sd-off', name: 'Mesa inativa', active: false },
+        { id: 'sd-closed', name: 'Mesa fechada', acceptingNewTickets: false },
+        { id: 'sd-int', name: 'Mesa interna', internalUse: true },
+      ],
+    });
+    useAuthStore.setState({
+      token: 'tok',
+      user: { sub: 'u-1', email: 'client@example.com', role: 'CLIENT', organizationId: 'org-1' },
+    });
+    renderForm();
+    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/service-desks'));
+
+    const mesa = screen.getByLabelText(/^mesa/i);
+    await waitFor(() => {
+      expect(within(mesa).getByRole('option', { name: 'Mesa aberta' })).toBeInTheDocument();
+    });
+    expect(within(mesa).queryByRole('option', { name: 'Mesa inativa' })).not.toBeInTheDocument();
+    expect(within(mesa).queryByRole('option', { name: 'Mesa fechada' })).not.toBeInTheDocument();
+    expect(within(mesa).queryByRole('option', { name: 'Mesa interna' })).not.toBeInTheDocument();
+  });
+
+  it('warns and blocks submit when the desk requires catalog or attachments', async () => {
+    mockApiGet({
+      serviceDesks: [
+        {
+          id: 'sd-1',
+          name: 'Suporte N1',
+          catalogRequiredOnOpen: true,
+          requireAttachments: true,
+        },
+      ],
+    });
+    const user = userEvent.setup();
+    const { onSubmit } = renderForm();
+    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/service-desks'));
+
+    await fillRequiredFields(user);
+    expect(screen.getByText(/exige um item do catálogo/i)).toBeInTheDocument();
+    expect(screen.getByText(/anexos \(obrigatório nesta mesa\)/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /abrir ticket/i }));
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
   it('lets the user add followers via the multi-select', async () => {
     const user = userEvent.setup();
     renderForm();
