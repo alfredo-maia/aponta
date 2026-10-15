@@ -27,7 +27,7 @@ test.describe('ticket creation and detail view', () => {
     // plain NavLink (Issue #48's acceptance criteria).
     await page.getByRole('button', { name: 'Novo Ticket' }).click();
     await expect(page).toHaveURL('/tickets/new');
-    await expect(page.getByText('Mesa', { exact: true }).first()).toBeVisible();
+    await expect(page.locator('#ticket-service-desk')).toBeVisible();
 
     await page.fill('#ticket-title', uniqueTitle);
     // EzRichText is a Tiptap contenteditable surface, not a <textarea>.

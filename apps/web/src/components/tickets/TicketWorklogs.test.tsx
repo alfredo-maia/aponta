@@ -672,6 +672,18 @@ describe('TicketWorklogs', () => {
     expect(screen.getAllByTestId('worklog-pre-end')[1]).not.toHaveTextContent('--');
   });
 
+  it('discards the running pré-apontamento from the timer cancel control', async () => {
+    loginAs('AGENT', 'u-1');
+    const user = userEvent.setup();
+    renderComponent('t-1', false);
+
+    await user.click(screen.getByTestId('worklog-timer-start-btn'));
+    await waitFor(() => expect(screen.getByTestId('worklog-pre-appointment-row')).toBeInTheDocument());
+
+    await user.click(screen.getByTestId('worklog-timer-cancel-btn'));
+    await waitFor(() => expect(screen.queryByTestId('worklog-pre-appointments')).not.toBeInTheDocument());
+  });
+
   it('paginates the pré-apontamentos table when the list grows', async () => {
     loginAs('AGENT', 'u-1');
     const user = userEvent.setup();

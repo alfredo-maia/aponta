@@ -707,5 +707,50 @@ describe('WorklogsService', () => {
         ForbiddenException,
       );
     });
+
+    it('rejects an invalid beginning', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+
+      await expect(
+        service.createPreAppointment('ticket-1', { beginning: 'not-a-date' }, agentUser),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('rejects stopping with an ending before the beginning', async () => {
+      mockPrisma.preAppointment.findUnique.mockResolvedValue({
+        id: 'pre-1',
+        ticketId: 'ticket-1',
+        authorId: 'agent-1',
+        beginning: new Date('2026-10-15T14:36:00.000Z'),
+      });
+
+      await expect(
+        service.stopPreAppointment(
+          'ticket-1',
+          'pre-1',
+          { ending: '2026-10-15T14:00:00.000Z' },
+          agentUser,
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws when the pré-apontamento is missing on stop or delete', async () => {
+      mockPrisma.preAppointment.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.stopPreAppointment('ticket-1', 'pre-missing', {}, agentUser),
+      ).rejects.toThrow(NotFoundException);
+      await expect(
+        service.deletePreAppointment('ticket-1', 'pre-missing', agentUser),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws when the ticket does not exist', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(null);
+
+      await expect(service.findPreAppointments('missing', agentUser)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
   });
 });

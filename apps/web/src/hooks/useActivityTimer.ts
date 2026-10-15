@@ -39,7 +39,7 @@ export function useActivityTimer(ticketId: string): ActivityTimer {
 
   const timerActive = Boolean(running);
   const timerStartISO = running?.beginning ?? null;
-  const timerEndISO = running ? null : null;
+  const timerEndISO = null;
 
   useEffect(() => {
     if (!running) {

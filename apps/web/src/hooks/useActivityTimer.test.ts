@@ -27,6 +27,7 @@ function wrapper({ children }: { children: ReactNode }) {
 describe('useActivityTimer', () => {
   beforeEach(() => {
     store = [];
+    vi.clearAllMocks();
     vi.mocked(api.get).mockImplementation(() => Promise.resolve({ data: [...store] }));
     vi.mocked(api.post).mockImplementation((_url: string, body?: unknown) => {
       const input = (body || {}) as { beginning?: string; initTime?: string };
@@ -119,6 +120,53 @@ describe('useActivityTimer', () => {
       await result.current.handleStartTimer();
     });
     await waitFor(() => expect(result.current.items).toHaveLength(2));
+  });
+
+  it('pause and resume freeze the clock without dropping the pré', async () => {
+    const { result } = renderHook(() => useActivityTimer('ticket-1'), { wrapper });
+
+    await act(async () => {
+      await result.current.handleStartTimer();
+    });
+    await waitFor(() => expect(result.current.timerActive).toBe(true));
+
+    act(() => {
+      result.current.handlePauseTimer();
+    });
+    expect(result.current.timerPaused).toBe(true);
+
+    act(() => {
+      result.current.handleResumeTimer();
+    });
+    expect(result.current.timerPaused).toBe(false);
+    expect(result.current.items).toHaveLength(1);
+  });
+
+  it('stop and cancel are no-ops when nothing is running', async () => {
+    const { result } = renderHook(() => useActivityTimer('ticket-1'), { wrapper });
+
+    await act(async () => {
+      await result.current.handleStopTimer();
+      await result.current.handleCancelTimer();
+    });
+
+    expect(api.patch).not.toHaveBeenCalled();
+    expect(api.delete).not.toHaveBeenCalled();
+  });
+
+  it('cancel without an id deletes the running pré-apontamento', async () => {
+    const { result } = renderHook(() => useActivityTimer('ticket-1'), { wrapper });
+
+    await act(async () => {
+      await result.current.handleStartTimer();
+    });
+    await waitFor(() => expect(result.current.running).toBeTruthy());
+
+    await act(async () => {
+      await result.current.handleCancelTimer();
+    });
+
+    await waitFor(() => expect(result.current.items).toHaveLength(0));
   });
 
   it('cancel removes only the targeted pré-apontamento', async () => {

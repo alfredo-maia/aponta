@@ -38,4 +38,27 @@ describe('MesaFlagEditor', () => {
       });
     });
   });
+
+  it('shows an error when saving flags fails', async () => {
+    vi.mocked(api.patch).mockRejectedValue(new Error('fail'));
+    const user = userEvent.setup();
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MesaFlagEditor
+          deskId="sd-1"
+          flags={[{ key: 'catalogRequiredOnOpen', label: 'Catálogo obrigatório ao abrir' }]}
+          values={{ catalogRequiredOnOpen: true }}
+        />
+      </QueryClientProvider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Salvar' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Não foi possível salvar as opções da mesa.',
+    );
+  });
 });
