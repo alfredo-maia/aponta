@@ -147,6 +147,7 @@ model User {
   audits      TicketAudit[]
   attachments TicketAttachment[]
   worklogs    Worklog[]
+  preAppointments PreAppointment[]
   apiTokens   ApiToken[]
   appointments Appointment[]
 
@@ -348,6 +349,7 @@ model Ticket {
   checklists  TicketChecklist[]
   attachments TicketAttachment[]
   worklogs    Worklog[]
+  preAppointments PreAppointment[]
   appointments Appointment[]
 
   createdAt DateTime @default(now())
@@ -510,6 +512,21 @@ enum ValuationType {
   CONTRACT
   GUARANTEE
   MANUAL
+}
+
+model PreAppointment {
+  id        String    @id @default(uuid())
+  beginning DateTime
+  ending    DateTime?
+  initTime  String
+  endTime   String?
+  ticketId  String
+  ticket    Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id])
+  createdAt DateTime  @default(now())
+
+  @@index([ticketId])
 }
 
 model Worklog {

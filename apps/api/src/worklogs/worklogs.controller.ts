@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -11,6 +12,8 @@ import {
 import { Role } from '@prisma/client';
 import { WorklogsService } from './worklogs.service';
 import { CreateWorklogDto } from './dto/create-worklog.dto';
+import { CreatePreAppointmentDto } from './dto/create-pre-appointment.dto';
+import { StopPreAppointmentDto } from './dto/stop-pre-appointment.dto';
 import { JwtOrTokenAuthGuard } from '../auth/guards/jwt-or-token-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -57,5 +60,46 @@ export class WorklogsController {
     @Req() req: AuthenticatedRequest,
   ) {
     return this.worklogsService.delete(ticketId, worklogId, req.user);
+  }
+
+  @Post(':ticketId/pre-appointments')
+  @ApiOperation({ summary: 'Criar pré-apontamento (não substitui os anteriores)' })
+  @ApiResponse({ status: 201, description: 'Pré-apontamento criado.' })
+  createPreAppointment(
+    @Param('ticketId') ticketId: string,
+    @Body() dto: CreatePreAppointmentDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.worklogsService.createPreAppointment(ticketId, dto, req.user);
+  }
+
+  @Get(':ticketId/pre-appointments')
+  @ApiOperation({ summary: 'Listar pré-apontamentos persistidos do chamado' })
+  findPreAppointments(
+    @Param('ticketId') ticketId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.worklogsService.findPreAppointments(ticketId, req.user);
+  }
+
+  @Patch(':ticketId/pre-appointments/:preAppointmentId')
+  @ApiOperation({ summary: 'Encerrar (parar) um pré-apontamento em aberto' })
+  stopPreAppointment(
+    @Param('ticketId') ticketId: string,
+    @Param('preAppointmentId') preAppointmentId: string,
+    @Body() dto: StopPreAppointmentDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.worklogsService.stopPreAppointment(ticketId, preAppointmentId, dto, req.user);
+  }
+
+  @Delete(':ticketId/pre-appointments/:preAppointmentId')
+  @ApiOperation({ summary: 'Remover pré-apontamento' })
+  deletePreAppointment(
+    @Param('ticketId') ticketId: string,
+    @Param('preAppointmentId') preAppointmentId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.worklogsService.deletePreAppointment(ticketId, preAppointmentId, req.user);
   }
 }

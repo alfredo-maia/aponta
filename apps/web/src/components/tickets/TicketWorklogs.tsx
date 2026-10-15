@@ -22,7 +22,6 @@ import {
   addMinutesToTime,
   brasiliaDatePtBr,
   brasiliaDateString,
-  brasiliaTimeString,
   prefillFromTimer,
   storedIsoToWallClock,
   wallClockToStoredIso,
@@ -30,6 +29,7 @@ import {
 import { preparePastedImage } from '../../lib/preparePastedImage';
 import { useAuthStore } from '../../stores/authStore';
 import { useActivityTimer, type ActivityTimer } from '../../hooks/useActivityTimer';
+import type { PreAppointment } from '../../hooks/usePreAppointments';
 import { useWorklogs, useCreateWorklog, useDeleteWorklog, Worklog, AttendanceType, ValuationType } from '../../hooks/useWorklogs';
 import type { TicketStatus } from '../../hooks/useTickets';
 import { statusLabels } from './TicketCard';
@@ -45,6 +45,7 @@ import {
   EzDateInput,
   EzTimeInput,
   EzTextInput,
+  EzPagination,
 } from '../ds';
 import { cn } from '../ds/utils';
 import { isBlankRichText, RichContentView } from './RichContentView';
@@ -61,6 +62,8 @@ export interface TicketWorklogsProps {
   /** Shared with the ticket header play/stop (TiFlux). Falls back to a local timer. */
   timer?: ActivityTimer;
 }
+
+export const PRE_APPOINTMENTS_PAGE_SIZE = 5;
 
 export function formatTimerSeconds(seconds: number): string {
   const hrs = Math.floor(seconds / 3600);
@@ -147,8 +150,8 @@ export function TicketWorklogs({
 
   const localTimer = useActivityTimer(ticketId);
   const {
-    timerStartISO,
-    timerEndISO,
+    items: preAppointments,
+    running,
     timerPaused,
     timerActive,
     timerSeconds,
@@ -159,18 +162,32 @@ export function TicketWorklogs({
     handleCancelTimer,
   } = timerFromParent ?? localTimer;
 
-  const applyPreToForm = () => {
-    if (!timerStartISO) return;
-    const start = new Date(timerStartISO);
-    const end = timerEndISO ? new Date(timerEndISO) : new Date();
+  const [prePage, setPrePage] = useState(1);
+  const preTotalPages = Math.max(1, Math.ceil(preAppointments.length / PRE_APPOINTMENTS_PAGE_SIZE));
+  const pagedPreAppointments = preAppointments.slice(
+    (prePage - 1) * PRE_APPOINTMENTS_PAGE_SIZE,
+    prePage * PRE_APPOINTMENTS_PAGE_SIZE,
+  );
+
+  useEffect(() => {
+    if (prePage > preTotalPages) {
+      setPrePage(preTotalPages);
+    }
+  }, [prePage, preTotalPages]);
+
+  const applyPreToForm = (item?: PreAppointment) => {
+    const source = item ?? running;
+    if (!source) return;
+    const start = new Date(source.beginning);
+    const end = source.ending ? new Date(source.ending) : new Date();
     const prefill = prefillFromTimer(start, end, timerSeconds);
     setDay(prefill.day);
-    setStartTimeOfDay(prefill.startTime);
-    setEndTimeOfDay(prefill.endTime);
+    setStartTimeOfDay(source.initTime || prefill.startTime);
+    setEndTimeOfDay(source.endTime || prefill.endTime);
   };
 
-  const handleOpenFromPre = () => {
-    applyPreToForm();
+  const handleOpenFromPre = (item: PreAppointment) => {
+    applyPreToForm(item);
     setIsModalOpen(true);
   };
 
@@ -438,7 +455,6 @@ export function TicketWorklogs({
         // ignore
       }
       setHasDraftLoaded(false);
-      handleCancelTimer();
 
       if (mode === 'SAVE_AND_NEW') {
         const nextStart = endTimeOfDay;
@@ -589,7 +605,7 @@ export function TicketWorklogs({
                   <button
                     type="button"
                     data-testid="worklog-timer-cancel-btn"
-                    onClick={handleCancelTimer}
+                    onClick={() => void handleCancelTimer()}
                     className="p-0.5 text-gray-400 hover:text-red-600 rounded cursor-pointer"
                     title="Descartar cronômetro"
                   >
@@ -627,7 +643,7 @@ export function TicketWorklogs({
               leftIcon={Plus}
               label="Apontamento"
               onClick={() => {
-                if (timerStartISO) applyPreToForm();
+                if (running) applyPreToForm();
                 setIsModalOpen(true);
               }}
             />
@@ -955,92 +971,107 @@ export function TicketWorklogs({
           </form>
         </EzModal>
 
-        {timerStartISO && (
-          <div className="space-y-2" data-testid="worklog-pre-appointments">
-            <span className="text-[13px] font-medium text-gray-700">Pré-apontamentos</span>
-            <div className="overflow-x-auto border border-gray-200 rounded-[8px]">
-              <table className="w-full text-left border-collapse text-[13px]">
+        {preAppointments.length > 0 && (
+          <div className="space-y-1.5" data-testid="worklog-pre-appointments">
+            <span className="text-[12px] font-medium text-gray-700">Pré-apontamentos</span>
+            <div className="overflow-x-auto border border-gray-200 rounded-[6px]">
+              <table className="w-full text-left border-collapse text-[12px]">
                 <thead>
-                  <tr className="bg-gray-50/80 border-b border-gray-200 text-gray-500 text-[12px] font-medium">
-                    <th className="py-2.5 px-3">Atendente</th>
-                    <th className="py-2.5 px-3">Data do pré-apontamento</th>
-                    <th className="py-2.5 px-3">Início</th>
-                    <th className="py-2.5 px-3">Fim</th>
-                    <th className="py-2.5 px-3 text-right">Ações</th>
+                  <tr className="bg-gray-50/80 border-b border-gray-200 text-gray-500 text-[11px] font-medium">
+                    <th className="py-1.5 px-2">Atendente</th>
+                    <th className="py-1.5 px-2">Data do pré-apontamento</th>
+                    <th className="py-1.5 px-2">Início</th>
+                    <th className="py-1.5 px-2">Fim</th>
+                    <th className="py-1.5 px-2 text-right">Ações</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white">
-                  <tr data-testid="worklog-pre-appointment-row">
-                    <td className="py-3 px-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
-                          <User className="w-3.5 h-3.5" />
-                        </div>
-                        <span data-testid="worklog-pre-attendant" className="font-medium text-gray-900">
-                          {user?.email?.split('@')[0] || 'Técnico'}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-3 text-gray-700" data-testid="worklog-pre-date">
-                      {brasiliaDatePtBr(new Date(timerStartISO))}
-                    </td>
-                    <td className="py-3 px-3 font-mono text-gray-800" data-testid="worklog-pre-start">
-                      {brasiliaTimeString(new Date(timerStartISO))}
-                    </td>
-                    <td className="py-3 px-3 font-mono text-gray-800" data-testid="worklog-pre-end">
-                      {timerEndISO ? brasiliaTimeString(new Date(timerEndISO)) : '--'}
-                    </td>
-                    <td className="py-3 px-3 text-right">
-                      <div className="inline-flex items-center gap-1">
-                        {timerActive && (
-                          timerPaused ? (
+                  {pagedPreAppointments.map((item) => {
+                    const isRunning = running?.id === item.id;
+                    const attendant = item.author?.name || item.author?.email?.split('@')[0] || user?.email?.split('@')[0] || 'Técnico';
+                    return (
+                      <tr key={item.id} data-testid="worklog-pre-appointment-row">
+                        <td className="py-1.5 px-2">
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                              <User className="w-3 h-3" />
+                            </div>
+                            <span data-testid="worklog-pre-attendant" className="font-medium text-gray-900">
+                              {attendant}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-1.5 px-2 text-gray-700" data-testid="worklog-pre-date">
+                          {brasiliaDatePtBr(new Date(item.beginning))}
+                        </td>
+                        <td className="py-1.5 px-2 font-mono text-gray-800" data-testid="worklog-pre-start">
+                          {item.initTime}
+                        </td>
+                        <td className="py-1.5 px-2 font-mono text-gray-800" data-testid="worklog-pre-end">
+                          {item.endTime || '--'}
+                        </td>
+                        <td className="py-1.5 px-2 text-right">
+                          <div className="inline-flex items-center gap-0.5">
+                            {isRunning && (
+                              timerPaused ? (
+                                <button
+                                  type="button"
+                                  data-testid="worklog-pre-resume-btn"
+                                  onClick={handleResumeTimer}
+                                  className="p-1 text-emerald-600 hover:bg-emerald-50 rounded cursor-pointer"
+                                  title="Retomar"
+                                >
+                                  <Play className="w-3.5 h-3.5 fill-current" />
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  data-testid="worklog-pre-pause-btn"
+                                  onClick={handlePauseTimer}
+                                  className="p-1 text-amber-600 hover:bg-amber-50 rounded cursor-pointer"
+                                  title="Pausar"
+                                >
+                                  <Pause className="w-3.5 h-3.5 fill-current" />
+                                </button>
+                              )
+                            )}
+                            {item.ending && (
+                              <button
+                                type="button"
+                                data-testid="worklog-pre-convert-btn"
+                                onClick={() => handleOpenFromPre(item)}
+                                className="p-1 text-brand-700 hover:bg-brand-50 rounded cursor-pointer"
+                                title="Abrir apontamento com estes horários"
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
                             <button
                               type="button"
-                              data-testid="worklog-pre-resume-btn"
-                              onClick={handleResumeTimer}
-                              className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded cursor-pointer"
-                              title="Retomar"
+                              data-testid="worklog-pre-delete-btn"
+                              onClick={() => void handleCancelTimer(item.id)}
+                              className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded cursor-pointer"
+                              title="Remover pré-apontamento"
                             >
-                              <Play className="w-3.5 h-3.5 fill-current" />
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
-                          ) : (
-                            <button
-                              type="button"
-                              data-testid="worklog-pre-pause-btn"
-                              onClick={handlePauseTimer}
-                              className="p-1.5 text-amber-600 hover:bg-amber-50 rounded cursor-pointer"
-                              title="Pausar"
-                            >
-                              <Pause className="w-3.5 h-3.5 fill-current" />
-                            </button>
-                          )
-                        )}
-                        {timerEndISO && (
-                          <button
-                            type="button"
-                            data-testid="worklog-pre-convert-btn"
-                            onClick={handleOpenFromPre}
-                            className="p-1.5 text-brand-700 hover:bg-brand-50 rounded cursor-pointer"
-                            title="Abrir apontamento com estes horários"
-                          >
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          data-testid="worklog-pre-delete-btn"
-                          onClick={handleCancelTimer}
-                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded cursor-pointer"
-                          title="Remover pré-apontamento"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
+            {preAppointments.length > PRE_APPOINTMENTS_PAGE_SIZE && (
+              <div className="flex justify-end" data-testid="worklog-pre-pagination">
+                <EzPagination
+                  currentPage={prePage}
+                  totalPages={preTotalPages}
+                  onChange={setPrePage}
+                />
+              </div>
+            )}
           </div>
         )}
 

@@ -10,6 +10,10 @@ describe('WorklogsController', () => {
     create: jest.Mock;
     findByTicket: jest.Mock;
     delete: jest.Mock;
+    createPreAppointment: jest.Mock;
+    findPreAppointments: jest.Mock;
+    stopPreAppointment: jest.Mock;
+    deletePreAppointment: jest.Mock;
   };
 
   const agentUser: CurrentUserPayload = { id: 'agent-1', role: Role.AGENT };
@@ -19,6 +23,10 @@ describe('WorklogsController', () => {
       create: jest.fn(),
       findByTicket: jest.fn(),
       delete: jest.fn(),
+      createPreAppointment: jest.fn(),
+      findPreAppointments: jest.fn(),
+      stopPreAppointment: jest.fn(),
+      deletePreAppointment: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -68,6 +76,44 @@ describe('WorklogsController', () => {
 
       expect(service.delete).toHaveBeenCalledWith('t-1', 'wl-1', agentUser);
       expect(result).toEqual({ id: 'wl-1' });
+    });
+  });
+
+  describe('pre-appointments', () => {
+    it('should create a pré-apontamento', async () => {
+      const dto = { beginning: '2026-10-15T14:36:00.000Z' };
+      service.createPreAppointment.mockResolvedValue({ id: 'pre-1', ...dto });
+
+      const result = await controller.createPreAppointment('t-1', dto, { user: agentUser });
+
+      expect(service.createPreAppointment).toHaveBeenCalledWith('t-1', dto, agentUser);
+      expect(result).toEqual({ id: 'pre-1', ...dto });
+    });
+
+    it('should list pré-apontamentos', async () => {
+      service.findPreAppointments.mockResolvedValue([{ id: 'pre-1' }, { id: 'pre-2' }]);
+
+      const result = await controller.findPreAppointments('t-1', { user: agentUser });
+
+      expect(service.findPreAppointments).toHaveBeenCalledWith('t-1', agentUser);
+      expect(result).toHaveLength(2);
+    });
+
+    it('should stop a pré-apontamento', async () => {
+      const dto = { ending: '2026-10-15T15:10:00.000Z' };
+      service.stopPreAppointment.mockResolvedValue({ id: 'pre-1' });
+
+      await controller.stopPreAppointment('t-1', 'pre-1', dto, { user: agentUser });
+
+      expect(service.stopPreAppointment).toHaveBeenCalledWith('t-1', 'pre-1', dto, agentUser);
+    });
+
+    it('should delete a pré-apontamento', async () => {
+      service.deletePreAppointment.mockResolvedValue({ id: 'pre-1' });
+
+      await controller.deletePreAppointment('t-1', 'pre-1', { user: agentUser });
+
+      expect(service.deletePreAppointment).toHaveBeenCalledWith('t-1', 'pre-1', agentUser);
     });
   });
 });

@@ -12,6 +12,7 @@ vi.mock('../lib/api', () => ({
     get: vi.fn(),
     post: vi.fn(),
     patch: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
@@ -69,6 +70,18 @@ const comments = [
   },
 ];
 
+const preAppointments: Array<{
+  id: string;
+  beginning: string;
+  ending: string | null;
+  initTime: string;
+  endTime: string | null;
+  ticketId: string;
+  authorId: string;
+  createdAt: string;
+  author: { id: string; name: string; email: string };
+}> = [];
+
 const mockAgents = [
   { id: 'agent-1', name: 'Agent Smith', email: 'agent1@ex.com', role: 'AGENT' },
   { id: 'agent-2', name: 'Agent Jones', email: 'agent2@ex.com', role: 'AGENT' },
@@ -92,6 +105,9 @@ function mockApi() {
     if (url === '/tickets/t-1/worklogs') {
       return Promise.resolve({ data: [] });
     }
+    if (url === '/tickets/t-1/pre-appointments') {
+      return Promise.resolve({ data: [...preAppointments] });
+    }
     return Promise.reject(new Error(`Unexpected GET ${url}`));
   });
   vi.mocked(api.patch).mockImplementation((url: string, body: unknown) => {
@@ -100,9 +116,39 @@ function mockApi() {
       ticket.agentId = agentId;
       return Promise.resolve({ data: ticket });
     }
+    const preMatch = url.match(/^\/tickets\/t-1\/pre-appointments\/(.+)$/);
+    if (preMatch) {
+      const input = body as { ending?: string; endTime?: string };
+      const idx = preAppointments.findIndex((row) => row.id === preMatch[1]);
+      if (idx >= 0) {
+        preAppointments[idx] = {
+          ...preAppointments[idx],
+          ending: input.ending || new Date().toISOString(),
+          endTime: input.endTime || '00:00',
+        };
+        return Promise.resolve({ data: preAppointments[idx] });
+      }
+    }
     return Promise.reject(new Error(`Unexpected PATCH ${url}`));
   });
   vi.mocked(api.post).mockImplementation((url: string, body: unknown) => {
+    if (url === '/tickets/t-1/pre-appointments') {
+      const input = body as { beginning?: string; initTime?: string };
+      const beginning = input.beginning || new Date().toISOString();
+      const created = {
+        id: `pre-${preAppointments.length + 1}`,
+        beginning,
+        ending: null,
+        initTime: input.initTime || '00:00',
+        endTime: null,
+        ticketId: 't-1',
+        authorId: 'u-1',
+        createdAt: beginning,
+        author: { id: 'u-1', name: 'Agent Smith', email: 'agent1@ex.com' },
+      };
+      preAppointments.unshift(created);
+      return Promise.resolve({ data: created });
+    }
     const { content, isInternal } = body as {
       content: string;
       isInternal?: boolean;
@@ -150,6 +196,7 @@ describe('TicketDetailPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     comments.length = 2;
+    preAppointments.length = 0;
     mockApi();
     setRole('CLIENT');
   });
@@ -296,7 +343,9 @@ describe('TicketDetailPage', () => {
 
     await user.click(screen.getByTestId('ticket-header-play-btn'));
 
-    expect(screen.getByTestId('ticket-header-stop-btn')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('ticket-header-stop-btn')).toBeInTheDocument();
+    });
     expect(screen.getByTestId('ticket-header-timer-display')).toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: /apontamentos/i }));

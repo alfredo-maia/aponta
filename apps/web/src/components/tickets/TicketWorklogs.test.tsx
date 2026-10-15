@@ -11,6 +11,7 @@ vi.mock('../../lib/api', () => ({
   api: {
     get: vi.fn(),
     post: vi.fn(),
+    patch: vi.fn(),
     delete: vi.fn(),
   },
 }));
@@ -92,6 +93,79 @@ const mockWorklogs = [
 
 const todayStr = () => brasiliaDateString();
 
+type PreRow = {
+  id: string;
+  beginning: string;
+  ending: string | null;
+  initTime: string;
+  endTime: string | null;
+  ticketId: string;
+  authorId: string;
+  createdAt: string;
+  author: { id: string; name: string; email: string };
+};
+
+let currentWorklogs: unknown[] = [];
+let preStore: PreRow[] = [];
+
+function installApiStubs() {
+  vi.mocked(api.get).mockImplementation((url: string) => {
+    const path = String(url);
+    if (path.includes('/pre-appointments')) {
+      return Promise.resolve({ data: [...preStore] });
+    }
+    if (path.includes('/users/agents')) {
+      return Promise.resolve({ data: [] });
+    }
+    return Promise.resolve({ data: currentWorklogs });
+  });
+  vi.mocked(api.post).mockImplementation((url: string, body?: unknown) => {
+    if (String(url).includes('/pre-appointments')) {
+      const input = (body || {}) as { beginning?: string; initTime?: string };
+      const beginning = input.beginning || new Date().toISOString();
+      const created: PreRow = {
+        id: `pre-${preStore.length + 1}-${beginning}`,
+        beginning,
+        ending: null,
+        initTime: input.initTime || '00:00',
+        endTime: null,
+        ticketId: 't-1',
+        authorId: 'u-1',
+        createdAt: beginning,
+        author: { id: 'u-1', name: 'user', email: 'user@aponta.com' },
+      };
+      preStore = [created, ...preStore];
+      return Promise.resolve({ data: created });
+    }
+    return Promise.resolve({ data: { id: 'wl-new' } });
+  });
+  vi.mocked(api.patch).mockImplementation((url: string, body?: unknown) => {
+    const match = String(url).match(/\/pre-appointments\/([^/]+)$/);
+    if (match) {
+      const input = (body || {}) as { ending?: string; endTime?: string };
+      preStore = preStore.map((row) =>
+        row.id === match[1]
+          ? {
+              ...row,
+              ending: input.ending || new Date().toISOString(),
+              endTime: input.endTime || '00:00',
+            }
+          : row,
+      );
+      return Promise.resolve({ data: preStore.find((row) => row.id === match[1]) });
+    }
+    return Promise.resolve({ data: {} });
+  });
+  vi.mocked(api.delete).mockImplementation((url: string) => {
+    const match = String(url).match(/\/pre-appointments\/([^/]+)$/);
+    if (match) {
+      preStore = preStore.filter((row) => row.id !== match[1]);
+      return Promise.resolve({ data: { id: match[1] } });
+    }
+    return Promise.resolve({ data: { id: 'wl-1' } });
+  });
+}
+
 function renderComponent(ticketId = 't-1', defaultModalOpen = true, props = {}) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -119,6 +193,9 @@ describe('TicketWorklogs', () => {
     vi.useRealTimers();
     vi.clearAllMocks();
     localStorage.clear();
+    currentWorklogs = [];
+    preStore = [];
+    installApiStubs();
     useAuthStore.setState({ token: null, user: null });
   });
 
@@ -142,7 +219,7 @@ describe('TicketWorklogs', () => {
 
   it('renders worklogs list and summary header correctly', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: mockWorklogs });
+    currentWorklogs = mockWorklogs;
 
     renderComponent();
 
@@ -166,7 +243,7 @@ describe('TicketWorklogs', () => {
 
   it('renders empty state when no worklogs exist', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
 
     renderComponent();
 
@@ -179,7 +256,7 @@ describe('TicketWorklogs', () => {
 
   it('uses the DS EzComboBox (Storybook) for every worklog selector', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
 
     renderComponent();
 
@@ -200,7 +277,7 @@ describe('TicketWorklogs', () => {
 
   it('allows filling the form and submitting a new worklog', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
     vi.mocked(api.post).mockResolvedValueOnce({
       data: {
         id: 'wl-new',
@@ -233,7 +310,7 @@ describe('TicketWorklogs', () => {
 
   it('allows choosing attendance type and a custom time range, sending them on submit', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
     vi.mocked(api.post).mockResolvedValueOnce({
       data: { id: 'wl-new', description: 'Visita técnica', minutes: 120, billable: true, author: { id: 'u-1', name: 'Usuário Teste' } },
     });
@@ -266,7 +343,7 @@ describe('TicketWorklogs', () => {
 
   it('blocks submission when the end time is not after the start time', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
 
     const user = userEvent.setup();
     renderComponent();
@@ -285,7 +362,7 @@ describe('TicketWorklogs', () => {
 
   it('quick chip buttons update the end time and the computed duration', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
 
     const user = userEvent.setup();
     renderComponent();
@@ -307,7 +384,7 @@ describe('TicketWorklogs', () => {
 
   it('sends valuationType MANUAL with the entered value', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
     vi.mocked(api.post).mockResolvedValueOnce({ data: { id: 'wl-new' } });
 
     const user = userEvent.setup();
@@ -331,7 +408,7 @@ describe('TicketWorklogs', () => {
 
   it('blocks submission when valuationType is MANUAL without a value', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
 
     const user = userEvent.setup();
     renderComponent();
@@ -349,7 +426,7 @@ describe('TicketWorklogs', () => {
 
   it('unchecks billable automatically when GUARANTEE is selected', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
 
     const user = userEvent.setup();
     renderComponent();
@@ -363,7 +440,7 @@ describe('TicketWorklogs', () => {
 
   it('sends nextStatus when a next stage is chosen', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
     vi.mocked(api.post).mockResolvedValueOnce({ data: { id: 'wl-new' } });
 
     const user = userEvent.setup();
@@ -384,7 +461,7 @@ describe('TicketWorklogs', () => {
 
   it('does not send nextStatus when "Não alterar" stays selected', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
     vi.mocked(api.post).mockResolvedValueOnce({ data: { id: 'wl-new' } });
 
     renderComponent();
@@ -399,7 +476,7 @@ describe('TicketWorklogs', () => {
 
   it('sends sendAsReply when the checkbox is checked', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
     vi.mocked(api.post).mockResolvedValueOnce({ data: { id: 'wl-new' } });
 
     const user = userEvent.setup();
@@ -420,7 +497,7 @@ describe('TicketWorklogs', () => {
 
   it('renders TiFlux-parity action buttons and checkbox text', () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
 
     renderComponent();
 
@@ -432,7 +509,7 @@ describe('TicketWorklogs', () => {
 
   it('submits with nextStatus CLOSED when "Salvar e fechar ticket" is clicked', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
     vi.mocked(api.post).mockResolvedValueOnce({ data: { id: 'wl-new' } });
 
     const user = userEvent.setup();
@@ -451,7 +528,7 @@ describe('TicketWorklogs', () => {
 
   it('submits and advances start time to previous end time when "Salvar e criar novo apontamento" is clicked', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
     vi.mocked(api.post).mockResolvedValueOnce({ data: { id: 'wl-new' } });
 
     const user = userEvent.setup();
@@ -475,7 +552,7 @@ describe('TicketWorklogs', () => {
 
   it('allows deleting own worklog when confirmed', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: mockWorklogs });
+    currentWorklogs = mockWorklogs;
     vi.mocked(api.delete).mockResolvedValueOnce({ data: { id: 'wl-1' } });
     vi.spyOn(window, 'confirm').mockReturnValue(true);
 
@@ -497,7 +574,7 @@ describe('TicketWorklogs', () => {
 
   it('renders modal closed by default when defaultModalOpen is false and opens upon "+ Apontamento" click', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
 
     const user = userEvent.setup();
     renderComponent('t-1', false);
@@ -512,49 +589,48 @@ describe('TicketWorklogs', () => {
 
   it('handles activity timer start, pause, and stop to open apontamento modal', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
 
     const user = userEvent.setup();
     renderComponent('t-1', false);
 
-    // Initial display 00:00:00
     expect(screen.getByTestId('worklog-timer-display')).toHaveTextContent('00:00:00');
     expect(screen.queryByTestId('worklog-form')).not.toBeInTheDocument();
 
-    // Start timer
     await user.click(screen.getByTestId('worklog-timer-start-btn'));
 
-    // Pause button appears
-    expect(screen.getByTestId('worklog-timer-pause-btn')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('worklog-timer-pause-btn')).toBeInTheDocument();
+    });
     expect(screen.getByTestId('worklog-timer-stop-btn')).toBeInTheDocument();
 
-    // Pause timer
     await user.click(screen.getByTestId('worklog-timer-pause-btn'));
     expect(screen.getByTestId('worklog-timer-resume-btn')).toBeInTheDocument();
 
-    // Start creates the TiFlux-style pré-apontamento row
     expect(screen.getByTestId('worklog-pre-appointments')).toBeInTheDocument();
     expect(screen.getByTestId('worklog-pre-end')).toHaveTextContent('--');
 
-    // Stop timer and log work
     await user.click(screen.getByTestId('worklog-timer-stop-btn'));
 
-    // Modal stays closed; the pré-apontamento now has an end time
+    await waitFor(() => {
+      expect(screen.getByTestId('worklog-pre-end')).not.toHaveTextContent('--');
+    });
     expect(screen.queryByTestId('worklog-form')).not.toBeInTheDocument();
-    expect(screen.getByTestId('worklog-pre-end')).not.toHaveTextContent('--');
   });
 
   it('lists a Brasília pré-apontamento while the timer runs and converts it into the form', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
-    vi.useFakeTimers();
+    currentWorklogs = [];
+    vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-10-14T22:15:00.000Z'));
 
     try {
       renderComponent('t-1', false);
       fireEvent.click(screen.getByTestId('worklog-timer-start-btn'));
 
-      expect(screen.getByTestId('worklog-pre-appointments')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('worklog-pre-appointments')).toBeInTheDocument();
+      });
       expect(screen.getByTestId('worklog-pre-attendant')).toHaveTextContent('user');
       expect(screen.getByTestId('worklog-pre-date')).toHaveTextContent('14/10/2026');
       expect(screen.getByTestId('worklog-pre-start')).toHaveTextContent('19:15');
@@ -564,7 +640,9 @@ describe('TicketWorklogs', () => {
       vi.setSystemTime(new Date('2026-10-14T22:45:00.000Z'));
       fireEvent.click(screen.getByTestId('worklog-timer-stop-btn'));
 
-      expect(screen.getByTestId('worklog-pre-end')).toHaveTextContent('19:45');
+      await waitFor(() => {
+        expect(screen.getByTestId('worklog-pre-end')).toHaveTextContent('19:45');
+      });
       expect(screen.queryByTestId('worklog-form')).not.toBeInTheDocument();
 
       fireEvent.click(screen.getByTestId('worklog-pre-convert-btn'));
@@ -577,9 +655,50 @@ describe('TicketWorklogs', () => {
     }
   });
 
+  it('appends a new pré-apontamento when starting again instead of overwriting', async () => {
+    loginAs('AGENT', 'u-1');
+    const user = userEvent.setup();
+    renderComponent('t-1', false);
+
+    await user.click(screen.getByTestId('worklog-timer-start-btn'));
+    await waitFor(() => expect(screen.getAllByTestId('worklog-pre-appointment-row')).toHaveLength(1));
+
+    await user.click(screen.getByTestId('worklog-timer-stop-btn'));
+    await waitFor(() => expect(screen.getByTestId('worklog-pre-end')).not.toHaveTextContent('--'));
+
+    await user.click(screen.getByTestId('worklog-timer-start-btn'));
+    await waitFor(() => expect(screen.getAllByTestId('worklog-pre-appointment-row')).toHaveLength(2));
+    expect(screen.getAllByTestId('worklog-pre-end')[0]).toHaveTextContent('--');
+    expect(screen.getAllByTestId('worklog-pre-end')[1]).not.toHaveTextContent('--');
+  });
+
+  it('paginates the pré-apontamentos table when the list grows', async () => {
+    loginAs('AGENT', 'u-1');
+    const user = userEvent.setup();
+    preStore = Array.from({ length: 6 }, (_, index) => ({
+      id: `pre-seed-${index}`,
+      beginning: `2026-10-14T22:0${index}:00.000Z`,
+      ending: `2026-10-14T22:1${index}:00.000Z`,
+      initTime: `19:0${index}`,
+      endTime: `19:1${index}`,
+      ticketId: 't-1',
+      authorId: 'u-1',
+      createdAt: `2026-10-14T22:0${index}:00.000Z`,
+      author: { id: 'u-1', name: 'user', email: 'user@aponta.com' },
+    }));
+
+    renderComponent('t-1', false);
+
+    await waitFor(() => expect(screen.getAllByTestId('worklog-pre-appointment-row')).toHaveLength(5));
+    expect(screen.getByTestId('worklog-pre-pagination')).toBeInTheDocument();
+
+    await user.click(screen.getByTitle('Próxima Página'));
+    await waitFor(() => expect(screen.getAllByTestId('worklog-pre-appointment-row')).toHaveLength(1));
+  });
+
   it('renders modal with spellcheck and portuguese language attributes', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
 
     renderComponent('t-1', true);
 
@@ -592,7 +711,7 @@ describe('TicketWorklogs', () => {
 
   it('saves worklog draft in localStorage and restores it automatically', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
 
     const user = userEvent.setup();
     const { unmount } = renderComponent('t-draft-1', true);
@@ -626,7 +745,7 @@ describe('TicketWorklogs', () => {
 
   it('handles pasting image screenshot, uploading attachment and inserting it inline', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
     vi.mocked(api.post).mockResolvedValueOnce({
       data: {
         id: 'att-paste-1',
@@ -669,7 +788,7 @@ describe('TicketWorklogs', () => {
 
   it('keeps filled fields after closing the modal with X and reopening', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
 
     const user = userEvent.setup();
     renderComponent('t-1', true);
@@ -685,7 +804,7 @@ describe('TicketWorklogs', () => {
 
   it('renders the apontamento modal at 5xl width', () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: [] });
+    currentWorklogs = [];
 
     renderComponent('t-1', true);
 
@@ -694,7 +813,7 @@ describe('TicketWorklogs', () => {
 
   it('expands and collapses activity details per row and in bulk', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: mockWorklogs });
+    currentWorklogs = mockWorklogs;
 
     const user = userEvent.setup();
     renderComponent('t-1', false);
@@ -715,7 +834,7 @@ describe('TicketWorklogs', () => {
 
   it('filters the history by attendant and attendance type via the funnel', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: mockWorklogs });
+    currentWorklogs = mockWorklogs;
 
     const user = userEvent.setup();
     renderComponent('t-1', false);
@@ -742,7 +861,7 @@ describe('TicketWorklogs', () => {
 
   it('sorts worklogs by day and shows filtered totals in the footer', async () => {
     loginAs('AGENT', 'u-1');
-    vi.mocked(api.get).mockResolvedValueOnce({ data: mockWorklogs });
+    currentWorklogs = mockWorklogs;
 
     const user = userEvent.setup();
     renderComponent('t-1', false);

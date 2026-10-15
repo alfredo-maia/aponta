@@ -25,6 +25,13 @@ describe('WorklogsService', () => {
       findUnique: jest.Mock;
       delete: jest.Mock;
     };
+    preAppointment: {
+      create: jest.Mock;
+      findMany: jest.Mock;
+      findUnique: jest.Mock;
+      update: jest.Mock;
+      delete: jest.Mock;
+    };
   };
   let mockCommentsService: { create: jest.Mock };
 
@@ -50,6 +57,13 @@ describe('WorklogsService', () => {
         create: jest.fn(),
         findMany: jest.fn(),
         findUnique: jest.fn(),
+        delete: jest.fn(),
+      },
+      preAppointment: {
+        create: jest.fn(),
+        findMany: jest.fn(),
+        findUnique: jest.fn(),
+        update: jest.fn(),
         delete: jest.fn(),
       },
     };
@@ -593,6 +607,105 @@ describe('WorklogsService', () => {
       });
 
       await expect(service.delete('ticket-1', 'wl-1', agentUser)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('pre-appointments', () => {
+    const authorInclude = { author: { select: { id: true, name: true, email: true } } };
+
+    it('creates a new pré-apontamento without replacing existing ones', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPrisma.preAppointment.create.mockResolvedValue({ id: 'pre-2' });
+
+      const result = await service.createPreAppointment(
+        'ticket-1',
+        { beginning: '2026-10-15T14:36:00.000Z' },
+        agentUser,
+      );
+
+      expect(result.id).toBe('pre-2');
+      expect(mockPrisma.preAppointment.create).toHaveBeenCalledWith({
+        data: {
+          ticketId: 'ticket-1',
+          authorId: 'agent-1',
+          beginning: new Date('2026-10-15T14:36:00.000Z'),
+          initTime: '11:36',
+        },
+        include: authorInclude,
+      });
+    });
+
+    it('lists all pré-apontamentos of the ticket', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPrisma.preAppointment.findMany.mockResolvedValue([{ id: 'pre-1' }, { id: 'pre-2' }]);
+
+      const result = await service.findPreAppointments('ticket-1', agentUser);
+
+      expect(result).toHaveLength(2);
+      expect(mockPrisma.preAppointment.findMany).toHaveBeenCalledWith({
+        where: { ticketId: 'ticket-1' },
+        include: authorInclude,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('stops an open pré-apontamento filling ending and Brasília endTime', async () => {
+      mockPrisma.preAppointment.findUnique.mockResolvedValue({
+        id: 'pre-1',
+        ticketId: 'ticket-1',
+        authorId: 'agent-1',
+        beginning: new Date('2026-10-15T14:36:00.000Z'),
+      });
+      mockPrisma.preAppointment.update.mockResolvedValue({ id: 'pre-1' });
+
+      await service.stopPreAppointment(
+        'ticket-1',
+        'pre-1',
+        { ending: '2026-10-15T15:10:00.000Z' },
+        agentUser,
+      );
+
+      expect(mockPrisma.preAppointment.update).toHaveBeenCalledWith({
+        where: { id: 'pre-1' },
+        data: {
+          ending: new Date('2026-10-15T15:10:00.000Z'),
+          endTime: '12:10',
+        },
+        include: authorInclude,
+      });
+    });
+
+    it('forbids AGENT from stopping another user pré-apontamento', async () => {
+      mockPrisma.preAppointment.findUnique.mockResolvedValue({
+        id: 'pre-1',
+        ticketId: 'ticket-1',
+        authorId: 'agent-2',
+        beginning: new Date('2026-10-15T14:36:00.000Z'),
+      });
+
+      await expect(
+        service.stopPreAppointment('ticket-1', 'pre-1', {}, agentUser),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('deletes a pré-apontamento owned by the agent', async () => {
+      mockPrisma.preAppointment.findUnique.mockResolvedValue({
+        id: 'pre-1',
+        ticketId: 'ticket-1',
+        authorId: 'agent-1',
+      });
+      mockPrisma.preAppointment.delete.mockResolvedValue({ id: 'pre-1' });
+
+      await service.deletePreAppointment('ticket-1', 'pre-1', agentUser);
+      expect(mockPrisma.preAppointment.delete).toHaveBeenCalledWith({ where: { id: 'pre-1' } });
+    });
+
+    it('forbids CLIENT from creating pré-apontamentos', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+
+      await expect(service.createPreAppointment('ticket-1', {}, clientUser)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 });
