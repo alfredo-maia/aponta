@@ -22,15 +22,16 @@ import {
   addMinutesToTime,
   brasiliaDatePtBr,
   brasiliaDateString,
+  brasiliaTimeString,
   prefillFromTimer,
   storedIsoToWallClock,
-  wallClockToStoredIso,
 } from '../../lib/brasiliaTime';
+import { brasiliaWallClockIso } from '../../lib/billingTime';
 import { preparePastedImage } from '../../lib/preparePastedImage';
 import { useAuthStore } from '../../stores/authStore';
 import { useActivityTimer, type ActivityTimer } from '../../hooks/useActivityTimer';
 import type { PreAppointment } from '../../hooks/usePreAppointments';
-import { useWorklogs, useCreateWorklog, useDeleteWorklog, Worklog, AttendanceType, ValuationType } from '../../hooks/useWorklogs';
+import { useWorklogs, useWorklogContracts, useCreateWorklog, useDeleteWorklog, Worklog, AttendanceType, ValuationType } from '../../hooks/useWorklogs';
 import type { TicketStatus } from '../../hooks/useTickets';
 import { statusLabels } from './TicketCard';
 import {
@@ -49,6 +50,7 @@ import {
 } from '../ds';
 import { cn } from '../ds/utils';
 import { isBlankRichText, RichContentView } from './RichContentView';
+import { WorklogValuation } from '../contracts/WorklogValuation';
 
 export function WorklogDescriptionView({ description }: { description: string }) {
   return <RichContentView content={description} />;
@@ -120,11 +122,16 @@ function todayStr(): string {
 }
 
 function toISO(day: string, timeOfDay: string): string {
-  return wallClockToStoredIso(day, timeOfDay);
+  try {
+    return brasiliaWallClockIso(day, timeOfDay);
+  } catch {
+    // Native date/time inputs are temporarily empty while the user edits.
+    return '';
+  }
 }
 
-function formatTimeOfDay(iso: string): string {
-  return storedIsoToWallClock(iso);
+function formatTimeOfDay(iso: string, timeConvention?: 'UTC'): string {
+  return timeConvention === 'UTC' ? brasiliaTimeString(new Date(iso)) : storedIsoToWallClock(iso);
 }
 
 export function TicketWorklogs({
@@ -219,9 +226,11 @@ export function TicketWorklogs({
   const [endTimeOfDay, setEndTimeOfDay] = useState<string>(initialDraft?.endTimeOfDay || '08:30');
   const [attendanceType, setAttendanceType] = useState<AttendanceType>(initialDraft?.attendanceType || 'REMOTE');
   const [description, setDescription] = useState<string>(initialDraft?.description || '');
-  const [billable, setBillable] = useState<boolean>(initialDraft?.billable !== undefined ? initialDraft.billable : true);
-  const [valuationType, setValuationType] = useState<ValuationType>(initialDraft?.valuationType || 'CONTRACT');
-  const [manualValue, setManualValue] = useState<string>(initialDraft?.manualValue || '');
+  const [billable, setBillable] = useState<boolean>(initialDraft?.valuationType === 'GUARANTEE' ? false : initialDraft?.billable !== undefined ? initialDraft.billable : true);
+  const [valuationType, setValuationType] = useState<ValuationType>(initialDraft?.valuationType === 'MANUAL' && !isAdmin ? 'CONTRACT' : initialDraft?.valuationType || 'CONTRACT');
+  const [manualValue, setManualValue] = useState<string>(isAdmin ? initialDraft?.manualValue || '' : '');
+  const [contractId, setContractId] = useState<string>(initialDraft?.contractId || '');
+  const eligibleContracts = useWorklogContracts(ticketId, day && startTimeOfDay ? toISO(day, startTimeOfDay) : '', day && endTimeOfDay ? toISO(day, endTimeOfDay) : '', isModalOpen && valuationType === 'CONTRACT');
   const [nextStatus, setNextStatus] = useState<string>(initialDraft?.nextStatus || '');
   const [sendAsReply, setSendAsReply] = useState<boolean>(initialDraft?.sendAsReply !== undefined ? initialDraft.sendAsReply : false);
   const [selectedAuthorId, setSelectedAuthorId] = useState<string>(initialDraft?.selectedAuthorId || '');
@@ -249,7 +258,7 @@ export function TicketWorklogs({
   useEffect(() => {
     const hasMeaningfulChanges = Boolean(
       !isBlankRichText(description) ||
-      manualValue.trim() ||
+      manualValue.trim() || contractId ||
       nextStatus ||
       sendAsReply ||
       selectedAuthorId ||
@@ -278,6 +287,7 @@ export function TicketWorklogs({
         description,
         billable,
         valuationType,
+        contractId,
         manualValue,
         nextStatus,
         sendAsReply,
@@ -296,6 +306,7 @@ export function TicketWorklogs({
     description,
     billable,
     valuationType,
+    contractId,
     manualValue,
     nextStatus,
     sendAsReply,
@@ -316,6 +327,7 @@ export function TicketWorklogs({
     setBillable(true);
     setValuationType('CONTRACT');
     setManualValue('');
+    setContractId('');
     setNextStatus('');
     setSendAsReply(false);
     setSelectedAuthorId('');
@@ -390,7 +402,7 @@ export function TicketWorklogs({
     });
 
   const visibleTotalMinutes = visibleWorklogs.reduce((acc, wl) => acc + wl.minutes, 0);
-  const visibleTotalValue = visibleWorklogs.reduce((acc, wl) => acc + (wl.value ?? 0), 0);
+  const visibleTotalValue = visibleWorklogs.some((wl) => wl.valueCents == null && wl.value == null) ? null : visibleWorklogs.reduce((acc, wl) => acc + (wl.valueCents != null ? wl.valueCents / 100 : wl.value ?? 0), 0);
   const allRowsExpanded =
     visibleWorklogs.length > 0 && visibleWorklogs.every((wl) => Boolean(expandedRows[wl.id]));
 
@@ -414,7 +426,7 @@ export function TicketWorklogs({
       return;
     }
 
-    if (computedMinutes <= 0) {
+    if (!Number.isFinite(computedMinutes) || computedMinutes <= 0) {
       setFormError('O horário de término deve ser posterior ao horário de início.');
       return;
     }
@@ -422,7 +434,7 @@ export function TicketWorklogs({
     let parsedManualValue: number | undefined;
     if (valuationType === 'MANUAL') {
       parsedManualValue = Number(manualValue);
-      if (!manualValue.trim() || Number.isNaN(parsedManualValue)) {
+      if (!isAdmin || !manualValue.trim() || !Number.isFinite(parsedManualValue) || parsedManualValue < 0) {
         setFormError('Informe um valor manual válido.');
         return;
       }
@@ -441,8 +453,9 @@ export function TicketWorklogs({
         endTime: toISO(day, endTimeOfDay),
         attendanceType,
         description: description.trim() || description,
-        billable,
+        billable: valuationType === 'GUARANTEE' ? false : billable,
         valuationType,
+        ...(valuationType === 'CONTRACT' && contractId ? { contractId } : {}),
         ...(valuationType === 'MANUAL' ? { value: parsedManualValue } : {}),
         ...(effectiveNextStatus ? { nextStatus: effectiveNextStatus } : {}),
         ...(sendAsReply ? { sendAsReply: true } : {}),
@@ -472,6 +485,7 @@ export function TicketWorklogs({
         setAttendanceType('REMOTE');
         setBillable(true);
         setValuationType('CONTRACT');
+        setContractId('');
         setManualValue('');
         setNextStatus('');
         setSendAsReply(false);
@@ -815,6 +829,7 @@ export function TicketWorklogs({
                         type="checkbox"
                         data-testid="worklog-billable-checkbox"
                         checked={billable}
+                        disabled={valuationType === 'GUARANTEE'}
                         onChange={(e) => setBillable(e.target.checked)}
                         className="w-4 h-4 rounded border-gray-300 text-[#00B5A5] focus:ring-[#00B5A5]"
                       />
@@ -836,14 +851,15 @@ export function TicketWorklogs({
                   const next = e.target.value as ValuationType;
                   setValuationType(next);
                   if (next === 'GUARANTEE') setBillable(false);
+                  else if (valuationType === 'GUARANTEE') setBillable(true);
                 }}
               >
                 <option value="CONTRACT">Contrato</option>
                 <option value="GUARANTEE">Garantia</option>
-                <option value="MANUAL">Valor manual</option>
+                {isAdmin && <option value="MANUAL">Valor manual</option>}
               </EzComboBox>
 
-              {valuationType === 'MANUAL' ? (
+              {isAdmin && (valuationType === 'MANUAL' ? (
                 <EzTextInput
                   id="worklog-manual-value"
                   label="Valor (R$)"
@@ -861,9 +877,9 @@ export function TicketWorklogs({
                   id="worklog-value-display"
                   label="Valor"
                   disabled
-                  value={valuationType === 'GUARANTEE' ? 'R$ 0,00' : 'Incluso no contrato'}
+                  value={valuationType === 'GUARANTEE' ? 'R$ 0,00' : 'A calcular ao salvar'}
                 />
-              )}
+              ))}
 
               {isAdmin && (
                 <div className="pt-2">
@@ -872,6 +888,7 @@ export function TicketWorklogs({
                       type="checkbox"
                       data-testid="worklog-billable-checkbox"
                       checked={billable}
+                      disabled={valuationType === 'GUARANTEE'}
                       onChange={(e) => setBillable(e.target.checked)}
                       className="w-4 h-4 rounded border-gray-300 text-[#00B5A5] focus:ring-[#00B5A5]"
                     />
@@ -881,6 +898,18 @@ export function TicketWorklogs({
               )}
             </div>
 
+            {valuationType === 'CONTRACT' && <div className="space-y-2">
+              <EzComboBox id="worklog-contract" label="Contrato aplicável" value={contractId} onChange={(event) => setContractId(event.target.value)} disabled={eligibleContracts.isLoading}>
+                <option value="">Automático (quando único)</option>
+                {contractId && !eligibleContracts.data?.some((contract) => contract.id === contractId) && <option value={contractId}>Contrato selecionado ({contractId}) — verifique a vigência</option>}
+                {eligibleContracts.data?.map((contract) => <option key={contract.id} value={contract.id}>{contract.name || contract.organization?.name || contract.id}</option>)}
+              </EzComboBox>
+              {eligibleContracts.isLoading && <p role="status">Carregando contratos elegíveis...</p>}
+              {eligibleContracts.isError && <EzAlert variant="error">Não foi possível consultar contratos elegíveis. Tente novamente.</EzAlert>}
+              {eligibleContracts.data && eligibleContracts.data.length > 1 && !contractId && <EzAlert variant="warning">Há mais de um contrato elegível. Selecione o contrato para este apontamento.</EzAlert>}
+              {eligibleContracts.data?.length === 0 && <EzAlert variant="info">Nenhum contrato elegível. O apontamento ficará sem valor contratual conhecido.</EzAlert>}
+              {isAdmin && contractId && eligibleContracts.data?.find((contract) => contract.id === contractId)?.excessHourlyRateCents == null && <EzAlert variant="info">Tarifa de excedente não informada; excedentes ficam sem valor conhecido.</EzAlert>}
+            </div>}
             {/* Row 4: Descrição */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
@@ -1203,7 +1232,7 @@ export function TicketWorklogs({
                     <th className="py-2.5 px-3">Atendimento</th>
                     <th className="py-2.5 px-3">Deslocamento</th>
                     <th className="py-2.5 px-3">Contrato / Serviço avulso</th>
-                    <th className="py-2.5 px-3">Valor</th>
+                    {isAdmin && <th className="py-2.5 px-3">Valor</th>}
                     <th className="py-2.5 px-3 text-right">Ações</th>
                   </tr>
                 </thead>
@@ -1211,7 +1240,7 @@ export function TicketWorklogs({
                   {visibleWorklogs.length === 0 && (
                     <tr>
                       <td
-                        colSpan={8}
+                        colSpan={isAdmin ? 8 : 7}
                         className="py-8 px-3 text-center text-[13px] text-gray-500"
                         data-testid="worklog-filter-empty"
                       >
@@ -1222,8 +1251,8 @@ export function TicketWorklogs({
                   {visibleWorklogs.map((wl: Worklog) => {
                     const canDelete = isAdmin || wl.authorId === user?.sub;
                     const isRowExpanded = Boolean(expandedRows[wl.id]);
-                    const formattedDate = new Date(wl.startTime).toLocaleDateString('pt-BR');
-                    const formattedRange = `${formatTimeOfDay(wl.startTime)} - ${formatTimeOfDay(wl.endTime)}`;
+                    const formattedDate = wl.timeConvention === 'UTC' ? brasiliaDatePtBr(new Date(wl.startTime)) : wl.startTime.slice(0, 10).split('-').reverse().join('/');
+                    const formattedRange = `${formatTimeOfDay(wl.startTime, wl.timeConvention)} - ${formatTimeOfDay(wl.endTime, wl.timeConvention)}`;
 
                     return (
                       <Fragment key={wl.id}>
@@ -1275,14 +1304,15 @@ export function TicketWorklogs({
                             label={wl.billable ? 'Faturável' : 'Não Faturável'}
                             variant={wl.billable ? 'green' : 'gray'}
                           />
+                          <span className="block text-xs text-gray-500">{valuationTypeLabels[wl.valuationType]}{wl.valuationType === 'CONTRACT' ? ` · ${wl.valuationSnapshot?.contractName || wl.contractId || 'Legado / sem contrato vinculado'}` : ''}</span>
                         </td>
 
-                        <td className="py-3 px-3 font-mono text-gray-700">
+                        {isAdmin && <td className="py-3 px-3 font-mono text-gray-700">
                           <div className="flex items-center gap-1.5">
-                            <span>{formatWorklogValue(wl.value)}</span>
+                            <span>{wl.valueCents == null && wl.value == null ? 'Valor desconhecido' : formatWorklogValue(wl.valueCents != null ? wl.valueCents / 100 : wl.value)}</span>
                             <span className="text-[10px] text-gray-400">({valuationTypeLabels[wl.valuationType]})</span>
                           </div>
-                        </td>
+                        </td>}
 
                         <td className="py-3 px-3 text-right">
                           {canDelete && (
@@ -1301,12 +1331,13 @@ export function TicketWorklogs({
                       </tr>
                       {isRowExpanded && (
                         <tr data-testid={`worklog-detail-${wl.id}`} className="bg-gray-50/70">
-                          <td colSpan={8} className="px-4 py-3">
+                          <td colSpan={isAdmin ? 8 : 7} className="px-4 py-3">
                             <div className="text-[12px] bg-white p-3 rounded-[6px] border border-gray-200 text-gray-800">
                               <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block mb-2">
                                 Detalhamento das atividades
                               </span>
                               <WorklogDescriptionView description={wl.description} />
+                              <WorklogValuation worklog={wl} showFinancial={isAdmin} />
                             </div>
                           </td>
                         </tr>
@@ -1317,18 +1348,18 @@ export function TicketWorklogs({
                 </tbody>
                 <tfoot>
                   <tr className="bg-gray-50 border-t border-gray-200 text-[12px]">
-                    <td colSpan={6} className="py-2.5 px-3 font-medium text-gray-600">
+                    <td colSpan={isAdmin ? 6 : 7} className="py-2.5 px-3 font-medium text-gray-600">
                       Total de horas:{' '}
                       <strong className="text-gray-900 font-mono" data-testid="worklog-footer-hours">
                         {formatWorklogMinutes(visibleTotalMinutes)}
                       </strong>
                     </td>
-                    <td className="py-2.5 px-3 font-medium text-gray-600" colSpan={2}>
+                    {isAdmin && <td className="py-2.5 px-3 font-medium text-gray-600" colSpan={2}>
                       Total do valor:{' '}
                       <strong className="text-gray-900 font-mono" data-testid="worklog-footer-value">
-                        {formatWorklogValue(visibleTotalValue)}
+                        {visibleTotalValue == null ? 'Valor desconhecido' : formatWorklogValue(visibleTotalValue)}
                       </strong>
-                    </td>
+                    </td>}
                   </tr>
                 </tfoot>
               </table>

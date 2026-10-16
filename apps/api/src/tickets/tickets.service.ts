@@ -157,6 +157,14 @@ export class TicketsService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
+  withTransaction(database: Prisma.TransactionClient, afterCommit: Array<() => void>) {
+    const events = { emit: (name: string, payload: unknown) => {
+      afterCommit.push(() => { this.eventEmitter.emit(name, payload); });
+      return true;
+    } } as EventEmitter2;
+    return new TicketsService(database as PrismaService, events);
+  }
+
   /**
    * Adds `responseSlaStatus`/`resolveSlaStatus` ('ON_TRACK' | 'AT_RISK' |
    * 'BREACHED' | null) to a ticket payload, derived from its

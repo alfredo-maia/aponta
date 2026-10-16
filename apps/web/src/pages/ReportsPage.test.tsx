@@ -24,6 +24,7 @@ const billing = [
     organizationName: 'Empresa A',
     billableMinutes: 120,
     nonBillableMinutes: 30,
+    coveredMinutes: 60, excessMinutes: 60, totalValueCents: 12000, unknownValuationCount: 1,
   },
 ];
 
@@ -31,6 +32,7 @@ function mockApiGet() {
   vi.mocked(api.get).mockImplementation((url: string) => {
     if (url === '/reports/workload') return Promise.resolve({ data: workload });
     if (url === '/reports/billing') return Promise.resolve({ data: billing });
+    if (url === '/contracts') return Promise.resolve({ data: [{ id: 'c1', name: 'Suporte' }] });
     return Promise.reject(new Error(`Unexpected GET ${url}`));
   });
 }
@@ -91,7 +93,9 @@ describe('ReportsPage', () => {
     await waitFor(() => {
       expect(screen.getByText('Empresa A')).toBeInTheDocument();
     });
-    expect(api.get).toHaveBeenCalledWith('/reports/billing');
+    expect(api.get).toHaveBeenCalledWith('/reports/billing', { params: { contractId: undefined, startDate: undefined, endDate: undefined } });
+    expect(screen.getByText('1h 0m / 1h 0m')).toBeInTheDocument();
+    expect(screen.getByText(/120,00/)).toBeInTheDocument();
   });
 
   it('shows the Faturamento tab for CLIENT_MASTER too', async () => {
@@ -113,7 +117,7 @@ describe('ReportsPage', () => {
 
     expect(screen.queryByRole('tab', { name: /faturamento base/i })).not.toBeInTheDocument();
     // AGENT must never trigger the billing request at all
-    expect(api.get).not.toHaveBeenCalledWith('/reports/billing');
+    expect(vi.mocked(api.get).mock.calls.some(([url]) => url === '/reports/billing')).toBe(false);
   });
 
   it('shows an empty state when there is no workload data', async () => {

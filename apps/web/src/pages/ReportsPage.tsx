@@ -2,16 +2,26 @@ import { useState } from 'react';
 import { BarChart, Users, DollarSign, Clock } from 'lucide-react';
 import { useReportWorkload, useReportBilling } from '../hooks/useReports';
 import { useAuthStore } from '../stores/authStore';
-import { EzEmptyCard, EzGridWrapper, EzSpinner, EzTabs } from '../components/ds';
+import { EzComboBox, EzEmptyCard, EzGridWrapper, EzTextInput, EzSpinner, EzTabs } from '../components/ds';
+import { useContracts } from '../hooks/useContracts';
+import { billingMonthStartIso } from '../lib/billingTime';
 
 export function ReportsPage() {
   const user = useAuthStore((s) => s.user);
   const [activeTab, setActiveTab] = useState<'WORKLOAD' | 'BILLING'>('WORKLOAD');
 
   const canSeeBilling = user ? ['ADMIN', 'CLIENT_MASTER'].includes(user.role) : false;
+  const [contractId, setContractId] = useState('');
+  const [startMonth, setStartMonth] = useState('');
+  const [endMonth, setEndMonth] = useState('');
+  const contractsQ = useContracts();
 
   const workloadQ = useReportWorkload();
-  const billingQ = useReportBilling(canSeeBilling);
+  const billingQ = useReportBilling(canSeeBilling, {
+    contractId: contractId || undefined,
+    startDate: startMonth ? billingMonthStartIso(startMonth) : undefined,
+    endDate: endMonth ? billingMonthStartIso(endMonth) : undefined,
+  });
 
   const formatHours = (minutes: number) => {
     const h = Math.floor(minutes / 60);
@@ -78,6 +88,16 @@ export function ReportsPage() {
 
       {activeTab === 'BILLING' && canSeeBilling && (
         <>
+          <p className="text-sm text-gray-600">Valores informativos dos apontamentos, sem emissão de cobrança ou mensalidade. Ciclos mensais em America/Sao_Paulo; valores históricos preservados.</p>
+          <div className="flex flex-wrap gap-4">
+              <EzComboBox id="billing-contract" label="Contrato" value={contractId} onChange={(event) => setContractId(event.target.value)}>
+                <option value="">Todos os contratos</option>
+                {contractsQ.data?.map((contract) => <option key={contract.id} value={contract.id}>{contract.name || contract.organization?.name || contract.id}</option>)}
+              </EzComboBox>
+            <EzTextInput id="billing-start-month" label="Ciclos desde" type="month" value={startMonth} onChange={(event) => setStartMonth(event.target.value)} />
+            <EzTextInput id="billing-end-month" label="Ciclos até (exclusivo)" type="month" value={endMonth} onChange={(event) => setEndMonth(event.target.value)} />
+          </div>
+          {billingQ.isError && <p role="alert">Não foi possível carregar o relatório. Verifique o período selecionado.</p>}
           {billingQ.isLoading && (
             <div className="flex justify-center p-4">
               <EzSpinner label="Carregando faturamento..." />
@@ -96,6 +116,9 @@ export function ReportsPage() {
                   <th className="px-4 py-3 font-semibold text-green-600 text-right">Horas Faturáveis</th>
                   <th className="px-4 py-3 font-semibold text-gray-500 text-right">Horas Não Faturáveis</th>
                   <th className="px-4 py-3 font-semibold text-gray-700 text-right">Total Trabalhado</th>
+                  <th className="px-4 py-3 font-semibold text-right">Coberto / Excedente</th>
+                  <th className="px-4 py-3 font-semibold text-right">Valor conhecido</th>
+                  <th className="px-4 py-3 font-semibold text-right">Sem valorização</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -111,6 +134,9 @@ export function ReportsPage() {
                     <td className="px-4 py-3 text-right font-bold text-gray-900">
                       {formatHours(item.billableMinutes + item.nonBillableMinutes)}
                     </td>
+                    <td className="px-4 py-3 text-right">{formatHours(item.coveredMinutes)} / {formatHours(item.excessMinutes)}</td>
+                    <td className="px-4 py-3 text-right">{(item.totalValueCents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                    <td className="px-4 py-3 text-right">{item.unknownValuationCount}</td>
                   </tr>
                 ))}
               </tbody>

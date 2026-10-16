@@ -4,11 +4,15 @@ import { AttendanceType, Role, TicketStatus, ValuationType } from '@prisma/clien
 import { WorklogsService } from './worklogs.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CommentsService } from '../comments/comments.service';
+import { TicketsService } from '../tickets/tickets.service';
+import { TenantHelper } from '../core/security/tenant.helper';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 describe('WorklogsService', () => {
   let service: WorklogsService;
   let mockPrisma: {
+    $transaction: jest.Mock;
+    $queryRaw: jest.Mock;
     ticket: {
       findUnique: jest.Mock;
       update: jest.Mock;
@@ -18,6 +22,8 @@ describe('WorklogsService', () => {
     };
     contract: {
       findFirst: jest.Mock;
+      findMany: jest.Mock;
+      findUniqueOrThrow: jest.Mock;
     };
     worklog: {
       create: jest.Mock;
@@ -33,7 +39,8 @@ describe('WorklogsService', () => {
       delete: jest.Mock;
     };
   };
-  let mockCommentsService: { create: jest.Mock };
+  let mockCommentsService: { create: jest.Mock; withTransaction: jest.Mock };
+  let mockTicketsService: { changeStatus: jest.Mock; withTransaction: jest.Mock };
 
   const agentUser: CurrentUserPayload = { id: 'agent-1', role: Role.AGENT };
   const adminUser: CurrentUserPayload = { id: 'admin-1', role: Role.ADMIN };
@@ -43,8 +50,10 @@ describe('WorklogsService', () => {
 
   beforeEach(async () => {
     mockPrisma = {
+      $transaction: jest.fn((callback) => callback(mockPrisma)),
+      $queryRaw: jest.fn().mockResolvedValue([]),
       ticket: {
-        findUnique: jest.fn(),
+        findUnique: jest.fn().mockResolvedValue(validTicket),
         update: jest.fn(),
       },
       user: {
@@ -52,10 +61,12 @@ describe('WorklogsService', () => {
       },
       contract: {
         findFirst: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([]),
+        findUniqueOrThrow: jest.fn(),
       },
       worklog: {
         create: jest.fn(),
-        findMany: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([]),
         findUnique: jest.fn(),
         delete: jest.fn(),
       },
@@ -67,13 +78,15 @@ describe('WorklogsService', () => {
         delete: jest.fn(),
       },
     };
-    mockCommentsService = { create: jest.fn() };
+    mockCommentsService = { create: jest.fn(), withTransaction: jest.fn(() => mockCommentsService) };
+    mockTicketsService = { changeStatus: jest.fn(), withTransaction: jest.fn(() => mockTicketsService) };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         WorklogsService,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: CommentsService, useValue: mockCommentsService },
+        { provide: TicketsService, useValue: mockTicketsService },
       ],
     }).compile();
 
@@ -142,6 +155,10 @@ describe('WorklogsService', () => {
           attendanceType: AttendanceType.REMOTE,
           description: 'Análise de banco',
           billable: true,
+          valuationType: ValuationType.CONTRACT,
+          value: null,
+          valueCents: null,
+          valuationSnapshot: expect.objectContaining({ version: 1, currency: 'BRL', organizationId: null, segments: [] }),
         },
         include: {
           author: { select: { id: true, name: true, email: true } },
@@ -252,6 +269,10 @@ describe('WorklogsService', () => {
           attendanceType: AttendanceType.REMOTE,
           description: 'Desenvolvimento',
           billable: false,
+          valuationType: ValuationType.CONTRACT,
+          value: 0,
+          valueCents: 0,
+          valuationSnapshot: expect.objectContaining({ version: 1, currency: 'BRL', organizationId: null, segments: [] }),
         },
         include: {
           author: { select: { id: true, name: true, email: true } },
@@ -321,10 +342,8 @@ describe('WorklogsService', () => {
         agentUser,
       );
 
-      expect(mockPrisma.ticket.update).toHaveBeenCalledWith({
-        where: { id: 'ticket-1' },
-        data: { status: TicketStatus.RESOLVED },
-      });
+      expect(mockTicketsService.changeStatus).toHaveBeenCalledWith('ticket-1', TicketStatus.RESOLVED, agentUser);
+      expect(mockTicketsService.withTransaction).toHaveBeenCalledWith(mockPrisma, expect.any(Array));
     });
 
     it('should not touch the ticket status when nextStatus is not provided', async () => {
@@ -389,7 +408,7 @@ describe('WorklogsService', () => {
           valuationType: ValuationType.MANUAL,
           value: 250,
         },
-        agentUser,
+        adminUser,
       );
 
       expect(mockPrisma.worklog.create).toHaveBeenCalledWith(
@@ -409,7 +428,7 @@ describe('WorklogsService', () => {
             description: 'Sem valor',
             valuationType: ValuationType.MANUAL,
           },
-          agentUser,
+          adminUser,
         ),
       ).rejects.toThrow(BadRequestException);
       expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
@@ -437,11 +456,11 @@ describe('WorklogsService', () => {
       );
     });
 
-    it('should respect an explicit billable flag even under GUARANTEE', async () => {
+    it('rejects billable guarantees before opening a transaction', async () => {
       mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
       mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-10' });
 
-      await service.create(
+      await expect(service.create(
         'ticket-1',
         {
           startTime: '2026-10-13T08:00:00Z',
@@ -451,25 +470,27 @@ describe('WorklogsService', () => {
           billable: true,
         },
         agentUser,
-      );
-
-      expect(mockPrisma.worklog.create).toHaveBeenCalledWith(
-        expect.objectContaining({ data: expect.objectContaining({ billable: true, value: 0 }) }),
-      );
+      )).rejects.toThrow(BadRequestException);
+      expect(mockPrisma.$transaction).not.toHaveBeenCalled();
     });
 
-    it('should compute value from the organization active contract when valuationType is CONTRACT', async () => {
+    it('uses the explicit excess tariff rather than monthlyValue divided by hoursLimit', async () => {
       mockPrisma.ticket.findUnique.mockResolvedValue({
         ...validTicket,
         requester: { organization: { id: 'org-1' } },
       });
-      mockPrisma.contract.findFirst.mockResolvedValue({
+      const contract = {
         id: 'contract-1',
         organizationId: 'org-1',
         active: true,
         monthlyValue: 6000,
         hoursLimit: 60,
-      });
+        includedMinutes: 0,
+        excessHourlyRateCents: 12000,
+        type: 'HOUR_PACKAGE',
+      };
+      mockPrisma.contract.findMany.mockResolvedValue([contract]);
+      mockPrisma.contract.findUniqueOrThrow.mockResolvedValue(contract);
       mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-11' });
 
       await service.create(
@@ -483,12 +504,11 @@ describe('WorklogsService', () => {
         agentUser,
       );
 
-      expect(mockPrisma.contract.findFirst).toHaveBeenCalledWith({
-        where: { organizationId: 'org-1', active: true },
-      });
-      // hourlyRate = 6000 / 60 = 100; 1h -> 100
+      expect(mockPrisma.contract.findMany).toHaveBeenCalledWith(expect.objectContaining({
+        where: expect.objectContaining({ organizationId: 'org-1', active: true }),
+      }));
       expect(mockPrisma.worklog.create).toHaveBeenCalledWith(
-        expect.objectContaining({ data: expect.objectContaining({ valuationType: ValuationType.CONTRACT, value: 100 }) }),
+        expect.objectContaining({ data: expect.objectContaining({ valuationType: ValuationType.CONTRACT, value: 120, valueCents: 12000 }) }),
       );
     });
 
@@ -516,7 +536,7 @@ describe('WorklogsService', () => {
       );
     });
 
-    it('should not include valuationType/value in the create payload when valuationType is omitted', async () => {
+    it('defaults omitted valuationType to CONTRACT and records unknown value for missing organization', async () => {
       mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
       mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-13' });
 
@@ -527,9 +547,168 @@ describe('WorklogsService', () => {
       );
 
       const callArgs = mockPrisma.worklog.create.mock.calls[0][0];
-      expect(callArgs.data).not.toHaveProperty('valuationType');
-      expect(callArgs.data).not.toHaveProperty('value');
+      expect(callArgs.data.valuationType).toBe(ValuationType.CONTRACT);
+      expect(callArgs.data.value).toBeNull();
+      expect(callArgs.data.valueCents).toBeNull();
       expect(mockPrisma.contract.findFirst).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('contract valuation and transaction boundaries', () => {
+    const dto = { startTime: '2026-10-13T08:00:00Z', endTime: '2026-10-13T09:00:00Z', description: 'Atendimento' };
+    const contract = {
+      id: 'contract-1', name: 'Suporte', organizationId: 'org-1', active: true,
+      type: 'HOUR_PACKAGE', includedMinutes: 600, hoursLimit: null, excessHourlyRateCents: 12000,
+      startsAt: null, endsAt: null,
+    };
+
+    beforeEach(() => {
+      mockPrisma.ticket.findUnique.mockResolvedValue({ ...validTicket, requester: { organization: { id: 'org-1', name: 'Cliente' } } });
+      mockPrisma.contract.findMany.mockResolvedValue([contract]);
+      mockPrisma.contract.findUniqueOrThrow.mockResolvedValue(contract);
+      mockPrisma.worklog.create.mockImplementation(async ({ data }) => ({ id: 'new', ...data }));
+    });
+
+    it('requires an explicit choice when several eligible contracts exist', async () => {
+      mockPrisma.contract.findMany.mockResolvedValue([contract, { ...contract, id: 'contract-2' }]);
+      await expect(service.create('ticket-1', dto, adminUser)).rejects.toThrow(BadRequestException);
+      expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
+    });
+
+    it('filters explicit contract by organization and entire interval, rejecting absent eligibility', async () => {
+      mockPrisma.contract.findMany.mockResolvedValue([]);
+      await expect(service.create('ticket-1', { ...dto, contractId: 'foreign' }, adminUser)).rejects.toThrow(BadRequestException);
+      expect(mockPrisma.contract.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: {
+        organizationId: 'org-1', active: true, id: 'foreign',
+        AND: [
+          { OR: [{ startsAt: null }, { startsAt: { lte: new Date(dto.startTime) } }] },
+          { OR: [{ endsAt: null }, { endsAt: { gte: new Date(dto.endTime) } }] },
+        ],
+      } }));
+      expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      { active: false }, { organizationId: 'foreign' },
+      { startsAt: new Date('2026-11-01') }, { endsAt: new Date('2026-10-01') },
+    ])('revalidates eligibility after locking against concurrent edits: %j', async (change) => {
+      mockPrisma.contract.findUniqueOrThrow.mockResolvedValue({ ...contract, ...change });
+      await expect(service.create('ticket-1', dto, adminUser)).rejects.toThrow(BadRequestException);
+      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(1);
+      expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
+    });
+
+    it('snapshots only excess minutes in cents after previous cycle consumption', async () => {
+      mockPrisma.worklog.findMany.mockResolvedValue([
+        { valuationSnapshot: { segments: [{ cycleStart: '2026-10-01T03:00:00.000Z', minutes: 570 }] } },
+        { valuationSnapshot: { segments: [{ cycleStart: '2026-09-01T03:00:00.000Z', minutes: 600 }] } },
+        { valuationSnapshot: null },
+      ]);
+      const result = await service.create('ticket-1', dto, adminUser);
+      expect(result).toMatchObject({ contractId: 'contract-1', value: 60, valueCents: 6000, valuationType: ValuationType.CONTRACT,
+        valuationSnapshot: { organizationId: 'org-1', includedMinutes: 600, segments: [
+          { minutes: 60, coveredMinutes: 30, excessMinutes: 30, amountCents: 6000, rateCents: 12000 },
+        ] },
+      });
+    });
+
+    it('preserves unknown excess tariff without inventing a zero', async () => {
+      mockPrisma.contract.findUniqueOrThrow.mockResolvedValue({ ...contract, includedMinutes: 0, excessHourlyRateCents: null });
+      const result = await service.create('ticket-1', dto, adminUser);
+      expect(result.valueCents).toBeNull();
+      expect(result.value).toBeNull();
+      expect(result.valuationSnapshot).toMatchObject({ segments: [{ amountCents: null, excessMinutes: 60, rateCents: null }] });
+    });
+
+    it('retains the selected contract on nonbillable work without consuming allowance', async () => {
+      const result = await service.create('ticket-1', { ...dto, contractId: contract.id, billable: false }, adminUser);
+      expect(result).toMatchObject({ contractId: contract.id, valueCents: 0,
+        valuationSnapshot: { segments: [{ minutes: 60, coveredMinutes: 0, excessMinutes: 0, amountCents: 0 }] } });
+      expect(mockPrisma.worklog.findMany).not.toHaveBeenCalled();
+    });
+
+    it('rejects an invalid explicit contract even for nonbillable work', async () => {
+      mockPrisma.contract.findMany.mockResolvedValue([]);
+      await expect(service.create('ticket-1', { ...dto, contractId: 'foreign', billable: false }, adminUser)).rejects.toThrow(BadRequestException);
+      expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
+    });
+
+    it('exposes the time convention without disclosing the financial snapshot', async () => {
+      const result = await service.create('ticket-1', dto, agentUser);
+      expect(result).toMatchObject({ timeConvention: 'UTC', valuationSnapshot: null, valueCents: null });
+    });
+
+    it('limits eligible contracts by ticket visibility, organization and execution interval', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue({ ...validTicket, requester: { organizationId: 'org-1' } });
+      await service.eligibleContracts('ticket-1', dto.startTime, dto.endTime, agentUser);
+      expect(mockPrisma.ticket.findUnique).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'ticket-1', AND: [TenantHelper.getTicketWhere(agentUser)] } }));
+      expect(mockPrisma.contract.findMany).toHaveBeenCalledWith(expect.objectContaining({
+        where: expect.objectContaining({ organizationId: 'org-1', active: true }),
+        select: expect.objectContaining({ excessHourlyRateCents: false }),
+      }));
+    });
+
+    it('rejects invalid eligible-contract intervals and missing tickets', async () => {
+      await expect(service.eligibleContracts('ticket-1', 'invalid', dto.endTime, agentUser)).rejects.toThrow(BadRequestException);
+      mockPrisma.ticket.findUnique.mockResolvedValue(null);
+      await expect(service.eligibleContracts('missing', dto.startTime, dto.endTime, agentUser)).rejects.toThrow(NotFoundException);
+    });
+
+    it.each([Role.AGENT, Role.AGENT_MASTER])('hides cents and snapshot on create/list/delete for %s', async (role) => {
+      const user = { id: 'agent-1', role };
+      const created = await service.create('ticket-1', dto, user);
+      const financial = { id: 'wl-1', ticketId: 'ticket-1', authorId: 'agent-1', contractId: 'contract-1', value: 120, valueCents: 12000, valuationSnapshot: { rateCents: 12000 } };
+      mockPrisma.worklog.findMany.mockResolvedValue([financial]);
+      mockPrisma.worklog.findUnique.mockResolvedValue(financial);
+      mockPrisma.worklog.delete.mockResolvedValue(financial);
+      const [listed] = await service.findByTicket('ticket-1', user);
+      const deleted = await service.delete('ticket-1', 'wl-1', user);
+      for (const result of [created, listed, deleted]) expect(result).toMatchObject({ value: null, valueCents: null, valuationSnapshot: null });
+      expect(financial.valueCents).toBe(12000);
+    });
+
+    it.each([Role.AGENT, Role.AGENT_MASTER])('forbids manual values for %s', async (role) => {
+      await expect(service.create('ticket-1', { ...dto, valuationType: ValuationType.MANUAL, value: 10 }, { id: 'agent-1', role })).rejects.toThrow(ForbiddenException);
+      expect(mockPrisma.$transaction).not.toHaveBeenCalled();
+    });
+
+    it.each([{ value: -1 }, { value: Number.NaN }, { value: Infinity }, { value: 1, billable: false }])('rejects invalid ADMIN manual valuation %j', async (fields) => {
+      await expect(service.create('ticket-1', { ...dto, ...fields, valuationType: ValuationType.MANUAL }, adminUser)).rejects.toThrow(BadRequestException);
+    });
+
+    it('passes scoped ticket reads to the database before returning data', async () => {
+      await service.create('ticket-1', dto, agentUser);
+      expect(mockPrisma.ticket.findUnique).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'ticket-1', AND: [TenantHelper.getTicketWhere(agentUser)] } }));
+    });
+
+    it('propagates transactional status failures and does not send a reply or run after-commit effects', async () => {
+      const effect = jest.fn();
+      mockTicketsService.withTransaction.mockImplementation((_db, effects) => { effects.push(effect); return mockTicketsService; });
+      mockTicketsService.changeStatus.mockRejectedValue(new BadRequestException('Invalid status transition'));
+      await expect(service.create('ticket-1', { ...dto, nextStatus: TicketStatus.RESOLVED, sendAsReply: true }, adminUser)).rejects.toThrow('Invalid status transition');
+      expect(mockPrisma.$transaction).toHaveBeenCalled();
+      expect(mockCommentsService.create).not.toHaveBeenCalled();
+      expect(effect).not.toHaveBeenCalled();
+    });
+
+    it('runs deferred effects only after the transaction commits', async () => {
+      const effect = jest.fn();
+      mockCommentsService.withTransaction.mockImplementation((_db, effects) => { effects.push(effect); return mockCommentsService; });
+      mockPrisma.$transaction.mockImplementation(async callback => {
+        const result = await callback(mockPrisma);
+        expect(effect).not.toHaveBeenCalled();
+        return result;
+      });
+      await service.create('ticket-1', { ...dto, sendAsReply: true }, adminUser);
+      expect(effect).toHaveBeenCalledTimes(1);
+    });
+
+    it('blocks stopping and deleting preappointments on inaccessible tickets', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(null);
+      await expect(service.stopPreAppointment('foreign', 'pre-1', {}, agentUser)).rejects.toThrow(NotFoundException);
+      await expect(service.deletePreAppointment('foreign', 'pre-1', agentUser)).rejects.toThrow(NotFoundException);
+      expect(mockPrisma.preAppointment.update).not.toHaveBeenCalled();
+      expect(mockPrisma.preAppointment.delete).not.toHaveBeenCalled();
     });
   });
 
@@ -564,6 +743,7 @@ describe('WorklogsService', () => {
   });
 
   describe('delete', () => {
+    beforeEach(() => mockPrisma.ticket.findUnique.mockResolvedValue(validTicket));
     it('should allow AGENT to delete their own worklog', async () => {
       mockPrisma.worklog.findUnique.mockResolvedValue({
         id: 'wl-1',

@@ -117,6 +117,9 @@ function installApiStubs() {
     if (path.includes('/users/agents')) {
       return Promise.resolve({ data: [] });
     }
+    if (path.includes('/worklog-contracts')) {
+      return Promise.resolve({ data: [{ id: 'contract-1', name: 'Suporte', type: 'HOURS_LIMIT', active: true, organizationId: 'org-1', createdAt: '2026-01-01' }] });
+    }
     return Promise.resolve({ data: currentWorklogs });
   });
   vi.mocked(api.post).mockImplementation((url: string, body?: unknown) => {
@@ -218,7 +221,7 @@ describe('TicketWorklogs', () => {
   });
 
   it('renders worklogs list and summary header correctly', async () => {
-    loginAs('AGENT', 'u-1');
+    loginAs('ADMIN', 'u-1');
     currentWorklogs = mockWorklogs;
 
     renderComponent();
@@ -298,8 +301,8 @@ describe('TicketWorklogs', () => {
 
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith('/tickets/t-1/worklogs', {
-        startTime: `${todayStr()}T08:00:00Z`,
-        endTime: `${todayStr()}T08:30:00Z`,
+        startTime: `${todayStr()}T11:00:00.000Z`,
+        endTime: `${todayStr()}T11:30:00.000Z`,
         attendanceType: 'REMOTE',
         description: 'Implementação de feature',
         billable: true,
@@ -331,8 +334,8 @@ describe('TicketWorklogs', () => {
 
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith('/tickets/t-1/worklogs', {
-        startTime: `${todayStr()}T09:00:00Z`,
-        endTime: `${todayStr()}T11:00:00Z`,
+        startTime: `${todayStr()}T12:00:00.000Z`,
+        endTime: `${todayStr()}T14:00:00.000Z`,
         attendanceType: 'ON_SITE',
         description: 'Visita técnica',
         billable: true,
@@ -383,7 +386,7 @@ describe('TicketWorklogs', () => {
   });
 
   it('sends valuationType MANUAL with the entered value', async () => {
-    loginAs('AGENT', 'u-1');
+    loginAs('ADMIN', 'u-1');
     currentWorklogs = [];
     vi.mocked(api.post).mockResolvedValueOnce({ data: { id: 'wl-new' } });
 
@@ -407,7 +410,7 @@ describe('TicketWorklogs', () => {
   });
 
   it('blocks submission when valuationType is MANUAL without a value', async () => {
-    loginAs('AGENT', 'u-1');
+    loginAs('ADMIN', 'u-1');
     currentWorklogs = [];
 
     const user = userEvent.setup();
@@ -1001,7 +1004,7 @@ describe('TicketWorklogs', () => {
   });
 
   it('sorts worklogs by day and shows filtered totals in the footer', async () => {
-    loginAs('AGENT', 'u-1');
+    loginAs('ADMIN', 'u-1');
     currentWorklogs = mockWorklogs;
 
     const user = userEvent.setup();
@@ -1016,6 +1019,97 @@ describe('TicketWorklogs', () => {
     await user.click(screen.getByTestId('worklog-sort-day-btn'));
     const rowsAfter = screen.getAllByTestId(/worklog-item-/).map((el) => el.getAttribute('data-testid'));
     expect(rowsAfter).not.toEqual(rowsBefore);
+  });
+  it('hides monetary data and manual valuation for agents even with unmasked payloads', async () => {
+    loginAs('AGENT');
+    currentWorklogs = mockWorklogs;
+    renderComponent('t-1', true);
+    await screen.findByTestId('worklog-item-wl-1');
+    expect(screen.queryByText('R$ 100,00')).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Valor manual' })).not.toBeInTheDocument();
+    expect(screen.queryByTestId('worklog-footer-value')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Valor')).not.toBeInTheDocument();
+  });
+
+  it('submits an explicit eligible contract and preserves it in the draft', async () => {
+    loginAs('AGENT');
+    renderComponent('t-1', true);
+    await screen.findByRole('option', { name: 'Suporte' });
+    fireEvent.change(screen.getByLabelText('Contrato aplicável'), { target: { value: 'contract-1' } });
+    fireEvent.change(screen.getByTestId('worklog-description-input'), { target: { value: 'Atividade realizada' } });
+    await waitFor(() => expect(JSON.parse(localStorage.getItem('aponta_worklog_draft_t-1') || '{}').contractId).toBe('contract-1'));
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith('/tickets/t-1/worklogs', expect.objectContaining({ contractId: 'contract-1', valuationType: 'CONTRACT' })));
+  });
+
+  it('keeps unknown contract values distinct from free coverage', async () => {
+    loginAs('ADMIN');
+    renderComponent('t-1', true);
+    expect(screen.queryByDisplayValue('Incluso no contrato')).not.toBeInTheDocument();
+    expect(screen.getByDisplayValue('A calcular ao salvar')).toBeInTheDocument();
+    fireEvent.change(screen.getByTestId('worklog-valuation-type-select'), { target: { value: 'GUARANTEE' } });
+    expect(screen.getByTestId('worklog-billable-checkbox')).toBeDisabled();
+    expect(screen.getByTestId('worklog-billable-checkbox')).not.toBeChecked();
+    fireEvent.change(screen.getByTestId('worklog-valuation-type-select'), { target: { value: 'CONTRACT' } });
+    expect(screen.getByTestId('worklog-billable-checkbox')).toBeChecked();
+  });
+
+  it('does not restore manual financial fields for an agent draft', () => {
+    loginAs('AGENT');
+    localStorage.setItem('aponta_worklog_draft_t-1', JSON.stringify({ valuationType: 'MANUAL', manualValue: '250', description: 'Rascunho anterior' }));
+    renderComponent('t-1', true);
+    expect(screen.getByTestId('worklog-valuation-type-select')).toHaveValue('CONTRACT');
+    expect(screen.queryByTestId('worklog-manual-value-input')).not.toBeInTheDocument();
+    expect(JSON.parse(localStorage.getItem('aponta_worklog_draft_t-1') || '{}').manualValue).toBe('');
+  });
+
+  it('rejects negative manual amounts before calling the API', async () => {
+    loginAs('ADMIN');
+    renderComponent('t-1', true);
+    fireEvent.change(screen.getByTestId('worklog-description-input'), { target: { value: 'Atividade realizada' } });
+    fireEvent.change(screen.getByTestId('worklog-valuation-type-select'), { target: { value: 'MANUAL' } });
+    fireEvent.change(screen.getByTestId('worklog-manual-value-input'), { target: { value: '-10' } });
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+    expect(await screen.findByText('Informe um valor manual válido.')).toBeInTheDocument();
+    expect(api.post).not.toHaveBeenCalled();
+  });
+
+  it('shows unknown totals and warns when the selected contract has no rate', async () => {
+    loginAs('ADMIN');
+    currentWorklogs = [{ ...mockWorklogs[0], value: null }];
+    renderComponent('t-1', true);
+    await screen.findByRole('option', { name: 'Suporte' });
+    fireEvent.change(screen.getByLabelText('Contrato aplicável'), { target: { value: 'contract-1' } });
+    expect(await screen.findByText('Tarifa de excedente não informada; excedentes ficam sem valor conhecido.')).toBeInTheDocument();
+    expect(await screen.findByTestId('worklog-footer-value')).toHaveTextContent('Valor desconhecido');
+  });
+  it('submits near-midnight Brasília work as true instants in the correct local cycle', async () => {
+    loginAs('AGENT');
+    renderComponent('t-1', true);
+    fireEvent.change(screen.getByTestId('worklog-day-input'), { target: { value: '2026-10-31' } });
+    fireEvent.change(screen.getByTestId('worklog-start-time-input'), { target: { value: '23:00' } });
+    fireEvent.change(screen.getByTestId('worklog-end-time-input'), { target: { value: '23:30' } });
+    fireEvent.change(screen.getByTestId('worklog-description-input'), { target: { value: 'Atividade noturna' } });
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith('/tickets/t-1/worklogs', expect.objectContaining({ startTime: '2026-11-01T02:00:00.000Z', endTime: '2026-11-01T02:30:00.000Z' })));
+  });
+  it('renders marked UTC logs in Brasília while preserving naive-Z legacy wallclocks', async () => {
+    loginAs('AGENT');
+    currentWorklogs = [{ ...mockWorklogs[0], timeConvention: 'UTC', startTime: '2026-11-01T02:00:00.000Z', endTime: '2026-11-01T02:30:00.000Z' }, { ...mockWorklogs[1], startTime: '2026-10-31T23:00:00.000Z', endTime: '2026-10-31T23:30:00.000Z' }];
+    renderComponent('t-1', false);
+    const marked = await screen.findByTestId('worklog-item-wl-1');
+    const legacy = screen.getByTestId('worklog-item-wl-2');
+    expect(marked).toHaveTextContent('31/10/2026 23:00 - 23:30');
+    expect(legacy).toHaveTextContent('31/10/2026 23:00 - 23:30');
+  });
+  it.each(['worklog-day-input', 'worklog-start-time-input', 'worklog-end-time-input'])('keeps incomplete %s editable and blocks submission', async (field) => {
+    loginAs('AGENT');
+    renderComponent('t-1', true);
+    fireEvent.change(screen.getByTestId('worklog-description-input'), { target: { value: 'Atividade' } });
+    fireEvent.change(screen.getByTestId(field), { target: { value: '' } });
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+    expect(await screen.findByText('O horário de término deve ser posterior ao horário de início.')).toBeInTheDocument();
+    expect(api.post).not.toHaveBeenCalled();
   });
 });
 

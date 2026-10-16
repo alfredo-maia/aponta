@@ -12,6 +12,10 @@ export interface BillingItem {
   organizationName: string;
   billableMinutes: number;
   nonBillableMinutes: number;
+  coveredMinutes: number;
+  excessMinutes: number;
+  totalValueCents: number;
+  unknownValuationCount: number;
 }
 
 export interface TicketSummaryCounts {
@@ -160,11 +164,11 @@ export function useReportWorkload(agentId?: string) {
   });
 }
 
-export function useReportBilling(enabled: boolean) {
+export function useReportBilling(enabled: boolean, filters: { contractId?: string; startDate?: string; endDate?: string } = {}) {
   return useQuery({
-    queryKey: ['reports', 'billing'],
+    queryKey: ['reports', 'billing', filters],
     queryFn: async () => {
-      const { data } = await api.get<BillingItem[]>('/reports/billing');
+      const { data } = await api.get<BillingItem[]>('/reports/billing', { params: filters });
       return data;
     },
     enabled,

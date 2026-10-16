@@ -13,6 +13,14 @@ export class CommentsService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
+  withTransaction(database: Prisma.TransactionClient, afterCommit: Array<() => void>) {
+    const events = { emit: (name: string, payload: unknown) => {
+      afterCommit.push(() => { this.eventEmitter.emit(name, payload); });
+      return true;
+    } } as EventEmitter2;
+    return new CommentsService(database as PrismaService, events);
+  }
+
   /**
    * Creates a comment on a ticket. `isInternal` is only honored for
    * AGENT/ADMIN callers; for CLIENT it is forced to `false` server-side no

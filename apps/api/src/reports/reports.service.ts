@@ -1,4 +1,5 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { BillingFilterDto } from './dto/billing-filter.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 import { TenantHelper } from '../core/security/tenant.helper';
@@ -44,9 +45,10 @@ export class ReportsService {
     })).sort((a, b) => b.totalMinutes - a.totalMinutes);
   }
 
-  async getBilling(user: CurrentUserPayload): Promise<BillingReportItemDto[]> {
+  async getBilling(user: CurrentUserPayload, filters: BillingFilterDto = {}): Promise<BillingReportItemDto[]> {
     // AGENTs are forbidden from seeing billing reports
-    if (([Role.AGENT, Role.AGENT_MASTER] as Role[]).includes(user.role)) {
+    if (!([Role.ADMIN, Role.CLIENT_MASTER] as Role[]).includes(user.role) ||
+      (user.role === Role.CLIENT_MASTER && !user.organizationId)) {
       throw new ForbiddenException('Restrito a visualização de faturamento');
     }
 
@@ -55,30 +57,63 @@ export class ReportsService {
       throw new ForbiddenException('Restrição organizacional');
     }
 
+    const from = filters.startDate ? Date.parse(filters.startDate) : -Infinity;
+    const to = filters.endDate ? Date.parse(filters.endDate) : Infinity;
+    if (Number.isNaN(from) || Number.isNaN(to) || from >= to) {
+      throw new BadRequestException('Período de ciclos inválido');
+    }
     const worklogs = await this.prisma.worklog.findMany({
-      where: { ticket: baseWhere },
+      where: { ticket: baseWhere, ...(filters.contractId ? { contractId: filters.contractId } : {}) },
       include: { ticket: { include: { requester: { include: { organization: true } } } } }
     });
 
-    const grouped = new Map<string, { name: string; billable: number; nonBillable: number }>();
+    const grouped = new Map<string, BillingReportItemDto>();
     for (const log of worklogs) {
       const org = log.ticket.requester.organization;
-      const orgId = org?.id || 'SEM_EMPRESA';
-      const orgName = org?.name || 'Cliente Sem Organização Vinculada';
-      
-      const g = grouped.get(orgId) || { name: orgName, billable: 0, nonBillable: 0 };
-      if (log.billable) g.billable += log.minutes;
-      else g.nonBillable += log.minutes;
-      
+      const snapshot = log.valuationSnapshot as {
+        organizationId?: string | null; organizationName?: string | null;
+        segments?: Array<{ cycleStart: string; cycleEnd: string; minutes: number; coveredMinutes: number; excessMinutes: number; amountCents: number | null }>;
+      } | null;
+      const hasHistoricalOrganization = snapshot != null && Object.prototype.hasOwnProperty.call(snapshot, 'organizationId');
+      const orgId = (hasHistoricalOrganization ? snapshot.organizationId : org?.id) || 'SEM_EMPRESA';
+      // Historical ownership must never leak after a requester moves organization.
+      if (user.role === Role.CLIENT_MASTER && orgId !== user.organizationId) continue;
+      const orgName = (hasHistoricalOrganization ? snapshot.organizationName : org?.name) || 'Cliente Sem Organização Vinculada';
+      const hasPeriod = Boolean(filters.startDate || filters.endDate);
+      // A cycle is selected by its start, preserving the recorded amount in full.
+      // Logs without segments use their execution start instead (legacy/manual/guarantee).
+      const allSegments = Array.isArray(snapshot?.segments) ? snapshot.segments : [];
+      const segments = allSegments.filter((segment) => {
+        const start = Date.parse(segment.cycleStart);
+        return !hasPeriod || (start >= from && start < to);
+      });
+      if (hasPeriod && (allSegments.length ? segments.length === 0 :
+        !(new Date(log.startTime).getTime() >= from && new Date(log.startTime).getTime() < to))) continue;
+      const minutes = allSegments.length ? segments.reduce((sum, segment) => sum + segment.minutes, 0) : log.minutes;
+      const g = grouped.get(orgId) || {
+        organizationId: orgId, organizationName: orgName, billableMinutes: 0,
+        nonBillableMinutes: 0, coveredMinutes: 0, excessMinutes: 0,
+        totalValueCents: 0, unknownValuationCount: 0,
+      };
+      if (log.billable) g.billableMinutes += minutes;
+      else g.nonBillableMinutes += minutes;
+      g.coveredMinutes += segments.reduce((sum, segment) => sum + segment.coveredMinutes, 0);
+      g.excessMinutes += segments.reduce((sum, segment) => sum + segment.excessMinutes, 0);
+      if (allSegments.length) {
+        g.totalValueCents += segments.reduce((sum, segment) => sum + (segment.amountCents ?? 0), 0);
+        if (segments.some((segment) => segment.amountCents == null)) g.unknownValuationCount++;
+      } else if (log.valueCents != null) {
+        g.totalValueCents += log.valueCents;
+      } else if (log.value != null) {
+        // Preserve a legacy recorded amount; this converts representation only.
+        g.totalValueCents += Math.round(log.value * 100);
+      } else {
+        g.unknownValuationCount++;
+      }
       grouped.set(orgId, g);
     }
 
-    return Array.from(grouped.entries()).map(([orgId, data]) => ({
-      organizationId: orgId,
-      organizationName: data.name,
-      billableMinutes: data.billable,
-      nonBillableMinutes: data.nonBillable,
-    })).sort((a, b) => b.billableMinutes - a.billableMinutes);
+    return Array.from(grouped.values()).sort((a, b) => b.billableMinutes - a.billableMinutes);
   }
 
   async getSummary(user: CurrentUserPayload): Promise<DashboardSummaryDto> {

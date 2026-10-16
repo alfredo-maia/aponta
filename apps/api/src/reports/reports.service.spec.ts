@@ -32,14 +32,8 @@ describe('ReportsService', () => {
       expect(res).toEqual([]);
     });
 
-    it('allows a plain CLIENT scoped to their own requested tickets', async () => {
-      mockPrisma.worklog.findMany.mockResolvedValue([]);
-      const res = await service.getBilling({ id: 'client-1', role: Role.CLIENT });
-      expect(res).toEqual([]);
-      expect(mockPrisma.worklog.findMany).toHaveBeenCalledWith({
-        where: { ticket: { requesterId: 'client-1' } },
-        include: expect.any(Object),
-      });
+    it('blocks a plain CLIENT from financial data consistently with the controller', async () => {
+      await expect(service.getBilling({ id: 'client-1', role: Role.CLIENT })).rejects.toThrow(ForbiddenException);
     });
 
     it('groups billable/non-billable minutes per organization and sorts descending', async () => {
@@ -64,8 +58,8 @@ describe('ReportsService', () => {
       const res = await service.getBilling({ id: 'admin', role: Role.ADMIN });
 
       expect(res).toEqual([
-        { organizationId: 'org-2', organizationName: 'Org 2', billableMinutes: 200, nonBillableMinutes: 0 },
-        { organizationId: 'org-1', organizationName: 'Org 1', billableMinutes: 60, nonBillableMinutes: 30 },
+        { organizationId: 'org-2', organizationName: 'Org 2', billableMinutes: 200, nonBillableMinutes: 0, coveredMinutes: 0, excessMinutes: 0, totalValueCents: 0, unknownValuationCount: 1 },
+        { organizationId: 'org-1', organizationName: 'Org 1', billableMinutes: 60, nonBillableMinutes: 30, coveredMinutes: 0, excessMinutes: 0, totalValueCents: 0, unknownValuationCount: 2 },
       ]);
     });
 
@@ -82,6 +76,7 @@ describe('ReportsService', () => {
           organizationName: 'Cliente Sem Organização Vinculada',
           billableMinutes: 10,
           nonBillableMinutes: 0,
+          coveredMinutes: 0, excessMinutes: 0, totalValueCents: 0, unknownValuationCount: 1,
         },
       ]);
     });
