@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import type { TicketStatus } from './useTickets';
+import type { Contract } from './useContracts';
 
 export interface WorklogAuthor {
   id: string;
@@ -12,6 +13,7 @@ export type AttendanceType = 'REMOTE' | 'ON_SITE';
 export type ValuationType = 'CONTRACT' | 'GUARANTEE' | 'MANUAL';
 
 export interface Worklog {
+  timeConvention?: 'UTC';
   id: string;
   description: string;
   minutes: number;
@@ -21,6 +23,13 @@ export interface Worklog {
   billable: boolean;
   valuationType: ValuationType;
   value: number | null;
+  valueCents?: number | null;
+  contractId?: string | null;
+  valuationSnapshot?: {
+    contractName?: string | null;
+    contractId?: string;
+    segments?: { coveredMinutes?: number; excessMinutes?: number }[];
+  } | null;
   ticketId: string;
   authorId: string;
   createdAt: string;
@@ -38,6 +47,25 @@ export interface CreateWorklogInput {
   sendAsReply?: boolean;
   valuationType?: ValuationType;
   value?: number;
+  contractId?: string;
+}
+
+export function useWorklogContracts(
+  ticketId: string,
+  startTime: string,
+  endTime: string,
+  enabled: boolean,
+) {
+  return useQuery({
+    queryKey: ['tickets', ticketId, 'worklog-contracts', startTime, endTime],
+    enabled: enabled && !!startTime && !!endTime,
+    queryFn: async () =>
+      (
+        await api.get<Contract[]>(`/tickets/${ticketId}/worklog-contracts`, {
+          params: { startTime, endTime },
+        })
+      ).data,
+  });
 }
 
 export function useWorklogs(ticketId?: string) {
@@ -57,11 +85,16 @@ export function useCreateWorklog(ticketId: string) {
 
   return useMutation({
     mutationFn: async (input: CreateWorklogInput) => {
-      const res = await api.post<Worklog>(`/tickets/${ticketId}/worklogs`, input);
+      const res = await api.post<Worklog>(
+        `/tickets/${ticketId}/worklogs`,
+        input,
+      );
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tickets', ticketId, 'worklogs'] });
+      queryClient.invalidateQueries({
+        queryKey: ['tickets', ticketId, 'worklogs'],
+      });
       queryClient.invalidateQueries({ queryKey: ['tickets', ticketId] });
       queryClient.invalidateQueries({ queryKey: ['reports'] });
     },
@@ -73,11 +106,15 @@ export function useDeleteWorklog(ticketId: string) {
 
   return useMutation({
     mutationFn: async (worklogId: string) => {
-      const res = await api.delete(`/tickets/${ticketId}/worklogs/${worklogId}`);
+      const res = await api.delete(
+        `/tickets/${ticketId}/worklogs/${worklogId}`,
+      );
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tickets', ticketId, 'worklogs'] });
+      queryClient.invalidateQueries({
+        queryKey: ['tickets', ticketId, 'worklogs'],
+      });
       queryClient.invalidateQueries({ queryKey: ['reports'] });
     },
   });

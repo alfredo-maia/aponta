@@ -524,6 +524,11 @@ enum ContractType {
 
 model Contract {
   id                 String       @id @default(uuid())
+  name               String?
+  startsAt           DateTime?
+  endsAt             DateTime?
+  includedMinutes    Int?
+  excessHourlyRateCents Int?
   organizationId     String
   organization       Organization @relation(fields: [organizationId], references: [id])
   type               ContractType @default(FIXED_COVERAGE)
@@ -534,6 +539,7 @@ model Contract {
   adjustmentDate     DateTime?
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
+  worklogs           Worklog[]
 }
 
 enum AttendanceType {
@@ -572,11 +578,17 @@ model Worklog {
   billable       Boolean        @default(true)
   valuationType  ValuationType  @default(CONTRACT)
   value          Float?   // Valor calculado (CONTRACT), 0 (GUARANTEE) ou informado manualmente (MANUAL)
+  valueCents     Int?
+  contractId     String?
+  contract       Contract?      @relation(fields: [contractId], references: [id], onDelete: Restrict)
+  valuationSnapshot Json?
   ticketId       String
   ticket         Ticket         @relation(fields: [ticketId], references: [id])
   authorId       String
   author         User           @relation(fields: [authorId], references: [id])
   createdAt      DateTime       @default(now())
+
+  @@index([contractId, startTime])
 }
 
 model ApiToken {

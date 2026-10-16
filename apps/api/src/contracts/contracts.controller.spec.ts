@@ -4,6 +4,7 @@ import { ContractsService } from './contracts.service';
 
 const mockContractsService = {
   findAll: jest.fn(),
+  findOne: jest.fn(),
   create: jest.fn(),
   update: jest.fn(),
   remove: jest.fn(),
@@ -33,9 +34,23 @@ describe('ContractsController', () => {
 
       const result = await controller.findAll(user);
 
-      expect(mockContractsService.findAll).toHaveBeenCalledWith(user);
+      expect(mockContractsService.findAll).toHaveBeenCalledWith(user, undefined);
       expect(result).toEqual([{ id: 'c1' }]);
     });
+  });
+
+  it('passes search to the scoped list', () => {
+    const user = { id: 'u1' } as any;
+    controller.findAll(user, 'suporte');
+    expect(mockContractsService.findAll).toHaveBeenCalledWith(user, 'suporte');
+  });
+
+  it('passes detail and business update requests to the service', () => {
+    const user = { id: 'u1' } as any;
+    controller.findOne('c1', user);
+    controller.updateCommand('c1', { active: false }, user);
+    expect(mockContractsService.findOne).toHaveBeenCalledWith('c1', user);
+    expect(mockContractsService.update).toHaveBeenCalledWith('c1', { active: false }, user);
   });
 
   describe('create', () => {

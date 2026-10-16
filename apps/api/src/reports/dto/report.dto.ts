@@ -18,6 +18,14 @@ export class BillingReportItemDto {
   billableMinutes!: number;
   @ApiProperty()
   nonBillableMinutes!: number;
+  @ApiProperty({ description: 'Minutos cobertos registrados no histórico' })
+  coveredMinutes!: number;
+  @ApiProperty({ description: 'Minutos excedentes registrados no histórico' })
+  excessMinutes!: number;
+  @ApiProperty({ description: 'Soma dos valores conhecidos em centavos; não inclui mensalidade' })
+  totalValueCents!: number;
+  @ApiProperty({ description: 'Quantidade de apontamentos sem valor conhecido, distinta de valor zero' })
+  unknownValuationCount!: number;
 }
 
 export class TicketSummaryCountsDto {

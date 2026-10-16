@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { ContractsService } from './contracts.service';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
@@ -7,7 +7,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser, CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 import { Role } from '@prisma/client';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Contracts')
 @ApiBearerAuth()
@@ -19,8 +19,23 @@ export class ContractsController {
   @Get()
   @Roles(Role.ADMIN, Role.AGENT_MASTER, Role.AGENT, Role.CLIENT_MASTER)
   @ApiOperation({ summary: 'Lists contracts according to role mask' })
-  findAll(@CurrentUser() user: CurrentUserPayload) {
-    return this.contractsService.findAll(user);
+  @ApiQuery({ name: 'search', required: false, type: String })
+  findAll(@CurrentUser() user: CurrentUserPayload, @Query('search') search?: string) {
+    return this.contractsService.findAll(user, search);
+  }
+
+  @Get(':id')
+  @Roles(Role.ADMIN, Role.AGENT_MASTER, Role.AGENT, Role.CLIENT_MASTER)
+  @ApiOperation({ summary: 'Detalha contrato conforme organização e permissão financeira' })
+  findOne(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
+    return this.contractsService.findOne(id, user);
+  }
+
+  @Post(':id/update')
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Atualiza dados, vigência e ativação do contrato' })
+  updateCommand(@Param('id') id: string, @Body() dto: UpdateContractDto, @CurrentUser() user: CurrentUserPayload) {
+    return this.contractsService.update(id, dto, user);
   }
 
   @Post()

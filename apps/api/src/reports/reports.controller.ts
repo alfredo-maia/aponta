@@ -1,5 +1,6 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ReportsService } from './reports.service';
+import { BillingFilterDto } from './dto/billing-filter.dto';
 import { JwtOrTokenAuthGuard } from '../auth/guards/jwt-or-token-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -36,7 +37,7 @@ export class ReportsController {
   @Roles(Role.ADMIN, Role.CLIENT_MASTER)
   @ApiOperation({ summary: 'Relatório de Faturamento por cliente' })
   @ApiResponse({ status: 200, type: [BillingReportItemDto] })
-  getBilling(@CurrentUser() user: CurrentUserPayload) {
-    return this.reportsService.getBilling(user);
+  getBilling(@CurrentUser() user: CurrentUserPayload, @Query() filters?: BillingFilterDto) {
+    return filters ? this.reportsService.getBilling(user, filters) : this.reportsService.getBilling(user);
   }
 }

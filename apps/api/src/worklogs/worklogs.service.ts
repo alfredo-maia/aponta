@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { AttendanceType, Prisma, Role, ValuationType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -12,6 +13,9 @@ import { StopPreAppointmentDto } from './dto/stop-pre-appointment.dto';
 import { CommentsService } from '../comments/comments.service';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 import { assertListedAgentMayMutate } from '../service-desks/desk-policy';
+import { TenantHelper } from '../core/security/tenant.helper';
+import { TicketsService } from '../tickets/tickets.service';
+import { splitBillingCycles, valueContractMinutes } from './contract-valuation';
 
 const BRASILIA_TZ = 'America/Sao_Paulo';
 const AUTHOR_SELECT = { select: { id: true, name: true, email: true } } as const;
@@ -31,10 +35,41 @@ function brasiliaHhMm(date: Date): string {
 
 @Injectable()
 export class WorklogsService {
+  private readonly logger = new Logger(WorklogsService.name);
   constructor(
     private readonly prisma: PrismaService,
     private readonly commentsService: CommentsService,
+    private readonly ticketsService: TicketsService,
   ) {}
+
+  async eligibleContracts(ticketId: string, startTime: string, endTime: string, user: CurrentUserPayload) {
+    if (!([Role.ADMIN, Role.AGENT, Role.AGENT_MASTER] as Role[]).includes(user.role)) {
+      throw new ForbiddenException('Acesso negado');
+    }
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end <= start) {
+      throw new BadRequestException('Informe um intervalo válido');
+    }
+    const ticket = await this.prisma.ticket.findUnique({
+      where: { id: ticketId, AND: [TenantHelper.getTicketWhere(user)] },
+      include: { requester: { select: { organizationId: true } } },
+    });
+    if (!ticket) throw new NotFoundException('Chamado não encontrado');
+    const organizationId = ticket.requester.organizationId;
+    if (!organizationId) return [];
+    const contracts = await this.prisma.contract.findMany({
+      where: { organizationId, active: true, AND: [
+        { OR: [{ startsAt: null }, { startsAt: { lte: start } }] },
+        { OR: [{ endsAt: null }, { endsAt: { gte: end } }] },
+      ] },
+      orderBy: { id: 'asc' },
+      select: { id: true, name: true, type: true, organizationId: true, active: true,
+        startsAt: true, endsAt: true, includedMinutes: true, hoursLimit: true,
+        excessHourlyRateCents: user.role === Role.ADMIN, createdAt: true },
+    });
+    return contracts;
+  }
 
   async create(
     ticketId: string,
@@ -42,7 +77,7 @@ export class WorklogsService {
     currentUser: CurrentUserPayload,
   ) {
     const ticket = await this.prisma.ticket.findUnique({
-      where: { id: ticketId },
+      where: { id: ticketId, AND: [TenantHelper.getTicketWhere(currentUser)] },
       include: {
         requester: { include: { organization: true } },
         serviceDesk: {
@@ -59,7 +94,7 @@ export class WorklogsService {
       throw new NotFoundException(`Chamado com ID ${ticketId} não encontrado`);
     }
 
-    if (currentUser.role === Role.CLIENT) {
+    if (!([Role.ADMIN, Role.AGENT, Role.AGENT_MASTER] as Role[]).includes(currentUser.role)) {
       throw new ForbiddenException('Clientes não têm permissão para registrar apontamentos');
     }
 
@@ -79,6 +114,9 @@ export class WorklogsService {
     }
 
     const minutes = Math.round((end.getTime() - start.getTime()) / 60000);
+    if (minutes < 1 || minutes > 525600) {
+      throw new BadRequestException('O apontamento deve ter entre 1 minuto e 1 ano');
+    }
 
     let authorId = currentUser.id;
 
@@ -99,20 +137,27 @@ export class WorklogsService {
     }
 
     const description = dto.description.trim();
-    let billable = dto.billable !== undefined ? dto.billable : true;
-
-    let valuationType: ValuationType | undefined;
-    let value: number | null | undefined;
-
-    if (dto.valuationType) {
-      valuationType = dto.valuationType;
-      value = await this.computeValuation(dto.valuationType, dto.value, minutes, ticket);
-      if (dto.valuationType === ValuationType.GUARANTEE && dto.billable === undefined) {
-        billable = false;
-      }
+    if (!description) throw new BadRequestException('Informe a descrição do apontamento');
+    const valuationType = dto.valuationType ?? ValuationType.CONTRACT;
+    const billable = valuationType === ValuationType.GUARANTEE ? false : (dto.billable ?? true);
+    if (valuationType === ValuationType.GUARANTEE && dto.billable === true) {
+      throw new BadRequestException('Garantia não pode ser faturável');
     }
-
-    const data: Prisma.WorklogUncheckedCreateInput = {
+    if (valuationType === ValuationType.MANUAL && currentUser.role !== Role.ADMIN) {
+      throw new ForbiddenException('Somente admin pode informar valor manual');
+    }
+    if (valuationType === ValuationType.MANUAL &&
+      (dto.value == null || !Number.isFinite(dto.value) || dto.value < 0 ||
+       Math.round(dto.value * 100) > 2147483647 || (!billable && dto.value > 0))) {
+      throw new BadRequestException('Informe um valor manual válido e faturável');
+    }
+    if (valuationType !== ValuationType.CONTRACT && dto.contractId) {
+      throw new BadRequestException('Contrato só pode ser vinculado à valorização contratual');
+    }
+    const afterCommit: Array<() => void> = [];
+    const worklog = await this.prisma.$transaction(async (database) => {
+      const valuation = await this.computeValuation(database, dto, valuationType, billable, start, end, ticket);
+      const data: Prisma.WorklogUncheckedCreateInput = {
       ticketId,
       authorId,
       description,
@@ -121,10 +166,11 @@ export class WorklogsService {
       endTime: end,
       attendanceType: dto.attendanceType ?? AttendanceType.REMOTE,
       billable,
-      ...(valuationType ? { valuationType, value } : {}),
+      valuationType,
+      ...valuation,
     };
 
-    const worklog = await this.prisma.worklog.create({
+    const saved = await database.worklog.create({
       data,
       include: {
         author: {
@@ -138,55 +184,106 @@ export class WorklogsService {
     });
 
     if (dto.nextStatus) {
-      await this.prisma.ticket.update({
-        where: { id: ticketId },
-        data: { status: dto.nextStatus },
-      });
+      await this.ticketsService.withTransaction(database, afterCommit).changeStatus(ticketId, dto.nextStatus, currentUser);
     }
 
     if (dto.sendAsReply) {
-      await this.commentsService.create(
+      await this.commentsService.withTransaction(database, afterCommit).create(
         ticketId,
         { content: description, isInternal: false },
         currentUser,
       );
     }
 
-    return worklog;
+    return saved;
+    }, { timeout: 15000 });
+    afterCommit.forEach(effect => {
+      try { effect(); } catch {
+        this.logger.error('Falha ao publicar evento de apontamento já salvo');
+      }
+    });
+    return this.maskValue(worklog, currentUser);
   }
 
   private async computeValuation(
+    database: Prisma.TransactionClient,
+    dto: CreateWorklogDto,
     valuationType: ValuationType,
-    manualValue: number | undefined,
-    minutes: number,
-    ticket: { requester?: { organization?: { id: string } | null } | null },
-  ): Promise<number | null> {
+    billable: boolean,
+    start: Date,
+    end: Date,
+    ticket: { requester?: { organization?: { id: string; name?: string } | null } | null },
+  ) {
+    const organization = ticket.requester?.organization;
+    const baseSnapshot: Prisma.InputJsonObject = { version: 1, currency: 'BRL', timeConvention: 'UTC', valuationType,
+      organizationId: organization?.id ?? null, organizationName: organization?.name ?? '', segments: [] };
     if (valuationType === ValuationType.MANUAL) {
-      if (manualValue === undefined || manualValue === null) {
-        throw new BadRequestException('Informe o valor manual do apontamento');
-      }
-      return manualValue;
+      const cents = Math.round((dto.value ?? 0) * 100);
+      return { value: cents / 100, valueCents: cents, valuationSnapshot: baseSnapshot };
     }
 
     if (valuationType === ValuationType.GUARANTEE) {
-      return 0;
+      return { value: 0, valueCents: 0, valuationSnapshot: baseSnapshot };
     }
 
     const organizationId = ticket.requester?.organization?.id;
     if (!organizationId) {
-      return null;
+      if (dto.contractId) throw new BadRequestException('Chamado sem organização para este contrato');
+      return { value: billable ? null : 0, valueCents: billable ? null : 0, valuationSnapshot: baseSnapshot };
     }
 
-    const contract = await this.prisma.contract.findFirst({
-      where: { organizationId, active: true },
+    const contracts = await database.contract.findMany({
+      where: { organizationId, active: true, ...(dto.contractId ? { id: dto.contractId } : {}),
+        AND: [ { OR: [{ startsAt: null }, { startsAt: { lte: start } }] },
+          { OR: [{ endsAt: null }, { endsAt: { gte: end } }] } ] },
+      orderBy: { id: 'asc' },
     });
-
-    if (!contract || !contract.monthlyValue || !contract.hoursLimit) {
-      return null;
+    if (contracts.length > 1) throw new BadRequestException('Selecione o contrato para o apontamento');
+    if (!contracts.length) {
+      if (dto.contractId) throw new BadRequestException('Contrato inativo, fora da vigência ou de outra organização');
+      return { value: billable ? null : 0, valueCents: billable ? null : 0, valuationSnapshot: baseSnapshot };
     }
+    const contract = contracts[0];
+    // The row lock serializes allowance allocation for concurrent inserts and
+    // prevents a contract edit racing the financial snapshot.
+    await database.$queryRaw(Prisma.sql`SELECT id FROM "Contract" WHERE id = ${contract.id} FOR UPDATE`);
+    const current = await database.contract.findUniqueOrThrow({ where: { id: contract.id } });
+    if (!current.active || current.organizationId !== organizationId ||
+      (current.startsAt && current.startsAt > start) || (current.endsAt && current.endsAt < end)) {
+      throw new BadRequestException('Contrato não está mais elegível');
+    }
+    const previous = billable ? await database.worklog.findMany({
+      where: { contractId: contract.id, valuationType: ValuationType.CONTRACT, billable: true },
+      select: { valuationSnapshot: true },
+    }) : [];
+    const segments = splitBillingCycles(start, end).map(part => {
+      let consumed = 0;
+      for (const log of previous) {
+        const snapshot = log.valuationSnapshot as { segments?: Array<{cycleStart: string; minutes: number}> } | null;
+        for (const prior of snapshot?.segments ?? []) {
+          if (prior.cycleStart === part.cycleStart) consumed += prior.minutes;
+        }
+      }
+      const valued = billable ? valueContractMinutes(current, part.minutes, consumed) : { coveredMinutes: 0, excessMinutes: 0, amountCents: 0 };
+      return { ...part, ...valued, rateCents: current.excessHourlyRateCents };
+    });
+    const cents = segments.some(p => p.amountCents === null) ? null : segments.reduce((sum, p) => sum + (p.amountCents ?? 0), 0);
+    if (cents !== null && cents > 2147483647) throw new BadRequestException('Valor excede o limite permitido');
+    const snapshot: Prisma.InputJsonObject = {
+      version: 1, currency: 'BRL', timeConvention: 'UTC', allocation: 'REGISTRATION_ORDER', organizationId,
+      organizationName: ticket.requester?.organization?.name ?? '',
+      contractId: current.id, contractName: current.name, contractType: current.type,
+      includedMinutes: current.includedMinutes ?? (current.hoursLimit === null ? null : current.hoursLimit * 60),
+      segments,
+    };
+    return { value: cents === null ? null : cents / 100, valueCents: cents, contractId: current.id, valuationSnapshot: snapshot };
+  }
 
-    const hourlyRate = contract.monthlyValue / contract.hoursLimit;
-    return Math.round(hourlyRate * (minutes / 60) * 100) / 100;
+  private maskValue<T extends { value?: number | null; valueCents?: number | null; valuationSnapshot?: unknown }>(log: T, user: CurrentUserPayload): T {
+    const snapshot = log.valuationSnapshot as { timeConvention?: string } | null;
+    const timed = snapshot?.timeConvention === 'UTC' ? { ...log, timeConvention: 'UTC' } : log;
+    if (user.role === Role.ADMIN) return timed;
+    return { ...timed, value: null, valueCents: null, valuationSnapshot: null };
   }
 
   async findByTicket(
@@ -194,18 +291,18 @@ export class WorklogsService {
     currentUser: CurrentUserPayload,
   ) {
     const ticket = await this.prisma.ticket.findUnique({
-      where: { id: ticketId },
+      where: { id: ticketId, AND: [TenantHelper.getTicketWhere(currentUser)] },
     });
 
     if (!ticket) {
       throw new NotFoundException(`Chamado com ID ${ticketId} não encontrado`);
     }
 
-    if (currentUser.role === Role.CLIENT) {
+    if (!([Role.ADMIN, Role.AGENT, Role.AGENT_MASTER] as Role[]).includes(currentUser.role)) {
       throw new ForbiddenException('Clientes não têm permissão para visualizar apontamentos de horas');
     }
 
-    return this.prisma.worklog.findMany({
+    const logs = await this.prisma.worklog.findMany({
       where: { ticketId },
       include: {
         author: {
@@ -218,6 +315,7 @@ export class WorklogsService {
       },
       orderBy: { createdAt: 'desc' },
     });
+    return logs.map(log => this.maskValue(log, currentUser));
   }
 
   async delete(
@@ -225,6 +323,7 @@ export class WorklogsService {
     worklogId: string,
     currentUser: CurrentUserPayload,
   ) {
+    await this.findByTicket(ticketId, currentUser);
     const worklog = await this.prisma.worklog.findUnique({
       where: { id: worklogId },
     });
@@ -237,9 +336,13 @@ export class WorklogsService {
       throw new ForbiddenException('Você não tem permissão para remover o apontamento de outro usuário');
     }
 
-    return this.prisma.worklog.delete({
-      where: { id: worklogId },
+    const deleted = await this.prisma.$transaction(async database => {
+      if (worklog.contractId) {
+        await database.$queryRaw(Prisma.sql`SELECT id FROM "Contract" WHERE id = ${worklog.contractId} FOR UPDATE`);
+      }
+      return database.worklog.delete({ where: { id: worklogId } });
     });
+    return this.maskValue(deleted, currentUser);
   }
 
   private async assertTicketForPreAppointments(
@@ -247,7 +350,7 @@ export class WorklogsService {
     currentUser: CurrentUserPayload,
   ) {
     const ticket = await this.prisma.ticket.findUnique({
-      where: { id: ticketId },
+      where: { id: ticketId, AND: [TenantHelper.getTicketWhere(currentUser)] },
       include: {
         serviceDesk: {
           select: {
@@ -315,6 +418,7 @@ export class WorklogsService {
     dto: StopPreAppointmentDto,
     currentUser: CurrentUserPayload,
   ) {
+    await this.assertTicketForPreAppointments(ticketId, currentUser);
     const pre = await this.prisma.preAppointment.findUnique({
       where: { id: preAppointmentId },
     });
@@ -350,6 +454,7 @@ export class WorklogsService {
     preAppointmentId: string,
     currentUser: CurrentUserPayload,
   ) {
+    await this.assertTicketForPreAppointments(ticketId, currentUser);
     const pre = await this.prisma.preAppointment.findUnique({
       where: { id: preAppointmentId },
     });

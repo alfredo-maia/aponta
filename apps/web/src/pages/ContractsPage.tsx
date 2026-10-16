@@ -1,87 +1,154 @@
-import { Briefcase, Building, CheckCircle, Clock } from 'lucide-react';
-import { useContracts } from '../hooks/useContracts';
+import { useState } from 'react';
+import { Briefcase } from 'lucide-react';
+import {
+  useContract,
+  useContractOrganizations,
+  useContracts,
+  useSaveContract,
+} from '../hooks/useContracts';
 import { useAuthStore } from '../stores/authStore';
-import { EzAlert, EzEmptyCard, EzGridWrapper, EzSpinner } from '../components/ds';
+import {
+  EzAlert,
+  EzButton,
+  EzModal,
+  EzSpinner,
+  EzTextInput,
+} from '../components/ds';
+import {
+  ContractDetail,
+  ContractForm,
+  ContractList,
+} from '../components/contracts/ContractViews';
 
 export function ContractsPage() {
-  const { data: contracts, isLoading, isError } = useContracts();
-  const user = useAuthStore((s) => s.user);
-
-  if (isLoading)
-    return (
-      <div className="flex justify-center p-8">
-        <EzSpinner label="Carregando contratos..." />
-      </div>
-    );
-  if (isError)
-    return (
-      <div className="p-8">
-        <EzAlert variant="error">Erro ao carregar os contratos.</EzAlert>
-      </div>
-    );
-
-  const showFinancial = user?.role === 'ADMIN' || user?.role === 'CLIENT_MASTER';
-  const list = contracts || [];
-
+  const role = useAuthStore((state) => state.user?.role);
+  const canManage = role === 'ADMIN';
+  const showFinancial = canManage || role === 'CLIENT_MASTER';
+  const [search, setSearch] = useState('');
+  const [query, setQuery] = useState('');
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const contracts = useContracts(query);
+  const detail = useContract(detailId);
+  const organizations = useContractOrganizations(
+    canManage && (creating || editing),
+  );
+  const save = useSaveContract();
+  const close = () => {
+    if (save.isPending) return;
+    setDetailId(null);
+    setEditing(false);
+    setCreating(false);
+    save.reset();
+  };
+  const saved = () => {
+    setDetailId(null);
+    setEditing(false);
+    setCreating(false);
+    save.reset();
+  };
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-          <Briefcase className="h-8 w-8" /> Contratos
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="flex items-center gap-2 text-3xl font-bold">
+          <Briefcase className="h-8 w-8" />
+          Contratos
         </h1>
+        {canManage && (
+          <EzButton
+            label="Novo contrato"
+            onClick={() => {
+              save.reset();
+              setCreating(true);
+            }}
+          />
+        )}
       </div>
-
-      {!list.length && <EzEmptyCard title="Nenhum contrato ativo para exibição." />}
-
-      {list.length > 0 && (
-        <EzGridWrapper>
-          <thead className="bg-gray-90">
-            <tr>
-              <th className="px-4 py-3 font-semibold text-gray-700">Empresa</th>
-              <th className="px-4 py-3 font-semibold text-gray-700">Modalidade</th>
-              <th className="px-4 py-3 font-semibold text-gray-700">Status</th>
-              {showFinancial && (
-                <th className="px-4 py-3 font-semibold text-gray-700">Aditivo / Global</th>
+      <form
+        className="flex items-end gap-3"
+        onSubmit={(event) => {
+          event.preventDefault();
+          setQuery(search.trim());
+        }}
+      >
+        <EzTextInput
+          id="contract-search"
+          label="Pesquisar contratos"
+          placeholder="Nome ou empresa"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <EzButton type="submit" variant="secondary" label="Pesquisar" />
+      </form>
+      <ContractList
+        contracts={contracts.data}
+        loading={contracts.isLoading}
+        error={contracts.isError}
+        showFinancial={showFinancial}
+        onDetail={setDetailId}
+      />
+      <EzModal
+        isOpen={creating || !!detailId}
+        onClose={close}
+        preventOutsideClose={save.isPending}
+        title={
+          creating
+            ? 'Novo contrato'
+            : editing
+              ? 'Editar contrato'
+              : 'Detalhes do contrato'
+        }
+        maxWidth="2xl"
+        aria-label={creating ? 'Novo contrato' : 'Detalhes do contrato'}
+      >
+        {detailId && detail.isLoading && (
+          <EzSpinner label="Carregando contrato..." />
+        )}
+        {detailId && detail.isError && (
+          <EzAlert variant="error">Erro ao carregar o contrato.</EzAlert>
+        )}
+        {canManage && (creating || (editing && detail.data)) ? (
+          <ContractForm
+            key={creating ? 'new' : detailId}
+            contract={creating ? undefined : detail.data}
+            organizations={organizations.data || []}
+            organizationsLoading={organizations.isLoading}
+            organizationsError={organizations.isError}
+            pending={save.isPending}
+            error={
+              save.isError
+                ? 'Não foi possível salvar o contrato. Verifique os dados e tente novamente.'
+                : undefined
+            }
+            onCancel={close}
+            onSave={(values) =>
+              save.mutate(
+                { id: creating ? undefined : detailId || undefined, values },
+                { onSuccess: saved },
+              )
+            }
+          />
+        ) : (
+          detail.data && (
+            <div className="space-y-6">
+              <ContractDetail
+                contract={detail.data}
+                showFinancial={showFinancial}
+              />
+              {canManage && (
+                <EzButton
+                  label="Editar contrato"
+                  onClick={() => {
+                    save.reset();
+                    setEditing(true);
+                  }}
+                />
               )}
-              {showFinancial && (
-                <th className="px-4 py-3 font-semibold text-gray-700">Reajuste</th>
-              )}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {list.map((c) => (
-              <tr key={c.id} className="hover:bg-gray-90">
-                <td className="px-4 py-3 font-medium flex items-center gap-2 text-gray-900">
-                  <Building className="w-4 h-4 text-gray-400" />
-                  {c.organization?.name || '---'}
-                </td>
-                <td className="px-4 py-3 text-gray-900">
-                  <div className="flex items-center gap-1">
-                    {c.type === 'HOURS_LIMIT' ? <Clock className="w-4 h-4" /> : <Briefcase className="w-4 h-4" />}
-                    {c.type === 'HOURS_LIMIT' ? `Pacote: ${c.hoursLimit}h` : 'Cobertura'}
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="flex items-center gap-1 text-green-600">
-                    <CheckCircle className="w-4 h-4" />
-                    Ativo
-                  </span>
-                </td>
-                {showFinancial && (
-                  <td className="px-4 py-3 text-gray-500">
-                    {c.monthlyValue ? `R$ ${c.monthlyValue.toLocaleString('pt-BR')}` : '---'}
-                  </td>
-                )}
-                {showFinancial && (
-                  <td className="px-4 py-3 text-gray-500">
-                    {c.adjustmentDate ? new Date(c.adjustmentDate).toLocaleDateString('pt-BR') : '---'}
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </EzGridWrapper>
-      )}
+            </div>
+          )
+        )}
+      </EzModal>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Req,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
@@ -14,6 +15,7 @@ import { WorklogsService } from './worklogs.service';
 import { CreateWorklogDto } from './dto/create-worklog.dto';
 import { CreatePreAppointmentDto } from './dto/create-pre-appointment.dto';
 import { StopPreAppointmentDto } from './dto/stop-pre-appointment.dto';
+import { WorklogContractQueryDto } from './dto/worklog-contract-query.dto';
 import { JwtOrTokenAuthGuard } from '../auth/guards/jwt-or-token-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -31,6 +33,12 @@ interface AuthenticatedRequest {
 @Roles(Role.AGENT, Role.AGENT_MASTER, Role.ADMIN)
 export class WorklogsController {
   constructor(private readonly worklogsService: WorklogsService) {}
+
+  @Get(':ticketId/worklog-contracts')
+  @ApiOperation({ summary: 'Contratos elegíveis para um apontamento, com valores protegidos por papel' })
+  eligibleContracts(@Param('ticketId') ticketId: string, @Query() query: WorklogContractQueryDto, @Req() req: AuthenticatedRequest) {
+    return this.worklogsService.eligibleContracts(ticketId, query.startTime, query.endTime, req.user);
+  }
 
   @Post(':ticketId/worklogs')
   @ApiOperation({ summary: 'Registrar apontamento de horas no chamado' })
