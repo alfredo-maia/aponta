@@ -7,6 +7,9 @@ describe('OrganizationsService', () => {
 
   beforeEach(() => {
     mockPrisma = {
+      $transaction: jest.fn(callback=>callback(mockPrisma)),
+      $queryRaw: jest.fn().mockResolvedValue([]),
+      organizationDeskEvent: {create:jest.fn()},
       organization: {
         create: jest.fn(),
         findMany: jest.fn().mockResolvedValue([]),
@@ -328,6 +331,8 @@ describe('OrganizationsService', () => {
         data: { serviceDesks: { connect: { id: 'desk-1' } } },
       });
       expect(result).toEqual({ id: 'org-1', serviceDesks: [{ id: 'desk-1' }] });
+      expect(mockPrisma.organizationDeskEvent.create).toHaveBeenCalledWith({data:{organizationId:'org-1',serviceDeskId:'desk-1',linked:true}});
+      expect(mockPrisma.$queryRaw.mock.invocationCallOrder[0]).toBeLessThan(mockPrisma.organization.update.mock.invocationCallOrder[0]);
     });
   });
 
@@ -352,6 +357,7 @@ describe('OrganizationsService', () => {
         data: { serviceDesks: { disconnect: { id: 'desk-1' } } },
       });
       expect(result).toEqual({ id: 'org-1', serviceDesks: [] });
+      expect(mockPrisma.organizationDeskEvent.create).toHaveBeenCalledWith({data:{organizationId:'org-1',serviceDeskId:'desk-1',linked:false}});
     });
   });
 

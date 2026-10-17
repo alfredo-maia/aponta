@@ -105,7 +105,7 @@ describe('ReportsService', () => {
       mockPrisma.worklog.findMany.mockResolvedValue([]);
       await service.getWorkload({ id: 'client-1', role: Role.CLIENT });
       expect(mockPrisma.worklog.findMany).toHaveBeenCalledWith({
-        where: { ticket: { requesterId: 'client-1' } },
+        where: { ticket: { requesterId: 'client-1' }, voidedAt: null },
         include: expect.any(Object),
       });
     });

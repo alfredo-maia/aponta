@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
+import { Prisma } from '@prisma/client';
 import { CreateOrganizationAddressDto } from './dto/create-organization-address.dto';
 import { CreateOrganizationContactDto } from './dto/create-organization-contact.dto';
 
@@ -91,24 +92,36 @@ export class OrganizationsService {
   }
 
   /** Tiflux-parity (#57): aba "Relacionamentos" — vincular/desvincular uma Mesa a este cliente (N:N). */
-  async linkServiceDesk(organizationId: string, serviceDeskId: string) {
-    await this.findOne(organizationId);
-    const desk = await this.prisma.serviceDesk.findUnique({ where: { id: serviceDeskId } });
+  async linkServiceDesk(organizationId: string, serviceDeskId: string, createdBy?: string) {
+    await this.prisma.$transaction(async db => {
+    await db.$queryRaw(Prisma.sql`SELECT id FROM "Organization" WHERE id = ${organizationId} FOR UPDATE`);
+    await db.$queryRaw(Prisma.sql`SELECT id FROM "ServiceDesk" WHERE id = ${serviceDeskId} FOR UPDATE`);
+    const organization = await db.organization.findUnique({ where: { id: organizationId } });
+    if (!organization) throw new NotFoundException('Organização não encontrada');
+    const desk = await db.serviceDesk.findUnique({ where: { id: serviceDeskId } });
     if (!desk) {
       throw new NotFoundException(`ServiceDesk with ID ${serviceDeskId} not found`);
     }
-    await this.prisma.organization.update({
+    await db.organization.update({
       where: { id: organizationId },
       data: { serviceDesks: { connect: { id: serviceDeskId } } },
+    });
+    await db.organizationDeskEvent.create({data:{organizationId,serviceDeskId,linked:true,createdBy}});
     });
     return this.findOne(organizationId);
   }
 
-  async unlinkServiceDesk(organizationId: string, serviceDeskId: string) {
-    await this.findOne(organizationId);
-    await this.prisma.organization.update({
+  async unlinkServiceDesk(organizationId: string, serviceDeskId: string, createdBy?: string) {
+    await this.prisma.$transaction(async db => {
+    await db.$queryRaw(Prisma.sql`SELECT id FROM "Organization" WHERE id = ${organizationId} FOR UPDATE`);
+    await db.$queryRaw(Prisma.sql`SELECT id FROM "ServiceDesk" WHERE id = ${serviceDeskId} FOR UPDATE`);
+    const organization = await db.organization.findUnique({ where: { id: organizationId } });
+    if (!organization) throw new NotFoundException('Organização não encontrada');
+    await db.organization.update({
       where: { id: organizationId },
       data: { serviceDesks: { disconnect: { id: serviceDeskId } } },
+    });
+    await db.organizationDeskEvent.create({data:{organizationId,serviceDeskId,linked:false,createdBy}});
     });
     return this.findOne(organizationId);
   }

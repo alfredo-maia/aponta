@@ -37,3 +37,26 @@ export const Garantia: Story = {
 export const ValorManual: Story = {
   args: { worklog: { valuationType: 'MANUAL', value: 150, valueCents: 15000 } },
 };
+export const BonificacaoComCusto: Story = {
+  args: {
+    worklog: {
+      ...meta.args.worklog,
+      valuationType: 'BONUS',
+      value: 0,
+      valueCents: 0,
+      costCents: 10000,
+    },
+  },
+};
+export const BonificacaoTecnicoSemCustos: Story = {
+  args: {
+    showFinancial: false,
+    worklog: {
+      ...meta.args.worklog,
+      valuationType: 'BONUS',
+      value: null,
+      valueCents: null,
+      costCents: null,
+    },
+  },
+};

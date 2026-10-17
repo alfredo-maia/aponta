@@ -10,7 +10,7 @@ export interface WorklogAuthor {
 }
 
 export type AttendanceType = 'REMOTE' | 'ON_SITE';
-export type ValuationType = 'CONTRACT' | 'GUARANTEE' | 'MANUAL';
+export type ValuationType = 'CONTRACT' | 'GUARANTEE' | 'BONUS' | 'MANUAL';
 
 export interface Worklog {
   timeConvention?: 'UTC';
@@ -24,6 +24,7 @@ export interface Worklog {
   valuationType: ValuationType;
   value: number | null;
   valueCents?: number | null;
+  costCents?: number | null;
   contractId?: string | null;
   valuationSnapshot?: {
     contractName?: string | null;
@@ -48,6 +49,8 @@ export interface CreateWorklogInput {
   valuationType?: ValuationType;
   value?: number;
   contractId?: string;
+  bonusReason?: string;
+  preAppointmentId?: string;
 }
 
 export function useWorklogContracts(

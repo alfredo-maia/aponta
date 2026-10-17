@@ -53,7 +53,7 @@ describe('ContractForm precision', () => {
       target: { value: 'org-1' },
     });
     fireEvent.change(screen.getByLabelText('Modalidade'), {
-      target: { value: 'HOURS_LIMIT' },
+      target: { value: 'MONTHLY_HOURS' },
     });
     fireEvent.change(screen.getByLabelText('Franquia mensal (horas)'), {
       target: { value: '0.5' },

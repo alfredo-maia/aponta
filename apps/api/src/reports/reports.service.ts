@@ -25,6 +25,7 @@ export class ReportsService {
 
     const worklogs = await this.prisma.worklog.findMany({
       where: {
+        voidedAt: null,
         ticket: baseWhere,
         ...(filterAgentId ? { authorId: filterAgentId } : {})
       },
@@ -63,7 +64,7 @@ export class ReportsService {
       throw new BadRequestException('Período de ciclos inválido');
     }
     const worklogs = await this.prisma.worklog.findMany({
-      where: { ticket: baseWhere, ...(filters.contractId ? { contractId: filters.contractId } : {}) },
+      where: { ticket: baseWhere, voidedAt: null, ...(filters.contractId ? { contractId: filters.contractId } : {}) },
       include: { ticket: { include: { requester: { include: { organization: true } } } } }
     });
 
@@ -358,6 +359,7 @@ export class ReportsService {
         userWorklogs = await this.prisma.worklog.findMany({
           where: {
             authorId: user.id,
+            voidedAt: null,
             createdAt: { gte: startOfMonth, lte: endOfMonth },
           },
         });

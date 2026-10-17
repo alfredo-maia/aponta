@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { brasiliaTimeString } from '../lib/brasiliaTime';
+import { api } from '../lib/api';
+import type { Contract } from './useContracts';
 import {
   useCreatePreAppointment,
   useDeletePreAppointment,
@@ -16,7 +18,7 @@ export interface ActivityTimer {
   timerPaused: boolean;
   timerActive: boolean;
   timerSeconds: number;
-  handleStartTimer: () => Promise<void>;
+  handleStartTimer: (contractId?: string) => Promise<void>;
   handlePauseTimer: () => void;
   handleResumeTimer: () => void;
   handleStopTimer: () => Promise<void>;
@@ -62,9 +64,30 @@ export function useActivityTimer(ticketId: string): ActivityTimer {
     return () => clearInterval(interval);
   }, [timerActive, timerPaused, timerStartISO]);
 
-  const handleStartTimer = async () => {
+  const handleStartTimer = async (contractId?: string) => {
     const beginning = new Date().toISOString();
+    const { data: eligible } = await api.get<Contract[]>(
+      `/tickets/${ticketId}/worklog-contracts`,
+      {
+        params: {
+          startTime: beginning,
+          endTime: new Date(Date.parse(beginning) + 60000).toISOString(),
+        },
+      },
+    );
+    const selected = contractId
+      ? eligible.find((contract) => contract.id === contractId)?.id
+      : eligible.length === 1
+        ? eligible[0].id
+        : undefined;
+    if (!selected)
+      throw new Error(
+        eligible.length > 1
+          ? 'Selecione o contrato no lançamento antes de iniciar o cronômetro.'
+          : 'Cronômetro bloqueado: regularize contrato aprovado, vigência e vínculos com a mesa.',
+      );
     await createMut.mutateAsync({
+      contractId: selected,
       beginning,
       initTime: brasiliaTimeString(new Date(beginning)),
     });

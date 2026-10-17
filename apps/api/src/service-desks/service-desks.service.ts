@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateServiceDeskDto } from './dto/create-service-desk.dto';
 import { UpdateServiceDeskDto } from './dto/update-service-desk.dto';
@@ -15,7 +16,7 @@ export class ServiceDesksService {
     private readonly holidaysImportService: HolidaysImportService,
   ) {}
 
-  async create(createServiceDeskDto: CreateServiceDeskDto) {
+  async create(createServiceDeskDto: CreateServiceDeskDto, createdBy?: string) {
     const {
       agentIds,
       organizationIds,
@@ -24,7 +25,7 @@ export class ServiceDesksService {
       ticketSections: _ticketSections,
       ...data
     } = createServiceDeskDto;
-    const desk = await this.prisma.serviceDesk.create({
+    const persist = (db: Prisma.TransactionClient) => db.serviceDesk.create({
       data: {
         ...data,
         ...(agentIds && { agents: { connect: agentIds.map((id) => ({ id })) } }),
@@ -40,6 +41,12 @@ export class ServiceDesksService {
       },
       include: DESK_INCLUDE,
     });
+    const desk = organizationIds?.length ? await this.prisma.$transaction(async db => {
+      for (const orgId of [...new Set(organizationIds)].sort()) await db.$queryRaw(Prisma.sql`SELECT id FROM "Organization" WHERE id = ${orgId} FOR UPDATE`);
+      const created = await persist(db);
+      await db.organizationDeskEvent.createMany({data:[...new Set(organizationIds)].map(organizationId=>({organizationId,serviceDeskId:created.id,linked:true,createdBy}))});
+      return created;
+    }) : await persist(this.prisma);
     const [initial, final] = await Promise.all([
       this.prisma.ticketStage.findFirst({
         where: { serviceDeskId: desk.id, isInitial: true },
@@ -74,9 +81,10 @@ export class ServiceDesksService {
     return serviceDesk;
   }
 
-  async update(id: string, updateServiceDeskDto: UpdateServiceDeskDto) {
+  async update(id: string, updateServiceDeskDto: UpdateServiceDeskDto, createdBy?: string) {
     const serviceDesk = await this.prisma.serviceDesk.findUnique({
       where: { id },
+      include: {organizations:{select:{id:true}}},
     });
     if (!serviceDesk) {
       throw new NotFoundException(`ServiceDesk with ID ${id} not found`);
@@ -90,7 +98,7 @@ export class ServiceDesksService {
       ticketSections,
       ...data
     } = updateServiceDeskDto;
-    await this.prisma.serviceDesk.update({
+    const persist = (db: Prisma.TransactionClient) => db.serviceDesk.update({
       where: { id },
       data: {
         ...data,
@@ -105,6 +113,22 @@ export class ServiceDesksService {
         }),
       },
     });
+    if (organizationIds !== undefined || data.active !== undefined) {
+      const previous = (serviceDesk.organizations ?? []).map(org=>org.id).sort();
+      const desired = organizationIds ?? previous;
+      await this.prisma.$transaction(async db => {
+        for (const orgId of [...new Set([...previous,...desired])].sort()) await db.$queryRaw(Prisma.sql`SELECT id FROM "Organization" WHERE id = ${orgId} FOR UPDATE`);
+        // All reciprocal link mutations take Organization then ServiceDesk locks.
+        await db.$queryRaw(Prisma.sql`SELECT id FROM "ServiceDesk" WHERE id = ${id} FOR UPDATE`);
+        const latest = await db.serviceDesk.findUnique({where:{id},include:{organizations:{select:{id:true}}}});
+        if (!latest) throw new NotFoundException('Mesa não encontrada');
+        if (JSON.stringify((latest.organizations ?? []).map(org=>org.id).sort()) !== JSON.stringify(previous)) throw new ConflictException('Vínculos alterados simultaneamente; recarregue a mesa');
+        await persist(db);
+        const removed = previous.filter(org=>!desired.includes(org)).map(organizationId=>({organizationId,serviceDeskId:id,linked:false,createdBy}));
+        const added = desired.filter(org=>!previous.includes(org)).map(organizationId=>({organizationId,serviceDeskId:id,linked:true,createdBy}));
+        if (added.length || removed.length) await db.organizationDeskEvent.createMany({data:[...removed,...added]});
+      });
+    } else await persist(this.prisma);
 
     if (priorities) {
       await Promise.all(

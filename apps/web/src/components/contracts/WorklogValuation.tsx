@@ -10,6 +10,7 @@ export function WorklogValuation({
     | 'valuationType'
     | 'value'
     | 'valueCents'
+    | 'costCents'
     | 'valuationSnapshot'
   >;
   showFinancial: boolean;
@@ -19,13 +20,14 @@ export function WorklogValuation({
   const label = {
     CONTRACT: 'Contrato',
     GUARANTEE: 'Garantia',
+    BONUS: 'Bonificação',
     MANUAL: 'Valor manual',
   }[worklog.valuationType];
   return (
     <div className="space-y-1 text-sm">
       <p>
         {label}
-        {worklog.valuationType === 'CONTRACT'
+        {worklog.contractId || worklog.valuationType === 'CONTRACT'
           ? ` · ${worklog.valuationSnapshot?.contractName || worklog.contractId || 'Legado / sem contrato vinculado'}`
           : ''}
       </p>
@@ -34,6 +36,17 @@ export function WorklogValuation({
           {amount == null
             ? 'Valor desconhecido'
             : amount.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+              })}
+        </p>
+      )}
+      {showFinancial && (
+        <p>
+          Custo do esforço:{' '}
+          {worklog.costCents == null
+            ? 'Desconhecido'
+            : (worklog.costCents / 100).toLocaleString('pt-BR', {
                 style: 'currency',
                 currency: 'BRL',
               })}

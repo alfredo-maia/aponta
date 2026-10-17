@@ -20,6 +20,8 @@ describe('WorklogsService', () => {
     user: {
       findUnique: jest.Mock;
     };
+    serviceDesk: { findFirst: jest.Mock };
+    technicianCostRate: { findMany: jest.Mock };
     contract: {
       findFirst: jest.Mock;
       findMany: jest.Mock;
@@ -46,7 +48,15 @@ describe('WorklogsService', () => {
   const adminUser: CurrentUserPayload = { id: 'admin-1', role: Role.ADMIN };
   const clientUser: CurrentUserPayload = { id: 'client-1', role: Role.CLIENT };
 
-  const validTicket = { id: 'ticket-1', title: 'Problema no ERP' };
+  const validTicket = { id: 'ticket-1', title: 'Problema no ERP', commercialOrganizationId: 'org-1', commercialOrganization: { id: 'org-1', name: 'Cliente' }, serviceDeskId: 'desk-1', serviceDesk: { listedGroupsOnly: false, agents: [], agentGroups: [] } };
+  const validContract = {
+    id: 'contract-1', name: 'Suporte', organizationId: 'org-1', approved: true, active: true,
+    startsAt: new Date('2026-01-01T03:00:00Z'), endsAt: null,
+    type: 'MONTHLY_HOURS', includedMinutes: 600, hoursLimit: null, monthlyFeeCents: 10000, excessHourlyRateCents: 12000,
+    serviceDesks: [{ id: 'desk-1' }],
+    lifecycleEvents: [{ effectiveFrom: new Date('2026-01-01T03:00:00Z'), approved: true, active: true, startsAt: new Date('2026-01-01T03:00:00Z'), endsAt: null }],
+    terms: [{ id: 'term-1', effectiveFrom: new Date('2026-01-01T03:00:00Z'), approved: true, active: true, startsAt: new Date('2026-01-01T03:00:00Z'), endsAt: null, type: 'MONTHLY_HOURS', includedMinutes: 600, monthlyFeeCents: 10000, excessHourlyRateCents: 12000, serviceDeskIds: ['desk-1'] }],
+  };
 
   beforeEach(async () => {
     mockPrisma = {
@@ -59,10 +69,12 @@ describe('WorklogsService', () => {
       user: {
         findUnique: jest.fn(),
       },
+      serviceDesk: { findFirst: jest.fn().mockResolvedValue({ id: 'desk-1' }) },
+      technicianCostRate: { findMany: jest.fn().mockResolvedValue([]) },
       contract: {
         findFirst: jest.fn(),
-        findMany: jest.fn().mockResolvedValue([]),
-        findUniqueOrThrow: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([validContract]),
+        findUniqueOrThrow: jest.fn().mockResolvedValue(validContract),
       },
       worklog: {
         create: jest.fn(),
@@ -156,9 +168,13 @@ describe('WorklogsService', () => {
           description: 'Análise de banco',
           billable: true,
           valuationType: ValuationType.CONTRACT,
-          value: null,
-          valueCents: null,
-          valuationSnapshot: expect.objectContaining({ version: 1, currency: 'BRL', organizationId: null, segments: [] }),
+          value: 0,
+          valueCents: 0,
+          costCents: null,
+          bonusReason: null,
+          sourcePreAppointmentId: null,
+          contractId: 'contract-1',
+          valuationSnapshot: expect.objectContaining({ version: 2, currency: 'BRL', organizationId: 'org-1', segments: [expect.objectContaining({ minutes: 60, amountCents: 0, costCents: null })] }),
         },
         include: {
           author: { select: { id: true, name: true, email: true } },
@@ -237,7 +253,7 @@ describe('WorklogsService', () => {
 
     it('should allow ADMIN to log work for another user if authorId is provided', async () => {
       mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
-      mockPrisma.user.findUnique.mockResolvedValue({ id: 'agent-2', name: 'Agent Two' });
+      mockPrisma.user.findUnique.mockResolvedValue({ id: 'agent-2', name: 'Agent Two', role: Role.AGENT });
       mockPrisma.worklog.create.mockResolvedValue({
         id: 'wl-2',
         ticketId: 'ticket-1',
@@ -254,6 +270,8 @@ describe('WorklogsService', () => {
           endTime: '2026-10-13T10:00:00Z',
           description: 'Desenvolvimento',
           billable: false,
+          valuationType: ValuationType.GUARANTEE,
+          bonusReason: 'Retrabalho autorizado',
           authorId: 'agent-2',
         },
         adminUser,
@@ -269,10 +287,14 @@ describe('WorklogsService', () => {
           attendanceType: AttendanceType.REMOTE,
           description: 'Desenvolvimento',
           billable: false,
-          valuationType: ValuationType.CONTRACT,
+          valuationType: ValuationType.GUARANTEE,
           value: 0,
           valueCents: 0,
-          valuationSnapshot: expect.objectContaining({ version: 1, currency: 'BRL', organizationId: null, segments: [] }),
+          costCents: null,
+          bonusReason: 'Retrabalho autorizado',
+          sourcePreAppointmentId: null,
+          contractId: 'contract-1',
+          valuationSnapshot: expect.objectContaining({ version: 2, currency: 'BRL', organizationId: 'org-1', segments: [expect.objectContaining({ minutes: 120, amountCents: 0 })] }),
         },
         include: {
           author: { select: { id: true, name: true, email: true } },
@@ -445,6 +467,7 @@ describe('WorklogsService', () => {
           endTime: '2026-10-13T09:00:00Z',
           description: 'Retrabalho em garantia',
           valuationType: ValuationType.GUARANTEE,
+          bonusReason: 'Correção de erro técnico',
         },
         agentUser,
       );
@@ -480,6 +503,7 @@ describe('WorklogsService', () => {
         requester: { organization: { id: 'org-1' } },
       });
       const contract = {
+        ...validContract,
         id: 'contract-1',
         organizationId: 'org-1',
         active: true,
@@ -487,7 +511,8 @@ describe('WorklogsService', () => {
         hoursLimit: 60,
         includedMinutes: 0,
         excessHourlyRateCents: 12000,
-        type: 'HOUR_PACKAGE',
+        type: 'MONTHLY_HOURS',
+        terms: [{ ...validContract.terms[0], includedMinutes: 0 }],
       };
       mockPrisma.contract.findMany.mockResolvedValue([contract]);
       mockPrisma.contract.findUniqueOrThrow.mockResolvedValue(contract);
@@ -512,15 +537,16 @@ describe('WorklogsService', () => {
       );
     });
 
-    it('should leave value null under CONTRACT when there is no active contract', async () => {
+    it('rejects CONTRACT when there is no active contract', async () => {
       mockPrisma.ticket.findUnique.mockResolvedValue({
         ...validTicket,
         requester: { organization: { id: 'org-2' } },
       });
       mockPrisma.contract.findFirst.mockResolvedValue(null);
+      mockPrisma.contract.findMany.mockResolvedValue([]);
       mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-12' });
 
-      await service.create(
+      await expect(service.create(
         'ticket-1',
         {
           startTime: '2026-10-13T08:00:00Z',
@@ -529,38 +555,26 @@ describe('WorklogsService', () => {
           valuationType: ValuationType.CONTRACT,
         },
         agentUser,
-      );
-
-      expect(mockPrisma.worklog.create).toHaveBeenCalledWith(
-        expect.objectContaining({ data: expect.objectContaining({ valuationType: ValuationType.CONTRACT, value: null }) }),
-      );
+      )).rejects.toThrow(BadRequestException);
+      expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
     });
 
-    it('defaults omitted valuationType to CONTRACT and records unknown value for missing organization', async () => {
-      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+    it('rejects omitted valuationType when commercial organization is missing', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue({ ...validTicket, commercialOrganizationId: null });
       mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-13' });
 
-      await service.create(
+      await expect(service.create(
         'ticket-1',
         { startTime: '2026-10-13T08:00:00Z', endTime: '2026-10-13T09:00:00Z', description: 'Padrão' },
         agentUser,
-      );
-
-      const callArgs = mockPrisma.worklog.create.mock.calls[0][0];
-      expect(callArgs.data.valuationType).toBe(ValuationType.CONTRACT);
-      expect(callArgs.data.value).toBeNull();
-      expect(callArgs.data.valueCents).toBeNull();
-      expect(mockPrisma.contract.findFirst).not.toHaveBeenCalled();
+      )).rejects.toThrow(BadRequestException);
+      expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
     });
   });
 
   describe('contract valuation and transaction boundaries', () => {
     const dto = { startTime: '2026-10-13T08:00:00Z', endTime: '2026-10-13T09:00:00Z', description: 'Atendimento' };
-    const contract = {
-      id: 'contract-1', name: 'Suporte', organizationId: 'org-1', active: true,
-      type: 'HOUR_PACKAGE', includedMinutes: 600, hoursLimit: null, excessHourlyRateCents: 12000,
-      startsAt: null, endsAt: null,
-    };
+    const contract = validContract;
 
     beforeEach(() => {
       mockPrisma.ticket.findUnique.mockResolvedValue({ ...validTicket, requester: { organization: { id: 'org-1', name: 'Cliente' } } });
@@ -579,11 +593,8 @@ describe('WorklogsService', () => {
       mockPrisma.contract.findMany.mockResolvedValue([]);
       await expect(service.create('ticket-1', { ...dto, contractId: 'foreign' }, adminUser)).rejects.toThrow(BadRequestException);
       expect(mockPrisma.contract.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: {
-        organizationId: 'org-1', active: true, id: 'foreign',
-        AND: [
-          { OR: [{ startsAt: null }, { startsAt: { lte: new Date(dto.startTime) } }] },
-          { OR: [{ endsAt: null }, { endsAt: { gte: new Date(dto.endTime) } }] },
-        ],
+        organizationId: 'org-1', active: true, approved: true, id: 'foreign',
+        serviceDesks: { some: { id: 'desk-1' } },
       } }));
       expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
     });
@@ -594,7 +605,7 @@ describe('WorklogsService', () => {
     ])('revalidates eligibility after locking against concurrent edits: %j', async (change) => {
       mockPrisma.contract.findUniqueOrThrow.mockResolvedValue({ ...contract, ...change });
       await expect(service.create('ticket-1', dto, adminUser)).rejects.toThrow(BadRequestException);
-      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(1);
+      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(3);
       expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
     });
 
@@ -612,16 +623,14 @@ describe('WorklogsService', () => {
       });
     });
 
-    it('preserves unknown excess tariff without inventing a zero', async () => {
-      mockPrisma.contract.findUniqueOrThrow.mockResolvedValue({ ...contract, includedMinutes: 0, excessHourlyRateCents: null });
-      const result = await service.create('ticket-1', dto, adminUser);
-      expect(result.valueCents).toBeNull();
-      expect(result.value).toBeNull();
-      expect(result.valuationSnapshot).toMatchObject({ segments: [{ amountCents: null, excessMinutes: 60, rateCents: null }] });
+    it('rejects missing mandatory excess tariff instead of inventing a zero', async () => {
+      mockPrisma.contract.findUniqueOrThrow.mockResolvedValue({ ...contract, terms: [{ ...contract.terms[0], includedMinutes: 0, excessHourlyRateCents: null }] });
+      await expect(service.create('ticket-1', dto, adminUser)).rejects.toThrow(BadRequestException);
+      expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
     });
 
     it('retains the selected contract on nonbillable work without consuming allowance', async () => {
-      const result = await service.create('ticket-1', { ...dto, contractId: contract.id, billable: false }, adminUser);
+      const result = await service.create('ticket-1', { ...dto, contractId: contract.id, valuationType: ValuationType.GUARANTEE, bonusReason: 'Correção', billable: false }, adminUser);
       expect(result).toMatchObject({ contractId: contract.id, valueCents: 0,
         valuationSnapshot: { segments: [{ minutes: 60, coveredMinutes: 0, excessMinutes: 0, amountCents: 0 }] } });
       expect(mockPrisma.worklog.findMany).not.toHaveBeenCalled();
@@ -629,7 +638,7 @@ describe('WorklogsService', () => {
 
     it('rejects an invalid explicit contract even for nonbillable work', async () => {
       mockPrisma.contract.findMany.mockResolvedValue([]);
-      await expect(service.create('ticket-1', { ...dto, contractId: 'foreign', billable: false }, adminUser)).rejects.toThrow(BadRequestException);
+      await expect(service.create('ticket-1', { ...dto, contractId: 'foreign', valuationType: ValuationType.GUARANTEE, bonusReason: 'Correção', billable: false }, adminUser)).rejects.toThrow(BadRequestException);
       expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
     });
 
@@ -640,12 +649,13 @@ describe('WorklogsService', () => {
 
     it('limits eligible contracts by ticket visibility, organization and execution interval', async () => {
       mockPrisma.ticket.findUnique.mockResolvedValue({ ...validTicket, requester: { organizationId: 'org-1' } });
-      await service.eligibleContracts('ticket-1', dto.startTime, dto.endTime, agentUser);
+      const eligible = await service.eligibleContracts('ticket-1', dto.startTime, dto.endTime, agentUser);
       expect(mockPrisma.ticket.findUnique).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'ticket-1', AND: [TenantHelper.getTicketWhere(agentUser)] } }));
       expect(mockPrisma.contract.findMany).toHaveBeenCalledWith(expect.objectContaining({
         where: expect.objectContaining({ organizationId: 'org-1', active: true }),
-        select: expect.objectContaining({ excessHourlyRateCents: false }),
+        include: { terms: true, lifecycleEvents: { orderBy: [{ effectiveFrom: 'asc' }, { createdAt: 'asc' }] }, serviceDesks: { select: { id: true } } },
       }));
+      expect(eligible).toEqual([expect.objectContaining({ id: 'contract-1', excessHourlyRateCents: null })]);
     });
 
     it('rejects invalid eligible-contract intervals and missing tickets', async () => {
@@ -723,7 +733,7 @@ describe('WorklogsService', () => {
 
       expect(result).toHaveLength(1);
       expect(mockPrisma.worklog.findMany).toHaveBeenCalledWith({
-        where: { ticketId: 'ticket-1' },
+        where: { ticketId: 'ticket-1', voidedAt: null },
         include: { author: { select: { id: true, name: true, email: true } } },
         orderBy: { createdAt: 'desc' },
       });
@@ -810,6 +820,7 @@ describe('WorklogsService', () => {
           authorId: 'agent-1',
           beginning: new Date('2026-10-15T14:36:00.000Z'),
           initTime: '11:36',
+          contractId: 'contract-1',
         },
         include: authorInclude,
       });
@@ -962,6 +973,7 @@ describe('WorklogsService', () => {
           authorId: 'agent-1',
           beginning: new Date('2026-10-15T14:36:00.000Z'),
           initTime: '19:36',
+          contractId: 'contract-1',
         },
         include: authorInclude,
       });

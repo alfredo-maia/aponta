@@ -90,6 +90,7 @@ const mockAgents = [
 
 function mockApi() {
   vi.mocked(api.get).mockImplementation((url: string) => {
+    if (url.endsWith('/worklog-contracts')) return Promise.resolve({ data: [{ id: 'contract-1' }] });
     if (url === '/tickets/t-1') {
       return Promise.resolve({ data: ticket });
     }

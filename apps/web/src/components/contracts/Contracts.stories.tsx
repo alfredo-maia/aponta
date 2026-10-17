@@ -103,3 +103,64 @@ export const TarifaAusente: Story = {
 };
 export const Cadastro: Story = { render: () => <FormDemo /> };
 export const ValidacaoVigencia: Story = { render: () => <FormDemo invalid /> };
+export const Empreito: Story = {
+  render: () => (
+    <ContractDetail
+      contract={{
+        ...sample,
+        type: 'FIXED_PROJECT',
+        approved: true,
+        scope: 'API de integração aprovada',
+        estimatedMinutes: 1200,
+        fixedPriceCents: 500000,
+        serviceDesks: [{ id: 'desk', name: 'Desenvolvimento' }],
+      }}
+      showFinancial
+    />
+  ),
+};
+export const HorasMensaisExcedente: Story = {
+  render: () => (
+    <ContractDetail
+      contract={{
+        ...sample,
+        type: 'MONTHLY_HOURS',
+        approved: true,
+        monthlyFeeCents: 120000,
+        serviceDesks: [{ id: 'desk', name: 'Suporte' }],
+      }}
+      showFinancial
+    />
+  ),
+};
+export const HorasAvulsas: Story = {
+  render: () => (
+    <ContractDetail
+      contract={{
+        ...sample,
+        type: 'HOURLY',
+        approved: true,
+        hourlyRateCents: 15000,
+        serviceDesks: [{ id: 'desk', name: 'Consultoria' }],
+      }}
+      showFinancial
+    />
+  ),
+};
+export const BloqueadoSemMesa: Story = {
+  render: () => (
+    <ContractDetail
+      contract={{
+        ...sample,
+        type: 'HOURLY',
+        approved: true,
+        hourlyRateCents: 15000,
+        serviceDesks: [],
+      }}
+      showFinancial
+    />
+  ),
+};
+export const LegadoParaRegularizar: Story = {
+  render: () => <ContractDetail contract={sample} showFinancial={false} />,
+};

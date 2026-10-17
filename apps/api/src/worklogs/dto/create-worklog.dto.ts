@@ -1,4 +1,4 @@
-import { IsBoolean, IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min, Max } from 'class-validator';
+import { IsBoolean, IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min, Max, MaxLength } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { AttendanceType, TicketStatus, ValuationType } from '@prisma/client';
 
@@ -66,6 +66,17 @@ export class CreateWorklogDto {
   @IsOptional()
   @IsUUID()
   contractId?: string;
+
+  @ApiPropertyOptional({ description: 'Motivo obrigatório para Garantia/Bonificação' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  bonusReason?: string;
+
+  @ApiPropertyOptional({ description: 'Pré-apontamento encerrado usado como origem; uma conversão por origem' })
+  @IsOptional()
+  @IsUUID()
+  preAppointmentId?: string;
 
   @ApiPropertyOptional({ description: 'Valor manual do apontamento (obrigatório quando valuationType = MANUAL)' })
   @IsOptional()

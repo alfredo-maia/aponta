@@ -34,7 +34,7 @@ describe('Billing valuation snapshots', () => {
     ] } })]);
     const result = await service.getBilling(admin, { contractId: 'contract', startDate: '2026-10-01T03:00:00Z', endDate: '2026-11-01T03:00:00Z' });
     expect(result[0]).toMatchObject({ billableMinutes: 60, totalValueCents: 6000, coveredMinutes: 30, excessMinutes: 30 });
-    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { ticket: {}, contractId: 'contract' } }));
+    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { ticket: {}, contractId: 'contract', voidedAt: null } }));
   });
   it('rejects malformed or inverted periods', async () => {
     await expect(service.getBilling(admin, { startDate: 'garbage' })).rejects.toThrow(BadRequestException);
@@ -47,7 +47,7 @@ describe('Billing valuation snapshots', () => {
   });
   it('keeps organization policy on contract-filtered queries', async () => {
     await service.getBilling({ id: 'master', role: Role.CLIENT_MASTER, organizationId: 'org' }, { contractId: 'other-contract' });
-    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { ticket: { requester: { organizationId: 'org' } }, contractId: 'other-contract' } }));
+    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { ticket: { requester: { organizationId: 'org' } }, contractId: 'other-contract', voidedAt: null } }));
   });
   it('groups historical ownership and blocks financial leakage after requester moves', async () => {
     findMany.mockResolvedValue([row({ valueCents: 6000, valuationSnapshot: { organizationId: 'old-org', organizationName: 'Original', segments: [october] } })]);

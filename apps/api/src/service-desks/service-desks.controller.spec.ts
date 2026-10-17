@@ -280,9 +280,9 @@ describe('ServiceDesksController', () => {
       const dto = { name: 'Front Desk' };
       mockServiceDesksService.create.mockResolvedValue({ id: '1', ...dto });
 
-      const result = await controller.create(dto);
+      const result = await controller.create(dto, { id: 'admin-1', role: Role.ADMIN });
 
-      expect(mockServiceDesksService.create).toHaveBeenCalledWith(dto);
+      expect(mockServiceDesksService.create).toHaveBeenCalledWith(dto, 'admin-1');
       expect(result).toEqual({ id: '1', ...dto });
     });
 
@@ -309,9 +309,9 @@ describe('ServiceDesksController', () => {
       const dto = { name: 'New Name' };
       mockServiceDesksService.update.mockResolvedValue({ id: '1', ...dto });
 
-      const result = await controller.update('1', dto);
+      const result = await controller.update('1', dto, { id: 'admin-1', role: Role.ADMIN });
 
-      expect(mockServiceDesksService.update).toHaveBeenCalledWith('1', dto);
+      expect(mockServiceDesksService.update).toHaveBeenCalledWith('1', dto, 'admin-1');
       expect(result).toEqual({ id: '1', ...dto });
     });
 

@@ -7,6 +7,16 @@ export interface Contract {
   organization?: { name: string };
   type: string;
   active: boolean;
+  approved?: boolean;
+  serviceDeskIds?: string[];
+  serviceDesks?: { id: string; name: string }[];
+  terms?: ContractTerms[];
+  scope?: string | null;
+  fixedPriceCents?: number | null;
+  estimatedMinutes?: number | null;
+  monthlyFeeCents?: number | null;
+  hourlyRateCents?: number | null;
+  conditionsEffectiveAt?: string;
   name?: string | null;
   startsAt?: string | null;
   endsAt?: string | null;
@@ -19,9 +29,33 @@ export interface Contract {
   createdAt: string;
 }
 
+export interface ContractTerms {
+  id: string;
+  effectiveFrom: string;
+  effectiveTo?: string | null;
+  scope?: string | null;
+  fixedPriceCents?: number | null;
+  estimatedMinutes?: number | null;
+  monthlyFeeCents?: number | null;
+  includedMinutes?: number | null;
+  excessHourlyRateCents?: number | null;
+  hourlyRateCents?: number | null;
+}
+
+export interface ContractOrganization {
+  id: string;
+  name: string;
+  serviceDesks?: { id: string; name: string }[];
+}
+
 export type ContractInput = Omit<
   Contract,
-  'id' | 'createdAt' | 'organization' | 'lastAmendmentValue'
+  | 'id'
+  | 'createdAt'
+  | 'organization'
+  | 'lastAmendmentValue'
+  | 'terms'
+  | 'serviceDesks'
 >;
 
 export function useContracts(search = '') {
@@ -48,8 +82,21 @@ export function useContractOrganizations(enabled: boolean) {
   return useQuery({
     queryKey: ['organizations'],
     enabled,
-    queryFn: async () =>
-      (await api.get<{ id: string; name: string }[]>('/organizations')).data,
+    queryFn: async () => {
+      const organizations = (
+        await api.get<ContractOrganization[]>('/organizations')
+      ).data;
+      return Promise.all(
+        organizations.map(async (organization) => ({
+          ...organization,
+          ...(
+            await api.get<ContractOrganization>(
+              `/organizations/${organization.id}`,
+            )
+          ).data,
+        })),
+      );
+    },
   });
 }
 

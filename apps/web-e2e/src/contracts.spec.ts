@@ -34,15 +34,18 @@ test.describe('contracts and recorded valuation (real API/Postgres)', () => {
         { id: ids.outsider, role: Role.CLIENT_MASTER, organizationId: ids.otherOrg },
         { id: ids.requester, role: Role.CLIENT, organizationId: ids.org },
       ].map((user) => ({ ...user, name: `E2E ${user.role}`, email: `${user.id}@e2e.invalid`, password: 'unused-jwt-fixture' })) });
-      await prisma.serviceDesk.create({ data: { id: ids.desk, name: `Mesa E2E ${suffix}`, agents: { connect: { id: ids.agent } } } });
-      await prisma.ticket.create({ data: { id: ids.ticket, protocol: `E2E-${suffix}`, title: `Valorização ${suffix}`, description: 'Apontamento real', requesterId: ids.requester, serviceDeskId: ids.desk } });
+      await prisma.serviceDesk.create({ data: { id: ids.desk, name: `Mesa E2E ${suffix}`, organizations: { connect: { id: ids.org } }, agents: { connect: { id: ids.agent } } } });
+      await prisma.ticket.create({ data: { id: ids.ticket, protocol: `E2E-${suffix}`, title: `Valorização ${suffix}`, description: 'Apontamento real', requesterId: ids.requester, commercialOrganizationId: ids.org, serviceDeskId: ids.desk } });
       await page.addInitScript((jwt) => localStorage.setItem('aponta-auth', JSON.stringify({ state: { token: jwt }, version: 0 })), adminToken);
       await page.goto('/contracts');
       await expect(page.getByRole('button', { name: 'Novo contrato', exact: true })).toBeVisible({ timeout: 30000 });
       await page.getByRole('button', { name: 'Novo contrato', exact: true }).click();
       await page.getByLabel('Nome do contrato', { exact: true }).fill(`Contrato ${suffix}`);
       await page.getByRole('combobox', { name: 'Empresa*', exact: true }).selectOption(ids.org);
-      await page.getByLabel('Modalidade', { exact: true }).selectOption('HOURS_LIMIT');
+      await page.getByLabel('Modalidade', { exact: true }).selectOption('MONTHLY_HOURS');
+      await page.getByLabel('Início da vigência', { exact: true }).fill('2026-10-01');
+      await page.getByLabel('Condições comerciais aprovadas', { exact: true }).check();
+      await page.getByRole('checkbox', { name: `Mesa E2E ${suffix}`, exact: true }).check();
       await page.getByLabel('Franquia mensal (horas)', { exact: true }).fill('0.5');
       await page.getByLabel('Valor mensal (R$)', { exact: true }).fill('100');
       await page.getByLabel('Hora excedente (R$)', { exact: true }).fill('120');
@@ -75,7 +78,7 @@ test.describe('contracts and recorded valuation (real API/Postgres)', () => {
       await expect(reportRow).toContainText('0h 30m / 0h 30m');
       await expect(reportRow).toContainText(/R\$\s*60,00/);
       // Changing the contract must not reprice recorded work.
-      const update = await request.post(`/api/contracts/${contractId}/update`, { headers, data: { excessHourlyRateCents: 99900 } });
+      const update = await request.post(`/api/contracts/${contractId}/update`, { headers, data: { excessHourlyRateCents: 99900, conditionsEffectiveAt: '2026-11-01T03:00:00Z' } });
       expect(update.ok(), await update.text()).toBeTruthy();
       const preserved = await request.get(`/api/reports/billing?contractId=${contractId}`, { headers });
       expect((await preserved.json())[0].totalValueCents).toBe(6000);
@@ -98,7 +101,7 @@ test.describe('contracts and recorded valuation (real API/Postgres)', () => {
       expect((await request.get(`/api/contracts/${contractId}`, { headers: otherHeaders })).status()).toBe(404);
 
       const createContract = async (organizationId: string, name: string) => {
-        const createdContract = await request.post('/api/contracts', { headers, data: { organizationId, name, type: 'HOURS_LIMIT', includedMinutes: 60, excessHourlyRateCents: 12000 } });
+        const createdContract = await request.post('/api/contracts', { headers, data: { organizationId, name, type: 'MONTHLY_HOURS', includedMinutes: 60, excessHourlyRateCents: 12000, monthlyFeeCents: 10000, approved: organizationId === ids.org, active: organizationId === ids.org, startsAt: '2026-10-01T03:00:00Z', serviceDeskIds: organizationId === ids.org ? [ids.desk] : [] } });
         expect(createdContract.status(), await createdContract.text()).toBe(201);
         return (await createdContract.json()).id as string;
       };
@@ -119,12 +122,14 @@ test.describe('contracts and recorded valuation (real API/Postgres)', () => {
       expect(rollback.status(), await rollback.text()).toBe(400);
       expect(await prisma.worklog.count({ where: { ticketId: ids.ticket } })).toBe(countBefore);
       expect(await prisma.comment.count({ where: { ticketId: ids.ticket } })).toBe(0);
-      const guarantee = await request.post(`/api/tickets/${ids.ticket}/worklogs`, { headers: agentHeaders, data: { ...logData, valuationType: 'GUARANTEE' } });
+      const forbiddenBonus = await request.post(`/api/tickets/${ids.ticket}/worklogs`, { headers: agentHeaders, data: { ...logData, contractId: concurrentContract, valuationType: 'BONUS', bonusReason: 'Retrabalho autorizado' } });
+      expect(forbiddenBonus.status(), await forbiddenBonus.text()).toBe(403);
+      const guarantee = await request.post(`/api/tickets/${ids.ticket}/worklogs`, { headers, data: { ...logData, contractId: concurrentContract, valuationType: 'GUARANTEE', bonusReason: 'Retrabalho autorizado' } });
       expect(guarantee.status(), await guarantee.text()).toBe(201);
-      expect(await guarantee.json()).toMatchObject({ billable: false, value: null, valueCents: null });
-      const forbiddenManual = await request.post(`/api/tickets/${ids.ticket}/worklogs`, { headers: agentHeaders, data: { ...logData, valuationType: 'MANUAL', value: 10 } });
+      expect(await guarantee.json()).toMatchObject({ billable: false, valueCents: 0, contractId: concurrentContract });
+      const forbiddenManual = await request.post(`/api/tickets/${ids.ticket}/worklogs`, { headers: agentHeaders, data: { ...logData, contractId: concurrentContract, valuationType: 'MANUAL', value: 10 } });
       expect(forbiddenManual.status(), await forbiddenManual.text()).toBe(403);
-      const manual = await request.post(`/api/tickets/${ids.ticket}/worklogs`, { headers, data: { ...logData, valuationType: 'MANUAL', value: 10 } });
+      const manual = await request.post(`/api/tickets/${ids.ticket}/worklogs`, { headers, data: { ...logData, contractId: concurrentContract, valuationType: 'MANUAL', value: 10 } });
       expect(manual.status(), await manual.text()).toBe(201);
       expect(await manual.json()).toMatchObject({ valueCents: 1000, billable: true });
     } finally {
@@ -132,6 +137,8 @@ test.describe('contracts and recorded valuation (real API/Postgres)', () => {
       await prisma.comment.deleteMany({ where: { ticketId: ids.ticket } });
       await prisma.ticketAudit.deleteMany({ where: { ticketId: ids.ticket } });
       await prisma.ticket.deleteMany({ where: { id: ids.ticket } });
+      await prisma.contractTerm.deleteMany({ where: { contract: { organizationId: { in: [ids.org, ids.otherOrg] } } } });
+      await prisma.contractLifecycleEvent.deleteMany({ where: { contract: { organizationId: { in: [ids.org, ids.otherOrg] } } } });
       await prisma.contract.deleteMany({ where: { organizationId: { in: [ids.org, ids.otherOrg] } } });
       await prisma.serviceDesk.deleteMany({ where: { id: ids.desk } });
       await prisma.user.deleteMany({ where: { id: { in: [ids.admin, ids.agent, ids.master, ids.outsider, ids.requester] } } });

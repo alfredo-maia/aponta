@@ -8,6 +8,7 @@ export interface PreAppointmentAuthor {
 }
 
 export interface PreAppointment {
+  contractId?: string | null;
   id: string;
   beginning: string;
   ending: string | null;
@@ -20,6 +21,7 @@ export interface PreAppointment {
 }
 
 export interface CreatePreAppointmentInput {
+  contractId?: string;
   beginning?: string;
   initTime?: string;
 }
@@ -38,7 +40,9 @@ export function usePreAppointments(ticketId?: string) {
     queryKey: preAppointmentsQueryKey(ticketId || ''),
     queryFn: async () => {
       if (!ticketId) return [];
-      const res = await api.get<PreAppointment[]>(`/tickets/${ticketId}/pre-appointments`);
+      const res = await api.get<PreAppointment[]>(
+        `/tickets/${ticketId}/pre-appointments`,
+      );
       return res.data;
     },
     enabled: Boolean(ticketId),
@@ -50,11 +54,16 @@ export function useCreatePreAppointment(ticketId: string) {
 
   return useMutation({
     mutationFn: async (input: CreatePreAppointmentInput = {}) => {
-      const res = await api.post<PreAppointment>(`/tickets/${ticketId}/pre-appointments`, input);
+      const res = await api.post<PreAppointment>(
+        `/tickets/${ticketId}/pre-appointments`,
+        input,
+      );
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: preAppointmentsQueryKey(ticketId) });
+      queryClient.invalidateQueries({
+        queryKey: preAppointmentsQueryKey(ticketId),
+      });
     },
   });
 }
@@ -63,7 +72,10 @@ export function useStopPreAppointment(ticketId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, ...input }: StopPreAppointmentInput & { id: string }) => {
+    mutationFn: async ({
+      id,
+      ...input
+    }: StopPreAppointmentInput & { id: string }) => {
       const res = await api.patch<PreAppointment>(
         `/tickets/${ticketId}/pre-appointments/${id}`,
         input,
@@ -71,7 +83,9 @@ export function useStopPreAppointment(ticketId: string) {
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: preAppointmentsQueryKey(ticketId) });
+      queryClient.invalidateQueries({
+        queryKey: preAppointmentsQueryKey(ticketId),
+      });
     },
   });
 }
@@ -81,11 +95,15 @@ export function useDeletePreAppointment(ticketId: string) {
 
   return useMutation({
     mutationFn: async (preAppointmentId: string) => {
-      const res = await api.delete(`/tickets/${ticketId}/pre-appointments/${preAppointmentId}`);
+      const res = await api.delete(
+        `/tickets/${ticketId}/pre-appointments/${preAppointmentId}`,
+      );
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: preAppointmentsQueryKey(ticketId) });
+      queryClient.invalidateQueries({
+        queryKey: preAppointmentsQueryKey(ticketId),
+      });
     },
   });
 }
