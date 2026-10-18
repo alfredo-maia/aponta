@@ -924,7 +924,6 @@ export function OrganizationsPage() {
             {/* Sankhya Standard Entity Toolbar */}
             <EzEntityToolbar
               viewMode={mode === 'list' ? 'GRID' : 'FORM'}
-              showViewModeToggle={false}
               onToggleViewMode={(nextMode) => {
                 if (nextMode === 'FORM') {
                   const active = selectedOrgs[0] ?? filteredOrgs[focusedIndex] ?? filteredOrgs[0];
