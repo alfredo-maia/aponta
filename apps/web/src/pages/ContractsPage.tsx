@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Briefcase } from 'lucide-react';
 import {
@@ -13,16 +13,87 @@ import { useAuthStore } from '../stores/authStore';
 import {
   EzAlert,
   EzButton,
+  EzComboBox,
+  EzDynamicFilter,
+  EzEntityScreenConfigModal,
   EzEntityToolbar,
+  EzFilterDrawer,
   EzModal,
   EzSpinner,
   EzTextInput,
 } from '../components/ds';
+import { applyDynamicFilters } from '../components/ds/EzDynamicFilter';
+import type {
+  EzDynamicFilterField,
+  EzDynamicFilterRule,
+} from '../components/ds/EzDynamicFilter';
+import { useUserScreenConfig } from '../hooks/useUserScreenConfig';
 import {
   ContractDetail,
   ContractForm,
   ContractList,
+  modality,
 } from '../components/contracts/ContractViews';
+
+// Mesmo padrão de filtro dinâmico por coluna usado em Clientes (OrganizationsPage).
+const CONTRACT_FILTER_FIELDS: EzDynamicFilterField[] = [
+  {
+    id: 'name',
+    label: 'Contrato',
+    getValue: (c: Contract) => c.name || 'Sem nome',
+  },
+  {
+    id: 'organization',
+    label: 'Empresa',
+    getValue: (c: Contract) => c.organization?.name,
+  },
+  {
+    id: 'modality',
+    label: 'Modalidade',
+    type: 'select',
+    options: [
+      { label: 'Empreito', value: 'Empreito' },
+      { label: 'Horas Mensais + Excedente', value: 'Horas Mensais + Excedente' },
+      { label: 'Horas Avulsas', value: 'Horas Avulsas' },
+      { label: 'Cobertura', value: 'Cobertura' },
+      { label: 'Pacote', value: 'Pacote' },
+    ],
+    getValue: (c: Contract) => modality(c),
+  },
+  {
+    id: 'status',
+    label: 'Status',
+    type: 'select',
+    options: [
+      { label: 'Ativo', value: 'Ativo' },
+      { label: 'Inativo', value: 'Inativo' },
+    ],
+    getValue: (c: Contract) => (c.active === false ? 'Inativo' : 'Ativo'),
+  },
+  {
+    id: 'approved',
+    label: 'Aprovação',
+    type: 'select',
+    options: [
+      { label: 'Aprovado', value: 'Aprovado' },
+      { label: 'Pendente', value: 'Pendente' },
+    ],
+    getValue: (c: Contract) => (c.approved ? 'Aprovado' : 'Pendente'),
+  },
+];
+
+const CONTRACT_SCREEN_CONFIG_BASE_COLUMNS = [
+  { id: 'contract', label: 'Contrato' },
+  { id: 'organization', label: 'Empresa' },
+  { id: 'modality', label: 'Modalidade' },
+  { id: 'status', label: 'Status' },
+];
+
+const CONTRACT_SCREEN_CONFIG_FINANCIAL_COLUMNS = [
+  { id: 'monthlyValue', label: 'Valor mensal' },
+  { id: 'excessHourlyRate', label: 'Hora excedente' },
+  { id: 'adjustmentDate', label: 'Reajuste' },
+];
 
 function extractErrorMessage(error: unknown, fallback: string): string {
   const message = (
@@ -36,20 +107,80 @@ export function ContractsPage() {
   const canManage = role === 'ADMIN';
   const showFinancial = canManage || role === 'CLIENT_MASTER';
   const queryClient = useQueryClient();
-  const [search, setSearch] = useState('');
-  const [query, setQuery] = useState('');
   const [detailId, setDetailId] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [creating, setCreating] = useState(false);
   const [selectedContracts, setSelectedContracts] = useState<Contract[]>([]);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const contracts = useContracts(query);
+  const contracts = useContracts('');
   const detail = useContract(detailId);
   const organizations = useContractOrganizations(
     canManage && (creating || editing),
   );
   const save = useSaveContract();
   const deleteContract = useDeleteContract();
+
+  // Padrão Sankhya (parity com Clientes/Parceiros): painel de filtros lateral
+  // com filtro dinâmico por coluna e filtros salvos, além da configuração de
+  // tela (colunas/densidade) por usuário.
+  const {
+    config: screenConfig,
+    setColumnVisibility,
+    setDensity,
+    setFormLayout,
+    saveFilter,
+    deleteFilter,
+    restoreDefaults,
+  } = useUserScreenConfig('contracts', {
+    grid: { columnVisibility: {}, density: 'compact' },
+    form: { layout: 'CASCADE' },
+    viewMode: 'GRID',
+  });
+
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  const [isScreenConfigModalOpen, setIsScreenConfigModalOpen] =
+    useState(false);
+  const [filterSearch, setFilterSearch] = useState('');
+  const [filterStatus, setFilterStatus] = useState<
+    'ALL' | 'ACTIVE' | 'INACTIVE'
+  >('ALL');
+  const [dynamicRules, setDynamicRules] = useState<EzDynamicFilterRule[]>([]);
+  const [activeSavedFilterId, setActiveSavedFilterId] = useState<
+    string | null
+  >(null);
+
+  const filteredContracts = useMemo(() => {
+    const base = (contracts.data ?? []).filter((contract) => {
+      if (filterStatus === 'ACTIVE' && !contract.active) return false;
+      if (filterStatus === 'INACTIVE' && contract.active) return false;
+      if (filterSearch.trim()) {
+        const query = filterSearch.toLowerCase().trim();
+        const matchesName = (contract.name || '')
+          .toLowerCase()
+          .includes(query);
+        const matchesOrganization = (contract.organization?.name || '')
+          .toLowerCase()
+          .includes(query);
+        if (!matchesName && !matchesOrganization) return false;
+      }
+      return true;
+    });
+    return applyDynamicFilters(base, dynamicRules, CONTRACT_FILTER_FIELDS);
+  }, [contracts.data, filterStatus, filterSearch, dynamicRules]);
+
+  const screenConfigColumns = useMemo(() => {
+    const base = showFinancial
+      ? [
+          ...CONTRACT_SCREEN_CONFIG_BASE_COLUMNS,
+          ...CONTRACT_SCREEN_CONFIG_FINANCIAL_COLUMNS,
+        ]
+      : CONTRACT_SCREEN_CONFIG_BASE_COLUMNS;
+    return base.map((column) => ({
+      ...column,
+      isVisible: screenConfig.grid.columnVisibility[column.id] !== false,
+    }));
+  }, [showFinancial, screenConfig.grid.columnVisibility]);
+
   const handleDelete = () => {
     if (selectedContracts.length === 0) return;
     const confirmMsg = `Deseja excluir ${selectedContracts.length} contrato(s) selecionado(s)?`;
@@ -90,58 +221,133 @@ export function ContractsPage() {
           Contratos
         </h1>
       </div>
-      <EzEntityToolbar
-        viewMode="GRID"
-        showViewModeToggle={false}
-        onToggleViewMode={() => {
-          // Grid-only screen: there is no FORM mode to switch to.
-        }}
-        onRefresh={() => {
-          void queryClient.invalidateQueries({ queryKey: ['contracts'] });
-        }}
-        onInsert={
-          canManage
-            ? () => {
-                save.reset();
-                setCreating(true);
-              }
-            : undefined
-        }
-        insertAriaLabel="Novo contrato"
-        insertTooltip="Novo contrato"
-        selectedCount={selectedContracts.length}
-        onDelete={canManage ? handleDelete : undefined}
-      />
       {deleteError && (
         <EzAlert variant="error" onClose={() => setDeleteError(null)}>
           {deleteError}
         </EzAlert>
       )}
-      <form
-        className="flex items-end gap-3"
-        onSubmit={(event) => {
-          event.preventDefault();
-          setQuery(search.trim());
-        }}
-      >
-        <EzTextInput
-          id="contract-search"
-          label="Pesquisar contratos"
-          placeholder="Nome ou empresa"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
+      <div className="bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs flex flex-col">
+        <EzEntityToolbar
+          viewMode="GRID"
+          showViewModeToggle={false}
+          onToggleViewMode={() => {
+            // Grid-only screen: there is no FORM mode to switch to.
+          }}
+          isFilterOpen={isFilterPanelOpen}
+          onToggleFilter={() => setIsFilterPanelOpen((prev) => !prev)}
+          onRefresh={() => {
+            void queryClient.invalidateQueries({ queryKey: ['contracts'] });
+          }}
+          onInsert={
+            canManage
+              ? () => {
+                  save.reset();
+                  setCreating(true);
+                }
+              : undefined
+          }
+          insertAriaLabel="Novo contrato"
+          insertTooltip="Novo contrato"
+          selectedCount={selectedContracts.length}
+          onDelete={canManage ? handleDelete : undefined}
+          onOpenGridConfig={() => setIsScreenConfigModalOpen(true)}
+          onOpenScreenConfig={() => setIsScreenConfigModalOpen(true)}
         />
-        <EzButton type="submit" variant="secondary" label="Pesquisar" />
-      </form>
-      <ContractList
-        contracts={contracts.data}
-        loading={contracts.isLoading}
-        error={contracts.isError}
-        showFinancial={showFinancial}
-        onDetail={setDetailId}
-        selectable
-        onSelectionChange={setSelectedContracts}
-      />
+
+        <div className="flex flex-1 overflow-hidden min-h-[420px]">
+          <EzFilterDrawer
+            isOpen={isFilterPanelOpen}
+            onClose={() => setIsFilterPanelOpen(false)}
+            onClear={() => {
+              setFilterSearch('');
+              setFilterStatus('ALL');
+              setDynamicRules([]);
+              setActiveSavedFilterId(null);
+            }}
+            title="Filtros de Contratos"
+            savedFilters={screenConfig.savedFilters}
+            activeSavedFilterId={activeSavedFilterId}
+            onApplySavedFilter={(sf) => {
+              setActiveSavedFilterId(sf.id);
+              if (sf.criteria.search !== undefined)
+                setFilterSearch(sf.criteria.search);
+              if (sf.criteria.status !== undefined)
+                setFilterStatus(sf.criteria.status);
+              setDynamicRules(
+                Array.isArray(sf.criteria.rules) ? sf.criteria.rules : [],
+              );
+            }}
+            onSaveCurrentFilter={(name) => {
+              saveFilter(name, {
+                search: filterSearch,
+                status: filterStatus,
+                rules: dynamicRules,
+              });
+            }}
+            onDeleteSavedFilter={(id) => {
+              deleteFilter(id);
+              if (activeSavedFilterId === id) setActiveSavedFilterId(null);
+            }}
+          >
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="contract-filter-search-input"
+                  className="text-xs font-medium text-gray-700"
+                >
+                  Buscar Contrato/Empresa
+                </label>
+                <EzTextInput
+                  id="contract-filter-search-input"
+                  placeholder="Nome do contrato ou empresa…"
+                  value={filterSearch}
+                  onChange={(e) => setFilterSearch(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="contract-filter-status-select"
+                  className="text-xs font-medium text-gray-700"
+                >
+                  Status
+                </label>
+                <EzComboBox
+                  id="contract-filter-status-select"
+                  value={filterStatus}
+                  onChange={(e) =>
+                    setFilterStatus(e.target.value as 'ALL' | 'ACTIVE' | 'INACTIVE')
+                  }
+                >
+                  <option value="ALL">Todos os status</option>
+                  <option value="ACTIVE">Apenas Ativos</option>
+                  <option value="INACTIVE">Apenas Inativos</option>
+                </EzComboBox>
+              </div>
+
+              <EzDynamicFilter
+                fields={CONTRACT_FILTER_FIELDS}
+                rules={dynamicRules}
+                onChange={setDynamicRules}
+              />
+            </div>
+          </EzFilterDrawer>
+
+          <div className="flex-1 p-3 overflow-x-auto min-w-0 flex flex-col">
+            <ContractList
+              contracts={filteredContracts}
+              loading={contracts.isLoading}
+              error={contracts.isError}
+              showFinancial={showFinancial}
+              onDetail={setDetailId}
+              selectable
+              onSelectionChange={setSelectedContracts}
+              density={screenConfig.grid.density}
+              initialColumnVisibility={screenConfig.grid.columnVisibility}
+            />
+          </div>
+        </div>
+      </div>
       <EzModal
         isOpen={creating || !!detailId}
         onClose={close}
@@ -206,6 +412,24 @@ export function ContractsPage() {
           )
         )}
       </EzModal>
+      {isScreenConfigModalOpen && (
+        <EzEntityScreenConfigModal
+          columns={screenConfigColumns}
+          onToggleColumn={(colId) =>
+            setColumnVisibility((prev) => ({
+              ...prev,
+              [colId]: !prev[colId],
+            }))
+          }
+          density={screenConfig.grid.density}
+          onDensityChange={setDensity}
+          formLayout={screenConfig.form.layout}
+          onFormLayoutChange={setFormLayout}
+          onRestoreDefaults={restoreDefaults}
+          onClose={() => setIsScreenConfigModalOpen(false)}
+          initialTab="grid"
+        />
+      )}
     </div>
   );
 }

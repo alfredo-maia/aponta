@@ -51,7 +51,7 @@ export const commercialModalities: Record<string, string> = {
   MONTHLY_HOURS: 'Horas Mensais + Excedente',
   HOURLY: 'Horas Avulsas',
 };
-const modality = (c: Contract) =>
+export const modality = (c: Contract) =>
   commercialModalities[c.type] ||
   (c.type === 'HOURS_LIMIT' ? `Pacote: ${allowance(c) ?? '—'}h` : 'Cobertura');
 const isLegacy = (c: Contract) => !commercialModalities[c.type];
@@ -64,6 +64,8 @@ export function ContractList({
   onDetail,
   selectable,
   onSelectionChange,
+  density,
+  initialColumnVisibility,
 }: {
   contracts?: Contract[];
   showFinancial: boolean;
@@ -72,6 +74,8 @@ export function ContractList({
   onDetail: (id: string) => void;
   selectable?: boolean;
   onSelectionChange?: (rows: Contract[]) => void;
+  density?: 'compact' | 'comfortable';
+  initialColumnVisibility?: Record<string, boolean>;
 }) {
   const columns = useMemo<ColumnDef<Contract>[]>(
     () => [
@@ -169,6 +173,8 @@ export function ContractList({
       data={contracts}
       selectable={selectable}
       onSelectionChange={onSelectionChange}
+      density={density}
+      initialColumnVisibility={initialColumnVisibility}
     />
   );
 }

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { z } from 'zod';
 import { api } from '../lib/api';
@@ -17,9 +17,11 @@ import {
   EzCardItem,
   EzCheck,
   EzComboBox,
+  EzDynamicFilter,
   EzEmptyCard,
   EzEntityScreenConfigModal,
   EzEntityToolbar,
+  EzFilterDrawer,
   EzPageHeader,
   EzPageLayout,
   EzSpinner,
@@ -28,6 +30,8 @@ import {
   EzTextInput,
 } from '../components/ds';
 import { EzEntityGrid } from '../components/ds/EzEntityGrid';
+import { applyDynamicFilters } from '../components/ds/EzDynamicFilter';
+import type { EzDynamicFilterField, EzDynamicFilterRule } from '../components/ds/EzDynamicFilter';
 import { useUserScreenConfig } from '../hooks/useUserScreenConfig';
 import { ticketSectionLabel } from '../lib/mesaLabels';
 
@@ -115,6 +119,34 @@ function serviceDeskColumns(
   ];
 }
 
+// Campos filtráveis dinamicamente (um por coluna da grade) - padrão Sankhya,
+// mesmo modelo de OrganizationsPage.tsx (ORG_FILTER_FIELDS).
+const SERVICE_DESK_FILTER_FIELDS: EzDynamicFilterField[] = [
+  { id: 'name', label: 'Nome', getValue: (d: ServiceDesk) => d.name },
+  { id: 'displayName', label: 'Nome de exibição', getValue: (d: ServiceDesk) => d.displayName },
+  {
+    id: 'status',
+    label: 'Status',
+    type: 'select',
+    options: [
+      { label: 'Ativo', value: 'Ativo' },
+      { label: 'Inativo', value: 'Inativo' },
+    ],
+    getValue: (d: ServiceDesk) => (d.active === false ? 'Inativo' : 'Ativo'),
+  },
+  {
+    id: 'accepting',
+    label: 'Recebendo',
+    type: 'select',
+    options: [
+      { label: 'Sim', value: 'Sim' },
+      { label: 'Não', value: 'Não' },
+    ],
+    getValue: (d: ServiceDesk) => (d.acceptingNewTickets === false ? 'Não' : 'Sim'),
+  },
+  { id: 'agents', label: 'Agentes', type: 'number', getValue: (d: ServiceDesk) => d.agents?.length ?? 0 },
+];
+
 /**
  * ADMIN-only page for managing departments (API resource: "service desk").
  *
@@ -141,6 +173,14 @@ export function ServiceDesksPage() {
   const [isScreenConfigModalOpen, setIsScreenConfigModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('basics');
 
+  // Sankhya parity: painel de filtros lateral (EzFilterDrawer) com filtros
+  // dinâmicos e filtros salvos, mesmo padrão de OrganizationsPage.tsx.
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  const [filterSearch, setFilterSearch] = useState('');
+  const [filterStatus, setFilterStatus] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
+  const [dynamicRules, setDynamicRules] = useState<EzDynamicFilterRule[]>([]);
+  const [activeSavedFilterId, setActiveSavedFilterId] = useState<string | null>(null);
+
   const mesaTabs = [
     { id: 'basics', label: 'Informações básicas' },
     { id: 'params', label: 'Parâmetros' },
@@ -161,6 +201,8 @@ export function ServiceDesksPage() {
     setColumnVisibility,
     setDensity,
     setFormLayout,
+    saveFilter,
+    deleteFilter,
     restoreDefaults,
   } = useUserScreenConfig('service-desks', {
     grid: {
@@ -263,6 +305,23 @@ export function ServiceDesksPage() {
     }
   };
 
+  // Sankhya parity: mesmo pipeline de filtragem de OrganizationsPage.tsx
+  // (filteredOrgs) — status, busca por texto e, por fim, filtros dinâmicos.
+  const filteredDesks = useMemo(() => {
+    const base = (serviceDesks ?? []).filter((desk) => {
+      if (filterStatus === 'ACTIVE' && desk.active === false) return false;
+      if (filterStatus === 'INACTIVE' && desk.active !== false) return false;
+      if (filterSearch.trim()) {
+        const query = filterSearch.toLowerCase().trim();
+        const matchesName = desk.name.toLowerCase().includes(query);
+        const matchesDisplayName = desk.displayName?.toLowerCase().includes(query);
+        if (!matchesName && !matchesDisplayName) return false;
+      }
+      return true;
+    });
+    return applyDynamicFilters(base, dynamicRules, SERVICE_DESK_FILTER_FIELDS);
+  }, [serviceDesks, filterStatus, filterSearch, dynamicRules]);
+
   if (!isAdmin) {
     return (
       <div className="space-y-2">
@@ -322,6 +381,8 @@ export function ServiceDesksPage() {
             onInsert={handleInsert}
             insertAriaLabel="Nova Mesa"
             insertTooltip="Nova Mesa"
+            isFilterOpen={isFilterPanelOpen}
+            onToggleFilter={() => setIsFilterPanelOpen((prev) => !prev)}
             selectedCount={selectedDesks.length}
             onDelete={handleDelete}
             onClone={handleClone}
@@ -331,9 +392,9 @@ export function ServiceDesksPage() {
             recordCountText={recordCountText}
           />
 
-          <div className="p-4 md:p-6">
-            {mode === 'form' ? (
-              selectedDeskId === null ? (
+          {mode === 'form' && (
+            <div className="p-4 md:p-6">
+              {selectedDeskId === null ? (
                 <form
                   onSubmit={handleSubmit((values) => createMutation.mutate(values))}
                   noValidate
@@ -618,25 +679,103 @@ export function ServiceDesksPage() {
                     )}
                   </EzCardItem>
                 </div>
-              ) : null
-            ) : (serviceDesks ?? []).length === 0 ? (
-              <EzEmptyCard title="Nenhuma mesa cadastrada ainda." />
-            ) : (
-              <EzEntityGrid
-                data={serviceDesks ?? []}
-                columns={serviceDeskGridColumns}
-                selectable
-                showRowNumbers
-                enableColumnMenu
-                enableColumnFilters
-                zebraStriping
-                density={screenConfig.grid.density}
-                initialColumnVisibility={screenConfig.grid.columnVisibility}
-                onSelectionChange={setSelectedDesks}
-                pageSize={10}
-              />
-            )}
-          </div>
+              ) : null}
+            </div>
+          )}
+
+          {mode === 'list' && (
+            <div className="flex flex-1 overflow-hidden min-h-[420px]">
+              {/* Painel lateral de Filtros (Sankhya parity), mesmo padrão de OrganizationsPage.tsx */}
+              <EzFilterDrawer
+                isOpen={isFilterPanelOpen}
+                onClose={() => setIsFilterPanelOpen(false)}
+                onClear={() => {
+                  setFilterSearch('');
+                  setFilterStatus('ALL');
+                  setDynamicRules([]);
+                  setActiveSavedFilterId(null);
+                }}
+                title="Filtros de Mesas"
+                savedFilters={screenConfig.savedFilters}
+                activeSavedFilterId={activeSavedFilterId}
+                onApplySavedFilter={(sf) => {
+                  setActiveSavedFilterId(sf.id);
+                  if (sf.criteria.search !== undefined) setFilterSearch(sf.criteria.search);
+                  if (sf.criteria.status !== undefined) setFilterStatus(sf.criteria.status);
+                  setDynamicRules(Array.isArray(sf.criteria.rules) ? sf.criteria.rules : []);
+                }}
+                onSaveCurrentFilter={(name) => {
+                  saveFilter(name, {
+                    search: filterSearch,
+                    status: filterStatus,
+                    rules: dynamicRules,
+                  });
+                }}
+                onDeleteSavedFilter={(id) => {
+                  deleteFilter(id);
+                  if (activeSavedFilterId === id) setActiveSavedFilterId(null);
+                }}
+              >
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label htmlFor="filter-search-input" className="text-xs font-medium text-gray-700">
+                      Buscar Mesa
+                    </label>
+                    <EzTextInput
+                      id="filter-search-input"
+                      placeholder="Nome, Nome de exibição…"
+                      value={filterSearch}
+                      onChange={(e) => setFilterSearch(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label htmlFor="filter-status-select" className="text-xs font-medium text-gray-700">
+                      Status
+                    </label>
+                    <EzComboBox
+                      id="filter-status-select"
+                      value={filterStatus}
+                      onChange={(e) => setFilterStatus(e.target.value as any)}
+                    >
+                      <option value="ALL">Todos os status</option>
+                      <option value="ACTIVE">Apenas Ativos</option>
+                      <option value="INACTIVE">Apenas Inativos</option>
+                    </EzComboBox>
+                  </div>
+
+                  <EzDynamicFilter
+                    fields={SERVICE_DESK_FILTER_FIELDS}
+                    rules={dynamicRules}
+                    onChange={setDynamicRules}
+                  />
+                </div>
+              </EzFilterDrawer>
+
+              {/* Grid Content */}
+              <div className="flex-1 p-3 overflow-x-auto min-w-0 flex flex-col">
+                {filteredDesks.length === 0 ? (
+                  <div className="p-4">
+                    <EzEmptyCard title="Nenhuma mesa cadastrada ainda." />
+                  </div>
+                ) : (
+                  <EzEntityGrid
+                    data={filteredDesks}
+                    columns={serviceDeskGridColumns}
+                    selectable
+                    showRowNumbers
+                    enableColumnMenu
+                    enableColumnFilters
+                    zebraStriping
+                    density={screenConfig.grid.density}
+                    initialColumnVisibility={screenConfig.grid.columnVisibility}
+                    onSelectionChange={setSelectedDesks}
+                    pageSize={10}
+                  />
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
