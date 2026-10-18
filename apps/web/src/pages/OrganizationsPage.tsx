@@ -268,6 +268,9 @@ export function OrganizationsPage() {
   const [cnpjModalInput, setCnpjModalInput] = useState('');
   const [cnpjModalError, setCnpjModalError] = useState<string | null>(null);
   const [isLookingUpCnpjModal, setIsLookingUpCnpjModal] = useState(false);
+  // CNPJ e Razão Social são dados oficiais da Receita Federal: padrão Sankhya trava
+  // esses campos após a busca, exigindo "Editar manualmente" para sobrescrevê-los.
+  const [isCnpjDataLocked, setIsCnpjDataLocked] = useState(false);
 
   const { data: orgs, isLoading: isLoadingOrgs } = useQuery({
     queryKey: ['organizations'],
@@ -407,6 +410,7 @@ export function OrganizationsPage() {
       setValue('cnpj', data.cnpj);
       setValue('legalName', data.legalName);
       if (data.tradeName) setValue('name', data.tradeName);
+      setIsCnpjDataLocked(true);
     },
     onError: () => {
       setCnpjLookupError('CNPJ não encontrado ou inválido. Verifique e tente novamente.');
@@ -463,6 +467,7 @@ export function OrganizationsPage() {
       }
       setIsCnpjModalOpen(false);
       setDetailOrgId(null);
+      setIsCnpjDataLocked(true);
       setMode('form');
     } catch {
       setCnpjModalError('CNPJ não encontrado ou inválido na Receita Federal.');
@@ -846,6 +851,7 @@ export function OrganizationsPage() {
     setValue('documentType', active.documentType ?? 'CNPJ');
     setValue('workFolder', active.workFolder ?? '');
     setDetailOrgId(null);
+    setIsCnpjDataLocked(false);
     setMode('form');
   };
 
@@ -856,6 +862,7 @@ export function OrganizationsPage() {
       onClick: () => {
         reset();
         setDetailOrgId(null);
+        setIsCnpjDataLocked(false);
         setMode('form');
       },
     },
@@ -1113,28 +1120,38 @@ export function OrganizationsPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                    <EzComboBox
-                      id="org-document-type"
-                      label="Tipo de Documento"
-                      {...register('documentType')}
-                    >
-                      <option value="CNPJ">CNPJ (Pessoa Jurídica)</option>
-                      <option value="CPF">CPF (Pessoa Física)</option>
-                    </EzComboBox>
+                  <div className="grid grid-cols-1 md:grid-cols-6 gap-3.5">
+                    <div className="md:col-span-2">
+                      <EzComboBox
+                        id="org-document-type"
+                        label="Tipo de Documento"
+                        {...register('documentType')}
+                      >
+                        <option value="CNPJ">CNPJ (Pessoa Jurídica)</option>
+                        <option value="CPF">CPF (Pessoa Física)</option>
+                      </EzComboBox>
+                    </div>
 
                     {documentType === 'CPF' ? (
-                      <EzTextInput id="org-cpf" label="CPF" placeholder="000.000.000-00" {...register('cpf')} />
+                      <div className="md:col-span-2">
+                        <EzTextInput id="org-cpf" label="CPF" placeholder="000.000.000-00" {...register('cpf')} />
+                      </div>
                     ) : (
-                      <div className="flex items-end gap-2">
+                      <div className="md:col-span-2 flex items-end gap-2">
                         <div className="flex-1">
-                          <EzTextInput id="org-cnpj" label="CNPJ" placeholder="00.000.000/0000-00" {...register('cnpj')} />
+                          <EzTextInput
+                            id="org-cnpj"
+                            label="CNPJ"
+                            placeholder="00.000.000/0000-00"
+                            disabled={isCnpjDataLocked}
+                            {...register('cnpj')}
+                          />
                         </div>
                         <EzButton
                           type="button"
                           variant="secondary"
                           leftIcon={Search}
-                          disabled={cnpjLookupMutation.isPending}
+                          disabled={cnpjLookupMutation.isPending || isCnpjDataLocked}
                           onClick={() => {
                             const cnpj = getValues('cnpj');
                             if (cnpj) cnpjLookupMutation.mutate(cnpj);
@@ -1145,18 +1162,48 @@ export function OrganizationsPage() {
                       </div>
                     )}
 
-                    <EzTextInput
-                      id="org-name"
-                      label="Nome Fantasia"
-                      hasError={!!errors.name}
-                      message={errors.name?.message}
-                      {...register('name')}
-                    />
+                    <div className="md:col-span-2">
+                      <EzTextInput id="org-work-folder" label="Pasta de Trabalho" {...register('workFolder')} />
+                    </div>
 
-                    <EzTextInput id="org-legal-name" label="Razão Social" {...register('legalName')} />
-                    <EzTextInput id="org-state-registration" label="Inscrição Estadual" {...register('stateRegistration')} />
-                    <EzTextInput id="org-municipal-registration" label="Inscrição Municipal" {...register('municipalRegistration')} />
-                    <EzTextInput id="org-work-folder" label="Pasta de Trabalho" {...register('workFolder')} />
+                    <div className="md:col-span-3">
+                      <EzTextInput
+                        id="org-name"
+                        label="Nome Fantasia"
+                        hasError={!!errors.name}
+                        message={errors.name?.message}
+                        {...register('name')}
+                      />
+                    </div>
+
+                    <div className="md:col-span-3 flex items-end gap-2">
+                      <div className="flex-1">
+                        <EzTextInput
+                          id="org-legal-name"
+                          label="Razão Social"
+                          disabled={isCnpjDataLocked}
+                          message={isCnpjDataLocked ? 'Dado oficial da Receita Federal — obtido via Buscar CNPJ.' : undefined}
+                          {...register('legalName')}
+                        />
+                      </div>
+                      {isCnpjDataLocked && (
+                        <EzButton
+                          type="button"
+                          variant="tertiary"
+                          size="small"
+                          onClick={() => setIsCnpjDataLocked(false)}
+                        >
+                          Editar manualmente
+                        </EzButton>
+                      )}
+                    </div>
+
+                    <div className="md:col-span-3">
+                      <EzTextInput id="org-state-registration" label="Inscrição Estadual" {...register('stateRegistration')} />
+                    </div>
+                    <div className="md:col-span-3">
+                      <EzTextInput id="org-municipal-registration" label="Inscrição Municipal" {...register('municipalRegistration')} />
+                    </div>
                   </div>
 
                   {cnpjLookupError && (
