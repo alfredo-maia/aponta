@@ -1,5 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -63,6 +69,9 @@ describe('ContractsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     useAuthStore.setState({ token: null, user: null });
+    // The filter/screen-config tests below exercise useUserScreenConfig's
+    // localStorage-backed saved filters; keep each test isolated.
+    localStorage.clear();
   });
 
   it('shows a loading state while contracts are being fetched', () => {
@@ -288,19 +297,156 @@ describe('ContractsPage', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('searches by name or company when the search form is submitted', async () => {
-    vi.mocked(api.get).mockResolvedValue({ data: [] });
+  it('renders the Sankhya standard filter drawer and screen config modal (parity with Clientes)', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: contracts });
     loginAs('ADMIN');
+    const user = userEvent.setup();
     renderPage();
-    fireEvent.change(screen.getByLabelText('Pesquisar contratos'), {
-      target: { value: ' Suporte ' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Pesquisar' }));
-    await waitFor(() =>
-      expect(api.get).toHaveBeenCalledWith('/contracts', {
-        params: { search: 'Suporte' },
-      }),
+
+    await screen.findByText('Empresa A');
+
+    expect(screen.getByTestId('ez-toolbar-filter-panel-button')).toBeInTheDocument();
+    expect(screen.getByTestId('ez-toolbar-screen-config-button')).toBeInTheDocument();
+
+    await user.click(screen.getByTestId('ez-toolbar-filter-panel-button'));
+    const drawer = screen.getByTestId('ez-filter-drawer');
+    expect(within(drawer).getByText('Filtros de Contratos')).toBeInTheDocument();
+    expect(
+      within(drawer).getByLabelText(/buscar contrato\/empresa/i),
+    ).toBeInTheDocument();
+    expect(within(drawer).getByLabelText(/^status$/i)).toBeInTheDocument();
+
+    await user.click(screen.getByTestId('ez-toolbar-screen-config-button'));
+    const modal = screen.getByTestId('ez-entity-screen-config-modal');
+    expect(
+      within(modal).getByText('Personalização da Tela (Usuário)'),
+    ).toBeInTheDocument();
+    expect(within(modal).getByText('Contrato')).toBeInTheDocument();
+  });
+
+  it('filters contracts by name or company on the client side via the filter drawer', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: contracts });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByText('Empresa A');
+    expect(screen.getByText('Empresa B')).toBeInTheDocument();
+
+    await user.click(screen.getByTestId('ez-toolbar-filter-panel-button'));
+    const drawer = screen.getByTestId('ez-filter-drawer');
+
+    await user.type(
+      within(drawer).getByLabelText(/buscar contrato\/empresa/i),
+      'Empresa A',
     );
+    expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    expect(screen.queryByText('Empresa B')).not.toBeInTheDocument();
+
+    // No server-side search should ever be issued: only the initial load.
+    expect(api.get).toHaveBeenCalledWith('/contracts', { params: undefined });
+    expect(api.get).not.toHaveBeenCalledWith(
+      '/contracts',
+      expect.objectContaining({ params: { search: expect.anything() } }),
+    );
+
+    await user.click(screen.getByTestId('ez-filter-drawer-clear'));
+    expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    expect(screen.getByText('Empresa B')).toBeInTheDocument();
+  });
+
+  it('filters contracts by status (Ativo/Inativo) via the filter drawer', async () => {
+    const statusContracts = [
+      { ...contracts[0], active: true },
+      { ...contracts[1], active: false },
+    ];
+    vi.mocked(api.get).mockResolvedValue({ data: statusContracts });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByText('Empresa A');
+    expect(screen.getByText('Empresa B')).toBeInTheDocument();
+
+    await user.click(screen.getByTestId('ez-toolbar-filter-panel-button'));
+    const drawer = screen.getByTestId('ez-filter-drawer');
+
+    await user.selectOptions(
+      within(drawer).getByLabelText(/^status$/i),
+      'INACTIVE',
+    );
+    expect(screen.queryByText('Empresa A')).not.toBeInTheDocument();
+    expect(screen.getByText('Empresa B')).toBeInTheDocument();
+
+    await user.selectOptions(within(drawer).getByLabelText(/^status$/i), 'ALL');
+    expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    expect(screen.getByText('Empresa B')).toBeInTheDocument();
+  });
+
+  it('filters dynamically by modality using the rule builder (Sankhya Filtros parity)', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: contracts });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByText('Empresa A');
+    expect(screen.getByText('Empresa B')).toBeInTheDocument();
+
+    await user.click(screen.getByTestId('ez-toolbar-filter-panel-button'));
+    const drawer = screen.getByTestId('ez-filter-drawer');
+    await user.click(within(drawer).getByTestId('ez-dynamic-filter-add'));
+
+    const rule = within(drawer).getByTestId('ez-dynamic-filter-rule');
+    await user.selectOptions(within(rule).getByLabelText('Campo'), 'modality');
+    await user.selectOptions(within(rule).getByLabelText('Valor'), 'Cobertura');
+
+    expect(screen.queryByText('Empresa A')).not.toBeInTheDocument();
+    expect(screen.getByText('Empresa B')).toBeInTheDocument();
+
+    await user.click(screen.getByTestId('ez-filter-drawer-clear'));
+    expect(screen.getByText('Empresa A')).toBeInTheDocument();
+  });
+
+  it('saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: contracts });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByText('Empresa A');
+
+    await user.click(screen.getByTestId('ez-toolbar-filter-panel-button'));
+    const drawer = screen.getByTestId('ez-filter-drawer');
+
+    await user.type(
+      within(drawer).getByLabelText(/buscar contrato\/empresa/i),
+      'Empresa A',
+    );
+    await user.click(within(drawer).getByTestId('ez-filter-drawer-save-btn'));
+    await user.type(
+      within(drawer).getByTestId('ez-filter-drawer-name-input'),
+      'Só Empresa A',
+    );
+    await user.click(within(drawer).getByTestId('ez-filter-drawer-confirm-save'));
+
+    const savedList = await within(drawer).findByTestId(
+      'ez-filter-drawer-saved-list',
+    );
+    expect(within(savedList).getByText('Só Empresa A')).toBeInTheDocument();
+
+    await user.clear(within(drawer).getByLabelText(/buscar contrato\/empresa/i));
+    expect(screen.getByText('Empresa B')).toBeInTheDocument();
+
+    await user.click(within(savedList).getByText('Só Empresa A'));
+    expect(
+      within(drawer).getByLabelText(/buscar contrato\/empresa/i),
+    ).toHaveValue('Empresa A');
+    expect(screen.queryByText('Empresa B')).not.toBeInTheDocument();
+
+    await user.click(
+      within(savedList).getByLabelText(/excluir filtro só empresa a/i),
+    );
+    expect(within(savedList).queryByText('Só Empresa A')).not.toBeInTheDocument();
   });
 
   it('edits via the update command without turning zero into missing money', async () => {

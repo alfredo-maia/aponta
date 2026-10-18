@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -249,5 +249,116 @@ describe('ServiceDesksPage', () => {
         }),
       );
     });
+  });
+
+  it('shows the Sankhya-standard filter drawer with search, status and dynamic filter fields', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Suporte N1');
+
+    expect(screen.getByTestId('ez-toolbar-filter-panel-button')).toBeInTheDocument();
+    await user.click(screen.getByTestId('ez-toolbar-filter-panel-button'));
+
+    const drawer = screen.getByTestId('ez-filter-drawer');
+    expect(drawer).toBeInTheDocument();
+    expect(screen.getByText('Filtros de Mesas')).toBeInTheDocument();
+    expect(within(drawer).getByLabelText(/buscar mesa/i)).toBeInTheDocument();
+    expect(within(drawer).getByLabelText(/^status$/i)).toBeInTheDocument();
+
+    await user.click(screen.getByTestId('ez-filter-drawer-close'));
+    expect(screen.queryByTestId('ez-filter-drawer')).not.toBeInTheDocument();
+  });
+
+  it('filters the grid by search text and status (Sankhya filter drawer)', async () => {
+    const filterableDesks = [
+      { id: 'sd-1', name: 'Suporte N1', active: true, createdAt: '2026-09-29T10:00:00.000Z' },
+      { id: 'sd-2', name: 'Infraestrutura', active: false, createdAt: '2026-09-29T10:00:00.000Z' },
+    ];
+    vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url === '/service-desks') return Promise.resolve({ data: filterableDesks });
+      if (url === '/organizations') return Promise.resolve({ data: organizations });
+      if (url === '/users/agents') return Promise.resolve({ data: [] });
+      return Promise.reject(new Error(`Unexpected GET ${url}`));
+    });
+
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByText('Suporte N1');
+    expect(screen.getByText('Infraestrutura')).toBeInTheDocument();
+
+    await user.click(screen.getByTestId('ez-toolbar-filter-panel-button'));
+    const drawer = screen.getByTestId('ez-filter-drawer');
+
+    // Search text narrows to the matching name only.
+    await user.type(within(drawer).getByLabelText(/buscar mesa/i), 'Suporte');
+    expect(screen.getByText('Suporte N1')).toBeInTheDocument();
+    expect(screen.queryByText('Infraestrutura')).not.toBeInTheDocument();
+    await user.clear(within(drawer).getByLabelText(/buscar mesa/i));
+
+    // Status filter narrows to inactive desks only.
+    await user.selectOptions(within(drawer).getByLabelText(/^status$/i), 'INACTIVE');
+    expect(screen.queryByText('Suporte N1')).not.toBeInTheDocument();
+    expect(screen.getByText('Infraestrutura')).toBeInTheDocument();
+
+    // Clearing the drawer resets every filter back to showing both.
+    await user.click(screen.getByTestId('ez-filter-drawer-clear'));
+    expect(screen.getByText('Suporte N1')).toBeInTheDocument();
+    expect(screen.getByText('Infraestrutura')).toBeInTheDocument();
+  });
+
+  it('filters dynamically by any column using the rule builder (Sankhya Filtros parity)', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Suporte N1');
+
+    await user.click(screen.getByTestId('ez-toolbar-filter-panel-button'));
+    const drawer = screen.getByTestId('ez-filter-drawer');
+    await user.click(within(drawer).getByTestId('ez-dynamic-filter-add'));
+
+    const rule = within(drawer).getByTestId('ez-dynamic-filter-rule');
+    const fieldOptions = within(within(rule).getByLabelText('Campo'))
+      .getAllByRole('option')
+      .map((o) => o.textContent);
+    expect(fieldOptions).toEqual(
+      expect.arrayContaining(['Nome', 'Nome de exibição', 'Status', 'Recebendo', 'Agentes']),
+    );
+
+    await user.type(within(rule).getByLabelText('Valor'), 'Infraestrutura');
+    expect(screen.queryByText('Suporte N1')).not.toBeInTheDocument();
+    expect(screen.getByText('Infraestrutura')).toBeInTheDocument();
+
+    await user.click(screen.getByTestId('ez-filter-drawer-clear'));
+    expect(screen.getByText('Suporte N1')).toBeInTheDocument();
+  });
+
+  it('saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Suporte N1');
+
+    await user.click(screen.getByTestId('ez-toolbar-filter-panel-button'));
+    const drawer = screen.getByTestId('ez-filter-drawer');
+
+    await user.type(within(drawer).getByLabelText(/buscar mesa/i), 'Suporte');
+    await user.click(within(drawer).getByTestId('ez-filter-drawer-save-btn'));
+    await user.type(within(drawer).getByTestId('ez-filter-drawer-name-input'), 'Só Suporte');
+    await user.click(within(drawer).getByTestId('ez-filter-drawer-confirm-save'));
+
+    const savedList = await within(drawer).findByTestId('ez-filter-drawer-saved-list');
+    expect(within(savedList).getByText('Só Suporte')).toBeInTheDocument();
+
+    // Clear the live filter, then re-apply it from the saved entry.
+    await user.clear(within(drawer).getByLabelText(/buscar mesa/i));
+    await user.click(within(savedList).getByText('Só Suporte'));
+    expect(within(drawer).getByLabelText(/buscar mesa/i)).toHaveValue('Suporte');
+
+    // Delete the saved filter.
+    await user.click(within(savedList).getByLabelText(/excluir filtro só suporte/i));
+    expect(within(drawer).queryByText('Só Suporte')).not.toBeInTheDocument();
   });
 });
