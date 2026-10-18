@@ -80,6 +80,52 @@ describe('TenantHelper', () => {
     });
   });
 
+  describe('getContractWhere', () => {
+    it('returns empty where for ADMIN', () => {
+      const user: CurrentUserPayload = { id: 'admin1', role: Role.ADMIN };
+      expect(TenantHelper.getContractWhere(user)).toEqual({});
+    });
+
+    it('scopes CLIENT_MASTER to their own organization', () => {
+      const user: CurrentUserPayload = { id: 'cm1', role: Role.CLIENT_MASTER, organizationId: 'org1' };
+      expect(TenantHelper.getContractWhere(user)).toEqual({ organizationId: 'org1' });
+    });
+
+    it('restricts AGENT and AGENT_MASTER to active contracts linked to desks they can access, not just any active contract', () => {
+      const agent: CurrentUserPayload = { id: 'agent1', role: Role.AGENT };
+      const agentMaster: CurrentUserPayload = { id: 'agent2', role: Role.AGENT_MASTER };
+      expect(TenantHelper.getContractWhere(agent)).toEqual({
+        active: true,
+        serviceDesks: {
+          some: {
+            OR: [
+              { agents: { some: { id: 'agent1' } } },
+              { agentGroups: { some: { members: { some: { id: 'agent1' } } } } },
+              { allowCrossDeskInteraction: true },
+            ],
+          },
+        },
+      });
+      expect(TenantHelper.getContractWhere(agentMaster)).toEqual({
+        active: true,
+        serviceDesks: {
+          some: {
+            OR: [
+              { agents: { some: { id: 'agent2' } } },
+              { agentGroups: { some: { members: { some: { id: 'agent2' } } } } },
+              { allowCrossDeskInteraction: true },
+            ],
+          },
+        },
+      });
+    });
+
+    it('fails closed for a plain CLIENT', () => {
+      const user: CurrentUserPayload = { id: 'c1', role: Role.CLIENT };
+      expect(TenantHelper.getContractWhere(user)).toEqual({ id: '00000000-0000-0000-0000-000000000000' });
+    });
+  });
+
   describe('getAppointmentWhere', () => {
     it('should return empty where clause for ADMIN', () => {
       const user: CurrentUserPayload = { id: 'admin1', role: Role.ADMIN };

@@ -68,7 +68,22 @@ export class TenantHelper {
       return { organizationId: user.organizationId };
     }
     if (user.role === Role.AGENT || user.role === Role.AGENT_MASTER) {
-      return { active: true }; // Only see active contracts broadly, minus financials
+      // Only active contracts linked to a desk the agent actually has access
+      // to (same desk-access pattern as getTicketWhere/getServiceDeskWhere),
+      // minus financials via mask(). Prevents an agent on desk X from seeing
+      // contract scope/conditions of organizations unrelated to their desks.
+      return {
+        active: true,
+        serviceDesks: {
+          some: {
+            OR: [
+              { agents: { some: { id: user.id } } },
+              { agentGroups: { some: { members: { some: { id: user.id } } } } },
+              { allowCrossDeskInteraction: true },
+            ],
+          },
+        },
+      };
     }
     // Fail-closed for standard CLIENT
     return { id: '00000000-0000-0000-0000-000000000000' };

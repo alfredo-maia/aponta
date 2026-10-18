@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import type { Contract, ContractInput } from '../../hooks/useContracts';
+import type {
+  Contract,
+  ContractInput,
+  ContractOrganization,
+} from '../../hooks/useContracts';
 import { brasiliaDayStartIso } from '../../lib/billingTime';
 import { brasiliaDateString, brasiliaTimeString } from '../../lib/brasiliaTime';
 import {
@@ -41,8 +45,15 @@ function nextDay(day: string): string {
     .toISOString()
     .slice(0, 10);
 }
+export const commercialModalities: Record<string, string> = {
+  FIXED_PROJECT: 'Empreito',
+  MONTHLY_HOURS: 'Horas Mensais + Excedente',
+  HOURLY: 'Horas Avulsas',
+};
 const modality = (c: Contract) =>
-  c.type === 'HOURS_LIMIT' ? `Pacote: ${allowance(c) ?? '—'}h` : 'Cobertura';
+  commercialModalities[c.type] ||
+  (c.type === 'HOURS_LIMIT' ? `Pacote: ${allowance(c) ?? '—'}h` : 'Cobertura');
+const isLegacy = (c: Contract) => !commercialModalities[c.type];
 
 export function ContractList({
   contracts = [],
@@ -88,10 +99,25 @@ export function ContractList({
             <td className="px-4 py-3">{c.name || 'Sem nome'}</td>
             <td className="px-4 py-3">{c.organization?.name || '—'}</td>
             <td className="px-4 py-3">{modality(c)}</td>
-            <td className="px-4 py-3">{c.active ? 'Ativo' : 'Inativo'}</td>
+            <td className="px-4 py-3">
+              <span>{c.active ? 'Ativo' : 'Inativo'}</span>
+              <span className="block text-sm">
+                {isLegacy(c)
+                  ? 'Regularização pendente'
+                  : c.approved
+                    ? 'Aprovado'
+                    : 'Rascunho'}
+              </span>
+            </td>
             {showFinancial && (
               <>
-                <td className="px-4 py-3">{contractMoney(c.monthlyValue)}</td>
+                <td className="px-4 py-3">
+                  {contractMoney(
+                    c.monthlyFeeCents != null
+                      ? c.monthlyFeeCents / 100
+                      : c.monthlyValue,
+                  )}
+                </td>
                 <td className="px-4 py-3">
                   {contractMoney(
                     c.excessHourlyRateCents == null
@@ -130,6 +156,18 @@ export function ContractDetail({
     ['Empresa', c.organization?.name || '—'],
     ['Modalidade', modality(c)],
     ['Status', c.active ? 'Ativo' : 'Inativo'],
+    ['Aprovação', c.approved ? 'Aprovado' : 'Pendente'],
+    [
+      'Mesas cobertas',
+      c.serviceDesks?.map((desk) => desk.name).join(', ') ||
+        'Nenhuma mesa vinculada',
+    ],
+    ...(c.type === 'FIXED_PROJECT'
+      ? [
+          ['Escopo', c.scope || 'Não informado'],
+          ['Estimativa total', `${(c.estimatedMinutes || 0) / 60}h`],
+        ]
+      : []),
     [
       'Início da vigência',
       validityDay(c.startsAt).split('-').reverse().join('/') || 'Não informada',
@@ -141,7 +179,34 @@ export function ContractDetail({
     ],
     ...(showFinancial
       ? [
-          ['Valor mensal', contractMoney(c.monthlyValue)],
+          [
+            'Valor mensal',
+            contractMoney(
+              c.monthlyFeeCents != null
+                ? c.monthlyFeeCents / 100
+                : c.monthlyValue,
+            ),
+          ],
+          ...(c.type === 'FIXED_PROJECT'
+            ? [
+                [
+                  'Preço fechado',
+                  contractMoney(
+                    c.fixedPriceCents == null ? null : c.fixedPriceCents / 100,
+                  ),
+                ],
+              ]
+            : []),
+          ...(c.type === 'HOURLY'
+            ? [
+                [
+                  'Hora avulsa',
+                  contractMoney(
+                    c.hourlyRateCents == null ? null : c.hourlyRateCents / 100,
+                  ),
+                ],
+              ]
+            : []),
           [
             'Hora excedente',
             contractMoney(
@@ -156,6 +221,12 @@ export function ContractDetail({
   ];
   return (
     <div className="space-y-4">
+      {(isLegacy(c) || !c.approved || !c.serviceDesks?.length) && (
+        <EzAlert variant="warning">
+          Novos lançamentos bloqueados até regularizar modalidade, aprovação,
+          vigência e mesas do contrato. Dados históricos são preservados.
+        </EzAlert>
+      )}
       <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {rows.map(([label, value]) => (
           <div key={label}>
@@ -164,11 +235,48 @@ export function ContractDetail({
           </div>
         ))}
       </dl>
-      {showFinancial && c.excessHourlyRateCents == null && (
+      {showFinancial && isLegacy(c) && c.excessHourlyRateCents == null && (
         <EzAlert variant="info">
           Tarifa de excedente não informada. Os excedentes ficam sem valor
           conhecido; o valor mensal não define essa tarifa.
         </EzAlert>
+      )}
+      {!!c.terms?.length && (
+        <section aria-label="Histórico de condições">
+          <h3 className="font-semibold">Histórico de condições</h3>
+          <ul className="space-y-2">
+            {c.terms.map((term) => (
+              <li key={term.id} className="rounded border p-3">
+                Desde{' '}
+                {new Date(term.effectiveFrom).toLocaleString('pt-BR', {
+                  timeZone: 'America/Sao_Paulo',
+                })}
+                {term.effectiveTo
+                  ? ` até ${new Date(term.effectiveTo).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`
+                  : ' · vigente'}
+                {showFinancial && (
+                  <span className="block text-sm">
+                    Mensalidade:{' '}
+                    {contractMoney(
+                      term.monthlyFeeCents == null
+                        ? null
+                        : term.monthlyFeeCents / 100,
+                    )}{' '}
+                    · Hora:{' '}
+                    {contractMoney(
+                      (term.hourlyRateCents ?? term.excessHourlyRateCents) ==
+                        null
+                        ? null
+                        : (term.hourlyRateCents ??
+                            term.excessHourlyRateCents ??
+                            0) / 100,
+                    )}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
       <p className="text-sm text-gray-500">
         Alterações no contrato se aplicam aos novos apontamentos e preservam os
@@ -189,7 +297,7 @@ export function ContractForm({
   onCancel,
 }: {
   contract?: Contract;
-  organizations: { id: string; name: string }[];
+  organizations: ContractOrganization[];
   organizationsLoading?: boolean;
   organizationsError?: boolean;
   pending?: boolean;
@@ -199,10 +307,26 @@ export function ContractForm({
 }) {
   const [name, setName] = useState(c?.name || '');
   const [organizationId, setOrganizationId] = useState(c?.organizationId || '');
-  const [type, setType] = useState(
-    c?.type === 'HOURS_LIMIT' ? 'HOURS_LIMIT' : 'FIXED_COVERAGE',
-  );
+  const [type, setType] = useState(c?.type || 'MONTHLY_HOURS');
   const [active, setActive] = useState(c?.active ?? true);
+  const [approved, setApproved] = useState(c?.approved ?? false);
+  const [serviceDeskIds, setServiceDeskIds] = useState<string[]>(
+    c?.serviceDeskIds || c?.serviceDesks?.map((desk) => desk.id) || [],
+  );
+  const [scope, setScope] = useState(c?.scope || '');
+  const [estimate, setEstimate] = useState(
+    c?.estimatedMinutes == null ? '' : String(c.estimatedMinutes / 60),
+  );
+  const [price, setPrice] = useState(
+    c?.fixedPriceCents == null ? '' : String(c.fixedPriceCents / 100),
+  );
+  const [hourly, setHourly] = useState(
+    c?.hourlyRateCents == null ? '' : String(c.hourlyRateCents / 100),
+  );
+  const [effectiveDay, setEffectiveDay] = useState('');
+  const desks =
+    organizations.find((organization) => organization.id === organizationId)
+      ?.serviceDesks || [];
   const [startsAt, setStartsAt] = useState(validityDay(c?.startsAt));
   const [endsAt, setEndsAt] = useState(validityDay(c?.endsAt, true));
   const [adjustmentDate, setAdjustmentDate] = useState(
@@ -210,7 +334,11 @@ export function ContractForm({
   );
   const [hours, setHours] = useState(c ? String(allowance(c) ?? '') : '');
   const [monthly, setMonthly] = useState(
-    c?.monthlyValue == null ? '' : String(c.monthlyValue),
+    c?.monthlyFeeCents != null
+      ? String(c.monthlyFeeCents / 100)
+      : c?.monthlyValue == null
+        ? ''
+        : String(c.monthlyValue),
   );
   const [rate, setRate] = useState(
     c?.excessHourlyRateCents == null
@@ -235,7 +363,7 @@ export function ContractForm({
           return;
         }
         if (
-          [monthly, rate, hours]
+          [monthly, rate, hours, price, hourly, estimate]
             .filter((v) => v !== '')
             .some((v) => !Number.isFinite(Number(v)) || Number(v) < 0)
         ) {
@@ -244,14 +372,15 @@ export function ContractForm({
         }
         const minutes = hours === '' ? null : Math.round(Number(hours) * 60);
         if (
-          type === 'HOURS_LIMIT' &&
-          (minutes == null || minutes <= 0 || !Number.isSafeInteger(minutes))
+          (type === 'HOURS_LIMIT' || type === 'MONTHLY_HOURS') &&
+          (approved || type === 'HOURS_LIMIT' || hours !== '') &&
+          (minutes == null || minutes < 0 || (type === 'HOURS_LIMIT' && minutes === 0) || !Number.isSafeInteger(minutes))
         ) {
-          setValidation('Informe uma franquia mensal maior que zero.');
+          setValidation(type === 'HOURS_LIMIT' ? 'Informe uma franquia mensal maior que zero.' : 'Informe uma franquia mensal não negativa.');
           return;
         }
         if (
-          [monthly, rate]
+          [monthly, rate, price, hourly]
             .filter((v) => v !== '')
             .some(
               (v) =>
@@ -264,12 +393,67 @@ export function ContractForm({
           );
           return;
         }
+        if (
+          approved &&
+          (!commercialModalities[type] || !startsAt || !serviceDeskIds.length)
+        ) {
+          setValidation(
+            'Para aprovar, escolha uma modalidade atual, início da vigência e ao menos uma mesa vinculada à empresa.',
+          );
+          return;
+        }
+        if (
+          approved &&
+          serviceDeskIds.some((id) => !desks.some((desk) => desk.id === id))
+        ) {
+          setValidation(
+            'Remova as mesas que não estão mais vinculadas à empresa antes de aprovar.',
+          );
+          return;
+        }
+        if (
+          approved &&
+          ((type === 'FIXED_PROJECT' &&
+            (!scope.trim() ||
+              price === '' ||
+              !estimate ||
+              Number(estimate) <= 0)) ||
+            (type === 'MONTHLY_HOURS' && (monthly === '' || rate === '')) ||
+            (type === 'HOURLY' && hourly === ''))
+        ) {
+          setValidation(
+            'Complete as condições comerciais da modalidade antes de aprovar.',
+          );
+          return;
+        }
         setValidation('');
         onSave({
           name: name.trim() || null,
           organizationId,
           type,
           active,
+          approved,
+          serviceDeskIds,
+          scope: type === 'FIXED_PROJECT' ? scope.trim() : null,
+          fixedPriceCents:
+            type === 'FIXED_PROJECT' && price !== ''
+              ? Math.round(Number(price) * 100)
+              : null,
+          estimatedMinutes:
+            type === 'FIXED_PROJECT' && estimate !== ''
+              ? Math.round(Number(estimate) * 60)
+              : null,
+          monthlyFeeCents:
+            type === 'MONTHLY_HOURS' && monthly !== ''
+              ? Math.round(Number(monthly) * 100)
+              : null,
+          hourlyRateCents:
+            type === 'HOURLY' && hourly !== ''
+              ? Math.round(Number(hourly) * 100)
+              : null,
+          ...(effectiveDay
+            ? { conditionsEffectiveAt: brasiliaDayStartIso(effectiveDay) }
+            : {}),
           startsAt:
             startsAt === validityDay(c?.startsAt)
               ? (c?.startsAt ?? null)
@@ -286,7 +470,9 @@ export function ContractForm({
             adjustmentDate === (c?.adjustmentDate?.slice(0, 10) || '')
               ? (c?.adjustmentDate ?? null)
               : adjustmentDate || null,
-          includedMinutes: type === 'HOURS_LIMIT' ? minutes : null,
+          includedMinutes: ['HOURS_LIMIT', 'MONTHLY_HOURS'].includes(type)
+            ? minutes
+            : null,
           monthlyValue: monthly === '' ? null : Number(monthly),
           excessHourlyRateCents:
             rate === '' ? null : Math.round(Number(rate) * 100),
@@ -312,7 +498,10 @@ export function ContractForm({
           label="Empresa"
           required
           value={organizationId}
-          onChange={(e) => setOrganizationId(e.target.value)}
+          onChange={(e) => {
+            setOrganizationId(e.target.value);
+            setServiceDeskIds([]);
+          }}
           disabled={organizationsLoading || organizationsError}
         >
           <option value="">
@@ -336,8 +525,16 @@ export function ContractForm({
           value={type}
           onChange={(e) => setType(e.target.value)}
         >
-          <option value="FIXED_COVERAGE">Cobertura</option>
-          <option value="HOURS_LIMIT">Pacote de horas</option>
+          {c && isLegacy(c) && (
+            <option value={c.type}>
+              {modality(c)} — regularização pendente
+            </option>
+          )}
+          {Object.entries(commercialModalities).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
         </EzComboBox>
         <label className="flex items-center gap-2">
           <input
@@ -347,6 +544,64 @@ export function ContractForm({
           />
           Contrato ativo
         </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={approved}
+            onChange={(event) => setApproved(event.target.checked)}
+          />
+          Condições comerciais aprovadas
+        </label>
+        <fieldset className="space-y-2 sm:col-span-2">
+          <legend className="font-medium">Mesas de serviços cobertas</legend>
+          {serviceDeskIds
+            .filter((id) => !desks.some((desk) => desk.id === id))
+            .map((id) => (
+              <label
+                key={id}
+                className="flex items-center gap-2 text-amber-700"
+              >
+                <input
+                  type="checkbox"
+                  checked
+                  onChange={() =>
+                    setServiceDeskIds(
+                      serviceDeskIds.filter((selected) => selected !== id),
+                    )
+                  }
+                />
+                Mesa não vinculada à empresa (
+                {c?.serviceDesks?.find((desk) => desk.id === id)?.name || id}) —
+                remova para regularizar
+              </label>
+            ))}
+          {desks.length ? (
+            desks.map((desk) => (
+              <label
+                key={desk.id}
+                className="mr-4 inline-flex items-center gap-2"
+              >
+                <input
+                  type="checkbox"
+                  checked={serviceDeskIds.includes(desk.id)}
+                  onChange={(event) =>
+                    setServiceDeskIds(
+                      event.target.checked
+                        ? [...serviceDeskIds, desk.id]
+                        : serviceDeskIds.filter((id) => id !== desk.id),
+                    )
+                  }
+                />
+                {desk.name}
+              </label>
+            ))
+          ) : (
+            <p className="text-sm text-gray-500">
+              Selecione uma empresa com mesas explicitamente vinculadas. Sem
+              esse vínculo, novos lançamentos ficam bloqueados.
+            </p>
+          )}
+        </fieldset>
         <EzTextInput
           id="contract-start"
           label="Início da vigência"
@@ -362,7 +617,7 @@ export function ContractForm({
           value={endsAt}
           onChange={(e) => setEndsAt(e.target.value)}
         />
-        {type === 'HOURS_LIMIT' && (
+        {['HOURS_LIMIT', 'MONTHLY_HOURS'].includes(type) && (
           <EzTextInput
             id="contract-hours"
             label="Franquia mensal (horas)"
@@ -373,25 +628,82 @@ export function ContractForm({
             onChange={(e) => setHours(e.target.value)}
           />
         )}
-        <EzTextInput
-          id="contract-monthly"
-          label="Valor mensal (R$)"
-          type="number"
-          min="0"
-          step="0.01"
-          value={monthly}
-          onChange={(e) => setMonthly(e.target.value)}
-        />
-        <EzTextInput
-          id="contract-rate"
-          label="Hora excedente (R$)"
-          type="number"
-          min="0"
-          step="0.01"
-          value={rate}
-          onChange={(e) => setRate(e.target.value)}
-          message="Em branco: excedentes sem valor conhecido. Zero: tarifa gratuita."
-        />
+        {type === 'FIXED_PROJECT' && (
+          <>
+            <EzTextInput
+              id="contract-scope"
+              label="Escopo aprovado"
+              value={scope}
+              onChange={(event) => setScope(event.target.value)}
+            />
+            <EzTextInput
+              id="contract-price"
+              label="Preço fechado (R$)"
+              type="number"
+              min="0"
+              step="0.01"
+              value={price}
+              onChange={(event) => setPrice(event.target.value)}
+            />
+            <EzTextInput
+              id="contract-estimate"
+              label="Estimativa total (horas)"
+              type="number"
+              min="0"
+              step="0.01"
+              value={estimate}
+              onChange={(event) => setEstimate(event.target.value)}
+            />
+            <p className="text-sm sm:col-span-2">
+              A estimativa é global ao projeto. Horas adicionais aumentam o
+              custo sem gerar cobrança automática.
+            </p>
+          </>
+        )}
+        {type === 'HOURLY' && (
+          <EzTextInput
+            id="contract-hourly"
+            label="Hora avulsa (R$)"
+            type="number"
+            min="0"
+            step="0.01"
+            value={hourly}
+            onChange={(event) => setHourly(event.target.value)}
+          />
+        )}
+        {['HOURS_LIMIT', 'FIXED_COVERAGE', 'MONTHLY_HOURS'].includes(type) && (
+          <>
+            <EzTextInput
+              id="contract-monthly"
+              label="Valor mensal (R$)"
+              type="number"
+              min="0"
+              step="0.01"
+              value={monthly}
+              onChange={(e) => setMonthly(e.target.value)}
+            />
+            <EzTextInput
+              id="contract-rate"
+              label="Hora excedente (R$)"
+              type="number"
+              min="0"
+              step="0.01"
+              value={rate}
+              onChange={(e) => setRate(e.target.value)}
+              message="Tarifa explícita obrigatória para aprovação. Zero é uma tarifa válida."
+            />
+          </>
+        )}
+        {c && (
+          <EzTextInput
+            id="contract-effective"
+            label="Novas condições a partir de"
+            type="date"
+            value={effectiveDay}
+            onChange={(event) => setEffectiveDay(event.target.value)}
+            message="Informe a vigência de um aditivo. Apontamentos anteriores não são recalculados."
+          />
+        )}
         <EzTextInput
           id="contract-adjustment"
           label="Data de reajuste"

@@ -2,15 +2,27 @@ import { useState } from 'react';
 import { BarChart, Users, DollarSign, Clock } from 'lucide-react';
 import { useReportWorkload, useReportBilling } from '../hooks/useReports';
 import { useAuthStore } from '../stores/authStore';
-import { EzComboBox, EzEmptyCard, EzGridWrapper, EzTextInput, EzSpinner, EzTabs } from '../components/ds';
+import {
+  EzComboBox,
+  EzEmptyCard,
+  EzGridWrapper,
+  EzTextInput,
+  EzSpinner,
+  EzTabs,
+} from '../components/ds';
 import { useContracts } from '../hooks/useContracts';
 import { billingMonthStartIso } from '../lib/billingTime';
+import { CommercialReport } from '../components/contracts/CommercialReport';
 
 export function ReportsPage() {
   const user = useAuthStore((s) => s.user);
-  const [activeTab, setActiveTab] = useState<'WORKLOAD' | 'BILLING'>('WORKLOAD');
+  const [activeTab, setActiveTab] = useState<
+    'WORKLOAD' | 'BILLING' | 'COMMERCIAL'
+  >('WORKLOAD');
 
-  const canSeeBilling = user ? ['ADMIN', 'CLIENT_MASTER'].includes(user.role) : false;
+  const canSeeBilling = user
+    ? ['ADMIN', 'CLIENT_MASTER'].includes(user.role)
+    : false;
   const [contractId, setContractId] = useState('');
   const [startMonth, setStartMonth] = useState('');
   const [endMonth, setEndMonth] = useState('');
@@ -31,7 +43,12 @@ export function ReportsPage() {
 
   const tabs = [
     { id: 'WORKLOAD' as const, label: 'Carga de Trabalho' },
-    ...(canSeeBilling ? [{ id: 'BILLING' as const, label: 'Faturamento Base' }] : []),
+    ...(canSeeBilling
+      ? [{ id: 'BILLING' as const, label: 'Faturamento Base' }]
+      : []),
+    ...(user?.role === 'ADMIN'
+      ? [{ id: 'COMMERCIAL' as const, label: 'Resultado gerencial' }]
+      : []),
   ];
 
   return (
@@ -45,8 +62,13 @@ export function ReportsPage() {
       <EzTabs
         tabs={tabs}
         activeTab={activeTab}
-        onChange={(id) => setActiveTab(id as 'WORKLOAD' | 'BILLING')}
+        onChange={(id) =>
+          setActiveTab(id as 'WORKLOAD' | 'BILLING' | 'COMMERCIAL')
+        }
       />
+      {activeTab === 'COMMERCIAL' && user?.role === 'ADMIN' && (
+        <CommercialReport contracts={contractsQ.data || []} />
+      )}
 
       {activeTab === 'WORKLOAD' && (
         <>
@@ -65,7 +87,9 @@ export function ReportsPage() {
                   <th className="px-4 py-3 font-semibold text-gray-700">
                     <Users className="h-4 w-4 inline mr-1" /> Atendente
                   </th>
-                  <th className="px-4 py-3 font-semibold text-gray-700 text-right">Tempo Apontado</th>
+                  <th className="px-4 py-3 font-semibold text-gray-700 text-right">
+                    Tempo Apontado
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -88,16 +112,46 @@ export function ReportsPage() {
 
       {activeTab === 'BILLING' && canSeeBilling && (
         <>
-          <p className="text-sm text-gray-600">Valores informativos dos apontamentos, sem emissão de cobrança ou mensalidade. Ciclos mensais em America/Sao_Paulo; valores históricos preservados.</p>
+          <p className="text-sm text-gray-600">
+            Valores informativos dos apontamentos, sem emissão de cobrança ou
+            mensalidade. Ciclos mensais em America/Sao_Paulo; valores históricos
+            preservados.
+          </p>
           <div className="flex flex-wrap gap-4">
-              <EzComboBox id="billing-contract" label="Contrato" value={contractId} onChange={(event) => setContractId(event.target.value)}>
-                <option value="">Todos os contratos</option>
-                {contractsQ.data?.map((contract) => <option key={contract.id} value={contract.id}>{contract.name || contract.organization?.name || contract.id}</option>)}
-              </EzComboBox>
-            <EzTextInput id="billing-start-month" label="Ciclos desde" type="month" value={startMonth} onChange={(event) => setStartMonth(event.target.value)} />
-            <EzTextInput id="billing-end-month" label="Ciclos até (exclusivo)" type="month" value={endMonth} onChange={(event) => setEndMonth(event.target.value)} />
+            <EzComboBox
+              id="billing-contract"
+              label="Contrato"
+              value={contractId}
+              onChange={(event) => setContractId(event.target.value)}
+            >
+              <option value="">Todos os contratos</option>
+              {contractsQ.data?.map((contract) => (
+                <option key={contract.id} value={contract.id}>
+                  {contract.name || contract.organization?.name || contract.id}
+                </option>
+              ))}
+            </EzComboBox>
+            <EzTextInput
+              id="billing-start-month"
+              label="Ciclos desde"
+              type="month"
+              value={startMonth}
+              onChange={(event) => setStartMonth(event.target.value)}
+            />
+            <EzTextInput
+              id="billing-end-month"
+              label="Ciclos até (exclusivo)"
+              type="month"
+              value={endMonth}
+              onChange={(event) => setEndMonth(event.target.value)}
+            />
           </div>
-          {billingQ.isError && <p role="alert">Não foi possível carregar o relatório. Verifique o período selecionado.</p>}
+          {billingQ.isError && (
+            <p role="alert">
+              Não foi possível carregar o relatório. Verifique o período
+              selecionado.
+            </p>
+          )}
           {billingQ.isLoading && (
             <div className="flex justify-center p-4">
               <EzSpinner label="Carregando faturamento..." />
@@ -111,20 +165,35 @@ export function ReportsPage() {
               <thead className="bg-gray-90">
                 <tr>
                   <th className="px-4 py-3 font-semibold text-gray-700">
-                    <DollarSign className="h-4 w-4 inline mr-1" /> Cliente / Organização
+                    <DollarSign className="h-4 w-4 inline mr-1" /> Cliente /
+                    Organização
                   </th>
-                  <th className="px-4 py-3 font-semibold text-green-600 text-right">Horas Faturáveis</th>
-                  <th className="px-4 py-3 font-semibold text-gray-500 text-right">Horas Não Faturáveis</th>
-                  <th className="px-4 py-3 font-semibold text-gray-700 text-right">Total Trabalhado</th>
-                  <th className="px-4 py-3 font-semibold text-right">Coberto / Excedente</th>
-                  <th className="px-4 py-3 font-semibold text-right">Valor conhecido</th>
-                  <th className="px-4 py-3 font-semibold text-right">Sem valorização</th>
+                  <th className="px-4 py-3 font-semibold text-green-600 text-right">
+                    Horas Faturáveis
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-gray-500 text-right">
+                    Horas Não Faturáveis
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-gray-700 text-right">
+                    Total Trabalhado
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-right">
+                    Coberto / Excedente
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-right">
+                    Valor conhecido
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-right">
+                    Sem valorização
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {billingQ.data.map((item) => (
                   <tr key={item.organizationId} className="hover:bg-gray-90">
-                    <td className="px-4 py-3 font-medium text-gray-900">{item.organizationName}</td>
+                    <td className="px-4 py-3 font-medium text-gray-900">
+                      {item.organizationName}
+                    </td>
                     <td className="px-4 py-3 text-right font-medium text-green-600">
                       {formatHours(item.billableMinutes)}
                     </td>
@@ -132,11 +201,23 @@ export function ReportsPage() {
                       {formatHours(item.nonBillableMinutes)}
                     </td>
                     <td className="px-4 py-3 text-right font-bold text-gray-900">
-                      {formatHours(item.billableMinutes + item.nonBillableMinutes)}
+                      {formatHours(
+                        item.billableMinutes + item.nonBillableMinutes,
+                      )}
                     </td>
-                    <td className="px-4 py-3 text-right">{formatHours(item.coveredMinutes)} / {formatHours(item.excessMinutes)}</td>
-                    <td className="px-4 py-3 text-right">{(item.totalValueCents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-                    <td className="px-4 py-3 text-right">{item.unknownValuationCount}</td>
+                    <td className="px-4 py-3 text-right">
+                      {formatHours(item.coveredMinutes)} /{' '}
+                      {formatHours(item.excessMinutes)}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {(item.totalValueCents / 100).toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      })}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {item.unknownValuationCount}
+                    </td>
                   </tr>
                 ))}
               </tbody>

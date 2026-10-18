@@ -118,7 +118,17 @@ export function ContractsPage() {
             pending={save.isPending}
             error={
               save.isError
-                ? 'Não foi possível salvar o contrato. Verifique os dados e tente novamente.'
+                ? (() => {
+                    const message = (
+                      save.error as {
+                        response?: { data?: { message?: string | string[] } };
+                      }
+                    )?.response?.data?.message;
+                    return Array.isArray(message)
+                      ? message.join('. ')
+                      : message ||
+                          'Não foi possível salvar o contrato. Verifique os dados e tente novamente.';
+                  })()
                 : undefined
             }
             onCancel={close}

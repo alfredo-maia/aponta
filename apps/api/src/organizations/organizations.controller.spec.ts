@@ -204,9 +204,9 @@ describe('OrganizationsController', () => {
     it('delegates to the service with organization and desk id', async () => {
       mockOrganizationsService.linkServiceDesk.mockResolvedValue({ id: 'org-1' });
 
-      const result = await controller.linkServiceDesk('org-1', 'desk-1');
+      const result = await controller.linkServiceDesk('org-1', 'desk-1', { id: 'user-1', role: Role.ADMIN });
 
-      expect(mockOrganizationsService.linkServiceDesk).toHaveBeenCalledWith('org-1', 'desk-1');
+      expect(mockOrganizationsService.linkServiceDesk).toHaveBeenCalledWith('org-1', 'desk-1', 'user-1');
       expect(result).toEqual({ id: 'org-1' });
     });
   });
@@ -215,9 +215,9 @@ describe('OrganizationsController', () => {
     it('delegates to the service with organization and desk id', async () => {
       mockOrganizationsService.unlinkServiceDesk.mockResolvedValue({ id: 'org-1' });
 
-      const result = await controller.unlinkServiceDesk('org-1', 'desk-1');
+      const result = await controller.unlinkServiceDesk('org-1', 'desk-1', { id: 'user-1', role: Role.ADMIN });
 
-      expect(mockOrganizationsService.unlinkServiceDesk).toHaveBeenCalledWith('org-1', 'desk-1');
+      expect(mockOrganizationsService.unlinkServiceDesk).toHaveBeenCalledWith('org-1', 'desk-1', 'user-1');
       expect(result).toEqual({ id: 'org-1' });
     });
   });

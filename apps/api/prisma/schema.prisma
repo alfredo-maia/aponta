@@ -90,6 +90,8 @@ model Organization {
   users     User[]
   credentials Credential[]
   contracts Contract[]
+  commercialTickets Ticket[] @relation("CommercialOrganization")
+  deskEvents OrganizationDeskEvent[]
   appointments Appointment[]
   addresses OrganizationAddress[]
   contacts  OrganizationContact[]
@@ -98,6 +100,17 @@ model Organization {
   serviceDesks ServiceDesk[]
   agentGroups  AgentGroup[]
   createdAt DateTime @default(now())
+}
+
+model OrganizationDeskEvent {
+  createdBy String?
+  id String @id @default(uuid())
+  organizationId String
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  serviceDeskId String
+  linked Boolean
+  createdAt DateTime @default(now())
+  @@index([organizationId, createdAt])
 }
 
 model OrganizationAddress {
@@ -147,6 +160,7 @@ model User {
   audits      TicketAudit[]
   attachments TicketAttachment[]
   worklogs    Worklog[]
+  costRates   TechnicianCostRate[]
   preAppointments PreAppointment[]
   apiTokens   ApiToken[]
   appointments Appointment[]
@@ -169,6 +183,7 @@ model ServiceDesk {
   /// global/compartilhada (pre-existing behavior da #54, agora via lista vazia
   /// em vez de organizationId nulo).
   organizations Organization[]
+  contracts Contract[]
   agentGroups   AgentGroup[]
 
   businessHours  BusinessHour[]
@@ -324,6 +339,8 @@ model Ticket {
   priority                TicketPriority @default(MEDIUM)
 
   requesterId String
+  commercialOrganizationId String?
+  commercialOrganization Organization? @relation("CommercialOrganization", fields: [commercialOrganizationId], references: [id], onDelete: Restrict)
   requester   User   @relation("RequesterTickets", fields: [requesterId], references: [id])
 
   agentId String?
@@ -520,6 +537,9 @@ model Credential {
 enum ContractType {
   FIXED_COVERAGE
   HOURS_LIMIT
+  FIXED_PROJECT
+  MONTHLY_HOURS
+  HOURLY
 }
 
 model Contract {
@@ -533,6 +553,16 @@ model Contract {
   organization       Organization @relation(fields: [organizationId], references: [id])
   type               ContractType @default(FIXED_COVERAGE)
   active             Boolean      @default(true)
+  approved           Boolean      @default(false)
+  fixedPriceCents    Int?
+  estimatedMinutes   Int?
+  scope              String?
+  hourlyRateCents    Int?
+  monthlyFeeCents    Int?
+  serviceDesks       ServiceDesk[]
+  terms              ContractTerm[]
+  lifecycleEvents    ContractLifecycleEvent[]
+  preAppointments    PreAppointment[]
   monthlyValue       Float?
   lastAmendmentValue Float?
   hoursLimit         Int?
@@ -540,6 +570,54 @@ model Contract {
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
   worklogs           Worklog[]
+}
+
+model ContractTerm {
+  createdBy String?
+  id String @id @default(uuid())
+  contractId String
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Restrict)
+  effectiveFrom DateTime
+  approved Boolean @default(false)
+  active Boolean @default(true)
+  startsAt DateTime?
+  endsAt DateTime?
+  type ContractType
+  includedMinutes Int?
+  hourlyRateCents Int?
+  excessHourlyRateCents Int?
+  monthlyFeeCents Int?
+  fixedPriceCents Int?
+  estimatedMinutes Int?
+  scope String?
+  serviceDeskIds Json
+  createdAt DateTime @default(now())
+  @@unique([contractId, effectiveFrom])
+}
+
+model ContractLifecycleEvent {
+  id String @id @default(uuid())
+  contractId String
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Restrict)
+  effectiveFrom DateTime
+  approved Boolean
+  active Boolean
+  startsAt DateTime?
+  endsAt DateTime?
+  createdBy String?
+  createdAt DateTime @default(now())
+  @@index([contractId, effectiveFrom])
+}
+
+model TechnicianCostRate {
+  createdBy String?
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  effectiveFrom DateTime
+  hourlyCostCents Int
+  createdAt DateTime @default(now())
+  @@unique([userId, effectiveFrom])
 }
 
 enum AttendanceType {
@@ -551,9 +629,12 @@ enum ValuationType {
   CONTRACT
   GUARANTEE
   MANUAL
+  BONUS
 }
 
 model PreAppointment {
+  contractId String?
+  contract Contract? @relation(fields: [contractId], references: [id], onDelete: Restrict)
   id        String    @id @default(uuid())
   beginning DateTime
   ending    DateTime?
@@ -569,6 +650,8 @@ model PreAppointment {
 }
 
 model Worklog {
+  voidedAt DateTime?
+  voidedBy String?
   id             String         @id @default(uuid())
   description    String
   minutes        Int      // Tempo apontado, derivado de (endTime - startTime)
@@ -579,6 +662,9 @@ model Worklog {
   valuationType  ValuationType  @default(CONTRACT)
   value          Float?   // Valor calculado (CONTRACT), 0 (GUARANTEE) ou informado manualmente (MANUAL)
   valueCents     Int?
+  costCents      Int?
+  bonusReason    String?
+  sourcePreAppointmentId String? @unique
   contractId     String?
   contract       Contract?      @relation(fields: [contractId], references: [id], onDelete: Restrict)
   valuationSnapshot Json?

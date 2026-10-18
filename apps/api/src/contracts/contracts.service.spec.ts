@@ -1,6 +1,7 @@
 import { ContractsService } from './contracts.service';
 import { Role } from '@prisma/client';
 import { BadRequestException, ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { TenantHelper } from '../core/security/tenant.helper';
 
 describe('ContractsService', () => {
   let service: ContractsService;
@@ -44,6 +45,39 @@ describe('ContractsService', () => {
     expect(mockPrisma.contract.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ organizationId: 'own', OR: expect.any(Array) }) }));
   });
 
+  describe('agent desk scoping (cross-tenant contract scope leak)', () => {
+    const deskFilter = (agentId: string) => ({
+      active: true,
+      serviceDesks: {
+        some: {
+          OR: [
+            { agents: { some: { id: agentId } } },
+            { agentGroups: { some: { members: { some: { id: agentId } } } } },
+            { allowCrossDeskInteraction: true },
+          ],
+        },
+      },
+    });
+
+    it.each([Role.AGENT, Role.AGENT_MASTER])('restricts findAll to contracts linked to desks the %s can access, not every active contract', async (role) => {
+      mockPrisma.contract.findMany.mockResolvedValue([]);
+      await service.findAll({ id: 'agent-x', role });
+      expect(mockPrisma.contract.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: deskFilter('agent-x') }));
+    });
+
+    it('restricts findOne the same way, so an agent on desk X cannot fetch a contract from an org unrelated to desk X', async () => {
+      mockPrisma.contract.findFirst.mockResolvedValue(null);
+      await expect(service.findOne('other-org-contract', { id: 'agent-x', role: Role.AGENT })).rejects.toThrow(NotFoundException);
+      expect(mockPrisma.contract.findFirst).toHaveBeenCalledWith(expect.objectContaining({ where: { ...deskFilter('agent-x'), id: 'other-org-contract' } }));
+    });
+
+    it('does not fall back to "any active contract" for an agent with no desk assignment', async () => {
+      const where = TenantHelper.getContractWhere({ id: 'agent-x', role: Role.AGENT });
+      expect(where).not.toEqual({ active: true });
+      expect(where).toEqual(deskFilter('agent-x'));
+    });
+  });
+
   it.each([{ name: '  ' }, { includedMinutes: -1 }, { includedMinutes: 1.5 }, { excessHourlyRateCents: -1 }, { excessHourlyRateCents: 1.5 }, { monthlyValue: -1 }, { hoursLimit: 1.5 }, { startsAt: 'bad' }, { startsAt: '2026-12-01', endsAt: '2026-01-01' }])('rejects invalid contract domain values %j', async (data) => {
     await expect(service.create({ organizationId: 'org-1', ...data } as any, { id: 'u1', role: Role.ADMIN })).rejects.toThrow(BadRequestException);
     expect(mockPrisma.contract.create).not.toHaveBeenCalled();
@@ -58,7 +92,7 @@ describe('ContractsService', () => {
     mockPrisma.worklog.count.mockResolvedValue(1);
     await expect(service.update('c1', { organizationId: 'org-2' }, { id: 'u1', role: Role.ADMIN })).rejects.toThrow(ConflictException);
     expect(mockPrisma.contract.update).not.toHaveBeenCalled();
-    expect(mockPrisma.$queryRaw.mock.invocationCallOrder[0]).toBeLessThan(mockPrisma.contract.findUnique.mock.invocationCallOrder[0]);
+    expect(mockPrisma.$queryRaw.mock.invocationCallOrder[0]).toBeLessThan(mockPrisma.contract.findUnique.mock.invocationCallOrder[1]);
     expect(mockPrisma.$queryRaw.mock.invocationCallOrder[0]).toBeLessThan(mockPrisma.worklog.count.mock.invocationCallOrder[0]);
   });
 
@@ -147,7 +181,7 @@ describe('ContractsService', () => {
 
       expect(mockPrisma.contract.update).toHaveBeenCalledWith({ where: { id: 'c1' }, data: dto });
       expect(mockPrisma.$transaction).toHaveBeenCalled();
-      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(1);
+      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(2);
       expect(result).toEqual({ id: 'c1', ...dto });
     });
   });

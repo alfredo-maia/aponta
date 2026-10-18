@@ -16,6 +16,7 @@ import { CreateWorklogDto } from './dto/create-worklog.dto';
 import { CreatePreAppointmentDto } from './dto/create-pre-appointment.dto';
 import { StopPreAppointmentDto } from './dto/stop-pre-appointment.dto';
 import { WorklogContractQueryDto } from './dto/worklog-contract-query.dto';
+import { WorklogContextDto } from './dto/worklog-context.dto';
 import { JwtOrTokenAuthGuard } from '../auth/guards/jwt-or-token-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -33,6 +34,13 @@ interface AuthenticatedRequest {
 @Roles(Role.AGENT, Role.AGENT_MASTER, Role.ADMIN)
 export class WorklogsController {
   constructor(private readonly worklogsService: WorklogsService) {}
+
+  @Patch(':ticketId/worklog-context')
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Regularizar empresa comercial antes do primeiro apontamento' })
+  setCommercialOrganization(@Param('ticketId') ticketId: string, @Body() dto: WorklogContextDto, @Req() req: AuthenticatedRequest) {
+    return this.worklogsService.setCommercialOrganization(ticketId, dto.organizationId, req.user);
+  }
 
   @Get(':ticketId/worklog-contracts')
   @ApiOperation({ summary: 'Contratos elegíveis para um apontamento, com valores protegidos por papel' })
@@ -58,6 +66,13 @@ export class WorklogsController {
     @Req() req: AuthenticatedRequest,
   ) {
     return this.worklogsService.findByTicket(ticketId, req.user);
+  }
+
+  @Get(':ticketId/worklog-audit')
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Auditoria de apontamentos e estornos, preservando memória financeira' })
+  auditByTicket(@Param('ticketId') ticketId: string, @Req() req: AuthenticatedRequest) {
+    return this.worklogsService.auditByTicket(ticketId, req.user);
   }
 
   @Delete(':ticketId/worklogs/:worklogId')

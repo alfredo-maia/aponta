@@ -29,9 +29,20 @@ import {
 import { brasiliaWallClockIso } from '../../lib/billingTime';
 import { preparePastedImage } from '../../lib/preparePastedImage';
 import { useAuthStore } from '../../stores/authStore';
-import { useActivityTimer, type ActivityTimer } from '../../hooks/useActivityTimer';
+import {
+  useActivityTimer,
+  type ActivityTimer,
+} from '../../hooks/useActivityTimer';
 import type { PreAppointment } from '../../hooks/usePreAppointments';
-import { useWorklogs, useWorklogContracts, useCreateWorklog, useDeleteWorklog, Worklog, AttendanceType, ValuationType } from '../../hooks/useWorklogs';
+import {
+  useWorklogs,
+  useWorklogContracts,
+  useCreateWorklog,
+  useDeleteWorklog,
+  Worklog,
+  AttendanceType,
+  ValuationType,
+} from '../../hooks/useWorklogs';
 import type { TicketStatus } from '../../hooks/useTickets';
 import { statusLabels } from './TicketCard';
 import {
@@ -51,8 +62,13 @@ import {
 import { cn } from '../ds/utils';
 import { isBlankRichText, RichContentView } from './RichContentView';
 import { WorklogValuation } from '../contracts/WorklogValuation';
+import { CommercialTicketContext } from '../contracts/CommercialTicketContext';
 
-export function WorklogDescriptionView({ description }: { description: string }) {
+export function WorklogDescriptionView({
+  description,
+}: {
+  description: string;
+}) {
   return <RichContentView content={description} />;
 }
 
@@ -97,12 +113,15 @@ export function formatAttendanceType(type: AttendanceType): string {
 }
 
 export function formatWorklogValue(value: number | null): string {
-  return value === null || value === undefined ? '—' : `R$ ${value.toFixed(2).replace('.', ',')}`;
+  return value === null || value === undefined
+    ? '—'
+    : `R$ ${value.toFixed(2).replace('.', ',')}`;
 }
 
 const valuationTypeLabels: Record<ValuationType, string> = {
   CONTRACT: 'Contrato',
   GUARANTEE: 'Garantia',
+  BONUS: 'Bonificação',
   MANUAL: 'Valor manual',
 };
 
@@ -131,7 +150,9 @@ function toISO(day: string, timeOfDay: string): string {
 }
 
 function formatTimeOfDay(iso: string, timeConvention?: 'UTC'): string {
-  return timeConvention === 'UTC' ? brasiliaTimeString(new Date(iso)) : storedIsoToWallClock(iso);
+  return timeConvention === 'UTC'
+    ? brasiliaTimeString(new Date(iso))
+    : storedIsoToWallClock(iso);
 }
 
 export function TicketWorklogs({
@@ -144,8 +165,10 @@ export function TicketWorklogs({
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.role === 'ADMIN';
 
-  const [internalModalOpen, setInternalModalOpen] = useState<boolean>(defaultModalOpen);
-  const isModalOpen = controlledModalOpen !== undefined ? controlledModalOpen : internalModalOpen;
+  const [internalModalOpen, setInternalModalOpen] =
+    useState<boolean>(defaultModalOpen);
+  const isModalOpen =
+    controlledModalOpen !== undefined ? controlledModalOpen : internalModalOpen;
   const setIsModalOpen = (open: boolean) => {
     setInternalModalOpen(open);
     onModalOpenChange?.(open);
@@ -170,7 +193,10 @@ export function TicketWorklogs({
   } = timerFromParent ?? localTimer;
 
   const [prePage, setPrePage] = useState(1);
-  const preTotalPages = Math.max(1, Math.ceil(preAppointments.length / PRE_APPOINTMENTS_PAGE_SIZE));
+  const preTotalPages = Math.max(
+    1,
+    Math.ceil(preAppointments.length / PRE_APPOINTMENTS_PAGE_SIZE),
+  );
   const pagedPreAppointments = preAppointments.slice(
     (prePage - 1) * PRE_APPOINTMENTS_PAGE_SIZE,
     prePage * PRE_APPOINTMENTS_PAGE_SIZE,
@@ -191,6 +217,8 @@ export function TicketWorklogs({
     setDay(prefill.day);
     setStartTimeOfDay(source.initTime || prefill.startTime);
     setEndTimeOfDay(source.endTime || prefill.endTime);
+    setContractId(source.contractId || '');
+    setPreAppointmentId(source.id);
   };
 
   const handleOpenFromPre = (item: PreAppointment) => {
@@ -203,7 +231,8 @@ export function TicketWorklogs({
   const { data: agents = [] } = useQuery({
     queryKey: ['agents'],
     queryFn: async () => {
-      const res = await api.get<{ id: string; name: string }[]>('/users/agents');
+      const res =
+        await api.get<{ id: string; name: string }[]>('/users/agents');
       return res.data;
     },
     enabled: isAdmin,
@@ -222,29 +251,68 @@ export function TicketWorklogs({
   })();
 
   const [day, setDay] = useState<string>(initialDraft?.day || todayStr());
-  const [startTimeOfDay, setStartTimeOfDay] = useState<string>(initialDraft?.startTimeOfDay || '08:00');
-  const [endTimeOfDay, setEndTimeOfDay] = useState<string>(initialDraft?.endTimeOfDay || '08:30');
-  const [attendanceType, setAttendanceType] = useState<AttendanceType>(initialDraft?.attendanceType || 'REMOTE');
-  const [description, setDescription] = useState<string>(initialDraft?.description || '');
-  const [billable, setBillable] = useState<boolean>(initialDraft?.valuationType === 'GUARANTEE' ? false : initialDraft?.billable !== undefined ? initialDraft.billable : true);
-  const [valuationType, setValuationType] = useState<ValuationType>(initialDraft?.valuationType === 'MANUAL' && !isAdmin ? 'CONTRACT' : initialDraft?.valuationType || 'CONTRACT');
-  const [manualValue, setManualValue] = useState<string>(isAdmin ? initialDraft?.manualValue || '' : '');
-  const [contractId, setContractId] = useState<string>(initialDraft?.contractId || '');
-  const eligibleContracts = useWorklogContracts(ticketId, day && startTimeOfDay ? toISO(day, startTimeOfDay) : '', day && endTimeOfDay ? toISO(day, endTimeOfDay) : '', isModalOpen && valuationType === 'CONTRACT');
-  const [nextStatus, setNextStatus] = useState<string>(initialDraft?.nextStatus || '');
-  const [sendAsReply, setSendAsReply] = useState<boolean>(initialDraft?.sendAsReply !== undefined ? initialDraft.sendAsReply : false);
-  const [selectedAuthorId, setSelectedAuthorId] = useState<string>(initialDraft?.selectedAuthorId || '');
+  const [startTimeOfDay, setStartTimeOfDay] = useState<string>(
+    initialDraft?.startTimeOfDay || '08:00',
+  );
+  const [endTimeOfDay, setEndTimeOfDay] = useState<string>(
+    initialDraft?.endTimeOfDay || '08:30',
+  );
+  const [attendanceType, setAttendanceType] = useState<AttendanceType>(
+    initialDraft?.attendanceType || 'REMOTE',
+  );
+  const [description, setDescription] = useState<string>(
+    initialDraft?.description || '',
+  );
+  const [billable, setBillable] = useState<boolean>(
+    initialDraft?.valuationType === 'GUARANTEE'
+      ? false
+      : initialDraft?.billable !== undefined
+        ? initialDraft.billable
+        : true,
+  );
+  const [valuationType, setValuationType] = useState<ValuationType>(
+    ['MANUAL', 'BONUS'].includes(initialDraft?.valuationType) && !isAdmin
+      ? 'CONTRACT'
+      : initialDraft?.valuationType || 'CONTRACT',
+  );
+  const [manualValue, setManualValue] = useState<string>(
+    isAdmin ? initialDraft?.manualValue || '' : '',
+  );
+  const [contractId, setContractId] = useState<string>(
+    initialDraft?.contractId || '',
+  );
+  const [preAppointmentId, setPreAppointmentId] = useState<string>(
+    initialDraft?.preAppointmentId || '',
+  );
+  const [bonusReason, setBonusReason] = useState<string>(
+    initialDraft?.bonusReason || '',
+  );
+  const eligibleContracts = useWorklogContracts(
+    ticketId,
+    day && startTimeOfDay ? toISO(day, startTimeOfDay) : '',
+    day && endTimeOfDay ? toISO(day, endTimeOfDay) : '',
+    isModalOpen,
+  );
+  const [nextStatus, setNextStatus] = useState<string>(
+    initialDraft?.nextStatus || '',
+  );
+  const [sendAsReply, setSendAsReply] = useState<boolean>(
+    initialDraft?.sendAsReply !== undefined ? initialDraft.sendAsReply : false,
+  );
+  const [selectedAuthorId, setSelectedAuthorId] = useState<string>(
+    initialDraft?.selectedAuthorId || '',
+  );
   const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [hasDraftLoaded, setHasDraftLoaded] = useState<boolean>(
     Boolean(
       initialDraft &&
-        (initialDraft.description ||
-          initialDraft.manualValue ||
-          initialDraft.nextStatus ||
-          initialDraft.sendAsReply ||
-          initialDraft.startTimeOfDay !== '08:00' ||
-          initialDraft.endTimeOfDay !== '08:30'),
+      (initialDraft.description ||
+        initialDraft.manualValue ||
+        initialDraft.nextStatus ||
+        initialDraft.sendAsReply ||
+        initialDraft.startTimeOfDay !== '08:00' ||
+        initialDraft.endTimeOfDay !== '08:30'),
     ),
   );
 
@@ -252,13 +320,16 @@ export function TicketWorklogs({
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [filterAuthorId, setFilterAuthorId] = useState<string>('');
-  const [filterAttendance, setFilterAttendance] = useState<'' | AttendanceType>('');
+  const [filterAttendance, setFilterAttendance] = useState<'' | AttendanceType>(
+    '',
+  );
 
   // Auto-save draft on every change, including close via X / overlay / refresh.
   useEffect(() => {
     const hasMeaningfulChanges = Boolean(
       !isBlankRichText(description) ||
-      manualValue.trim() || contractId ||
+      manualValue.trim() ||
+      contractId ||
       nextStatus ||
       sendAsReply ||
       selectedAuthorId ||
@@ -289,6 +360,8 @@ export function TicketWorklogs({
         valuationType,
         contractId,
         manualValue,
+        bonusReason,
+        preAppointmentId,
         nextStatus,
         sendAsReply,
         selectedAuthorId,
@@ -308,6 +381,8 @@ export function TicketWorklogs({
     valuationType,
     contractId,
     manualValue,
+    bonusReason,
+    preAppointmentId,
     nextStatus,
     sendAsReply,
     selectedAuthorId,
@@ -327,7 +402,9 @@ export function TicketWorklogs({
     setBillable(true);
     setValuationType('CONTRACT');
     setManualValue('');
+    setBonusReason('');
     setContractId('');
+    setPreAppointmentId('');
     setNextStatus('');
     setSendAsReply(false);
     setSelectedAuthorId('');
@@ -340,23 +417,31 @@ export function TicketWorklogs({
     setUploadError(null);
     try {
       const formData = new FormData();
-      const cleanFileName = file.name && file.name !== 'image.png'
-        ? file.name
-        : `evidencia_${new Date().toISOString().replace(/[:.]/g, '-')}.png`;
-      const mimeType = file.type && file.type.startsWith('image/') ? file.type : 'image/png';
-      const typedFile = file.type === mimeType ? file : new File([file], cleanFileName, { type: mimeType });
+      const cleanFileName =
+        file.name && file.name !== 'image.png'
+          ? file.name
+          : `evidencia_${new Date().toISOString().replace(/[:.]/g, '-')}.png`;
+      const mimeType =
+        file.type && file.type.startsWith('image/') ? file.type : 'image/png';
+      const typedFile =
+        file.type === mimeType
+          ? file
+          : new File([file], cleanFileName, { type: mimeType });
       const uploadFile = await preparePastedImage(typedFile);
       formData.append('file', uploadFile, uploadFile.name || cleanFileName);
 
-      const res = await api.post<{ id: string; fileUrl: string; originalName: string }>(
-        `/tickets/${ticketId}/attachments`,
-        formData,
-      );
+      const res = await api.post<{
+        id: string;
+        fileUrl: string;
+        originalName: string;
+      }>(`/tickets/${ticketId}/attachments`, formData);
 
       queryClient.invalidateQueries({ queryKey: ['attachments', ticketId] });
       return res.data.fileUrl;
     } catch {
-      setUploadError('Falha ao processar e anexar imagem colada. Tente novamente.');
+      setUploadError(
+        'Falha ao processar e anexar imagem colada. Tente novamente.',
+      );
       throw new Error('image-upload-failed');
     } finally {
       setIsUploadingImage(false);
@@ -364,7 +449,9 @@ export function TicketWorklogs({
   };
 
   const computedMinutes = Math.round(
-    (new Date(toISO(day, endTimeOfDay)).getTime() - new Date(toISO(day, startTimeOfDay)).getTime()) / 60000,
+    (new Date(toISO(day, endTimeOfDay)).getTime() -
+      new Date(toISO(day, startTimeOfDay)).getTime()) /
+      60000,
   );
 
   const totalMinutes = worklogs.reduce((acc, wl) => acc + wl.minutes, 0);
@@ -374,7 +461,9 @@ export function TicketWorklogs({
   const nonBillableMinutes = totalMinutes - billableMinutes;
 
   const uniqueAgentsCount = new Set(
-    worklogs.map((wl) => wl.authorId || (wl.author as { id?: string })?.id).filter(Boolean),
+    worklogs
+      .map((wl) => wl.authorId || (wl.author as { id?: string })?.id)
+      .filter(Boolean),
   ).size;
 
   const authorOptions = Array.from(
@@ -392,19 +481,33 @@ export function TicketWorklogs({
     .filter((wl) => {
       const authorId = wl.authorId || wl.author?.id || '';
       if (filterAuthorId && authorId !== filterAuthorId) return false;
-      if (filterAttendance && wl.attendanceType !== filterAttendance) return false;
+      if (filterAttendance && wl.attendanceType !== filterAttendance)
+        return false;
       return true;
     })
     .slice()
     .sort((a, b) => {
-      const delta = new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+      const delta =
+        new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
       return sortDir === 'asc' ? delta : -delta;
     });
 
-  const visibleTotalMinutes = visibleWorklogs.reduce((acc, wl) => acc + wl.minutes, 0);
-  const visibleTotalValue = visibleWorklogs.some((wl) => wl.valueCents == null && wl.value == null) ? null : visibleWorklogs.reduce((acc, wl) => acc + (wl.valueCents != null ? wl.valueCents / 100 : wl.value ?? 0), 0);
+  const visibleTotalMinutes = visibleWorklogs.reduce(
+    (acc, wl) => acc + wl.minutes,
+    0,
+  );
+  const visibleTotalValue = visibleWorklogs.some(
+    (wl) => wl.valueCents == null && wl.value == null,
+  )
+    ? null
+    : visibleWorklogs.reduce(
+        (acc, wl) =>
+          acc + (wl.valueCents != null ? wl.valueCents / 100 : (wl.value ?? 0)),
+        0,
+      );
   const allRowsExpanded =
-    visibleWorklogs.length > 0 && visibleWorklogs.every((wl) => Boolean(expandedRows[wl.id]));
+    visibleWorklogs.length > 0 &&
+    visibleWorklogs.every((wl) => Boolean(expandedRows[wl.id]));
 
   const toggleRow = (id: string) => {
     setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -415,10 +518,14 @@ export function TicketWorklogs({
       setExpandedRows({});
       return;
     }
-    setExpandedRows(Object.fromEntries(visibleWorklogs.map((wl) => [wl.id, true])));
+    setExpandedRows(
+      Object.fromEntries(visibleWorklogs.map((wl) => [wl.id, true])),
+    );
   };
 
-  const executeSubmit = async (mode: 'NORMAL' | 'CLOSE_TICKET' | 'SAVE_AND_NEW' = 'NORMAL') => {
+  const executeSubmit = async (
+    mode: 'NORMAL' | 'CLOSE_TICKET' | 'SAVE_AND_NEW' = 'NORMAL',
+  ) => {
     setFormError(null);
 
     if (isBlankRichText(description)) {
@@ -427,14 +534,41 @@ export function TicketWorklogs({
     }
 
     if (!Number.isFinite(computedMinutes) || computedMinutes <= 0) {
-      setFormError('O horário de término deve ser posterior ao horário de início.');
+      setFormError(
+        'O horário de término deve ser posterior ao horário de início.',
+      );
       return;
     }
 
     let parsedManualValue: number | undefined;
+    const eligibilityResult = await eligibleContracts.refetch();
+    const currentEligible = eligibilityResult.isError
+      ? undefined
+      : eligibilityResult.data;
+    const selectedContract =
+      contractId ||
+      (currentEligible?.length === 1 ? currentEligible[0].id : '');
+    if (
+      !selectedContract ||
+      !currentEligible?.some((contract) => contract.id === selectedContract)
+    ) {
+      setFormError(
+        'Lançamento bloqueado: selecione um contrato aprovado, vigente e vinculado à empresa e à mesa.',
+      );
+      return;
+    }
+    if (['GUARANTEE', 'BONUS'].includes(valuationType) && !bonusReason.trim()) {
+      setFormError('Informe o motivo da garantia ou bonificação.');
+      return;
+    }
     if (valuationType === 'MANUAL') {
       parsedManualValue = Number(manualValue);
-      if (!isAdmin || !manualValue.trim() || !Number.isFinite(parsedManualValue) || parsedManualValue < 0) {
+      if (
+        !isAdmin ||
+        !manualValue.trim() ||
+        !Number.isFinite(parsedManualValue) ||
+        parsedManualValue < 0
+      ) {
         setFormError('Informe um valor manual válido.');
         return;
       }
@@ -453,9 +587,13 @@ export function TicketWorklogs({
         endTime: toISO(day, endTimeOfDay),
         attendanceType,
         description: description.trim() || description,
-        billable: valuationType === 'GUARANTEE' ? false : billable,
+        billable: !['GUARANTEE', 'BONUS'].includes(valuationType),
         valuationType,
-        ...(valuationType === 'CONTRACT' && contractId ? { contractId } : {}),
+        contractId: selectedContract,
+        ...(preAppointmentId ? { preAppointmentId } : {}),
+        ...(['GUARANTEE', 'BONUS'].includes(valuationType)
+          ? { bonusReason: bonusReason.trim() }
+          : {}),
         ...(valuationType === 'MANUAL' ? { value: parsedManualValue } : {}),
         ...(effectiveNextStatus ? { nextStatus: effectiveNextStatus } : {}),
         ...(sendAsReply ? { sendAsReply: true } : {}),
@@ -468,6 +606,8 @@ export function TicketWorklogs({
         // ignore
       }
       setHasDraftLoaded(false);
+      setPreAppointmentId('');
+      setBonusReason('');
 
       if (mode === 'SAVE_AND_NEW') {
         const nextStart = endTimeOfDay;
@@ -492,8 +632,15 @@ export function TicketWorklogs({
         setSelectedAuthorId('');
         setIsModalOpen(false);
       }
-    } catch {
-      setFormError('Falha ao registrar o apontamento. Tente novamente.');
+    } catch (error) {
+      const message = (
+        error as { response?: { data?: { message?: string | string[] } } }
+      )?.response?.data?.message;
+      setFormError(
+        Array.isArray(message)
+          ? message.join('. ')
+          : message || 'Falha ao registrar o apontamento. Tente novamente.',
+      );
     }
   };
 
@@ -525,7 +672,9 @@ export function TicketWorklogs({
       {/* 4 Summary KPI Cards (TiFlux / Aponta parity) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="p-4 rounded-[10px] bg-white border border-gray-200 shadow-xs flex flex-col justify-between">
-          <span className="text-[12px] font-medium text-gray-500">Atendentes</span>
+          <span className="text-[12px] font-medium text-gray-500">
+            Atendentes
+          </span>
           <div className="flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900">
             <Headphones className="w-5 h-5 text-gray-400" />
             <span>{uniqueAgentsCount}</span>
@@ -541,7 +690,9 @@ export function TicketWorklogs({
         </div>
 
         <div className="p-4 rounded-[10px] bg-white border border-gray-200 shadow-xs flex flex-col justify-between">
-          <span className="text-[12px] font-medium text-gray-500">Apontamentos</span>
+          <span className="text-[12px] font-medium text-gray-500">
+            Apontamentos
+          </span>
           <div className="flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900">
             <ListOrdered className="w-5 h-5 text-gray-400" />
             <span>{worklogs.length}</span>
@@ -549,7 +700,9 @@ export function TicketWorklogs({
         </div>
 
         <div className="p-4 rounded-[10px] bg-white border border-gray-200 shadow-xs flex flex-col justify-between">
-          <span className="text-[12px] font-medium text-gray-500">Deslocamentos</span>
+          <span className="text-[12px] font-medium text-gray-500">
+            Deslocamentos
+          </span>
           <div className="flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900">
             <Car className="w-5 h-5 text-gray-400" />
             <span>0</span>
@@ -562,21 +715,33 @@ export function TicketWorklogs({
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3">
           <div className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-brand-600" />
-            <h2 className="text-[16px] font-semibold text-gray-900">Apontamento de Horas (Worklog)</h2>
+            <h2 className="text-[16px] font-semibold text-gray-900">
+              Apontamento de Horas (Worklog)
+            </h2>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             {/* Activity Timer Controls */}
             <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-[6px] text-[13px]">
               <Clock className="w-3.5 h-3.5 text-gray-500" />
-              <span className="font-mono font-bold text-gray-800 min-w-[62px]" data-testid="worklog-timer-display">
+              <span
+                className="font-mono font-bold text-gray-800 min-w-[62px]"
+                data-testid="worklog-timer-display"
+              >
                 {formatTimerSeconds(timerSeconds)}
               </span>
               {!timerActive ? (
                 <button
                   type="button"
                   data-testid="worklog-timer-start-btn"
-                  onClick={handleStartTimer}
+                  onClick={() => {
+                    void handleStartTimer(contractId || undefined).catch(
+                      (error: Error) => {
+                        setFormError(error.message);
+                        setIsModalOpen(true);
+                      },
+                    );
+                  }}
                   className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded cursor-pointer"
                   title="Iniciar cronômetro desta atividade"
                 >
@@ -637,13 +802,19 @@ export function TicketWorklogs({
                 </span>
                 <span className="text-gray-400">|</span>
                 <span className="text-gray-600">
-                  Faturável: <strong className="text-emerald-700">{formatWorklogMinutes(billableMinutes)}</strong>
+                  Faturável:{' '}
+                  <strong className="text-emerald-700">
+                    {formatWorklogMinutes(billableMinutes)}
+                  </strong>
                 </span>
                 {nonBillableMinutes > 0 && (
                   <>
                     <span className="text-gray-400">|</span>
                     <span className="text-gray-600">
-                      Não faturável: <strong className="text-amber-700">{formatWorklogMinutes(nonBillableMinutes)}</strong>
+                      Não faturável:{' '}
+                      <strong className="text-amber-700">
+                        {formatWorklogMinutes(nonBillableMinutes)}
+                      </strong>
                     </span>
                   </>
                 )}
@@ -675,15 +846,23 @@ export function TicketWorklogs({
               </div>
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="text-gray-500">Você está apontando como:</span>
-                <span className="font-semibold text-gray-900">{user?.email?.split('@')[0] || 'Atendente'}</span>
-                <span className="text-gray-400 text-[12px]">({user?.email})</span>
+                <span className="font-semibold text-gray-900">
+                  {user?.email?.split('@')[0] || 'Atendente'}
+                </span>
+                <span className="text-gray-400 text-[12px]">
+                  ({user?.email})
+                </span>
               </div>
             </div>
           }
           maxWidth="5xl"
           className="sm:max-h-[92vh]"
         >
-          <form onSubmit={handleSubmit} className="space-y-4 pt-1" data-testid="worklog-form">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4 pt-1"
+            data-testid="worklog-form"
+          >
             {hasDraftLoaded && (
               <div
                 data-testid="worklog-draft-alert"
@@ -691,7 +870,10 @@ export function TicketWorklogs({
               >
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-brand-600 shrink-0" />
-                  <span>Rascunho recuperado. Suas alterações são salvas automaticamente mesmo se a janela for fechada.</span>
+                  <span>
+                    Rascunho recuperado. Suas alterações são salvas
+                    automaticamente mesmo se a janela for fechada.
+                  </span>
                 </div>
                 <button
                   type="button"
@@ -744,8 +926,13 @@ export function TicketWorklogs({
                   />
                 </div>
                 <div className="flex items-center gap-1 pt-1">
-                  <span className="text-[11px] text-gray-500 font-mono shrink-0" data-testid="worklog-computed-duration">
-                    {computedMinutes > 0 ? formatWorklogMinutes(computedMinutes) : '—'}
+                  <span
+                    className="text-[11px] text-gray-500 font-mono shrink-0"
+                    data-testid="worklog-computed-duration"
+                  >
+                    {computedMinutes > 0
+                      ? formatWorklogMinutes(computedMinutes)
+                      : '—'}
                   </span>
                   <button
                     type="button"
@@ -777,7 +964,9 @@ export function TicketWorklogs({
                 label="Atendimento"
                 required
                 value={attendanceType}
-                onChange={(e) => setAttendanceType(e.target.value as AttendanceType)}
+                onChange={(e) =>
+                  setAttendanceType(e.target.value as AttendanceType)
+                }
               >
                 <option value="REMOTE">Remoto</option>
                 <option value="ON_SITE">Presencial</option>
@@ -786,7 +975,11 @@ export function TicketWorklogs({
 
             {/* Row 2: Deslocamento, Próximo Estágio, Técnico Responsável (se admin) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-              <EzComboBox id="worklog-displacement" label="Deslocamento" disabled>
+              <EzComboBox
+                id="worklog-displacement"
+                label="Deslocamento"
+                disabled
+              >
                 <option value="">Nenhum</option>
               </EzComboBox>
 
@@ -822,14 +1015,18 @@ export function TicketWorklogs({
                 </EzComboBox>
               ) : (
                 <div className="space-y-1">
-                  <label className="text-[12px] font-medium text-gray-700 block">Tipo de Cobrança</label>
+                  <label className="text-[12px] font-medium text-gray-700 block">
+                    Tipo de Cobrança
+                  </label>
                   <div className="pt-2">
                     <label className="inline-flex items-center gap-2 cursor-pointer text-[13px] text-gray-700">
                       <input
                         type="checkbox"
                         data-testid="worklog-billable-checkbox"
-                        checked={billable}
-                        disabled={valuationType === 'GUARANTEE'}
+                        checked={
+                          !['GUARANTEE', 'BONUS'].includes(valuationType)
+                        }
+                        disabled
                         onChange={(e) => setBillable(e.target.checked)}
                         className="w-4 h-4 rounded border-gray-300 text-[#00B5A5] focus:ring-[#00B5A5]"
                       />
@@ -850,36 +1047,43 @@ export function TicketWorklogs({
                 onChange={(e) => {
                   const next = e.target.value as ValuationType;
                   setValuationType(next);
-                  if (next === 'GUARANTEE') setBillable(false);
-                  else if (valuationType === 'GUARANTEE') setBillable(true);
+                  if (['GUARANTEE', 'BONUS'].includes(next)) setBillable(false);
+                  else if (['GUARANTEE', 'BONUS'].includes(valuationType))
+                    setBillable(true);
                 }}
               >
                 <option value="CONTRACT">Contrato</option>
                 <option value="GUARANTEE">Garantia</option>
                 {isAdmin && <option value="MANUAL">Valor manual</option>}
+                {isAdmin && <option value="BONUS">Bonificação</option>}
               </EzComboBox>
 
-              {isAdmin && (valuationType === 'MANUAL' ? (
-                <EzTextInput
-                  id="worklog-manual-value"
-                  label="Valor (R$)"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  data-testid="worklog-manual-value-input"
-                  value={manualValue}
-                  onChange={(e) => setManualValue(e.target.value)}
-                  placeholder="0,00"
-                  required
-                />
-              ) : (
-                <EzTextInput
-                  id="worklog-value-display"
-                  label="Valor"
-                  disabled
-                  value={valuationType === 'GUARANTEE' ? 'R$ 0,00' : 'A calcular ao salvar'}
-                />
-              ))}
+              {isAdmin &&
+                (valuationType === 'MANUAL' ? (
+                  <EzTextInput
+                    id="worklog-manual-value"
+                    label="Valor (R$)"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    data-testid="worklog-manual-value-input"
+                    value={manualValue}
+                    onChange={(e) => setManualValue(e.target.value)}
+                    placeholder="0,00"
+                    required
+                  />
+                ) : (
+                  <EzTextInput
+                    id="worklog-value-display"
+                    label="Valor"
+                    disabled
+                    value={
+                      ['GUARANTEE', 'BONUS'].includes(valuationType)
+                        ? 'R$ 0,00'
+                        : 'A calcular ao salvar'
+                    }
+                  />
+                ))}
 
               {isAdmin && (
                 <div className="pt-2">
@@ -887,8 +1091,8 @@ export function TicketWorklogs({
                     <input
                       type="checkbox"
                       data-testid="worklog-billable-checkbox"
-                      checked={billable}
-                      disabled={valuationType === 'GUARANTEE'}
+                      checked={!['GUARANTEE', 'BONUS'].includes(valuationType)}
+                      disabled
                       onChange={(e) => setBillable(e.target.checked)}
                       className="w-4 h-4 rounded border-gray-300 text-[#00B5A5] focus:ring-[#00B5A5]"
                     />
@@ -898,18 +1102,66 @@ export function TicketWorklogs({
               )}
             </div>
 
-            {valuationType === 'CONTRACT' && <div className="space-y-2">
-              <EzComboBox id="worklog-contract" label="Contrato aplicável" value={contractId} onChange={(event) => setContractId(event.target.value)} disabled={eligibleContracts.isLoading}>
+            {['GUARANTEE', 'BONUS'].includes(valuationType) && (
+              <EzTextInput
+                id="worklog-bonus-reason"
+                label="Motivo da garantia ou bonificação"
+                required
+                value={bonusReason}
+                onChange={(event) => setBonusReason(event.target.value)}
+                message="Receita zero, sem consumo de franquia. O esforço e seu custo permanecem registrados."
+              />
+            )}
+            <div className="space-y-2">
+              <CommercialTicketContext ticketId={ticketId} isAdmin={isAdmin} />
+              <EzComboBox
+                id="worklog-contract"
+                label="Contrato aplicável"
+                value={contractId}
+                onChange={(event) => setContractId(event.target.value)}
+                disabled={eligibleContracts.isLoading}
+              >
                 <option value="">Automático (quando único)</option>
-                {contractId && !eligibleContracts.data?.some((contract) => contract.id === contractId) && <option value={contractId}>Contrato selecionado ({contractId}) — verifique a vigência</option>}
-                {eligibleContracts.data?.map((contract) => <option key={contract.id} value={contract.id}>{contract.name || contract.organization?.name || contract.id}</option>)}
+                {contractId &&
+                  !eligibleContracts.data?.some(
+                    (contract) => contract.id === contractId,
+                  ) && (
+                    <option value={contractId}>
+                      Contrato selecionado ({contractId}) — verifique a vigência
+                    </option>
+                  )}
+                {eligibleContracts.data?.map((contract) => (
+                  <option key={contract.id} value={contract.id}>
+                    {contract.name ||
+                      contract.organization?.name ||
+                      contract.id}
+                  </option>
+                ))}
               </EzComboBox>
-              {eligibleContracts.isLoading && <p role="status">Carregando contratos elegíveis...</p>}
-              {eligibleContracts.isError && <EzAlert variant="error">Não foi possível consultar contratos elegíveis. Tente novamente.</EzAlert>}
-              {eligibleContracts.data && eligibleContracts.data.length > 1 && !contractId && <EzAlert variant="warning">Há mais de um contrato elegível. Selecione o contrato para este apontamento.</EzAlert>}
-              {eligibleContracts.data?.length === 0 && <EzAlert variant="info">Nenhum contrato elegível. O apontamento ficará sem valor contratual conhecido.</EzAlert>}
-              {isAdmin && contractId && eligibleContracts.data?.find((contract) => contract.id === contractId)?.excessHourlyRateCents == null && <EzAlert variant="info">Tarifa de excedente não informada; excedentes ficam sem valor conhecido.</EzAlert>}
-            </div>}
+              {eligibleContracts.isLoading && (
+                <p role="status">Carregando contratos elegíveis...</p>
+              )}
+              {eligibleContracts.isError && (
+                <EzAlert variant="error">
+                  Não foi possível consultar contratos elegíveis. Tente
+                  novamente.
+                </EzAlert>
+              )}
+              {eligibleContracts.data &&
+                eligibleContracts.data.length > 1 &&
+                !contractId && (
+                  <EzAlert variant="warning">
+                    Há mais de um contrato elegível. Selecione o contrato para
+                    este apontamento.
+                  </EzAlert>
+                )}
+              {eligibleContracts.data?.length === 0 && (
+                <EzAlert variant="warning">
+                  Lançamento bloqueado: nenhum contrato elegível. Regularize
+                  aprovação, vigência, empresa e mesas do contrato.
+                </EzAlert>
+              )}
+            </div>
             {/* Row 4: Descrição */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
@@ -917,7 +1169,11 @@ export function TicketWorklogs({
                   Descrição <span className="text-red-500">*</span>
                 </label>
                 <span className="text-[11px] text-gray-400">
-                  Cole imagens com <kbd className="px-1 py-0.5 bg-gray-100 border border-gray-200 rounded text-[10px] font-mono text-gray-600">Ctrl+V</kbd> — elas entram no documento com o mesmo visual que o cliente vê
+                  Cole imagens com{' '}
+                  <kbd className="px-1 py-0.5 bg-gray-100 border border-gray-200 rounded text-[10px] font-mono text-gray-600">
+                    Ctrl+V
+                  </kbd>{' '}
+                  — elas entram no documento com o mesmo visual que o cliente vê
                 </span>
               </div>
               <EzRichText
@@ -935,7 +1191,9 @@ export function TicketWorklogs({
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
                   Corretor ortográfico ativo (pt-BR)
                 </span>
-                <span>Use o ícone de olho para pré-visualizar o documento do cliente</span>
+                <span>
+                  Use o ícone de olho para pré-visualizar o documento do cliente
+                </span>
               </div>
 
               {isUploadingImage && (
@@ -1002,7 +1260,9 @@ export function TicketWorklogs({
 
         {preAppointments.length > 0 && (
           <div className="space-y-1.5" data-testid="worklog-pre-appointments">
-            <span className="text-[12px] font-medium text-gray-700">Pré-apontamentos</span>
+            <span className="text-[12px] font-medium text-gray-700">
+              Pré-apontamentos
+            </span>
             <div className="overflow-x-auto border border-gray-200 rounded-[6px]">
               <table className="w-full text-left border-collapse text-[12px]">
                 <thead>
@@ -1017,32 +1277,51 @@ export function TicketWorklogs({
                 <tbody className="bg-white">
                   {pagedPreAppointments.map((item) => {
                     const isRunning = running?.id === item.id;
-                    const attendant = item.author?.name || item.author?.email?.split('@')[0] || user?.email?.split('@')[0] || 'Técnico';
+                    const attendant =
+                      item.author?.name ||
+                      item.author?.email?.split('@')[0] ||
+                      user?.email?.split('@')[0] ||
+                      'Técnico';
                     return (
-                      <tr key={item.id} data-testid="worklog-pre-appointment-row">
+                      <tr
+                        key={item.id}
+                        data-testid="worklog-pre-appointment-row"
+                      >
                         <td className="py-1.5 px-2">
                           <div className="flex items-center gap-1.5">
                             <div className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
                               <User className="w-3 h-3" />
                             </div>
-                            <span data-testid="worklog-pre-attendant" className="font-medium text-gray-900">
+                            <span
+                              data-testid="worklog-pre-attendant"
+                              className="font-medium text-gray-900"
+                            >
                               {attendant}
                             </span>
                           </div>
                         </td>
-                        <td className="py-1.5 px-2 text-gray-700" data-testid="worklog-pre-date">
+                        <td
+                          className="py-1.5 px-2 text-gray-700"
+                          data-testid="worklog-pre-date"
+                        >
                           {brasiliaDatePtBr(new Date(item.beginning))}
                         </td>
-                        <td className="py-1.5 px-2 font-mono text-gray-800" data-testid="worklog-pre-start">
+                        <td
+                          className="py-1.5 px-2 font-mono text-gray-800"
+                          data-testid="worklog-pre-start"
+                        >
                           {item.initTime}
                         </td>
-                        <td className="py-1.5 px-2 font-mono text-gray-800" data-testid="worklog-pre-end">
+                        <td
+                          className="py-1.5 px-2 font-mono text-gray-800"
+                          data-testid="worklog-pre-end"
+                        >
                           {item.endTime || '--'}
                         </td>
                         <td className="py-1.5 px-2 text-right">
                           <div className="inline-flex items-center gap-0.5">
-                            {isRunning && (
-                              timerPaused ? (
+                            {isRunning &&
+                              (timerPaused ? (
                                 <button
                                   type="button"
                                   data-testid="worklog-pre-resume-btn"
@@ -1062,8 +1341,7 @@ export function TicketWorklogs({
                                 >
                                   <Pause className="w-3.5 h-3.5 fill-current" />
                                 </button>
-                              )
-                            )}
+                              ))}
                             {item.ending && (
                               <button
                                 type="button"
@@ -1093,7 +1371,10 @@ export function TicketWorklogs({
               </table>
             </div>
             {preAppointments.length > PRE_APPOINTMENTS_PAGE_SIZE && (
-              <div className="flex justify-end" data-testid="worklog-pre-pagination">
+              <div
+                className="flex justify-end"
+                data-testid="worklog-pre-pagination"
+              >
                 <EzPagination
                   currentPage={prePage}
                   totalPages={preTotalPages}
@@ -1106,7 +1387,9 @@ export function TicketWorklogs({
 
         {/* Worklogs Table / List Header Controls */}
         <div className="flex items-center justify-between pt-1 gap-2">
-          <span className="text-[13px] font-medium text-gray-700">Histórico de Apontamentos</span>
+          <span className="text-[13px] font-medium text-gray-700">
+            Histórico de Apontamentos
+          </span>
           {worklogs.length > 0 && (
             <div className="flex items-center gap-2">
               <EzPopover
@@ -1128,7 +1411,10 @@ export function TicketWorklogs({
                   </button>
                 }
                 content={
-                  <div className="w-64 space-y-3" data-testid="worklog-filter-popover">
+                  <div
+                    className="w-64 space-y-3"
+                    data-testid="worklog-filter-popover"
+                  >
                     <EzComboBox
                       id="worklog-filter-author"
                       data-testid="worklog-filter-author"
@@ -1148,7 +1434,11 @@ export function TicketWorklogs({
                       data-testid="worklog-filter-attendance"
                       label="Atendimento"
                       value={filterAttendance}
-                      onChange={(e) => setFilterAttendance(e.target.value as '' | AttendanceType)}
+                      onChange={(e) =>
+                        setFilterAttendance(
+                          e.target.value as '' | AttendanceType,
+                        )
+                      }
                     >
                       <option value="">Todos</option>
                       <option value="REMOTE">Remoto</option>
@@ -1203,7 +1493,8 @@ export function TicketWorklogs({
 
           {!isLoading && !isError && worklogs.length === 0 && (
             <p className="text-[13px] text-gray-500 italic text-center py-6 bg-gray-50/50 rounded-[6px] border border-dashed border-gray-200">
-              Nenhum apontamento de horas registrado neste chamado até o momento.
+              Nenhum apontamento de horas registrado neste chamado até o
+              momento.
             </p>
           )}
 
@@ -1218,7 +1509,11 @@ export function TicketWorklogs({
                       <button
                         type="button"
                         data-testid="worklog-sort-day-btn"
-                        onClick={() => setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))}
+                        onClick={() =>
+                          setSortDir((prev) =>
+                            prev === 'asc' ? 'desc' : 'asc',
+                          )
+                        }
                         className="inline-flex items-center gap-1 hover:text-gray-800 cursor-pointer"
                       >
                         Data do apontamento
@@ -1251,115 +1546,173 @@ export function TicketWorklogs({
                   {visibleWorklogs.map((wl: Worklog) => {
                     const canDelete = isAdmin || wl.authorId === user?.sub;
                     const isRowExpanded = Boolean(expandedRows[wl.id]);
-                    const formattedDate = wl.timeConvention === 'UTC' ? brasiliaDatePtBr(new Date(wl.startTime)) : wl.startTime.slice(0, 10).split('-').reverse().join('/');
+                    const formattedDate =
+                      wl.timeConvention === 'UTC'
+                        ? brasiliaDatePtBr(new Date(wl.startTime))
+                        : wl.startTime
+                            .slice(0, 10)
+                            .split('-')
+                            .reverse()
+                            .join('/');
                     const formattedRange = `${formatTimeOfDay(wl.startTime, wl.timeConvention)} - ${formatTimeOfDay(wl.endTime, wl.timeConvention)}`;
 
                     return (
                       <Fragment key={wl.id}>
-                      <tr
-                        data-testid={`worklog-item-${wl.id}`}
-                        className="hover:bg-gray-50/60 transition-colors group"
-                      >
-                        <td className="py-3 px-3 text-center">
-                          <button
-                            type="button"
-                            onClick={() => toggleRow(wl.id)}
-                            className="p-1 text-gray-400 hover:text-gray-700 rounded cursor-pointer"
-                            title={isRowExpanded ? 'Recolher detalhes' : 'Expandir detalhes'}
-                          >
-                            {isRowExpanded ? (
-                              <ChevronUp className="w-3.5 h-3.5" />
-                            ) : (
-                              <ChevronDown className="w-3.5 h-3.5" />
-                            )}
-                          </button>
-                        </td>
-
-                        <td className="py-3 px-3">
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
-                              <User className="w-3.5 h-3.5" />
-                            </div>
-                            <span className="font-medium text-gray-900">
-                              {wl.author?.name || 'Técnico'}
-                            </span>
-                          </div>
-                        </td>
-
-                        <td className="py-3 px-3 whitespace-nowrap">
-                          <div className="flex items-center gap-2">
-                            <span className="text-gray-700">{formattedDate} {formattedRange}</span>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[11px] font-mono font-bold text-white bg-[#00B5A5]">
-                              {formatDurationBadge(wl.minutes)}
-                            </span>
-                          </div>
-                        </td>
-
-                        <td className="py-3 px-3 text-gray-600">{formatAttendanceType(wl.attendanceType)}</td>
-
-                        <td className="py-3 px-3 text-gray-400">Nenhum</td>
-
-                        <td className="py-3 px-3">
-                          <EzTag
-                            label={wl.billable ? 'Faturável' : 'Não Faturável'}
-                            variant={wl.billable ? 'green' : 'gray'}
-                          />
-                          <span className="block text-xs text-gray-500">{valuationTypeLabels[wl.valuationType]}{wl.valuationType === 'CONTRACT' ? ` · ${wl.valuationSnapshot?.contractName || wl.contractId || 'Legado / sem contrato vinculado'}` : ''}</span>
-                        </td>
-
-                        {isAdmin && <td className="py-3 px-3 font-mono text-gray-700">
-                          <div className="flex items-center gap-1.5">
-                            <span>{wl.valueCents == null && wl.value == null ? 'Valor desconhecido' : formatWorklogValue(wl.valueCents != null ? wl.valueCents / 100 : wl.value)}</span>
-                            <span className="text-[10px] text-gray-400">({valuationTypeLabels[wl.valuationType]})</span>
-                          </div>
-                        </td>}
-
-                        <td className="py-3 px-3 text-right">
-                          {canDelete && (
+                        <tr
+                          data-testid={`worklog-item-${wl.id}`}
+                          className="hover:bg-gray-50/60 transition-colors group"
+                        >
+                          <td className="py-3 px-3 text-center">
                             <button
                               type="button"
-                              data-testid={`worklog-delete-button-${wl.id}`}
-                              onClick={() => handleDelete(wl.id)}
-                              disabled={deleteMutation.isPending}
-                              className="p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-red-50 transition-colors shrink-0 cursor-pointer"
-                              title="Excluir apontamento"
+                              onClick={() => toggleRow(wl.id)}
+                              className="p-1 text-gray-400 hover:text-gray-700 rounded cursor-pointer"
+                              title={
+                                isRowExpanded
+                                  ? 'Recolher detalhes'
+                                  : 'Expandir detalhes'
+                              }
                             >
-                              <Trash2 className="w-4 h-4" />
+                              {isRowExpanded ? (
+                                <ChevronUp className="w-3.5 h-3.5" />
+                              ) : (
+                                <ChevronDown className="w-3.5 h-3.5" />
+                              )}
                             </button>
-                          )}
-                        </td>
-                      </tr>
-                      {isRowExpanded && (
-                        <tr data-testid={`worklog-detail-${wl.id}`} className="bg-gray-50/70">
-                          <td colSpan={isAdmin ? 8 : 7} className="px-4 py-3">
-                            <div className="text-[12px] bg-white p-3 rounded-[6px] border border-gray-200 text-gray-800">
-                              <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block mb-2">
-                                Detalhamento das atividades
+                          </td>
+
+                          <td className="py-3 px-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                                <User className="w-3.5 h-3.5" />
+                              </div>
+                              <span className="font-medium text-gray-900">
+                                {wl.author?.name || 'Técnico'}
                               </span>
-                              <WorklogDescriptionView description={wl.description} />
-                              <WorklogValuation worklog={wl} showFinancial={isAdmin} />
                             </div>
                           </td>
+
+                          <td className="py-3 px-3 whitespace-nowrap">
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-700">
+                                {formattedDate} {formattedRange}
+                              </span>
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[11px] font-mono font-bold text-white bg-[#00B5A5]">
+                                {formatDurationBadge(wl.minutes)}
+                              </span>
+                            </div>
+                          </td>
+
+                          <td className="py-3 px-3 text-gray-600">
+                            {formatAttendanceType(wl.attendanceType)}
+                          </td>
+
+                          <td className="py-3 px-3 text-gray-400">Nenhum</td>
+
+                          <td className="py-3 px-3">
+                            <EzTag
+                              label={
+                                wl.billable ? 'Faturável' : 'Não Faturável'
+                              }
+                              variant={wl.billable ? 'green' : 'gray'}
+                            />
+                            <span className="block text-xs text-gray-500">
+                              {valuationTypeLabels[wl.valuationType]}
+                              {wl.valuationType === 'CONTRACT'
+                                ? ` · ${wl.valuationSnapshot?.contractName || wl.contractId || 'Legado / sem contrato vinculado'}`
+                                : ''}
+                            </span>
+                          </td>
+
+                          {isAdmin && (
+                            <td className="py-3 px-3 font-mono text-gray-700">
+                              <div className="flex items-center gap-1.5">
+                                <span>
+                                  {wl.valueCents == null && wl.value == null
+                                    ? 'Valor desconhecido'
+                                    : formatWorklogValue(
+                                        wl.valueCents != null
+                                          ? wl.valueCents / 100
+                                          : wl.value,
+                                      )}
+                                </span>
+                                <span className="text-[10px] text-gray-400">
+                                  ({valuationTypeLabels[wl.valuationType]})
+                                </span>
+                              </div>
+                            </td>
+                          )}
+
+                          <td className="py-3 px-3 text-right">
+                            {canDelete && (
+                              <button
+                                type="button"
+                                data-testid={`worklog-delete-button-${wl.id}`}
+                                onClick={() => handleDelete(wl.id)}
+                                disabled={deleteMutation.isPending}
+                                className="p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-red-50 transition-colors shrink-0 cursor-pointer"
+                                title="Excluir apontamento"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </td>
                         </tr>
-                      )}
+                        {isRowExpanded && (
+                          <tr
+                            data-testid={`worklog-detail-${wl.id}`}
+                            className="bg-gray-50/70"
+                          >
+                            <td colSpan={isAdmin ? 8 : 7} className="px-4 py-3">
+                              <div className="text-[12px] bg-white p-3 rounded-[6px] border border-gray-200 text-gray-800">
+                                <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+                                  Detalhamento das atividades
+                                </span>
+                                <WorklogDescriptionView
+                                  description={wl.description}
+                                />
+                                <WorklogValuation
+                                  worklog={wl}
+                                  showFinancial={isAdmin}
+                                />
+                              </div>
+                            </td>
+                          </tr>
+                        )}
                       </Fragment>
                     );
                   })}
                 </tbody>
                 <tfoot>
                   <tr className="bg-gray-50 border-t border-gray-200 text-[12px]">
-                    <td colSpan={isAdmin ? 6 : 7} className="py-2.5 px-3 font-medium text-gray-600">
+                    <td
+                      colSpan={isAdmin ? 6 : 7}
+                      className="py-2.5 px-3 font-medium text-gray-600"
+                    >
                       Total de horas:{' '}
-                      <strong className="text-gray-900 font-mono" data-testid="worklog-footer-hours">
+                      <strong
+                        className="text-gray-900 font-mono"
+                        data-testid="worklog-footer-hours"
+                      >
                         {formatWorklogMinutes(visibleTotalMinutes)}
                       </strong>
                     </td>
-                    {isAdmin && <td className="py-2.5 px-3 font-medium text-gray-600" colSpan={2}>
-                      Total do valor:{' '}
-                      <strong className="text-gray-900 font-mono" data-testid="worklog-footer-value">
-                        {visibleTotalValue == null ? 'Valor desconhecido' : formatWorklogValue(visibleTotalValue)}
-                      </strong>
-                    </td>}
+                    {isAdmin && (
+                      <td
+                        className="py-2.5 px-3 font-medium text-gray-600"
+                        colSpan={2}
+                      >
+                        Total do valor:{' '}
+                        <strong
+                          className="text-gray-900 font-mono"
+                          data-testid="worklog-footer-value"
+                        >
+                          {visibleTotalValue == null
+                            ? 'Valor desconhecido'
+                            : formatWorklogValue(visibleTotalValue)}
+                        </strong>
+                      </td>
+                    )}
                   </tr>
                 </tfoot>
               </table>

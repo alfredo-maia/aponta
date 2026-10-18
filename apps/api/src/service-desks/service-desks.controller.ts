@@ -36,8 +36,8 @@ export class ServiceDesksController {
   @Post()
   @UseGuards(RolesGuard)
   @Roles(Role.ADMIN)
-  create(@Body() createServiceDeskDto: CreateServiceDeskDto) {
-    return this.serviceDesksService.create(createServiceDeskDto);
+  create(@Body() createServiceDeskDto: CreateServiceDeskDto, @CurrentUser() user: CurrentUserPayload) {
+    return this.serviceDesksService.create(createServiceDeskDto, user.id);
   }
 
   @Get()
@@ -63,8 +63,9 @@ export class ServiceDesksController {
   update(
     @Param('id') id: string,
     @Body() updateServiceDeskDto: UpdateServiceDeskDto,
+    @CurrentUser() user: CurrentUserPayload,
   ) {
-    return this.serviceDesksService.update(id, updateServiceDeskDto);
+    return this.serviceDesksService.update(id, updateServiceDeskDto, user.id);
   }
 
   @Delete(':id')

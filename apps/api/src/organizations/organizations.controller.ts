@@ -11,6 +11,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
+import { CurrentUser, CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 @Controller('organizations')
 @UseGuards(JwtAuthGuard)
@@ -90,15 +91,15 @@ export class OrganizationsController {
   @Post(':id/service-desks/:deskId')
   @UseGuards(RolesGuard)
   @Roles(Role.ADMIN)
-  linkServiceDesk(@Param('id') id: string, @Param('deskId') deskId: string) {
-    return this.organizationsService.linkServiceDesk(id, deskId);
+  linkServiceDesk(@Param('id') id: string, @Param('deskId') deskId: string, @CurrentUser() user: CurrentUserPayload) {
+    return this.organizationsService.linkServiceDesk(id, deskId, user.id);
   }
 
   @Delete(':id/service-desks/:deskId')
   @UseGuards(RolesGuard)
   @Roles(Role.ADMIN)
-  unlinkServiceDesk(@Param('id') id: string, @Param('deskId') deskId: string) {
-    return this.organizationsService.unlinkServiceDesk(id, deskId);
+  unlinkServiceDesk(@Param('id') id: string, @Param('deskId') deskId: string, @CurrentUser() user: CurrentUserPayload) {
+    return this.organizationsService.unlinkServiceDesk(id, deskId, user.id);
   }
 
   @Post(':id/agent-groups')

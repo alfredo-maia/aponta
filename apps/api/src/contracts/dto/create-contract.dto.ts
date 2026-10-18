@@ -1,8 +1,31 @@
-import { IsBoolean, IsDateString, IsEnum, IsInt, IsNumber, IsOptional, IsUUID, IsString, Matches, MaxLength, Min, Max } from 'class-validator';
+import { IsArray, ArrayUnique, IsBoolean, IsDateString, IsEnum, IsInt, IsNumber, IsOptional, IsUUID, IsString, Matches, MaxLength, Min, Max } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ContractType } from '@prisma/client';
 
 export class CreateContractDto {
+  @IsOptional() @IsBoolean()
+  approved?: boolean;
+
+  @IsOptional() @IsArray() @ArrayUnique() @IsUUID(undefined, { each: true })
+  serviceDeskIds?: string[];
+
+  @IsOptional() @IsDateString()
+  conditionsEffectiveAt?: string;
+
+  @IsOptional() @IsInt() @Min(0) @Max(2147483647)
+  hourlyRateCents?: number | null;
+
+  @IsOptional() @IsInt() @Min(0) @Max(2147483647)
+  monthlyFeeCents?: number | null;
+
+  @IsOptional() @IsInt() @Min(0) @Max(2147483647)
+  fixedPriceCents?: number | null;
+
+  @IsOptional() @IsInt() @Min(0) @Max(2147483647)
+  estimatedMinutes?: number | null;
+
+  @IsOptional() @IsString() @MaxLength(20000)
+  scope?: string | null;
   @ApiPropertyOptional({ description: 'Nome do contrato', maxLength: 200 })
   @IsOptional()
   @IsString()

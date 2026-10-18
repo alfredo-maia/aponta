@@ -288,7 +288,7 @@ export class TicketsService {
       }),
       this.prisma.user.findUnique({
         where: { id: requesterId },
-        select: { name: true, email: true, phone: true, extension: true },
+        select: { name: true, email: true, phone: true, extension: true, organizationId: true },
       }),
     ]);
     if (!serviceDesk) {
@@ -343,6 +343,7 @@ export class TicketsService {
               description: dto.description,
               serviceDeskId: serviceDeskId,
               requesterId,
+              commercialOrganizationId: requester?.organizationId ?? null,
               status: serviceDesk.defaultOpenStatus ?? TicketStatus.OPEN,
               stageId: serviceDesk.stages[0]?.id,
               priority,
@@ -856,7 +857,7 @@ export class TicketsService {
     let reopenReply: string | null = null;
     if (isReopenByAdmin && desk) {
       const worklogs = await this.prisma.worklog.findMany({
-        where: { ticketId: id },
+        where: { ticketId: id, voidedAt: null },
         select: { billable: true, valuationType: true, value: true },
       });
       const billed = isTicketBilled(worklogs);

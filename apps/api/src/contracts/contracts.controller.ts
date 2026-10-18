@@ -24,6 +24,12 @@ export class ContractsController {
     return this.contractsService.findAll(user, search);
   }
 
+  @Get('preflight')
+  @Roles(Role.ADMIN)
+  preflight(@CurrentUser() user: CurrentUserPayload) {
+    return this.contractsService.preflight(user);
+  }
+
   @Get(':id')
   @Roles(Role.ADMIN, Role.AGENT_MASTER, Role.AGENT, Role.CLIENT_MASTER)
   @ApiOperation({ summary: 'Detalha contrato conforme organização e permissão financeira' })

@@ -94,6 +94,7 @@ const mockWorklogs = [
 const todayStr = () => brasiliaDateString();
 
 type PreRow = {
+  contractId?: string;
   id: string;
   beginning: string;
   ending: string | null;
@@ -306,6 +307,7 @@ describe('TicketWorklogs', () => {
         attendanceType: 'REMOTE',
         description: 'Implementação de feature',
         billable: true,
+        contractId: 'contract-1',
         valuationType: 'CONTRACT',
       });
     });
@@ -339,6 +341,7 @@ describe('TicketWorklogs', () => {
         attendanceType: 'ON_SITE',
         description: 'Visita técnica',
         billable: true,
+        contractId: 'contract-1',
         valuationType: 'CONTRACT',
       });
     });
@@ -673,6 +676,17 @@ describe('TicketWorklogs', () => {
     await waitFor(() => expect(screen.getAllByTestId('worklog-pre-appointment-row')).toHaveLength(2));
     expect(screen.getAllByTestId('worklog-pre-end')[0]).toHaveTextContent('--');
     expect(screen.getAllByTestId('worklog-pre-end')[1]).not.toHaveTextContent('--');
+  });
+  it('converts stopped raw time with its original contract and source identifier', async () => {
+    loginAs('AGENT', 'u-1');
+    preStore = [{ id: 'source-pre', contractId: 'contract-1', beginning: '2026-10-14T12:00:00Z', ending: '2026-10-14T13:00:00Z', initTime: '09:00', endTime: '10:00', ticketId: 't-1', authorId: 'u-1', createdAt: '2026-10-14T12:00:00Z', author: { id: 'u-1', name: 'Técnico', email: 'agent@example.com' } }];
+    renderComponent('t-1', false);
+    fireEvent.click(await screen.findByTestId('worklog-pre-convert-btn'));
+    expect(screen.getByLabelText('Contrato aplicável')).toHaveValue('contract-1');
+    fireEvent.change(screen.getByTestId('worklog-description-input'), { target: { value: 'Conversão de tempo preservado' } });
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith('/tickets/t-1/worklogs', expect.objectContaining({ contractId: 'contract-1', preAppointmentId: 'source-pre' })));
+    expect(api.delete).not.toHaveBeenCalled();
   });
 
   it('discards the running pré-apontamento from the timer cancel control', async () => {
@@ -1074,14 +1088,38 @@ describe('TicketWorklogs', () => {
     expect(api.post).not.toHaveBeenCalled();
   });
 
-  it('shows unknown totals and warns when the selected contract has no rate', async () => {
+  it('keeps unknown historical totals visible without inferring free values', async () => {
     loginAs('ADMIN');
     currentWorklogs = [{ ...mockWorklogs[0], value: null }];
     renderComponent('t-1', true);
     await screen.findByRole('option', { name: 'Suporte' });
     fireEvent.change(screen.getByLabelText('Contrato aplicável'), { target: { value: 'contract-1' } });
-    expect(await screen.findByText('Tarifa de excedente não informada; excedentes ficam sem valor conhecido.')).toBeInTheDocument();
     expect(await screen.findByTestId('worklog-footer-value')).toHaveTextContent('Valor desconhecido');
+  });
+  it('blocks every valuation mode when no commercial contract is eligible', async () => {
+    loginAs('ADMIN');
+    vi.mocked(api.get).mockImplementation(async () => ({ data: [] }));
+    renderComponent('t-1', true);
+    await screen.findByText(/Lançamento bloqueado: nenhum contrato elegível/);
+    fireEvent.change(screen.getByTestId('worklog-description-input'), { target: { value: 'Atividade sem cobertura' } });
+    for (const mode of ['CONTRACT', 'GUARANTEE', 'MANUAL', 'BONUS']) {
+      fireEvent.change(screen.getByTestId('worklog-valuation-type-select'), { target: { value: mode } });
+      fireEvent.submit(screen.getByTestId('worklog-form'));
+      expect(await screen.findByText(/Lançamento bloqueado: selecione um contrato aprovado/)).toBeInTheDocument();
+    }
+    expect(api.post).not.toHaveBeenCalled();
+  });
+  it('requires a bonus reason and records its eligible contract without quota consumption', async () => {
+    loginAs('ADMIN');
+    renderComponent('t-1', true);
+    await screen.findByRole('option', { name: 'Suporte' });
+    fireEvent.change(screen.getByTestId('worklog-description-input'), { target: { value: 'Correção interna' } });
+    fireEvent.change(screen.getByTestId('worklog-valuation-type-select'), { target: { value: 'BONUS' } });
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+    expect(await screen.findByText('Informe o motivo da garantia ou bonificação.')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText(/Motivo da garantia ou bonificação/), { target: { value: 'Retrabalho autorizado' } });
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith('/tickets/t-1/worklogs', expect.objectContaining({ contractId: 'contract-1', valuationType: 'BONUS', billable: false, bonusReason: 'Retrabalho autorizado' })));
   });
   it('submits near-midnight Brasília work as true instants in the correct local cycle', async () => {
     loginAs('AGENT');

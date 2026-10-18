@@ -6,7 +6,10 @@ import { TicketComments } from '../components/tickets/TicketComments';
 import { TicketDetail } from '../components/tickets/TicketDetail';
 import { TicketAttachments } from '../components/tickets/TicketAttachments';
 import { TicketCsat } from '../components/tickets/TicketCsat';
-import { formatTimerSeconds, TicketWorklogs } from '../components/tickets/TicketWorklogs';
+import {
+  formatTimerSeconds,
+  TicketWorklogs,
+} from '../components/tickets/TicketWorklogs';
 import { useActivityTimer } from '../hooks/useActivityTimer';
 import { useTicket } from '../hooks/useTicket';
 import { Ticket } from '../hooks/useTickets';
@@ -29,6 +32,7 @@ export function TicketDetailPage() {
   const [activeTab, setActiveTab] = useState<string>(initialTab);
   const [isWorklogModalOpen, setIsWorklogModalOpen] = useState<boolean>(false);
   const activityTimer = useActivityTimer(id || '');
+  const [timerError, setTimerError] = useState('');
 
   if (isLoading) {
     return (
@@ -43,8 +47,8 @@ export function TicketDetailPage() {
   if (isError || !ticket) {
     return (
       <EzAlert variant="error">
-        Falha ao carregar o chamado. Ele pode não existir ou você pode não
-        ter acesso a ele.
+        Falha ao carregar o chamado. Ele pode não existir ou você pode não ter
+        acesso a ele.
       </EzAlert>
     );
   }
@@ -52,27 +56,41 @@ export function TicketDetailPage() {
   const isClient = user?.role === 'CLIENT';
   const sectionOn = (key: string) => isTicketSectionEnabled(ticket, key);
 
-  const tabs: EzTabItem[] = (isClient
-    ? [
-        { id: 'geral', label: 'Informações gerais', section: 'GENERAL_INFO' },
-        { id: 'comunicacao', label: 'Comunicação', section: 'COMMUNICATION' },
-      ]
-    : [
-        { id: 'geral', label: 'Informações gerais', section: 'GENERAL_INFO' },
-        { id: 'categoria', label: 'Categoria', section: 'CATEGORY' },
-        { id: 'tipo_atendimento', label: 'Tipo de Atendimento', section: 'SERVICE_TYPE' },
-        { id: 'apontamentos', label: 'Apontamentos', section: 'WORKLOGS' },
-        { id: 'comunicacao', label: 'Comunicação', section: 'COMMUNICATION' },
-        { id: 'compromissos', label: 'Compromissos', section: 'APPOINTMENTS' },
-        { id: 'valorizacao', label: 'Valorização', section: 'VALUATION' },
-        { id: 'assinatura', label: 'Assinatura eletrônica', section: 'E_SIGNATURE' },
-        { id: 'github', label: 'GitHub', section: 'GITHUB' },
-        { id: 'historico', label: 'Histórico', section: 'HISTORY' },
-      ]
+  const tabs: EzTabItem[] = (
+    isClient
+      ? [
+          { id: 'geral', label: 'Informações gerais', section: 'GENERAL_INFO' },
+          { id: 'comunicacao', label: 'Comunicação', section: 'COMMUNICATION' },
+        ]
+      : [
+          { id: 'geral', label: 'Informações gerais', section: 'GENERAL_INFO' },
+          { id: 'categoria', label: 'Categoria', section: 'CATEGORY' },
+          {
+            id: 'tipo_atendimento',
+            label: 'Tipo de Atendimento',
+            section: 'SERVICE_TYPE',
+          },
+          { id: 'apontamentos', label: 'Apontamentos', section: 'WORKLOGS' },
+          { id: 'comunicacao', label: 'Comunicação', section: 'COMMUNICATION' },
+          {
+            id: 'compromissos',
+            label: 'Compromissos',
+            section: 'APPOINTMENTS',
+          },
+          { id: 'valorizacao', label: 'Valorização', section: 'VALUATION' },
+          {
+            id: 'assinatura',
+            label: 'Assinatura eletrônica',
+            section: 'E_SIGNATURE',
+          },
+          { id: 'github', label: 'GitHub', section: 'GITHUB' },
+          { id: 'historico', label: 'Histórico', section: 'HISTORY' },
+        ]
   ).filter((tab) => sectionOn(tab.section));
 
   return (
     <div className="space-y-4">
+      {timerError && <EzAlert variant="warning">{timerError}</EzAlert>}
       <Link
         to="/"
         className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900"
@@ -91,7 +109,10 @@ export function TicketDetailPage() {
 
           <div className="flex items-center gap-2">
             {!isClient && (
-              <div className="flex items-center gap-2" data-testid="ticket-header-timer">
+              <div
+                className="flex items-center gap-2"
+                data-testid="ticket-header-timer"
+              >
                 {activityTimer.timerActive && (
                   <span
                     className="font-mono text-[13px] font-semibold text-gray-700"
@@ -104,7 +125,16 @@ export function TicketDetailPage() {
                   <button
                     type="button"
                     data-testid="ticket-header-play-btn"
-                    onClick={activityTimer.handleStartTimer}
+                    onClick={() => {
+                      setTimerError('');
+                      void activityTimer
+                        .handleStartTimer()
+                        .catch((error: Error) => {
+                          setTimerError(error.message);
+                          setActiveTab('apontamentos');
+                          setIsWorklogModalOpen(true);
+                        });
+                    }}
                     title="Iniciar pré-apontamento"
                     aria-label="Iniciar pré-apontamento"
                     className="inline-flex items-center justify-center w-9 h-9 rounded-full text-[#00B5A5] hover:bg-teal-50 border border-transparent hover:border-teal-200 cursor-pointer"
@@ -140,7 +170,10 @@ export function TicketDetailPage() {
         {/* Tab Panels */}
         <div className="p-6">
           {/* Tab: Informações gerais */}
-          <div className={activeTab === 'geral' ? 'space-y-6' : 'hidden'} data-testid="tab-panel-geral">
+          <div
+            className={activeTab === 'geral' ? 'space-y-6' : 'hidden'}
+            data-testid="tab-panel-geral"
+          >
             <TicketDetail ticket={ticket} />
             {ticket.serviceDesk?.evaluationEnabled !== false && (
               <TicketCsat ticket={ticket} />
@@ -150,22 +183,41 @@ export function TicketDetailPage() {
 
           {/* Tab: Categoria */}
           {!isClient && sectionOn('CATEGORY') && (
-            <div className={activeTab === 'categoria' ? 'space-y-4' : 'hidden'} data-testid="tab-panel-categoria">
-              <h3 className="text-[16px] font-semibold text-gray-900 border-b border-gray-100 pb-3">Categoria</h3>
+            <div
+              className={activeTab === 'categoria' ? 'space-y-4' : 'hidden'}
+              data-testid="tab-panel-categoria"
+            >
+              <h3 className="text-[16px] font-semibold text-gray-900 border-b border-gray-100 pb-3">
+                Categoria
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
                 <div>
-                  <span className="text-[12px] font-medium text-gray-500 uppercase tracking-wider block">Tipo de Atendimento</span>
-                  <span className="text-[14px] text-gray-900 mt-1 block font-medium">Remoto</span>
-                </div>
-                <div>
-                  <span className="text-[12px] font-medium text-gray-500 uppercase tracking-wider block">Previsão de Entrega</span>
-                  <span className="text-[14px] text-gray-900 mt-1 block">
-                    {ticket.resolveDeadline ? new Date(ticket.resolveDeadline).toLocaleDateString('pt-BR') : 'Sem dados'}
+                  <span className="text-[12px] font-medium text-gray-500 uppercase tracking-wider block">
+                    Tipo de Atendimento
+                  </span>
+                  <span className="text-[14px] text-gray-900 mt-1 block font-medium">
+                    Remoto
                   </span>
                 </div>
                 <div>
-                  <span className="text-[12px] font-medium text-gray-500 uppercase tracking-wider block">Estimativa</span>
-                  <span className="text-[14px] text-gray-900 mt-1 block text-gray-500">Sem dados</span>
+                  <span className="text-[12px] font-medium text-gray-500 uppercase tracking-wider block">
+                    Previsão de Entrega
+                  </span>
+                  <span className="text-[14px] text-gray-900 mt-1 block">
+                    {ticket.resolveDeadline
+                      ? new Date(ticket.resolveDeadline).toLocaleDateString(
+                          'pt-BR',
+                        )
+                      : 'Sem dados'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[12px] font-medium text-gray-500 uppercase tracking-wider block">
+                    Estimativa
+                  </span>
+                  <span className="text-[14px] text-gray-900 mt-1 block text-gray-500">
+                    Sem dados
+                  </span>
                 </div>
               </div>
             </div>
@@ -173,18 +225,33 @@ export function TicketDetailPage() {
 
           {/* Tab: Tipo de Atendimento */}
           {!isClient && sectionOn('SERVICE_TYPE') && (
-            <div className={activeTab === 'tipo_atendimento' ? 'space-y-4' : 'hidden'} data-testid="tab-panel-tipo-atendimento">
-              <h3 className="text-[16px] font-semibold text-gray-900 border-b border-gray-100 pb-3">Tipo de Atendimento</h3>
+            <div
+              className={
+                activeTab === 'tipo_atendimento' ? 'space-y-4' : 'hidden'
+              }
+              data-testid="tab-panel-tipo-atendimento"
+            >
+              <h3 className="text-[16px] font-semibold text-gray-900 border-b border-gray-100 pb-3">
+                Tipo de Atendimento
+              </h3>
               <div className="p-4 rounded-[8px] bg-gray-50 border border-gray-200">
-                <span className="text-[14px] text-gray-900 font-medium">Atendimento Remoto</span>
-                <p className="text-[13px] text-gray-500 mt-1">Chamado executado remotamente através do portal de Helpdesk DM Tecnologia.</p>
+                <span className="text-[14px] text-gray-900 font-medium">
+                  Atendimento Remoto
+                </span>
+                <p className="text-[13px] text-gray-500 mt-1">
+                  Chamado executado remotamente através do portal de Helpdesk DM
+                  Tecnologia.
+                </p>
               </div>
             </div>
           )}
 
           {/* Tab: Apontamentos (Worklog) */}
           {!isClient && sectionOn('WORKLOGS') && (
-            <div className={activeTab === 'apontamentos' ? 'block' : 'hidden'} data-testid="tab-panel-apontamentos">
+            <div
+              className={activeTab === 'apontamentos' ? 'block' : 'hidden'}
+              data-testid="tab-panel-apontamentos"
+            >
               <TicketWorklogs
                 ticketId={ticket.id}
                 isModalOpen={isWorklogModalOpen}
@@ -196,35 +263,50 @@ export function TicketDetailPage() {
 
           {/* Tab: Comunicação */}
           {sectionOn('COMMUNICATION') && (
-          <div className={activeTab === 'comunicacao' ? 'space-y-6' : 'hidden'} data-testid="tab-panel-comunicacao">
-            <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-              <span className="px-3 py-1 text-[13px] font-medium bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200">
-                Cliente
-              </span>
-              <span className="px-3 py-1 text-[13px] font-medium text-gray-600 hover:bg-gray-100 rounded-full cursor-pointer">
-                Equipe interna
-              </span>
-              <span className="px-3 py-1 text-[13px] font-medium text-gray-600 hover:bg-gray-100 rounded-full cursor-pointer">
-                Chat
-              </span>
+            <div
+              className={activeTab === 'comunicacao' ? 'space-y-6' : 'hidden'}
+              data-testid="tab-panel-comunicacao"
+            >
+              <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
+                <span className="px-3 py-1 text-[13px] font-medium bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200">
+                  Cliente
+                </span>
+                <span className="px-3 py-1 text-[13px] font-medium text-gray-600 hover:bg-gray-100 rounded-full cursor-pointer">
+                  Equipe interna
+                </span>
+                <span className="px-3 py-1 text-[13px] font-medium text-gray-600 hover:bg-gray-100 rounded-full cursor-pointer">
+                  Chat
+                </span>
+              </div>
+              <div className="space-y-4">
+                <h3 className="text-[15px] font-semibold text-gray-900">
+                  Enviar resposta para o cliente
+                </h3>
+                <CommentForm ticketId={ticket.id} />
+              </div>
+              <div className="space-y-4 pt-4 border-t border-gray-100">
+                <h3 className="text-[15px] font-semibold text-gray-900">
+                  Comunicados enviados e recebidos
+                </h3>
+                <TicketComments ticketId={ticket.id} />
+              </div>
             </div>
-            <div className="space-y-4">
-              <h3 className="text-[15px] font-semibold text-gray-900">Enviar resposta para o cliente</h3>
-              <CommentForm ticketId={ticket.id} />
-            </div>
-            <div className="space-y-4 pt-4 border-t border-gray-100">
-              <h3 className="text-[15px] font-semibold text-gray-900">Comunicados enviados e recebidos</h3>
-              <TicketComments ticketId={ticket.id} />
-            </div>
-          </div>
           )}
 
           {/* Tab: Compromissos */}
           {!isClient && sectionOn('APPOINTMENTS') && (
-            <div className={activeTab === 'compromissos' ? 'space-y-4' : 'hidden'} data-testid="tab-panel-compromissos">
+            <div
+              className={activeTab === 'compromissos' ? 'space-y-4' : 'hidden'}
+              data-testid="tab-panel-compromissos"
+            >
               <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                <h3 className="text-[16px] font-semibold text-gray-900">Compromissos</h3>
-                <button type="button" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-[#00B5A5] hover:bg-[#009E90] rounded-[6px]">
+                <h3 className="text-[16px] font-semibold text-gray-900">
+                  Compromissos
+                </h3>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-[#00B5A5] hover:bg-[#009E90] rounded-[6px]"
+                >
                   + Compromisso
                 </button>
               </div>
@@ -236,15 +318,25 @@ export function TicketDetailPage() {
 
           {/* Tab: Valorização */}
           {!isClient && sectionOn('VALUATION') && (
-            <div className={activeTab === 'valorizacao' ? 'space-y-6' : 'hidden'} data-testid="tab-panel-valorizacao">
+            <div
+              className={activeTab === 'valorizacao' ? 'space-y-6' : 'hidden'}
+              data-testid="tab-panel-valorizacao"
+            >
               <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                <h3 className="text-[16px] font-semibold text-gray-900">Valorização</h3>
-                <button type="button" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-[#00B5A5] hover:bg-[#009E90] rounded-[6px]">
+                <h3 className="text-[16px] font-semibold text-gray-900">
+                  Valorização
+                </h3>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-[#00B5A5] hover:bg-[#009E90] rounded-[6px]"
+                >
                   + Valor extra
                 </button>
               </div>
               <div className="space-y-2">
-                <h4 className="text-[14px] font-medium text-gray-700">Valores extras</h4>
+                <h4 className="text-[14px] font-medium text-gray-700">
+                  Valores extras
+                </h4>
                 <div className="p-6 text-center bg-gray-50/50 rounded-[8px] border border-dashed border-gray-200 text-gray-500 text-[13px]">
                   Nenhum valor extra cadastrado.
                 </div>
@@ -254,10 +346,18 @@ export function TicketDetailPage() {
 
           {/* Tab: Assinatura eletrônica */}
           {!isClient && sectionOn('E_SIGNATURE') && (
-            <div className={activeTab === 'assinatura' ? 'space-y-4' : 'hidden'} data-testid="tab-panel-assinatura">
+            <div
+              className={activeTab === 'assinatura' ? 'space-y-4' : 'hidden'}
+              data-testid="tab-panel-assinatura"
+            >
               <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                <h3 className="text-[16px] font-semibold text-gray-900">Assinatura eletrônica</h3>
-                <button type="button" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-[#00B5A5] hover:bg-[#009E90] rounded-[6px]">
+                <h3 className="text-[16px] font-semibold text-gray-900">
+                  Assinatura eletrônica
+                </h3>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-[#00B5A5] hover:bg-[#009E90] rounded-[6px]"
+                >
                   + Assinatura
                 </button>
               </div>
@@ -269,14 +369,25 @@ export function TicketDetailPage() {
 
           {/* Tab: GitHub */}
           {!isClient && sectionOn('GITHUB') && (
-            <div className={activeTab === 'github' ? 'space-y-4' : 'hidden'} data-testid="tab-panel-github">
+            <div
+              className={activeTab === 'github' ? 'space-y-4' : 'hidden'}
+              data-testid="tab-panel-github"
+            >
               <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                <h3 className="text-[16px] font-semibold text-gray-900">Integrações GitHub</h3>
+                <h3 className="text-[16px] font-semibold text-gray-900">
+                  Integrações GitHub
+                </h3>
                 <div className="flex items-center gap-2">
-                  <button type="button" className="px-3 py-1.5 text-[12px] font-medium text-gray-700 bg-white border border-gray-200 rounded-[6px] hover:bg-gray-50">
+                  <button
+                    type="button"
+                    className="px-3 py-1.5 text-[12px] font-medium text-gray-700 bg-white border border-gray-200 rounded-[6px] hover:bg-gray-50"
+                  >
                     + Criar issue
                   </button>
-                  <button type="button" className="px-3 py-1.5 text-[12px] font-medium text-gray-700 bg-white border border-gray-200 rounded-[6px] hover:bg-gray-50">
+                  <button
+                    type="button"
+                    className="px-3 py-1.5 text-[12px] font-medium text-gray-700 bg-white border border-gray-200 rounded-[6px] hover:bg-gray-50"
+                  >
                     + Associar issue
                   </button>
                 </div>
@@ -289,9 +400,17 @@ export function TicketDetailPage() {
 
           {/* Tab: Histórico */}
           {!isClient && sectionOn('HISTORY') && (
-            <div className={activeTab === 'historico' ? 'space-y-4' : 'hidden'} data-testid="tab-panel-historico">
-              <div className="text-[16px] font-semibold text-gray-900 border-b border-gray-100 pb-3">Histórico de Alterações</div>
-              <p className="text-[13px] text-gray-500">Consulte a aba "Informações gerais" para a trilha completa de auditoria do chamado.</p>
+            <div
+              className={activeTab === 'historico' ? 'space-y-4' : 'hidden'}
+              data-testid="tab-panel-historico"
+            >
+              <div className="text-[16px] font-semibold text-gray-900 border-b border-gray-100 pb-3">
+                Histórico de Alterações
+              </div>
+              <p className="text-[13px] text-gray-500">
+                Consulte a aba "Informações gerais" para a trilha completa de
+                auditoria do chamado.
+              </p>
             </div>
           )}
         </div>
