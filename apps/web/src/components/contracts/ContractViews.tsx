@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import type { ColumnDef } from '@tanstack/react-table';
 import type {
   Contract,
   ContractInput,
@@ -11,7 +12,7 @@ import {
   EzButton,
   EzComboBox,
   EzEmptyCard,
-  EzGridWrapper,
+  EzEntityGrid,
   EzSpinner,
   EzTextInput,
 } from '../ds';
@@ -68,38 +69,30 @@ export function ContractList({
   error?: boolean;
   onDetail: (id: string) => void;
 }) {
-  if (loading) return <EzSpinner label="Carregando contratos..." />;
-  if (error)
-    return <EzAlert variant="error">Erro ao carregar os contratos.</EzAlert>;
-  if (!contracts.length)
-    return <EzEmptyCard title="Nenhum contrato encontrado." />;
-  return (
-    <EzGridWrapper>
-      <thead className="bg-gray-90">
-        <tr>
-          {[
-            'Contrato',
-            'Empresa',
-            'Modalidade',
-            'Status',
-            ...(showFinancial
-              ? ['Valor mensal', 'Hora excedente', 'Reajuste']
-              : []),
-            'Ações',
-          ].map((label) => (
-            <th key={label} className="px-4 py-3 text-left">
-              {label}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-gray-100">
-        {contracts.map((c) => (
-          <tr key={c.id}>
-            <td className="px-4 py-3">{c.name || 'Sem nome'}</td>
-            <td className="px-4 py-3">{c.organization?.name || '—'}</td>
-            <td className="px-4 py-3">{modality(c)}</td>
-            <td className="px-4 py-3">
+  const columns = useMemo<ColumnDef<Contract>[]>(
+    () => [
+      {
+        id: 'contract',
+        header: 'Contrato',
+        accessorFn: (c) => c.name || 'Sem nome',
+      },
+      {
+        id: 'organization',
+        header: 'Empresa',
+        accessorFn: (c) => c.organization?.name || '—',
+      },
+      {
+        id: 'modality',
+        header: 'Modalidade',
+        accessorFn: (c) => modality(c),
+      },
+      {
+        id: 'status',
+        header: 'Status',
+        cell: ({ row }) => {
+          const c = row.original;
+          return (
+            <>
               <span>{c.active ? 'Ativo' : 'Inativo'}</span>
               <span className="block text-sm">
                 {isLegacy(c)
@@ -108,40 +101,65 @@ export function ContractList({
                     ? 'Aprovado'
                     : 'Rascunho'}
               </span>
-            </td>
-            {showFinancial && (
-              <>
-                <td className="px-4 py-3">
-                  {contractMoney(
-                    c.monthlyFeeCents != null
-                      ? c.monthlyFeeCents / 100
-                      : c.monthlyValue,
-                  )}
-                </td>
-                <td className="px-4 py-3">
-                  {contractMoney(
-                    c.excessHourlyRateCents == null
-                      ? null
-                      : c.excessHourlyRateCents / 100,
-                  )}
-                </td>
-                <td className="px-4 py-3">{dateLabel(c.adjustmentDate)}</td>
-              </>
-            )}
-            <td className="px-4 py-3">
-              <EzButton
-                variant="tertiary"
-                size="small"
-                label="Ver detalhes"
-                aria-label={`Ver detalhes ${c.name || c.organization?.name || c.id}`}
-                onClick={() => onDetail(c.id)}
-              />
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </EzGridWrapper>
+            </>
+          );
+        },
+      },
+      ...(showFinancial
+        ? ([
+            {
+              id: 'monthlyValue',
+              header: 'Valor mensal',
+              cell: ({ row }) =>
+                contractMoney(
+                  row.original.monthlyFeeCents != null
+                    ? row.original.monthlyFeeCents / 100
+                    : row.original.monthlyValue,
+                ),
+            },
+            {
+              id: 'excessHourlyRate',
+              header: 'Hora excedente',
+              cell: ({ row }) =>
+                contractMoney(
+                  row.original.excessHourlyRateCents == null
+                    ? null
+                    : row.original.excessHourlyRateCents / 100,
+                ),
+            },
+            {
+              id: 'adjustmentDate',
+              header: 'Reajuste',
+              cell: ({ row }) => dateLabel(row.original.adjustmentDate),
+            },
+          ] as ColumnDef<Contract>[])
+        : []),
+      {
+        id: 'actions',
+        header: 'Ações',
+        cell: ({ row }) => {
+          const c = row.original;
+          return (
+            <EzButton
+              variant="tertiary"
+              size="small"
+              label="Ver detalhes"
+              aria-label={`Ver detalhes ${c.name || c.organization?.name || c.id}`}
+              onClick={() => onDetail(c.id)}
+            />
+          );
+        },
+      },
+    ],
+    [showFinancial, onDetail],
   );
+
+  if (loading) return <EzSpinner label="Carregando contratos..." />;
+  if (error)
+    return <EzAlert variant="error">Erro ao carregar os contratos.</EzAlert>;
+  if (!contracts.length)
+    return <EzEmptyCard title="Nenhum contrato encontrado." />;
+  return <EzEntityGrid columns={columns} data={contracts} />;
 }
 
 export function ContractDetail({

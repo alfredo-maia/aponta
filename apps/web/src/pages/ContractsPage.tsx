@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Briefcase } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { Briefcase, FilePlus } from 'lucide-react';
 import {
   useContract,
   useContractOrganizations,
@@ -10,6 +11,7 @@ import { useAuthStore } from '../stores/authStore';
 import {
   EzAlert,
   EzButton,
+  EzEntityToolbar,
   EzModal,
   EzSpinner,
   EzTextInput,
@@ -24,6 +26,7 @@ export function ContractsPage() {
   const role = useAuthStore((state) => state.user?.role);
   const canManage = role === 'ADMIN';
   const showFinancial = canManage || role === 'CLIENT_MASTER';
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [query, setQuery] = useState('');
   const [detailId, setDetailId] = useState<string | null>(null);
@@ -55,16 +58,31 @@ export function ContractsPage() {
           <Briefcase className="h-8 w-8" />
           Contratos
         </h1>
-        {canManage && (
-          <EzButton
-            label="Novo contrato"
-            onClick={() => {
-              save.reset();
-              setCreating(true);
-            }}
-          />
-        )}
       </div>
+      <EzEntityToolbar
+        viewMode="GRID"
+        showViewModeToggle={false}
+        onToggleViewMode={() => {
+          // Grid-only screen: there is no FORM mode to switch to.
+        }}
+        onRefresh={() => {
+          void queryClient.invalidateQueries({ queryKey: ['contracts'] });
+        }}
+        actions={
+          canManage
+            ? [
+                {
+                  label: 'Novo contrato',
+                  icon: FilePlus,
+                  onClick: () => {
+                    save.reset();
+                    setCreating(true);
+                  },
+                },
+              ]
+            : []
+        }
+      />
       <form
         className="flex items-end gap-3"
         onSubmit={(event) => {
