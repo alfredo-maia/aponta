@@ -144,8 +144,10 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     expect(within(rowB).getByText('Empresa B')).toBeInTheDocument();
     expect(within(rowB).getByText('0')).toBeInTheDocument();
 
-    // Removidos a pedido: alternador Grade/Formulário e botão Novo Cliente.
-    expect(screen.queryByTestId('ez-toolbar-mode-toggle-button')).not.toBeInTheDocument();
+    // Botão "Novo Cliente" continua removido a pedido (criação só via
+    // Ações > Cadastrar manualmente); o alternador Grade/Formulário, porém,
+    // deve ficar visível (padrão igual a Mesas e Contratos).
+    expect(screen.getByTestId('ez-toolbar-mode-toggle-button')).toBeInTheDocument();
     expect(screen.queryByTestId('ez-toolbar-insert-button')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /novo cliente/i })).not.toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Código' })).toBeInTheDocument();
@@ -173,6 +175,28 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
       expect(screen.getByText(/nome é obrigatório/i)).toBeInTheDocument();
     });
     expect(api.post).not.toHaveBeenCalled();
+  });
+
+  it('switches between Grid Mode and Form Mode via the toolbar toggle', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId('ez-toolbar-mode-toggle-button'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A Ltda')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTitle('Voltar'));
+
+    await waitFor(() => {
+      expect(screen.getByRole('columnheader', { name: 'Nome' })).toBeInTheDocument();
+    });
   });
 
   it('creates a new organization with rich fields', async () => {
