@@ -1,6 +1,6 @@
 import { IsBoolean, IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min, Max, MaxLength } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { AttendanceType, TicketStatus, ValuationType } from '@prisma/client';
+import { AttendanceType, ValuationType } from '@prisma/client';
 
 export class CreateWorklogDto {
   @ApiProperty({ description: 'Dia e horário de início do apontamento (ISO 8601)', example: '2026-10-13T08:00:00Z' })
@@ -38,12 +38,11 @@ export class CreateWorklogDto {
   authorId?: string;
 
   @ApiPropertyOptional({
-    description: 'Novo status do chamado a aplicar ao salvar o apontamento (paridade "Próximo estágio" do TiFlux)',
-    enum: TicketStatus,
+    description: 'Estágio da mesa a aplicar ao chamado ao salvar o apontamento (paridade "Próximo estágio" do TiFlux); precisa estar entre os nextStages do chamado',
   })
   @IsOptional()
-  @IsEnum(TicketStatus)
-  nextStatus?: TicketStatus;
+  @IsUUID()
+  nextStageId?: string;
 
   @ApiPropertyOptional({
     description: 'Se true, publica a descrição do apontamento como um comentário visível ao cliente',

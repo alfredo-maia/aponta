@@ -767,10 +767,10 @@ export class TicketsService {
   }
 
   /**
-   * Enforces the OPEN -> IN_PROGRESS -> RESOLVED -> CLOSED state machine.
-   * Any transition not explicitly listed in FORWARD_TRANSITIONS is
-   * rejected, EXCEPT CLOSED -> OPEN ("reopen"), which is allowed only for
-   * ADMIN callers.
+   * Moves the ticket to a stage of its own service desk, enforcing the
+   * desk-configured `TicketStageTransition` graph (or `isInitial` when the
+   * ticket has no stage yet). Reaching an `isFinal` stage also closes the
+   * ticket (desk's `defaultClosedStatus`, or CLOSED).
    */
   async changeStage(
     id: string,

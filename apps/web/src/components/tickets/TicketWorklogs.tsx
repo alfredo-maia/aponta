@@ -43,8 +43,7 @@ import {
   AttendanceType,
   ValuationType,
 } from '../../hooks/useWorklogs';
-import type { TicketStatus } from '../../hooks/useTickets';
-import { statusLabels } from './TicketCard';
+import type { Ticket } from '../../hooks/useTickets';
 import {
   EzSpinner,
   EzAlert,
@@ -79,6 +78,8 @@ export interface TicketWorklogsProps {
   onModalOpenChange?: (open: boolean) => void;
   /** Shared with the ticket header play/stop (TiFlux). Falls back to a local timer. */
   timer?: ActivityTimer;
+  /** Stages reachable from the ticket's current stage, for "Próximo Estágio" (paridade TiFlux). */
+  nextStages?: Ticket['nextStages'];
 }
 
 export const PRE_APPOINTMENTS_PAGE_SIZE = 5;
@@ -125,17 +126,6 @@ const valuationTypeLabels: Record<ValuationType, string> = {
   MANUAL: 'Valor manual',
 };
 
-const ticketStatusOptions: TicketStatus[] = [
-  'OPEN',
-  'IN_PROGRESS',
-  'PENDING_CUSTOMER',
-  'ON_HOLD',
-  'PENDING_APPROVAL',
-  'ESCALATED',
-  'RESOLVED',
-  'CLOSED',
-];
-
 function todayStr(): string {
   return brasiliaDateString();
 }
@@ -161,9 +151,12 @@ export function TicketWorklogs({
   isModalOpen: controlledModalOpen,
   onModalOpenChange,
   timer: timerFromParent,
+  nextStages = [],
 }: TicketWorklogsProps) {
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.role === 'ADMIN';
+  /** The next stage that also closes the ticket, if the current stage can reach one. */
+  const finalNextStage = nextStages.find((stage) => stage.isFinal);
 
   const [internalModalOpen, setInternalModalOpen] =
     useState<boolean>(defaultModalOpen);
@@ -293,8 +286,8 @@ export function TicketWorklogs({
     day && endTimeOfDay ? toISO(day, endTimeOfDay) : '',
     isModalOpen,
   );
-  const [nextStatus, setNextStatus] = useState<string>(
-    initialDraft?.nextStatus || '',
+  const [nextStageId, setNextStageId] = useState<string>(
+    initialDraft?.nextStageId || '',
   );
   const [sendAsReply, setSendAsReply] = useState<boolean>(
     initialDraft?.sendAsReply !== undefined ? initialDraft.sendAsReply : false,
@@ -309,7 +302,7 @@ export function TicketWorklogs({
       initialDraft &&
       (initialDraft.description ||
         initialDraft.manualValue ||
-        initialDraft.nextStatus ||
+        initialDraft.nextStageId ||
         initialDraft.sendAsReply ||
         initialDraft.startTimeOfDay !== '08:00' ||
         initialDraft.endTimeOfDay !== '08:30'),
@@ -330,7 +323,7 @@ export function TicketWorklogs({
       !isBlankRichText(description) ||
       manualValue.trim() ||
       contractId ||
-      nextStatus ||
+      nextStageId ||
       sendAsReply ||
       selectedAuthorId ||
       attendanceType !== 'REMOTE' ||
@@ -362,7 +355,7 @@ export function TicketWorklogs({
         manualValue,
         bonusReason,
         preAppointmentId,
-        nextStatus,
+        nextStageId,
         sendAsReply,
         selectedAuthorId,
       };
@@ -383,7 +376,7 @@ export function TicketWorklogs({
     manualValue,
     bonusReason,
     preAppointmentId,
-    nextStatus,
+    nextStageId,
     sendAsReply,
     selectedAuthorId,
   ]);
@@ -405,7 +398,7 @@ export function TicketWorklogs({
     setBonusReason('');
     setContractId('');
     setPreAppointmentId('');
-    setNextStatus('');
+    setNextStageId('');
     setSendAsReply(false);
     setSelectedAuthorId('');
     setHasDraftLoaded(false);
@@ -574,12 +567,10 @@ export function TicketWorklogs({
       }
     }
 
-    const effectiveNextStatus =
+    const effectiveNextStageId =
       mode === 'CLOSE_TICKET'
-        ? ('CLOSED' as TicketStatus)
-        : nextStatus
-          ? (nextStatus as TicketStatus)
-          : undefined;
+        ? finalNextStage?.id
+        : nextStageId || undefined;
 
     try {
       await createMutation.mutateAsync({
@@ -595,7 +586,7 @@ export function TicketWorklogs({
           ? { bonusReason: bonusReason.trim() }
           : {}),
         ...(valuationType === 'MANUAL' ? { value: parsedManualValue } : {}),
-        ...(effectiveNextStatus ? { nextStatus: effectiveNextStatus } : {}),
+        ...(effectiveNextStageId ? { nextStageId: effectiveNextStageId } : {}),
         ...(sendAsReply ? { sendAsReply: true } : {}),
         ...(isAdmin && selectedAuthorId ? { authorId: selectedAuthorId } : {}),
       });
@@ -627,7 +618,7 @@ export function TicketWorklogs({
         setValuationType('CONTRACT');
         setContractId('');
         setManualValue('');
-        setNextStatus('');
+        setNextStageId('');
         setSendAsReply(false);
         setSelectedAuthorId('');
         setIsModalOpen(false);
@@ -984,16 +975,16 @@ export function TicketWorklogs({
               </EzComboBox>
 
               <EzComboBox
-                id="worklog-next-status"
-                data-testid="worklog-next-status-select"
+                id="worklog-next-stage"
+                data-testid="worklog-next-stage-select"
                 label="Próximo Estágio"
-                value={nextStatus}
-                onChange={(e) => setNextStatus(e.target.value)}
+                value={nextStageId}
+                onChange={(e) => setNextStageId(e.target.value)}
               >
                 <option value="">Não alterar</option>
-                {ticketStatusOptions.map((status) => (
-                  <option key={status} value={status}>
-                    {statusLabels[status]}
+                {nextStages.map((stage) => (
+                  <option key={stage.id} value={stage.id}>
+                    {stage.name}
                   </option>
                 ))}
               </EzComboBox>
@@ -1234,7 +1225,12 @@ export function TicketWorklogs({
                 data-testid="worklog-submit-close-button"
                 variant="tertiary"
                 size="small"
-                disabled={createMutation.isPending}
+                disabled={createMutation.isPending || !finalNextStage}
+                title={
+                  finalNextStage
+                    ? undefined
+                    : 'Nenhum estágio de encerramento está acessível a partir do estágio atual desta mesa.'
+                }
                 label="Salvar e fechar ticket"
                 onClick={() => executeSubmit('CLOSE_TICKET')}
               />

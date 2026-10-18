@@ -199,8 +199,8 @@ export class WorklogsService {
       },
     });
 
-    if (dto.nextStatus) {
-      await this.ticketsService.withTransaction(database, afterCommit).changeStatus(ticketId, dto.nextStatus, currentUser);
+    if (dto.nextStageId) {
+      await this.ticketsService.withTransaction(database, afterCommit).changeStage(ticketId, dto.nextStageId, currentUser);
     }
 
     if (dto.sendAsReply) {

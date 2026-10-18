@@ -117,7 +117,9 @@ test.describe('contracts and recorded valuation (real API/Postgres)', () => {
       const foreign = await request.post(`/api/tickets/${ids.ticket}/worklogs`, { headers, data: { ...logData, contractId: foreignContract } });
       expect(foreign.status(), await foreign.text()).toBe(400);
       const countBefore = await prisma.worklog.count({ where: { ticketId: ids.ticket } });
-      const rollback = await request.post(`/api/tickets/${ids.ticket}/worklogs`, { headers, data: { ...logData, contractId: concurrentContract, nextStatus: 'RESOLVED', sendAsReply: true } });
+      // No TicketStage belongs to this desk, so changeStage rejects it — exercising the same
+      // "worklog + stage change + reply must commit or roll back together" guarantee.
+      const rollback = await request.post(`/api/tickets/${ids.ticket}/worklogs`, { headers, data: { ...logData, contractId: concurrentContract, nextStageId: randomUUID(), sendAsReply: true } });
       expect(rollback.status(), await rollback.text()).toBe(400);
       expect(await prisma.worklog.count({ where: { ticketId: ids.ticket } })).toBe(countBefore);
       expect(await prisma.comment.count({ where: { ticketId: ids.ticket } })).toBe(0);

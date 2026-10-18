@@ -35,6 +35,10 @@ export interface Ticket {
     evaluationEnabled?: boolean;
     ticketSections?: { key: string; enabled: boolean; sortOrder: number }[];
   };
+  stageId?: string | null;
+  stage?: { id: string; name: string; isInitial: boolean; isFinal: boolean } | null;
+  /** Stages reachable from the ticket's current stage (desk-configured `TicketStageTransition`), for "Próximo Estágio". */
+  nextStages?: { id: string; name: string; isFinal: boolean; position: number }[];
   createdAt: string;
   updatedAt: string;
 }

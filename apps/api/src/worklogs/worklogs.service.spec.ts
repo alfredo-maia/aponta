@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
-import { AttendanceType, Role, TicketStatus, ValuationType } from '@prisma/client';
+import { AttendanceType, Role, ValuationType } from '@prisma/client';
 import { WorklogsService } from './worklogs.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CommentsService } from '../comments/comments.service';
@@ -42,7 +42,7 @@ describe('WorklogsService', () => {
     };
   };
   let mockCommentsService: { create: jest.Mock; withTransaction: jest.Mock };
-  let mockTicketsService: { changeStatus: jest.Mock; withTransaction: jest.Mock };
+  let mockTicketsService: { changeStage: jest.Mock; withTransaction: jest.Mock };
 
   const agentUser: CurrentUserPayload = { id: 'agent-1', role: Role.AGENT };
   const adminUser: CurrentUserPayload = { id: 'admin-1', role: Role.ADMIN };
@@ -91,7 +91,7 @@ describe('WorklogsService', () => {
       },
     };
     mockCommentsService = { create: jest.fn(), withTransaction: jest.fn(() => mockCommentsService) };
-    mockTicketsService = { changeStatus: jest.fn(), withTransaction: jest.fn(() => mockTicketsService) };
+    mockTicketsService = { changeStage: jest.fn(), withTransaction: jest.fn(() => mockTicketsService) };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -349,7 +349,7 @@ describe('WorklogsService', () => {
       ).rejects.toThrow(ForbiddenException);
     });
 
-    it('should update the ticket status when nextStatus is provided', async () => {
+    it('should move the ticket stage when nextStageId is provided', async () => {
       mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
       mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-4' });
 
@@ -359,16 +359,16 @@ describe('WorklogsService', () => {
           startTime: '2026-10-13T08:00:00Z',
           endTime: '2026-10-13T09:00:00Z',
           description: 'Resolvido',
-          nextStatus: TicketStatus.RESOLVED,
+          nextStageId: 'stage-2',
         },
         agentUser,
       );
 
-      expect(mockTicketsService.changeStatus).toHaveBeenCalledWith('ticket-1', TicketStatus.RESOLVED, agentUser);
+      expect(mockTicketsService.changeStage).toHaveBeenCalledWith('ticket-1', 'stage-2', agentUser);
       expect(mockTicketsService.withTransaction).toHaveBeenCalledWith(mockPrisma, expect.any(Array));
     });
 
-    it('should not touch the ticket status when nextStatus is not provided', async () => {
+    it('should not touch the ticket stage when nextStageId is not provided', async () => {
       mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
       mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-5' });
 
@@ -691,11 +691,11 @@ describe('WorklogsService', () => {
       expect(mockPrisma.ticket.findUnique).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'ticket-1', AND: [TenantHelper.getTicketWhere(agentUser)] } }));
     });
 
-    it('propagates transactional status failures and does not send a reply or run after-commit effects', async () => {
+    it('propagates transactional stage-change failures and does not send a reply or run after-commit effects', async () => {
       const effect = jest.fn();
       mockTicketsService.withTransaction.mockImplementation((_db, effects) => { effects.push(effect); return mockTicketsService; });
-      mockTicketsService.changeStatus.mockRejectedValue(new BadRequestException('Invalid status transition'));
-      await expect(service.create('ticket-1', { ...dto, nextStatus: TicketStatus.RESOLVED, sendAsReply: true }, adminUser)).rejects.toThrow('Invalid status transition');
+      mockTicketsService.changeStage.mockRejectedValue(new BadRequestException('Transição de estágio não permitida'));
+      await expect(service.create('ticket-1', { ...dto, nextStageId: 'stage-2', sendAsReply: true }, adminUser)).rejects.toThrow('Transição de estágio não permitida');
       expect(mockPrisma.$transaction).toHaveBeenCalled();
       expect(mockCommentsService.create).not.toHaveBeenCalled();
       expect(effect).not.toHaveBeenCalled();
