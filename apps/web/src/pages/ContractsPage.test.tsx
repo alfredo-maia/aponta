@@ -210,15 +210,80 @@ describe('ContractsPage', () => {
 
     vi.mocked(api.get).mockResolvedValue({ data: contracts[0] });
     fireEvent.click(screen.getAllByRole('button', { name: /Ver detalhes/ })[0]);
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    expect(await screen.findByText('Mesas cobertas')).toBeInTheDocument();
     expect(screen.queryByText(/R\$/)).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Editar contrato' }),
     ).not.toBeInTheDocument();
   });
 
-  it('shows a dedicated "Novo contrato" button directly on the toolbar for ADMIN', async () => {
-    vi.mocked(api.get).mockResolvedValue({ data: contracts });
+  it('opens a contract\'s detail as a full page (no dialog) and returns to the list via the back button', async () => {
+    vi.mocked(api.get).mockImplementation(async (url) => ({
+      data: url === '/contracts/c1' ? contracts[0] : contracts,
+    }));
+    loginAs('ADMIN');
+    renderPage();
+
+    await screen.findByText('Empresa A');
+    fireEvent.click(screen.getAllByRole('button', { name: /Ver detalhes/ })[0]);
+
+    expect(await screen.findByText('Mesas cobertas')).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Editar contrato' }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTitle('Voltar'));
+
+    await waitFor(() => {
+      expect(screen.queryByText('Mesas cobertas')).not.toBeInTheDocument();
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+      expect(screen.getByText('Empresa B')).toBeInTheDocument();
+    });
+  });
+
+  it('navigates between contracts using the toolbar Anterior/Próximo buttons', async () => {
+    vi.mocked(api.get).mockImplementation(async (url) => {
+      if (url === '/contracts/c1') return { data: contracts[0] };
+      if (url === '/contracts/c2') return { data: contracts[1] };
+      return { data: contracts };
+    });
+    loginAs('ADMIN');
+    renderPage();
+
+    await screen.findByText('Empresa A');
+    fireEvent.click(screen.getAllByRole('button', { name: /Ver detalhes/ })[0]);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('ez-toolbar-record-count')).toHaveTextContent(
+        '1 de 2',
+      );
+    });
+    expect(screen.getByTestId('ez-toolbar-previous-button')).toBeDisabled();
+    expect(screen.getByTestId('ez-toolbar-next-button')).toBeEnabled();
+
+    fireEvent.click(screen.getByTestId('ez-toolbar-next-button'));
+    await waitFor(() => {
+      expect(screen.getByTestId('ez-toolbar-record-count')).toHaveTextContent(
+        '2 de 2',
+      );
+    });
+    expect(screen.getByText('Empresa B')).toBeInTheDocument();
+    expect(screen.getByTestId('ez-toolbar-next-button')).toBeDisabled();
+
+    fireEvent.click(screen.getByTestId('ez-toolbar-previous-button'));
+    await waitFor(() => {
+      expect(screen.getByTestId('ez-toolbar-record-count')).toHaveTextContent(
+        '1 de 2',
+      );
+    });
+    expect(screen.getByText('Empresa A')).toBeInTheDocument();
+  });
+
+  it('shows a dedicated "Novo contrato" button directly on the toolbar for ADMIN, opening the full-page form', async () => {
+    vi.mocked(api.get).mockImplementation(async (url) => ({
+      data: url === '/organizations' ? [] : contracts,
+    }));
     loginAs('ADMIN');
     renderPage();
 
@@ -229,7 +294,17 @@ describe('ContractsPage', () => {
     const insertButton = screen.getByRole('button', { name: 'Novo contrato' });
     expect(insertButton).toBeInTheDocument();
     fireEvent.click(insertButton);
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+    // Full-page form (Sankhya "Modo Formulário") — no modal/dialog anymore.
+    expect(await screen.findByLabelText('Nome do contrato')).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByTitle('Voltar')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTitle('Voltar'));
+    await waitFor(() => {
+      expect(screen.queryByLabelText('Nome do contrato')).not.toBeInTheDocument();
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
   });
 
   it('lets an ADMIN select a contract and delete it via the toolbar', async () => {
