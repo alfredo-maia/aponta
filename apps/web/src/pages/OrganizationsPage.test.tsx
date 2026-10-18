@@ -191,6 +191,10 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
       expect(screen.getByText('Nova Empresa')).toBeInTheDocument();
     });
 
+    // CNPJ e Razão Social digitados manualmente (sem usar "Buscar CNPJ"): devem
+    // permanecer sempre editáveis — o cadastro manual não depende da consulta à Receita.
+    expect(screen.getByLabelText(/cnpj/i)).toBeEnabled();
+    await user.type(screen.getByLabelText(/cnpj/i), '19131243000197');
     await user.type(screen.getByLabelText(/nome fantasia/i), 'Empresa C');
     await user.type(screen.getByLabelText(/razão social/i), 'Empresa C Ltda');
     await user.click(screen.getByLabelText(/faturamento quarteirizado/i));
@@ -202,6 +206,7 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
       expect(api.post).toHaveBeenCalledWith('/organizations', expect.objectContaining({
         name: 'Empresa C',
         legalName: 'Empresa C Ltda',
+        cnpj: '19131243000197',
         quarterlyBilling: true,
         billingEmails: 'financeiro@empresac.com',
         billingDueDay: 15,
