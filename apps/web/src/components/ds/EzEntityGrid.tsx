@@ -191,6 +191,19 @@ export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'childre
    * Callback fired when column order changes via drag-and-drop.
    */
   onColumnOrderChange?: (newOrder: string[]) => void;
+  /**
+   * Enables dragging the column header's right edge to resize columns (Sankhya parity).
+   * @default true
+   */
+  enableColumnResize?: boolean;
+  /**
+   * Custom column sizing (map of column id to width in pixels).
+   */
+  columnSizing?: Record<string, number>;
+  /**
+   * Callback fired when column sizing changes via drag resize.
+   */
+  onColumnSizingChange?: (sizing: Record<string, number>) => void;
 };
 
 const inArrayFilter: FilterFn<any> = (row, columnId, filterValue: unknown) => {
@@ -1160,6 +1173,9 @@ function EzEntityGridInner<T>(
     enableColumnReorder = true,
     columnOrder,
     onColumnOrderChange,
+    enableColumnResize = true,
+    columnSizing,
+    onColumnSizingChange,
     className,
     ...props
   }: EzEntityGridProps<T>,
@@ -1183,6 +1199,15 @@ function EzEntityGridInner<T>(
       setColumnOrderState(columnOrder);
     }
   }, [columnOrder]);
+
+  const [columnSizingState, setColumnSizingState] = useState<Record<string, number>>(
+    () => columnSizing ?? {}
+  );
+  useEffect(() => {
+    if (columnSizing) {
+      setColumnSizingState(columnSizing);
+    }
+  }, [columnSizing]);
 
   const [draggedColId, setDraggedColId] = useState<string | null>(null);
   const [dragOverColId, setDragOverColId] = useState<string | null>(null);
@@ -1254,6 +1279,10 @@ function EzEntityGridInner<T>(
       leadingCols.push({
         id: '__rowNumber__',
         enableSorting: false,
+        enableResizing: false,
+        size: 56,
+        minSize: 56,
+        maxSize: 56,
         header: () => (
           <span className="text-gray-400 font-mono text-[11px] select-none text-center block min-w-6">{rowNumberLabel}</span>
         ),
@@ -1271,6 +1300,10 @@ function EzEntityGridInner<T>(
       leadingCols.push({
         id: 'select',
         enableSorting: false,
+        enableResizing: false,
+        size: 44,
+        minSize: 44,
+        maxSize: 44,
         header: ({ table }) => (
           <input
             type="checkbox"
@@ -1307,10 +1340,13 @@ function EzEntityGridInner<T>(
       columnFilters,
       columnVisibility,
       columnOrder: columnOrderState.length > 0 ? columnOrderState : undefined,
+      columnSizing: columnSizingState,
     },
     enableRowSelection: selectable,
     enableGrouping: grouping.length > 0,
     enableFilters: enableColumnFilters,
+    enableColumnResizing: enableColumnResize,
+    columnResizeMode: 'onChange',
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
@@ -1320,6 +1356,11 @@ function EzEntityGridInner<T>(
       setColumnOrderState(nextOrder);
       onColumnOrderChange?.(nextOrder);
     },
+    onColumnSizingChange: (updater) => {
+      const nextSizing = typeof updater === 'function' ? updater(columnSizingState) : updater;
+      setColumnSizingState(nextSizing);
+      onColumnSizingChange?.(nextSizing);
+    },
     onPaginationChange: setPagination,
     onExpandedChange: setExpanded,
     filterFns: {
@@ -1327,6 +1368,8 @@ function EzEntityGridInner<T>(
     },
     defaultColumn: {
       filterFn: inArrayFilter,
+      minSize: 60,
+      maxSize: 800,
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -1689,6 +1732,8 @@ function EzEntityGridInner<T>(
                 const isFiltered = header.column.getIsFiltered();
                 const isSpecialCol = header.column.id === '__rowNumber__' || header.column.id === 'select';
                 const isDraggable = enableColumnReorder && !isSpecialCol;
+                const canResizeColumn =
+                  enableColumnResize && !isSpecialCol && header.column.getCanResize();
 
                 return (
                   <th
@@ -1702,7 +1747,11 @@ function EzEntityGridInner<T>(
                     onDragEnd={isDraggable ? handleDragEnd : undefined}
                     data-dragged={draggedColId === header.column.id ? 'true' : undefined}
                     data-dragover={dragOverColId === header.column.id ? 'true' : undefined}
-                    style={pinnedStyle(header.column.id, pinned)}
+                    style={{
+                      ...pinnedStyle(header.column.id, pinned),
+                      width: header.getSize(),
+                      minWidth: header.getSize(),
+                    }}
                     className={cn(
                       'relative px-4 text-[13px] font-semibold text-gray-700 select-none bg-gray-80 transition-colors',
                       currentDensity === 'compact' ? 'py-1.5' : 'py-3',
@@ -1802,6 +1851,20 @@ function EzEntityGridInner<T>(
                         )}
                       </div>
                     </div>
+
+                    {canResizeColumn && (
+                      <div
+                        onMouseDown={header.getResizeHandler()}
+                        onTouchStart={header.getResizeHandler()}
+                        onClick={(e) => e.stopPropagation()}
+                        data-testid={`ez-entity-grid-resize-handle-${header.column.id}`}
+                        data-resizing={header.column.getIsResizing() ? 'true' : undefined}
+                        className={cn(
+                          'absolute top-0 right-0 h-full w-1.5 cursor-col-resize select-none touch-none z-20 hover:bg-brand-300/50',
+                          header.column.getIsResizing() && 'bg-brand-500/60'
+                        )}
+                      />
+                    )}
                   </th>
                 );
               })}
@@ -1888,7 +1951,11 @@ function EzEntityGridInner<T>(
                       <td
                         key={cell.id}
                         data-pinned={pinned || undefined}
-                        style={pinnedStyle(cell.column.id, pinned)}
+                        style={{
+                          ...pinnedStyle(cell.column.id, pinned),
+                          width: cell.column.getSize(),
+                          minWidth: cell.column.getSize(),
+                        }}
                         className={cn(
                           'px-4 text-[13px] text-gray-900',
                           currentDensity === 'compact' ? 'py-1' : 'py-3',

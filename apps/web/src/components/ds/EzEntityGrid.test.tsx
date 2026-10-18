@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { ColumnDef } from '@tanstack/react-table';
@@ -800,6 +800,63 @@ describe('EzEntityGrid Sankhya JS AG Grid parity features', () => {
     expect(headers[0]).toHaveTextContent('Prioridade');
     expect(headers[1]).toHaveTextContent('Título');
     expect(headers[2]).toHaveTextContent('ID');
+  });
+
+  it('renders a resize handle for each resizable column, never for special columns (Sankhya AG Grid parity)', () => {
+    render(<EzEntityGrid columns={columns} data={data} selectable showRowNumbers />);
+
+    expect(screen.getByTestId('ez-entity-grid-resize-handle-id')).toBeInTheDocument();
+    expect(screen.getByTestId('ez-entity-grid-resize-handle-title')).toBeInTheDocument();
+    expect(screen.getByTestId('ez-entity-grid-resize-handle-priority')).toBeInTheDocument();
+
+    expect(
+      screen.queryByTestId('ez-entity-grid-resize-handle-__rowNumber__')
+    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId('ez-entity-grid-resize-handle-select')).not.toBeInTheDocument();
+  });
+
+  it('hides the resize handle when enableColumnResize is false', () => {
+    render(<EzEntityGrid columns={columns} data={data} enableColumnResize={false} />);
+
+    expect(screen.queryByTestId('ez-entity-grid-resize-handle-id')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('ez-entity-grid-resize-handle-title')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('ez-entity-grid-resize-handle-priority')).not.toBeInTheDocument();
+  });
+
+  it('resizes a column by dragging its resize handle (mousedown + mousemove + mouseup)', () => {
+    render(<EzEntityGrid columns={columns} data={data} />);
+
+    const header = screen.getByRole('columnheader', { name: 'ID' });
+    expect(header).toHaveStyle({ width: '150px' });
+
+    const handle = screen.getByTestId('ez-entity-grid-resize-handle-id');
+    fireEvent.mouseDown(handle, { clientX: 0 });
+    fireEvent.mouseMove(document, { clientX: 60 });
+    fireEvent.mouseUp(document, { clientX: 60 });
+
+    expect(header).toHaveStyle({ width: '210px' });
+  });
+
+  it('supports controlled columnSizing and onColumnSizingChange when dragging the resize handle', () => {
+    const onColumnSizingChange = vi.fn();
+    render(
+      <EzEntityGrid
+        columns={columns}
+        data={data}
+        columnSizing={{ id: 300 }}
+        onColumnSizingChange={onColumnSizingChange}
+      />
+    );
+
+    const header = screen.getByRole('columnheader', { name: 'ID' });
+    expect(header).toHaveStyle({ width: '300px' });
+
+    const handle = screen.getByTestId('ez-entity-grid-resize-handle-id');
+    fireEvent.mouseDown(handle, { clientX: 0 });
+    fireEvent.mouseMove(document, { clientX: 30 });
+    fireEvent.mouseUp(document, { clientX: 30 });
+
+    expect(onColumnSizingChange).toHaveBeenCalledWith({ id: 330 });
   });
 });
 
