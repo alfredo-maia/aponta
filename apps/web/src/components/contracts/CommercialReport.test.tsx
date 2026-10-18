@@ -198,7 +198,11 @@ describe('CommercialReport', () => {
   });
 
   it('shows a loading spinner while the commercial report query is pending', () => {
-    vi.mocked(api.get).mockReturnValue(new Promise(() => {}));
+    vi.mocked(api.get).mockReturnValue(
+      new Promise(() => {
+        // Never resolves, keeping the query in its loading state.
+      }),
+    );
     renderReport();
     expect(screen.getByText('Carregando resultado...')).toBeInTheDocument();
   });

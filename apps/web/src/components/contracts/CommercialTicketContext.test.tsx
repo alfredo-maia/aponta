@@ -53,7 +53,11 @@ describe('CommercialTicketContext', () => {
   });
 
   it('renders nothing while the ticket query is still pending', () => {
-    vi.mocked(api.get).mockReturnValue(new Promise(() => {}));
+    vi.mocked(api.get).mockReturnValue(
+      new Promise(() => {
+        // Never resolves, keeping the query in its loading state.
+      }),
+    );
     renderContext();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
