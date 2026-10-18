@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../lib/api';
@@ -156,9 +157,11 @@ describe('ContractsPage', () => {
       data: { ...contracts[0], name: 'Suporte' },
     });
     loginAs('ADMIN');
+    const user = userEvent.setup();
     renderPage();
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Novo contrato' }),
+    await user.click(await screen.findByTestId('ez-toolbar-actions-button'));
+    await user.click(
+      screen.getByRole('menuitem', { name: /novo contrato/i }),
     );
     await screen.findByRole('option', { name: 'Empresa A' });
     fireEvent.change(screen.getByLabelText(/Nome do contrato/), {
@@ -193,11 +196,21 @@ describe('ContractsPage', () => {
   it('prevents non-admin management and hides detail financial data', async () => {
     vi.mocked(api.get).mockResolvedValue({ data: contracts });
     loginAs('AGENT');
+    const user = userEvent.setup();
     renderPage();
     expect(await screen.findByText('Empresa A')).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Novo contrato' }),
     ).not.toBeInTheDocument();
+
+    // Nem o item "Novo contrato" aparece no menu de Ações para quem não
+    // pode gerenciar contratos (apenas ADMIN cria contratos).
+    await user.click(screen.getByTestId('ez-toolbar-actions-button'));
+    expect(
+      screen.queryByRole('menuitem', { name: /novo contrato/i }),
+    ).not.toBeInTheDocument();
+    await user.click(screen.getByTestId('ez-toolbar-actions-button'));
+
     vi.mocked(api.get).mockResolvedValue({ data: contracts[0] });
     fireEvent.click(screen.getAllByRole('button', { name: /Ver detalhes/ })[0]);
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
@@ -205,6 +218,26 @@ describe('ContractsPage', () => {
     expect(
       screen.queryByRole('button', { name: 'Editar contrato' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('never shows a dedicated "Novo contrato" button outside the Ações menu (grid standard parity)', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: contracts });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+
+    expect(
+      screen.queryByRole('button', { name: 'Novo contrato' }),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByTestId('ez-toolbar-actions-button'));
+    expect(
+      screen.getByRole('menuitem', { name: /novo contrato/i }),
+    ).toBeInTheDocument();
   });
 
   it('searches by name or company when the search form is submitted', async () => {
@@ -274,8 +307,12 @@ describe('ContractsPage', () => {
         url === '/organizations' ? [{ id: 'org-1', name: 'Empresa A' }] : [],
     }));
     loginAs('ADMIN');
+    const user = userEvent.setup();
     renderPage();
-    fireEvent.click(screen.getByRole('button', { name: 'Novo contrato' }));
+    await user.click(await screen.findByTestId('ez-toolbar-actions-button'));
+    await user.click(
+      screen.getByRole('menuitem', { name: /novo contrato/i }),
+    );
     await screen.findByRole('option', { name: 'Empresa A' });
     fireEvent.change(screen.getByLabelText(/Empresa/), {
       target: { value: 'org-1' },

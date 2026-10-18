@@ -38,8 +38,9 @@ test.describe('contracts and recorded valuation (real API/Postgres)', () => {
       await prisma.ticket.create({ data: { id: ids.ticket, protocol: `E2E-${suffix}`, title: `Valorização ${suffix}`, description: 'Apontamento real', requesterId: ids.requester, commercialOrganizationId: ids.org, serviceDeskId: ids.desk } });
       await page.addInitScript((jwt) => localStorage.setItem('aponta-auth', JSON.stringify({ state: { token: jwt }, version: 0 })), adminToken);
       await page.goto('/contracts');
-      await expect(page.getByRole('button', { name: 'Novo contrato', exact: true })).toBeVisible({ timeout: 30000 });
-      await page.getByRole('button', { name: 'Novo contrato', exact: true }).click();
+      await expect(page.getByTestId('ez-toolbar-actions-button')).toBeVisible({ timeout: 30000 });
+      await page.getByTestId('ez-toolbar-actions-button').click();
+      await page.getByRole('menuitem', { name: 'Novo contrato', exact: true }).click();
       await page.getByLabel('Nome do contrato', { exact: true }).fill(`Contrato ${suffix}`);
       await page.getByRole('combobox', { name: 'Empresa*', exact: true }).selectOption(ids.org);
       await page.getByLabel('Modalidade', { exact: true }).selectOption('MONTHLY_HOURS');
