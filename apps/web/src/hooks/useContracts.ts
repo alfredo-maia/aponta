@@ -119,3 +119,13 @@ export function useSaveContract() {
     onSuccess: () => client.invalidateQueries({ queryKey: ['contracts'] }),
   });
 }
+
+export function useDeleteContract() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/contracts/${id}`);
+    },
+    onSuccess: () => client.invalidateQueries({ queryKey: ['contracts'] }),
+  });
+}

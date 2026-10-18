@@ -62,12 +62,16 @@ export function ContractList({
   loading,
   error,
   onDetail,
+  selectable,
+  onSelectionChange,
 }: {
   contracts?: Contract[];
   showFinancial: boolean;
   loading?: boolean;
   error?: boolean;
   onDetail: (id: string) => void;
+  selectable?: boolean;
+  onSelectionChange?: (rows: Contract[]) => void;
 }) {
   const columns = useMemo<ColumnDef<Contract>[]>(
     () => [
@@ -159,7 +163,14 @@ export function ContractList({
     return <EzAlert variant="error">Erro ao carregar os contratos.</EzAlert>;
   if (!contracts.length)
     return <EzEmptyCard title="Nenhum contrato encontrado." />;
-  return <EzEntityGrid columns={columns} data={contracts} />;
+  return (
+    <EzEntityGrid
+      columns={columns}
+      data={contracts}
+      selectable={selectable}
+      onSelectionChange={onSelectionChange}
+    />
+  );
 }
 
 export function ContractDetail({

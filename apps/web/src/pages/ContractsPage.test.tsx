@@ -11,6 +11,7 @@ vi.mock('../lib/api', () => ({
   api: {
     get: vi.fn(),
     post: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
@@ -157,12 +158,8 @@ describe('ContractsPage', () => {
       data: { ...contracts[0], name: 'Suporte' },
     });
     loginAs('ADMIN');
-    const user = userEvent.setup();
     renderPage();
-    await user.click(await screen.findByTestId('ez-toolbar-actions-button'));
-    await user.click(
-      screen.getByRole('menuitem', { name: /novo contrato/i }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'Novo contrato' }));
     await screen.findByRole('option', { name: 'Empresa A' });
     fireEvent.change(screen.getByLabelText(/Nome do contrato/), {
       target: { value: 'Suporte' },
@@ -196,20 +193,11 @@ describe('ContractsPage', () => {
   it('prevents non-admin management and hides detail financial data', async () => {
     vi.mocked(api.get).mockResolvedValue({ data: contracts });
     loginAs('AGENT');
-    const user = userEvent.setup();
     renderPage();
     expect(await screen.findByText('Empresa A')).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Novo contrato' }),
     ).not.toBeInTheDocument();
-
-    // Nem o item "Novo contrato" aparece no menu de Ações para quem não
-    // pode gerenciar contratos (apenas ADMIN cria contratos).
-    await user.click(screen.getByTestId('ez-toolbar-actions-button'));
-    expect(
-      screen.queryByRole('menuitem', { name: /novo contrato/i }),
-    ).not.toBeInTheDocument();
-    await user.click(screen.getByTestId('ez-toolbar-actions-button'));
 
     vi.mocked(api.get).mockResolvedValue({ data: contracts[0] });
     fireEvent.click(screen.getAllByRole('button', { name: /Ver detalhes/ })[0]);
@@ -220,24 +208,84 @@ describe('ContractsPage', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('never shows a dedicated "Novo contrato" button outside the Ações menu (grid standard parity)', async () => {
+  it('shows a dedicated "Novo contrato" button directly on the toolbar for ADMIN', async () => {
     vi.mocked(api.get).mockResolvedValue({ data: contracts });
     loginAs('ADMIN');
-    const user = userEvent.setup();
     renderPage();
 
     await waitFor(() => {
       expect(screen.getByText('Empresa A')).toBeInTheDocument();
     });
 
-    expect(
-      screen.queryByRole('button', { name: 'Novo contrato' }),
-    ).not.toBeInTheDocument();
+    const insertButton = screen.getByRole('button', { name: 'Novo contrato' });
+    expect(insertButton).toBeInTheDocument();
+    fireEvent.click(insertButton);
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+  });
 
-    await user.click(screen.getByTestId('ez-toolbar-actions-button'));
+  it('lets an ADMIN select a contract and delete it via the toolbar', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: contracts });
+    vi.mocked(api.delete).mockResolvedValue({ data: {} });
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByText('Empresa A');
+    const rowCheckboxes = screen.getAllByRole('checkbox');
+    // rowCheckboxes[0] is the header "select all" checkbox; [1] is the
+    // first data row (contract c1).
+    await user.click(rowCheckboxes[1]);
+
+    expect(screen.getByTestId('ez-toolbar-delete-button')).toBeEnabled();
+    await user.click(screen.getByTestId('ez-toolbar-delete-button'));
+
+    expect(confirmSpy).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(api.delete).toHaveBeenCalledWith('/contracts/c1');
+    });
+
+    confirmSpy.mockRestore();
+  });
+
+  it('shows the backend conflict message when deleting a contract with worklogs fails', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: contracts });
+    vi.mocked(api.delete).mockRejectedValue({
+      response: {
+        data: {
+          message:
+            'Contrato com apontamentos não pode ser excluído; desative-o para preservar o histórico',
+        },
+      },
+    });
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByText('Empresa A');
+    const rowCheckboxes = screen.getAllByRole('checkbox');
+    await user.click(rowCheckboxes[1]);
+    await user.click(screen.getByTestId('ez-toolbar-delete-button'));
+
     expect(
-      screen.getByRole('menuitem', { name: /novo contrato/i }),
+      await screen.findByText(
+        'Contrato com apontamentos não pode ser excluído; desative-o para preservar o histórico',
+      ),
     ).toBeInTheDocument();
+
+    confirmSpy.mockRestore();
+  });
+
+  it('does not show the delete button for AGENT, who cannot manage contracts', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: contracts });
+    loginAs('AGENT');
+    renderPage();
+
+    await screen.findByText('Empresa A');
+    expect(
+      screen.queryByRole('button', { name: 'Excluir' }),
+    ).not.toBeInTheDocument();
   });
 
   it('searches by name or company when the search form is submitted', async () => {
@@ -307,12 +355,8 @@ describe('ContractsPage', () => {
         url === '/organizations' ? [{ id: 'org-1', name: 'Empresa A' }] : [],
     }));
     loginAs('ADMIN');
-    const user = userEvent.setup();
     renderPage();
-    await user.click(await screen.findByTestId('ez-toolbar-actions-button'));
-    await user.click(
-      screen.getByRole('menuitem', { name: /novo contrato/i }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'Novo contrato' }));
     await screen.findByRole('option', { name: 'Empresa A' });
     fireEvent.change(screen.getByLabelText(/Empresa/), {
       target: { value: 'org-1' },
