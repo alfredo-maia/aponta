@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Briefcase } from 'lucide-react';
 import {
   Contract,
   useContract,
@@ -18,7 +17,8 @@ import {
   EzEntityScreenConfigModal,
   EzEntityToolbar,
   EzFilterDrawer,
-  EzModal,
+  EzPageHeader,
+  EzPageLayout,
   EzSpinner,
   EzTextInput,
 } from '../components/ds';
@@ -107,13 +107,22 @@ export function ContractsPage() {
   const canManage = role === 'ADMIN';
   const showFinancial = canManage || role === 'CLIENT_MASTER';
   const queryClient = useQueryClient();
-  const [detailId, setDetailId] = useState<string | null>(null);
+  // Sankhya parity (mesmo padrão de OrganizationsPage/ServiceDesksPage):
+  // alternância Modo Grade (lista) / Modo Formulário (página cheia), sem
+  // modal. `editing`/`creating` continuam distinguindo, dentro do modo
+  // formulário, criação de um novo registro vs. visualização/edição de um
+  // existente.
+  const [mode, setMode] = useState<'list' | 'form'>('list');
+  const [selectedContractId, setSelectedContractId] = useState<string | null>(
+    null,
+  );
   const [editing, setEditing] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
   const [selectedContracts, setSelectedContracts] = useState<Contract[]>([]);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const contracts = useContracts('');
-  const detail = useContract(detailId);
+  const detail = useContract(selectedContractId);
   const organizations = useContractOrganizations(
     canManage && (creating || editing),
   );
@@ -200,27 +209,84 @@ export function ContractsPage() {
     });
     setSelectedContracts([]);
   };
-  const close = () => {
-    if (save.isPending) return;
-    setDetailId(null);
+
+  const openDetail = (id: string) => {
+    const idx = filteredContracts.findIndex((contract) => contract.id === id);
+    if (idx !== -1) {
+      setFocusedIndex(idx);
+      setSelectedContracts([filteredContracts[idx]]);
+    }
+    setEditing(false);
+    setCreating(false);
+    setSelectedContractId(id);
+    setMode('form');
+  };
+
+  const backToList = () => {
+    setMode('list');
+    setSelectedContractId(null);
     setEditing(false);
     setCreating(false);
     save.reset();
   };
+
+  const handleInsert = () => {
+    save.reset();
+    setCreating(true);
+    setEditing(false);
+    setSelectedContractId(null);
+    setMode('form');
+  };
+
+  const handlePrevious = () => {
+    if (focusedIndex > 0) {
+      const newIdx = focusedIndex - 1;
+      setFocusedIndex(newIdx);
+      const target = filteredContracts[newIdx];
+      if (target) {
+        setSelectedContracts([target]);
+        if (mode === 'form' && selectedContractId) {
+          openDetail(target.id);
+        }
+      }
+    }
+  };
+
+  const handleNext = () => {
+    if (focusedIndex < filteredContracts.length - 1) {
+      const newIdx = focusedIndex + 1;
+      setFocusedIndex(newIdx);
+      const target = filteredContracts[newIdx];
+      if (target) {
+        setSelectedContracts([target]);
+        if (mode === 'form' && selectedContractId) {
+          openDetail(target.id);
+        }
+      }
+    }
+  };
+
   const saved = () => {
-    setDetailId(null);
-    setEditing(false);
-    setCreating(false);
-    save.reset();
+    backToList();
   };
+
   return (
+    <EzPageLayout
+      header={
+        <EzPageHeader
+          title={
+            mode === 'form'
+              ? creating
+                ? 'Novo contrato'
+                : detail.data?.name || 'Detalhes do contrato'
+              : 'Contratos'
+          }
+          showBackButton={mode === 'form'}
+          onBack={backToList}
+        />
+      }
+    >
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="flex items-center gap-2 text-3xl font-bold">
-          <Briefcase className="h-8 w-8" />
-          Contratos
-        </h1>
-      </div>
       {deleteError && (
         <EzAlert variant="error" onClose={() => setDeleteError(null)}>
           {deleteError}
@@ -228,32 +294,103 @@ export function ContractsPage() {
       )}
       <div className="bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs flex flex-col">
         <EzEntityToolbar
-          viewMode="GRID"
-          showViewModeToggle={false}
-          onToggleViewMode={() => {
-            // Grid-only screen: there is no FORM mode to switch to.
+          viewMode={mode === 'list' ? 'GRID' : 'FORM'}
+          onToggleViewMode={(nextMode) => {
+            if (nextMode === 'FORM') {
+              const active =
+                selectedContracts[0] ??
+                filteredContracts[focusedIndex] ??
+                filteredContracts[0];
+              if (active) {
+                openDetail(active.id);
+              } else {
+                handleInsert();
+              }
+            } else {
+              backToList();
+            }
           }}
           isFilterOpen={isFilterPanelOpen}
           onToggleFilter={() => setIsFilterPanelOpen((prev) => !prev)}
           onRefresh={() => {
             void queryClient.invalidateQueries({ queryKey: ['contracts'] });
           }}
-          onInsert={
-            canManage
-              ? () => {
-                  save.reset();
-                  setCreating(true);
-                }
-              : undefined
-          }
+          onInsert={canManage ? handleInsert : undefined}
           insertAriaLabel="Novo contrato"
           insertTooltip="Novo contrato"
+          hasPrevious={focusedIndex > 0}
+          onPrevious={handlePrevious}
+          hasNext={focusedIndex < filteredContracts.length - 1}
+          onNext={handleNext}
           selectedCount={selectedContracts.length}
           onDelete={canManage ? handleDelete : undefined}
           onOpenGridConfig={() => setIsScreenConfigModalOpen(true)}
           onOpenScreenConfig={() => setIsScreenConfigModalOpen(true)}
+          recordCountText={
+            mode === 'form' && selectedContractId
+              ? `${focusedIndex >= 0 ? focusedIndex + 1 : 1} de ${filteredContracts.length}`
+              : undefined
+          }
         />
 
+        {mode === 'form' && (
+          <div className="p-4 md:p-6 space-y-6">
+            {selectedContractId && detail.isLoading && (
+              <EzSpinner label="Carregando contrato..." />
+            )}
+            {selectedContractId && detail.isError && (
+              <EzAlert variant="error">Erro ao carregar o contrato.</EzAlert>
+            )}
+            {canManage && (creating || (editing && detail.data)) ? (
+              <ContractForm
+                key={creating ? 'new' : selectedContractId}
+                contract={creating ? undefined : detail.data}
+                organizations={organizations.data || []}
+                organizationsLoading={organizations.isLoading}
+                organizationsError={organizations.isError}
+                pending={save.isPending}
+                error={
+                  save.isError
+                    ? extractErrorMessage(
+                        save.error,
+                        'Não foi possível salvar o contrato. Verifique os dados e tente novamente.',
+                      )
+                    : undefined
+                }
+                onCancel={backToList}
+                onSave={(values) =>
+                  save.mutate(
+                    {
+                      id: creating ? undefined : selectedContractId || undefined,
+                      values,
+                    },
+                    { onSuccess: saved },
+                  )
+                }
+              />
+            ) : (
+              detail.data && (
+                <div className="space-y-6">
+                  <ContractDetail
+                    contract={detail.data}
+                    showFinancial={showFinancial}
+                  />
+                  {canManage && (
+                    <EzButton
+                      label="Editar contrato"
+                      onClick={() => {
+                        save.reset();
+                        setEditing(true);
+                      }}
+                    />
+                  )}
+                </div>
+              )
+            )}
+          </div>
+        )}
+
+        {mode === 'list' && (
         <div className="flex flex-1 overflow-hidden min-h-[420px]">
           <EzFilterDrawer
             isOpen={isFilterPanelOpen}
@@ -339,7 +476,7 @@ export function ContractsPage() {
               loading={contracts.isLoading}
               error={contracts.isError}
               showFinancial={showFinancial}
-              onDetail={setDetailId}
+              onDetail={openDetail}
               selectable
               onSelectionChange={setSelectedContracts}
               density={screenConfig.grid.density}
@@ -347,71 +484,8 @@ export function ContractsPage() {
             />
           </div>
         </div>
+        )}
       </div>
-      <EzModal
-        isOpen={creating || !!detailId}
-        onClose={close}
-        preventOutsideClose={save.isPending}
-        title={
-          creating
-            ? 'Novo contrato'
-            : editing
-              ? 'Editar contrato'
-              : 'Detalhes do contrato'
-        }
-        maxWidth="2xl"
-        aria-label={creating ? 'Novo contrato' : 'Detalhes do contrato'}
-      >
-        {detailId && detail.isLoading && (
-          <EzSpinner label="Carregando contrato..." />
-        )}
-        {detailId && detail.isError && (
-          <EzAlert variant="error">Erro ao carregar o contrato.</EzAlert>
-        )}
-        {canManage && (creating || (editing && detail.data)) ? (
-          <ContractForm
-            key={creating ? 'new' : detailId}
-            contract={creating ? undefined : detail.data}
-            organizations={organizations.data || []}
-            organizationsLoading={organizations.isLoading}
-            organizationsError={organizations.isError}
-            pending={save.isPending}
-            error={
-              save.isError
-                ? extractErrorMessage(
-                    save.error,
-                    'Não foi possível salvar o contrato. Verifique os dados e tente novamente.',
-                  )
-                : undefined
-            }
-            onCancel={close}
-            onSave={(values) =>
-              save.mutate(
-                { id: creating ? undefined : detailId || undefined, values },
-                { onSuccess: saved },
-              )
-            }
-          />
-        ) : (
-          detail.data && (
-            <div className="space-y-6">
-              <ContractDetail
-                contract={detail.data}
-                showFinancial={showFinancial}
-              />
-              {canManage && (
-                <EzButton
-                  label="Editar contrato"
-                  onClick={() => {
-                    save.reset();
-                    setEditing(true);
-                  }}
-                />
-              )}
-            </div>
-          )
-        )}
-      </EzModal>
       {isScreenConfigModalOpen && (
         <EzEntityScreenConfigModal
           columns={screenConfigColumns}
@@ -431,5 +505,6 @@ export function ContractsPage() {
         />
       )}
     </div>
+    </EzPageLayout>
   );
 }
