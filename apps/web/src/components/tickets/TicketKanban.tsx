@@ -1,24 +1,110 @@
-import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { DragDropContext, Droppable, Draggable, DropResult, DragStart } from '@hello-pangea/dnd';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { api } from '../../lib/api';
 import type { Ticket, TicketStatus, TicketsPage } from '../../hooks/useTickets';
+import type { DeskStage } from '../MesaStagesEditor';
 import { TicketCard, statusLabels } from './TicketCard';
 import { useAuthStore } from '../../stores/authStore';
 import { EzAlert, EzSpinner, EzTag } from '../ds';
+import { cn } from '../ds/utils';
 
-const columns: TicketStatus[] = ['OPEN', 'IN_PROGRESS', 'ESCALATED', 'PENDING_CUSTOMER', 'PENDING_APPROVAL', 'ON_HOLD', 'RESOLVED', 'CLOSED'];
+const statusColumns: TicketStatus[] = ['OPEN', 'IN_PROGRESS', 'ESCALATED', 'PENDING_CUSTOMER', 'PENDING_APPROVAL', 'ON_HOLD', 'RESOLVED', 'CLOSED'];
+
+/**
+ * Synthetic column id for tickets with no recognized current stage on the
+ * selected mesa — either `ticket.stageId` is null, or it points at a stage
+ * that doesn't belong to this mesa's current stage list (e.g. deleted
+ * stage). Not a real `TicketStage.id`. The backend has no "unset stage"
+ * operation, so this column never accepts a drop — but its cards ARE
+ * draggable OUT to the mesa's initial stage(s), since the backend allows
+ * that exact move for a stageless ticket (see `getAllowedStageIds`).
+ */
+const NO_STAGE_COLUMN_ID = '__NO_STAGE__';
 
 interface TicketKanbanProps {
   tickets: Ticket[];
   isLoading: boolean;
   isError: boolean;
+  /**
+   * Mesa (service desk) selecionada. Quando definida, o Kanban agrupa os
+   * cards pelas etapas reais (`TicketStage`) dessa mesa — como no TiFlux —
+   * em vez do `status` genérico, e passa a mover tickets via
+   * `PATCH /tickets/:id/stage`. Sem mesa selecionada, mantém o
+   * comportamento por `status` (fallback, visão "todas as mesas").
+   *
+   * Reaproveita deliberadamente o mesmo valor do filtro "Departamento" de
+   * `TicketFilters` / `TicketFiltersInput.serviceDeskId` (ver
+   * `TicketsPage`), em vez de um seletor de Mesa dedicado: isso evita
+   * duplicar a busca de `['service-desks']` e mantém o filtro de
+   * Departamento e o agrupamento do Kanban sempre em sincronia.
+   */
+  serviceDeskId?: string;
 }
 
-export function TicketKanban({ tickets, isLoading, isError }: TicketKanbanProps) {
+/**
+ * Estágios para os quais é permitido mover `ticket`, espelhando a regra que
+ * `TicketsService.changeStage` aplica no backend: um ticket com estágio
+ * reconhecido só pode se mover para um estágio presente em
+ * `transitionToIds` do seu estágio atual (dados de `TicketStageTransition`,
+ * os mesmos retornados por `GET /service-desks/:id/stages`); um ticket SEM
+ * estágio reconhecido só pode ir para um estágio `isInitial` (mesma regra
+ * do backend para `existing.stageId` nulo).
+ */
+function getAllowedStageIds(ticket: Ticket, stages: DeskStage[]): Set<string> {
+  const currentStage = ticket.stageId
+    ? stages.find((stage) => stage.id === ticket.stageId)
+    : undefined;
+  if (currentStage) return new Set(currentStage.transitionToIds);
+  // No recognized current stage: only the mesa's initial stage(s) are valid targets.
+  return new Set(stages.filter((stage) => stage.isInitial).map((stage) => stage.id));
+}
+
+/** The column id a ticket belongs to in stage mode: its own stage id when
+ * recognized on this mesa, or the `NO_STAGE_COLUMN_ID` bucket otherwise. */
+function stageColumnIdFor(ticket: Ticket, stages: DeskStage[]): string {
+  const recognized = Boolean(ticket.stageId) && stages.some((stage) => stage.id === ticket.stageId);
+  return recognized ? (ticket.stageId as string) : NO_STAGE_COLUMN_ID;
+}
+
+/** Extracts a user-facing message from a failed stage-change call,
+ * preferring the backend's own validation message (e.g. "Transição de
+ * estágio não permitida") when present. */
+function extractErrorMessage(err: unknown): string {
+  if (axios.isAxiosError(err)) {
+    const message = (err.response?.data as { message?: string } | undefined)?.message;
+    if (typeof message === 'string' && message.trim()) return message;
+  }
+  return 'Não foi possível mover o chamado. Tente novamente.';
+}
+
+export function TicketKanban({ tickets, isLoading, isError, serviceDeskId }: TicketKanbanProps) {
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
+  const stageMode = Boolean(serviceDeskId);
+  const isClient = user?.role === 'CLIENT';
 
-  const { mutate } = useMutation({
+  const [dropError, setDropError] = useState<string | null>(null);
+  // Set of column ids the currently-dragged card may be dropped on
+  // (including its own origin column, so same-column reordering/no-op stays
+  // enabled). `null` while nothing is being dragged.
+  const [draggingAllowedColumnIds, setDraggingAllowedColumnIds] = useState<Set<string> | null>(null);
+
+  const {
+    data: stages = [],
+    isLoading: isStagesLoading,
+    isError: isStagesError,
+  } = useQuery({
+    queryKey: ['service-desk-stages', serviceDeskId],
+    queryFn: async () => {
+      const { data } = await api.get<DeskStage[]>(`/service-desks/${serviceDeskId}/stages`);
+      return data;
+    },
+    enabled: stageMode,
+  });
+
+  const { mutate: mutateStatus } = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: TicketStatus }) => {
       const { data } = await api.patch<Ticket>(`/tickets/${id}/status`, { status });
       return data;
@@ -40,7 +126,7 @@ export function TicketKanban({ tickets, isLoading, isError }: TicketKanbanProps)
       );
       return { previousQueries };
     },
-    onError: (err, newTicket, context) => {
+    onError: (_err, _vars, context) => {
       context?.previousQueries?.forEach(([key, value]) => {
         queryClient.setQueryData(key, value);
       });
@@ -50,20 +136,78 @@ export function TicketKanban({ tickets, isLoading, isError }: TicketKanbanProps)
     },
   });
 
+  const { mutate: mutateStage } = useMutation({
+    mutationFn: async ({ id, stageId }: { id: string; stageId: string }) => {
+      const { data } = await api.patch<Ticket>(`/tickets/${id}/stage`, { stageId });
+      return data;
+    },
+    onMutate: async ({ id, stageId }) => {
+      await queryClient.cancelQueries({ queryKey: ['tickets'] });
+      const previousQueries = queryClient.getQueriesData<TicketsPage>({
+        queryKey: ['tickets'],
+      });
+      queryClient.setQueriesData<TicketsPage>(
+        { queryKey: ['tickets'] },
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            data: old.data.map((t) => (t.id === id ? { ...t, stageId } : t)),
+          };
+        },
+      );
+      return { previousQueries };
+    },
+    onError: (err, _vars, context) => {
+      context?.previousQueries?.forEach(([key, value]) => {
+        queryClient.setQueryData(key, value);
+      });
+      setDropError(extractErrorMessage(err));
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['tickets'] });
+    },
+  });
+
+  const onDragStart = (start: DragStart) => {
+    if (!stageMode) return;
+    const ticket = tickets.find((t) => t.id === start.draggableId);
+    if (!ticket) return;
+    const allowed = getAllowedStageIds(ticket, stages);
+    allowed.add(start.source.droppableId);
+    setDraggingAllowedColumnIds(allowed);
+  };
+
   const onDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
+    setDraggingAllowedColumnIds(null);
 
     if (!destination) return;
-    if (destination.droppableId === source.droppableId) return; // Same column
+    if (destination.droppableId === source.droppableId) return; // Same column: no-op
 
-    // Optimistic update
-    mutate({ id: draggableId, status: destination.droppableId as TicketStatus });
+    if (!stageMode) {
+      mutateStatus({ id: draggableId, status: destination.droppableId as TicketStatus });
+      return;
+    }
+
+    if (destination.droppableId === NO_STAGE_COLUMN_ID) return; // No backend operation to unset a stage
+
+    const ticket = tickets.find((t) => t.id === draggableId);
+    if (!ticket) return;
+
+    const allowed = getAllowedStageIds(ticket, stages);
+    if (!allowed.has(destination.droppableId)) {
+      setDropError('Transição de estágio não permitida para este chamado.');
+      return;
+    }
+    setDropError(null);
+    mutateStage({ id: draggableId, stageId: destination.droppableId });
   };
 
   if (isLoading) {
     return (
       <div className="flex gap-4 overflow-x-auto pb-4">
-        {columns.map((col) => (
+        {statusColumns.map((col) => (
           <div
             key={col}
             className="w-80 shrink-0 space-y-4 rounded-lg border border-gray-100 bg-gray-80 p-4"
@@ -84,18 +228,124 @@ export function TicketKanban({ tickets, isLoading, isError }: TicketKanbanProps)
     return <EzAlert variant="error">Falha ao carregar os chamados.</EzAlert>;
   }
 
-  // Agrupa os chamados
-  const grouped = columns.reduce((acc, col) => {
+  if (stageMode && isStagesLoading) {
+    return (
+      <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-gray-200 bg-white">
+        <EzSpinner label="Carregando estágios da mesa…" />
+      </div>
+    );
+  }
+
+  if (stageMode && isStagesError) {
+    return <EzAlert variant="error">Falha ao carregar os estágios desta mesa.</EzAlert>;
+  }
+
+  if (stageMode) {
+    const orderedStages = [...stages].sort((a, b) => a.position - b.position);
+    const hasInitialStage = stages.some((stage) => stage.isInitial);
+    const stageColumns = orderedStages.map((stage) => ({
+      id: stage.id,
+      label: stage.name,
+      tickets: tickets.filter((t) => t.stageId === stage.id),
+    }));
+    stageColumns.push({
+      id: NO_STAGE_COLUMN_ID,
+      label: 'Sem estágio',
+      tickets: tickets.filter((t) => stageColumnIdFor(t, stages) === NO_STAGE_COLUMN_ID),
+    });
+
+    return (
+      <div className="space-y-3">
+        {dropError && (
+          <EzAlert variant="error" onClose={() => setDropError(null)}>
+            {dropError}
+          </EzAlert>
+        )}
+        {stages.length === 0 && (
+          <EzAlert variant="info">
+            Esta mesa ainda não possui estágios configurados.
+          </EzAlert>
+        )}
+        <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+          <div className="flex items-start gap-4 overflow-x-auto pb-4">
+            {stageColumns.map((col) => {
+              const isUnreachableWhileDragging =
+                draggingAllowedColumnIds !== null && !draggingAllowedColumnIds.has(col.id);
+              const dropDisabled = isClient || col.id === NO_STAGE_COLUMN_ID || isUnreachableWhileDragging;
+
+              return (
+                <Droppable key={col.id} droppableId={col.id} isDropDisabled={dropDisabled}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className={cn(
+                        'flex w-80 shrink-0 flex-col gap-3 rounded-lg border p-4 min-h-[500px] transition-colors',
+                        snapshot.isDraggingOver && !dropDisabled
+                          ? 'border-brand-500 bg-brand-100/30 ring-1 ring-brand-200'
+                          : 'border-gray-200 bg-gray-80',
+                        isUnreachableWhileDragging && 'opacity-50',
+                      )}
+                    >
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-gray-900">{col.label}</h3>
+                        <EzTag
+                          label={String(col.tickets.length)}
+                          variant="gray"
+                          className="!px-2 !py-0.5"
+                        />
+                      </div>
+
+                      <div className="flex flex-1 flex-col gap-3">
+                        {col.tickets.map((ticket, index) => {
+                          // Unstaged tickets ("Sem estágio") ARE draggable when the mesa has an
+                          // initial stage: the backend allows moving a stageless ticket there
+                          // (TicketsService.changeStage), so getAllowedStageIds mirrors that.
+                          const isDraggable = col.id !== NO_STAGE_COLUMN_ID || hasInitialStage;
+                          return (
+                            <Draggable
+                              key={ticket.id}
+                              draggableId={ticket.id}
+                              index={index}
+                              isDragDisabled={isClient || !isDraggable}
+                            >
+                              {(dragProvided, dragSnapshot) => (
+                                <div
+                                  ref={dragProvided.innerRef}
+                                  {...dragProvided.draggableProps}
+                                  {...dragProvided.dragHandleProps}
+                                  className={`${dragSnapshot.isDragging ? 'opacity-70 rotate-2 scale-105' : ''} transition-transform`}
+                                  style={dragProvided.draggableProps.style}
+                                >
+                                  <TicketCard ticket={ticket} />
+                                </div>
+                              )}
+                            </Draggable>
+                          );
+                        })}
+                        {provided.placeholder}
+                      </div>
+                    </div>
+                  )}
+                </Droppable>
+              );
+            })}
+          </div>
+        </DragDropContext>
+      </div>
+    );
+  }
+
+  // Fallback: no mesa selected — groups by the generic `status` enum (visão "todas as mesas").
+  const grouped = statusColumns.reduce((acc, col) => {
     acc[col] = tickets.filter((t) => t.status === col);
     return acc;
   }, {} as Record<TicketStatus, Ticket[]>);
 
-  const isClient = user?.role === 'CLIENT';
-
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="flex items-start gap-4 overflow-x-auto pb-4">
-        {columns.map((col) => (
+        {statusColumns.map((col) => (
           <Droppable
             key={col}
             droppableId={col}
