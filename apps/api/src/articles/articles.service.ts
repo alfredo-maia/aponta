@@ -51,6 +51,10 @@ export class ArticlesService {
       }
     }
 
+    if (query?.folderId) {
+      where.folderId = query.folderId;
+    }
+
     return this.prisma.article.findMany({
       where,
       orderBy: this.resolveOrderBy(query?.sort),

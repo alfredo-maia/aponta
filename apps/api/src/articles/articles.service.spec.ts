@@ -68,6 +68,15 @@ describe('ArticlesService', () => {
         })
       );
     });
+
+    it('filters by folderId when provided', async () => {
+      await service.findAll({ id: '2', role: Role.ADMIN }, { folderId: 'folder-1' });
+      expect(mockPrisma.article.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { folderId: 'folder-1' },
+        })
+      );
+    });
   });
 
   describe('remove limitations', () => {

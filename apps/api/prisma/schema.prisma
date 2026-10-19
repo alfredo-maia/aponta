@@ -419,7 +419,27 @@ model Article {
   authorId String
   author   User   @relation(fields: [authorId], references: [id])
 
+  folderId String?
+  folder   KnowledgeFolder? @relation(fields: [folderId], references: [id])
+
   tags String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([folderId])
+}
+
+/// Knowledge panel (base de conhecimento): folders that group Articles,
+/// TiFlux-parity Stage 1 (DMTE-87). Articles with a null folderId sit
+/// ungrouped/at the panel's root, same convention as CredentialFolder.
+model KnowledgeFolder {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  icon        String? // emoji, texto livre
+
+  articles Article[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

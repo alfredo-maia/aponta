@@ -21,4 +21,9 @@ export class ArticleQueryDto {
   @IsOptional()
   @IsIn(['title_asc', 'title_desc', 'updated_desc'])
   sort?: ArticleSort;
+
+  @ApiPropertyOptional({ description: 'Filter articles belonging to this knowledge folder' })
+  @IsOptional()
+  @IsString()
+  folderId?: string;
 }
