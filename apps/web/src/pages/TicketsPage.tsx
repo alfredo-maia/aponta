@@ -428,7 +428,12 @@ export function TicketsPage() {
       ) : viewMode === 'kanban' ? (
         <>
           <TicketFilters filters={filters} onChange={handleFiltersChange} />
-          <TicketKanban tickets={tickets} isLoading={isLoading} isError={isError} />
+          <TicketKanban
+            tickets={tickets}
+            isLoading={isLoading}
+            isError={isError}
+            serviceDeskId={filters.serviceDeskId}
+          />
         </>
       ) : viewMode === 'grid' ? (
         /* ================= SANKHYA ENTITY CONTAINER (PADRÃO DE CADASTRO) ================= */
