@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { api } from '../lib/api';
 
 export interface VaultFolder {
@@ -74,6 +74,10 @@ export function useVaultCredentials(params: VaultCredentialsParams) {
       );
       return data;
     },
+    // Keeps the previous page's rows (and the search input's focus) on screen
+    // while a new folder/search/page is fetched, instead of flashing back to
+    // the top-level loading spinner on every keystroke.
+    placeholderData: keepPreviousData,
   });
 }
 
