@@ -215,6 +215,10 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
       expect(screen.getByText('Nova Empresa')).toBeInTheDocument();
     });
 
+    // CNPJ e Razão Social digitados manualmente (sem usar "Buscar CNPJ"): devem
+    // permanecer sempre editáveis — o cadastro manual não depende da consulta à Receita.
+    expect(screen.getByLabelText(/cnpj/i)).toBeEnabled();
+    await user.type(screen.getByLabelText(/cnpj/i), '19131243000197');
     await user.type(screen.getByLabelText(/nome fantasia/i), 'Empresa C');
     await user.type(screen.getByLabelText(/razão social/i), 'Empresa C Ltda');
     await user.click(screen.getByLabelText(/faturamento quarteirizado/i));
@@ -226,6 +230,7 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
       expect(api.post).toHaveBeenCalledWith('/organizations', expect.objectContaining({
         name: 'Empresa C',
         legalName: 'Empresa C Ltda',
+        cnpj: '19131243000197',
         quarterlyBilling: true,
         billingEmails: 'financeiro@empresac.com',
         billingDueDay: 15,
@@ -269,6 +274,55 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
       expect(screen.getByLabelText(/razão social/i)).toHaveValue('Empresa Teste LTDA');
     });
     expect(screen.getByLabelText(/nome fantasia/i)).toHaveValue('Teste');
+  });
+
+  it('locks CNPJ and Razão Social after a Receita lookup, standardizing form-mode editability (Sankhya parity)', async () => {
+    vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url === '/organizations') return Promise.resolve({ data: orgs });
+      if (url === '/organizations/cnpj-lookup') {
+        return Promise.resolve({
+          data: {
+            cnpj: '19131243000197',
+            legalName: 'Empresa Teste LTDA',
+            tradeName: 'Teste',
+            address: { zipCode: null, street: null, neighborhood: null, city: null, state: null, complement: null },
+          },
+        });
+      }
+      return Promise.reject(new Error(`Unexpected GET ${url}`));
+    });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Empresa A')).toBeInTheDocument();
+    });
+    await user.click(screen.getByTestId('ez-toolbar-actions-button'));
+    await user.click(screen.getByRole('menuitem', { name: /cadastrar manualmente/i }));
+    await waitFor(() => {
+      expect(screen.getByText('Nova Empresa')).toBeInTheDocument();
+    });
+
+    // Antes da consulta, os campos são livremente editáveis.
+    expect(screen.getByLabelText(/cnpj/i)).toBeEnabled();
+    expect(screen.getByLabelText(/razão social/i)).toBeEnabled();
+
+    await user.type(screen.getByLabelText(/cnpj/i), '19131243000197');
+    await user.click(screen.getByRole('button', { name: /buscar cnpj/i }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/razão social/i)).toHaveValue('Empresa Teste LTDA');
+    });
+
+    // Dados oficiais da Receita Federal (CNPJ/Razão Social) ficam travados até edição explícita.
+    expect(screen.getByLabelText(/cnpj/i)).toBeDisabled();
+    expect(screen.getByLabelText(/razão social/i)).toBeDisabled();
+    expect(screen.getByLabelText(/nome fantasia/i)).toBeEnabled();
+
+    await user.click(screen.getByRole('button', { name: /editar manualmente/i }));
+    expect(screen.getByLabelText(/cnpj/i)).toBeEnabled();
+    expect(screen.getByLabelText(/razão social/i)).toBeEnabled();
   });
 
   it('toggles CPF/CNPJ fields based on document type (Tiflux-parity, issue #56)', async () => {
