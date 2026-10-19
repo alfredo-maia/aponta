@@ -265,17 +265,17 @@ describe('TicketWorklogs', () => {
     renderComponent();
 
     const attendance = screen.getByTestId('worklog-attendance-type-select');
-    const nextStatus = screen.getByTestId('worklog-next-status-select');
+    const nextStage = screen.getByTestId('worklog-next-stage-select');
     const valuation = screen.getByTestId('worklog-valuation-type-select');
 
     expect(attendance.tagName).toBe('SELECT');
-    expect(nextStatus.tagName).toBe('SELECT');
+    expect(nextStage.tagName).toBe('SELECT');
     expect(valuation.tagName).toBe('SELECT');
     expect(attendance.parentElement).toHaveClass('rounded-[12px]');
-    expect(nextStatus.parentElement).toHaveClass('rounded-[12px]');
+    expect(nextStage.parentElement).toHaveClass('rounded-[12px]');
     expect(valuation.parentElement).toHaveClass('rounded-[12px]');
     expect(screen.getByLabelText(/Tipo de Valorização/)).toBe(valuation);
-    expect(screen.getByLabelText(/Próximo Estágio/)).toBe(nextStatus);
+    expect(screen.getByLabelText(/Próximo Estágio/)).toBe(nextStage);
     expect(screen.getByLabelText(/Deslocamento/)).toBeDisabled();
   });
 
@@ -444,39 +444,44 @@ describe('TicketWorklogs', () => {
     expect(billableCheckbox.checked).toBe(false);
   });
 
-  it('sends nextStatus when a next stage is chosen', async () => {
+  const mockNextStages = [
+    { id: 'stage-n2', name: 'N2', isFinal: false, position: 1 },
+    { id: 'stage-closed', name: 'Fechado', isFinal: true, position: 2 },
+  ];
+
+  it('sends nextStageId when a next stage is chosen', async () => {
     loginAs('AGENT', 'u-1');
     currentWorklogs = [];
     vi.mocked(api.post).mockResolvedValueOnce({ data: { id: 'wl-new' } });
 
     const user = userEvent.setup();
-    renderComponent();
+    renderComponent('t-1', true, { nextStages: mockNextStages });
 
     await user.type(screen.getByTestId('worklog-description-input'), 'Resolvido no atendimento');
-    await user.selectOptions(screen.getByTestId('worklog-next-status-select'), 'RESOLVED');
+    await user.selectOptions(screen.getByTestId('worklog-next-stage-select'), 'stage-n2');
 
     fireEvent.submit(screen.getByTestId('worklog-form'));
 
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith(
         '/tickets/t-1/worklogs',
-        expect.objectContaining({ nextStatus: 'RESOLVED' }),
+        expect.objectContaining({ nextStageId: 'stage-n2' }),
       );
     });
   });
 
-  it('does not send nextStatus when "Não alterar" stays selected', async () => {
+  it('does not send nextStageId when "Não alterar" stays selected', async () => {
     loginAs('AGENT', 'u-1');
     currentWorklogs = [];
     vi.mocked(api.post).mockResolvedValueOnce({ data: { id: 'wl-new' } });
 
-    renderComponent();
+    renderComponent('t-1', true, { nextStages: mockNextStages });
     await userEvent.setup().type(screen.getByTestId('worklog-description-input'), 'Sem mudança de estágio');
     fireEvent.submit(screen.getByTestId('worklog-form'));
 
     await waitFor(() => {
       const callArgs = vi.mocked(api.post).mock.calls[0][1] as Record<string, unknown>;
-      expect(callArgs).not.toHaveProperty('nextStatus');
+      expect(callArgs).not.toHaveProperty('nextStageId');
     });
   });
 
@@ -513,13 +518,13 @@ describe('TicketWorklogs', () => {
     expect(screen.getByRole('button', { name: 'Salvar' })).toBeInTheDocument();
   });
 
-  it('submits with nextStatus CLOSED when "Salvar e fechar ticket" is clicked', async () => {
+  it('submits with the final next stage when "Salvar e fechar ticket" is clicked', async () => {
     loginAs('AGENT', 'u-1');
     currentWorklogs = [];
     vi.mocked(api.post).mockResolvedValueOnce({ data: { id: 'wl-new' } });
 
     const user = userEvent.setup();
-    renderComponent();
+    renderComponent('t-1', true, { nextStages: mockNextStages });
 
     await user.type(screen.getByTestId('worklog-description-input'), 'Encerrando chamado');
     await user.click(screen.getByTestId('worklog-submit-close-button'));
@@ -527,9 +532,20 @@ describe('TicketWorklogs', () => {
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith(
         '/tickets/t-1/worklogs',
-        expect.objectContaining({ nextStatus: 'CLOSED' }),
+        expect.objectContaining({ nextStageId: 'stage-closed' }),
       );
     });
+  });
+
+  it('disables "Salvar e fechar ticket" when no reachable next stage closes the ticket', () => {
+    loginAs('AGENT', 'u-1');
+    currentWorklogs = [];
+
+    renderComponent('t-1', true, {
+      nextStages: [{ id: 'stage-n2', name: 'N2', isFinal: false, position: 1 }],
+    });
+
+    expect(screen.getByTestId('worklog-submit-close-button')).toBeDisabled();
   });
 
   it('submits and advances start time to previous end time when "Salvar e criar novo apontamento" is clicked', async () => {

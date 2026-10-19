@@ -257,6 +257,7 @@ export function TicketDetailPage() {
                 isModalOpen={isWorklogModalOpen}
                 onModalOpenChange={setIsWorklogModalOpen}
                 timer={activityTimer}
+                nextStages={ticket.nextStages}
               />
             </div>
           )}

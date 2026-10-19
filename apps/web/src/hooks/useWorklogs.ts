@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
-import type { TicketStatus } from './useTickets';
 import type { Contract } from './useContracts';
 
 export interface WorklogAuthor {
@@ -44,7 +43,7 @@ export interface CreateWorklogInput {
   description: string;
   billable?: boolean;
   authorId?: string;
-  nextStatus?: TicketStatus;
+  nextStageId?: string;
   sendAsReply?: boolean;
   valuationType?: ValuationType;
   value?: number;
