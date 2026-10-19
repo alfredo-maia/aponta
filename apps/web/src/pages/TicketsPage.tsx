@@ -138,6 +138,8 @@ export function TicketsPage() {
         cell: ({ row }) => (
           <Link
             to={`/tickets/${row.original.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className="font-mono text-brand-600 hover:text-brand-800 hover:underline font-medium text-[12px]"
           >
             {row.original.protocol}
@@ -150,6 +152,8 @@ export function TicketsPage() {
         cell: ({ row }) => (
           <Link
             to={`/tickets/${row.original.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-gray-900 hover:text-brand-600 font-medium block truncate max-w-xs text-[12px]"
           >
             {row.original.title}
@@ -432,7 +436,7 @@ export function TicketsPage() {
             tickets={tickets}
             isLoading={isLoading}
             isError={isError}
-            serviceDeskId={filters.serviceDeskId}
+            initialServiceDeskId={filters.serviceDeskId}
           />
         </>
       ) : viewMode === 'grid' ? (
