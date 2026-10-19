@@ -31,6 +31,43 @@ describe('ArticlesService', () => {
         expect.objectContaining({ where: {} })
       );
     });
+
+    it('includes the author name/id alongside each article', async () => {
+      await service.findAll({ id: '2', role: Role.ADMIN });
+      expect(mockPrisma.article.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          include: { author: { select: { id: true, name: true } } },
+        })
+      );
+    });
+
+    it('defaults to ordering by last updated (most recent first)', async () => {
+      await service.findAll({ id: '2', role: Role.ADMIN });
+      expect(mockPrisma.article.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ orderBy: { updatedAt: 'desc' } })
+      );
+    });
+
+    it('sorts by title ascending/descending when requested', async () => {
+      await service.findAll({ id: '2', role: Role.ADMIN }, { sort: 'title_asc' });
+      expect(mockPrisma.article.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ orderBy: { title: 'asc' } })
+      );
+
+      await service.findAll({ id: '2', role: Role.ADMIN }, { sort: 'title_desc' });
+      expect(mockPrisma.article.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ orderBy: { title: 'desc' } })
+      );
+    });
+
+    it('filters by any of several comma-separated tags (OR semantics)', async () => {
+      await service.findAll({ id: '2', role: Role.ADMIN }, { tags: 'senha, ajuda' });
+      expect(mockPrisma.article.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { tags: { hasSome: ['senha', 'ajuda'] } },
+        })
+      );
+    });
   });
 
   describe('remove limitations', () => {

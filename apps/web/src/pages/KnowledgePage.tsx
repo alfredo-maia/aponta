@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { LayoutGrid, List as ListIcon } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
 import {
@@ -7,12 +8,14 @@ import {
   EzButton,
   EzCardItem,
   EzCheck,
+  EzComboBox,
   EzEmptyCard,
   EzSpinner,
   EzTag,
   EzTextArea,
   EzTextInput,
 } from '../components/ds';
+import { cn } from '../components/ds/utils';
 
 interface Article {
   id: string;
@@ -20,6 +23,18 @@ interface Article {
   content: string;
   isPublic: boolean;
   tags: string[];
+  author?: { id: string; name: string } | null;
+  updatedAt?: string;
+}
+
+type ArticleSort = 'updated_desc' | 'title_asc' | 'title_desc';
+type ViewMode = 'list' | 'grid';
+
+const PAGE_SIZE = 10;
+
+function formatUpdatedAt(value?: string) {
+  if (!value) return null;
+  return new Date(value).toLocaleDateString('pt-BR');
 }
 
 export function KnowledgePage() {
@@ -33,20 +48,39 @@ export function KnowledgePage() {
 
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
-  const [tag, setTag] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [sort, setSort] = useState<ArticleSort>('updated_desc');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [page, setPage] = useState(1);
+
+  // Tiflux-parity: ordenação e filtro por múltiplas tags reiniciam a paginação.
+  useEffect(() => {
+    setPage(1);
+  }, [search, selectedTags, sort]);
 
   const { data: articles, isLoading } = useQuery<Article[]>({
-    queryKey: ['articles', { search, tag }],
+    queryKey: ['articles', { search, tags: selectedTags, sort }],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (search) params.set('search', search);
-      if (tag) params.set('tag', tag);
+      if (selectedTags.length > 0) params.set('tags', selectedTags.join(','));
+      if (sort !== 'updated_desc') params.set('sort', sort);
 
       // Even if user not logged in, api.get works for public articles.
       const res = await api.get(`/articles?${params.toString()}`);
       return res.data;
     },
   });
+
+  const totalPages = Math.max(1, Math.ceil((articles?.length ?? 0) / PAGE_SIZE));
+  const pagedArticles = useMemo(
+    () => (articles ?? []).slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [articles, page]
+  );
+
+  const toggleTag = (t: string) => {
+    setSelectedTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+  };
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -129,17 +163,22 @@ export function KnowledgePage() {
             title="busca por palavra-chave"
             className="min-w-[200px]"
           />
-          {tag && (
+          {selectedTags.map((t) => (
             <EzTag
-              label={`Tag: ${tag}`}
+              key={t}
+              label={`Tag: ${t}`}
               variant="ocean"
               rightIcon={
-                <button onClick={() => setTag('')} aria-label="Remover filtro de tag" className="hover:text-brand-900 font-bold">
+                <button
+                  onClick={() => toggleTag(t)}
+                  aria-label={`Remover filtro de tag ${t}`}
+                  className="hover:text-brand-900 font-bold"
+                >
                   &times;
                 </button>
               }
             />
-          )}
+          ))}
 
           {canAuthor && !isFormOpen && (
             <EzButton type="button" onClick={openNewForm} size="small">
@@ -204,8 +243,59 @@ export function KnowledgePage() {
         </form>
       )}
 
-      <div className="space-y-4">
-        {(articles ?? []).map((art) => (
+      {/* Tiflux-parity: ordenação (A-Z/Z-A/última atualização) e alternador Lista/Grade */}
+      <div className="flex items-center justify-between mb-4 gap-3">
+        <div className="w-[220px]">
+          <EzComboBox
+            id="article-sort"
+            aria-label="Ordenar por"
+            value={sort}
+            onChange={(e) => setSort(e.target.value as ArticleSort)}
+          >
+            <option value="updated_desc">Última atualização</option>
+            <option value="title_asc">A - Z</option>
+            <option value="title_desc">Z - A</option>
+          </EzComboBox>
+        </div>
+
+        <div className="flex items-center gap-1 shrink-0 rounded-[12px] border border-gray-200 p-1">
+          <button
+            type="button"
+            aria-label="Exibir em lista"
+            aria-pressed={viewMode === 'list'}
+            onClick={() => setViewMode('list')}
+            className={cn(
+              'flex items-center justify-center w-8 h-8 rounded-[8px] transition-colors',
+              viewMode === 'list' ? 'bg-brand-50 text-brand-700' : 'text-gray-500 hover:bg-gray-90'
+            )}
+          >
+            <ListIcon className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Exibir em grade"
+            aria-pressed={viewMode === 'grid'}
+            onClick={() => setViewMode('grid')}
+            className={cn(
+              'flex items-center justify-center w-8 h-8 rounded-[8px] transition-colors',
+              viewMode === 'grid' ? 'bg-brand-50 text-brand-700' : 'text-gray-500 hover:bg-gray-90'
+            )}
+          >
+            <LayoutGrid className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      <div
+        data-testid="knowledge-articles"
+        data-view-mode={viewMode}
+        className={
+          viewMode === 'grid'
+            ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
+            : 'space-y-4'
+        }
+      >
+        {pagedArticles.map((art) => (
           <EzCardItem key={art.id} flat className="p-4">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
@@ -232,13 +322,22 @@ export function KnowledgePage() {
                 </div>
               )}
             </div>
+
+            {(art.author?.name || art.updatedAt) && (
+              <p className="text-xs text-gray-500 mb-2">
+                {art.author?.name && <span>Por {art.author.name}</span>}
+                {art.author?.name && art.updatedAt && <span> • </span>}
+                {art.updatedAt && <span>{formatUpdatedAt(art.updatedAt)}</span>}
+              </p>
+            )}
+
             <p className="whitespace-pre-wrap text-gray-700 mb-3">{art.content}</p>
 
             {art.tags && art.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {art.tags.map((t) => (
-                  <button key={t} onClick={() => setTag(t)} title={`Filtrar por ${t}`}>
-                    <EzTag label={`#${t}`} variant="gray" />
+                  <button key={t} onClick={() => toggleTag(t)} title={`Filtrar por ${t}`}>
+                    <EzTag label={`#${t}`} variant={selectedTags.includes(t) ? 'ocean' : 'gray'} />
                   </button>
                 ))}
               </div>
@@ -249,6 +348,32 @@ export function KnowledgePage() {
           <EzEmptyCard title="Nenhum artigo encontrado para a busca atual." />
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <EzButton
+            type="button"
+            variant="tertiary"
+            size="small"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            Anterior
+          </EzButton>
+          <span className="text-sm text-gray-600">
+            Página {page} de {totalPages}
+          </span>
+          <EzButton
+            type="button"
+            variant="tertiary"
+            size="small"
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          >
+            Próxima
+          </EzButton>
+        </div>
+      )}
     </div>
   );
 }
