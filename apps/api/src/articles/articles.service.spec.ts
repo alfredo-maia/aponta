@@ -77,6 +77,24 @@ describe('ArticlesService', () => {
         })
       );
     });
+
+    it('still forces isPublic=true for a CLIENT filtering by folderId (folder filter must not bypass visibility)', async () => {
+      await service.findAll({ id: '1', role: Role.CLIENT }, { folderId: 'folder-1' });
+      expect(mockPrisma.article.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { isPublic: true, folderId: 'folder-1' },
+        })
+      );
+    });
+
+    it('still forces isPublic=true for an anonymous caller filtering by folderId', async () => {
+      await service.findAll(undefined, { folderId: 'folder-1' });
+      expect(mockPrisma.article.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { isPublic: true, folderId: 'folder-1' },
+        })
+      );
+    });
   });
 
   describe('remove limitations', () => {

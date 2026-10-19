@@ -1,9 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
+import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { Role } from '@prisma/client';
 import { KnowledgeFoldersController } from './knowledge-folders.controller';
 import { KnowledgeFoldersService } from './knowledge-folders.service';
 import { ROLES_KEY } from '../auth/decorators/roles.decorator';
+import { OptionalJwtOrTokenAuthGuard } from '../auth/guards/optional-jwt-or-token-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 const mockKnowledgeFoldersService = {
   findAll: jest.fn(),
@@ -30,6 +33,27 @@ describe('KnowledgeFoldersController', () => {
 
   it('is defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  describe('guard declarations', () => {
+    it('registers OptionalJwtOrTokenAuthGuard at the class level (so RolesGuard sees request.user)', () => {
+      // Regression test for a bug caught in code review: without an
+      // authentication guard populating request.user, RolesGuard always
+      // reads user as undefined and rejects every caller with 403 -
+      // including a legitimate ADMIN holding a valid JWT. See the
+      // "real HTTP proof" integration spec in this same directory.
+      expect(
+        Reflect.getMetadata(GUARDS_METADATA, KnowledgeFoldersController),
+      ).toContain(OptionalJwtOrTokenAuthGuard);
+    });
+
+    it('registers RolesGuard on create/update/remove but not on findAll', () => {
+      expect(Reflect.getMetadata(GUARDS_METADATA, controller.findAll)).toBeUndefined();
+
+      for (const handler of [controller.create, controller.update, controller.remove]) {
+        expect(Reflect.getMetadata(GUARDS_METADATA, handler)).toContain(RolesGuard);
+      }
+    });
   });
 
   describe('@Roles metadata', () => {
