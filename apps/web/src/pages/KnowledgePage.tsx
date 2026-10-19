@@ -5,6 +5,7 @@ import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
 import {
   EzAlert,
+  EzBreadcrumb,
   EzButton,
   EzCardItem,
   EzCheck,
@@ -16,6 +17,7 @@ import {
   EzTextInput,
 } from '../components/ds';
 import { cn } from '../components/ds/utils';
+import { KnowledgeFolder, KnowledgeFoldersGrid } from '../components/knowledge/KnowledgeFoldersGrid';
 
 interface Article {
   id: string;
@@ -47,6 +49,9 @@ export function KnowledgePage() {
   const canDelete = user?.role === 'ADMIN';
 
   const queryClient = useQueryClient();
+  // Tela inicial do painel de Conhecimento agora é a grade de pastas
+  // (DMTE-87, Stage 1); null = grade de pastas, string = dentro de uma pasta.
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sort, setSort] = useState<ArticleSort>('updated_desc');
@@ -58,18 +63,33 @@ export function KnowledgePage() {
     setPage(1);
   }, [search, selectedTags, sort]);
 
+  // Reutiliza a mesma queryKey da KnowledgeFoldersGrid para ler o nome da
+  // pasta selecionada (breadcrumb) a partir do cache já populado por ela,
+  // sem disparar uma segunda requisição.
+  const { data: folders } = useQuery<KnowledgeFolder[]>({
+    queryKey: ['knowledge-folders'],
+    queryFn: async () => {
+      const res = await api.get('/knowledge-folders');
+      return res.data;
+    },
+    enabled: selectedFolderId !== null,
+  });
+  const selectedFolder = folders?.find((f) => f.id === selectedFolderId);
+
   const { data: articles, isLoading } = useQuery<Article[]>({
-    queryKey: ['articles', { search, tags: selectedTags, sort }],
+    queryKey: ['articles', { search, tags: selectedTags, sort, folderId: selectedFolderId }],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (search) params.set('search', search);
       if (selectedTags.length > 0) params.set('tags', selectedTags.join(','));
       if (sort !== 'updated_desc') params.set('sort', sort);
+      if (selectedFolderId) params.set('folderId', selectedFolderId);
 
       // Even if user not logged in, api.get works for public articles.
       const res = await api.get(`/articles?${params.toString()}`);
       return res.data;
     },
+    enabled: selectedFolderId !== null,
   });
 
   const totalPages = Math.max(1, Math.ceil((articles?.length ?? 0) / PAGE_SIZE));
@@ -111,12 +131,23 @@ export function KnowledgePage() {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const payload = {
+      const payload: {
+        title: string;
+        content: string;
+        isPublic: boolean;
+        tags: string[];
+        folderId?: string;
+      } = {
         title,
         content,
         isPublic,
         tags: tagsInput.split(',').map((t) => t.trim()).filter(Boolean),
       };
+
+      // Um artigo criado dentro de uma pasta já nasce associado a ela.
+      if (!editingId && selectedFolderId) {
+        payload.folderId = selectedFolderId;
+      }
 
       if (editingId) {
         return api.patch(`/articles/${editingId}`, payload).then((r) => r.data);
@@ -138,6 +169,14 @@ export function KnowledgePage() {
     },
   });
 
+  if (selectedFolderId === null) {
+    return (
+      <div className="p-8 flex-1 overflow-y-auto">
+        <KnowledgeFoldersGrid onOpenFolder={setSelectedFolderId} canAuthor={canAuthor} />
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="p-8">
@@ -148,6 +187,14 @@ export function KnowledgePage() {
 
   return (
     <div className="p-8 flex-1 overflow-y-auto">
+      <EzBreadcrumb
+        className="mb-4"
+        items={[
+          { label: 'Pastas', onClick: () => setSelectedFolderId(null) },
+          { label: selectedFolder?.name ?? '...' },
+        ]}
+      />
+
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <div>
           <h1 className="text-[20px] font-semibold text-gray-900">Base de Conhecimento (FAQ)</h1>

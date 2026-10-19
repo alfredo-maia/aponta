@@ -16,6 +16,10 @@ vi.mock('../lib/api', () => ({
   },
 }));
 
+const folders = [
+  { id: 'folder-1', name: 'Suporte', description: 'Artigos de suporte', icon: '🛟', _count: { articles: 2 } },
+];
+
 const articles = [
   {
     id: 'article-1',
@@ -39,6 +43,9 @@ const articles = [
 
 function mockApiGet() {
   vi.mocked(api.get).mockImplementation((url: string) => {
+    if (url.startsWith('/knowledge-folders')) {
+      return Promise.resolve({ data: folders });
+    }
     if (url.startsWith('/articles')) {
       return Promise.resolve({ data: articles });
     }
@@ -72,6 +79,17 @@ function loginAs(role: 'ADMIN' | 'AGENT' | 'CLIENT' | 'anonymous') {
   });
 }
 
+/** Navigates past the folders grid into the article list of "Suporte". */
+async function openSupportFolder(user: ReturnType<typeof userEvent.setup>) {
+  await waitFor(() => {
+    expect(screen.getByText('Suporte')).toBeInTheDocument();
+  });
+  await user.click(screen.getByText('Suporte'));
+  await waitFor(() => {
+    expect(screen.getByText('Como abrir um chamado')).toBeInTheDocument();
+  });
+}
+
 describe('KnowledgePage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -81,30 +99,58 @@ describe('KnowledgePage', () => {
     window.confirm = vi.fn(() => true);
   });
 
-  it('lists articles returned by the API and allows anonymous access', async () => {
+  it('shows the folders grid first, not the article list', async () => {
     loginAs('anonymous');
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByText('Como abrir um chamado')).toBeInTheDocument();
+      expect(screen.getByText('Suporte')).toBeInTheDocument();
     });
-    // check if it sent the request without search/tag params
-    expect(api.get).toHaveBeenCalledWith('/articles?');
+
+    expect(screen.queryByText('Como abrir um chamado')).not.toBeInTheDocument();
+    expect(api.get).toHaveBeenCalledWith('/knowledge-folders');
+  });
+
+  it('opens a folder and lists only its articles, filtered by folderId', async () => {
+    loginAs('anonymous');
+    const user = userEvent.setup();
+    renderPage();
+
+    await openSupportFolder(user);
+
+    expect(api.get).toHaveBeenCalledWith('/articles?folderId=folder-1');
+  });
+
+  it('shows a breadcrumb back to the folders grid once inside a folder', async () => {
+    loginAs('anonymous');
+    const user = userEvent.setup();
+    renderPage();
+
+    await openSupportFolder(user);
+
+    expect(screen.getByText('Pastas')).toBeInTheDocument();
+    expect(screen.getByText('Suporte')).toBeInTheDocument();
+
+    await user.click(screen.getByText('Pastas'));
+
+    await waitFor(() => {
+      expect(screen.queryByText('Como abrir um chamado')).not.toBeInTheDocument();
+    });
+    expect(screen.getByText('Suporte')).toBeInTheDocument();
   });
 
   it('does not show the new-article form or edit/delete buttons to a CLIENT', async () => {
     loginAs('CLIENT');
+    const user = userEvent.setup();
     renderPage();
 
-    await waitFor(() => {
-      expect(screen.getByText('Como abrir um chamado')).toBeInTheDocument();
-    });
+    await openSupportFolder(user);
 
     expect(screen.queryByRole('button', { name: /\+ novo artigo/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /editar/i })).not.toBeInTheDocument();
   });
 
-  it('shows the new-article form to an AGENT and creates an article', async () => {
+  it('shows the new-article form to an AGENT and creates an article inside the open folder', async () => {
     loginAs('AGENT');
     vi.mocked(api.post).mockResolvedValue({
       data: { id: 'article-3', title: 'Novo artigo' },
@@ -112,15 +158,13 @@ describe('KnowledgePage', () => {
     const user = userEvent.setup();
     renderPage();
 
-    await waitFor(() => {
-      expect(screen.getByText('Como abrir um chamado')).toBeInTheDocument();
-    });
+    await openSupportFolder(user);
 
     await user.click(screen.getByRole('button', { name: /\+ novo artigo/i }));
     await user.type(screen.getByLabelText(/título/i), 'Novo artigo interno');
     await user.type(screen.getByLabelText(/conteúdo/i), 'Conteúdo do artigo');
     await user.type(screen.getByLabelText(/tags/i), 'tag1, tag2');
-    
+
     // uncheck public
     await user.click(screen.getByRole('checkbox', { name: /público/i }));
 
@@ -132,6 +176,7 @@ describe('KnowledgePage', () => {
         content: 'Conteúdo do artigo',
         isPublic: false,
         tags: ['tag1', 'tag2'],
+        folderId: 'folder-1',
       });
     });
   });
@@ -142,9 +187,7 @@ describe('KnowledgePage', () => {
     const user = userEvent.setup();
     renderPage();
 
-    await waitFor(() => {
-      expect(screen.getByText('Como abrir um chamado')).toBeInTheDocument();
-    });
+    await openSupportFolder(user);
 
     // click raw Edit, since there are two we target the first one
     const editBtns = screen.getAllByRole('button', { name: /editar/i });
@@ -170,21 +213,19 @@ describe('KnowledgePage', () => {
     });
   });
 
-  it('allows filtering by search keyword and tag', async () => {
+  it('allows filtering by search keyword and tag inside a folder', async () => {
     loginAs('CLIENT');
     const user = userEvent.setup();
     renderPage();
 
-    await waitFor(() => {
-      expect(screen.getByText('Como abrir um chamado')).toBeInTheDocument();
-    });
+    await openSupportFolder(user);
 
     // type in search bar
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'senha' } });
 
     await waitFor(() => {
       const calls = vi.mocked(api.get).mock.calls;
-      expect(calls.some(call => call[0] === '/articles?search=senha')).toBe(true);
+      expect(calls.some(call => call[0] === '/articles?search=senha&folderId=folder-1')).toBe(true);
     });
 
     await waitFor(() => {
@@ -196,7 +237,7 @@ describe('KnowledgePage', () => {
 
     await waitFor(() => {
       const calls = vi.mocked(api.get).mock.calls;
-      expect(calls.some(call => call[0] === '/articles?search=senha&tags=senha')).toBe(true);
+      expect(calls.some(call => call[0] === '/articles?search=senha&tags=senha&folderId=folder-1')).toBe(true);
     });
   });
 
@@ -205,16 +246,14 @@ describe('KnowledgePage', () => {
     const user = userEvent.setup();
     renderPage();
 
-    await waitFor(() => {
-      expect(screen.getByText('Como abrir um chamado')).toBeInTheDocument();
-    });
+    await openSupportFolder(user);
 
     await user.click(screen.getByTitle('Filtrar por senha'));
     await user.click(screen.getByTitle('Filtrar por ajuda'));
 
     await waitFor(() => {
       const calls = vi.mocked(api.get).mock.calls;
-      expect(calls.some(call => call[0] === '/articles?tags=senha%2Cajuda')).toBe(true);
+      expect(calls.some(call => call[0] === '/articles?tags=senha%2Cajuda&folderId=folder-1')).toBe(true);
     });
 
     // removing one of the active tag chips drops it from the filter
@@ -222,17 +261,16 @@ describe('KnowledgePage', () => {
 
     await waitFor(() => {
       const calls = vi.mocked(api.get).mock.calls;
-      expect(calls.some(call => call[0] === '/articles?tags=ajuda')).toBe(true);
+      expect(calls.some(call => call[0] === '/articles?tags=ajuda&folderId=folder-1')).toBe(true);
     });
   });
 
   it('shows the author and last-updated date on each article', async () => {
     loginAs('anonymous');
+    const user = userEvent.setup();
     renderPage();
 
-    await waitFor(() => {
-      expect(screen.getByText('Como abrir um chamado')).toBeInTheDocument();
-    });
+    await openSupportFolder(user);
 
     expect(screen.getByText(/Por Fulano/)).toBeInTheDocument();
     expect(screen.getByText(/Por Ciclana/)).toBeInTheDocument();
@@ -240,17 +278,16 @@ describe('KnowledgePage', () => {
 
   it('sends the chosen sort order to the API', async () => {
     loginAs('anonymous');
+    const user = userEvent.setup();
     renderPage();
 
-    await waitFor(() => {
-      expect(screen.getByText('Como abrir um chamado')).toBeInTheDocument();
-    });
+    await openSupportFolder(user);
 
     fireEvent.change(screen.getByLabelText('Ordenar por'), { target: { value: 'title_asc' } });
 
     await waitFor(() => {
       const calls = vi.mocked(api.get).mock.calls;
-      expect(calls.some(call => call[0] === '/articles?sort=title_asc')).toBe(true);
+      expect(calls.some(call => call[0] === '/articles?sort=title_asc&folderId=folder-1')).toBe(true);
     });
   });
 
@@ -259,9 +296,7 @@ describe('KnowledgePage', () => {
     const user = userEvent.setup();
     renderPage();
 
-    await waitFor(() => {
-      expect(screen.getByText('Como abrir um chamado')).toBeInTheDocument();
-    });
+    await openSupportFolder(user);
 
     expect(screen.getByTestId('knowledge-articles')).toHaveAttribute('data-view-mode', 'list');
 
@@ -283,6 +318,9 @@ describe('KnowledgePage', () => {
       updatedAt: '2026-01-01T00:00:00.000Z',
     }));
     vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url.startsWith('/knowledge-folders')) {
+        return Promise.resolve({ data: folders });
+      }
       if (url.startsWith('/articles')) {
         return Promise.resolve({ data: manyArticles });
       }
@@ -291,6 +329,11 @@ describe('KnowledgePage', () => {
     loginAs('anonymous');
     const user = userEvent.setup();
     renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Suporte')).toBeInTheDocument();
+    });
+    await user.click(screen.getByText('Suporte'));
 
     await waitFor(() => {
       expect(screen.getByText('Artigo 0')).toBeInTheDocument();
@@ -311,9 +354,7 @@ describe('KnowledgePage', () => {
     const user = userEvent.setup();
     renderPage();
 
-    await waitFor(() => {
-      expect(screen.getByText('Como abrir um chamado')).toBeInTheDocument();
-    });
+    await openSupportFolder(user);
 
     const deleteBtns = screen.getAllByRole('button', { name: /excluir/i });
     await user.click(deleteBtns[0]);
