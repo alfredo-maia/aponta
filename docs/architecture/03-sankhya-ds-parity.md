@@ -44,3 +44,27 @@ completa), `EzTimeInput`, `EzTree`, `EzUnderface`.
 3. Não existe equivalente funcional? Criar componente novo seguindo o padrão
    do DS (`forwardRef`, `cn()`, tokens `brand-*`/`gray-*`, JSDoc nas props,
    testes com ≥3 casos, story Storybook).
+
+## Convenção: cadastro em modo formulário (dados oficiais travados + proporção)
+
+Decisão tomada no cadastro de Clientes (`OrganizationsPage.tsx`, DMTE-11) e que
+vale para qualquer tela futura de cadastro ("modo formulário") que busque dados
+de uma fonte externa oficial (ex.: CNPJ/Razão Social via Receita Federal):
+
+- **Campo vindo de fonte oficial externa fica travado (`disabled`) após a
+  busca ter sucesso**, com uma ação explícita ("Editar manualmente") para
+  destravar. Nunca travar o campo *antes* da busca — cadastro 100% manual
+  (sem consultar a fonte externa) continua livre, sempre.
+- **Campo de texto longo (nome/razão social) ocupa o dobro da largura de
+  campo de código/identificador** (`colSpan`/grid proporcional), evitando a
+  grade "quadriculada" genérica onde todo campo tem a mesma largura.
+
+Essa convenção **não está em um componente compartilhado** — `EzEntityForm`
+(`apps/web/src/components/ds/EzEntityForm.tsx`) é genérico por desenho (recebe
+um `schema` via prop, sem vínculo com nenhuma entidade específica), mas hoje
+nenhuma tela em produção o usa; cada tela de cadastro (Clientes, Mesas,
+Chamados, Contratos) tem seu próprio formulário. Migrar para um componente
+compartilhado seria abstração prematura com um único consumidor real. Decisão:
+replicar esta convenção manualmente em cada tela que precisar dela até existir
+um **segundo** caso de uso real — nesse momento, extrair para o `EzEntityForm`
+(adicionando `readOnly` ao schema de campo) passa a valer a pena.
