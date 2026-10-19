@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, PlayCircle, Square } from 'lucide-react';
 import { CommentForm } from '../components/tickets/CommentForm';
@@ -33,6 +33,19 @@ export function TicketDetailPage() {
   const [isWorklogModalOpen, setIsWorklogModalOpen] = useState<boolean>(false);
   const activityTimer = useActivityTimer(id || '');
   const [timerError, setTimerError] = useState('');
+
+  // TiFlux parity: the browser tab shows "#<protocolo> - <título>" while a
+  // ticket is open, so an agent working several tickets in separate tabs
+  // can tell them apart at a glance. Restored on unmount so navigating back
+  // to a list page (same-tab) doesn't leave a stale ticket title behind.
+  useEffect(() => {
+    if (!ticket) return;
+    const previousTitle = document.title;
+    document.title = `#${ticket.protocol} - ${ticket.title}`;
+    return () => {
+      document.title = previousTitle;
+    };
+  }, [ticket?.protocol, ticket?.title]);
 
   if (isLoading) {
     return (
