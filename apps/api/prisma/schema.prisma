@@ -99,6 +99,7 @@ model Organization {
   /// vários clientes). Substitui o FK simples 1:1 da feature #54.
   serviceDesks ServiceDesk[]
   agentGroups  AgentGroup[]
+  credentialFolders CredentialFolder[]
   createdAt DateTime @default(now())
 }
 
@@ -530,8 +531,64 @@ model Credential {
   description    String?
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id])
+  folderId       String?
+  folder         CredentialFolder? @relation(fields: [folderId], references: [id])
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId])
+  @@index([folderId])
+}
+
+/// Cofre de Senhas: folder/group that organizes credentials within an
+/// Organization's vault (Tiflux-parity: "árvore de pastas" of DMTE-80).
+/// Credentials with a null folderId sit at the vault's root, equivalent to
+/// the Tiflux root level.
+model CredentialFolder {
+  id             String       @id @default(uuid())
+  name           String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  credentials    Credential[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId])
+}
+
+/// Actions tracked by CredentialAuditLog (Tiflux-parity audit trail,
+/// DMTE-80). Restore/history/attachment actions are intentionally omitted:
+/// the spec only implements the actions that have a real emitter today.
+enum CredentialAction {
+  CREATE_FOLDER
+  DELETE_FOLDER
+  CREATE_CREDENTIAL
+  UPDATE_CREDENTIAL
+  DELETE_CREDENTIAL
+  REVEAL_CREDENTIAL
+  COPY_USERNAME
+  COPY_PASSWORD
+}
+
+/// Cofre de Senhas: audit trail of every folder/credential action
+/// (DMTE-80 acceptance criteria #2). Fields that reference other entities
+/// (organizationId/folderId/credentialId/actorId) are deliberately plain
+/// scalars with NO Prisma relation/FK — this is a point-in-time snapshot
+/// (targetName/actorName included) that must keep existing even after the
+/// folder/credential/user it refers to is deleted.
+model CredentialAuditLog {
+  id             String            @id @default(uuid())
+  organizationId String
+  action         CredentialAction
+  folderId       String?
+  credentialId   String?
+  targetName     String
+  actorId        String
+  actorName      String
+  ipAddress      String?
+  createdAt      DateTime          @default(now())
+
+  @@index([organizationId, createdAt])
 }
 
 enum ContractType {
