@@ -220,6 +220,17 @@ describe('TicketDetailPage', () => {
     expect(screen.getByText('2026-10-02 17:30 UTC')).toBeInTheDocument();
   });
 
+  it('sets the browser tab title to "#<protocolo> - <título>" (TiFlux parity) and restores it on unmount', async () => {
+    document.title = 'Aponta';
+    const { unmount } = renderPage();
+
+    await screen.findByRole('heading', { name: 'Printer not working' });
+    expect(document.title).toBe('#AP-000001 - Printer not working');
+
+    unmount();
+    expect(document.title).toBe('Aponta');
+  });
+
   it('shows SLA status badges when the backend reports responseSlaStatus/resolveSlaStatus', async () => {
     vi.mocked(api.get).mockImplementation((url: string) => {
       if (url === '/tickets/t-1') {

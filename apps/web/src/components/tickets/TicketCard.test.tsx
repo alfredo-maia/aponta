@@ -28,6 +28,16 @@ function renderCard(ticket: Ticket) {
   );
 }
 
+describe('TicketCard navigation', () => {
+  it('opens the ticket in a new browser tab (TiFlux parity)', () => {
+    renderCard(baseTicket);
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('href', '/tickets/t1');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'));
+  });
+});
+
 describe('TicketCard SLA badges', () => {
   it('shows no SLA badges when statuses are null/absent', () => {
     renderCard(baseTicket);
