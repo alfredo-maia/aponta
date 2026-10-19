@@ -23,6 +23,8 @@ const articles = [
     content: 'Clique em Novo Chamado...',
     isPublic: true,
     tags: ['senha', 'ajuda'],
+    author: { id: 'u-1', name: 'Fulano' },
+    updatedAt: '2026-01-10T10:00:00.000Z',
   },
   {
     id: 'article-2',
@@ -30,6 +32,8 @@ const articles = [
     content: 'Segredo de suporte',
     isPublic: false,
     tags: ['interno'],
+    author: { id: 'u-2', name: 'Ciclana' },
+    updatedAt: '2026-02-20T10:00:00.000Z',
   }
 ];
 
@@ -177,7 +181,7 @@ describe('KnowledgePage', () => {
 
     // type in search bar
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'senha' } });
-    
+
     await waitFor(() => {
       const calls = vi.mocked(api.get).mock.calls;
       expect(calls.some(call => call[0] === '/articles?search=senha')).toBe(true);
@@ -192,9 +196,113 @@ describe('KnowledgePage', () => {
 
     await waitFor(() => {
       const calls = vi.mocked(api.get).mock.calls;
-      console.log('--- CALLS NOW ---', calls.map(c => c[0]));
-      expect(calls.some(call => call[0] === '/articles?search=senha&tag=senha')).toBe(true);
+      expect(calls.some(call => call[0] === '/articles?search=senha&tags=senha')).toBe(true);
     });
+  });
+
+  it('allows selecting more than one tag at once (OR filter)', async () => {
+    loginAs('CLIENT');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Como abrir um chamado')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTitle('Filtrar por senha'));
+    await user.click(screen.getByTitle('Filtrar por ajuda'));
+
+    await waitFor(() => {
+      const calls = vi.mocked(api.get).mock.calls;
+      expect(calls.some(call => call[0] === '/articles?tags=senha%2Cajuda')).toBe(true);
+    });
+
+    // removing one of the active tag chips drops it from the filter
+    await user.click(screen.getByLabelText('Remover filtro de tag senha'));
+
+    await waitFor(() => {
+      const calls = vi.mocked(api.get).mock.calls;
+      expect(calls.some(call => call[0] === '/articles?tags=ajuda')).toBe(true);
+    });
+  });
+
+  it('shows the author and last-updated date on each article', async () => {
+    loginAs('anonymous');
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Como abrir um chamado')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/Por Fulano/)).toBeInTheDocument();
+    expect(screen.getByText(/Por Ciclana/)).toBeInTheDocument();
+  });
+
+  it('sends the chosen sort order to the API', async () => {
+    loginAs('anonymous');
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Como abrir um chamado')).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText('Ordenar por'), { target: { value: 'title_asc' } });
+
+    await waitFor(() => {
+      const calls = vi.mocked(api.get).mock.calls;
+      expect(calls.some(call => call[0] === '/articles?sort=title_asc')).toBe(true);
+    });
+  });
+
+  it('toggles between list and grid view modes', async () => {
+    loginAs('anonymous');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Como abrir um chamado')).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId('knowledge-articles')).toHaveAttribute('data-view-mode', 'list');
+
+    await user.click(screen.getByLabelText('Exibir em grade'));
+    expect(screen.getByTestId('knowledge-articles')).toHaveAttribute('data-view-mode', 'grid');
+
+    await user.click(screen.getByLabelText('Exibir em lista'));
+    expect(screen.getByTestId('knowledge-articles')).toHaveAttribute('data-view-mode', 'list');
+  });
+
+  it('paginates articles beyond the first page', async () => {
+    const manyArticles = Array.from({ length: 12 }, (_, i) => ({
+      id: `extra-${i}`,
+      title: `Artigo ${i}`,
+      content: 'Conteúdo',
+      isPublic: true,
+      tags: [],
+      author: { id: 'u-1', name: 'Fulano' },
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    }));
+    vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url.startsWith('/articles')) {
+        return Promise.resolve({ data: manyArticles });
+      }
+      return Promise.reject(new Error(`Unexpected GET ${url}`));
+    });
+    loginAs('anonymous');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Artigo 0')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText('Artigo 11')).not.toBeInTheDocument();
+    expect(screen.getByText('Página 1 de 2')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /próxima/i }));
+
+    expect(screen.getByText('Artigo 11')).toBeInTheDocument();
+    expect(screen.queryByText('Artigo 0')).not.toBeInTheDocument();
   });
 
   it('allows deleting an article', async () => {

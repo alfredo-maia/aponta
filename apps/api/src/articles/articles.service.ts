@@ -7,7 +7,7 @@ import { Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
-import { ArticleQueryDto } from './dto/article-query.dto';
+import { ArticleQueryDto, ArticleSort } from './dto/article-query.dto';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 /**
@@ -41,14 +41,36 @@ export class ArticlesService {
       ];
     }
 
-    if (query?.tag) {
-      where.tags = { has: query.tag };
+    if (query?.tags) {
+      const tagList = query.tags
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean);
+      if (tagList.length > 0) {
+        where.tags = { hasSome: tagList };
+      }
     }
 
     return this.prisma.article.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      orderBy: this.resolveOrderBy(query?.sort),
+      include: { author: { select: { id: true, name: true } } },
     });
+  }
+
+  /**
+   * Mirrors the TiFlux knowledge panel's sort options (A-Z / Z-A / last
+   * updated); defaults to last updated, matching its default.
+   */
+  private resolveOrderBy(sort?: ArticleSort): Prisma.ArticleOrderByWithRelationInput {
+    switch (sort) {
+      case 'title_asc':
+        return { title: 'asc' };
+      case 'title_desc':
+        return { title: 'desc' };
+      default:
+        return { updatedAt: 'desc' };
+    }
   }
 
   create(dto: CreateArticleDto, currentUser: CurrentUserPayload) {
