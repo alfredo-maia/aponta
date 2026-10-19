@@ -28,6 +28,13 @@ jobs:
             
             # Carrega credenciais locais do host (sudo) e sobe os containers
             source ~/.hermes/.env 2>/dev/null
+
+            # Remove containers órfãos (de deploys anteriores interrompidos) antes
+            # de recriar — evita "Conflict. The container name ... is already in
+            # use" quando o nome gerado pelo compose colide com um container
+            # parado que ficou pra trás. Não mexe no postgres (dado persistente).
+            echo "$SUDO_PASSWORD" | sudo -S -p '' docker rm -f aponta-prod-api-1 aponta-prod-web-1 aponta-prod-migrate-1 aponta-prod-storybook-1 2>/dev/null || true
+
             echo "$SUDO_PASSWORD" | sudo -S -p '' -S docker compose -p aponta-prod --env-file .env.prod -f docker-compose.yml up -d --build
             
             echo "Deploy concluído com sucesso!"
