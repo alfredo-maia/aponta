@@ -15,6 +15,7 @@ import { ReportsPage } from './pages/ReportsPage';
 import { KnowledgePage } from './pages/KnowledgePage';
 import { PublicCsatPage } from './pages/PublicCsatPage';
 import { VaultPage } from './pages/VaultPage';
+import { VaultAuditPage } from './pages/VaultAuditPage';
 import { ContractsPage } from './pages/ContractsPage';
 import { DocsPage } from './pages/DocsPage';
 import { SettingsPage } from './pages/SettingsPage';
@@ -48,6 +49,7 @@ export function App() {
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="/knowledge" element={<KnowledgePage />} />
               <Route path="/vault" element={<VaultPage />} />
+              <Route path="/vault/audit" element={<VaultAuditPage />} />
               <Route path="/contracts" element={<ContractsPage />} />
               <Route path="/my-account" element={<MyAccountPage />} />
               <Route path="/docs" element={<DocsPage />} />

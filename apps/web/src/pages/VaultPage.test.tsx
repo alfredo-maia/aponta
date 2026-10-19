@@ -10,29 +10,50 @@ import { VaultPage } from './VaultPage';
 vi.mock('../lib/api', () => ({
   api: {
     get: vi.fn(),
+    post: vi.fn(),
+    patch: vi.fn(),
     delete: vi.fn(),
   },
 }));
+
+const folders = [{ id: 'f1', name: 'Servidores', organizationId: 'org-1', credentialCount: 1, createdAt: '', updatedAt: '' }];
 
 const credentials = [
   {
     id: 'cred-1',
     name: 'Servidor FTP',
-    username: 'ftpuser',
-    password: 'super-secret',
+    url: 'https://ftp.example.com',
+    description: null,
     organizationId: 'org-1',
-    organization: { name: 'Empresa A' },
+    folderId: null,
+    hasUsername: true,
+    hasPassword: true,
     createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:00.000Z',
   },
   {
     id: 'cred-2',
     name: 'VPN Interna',
-    password: 'another-secret',
+    url: null,
+    description: null,
     organizationId: 'org-1',
-    organization: { name: 'Empresa A' },
+    folderId: null,
+    hasUsername: false,
+    hasPassword: true,
     createdAt: '2026-01-02T00:00:00.000Z',
+    updatedAt: '2026-01-02T00:00:00.000Z',
   },
 ];
+
+function mockDefaultGets() {
+  vi.mocked(api.get).mockImplementation(async (url: string) => {
+    if (url === '/vault/folders') return { data: folders };
+    if (url === '/vault/credentials') {
+      return { data: { data: credentials, meta: { total: 2, page: 1, limit: 10, totalPages: 1 } } };
+    }
+    throw new Error(`Unexpected GET ${url}`);
+  });
+}
 
 function renderPage() {
   const queryClient = new QueryClient({
@@ -43,6 +64,7 @@ function renderPage() {
       <MemoryRouter initialEntries={['/vault']}>
         <Routes>
           <Route path="/vault" element={<VaultPage />} />
+          <Route path="/vault/audit" element={<div>Tela de auditoria</div>} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>,
@@ -85,8 +107,14 @@ describe('VaultPage', () => {
     });
   });
 
-  it('shows the empty state when there are no credentials', async () => {
-    vi.mocked(api.get).mockResolvedValue({ data: [] });
+  it('shows the empty state when there are no credentials in the selected folder', async () => {
+    vi.mocked(api.get).mockImplementation(async (url: string) => {
+      if (url === '/vault/folders') return { data: [] };
+      if (url === '/vault/credentials') {
+        return { data: { data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 1 } } };
+      }
+      throw new Error(`Unexpected GET ${url}`);
+    });
     loginAs('ADMIN');
     renderPage();
 
@@ -95,8 +123,8 @@ describe('VaultPage', () => {
     });
   });
 
-  it('groups credentials by organization and masks the password', async () => {
-    vi.mocked(api.get).mockResolvedValue({ data: credentials });
+  it('renders the folder tree and masks every password/username by default (acceptance criterion #1)', async () => {
+    mockDefaultGets();
     loginAs('ADMIN');
     renderPage();
 
@@ -104,14 +132,14 @@ describe('VaultPage', () => {
       expect(screen.getByText('Servidor FTP')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Empresa A')).toBeInTheDocument();
-    expect(screen.getByText('2 pastas/senhas')).toBeInTheDocument();
+    expect(screen.getByText(/Servidores \(1\)/)).toBeInTheDocument();
+    expect(screen.getByText('VPN Interna')).toBeInTheDocument();
     expect(screen.queryByText('super-secret')).not.toBeInTheDocument();
-    expect(screen.getAllByText('********')).toHaveLength(2);
+    expect(screen.getAllByText('••••••••').length).toBeGreaterThan(0);
   });
 
   it('allows ADMIN to delete a credential after confirming', async () => {
-    vi.mocked(api.get).mockResolvedValue({ data: credentials });
+    mockDefaultGets();
     vi.mocked(api.delete).mockResolvedValue({ data: {} });
     loginAs('ADMIN');
     const user = userEvent.setup();
@@ -126,12 +154,12 @@ describe('VaultPage', () => {
 
     expect(window.confirm).toHaveBeenCalledWith('Excluir senha definitivamente?');
     await waitFor(() => {
-      expect(api.delete).toHaveBeenCalledWith('/vault/cred-1');
+      expect(api.delete).toHaveBeenCalledWith('/vault/credentials/cred-1');
     });
   });
 
-  it('hides the delete button for a non-ADMIN role (AGENT)', async () => {
-    vi.mocked(api.get).mockResolvedValue({ data: credentials });
+  it('hides destructive/management actions for a non-ADMIN role (AGENT)', async () => {
+    mockDefaultGets();
     loginAs('AGENT');
     renderPage();
 
@@ -140,10 +168,12 @@ describe('VaultPage', () => {
     });
 
     expect(screen.queryByTitle('Excluir')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /ações/i })).not.toBeInTheDocument();
   });
 
-  it('copies the username to the clipboard when the copy button is clicked', async () => {
-    vi.mocked(api.get).mockResolvedValue({ data: credentials });
+  it('copies the username via the reveal endpoint (intent=copy) without ever rendering it', async () => {
+    mockDefaultGets();
+    vi.mocked(api.post).mockResolvedValue({ data: { value: 'ftpuser' } });
     loginAs('ADMIN');
     renderPage();
 
@@ -151,20 +181,48 @@ describe('VaultPage', () => {
       expect(screen.getByText('Servidor FTP')).toBeInTheDocument();
     });
 
-    // Define the spy AFTER rendering: @testing-library/user-event's setup()
-    // installs its own navigator.clipboard stub, which would otherwise
-    // shadow a spy created beforehand. Native .click() avoids depending on
-    // userEvent's clipboard handling, which we aren't testing here.
     const writeTextMock = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator.clipboard, 'writeText', {
       value: writeTextMock,
       configurable: true,
     });
 
-    const firstCard = screen.getByText('Servidor FTP').closest('li') as HTMLElement;
-    const copyButtons = within(firstCard).getAllByRole('button');
-    copyButtons[0].click();
+    const row = screen.getByText('Servidor FTP').closest('tr') as HTMLElement;
+    const copyUsernameBtn = within(row).getByTitle('Copiar usuário');
+    copyUsernameBtn.click();
 
-    expect(writeTextMock).toHaveBeenCalledWith('ftpuser');
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith('/vault/credentials/cred-1/reveal', { field: 'username', intent: 'copy' });
+    });
+    await waitFor(() => {
+      expect(writeTextMock).toHaveBeenCalledWith('ftpuser');
+    });
+    expect(screen.queryByText('ftpuser')).not.toBeInTheDocument();
+  });
+
+  it('reveals a row in place when the lock icon is clicked, auditing the reveal server-side', async () => {
+    mockDefaultGets();
+    vi.mocked(api.post).mockImplementation(async (url: string, body: any) => {
+      if (body.field === 'username') return { data: { value: 'ftpuser' } };
+      return { data: { value: 'fake-password-123' } };
+    });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Servidor FTP')).toBeInTheDocument();
+    });
+
+    const row = screen.getByText('Servidor FTP').closest('tr') as HTMLElement;
+    const revealBtn = within(row).getByTitle('Revelar linha');
+    await user.click(revealBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText('ftpuser')).toBeInTheDocument();
+      expect(screen.getByText('fake-password-123')).toBeInTheDocument();
+    });
+    expect(api.post).toHaveBeenCalledWith('/vault/credentials/cred-1/reveal', { field: 'username', intent: 'reveal' });
+    expect(api.post).toHaveBeenCalledWith('/vault/credentials/cred-1/reveal', { field: 'password', intent: 'reveal' });
   });
 });

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateCredentialDto {
@@ -6,6 +6,11 @@ export class CreateCredentialDto {
   @IsString()
   @IsNotEmpty()
   name!: string;
+
+  @ApiPropertyOptional({ description: 'Pasta do cofre onde a credencial fica guardada. Omitido/null = raiz do cofre.' })
+  @IsOptional()
+  @IsUUID()
+  folderId?: string;
 
   @ApiPropertyOptional({ description: 'Nome de usuário (login)' })
   @IsOptional()

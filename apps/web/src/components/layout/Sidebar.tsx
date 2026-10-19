@@ -18,6 +18,7 @@ import {
   CalendarDays,
   BookOpen,
   Key,
+  ShieldCheck,
   Settings,
   PanelLeftClose,
   PanelLeftOpen,
@@ -38,6 +39,10 @@ const NAV_ITEMS = [
   { to: '/schedule', label: 'Agenda', icon: <CalendarDays /> },
   { to: '/knowledge', label: 'Conhecimentos', icon: <BookOpen /> },
   { to: '/vault', label: 'Cofre de Senhas', icon: <Key /> },
+  // Submenu item of "Cofre de Senhas" (DMTE-80): sensitive access log over
+  // every reveal/copy, so it is ADMIN-only — never added to the other
+  // roles' ROLE_VISIBILITY lists below, unlike its parent.
+  { to: '/vault/audit', label: 'Auditoria', icon: <ShieldCheck />, submenu: true },
   { to: '/settings', label: 'Configurações', icon: <Settings /> },
 ];
 
@@ -98,9 +103,11 @@ export function Sidebar() {
 
       {/* Navigation Links */}
       {filteredItems.map((item) => {
-        // Strict exact match for root '/' specifically so it doesn't stay highlighted forever
-        const isActive = item.to === '/'
-          ? location.pathname === '/'
+        // Strict exact match for root '/' and for '/vault' specifically, so
+        // neither stays highlighted forever (root) nor steals the highlight
+        // from its own "Auditoria" submenu item on '/vault/audit'.
+        const isActive = item.to === '/' || item.to === '/vault'
+          ? location.pathname === item.to
           : location.pathname.startsWith(item.to);
 
         return (
@@ -112,6 +119,7 @@ export function Sidebar() {
             active={isActive}
             disabled={item.disabled}
             onClick={() => navigate(item.to)}
+            className={item.submenu && !collapsed ? 'pl-8' : undefined}
           />
         );
       })}
