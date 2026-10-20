@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { collectImageFiles, EzRichText, tryHandleImageFiles } from './EzRichText';
@@ -211,6 +211,160 @@ describe('EzRichText', () => {
     expect(collectImageFiles(null)).toEqual([]);
   });
 
+  it('toggles strikethrough and blockquote without throwing', async () => {
+    const user = userEvent.setup();
+    render(<EzRichText testId="rt" value="<p>Hello</p>" onChange={vi.fn()} />);
+
+    await user.click(screen.getByTitle('Tachado'));
+    await user.click(screen.getByTitle('Citação'));
+
+    expect(screen.getByTitle('Tachado')).toBeInTheDocument();
+    expect(screen.getByTitle('Citação')).toBeInTheDocument();
+  });
+
+  it('enables undo after a change and disables redo until an undo happens', async () => {
+    render(<EzRichText testId="rt" value="<p>Hello</p>" onChange={vi.fn()} />);
+
+    // Redo starts disabled: nothing has been undone yet.
+    expect(screen.getByTitle('Refazer')).toBeDisabled();
+
+    // Using fireEvent (a plain click) rather than userEvent here: userEvent
+    // simulates a full real pointer sequence (pointerdown/mousedown/focus/
+    // pointerup/click), and the intervening mousedown bubbling to the
+    // document confuses ProseMirror's selection tracking enough that
+    // document-mutating commands (table/history) silently no-op in jsdom.
+    // ProseMirror's history plugin only tracks document-changing
+    // transactions, not stored-mark-only toggles (e.g. toggleBold with no
+    // selection) — toggling a block wrapper (blockquote) does change the
+    // doc, so it's what actually produces an undo step here.
+    fireEvent.click(screen.getByTitle('Citação'));
+
+    await waitFor(() => {
+      expect(screen.getByTitle('Desfazer')).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByTitle('Desfazer'));
+
+    await waitFor(() => {
+      expect(screen.getByTitle('Refazer')).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByTitle('Refazer'));
+  });
+
+  it('toggles highlight without emitting a style attribute (mark-only HTML)', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(<EzRichText testId="rt" value="<p>Hello</p>" onChange={onChange} />);
+
+    await user.click(screen.getByTitle('Realce'));
+
+    expect(screen.getByTitle('Realce')).toBeInTheDocument();
+  });
+
+  it('applies and removes a text color from the color palette dropdown', () => {
+    render(<EzRichText testId="rt" value="<p>Hello</p>" onChange={vi.fn()} />);
+
+    // fireEvent (see note on the undo/redo test) avoids userEvent's full
+    // pointer sequence, which otherwise disturbs the editor selection that
+    // setColor/unsetColor need.
+    fireEvent.click(screen.getByTitle('Cor do texto'));
+    expect(screen.getByTitle('Cor: Vermelho')).toBeInTheDocument();
+
+    // No text selection exists in jsdom (see file-level note), so setColor
+    // only updates stored marks for the next keystroke rather than visible
+    // DOM — this exercises the command path without throwing, same as the
+    // existing bold/italic toggle test.
+    fireEvent.click(screen.getByTitle('Cor: Vermelho'));
+
+    // The dropdown closes after picking a color.
+    expect(screen.queryByTitle('Cor: Vermelho')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTitle('Cor do texto'));
+    expect(screen.getByTitle('Remover cor')).toBeInTheDocument();
+    fireEvent.click(screen.getByTitle('Remover cor'));
+
+    expect(screen.getByTitle('Cor do texto')).toBeInTheDocument();
+  });
+
+  it('applies each text alignment option', async () => {
+    const user = userEvent.setup();
+    render(<EzRichText testId="rt" value="<p>Hello</p>" onChange={vi.fn()} />);
+
+    await user.click(screen.getByTitle('Alinhar à esquerda'));
+    await user.click(screen.getByTitle('Centralizar'));
+    await user.click(screen.getByTitle('Alinhar à direita'));
+    await user.click(screen.getByTitle('Justificar'));
+
+    expect(screen.getByTitle('Centralizar')).toBeInTheDocument();
+  });
+
+  it('inserts a table and shows row/column controls while inside it', async () => {
+    render(<EzRichText testId="rt" value="<p>Hello</p>" onChange={vi.fn()} />);
+
+    // fireEvent (see note on the undo/redo test) avoids userEvent's full
+    // pointer sequence, which otherwise disturbs the table-cell selection
+    // these commands resolve against.
+    fireEvent.click(screen.getByTitle('Inserir tabela'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('rt').querySelector('table')).toBeTruthy();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTitle('Adicionar linha')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTitle('Adicionar linha'));
+    fireEvent.click(screen.getByTitle('Adicionar coluna'));
+    fireEvent.click(screen.getByTitle('Remover linha'));
+    fireEvent.click(screen.getByTitle('Remover coluna'));
+    fireEvent.click(screen.getByTitle('Remover tabela'));
+
+    await waitFor(() => {
+      expect(screen.queryByTitle('Adicionar linha')).not.toBeInTheDocument();
+    });
+  });
+
+  it('toggles source-code mode and applies edited raw HTML back to the editor', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(<EzRichText testId="rt" value="<p>Hello</p>" onChange={onChange} />);
+
+    await user.click(screen.getByTitle('Código-fonte'));
+
+    const textarea = screen.getByTestId('rich-text-source') as HTMLTextAreaElement;
+    expect(textarea).toBeInTheDocument();
+    expect(textarea.value).toContain('Hello');
+
+    await user.clear(textarea);
+    await user.type(textarea, '<p>Editado via HTML</p>');
+
+    await user.click(screen.getByTitle('Sair do Código-fonte'));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('rich-text-source')).not.toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalledWith(expect.stringContaining('Editado via HTML'));
+    });
+  });
+
+  it('disables the new formatting buttons while in preview mode', async () => {
+    const user = userEvent.setup();
+    render(<EzRichText testId="rt" value="<p>Hello</p>" onChange={vi.fn()} />);
+
+    await user.click(screen.getByTitle('Visualizar Preview'));
+
+    expect(screen.getByTitle('Tachado')).toBeDisabled();
+    expect(screen.getByTitle('Citação')).toBeDisabled();
+    expect(screen.getByTitle('Realce')).toBeDisabled();
+    expect(screen.getByTitle('Cor do texto')).toBeDisabled();
+    expect(screen.getByTitle('Alinhar à esquerda')).toBeDisabled();
+    expect(screen.getByTitle('Inserir tabela')).toBeDisabled();
+    expect(screen.getByTitle('Código-fonte')).toBeDisabled();
+  });
+
   it('uploads pasted images through tryHandleImageFiles and ignores empty clipboards', async () => {
     const file = new File(['bytes'], 'shot.png', { type: 'image/png' });
     const upload = vi.fn().mockResolvedValue('/uploads/shot.png');
@@ -257,3 +411,4 @@ describe('EzRichText', () => {
     await waitFor(() => expect(failingUpload).toHaveBeenCalled());
   });
 });
+

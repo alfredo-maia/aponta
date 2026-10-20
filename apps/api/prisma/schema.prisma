@@ -173,6 +173,7 @@ model User {
   articles    Article[]
   audits      TicketAudit[]
   attachments TicketAttachment[]
+  knowledgeAttachments KnowledgeAttachment[]
   worklogs    Worklog[]
   costRates   TechnicianCostRate[]
   preAppointments PreAppointment[]
@@ -451,6 +452,8 @@ model Article {
 
   tags String[]
 
+  attachments KnowledgeAttachment[]
+
   /// ACL de compartilhamento (só relevante quando visibility = PRIVATE):
   /// grupos de atendentes e clientes com acesso explícito ao artigo.
   allowedAgentGroups    AgentGroup[]   @relation("ArticleAgentGroup")
@@ -479,6 +482,21 @@ model KnowledgeFolder {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model KnowledgeAttachment {
+  id           String @id @default(uuid())
+  filename     String
+  originalName String
+  mimeType     String
+  fileUrl      String
+
+  articleId String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  uploaderId String
+  uploader   User   @relation(fields: [uploaderId], references: [id])
+
+  createdAt DateTime @default(now())
 }
 
 /// Catálogo de Serviços do painel de Conhecimentos (DMTE-88, Stage 2):

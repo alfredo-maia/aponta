@@ -21,6 +21,7 @@ import { MailModule } from './mail/mail.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { ArticlesModule } from './articles/articles.module';
 import { KnowledgeFoldersModule } from './knowledge-folders/knowledge-folders.module';
+import { KnowledgeAttachmentsModule } from './knowledge-attachments/knowledge-attachments.module';
 import { KnowledgeCatalogModule } from './knowledge-catalog/knowledge-catalog.module';
 import { SchedulingModule } from "./scheduling/scheduling.module";
 import { ApiTokensModule } from './api-tokens/api-tokens.module';
@@ -87,6 +88,7 @@ import { LoggerModule } from 'nestjs-pino';
     OrganizationsModule,
     ArticlesModule,
     KnowledgeFoldersModule,
+    KnowledgeAttachmentsModule,
     KnowledgeCatalogModule,
     SchedulingModule,
     ApiTokensModule,

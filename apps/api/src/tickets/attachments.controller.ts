@@ -12,8 +12,8 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { randomUUID } from 'crypto';
+import { resolveSafeUploadExtension } from '../common/safe-upload-extension';
 import { TicketsService } from './tickets.service';
 import { AttachmentsService } from './attachments.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -49,9 +49,12 @@ export class AttachmentsController {
     FileInterceptor('file', {
       storage: diskStorage({
         destination: './uploads',
+        // Extension is derived ONLY from the already-allowlisted MIME
+        // type, never from the client-supplied `originalname` — see
+        // safe-upload-extension.ts for why that matters.
         filename: (_req, file, cb) => {
           const unique = randomUUID();
-          cb(null, `${unique}${extname(file.originalname)}`);
+          cb(null, `${unique}${resolveSafeUploadExtension(file.mimetype)}`);
         },
       }),
       limits: { fileSize: MAX_FILE_SIZE },

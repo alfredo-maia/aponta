@@ -29,6 +29,15 @@ const articles = [
     tags: ['senha', 'ajuda'],
     author: { id: 'u-1', name: 'Fulano' },
     updatedAt: '2026-01-10T10:00:00.000Z',
+    attachments: [
+      {
+        id: 'att-1',
+        originalName: 'manual.pdf',
+        mimeType: 'application/pdf',
+        fileUrl: '/uploads/manual.pdf',
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+    ],
   },
   {
     id: 'article-2',
@@ -38,6 +47,7 @@ const articles = [
     tags: ['interno'],
     author: { id: 'u-2', name: 'Ciclana' },
     updatedAt: '2026-02-20T10:00:00.000Z',
+    attachments: [],
   }
 ];
 
@@ -230,7 +240,18 @@ describe('KnowledgePage', () => {
 
     await user.click(screen.getByRole('button', { name: /\+ novo artigo/i }));
     await user.type(screen.getByLabelText(/título/i), 'Novo artigo interno');
-    await user.type(screen.getByLabelText(/conteúdo/i), 'Conteúdo do artigo');
+
+    // EzRichText renders a Tiptap contenteditable surface, not a labelled
+    // native textarea — jsdom also can't simulate real keystrokes inside it
+    // (see EzRichText.test.tsx's file-level note), so we set its HTML
+    // directly and dispatch the input event Tiptap listens for, same
+    // pattern as TicketForm.test.tsx.
+    const editable = screen
+      .getByTestId('article-content-editor')
+      .querySelector('[contenteditable="true"]') as HTMLElement;
+    editable.innerHTML = '<p>Conteúdo do artigo</p>';
+    editable.dispatchEvent(new Event('input', { bubbles: true }));
+
     await user.type(screen.getByLabelText(/tags/i), 'tag1, tag2');
 
     await user.click(screen.getByRole('button', { name: /salvar/i }));
@@ -238,7 +259,7 @@ describe('KnowledgePage', () => {
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith('/articles', {
         title: 'Novo artigo interno',
-        content: 'Conteúdo do artigo',
+        content: '<p>Conteúdo do artigo</p>',
         visibility: 'PUBLIC',
         tags: ['tag1', 'tag2'],
         agentGroupIds: [],
@@ -260,7 +281,15 @@ describe('KnowledgePage', () => {
 
     await user.click(screen.getByRole('button', { name: /\+ novo artigo/i }));
     await user.type(screen.getByLabelText(/título/i), 'Artigo privado');
-    await user.type(screen.getByLabelText(/conteúdo/i), 'Conteúdo restrito');
+
+    // EzRichText renders a Tiptap contenteditable surface, not a labelled
+    // native textarea — see the "creates a PUBLIC article" test above for
+    // why this sets innerHTML directly instead of using user.type().
+    const editable = screen
+      .getByTestId('article-content-editor')
+      .querySelector('[contenteditable="true"]') as HTMLElement;
+    editable.innerHTML = '<p>Conteúdo restrito</p>';
+    editable.dispatchEvent(new Event('input', { bubbles: true }));
 
     fireEvent.change(screen.getByLabelText(/tipo de acesso/i), { target: { value: 'PRIVATE' } });
     await user.click(screen.getByRole('button', { name: /compartilhar/i }));
@@ -291,7 +320,7 @@ describe('KnowledgePage', () => {
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith('/articles', {
         title: 'Artigo privado',
-        content: 'Conteúdo restrito',
+        content: '<p>Conteúdo restrito</p>',
         visibility: 'PRIVATE',
         tags: [],
         agentGroupIds: ['group-1'],
@@ -494,6 +523,105 @@ describe('KnowledgePage', () => {
 
     await waitFor(() => {
       expect(api.delete).toHaveBeenCalledWith('/articles/article-1');
+    });
+  });
+
+  it('renders article content as real HTML, not escaped text', async () => {
+    vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url.startsWith('/knowledge-folders')) return Promise.resolve({ data: folders });
+      if (url.startsWith('/articles')) {
+        return Promise.resolve({
+          data: [
+            {
+              id: 'article-html',
+              title: 'Artigo com HTML',
+              content: '<p>Veja o <strong>passo a passo</strong> abaixo.</p>',
+              visibility: 'PUBLIC',
+              tags: [],
+              attachments: [],
+            },
+          ],
+        });
+      }
+      return Promise.reject(new Error(`Unexpected GET ${url}`));
+    });
+    loginAs('anonymous');
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Suporte')).toBeInTheDocument();
+    });
+    await user.click(screen.getByText('Suporte'));
+    await waitFor(() => {
+      expect(screen.getByText('Artigo com HTML')).toBeInTheDocument();
+    });
+
+    const strong = screen.getByText('passo a passo');
+    expect(strong.tagName).toBe('STRONG');
+    // The sanitized markup renders as actual DOM nodes, not literal text.
+    expect(screen.queryByText(/<strong>/)).not.toBeInTheDocument();
+  });
+
+  it('shows the attachment count for each article', async () => {
+    loginAs('anonymous');
+    const user = userEvent.setup();
+    renderPage();
+
+    await openSupportFolder(user);
+
+    expect(screen.getByText('Anexos (1)')).toBeInTheDocument();
+    expect(screen.getByText('Anexos (0)')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /manual\.pdf/i })).toHaveAttribute(
+      'href',
+      '/uploads/manual.pdf',
+    );
+  });
+
+  it('only shows attachment upload controls to users who can author articles', async () => {
+    loginAs('CLIENT');
+    const user = userEvent.setup();
+    renderPage();
+
+    await openSupportFolder(user);
+
+    expect(screen.queryAllByText('Selecionar arquivo')).toHaveLength(0);
+  });
+
+  it('shows attachment upload controls to an AGENT and allows removing an attachment', async () => {
+    loginAs('AGENT');
+    vi.mocked(api.delete).mockResolvedValue({ data: {} });
+    const user = userEvent.setup();
+    renderPage();
+
+    await openSupportFolder(user);
+
+    expect(screen.getAllByText('Selecionar arquivo').length).toBeGreaterThan(0);
+
+    const removeButtons = screen.getAllByRole('button', { name: /remover/i });
+    await user.click(removeButtons[0]);
+
+    await waitFor(() => {
+      expect(api.delete).toHaveBeenCalledWith('/articles/article-1/attachments/att-1');
+    });
+  });
+
+  it('loads the edit form with EzRichText pre-filled with the existing article content', async () => {
+    loginAs('AGENT');
+    const user = userEvent.setup();
+    renderPage();
+
+    await openSupportFolder(user);
+
+    const editBtns = screen.getAllByRole('button', { name: /editar/i });
+    await user.click(editBtns[0]);
+
+    const editable = screen
+      .getByTestId('article-content-editor')
+      .querySelector('[contenteditable="true"]') as HTMLElement;
+    expect(editable).toBeTruthy();
+    await waitFor(() => {
+      expect(editable).toHaveTextContent('Clique em Novo Chamado...');
     });
   });
 });
