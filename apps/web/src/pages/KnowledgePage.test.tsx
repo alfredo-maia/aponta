@@ -25,7 +25,7 @@ const articles = [
     id: 'article-1',
     title: 'Como abrir um chamado',
     content: 'Clique em Novo Chamado...',
-    isPublic: true,
+    visibility: 'PUBLIC',
     tags: ['senha', 'ajuda'],
     author: { id: 'u-1', name: 'Fulano' },
     updatedAt: '2026-01-10T10:00:00.000Z',
@@ -43,13 +43,30 @@ const articles = [
     id: 'article-2',
     title: 'Artigo interno',
     content: 'Segredo de suporte',
-    isPublic: false,
+    visibility: 'PRIVATE',
     tags: ['interno'],
     author: { id: 'u-2', name: 'Ciclana' },
     updatedAt: '2026-02-20T10:00:00.000Z',
     attachments: [],
   }
 ];
+
+// DMTE-88 (Stage 2): fonte do diálogo "Compartilhar" (grupos de atendentes
+// por cliente) e do multi-select "Catálogo de serviços".
+const organizations = [
+  {
+    id: 'org-1',
+    name: 'Cliente A',
+    agentGroups: [{ id: 'group-1', name: 'Suporte N1', active: true }],
+  },
+  {
+    id: 'org-2',
+    name: 'Cliente B',
+    agentGroups: [],
+  },
+];
+
+const catalogItems = [{ id: 'cat-1', name: 'Treinamento', description: null }];
 
 function mockApiGet() {
   vi.mocked(api.get).mockImplementation((url: string) => {
@@ -58,6 +75,12 @@ function mockApiGet() {
     }
     if (url.startsWith('/articles')) {
       return Promise.resolve({ data: articles });
+    }
+    if (url.startsWith('/organizations')) {
+      return Promise.resolve({ data: organizations });
+    }
+    if (url.startsWith('/service-catalog-items')) {
+      return Promise.resolve({ data: catalogItems });
     }
     return Promise.reject(new Error(`Unexpected GET ${url}`));
   });
@@ -160,7 +183,52 @@ describe('KnowledgePage', () => {
     expect(screen.queryByRole('button', { name: /editar/i })).not.toBeInTheDocument();
   });
 
-  it('shows the new-article form to an AGENT and creates an article inside the open folder', async () => {
+  it('shows the Interno badge only for a PRIVATE article (visibility-based, not the old isPublic)', async () => {
+    loginAs('anonymous');
+    const user = userEvent.setup();
+    renderPage();
+
+    await openSupportFolder(user);
+
+    expect(screen.getAllByText('Interno')).toHaveLength(1);
+  });
+
+  it('defaults a new article to "Público" and hides the Compartilhar button', async () => {
+    loginAs('AGENT');
+    const user = userEvent.setup();
+    renderPage();
+
+    await openSupportFolder(user);
+
+    await user.click(screen.getByRole('button', { name: /\+ novo artigo/i }));
+
+    expect(screen.getByLabelText(/tipo de acesso/i)).toHaveValue('PUBLIC');
+    expect(screen.queryByRole('button', { name: /compartilhar/i })).not.toBeInTheDocument();
+  });
+
+  it('shows the Compartilhar button once "Privado" is selected, and opens the sharing dialog', async () => {
+    loginAs('AGENT');
+    const user = userEvent.setup();
+    renderPage();
+
+    await openSupportFolder(user);
+
+    await user.click(screen.getByRole('button', { name: /\+ novo artigo/i }));
+    fireEvent.change(screen.getByLabelText(/tipo de acesso/i), { target: { value: 'PRIVATE' } });
+
+    await user.click(screen.getByRole('button', { name: /compartilhar/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Compartilhar artigo')).toBeInTheDocument();
+    });
+    expect(screen.getByLabelText(/grupos de atendentes/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^clientes$/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('checkbox', { name: /adicionar novos clientes automaticamente/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows the new-article form to an AGENT and creates a PUBLIC article inside the open folder', async () => {
     loginAs('AGENT');
     vi.mocked(api.post).mockResolvedValue({
       data: { id: 'article-3', title: 'Novo artigo' },
@@ -186,23 +254,85 @@ describe('KnowledgePage', () => {
 
     await user.type(screen.getByLabelText(/tags/i), 'tag1, tag2');
 
-    // uncheck public
-    await user.click(screen.getByRole('checkbox', { name: /público/i }));
-
     await user.click(screen.getByRole('button', { name: /salvar/i }));
 
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith('/articles', {
         title: 'Novo artigo interno',
         content: '<p>Conteúdo do artigo</p>',
-        isPublic: false,
+        visibility: 'PUBLIC',
         tags: ['tag1', 'tag2'],
+        agentGroupIds: [],
+        organizationIds: [],
+        autoShareWithNewOrganizations: false,
+        serviceCatalogItemIds: [],
         folderId: 'folder-1',
       });
     });
   });
 
-  it('allows an AGENT to update an existing article', async () => {
+  it('selects an agent group and a client in the share dialog, and sends them (plus auto-share) in the create payload', async () => {
+    loginAs('AGENT');
+    vi.mocked(api.post).mockResolvedValue({ data: { id: 'article-3' } });
+    const user = userEvent.setup();
+    renderPage();
+
+    await openSupportFolder(user);
+
+    await user.click(screen.getByRole('button', { name: /\+ novo artigo/i }));
+    await user.type(screen.getByLabelText(/título/i), 'Artigo privado');
+
+    // EzRichText renders a Tiptap contenteditable surface, not a labelled
+    // native textarea — see the "creates a PUBLIC article" test above for
+    // why this sets innerHTML directly instead of using user.type().
+    const editable = screen
+      .getByTestId('article-content-editor')
+      .querySelector('[contenteditable="true"]') as HTMLElement;
+    editable.innerHTML = '<p>Conteúdo restrito</p>';
+    editable.dispatchEvent(new Event('input', { bubbles: true }));
+
+    fireEvent.change(screen.getByLabelText(/tipo de acesso/i), { target: { value: 'PRIVATE' } });
+    await user.click(screen.getByRole('button', { name: /compartilhar/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Compartilhar artigo')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByLabelText(/grupos de atendentes/i));
+    await waitFor(() => {
+      expect(screen.getByText('Cliente A / Suporte N1')).toBeInTheDocument();
+    });
+    await user.click(screen.getByText('Cliente A / Suporte N1'));
+
+    await user.click(screen.getByLabelText(/^clientes$/i));
+    await waitFor(() => {
+      expect(screen.getByText('Cliente B')).toBeInTheDocument();
+    });
+    await user.click(screen.getByText('Cliente B'));
+
+    await user.click(
+      screen.getByRole('checkbox', { name: /adicionar novos clientes automaticamente/i }),
+    );
+
+    await user.click(screen.getByRole('button', { name: /concluído/i }));
+    await user.click(screen.getByRole('button', { name: /salvar/i }));
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith('/articles', {
+        title: 'Artigo privado',
+        content: '<p>Conteúdo restrito</p>',
+        visibility: 'PRIVATE',
+        tags: [],
+        agentGroupIds: ['group-1'],
+        organizationIds: ['org-2'],
+        autoShareWithNewOrganizations: true,
+        serviceCatalogItemIds: [],
+        folderId: 'folder-1',
+      });
+    });
+  });
+
+  it('allows an AGENT to update an existing article, pre-populating the access type and sharing lists', async () => {
     loginAs('AGENT');
     vi.mocked(api.patch).mockResolvedValue({ data: {} });
     const user = userEvent.setup();
@@ -217,6 +347,7 @@ describe('KnowledgePage', () => {
     // form must be prepopulated
     expect(screen.getByLabelText(/título/i)).toHaveValue('Como abrir um chamado');
     expect(screen.getByLabelText(/tags/i)).toHaveValue('senha, ajuda');
+    expect(screen.getByLabelText(/tipo de acesso/i)).toHaveValue('PUBLIC');
 
     // edit title
     await user.clear(screen.getByLabelText(/título/i));
@@ -228,8 +359,12 @@ describe('KnowledgePage', () => {
       expect(api.patch).toHaveBeenCalledWith('/articles/article-1', {
         title: 'Título modificado',
         content: 'Clique em Novo Chamado...',
-        isPublic: true,
+        visibility: 'PUBLIC',
         tags: ['senha', 'ajuda'],
+        agentGroupIds: [],
+        organizationIds: [],
+        autoShareWithNewOrganizations: false,
+        serviceCatalogItemIds: [],
       });
     });
   });
@@ -333,7 +468,7 @@ describe('KnowledgePage', () => {
       id: `extra-${i}`,
       title: `Artigo ${i}`,
       content: 'Conteúdo',
-      isPublic: true,
+      visibility: 'PUBLIC',
       tags: [],
       author: { id: 'u-1', name: 'Fulano' },
       updatedAt: '2026-01-01T00:00:00.000Z',
@@ -344,6 +479,12 @@ describe('KnowledgePage', () => {
       }
       if (url.startsWith('/articles')) {
         return Promise.resolve({ data: manyArticles });
+      }
+      if (url.startsWith('/organizations')) {
+        return Promise.resolve({ data: organizations });
+      }
+      if (url.startsWith('/service-catalog-items')) {
+        return Promise.resolve({ data: catalogItems });
       }
       return Promise.reject(new Error(`Unexpected GET ${url}`));
     });
@@ -395,7 +536,7 @@ describe('KnowledgePage', () => {
               id: 'article-html',
               title: 'Artigo com HTML',
               content: '<p>Veja o <strong>passo a passo</strong> abaixo.</p>',
-              isPublic: true,
+              visibility: 'PUBLIC',
               tags: [],
               attachments: [],
             },

@@ -55,7 +55,7 @@ Variáveis de ambiente (ver `.env.example`):
 - `list_contracts` — lista contratos; campos financeiros ($) só retornam para ADMIN/CLIENT_MASTER (blindado no backend).
 
 ### Base de Conhecimento
-- `list_articles` — lista artigos; Cliente só vê artigos com `isPublic: true`.
+- `list_articles` — lista artigos; quem não for ADMIN só vê artigos com `visibility: "PUBLIC"` (mais os `PRIVATE` aos quais tem acesso).
 - `create_article` — cria artigo (requer AGENT, AGENT_MASTER ou ADMIN).
 
 ## Build

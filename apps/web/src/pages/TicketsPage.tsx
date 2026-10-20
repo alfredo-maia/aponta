@@ -33,12 +33,16 @@ type ViewMode = 'list' | 'kanban' | 'grid';
  * `/tickets?mine=true` or `/tickets?overdue=true` (e.g. from the dashboard's
  * "Resumo de tickets" KPIs) pre-filters the list on load.
  */
-function parseFiltersFromSearchParams(params: URLSearchParams): TicketFiltersInput {
+function parseFiltersFromSearchParams(
+  params: URLSearchParams,
+): TicketFiltersInput {
   const filters: TicketFiltersInput = {};
   const serviceDeskId = params.get('serviceDeskId');
   if (serviceDeskId) filters.serviceDeskId = serviceDeskId;
   const status = params.get('status');
   if (status) filters.status = status as TicketFiltersInput['status'];
+  const priority = params.get('priority');
+  if (priority) filters.priority = priority as TicketFiltersInput['priority'];
   const search = params.get('search');
   if (search) filters.search = search;
   const page = Number(params.get('page'));
@@ -55,8 +59,10 @@ function filtersToSearchParams(filters: TicketFiltersInput): URLSearchParams {
   const params = new URLSearchParams();
   if (filters.serviceDeskId) params.set('serviceDeskId', filters.serviceDeskId);
   if (filters.status) params.set('status', filters.status);
+  if (filters.priority) params.set('priority', filters.priority);
   if (filters.search) params.set('search', filters.search);
-  if (filters.page && filters.page > 1) params.set('page', String(filters.page));
+  if (filters.page && filters.page > 1)
+    params.set('page', String(filters.page));
   if (filters.mine) params.set('mine', 'true');
   if (filters.unassigned) params.set('unassigned', 'true');
   if (filters.paused) params.set('paused', 'true');
@@ -83,7 +89,9 @@ export function TicketsPage() {
   }, [filters]);
 
   // Agentes default to Kanban, Clients default to list
-  const [viewMode, setViewMode] = useState<ViewMode>(user?.role === 'CLIENT' ? 'list' : 'kanban');
+  const [viewMode, setViewMode] = useState<ViewMode>(
+    user?.role === 'CLIENT' ? 'list' : 'kanban',
+  );
 
   // Per-user screen personalization for grid columns, density, and form layout
   const {
@@ -111,7 +119,9 @@ export function TicketsPage() {
 
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [isScreenConfigModalOpen, setIsScreenConfigModalOpen] = useState(false);
-  const [screenConfigInitialTab, setScreenConfigInitialTab] = useState<'grid' | 'form'>('grid');
+  const [screenConfigInitialTab, setScreenConfigInitialTab] = useState<
+    'grid' | 'form'
+  >('grid');
   const [selectedTickets, setSelectedTickets] = useState<Ticket[]>([]);
   const [focusedIndex, setFocusedIndex] = useState(0);
 
@@ -218,7 +228,11 @@ export function TicketsPage() {
           const date = new Date(row.original.resolveDeadline);
           return (
             <span className="text-gray-600 text-[12px]">
-              {date.toLocaleDateString('pt-BR')} {date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+              {date.toLocaleDateString('pt-BR')}{' '}
+              {date.toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
             </span>
           );
         },
@@ -233,7 +247,11 @@ export function TicketsPage() {
           const date = new Date(row.original.responseDeadline);
           return (
             <span className="text-gray-600 text-[12px]">
-              {date.toLocaleDateString('pt-BR')} {date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+              {date.toLocaleDateString('pt-BR')}{' '}
+              {date.toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
             </span>
           );
         },
@@ -279,7 +297,11 @@ export function TicketsPage() {
           const date = new Date(row.original.createdAt);
           return (
             <span className="text-gray-600 text-[12px]">
-              {date.toLocaleDateString('pt-BR')} {date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+              {date.toLocaleDateString('pt-BR')}{' '}
+              {date.toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
             </span>
           );
         },
@@ -291,13 +313,17 @@ export function TicketsPage() {
           const date = new Date(row.original.updatedAt);
           return (
             <span className="text-gray-600 text-[12px]">
-              {date.toLocaleDateString('pt-BR')} {date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+              {date.toLocaleDateString('pt-BR')}{' '}
+              {date.toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
             </span>
           );
         },
       },
     ],
-    []
+    [],
   );
 
   // TiFlux parity: the grid view comes grouped by Estágio (status) by
@@ -318,7 +344,8 @@ export function TicketsPage() {
     });
   }, [ticketGridColumns, screenConfig.grid.columnVisibility]);
 
-  const activeTicket = selectedTickets[0] ?? tickets[focusedIndex] ?? tickets[0];
+  const activeTicket =
+    selectedTickets[0] ?? tickets[focusedIndex] ?? tickets[0];
 
   const handlePrevious = () => {
     if (screenConfig.viewMode === 'FORM') {
@@ -367,7 +394,9 @@ export function TicketsPage() {
   };
 
   const recordStart = meta ? (currentPage - 1) * meta.limit + 1 : 1;
-  const recordEnd = meta ? Math.min(currentPage * meta.limit, meta.total) : tickets.length;
+  const recordEnd = meta
+    ? Math.min(currentPage * meta.limit, meta.total)
+    : tickets.length;
   const totalCount = meta ? meta.total : tickets.length;
   const recordCountText = `${totalCount === 0 ? 0 : recordStart} - ${recordEnd} de ${totalCount}`;
 
@@ -449,9 +478,20 @@ export function TicketsPage() {
             isFilterOpen={isFilterPanelOpen}
             onToggleFilter={() => setIsFilterPanelOpen((prev) => !prev)}
             onInsert={() => navigate('/tickets/new')}
-            hasPrevious={screenConfig.viewMode === 'FORM' ? focusedIndex > 0 || currentPage > 1 : currentPage > 1}
+            hasPrevious={
+              screenConfig.viewMode === 'FORM'
+                ? focusedIndex > 0 || currentPage > 1
+                : currentPage > 1
+            }
             onPrevious={handlePrevious}
-            hasNext={screenConfig.viewMode === 'FORM' ? focusedIndex < tickets.length - 1 || (meta ? currentPage < meta.totalPages : false) : (meta ? currentPage < meta.totalPages : false)}
+            hasNext={
+              screenConfig.viewMode === 'FORM'
+                ? focusedIndex < tickets.length - 1 ||
+                  (meta ? currentPage < meta.totalPages : false)
+                : meta
+                  ? currentPage < meta.totalPages
+                  : false
+            }
             onNext={handleNext}
             selectedCount={selectedTickets.length}
             onDelete={handleDelete}
@@ -481,9 +521,17 @@ export function TicketsPage() {
               {
                 label: 'Exportar Lista (CSV)',
                 onClick: () => {
-                  const headers = 'Protocolo,Título,Status,Prioridade,Criado Em\n';
-                  const rows = tickets.map((t) => `${t.protocol},"${t.title}",${t.status},${t.priority},${t.createdAt}`).join('\n');
-                  const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' });
+                  const headers =
+                    'Protocolo,Título,Status,Prioridade,Criado Em\n';
+                  const rows = tickets
+                    .map(
+                      (t) =>
+                        `${t.protocol},"${t.title}",${t.status},${t.priority},${t.createdAt}`,
+                    )
+                    .join('\n');
+                  const blob = new Blob([headers + rows], {
+                    type: 'text/csv;charset=utf-8;',
+                  });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement('a');
                   a.href = url;
@@ -525,7 +573,9 @@ export function TicketsPage() {
                   onSelectionChange={(selected) => {
                     setSelectedTickets(selected);
                     if (selected.length > 0) {
-                      const idx = tickets.findIndex((t) => t.id === selected[0].id);
+                      const idx = tickets.findIndex(
+                        (t) => t.id === selected[0].id,
+                      );
                       if (idx !== -1) setFocusedIndex(idx);
                     }
                   }}
@@ -544,7 +594,9 @@ export function TicketsPage() {
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center p-12 text-center text-gray-500">
-                  <p className="text-[14px]">Nenhum chamado selecionado para exibição no formulário.</p>
+                  <p className="text-[14px]">
+                    Nenhum chamado selecionado para exibição no formulário.
+                  </p>
                   <button
                     type="button"
                     onClick={() => setConfigViewMode('GRID')}
@@ -568,7 +620,11 @@ export function TicketsPage() {
         /* ================= LIST VIEW (MODO LISTA) ================= */
         <>
           <TicketFilters filters={filters} onChange={handleFiltersChange} />
-          <TicketList tickets={tickets} isLoading={isLoading} isError={isError} />
+          <TicketList
+            tickets={tickets}
+            isLoading={isLoading}
+            isError={isError}
+          />
           {meta && meta.totalPages > 1 && (
             <nav
               aria-label="Paginação de chamados"
