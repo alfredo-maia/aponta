@@ -36,12 +36,12 @@ describe('TicketsService', () => {
     holiday: { findMany: jest.Mock };
     ticketAudit: { create: jest.Mock; findMany: jest.Mock };
     serviceDesk: { findUnique: jest.Mock };
-      user: { findUnique: jest.Mock };
-      worklog: { findMany: jest.Mock };
-      comment: { create: jest.Mock };
-      ticketStage: { findFirst: jest.Mock };
-      ticketStageTransition: { findUnique: jest.Mock };
-      $transaction: jest.Mock;
+    user: { findUnique: jest.Mock };
+    worklog: { findMany: jest.Mock };
+    comment: { create: jest.Mock };
+    ticketStage: { findFirst: jest.Mock };
+    ticketStageTransition: { findUnique: jest.Mock };
+    $transaction: jest.Mock;
   };
 
   const actingUser = { id: 'user-1', role: Role.AGENT };
@@ -166,7 +166,10 @@ describe('TicketsService', () => {
         serviceDeskId: 'desk-1',
       };
 
-      const result = await service.create(dto, { id: 'requester-1', role: Role.AGENT });
+      const result = await service.create(dto, {
+        id: 'requester-1',
+        role: Role.AGENT,
+      });
 
       expect(mockTx.ticket.create).toHaveBeenCalledWith({
         include: { requester: { select: { email: true } } },
@@ -213,9 +216,7 @@ describe('TicketsService', () => {
         };
 
         expect(result.responseDeadline.toISOString()).toBe(
-          new Date(
-            start.getTime() + responseHours * 3600 * 1000,
-          ).toISOString(),
+          new Date(start.getTime() + responseHours * 3600 * 1000).toISOString(),
         );
         expect(result.resolveDeadline.toISOString()).toBe(
           new Date(start.getTime() + resolveHours * 3600 * 1000).toISOString(),
@@ -425,16 +426,18 @@ describe('TicketsService', () => {
       );
 
       expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
-        where: { 
-          serviceDeskId: 'desk-1', 
+        where: {
+          serviceDeskId: 'desk-1',
           status: TicketStatus.OPEN,
           serviceDesk: {
             OR: [
               { agents: { some: { id: 'agent-1' } } },
-              { agentGroups: { some: { members: { some: { id: 'agent-1' } } } } },
+              {
+                agentGroups: { some: { members: { some: { id: 'agent-1' } } } },
+              },
               { allowCrossDeskInteraction: true },
             ],
-          }, 
+          },
         },
         skip: 0,
         take: 20,
@@ -465,6 +468,22 @@ describe('TicketsService', () => {
 
       expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
         where: {},
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('filters by priority', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { priority: TicketPriority.CRITICAL },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: { priority: TicketPriority.CRITICAL },
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
@@ -622,7 +641,11 @@ describe('TicketsService', () => {
       expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
         where: {
           status: {
-            in: [TicketStatus.ON_HOLD, TicketStatus.PENDING_CUSTOMER, TicketStatus.PENDING_APPROVAL],
+            in: [
+              TicketStatus.ON_HOLD,
+              TicketStatus.PENDING_CUSTOMER,
+              TicketStatus.PENDING_APPROVAL,
+            ],
           },
         },
         skip: 0,
@@ -663,14 +686,24 @@ describe('TicketsService', () => {
       // set (no skip/take — pagination happens after the in-memory filter)
       // and excludes closed/resolved tickets at the DB level.
       expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
-        where: { status: { notIn: [TicketStatus.RESOLVED, TicketStatus.CLOSED] } },
+        where: {
+          status: { notIn: [TicketStatus.RESOLVED, TicketStatus.CLOSED] },
+        },
         orderBy: { createdAt: 'desc' },
       });
       expect(mockPrismaService.ticket.count).not.toHaveBeenCalled();
 
       expect(result.data).toHaveLength(1);
-      expect(result.data[0]).toMatchObject({ id: 'breached-response', responseSlaStatus: 'BREACHED' });
-      expect(result.meta).toEqual({ total: 1, page: 1, limit: 20, totalPages: 1 });
+      expect(result.data[0]).toMatchObject({
+        id: 'breached-response',
+        responseSlaStatus: 'BREACHED',
+      });
+      expect(result.meta).toEqual({
+        total: 1,
+        page: 1,
+        limit: 20,
+        totalPages: 1,
+      });
     });
 
     it('paginates the in-memory overdue result set using page/limit', async () => {
@@ -693,16 +726,21 @@ describe('TicketsService', () => {
 
       expect(result.data).toHaveLength(1);
       expect(result.data[0]).toMatchObject({ id: 'breached-2' });
-      expect(result.meta).toEqual({ total: 3, page: 2, limit: 2, totalPages: 2 });
+      expect(result.meta).toEqual({
+        total: 3,
+        page: 2,
+        limit: 2,
+        totalPages: 2,
+      });
     });
   });
 
   describe('findOne', () => {
     it('returns the ticket for AGENT regardless of requester', async () => {
-      const ticket = { 
-        id: 't1', 
+      const ticket = {
+        id: 't1',
         requesterId: 'someone-else',
-        serviceDesk: { agents: [{ id: 'agent-1' }] }
+        serviceDesk: { agents: [{ id: 'agent-1' }] },
       };
       mockPrismaService.ticket.findUnique.mockResolvedValue(ticket);
 
@@ -758,7 +796,11 @@ describe('TicketsService', () => {
       mockPrismaService.ticket.findUnique.mockResolvedValue({
         id: 't1',
         requesterId: 'someone-else',
-        serviceDesk: { agents: [], allowCrossDeskInteraction: true, ticketSections: [] },
+        serviceDesk: {
+          agents: [],
+          allowCrossDeskInteraction: true,
+          ticketSections: [],
+        },
       });
 
       const result = await service.findOne('t1', {
@@ -853,7 +895,11 @@ describe('TicketsService', () => {
       mockPrismaService.ticket.findUnique.mockResolvedValue(existingTicket);
       mockPrismaService.ticket.update.mockResolvedValue({});
 
-      await service.update('t1', { priority: TicketPriority.CRITICAL }, actingUser);
+      await service.update(
+        't1',
+        { priority: TicketPriority.CRITICAL },
+        actingUser,
+      );
 
       expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
         where: { id: 't1' },
@@ -895,9 +941,9 @@ describe('TicketsService', () => {
     it('throws NotFoundException when ticket does not exist', async () => {
       mockPrismaService.ticket.findUnique.mockResolvedValue(null);
 
-      await expect(service.assign('missing', 'agent-1', actingUser)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.assign('missing', 'agent-1', actingUser),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('throws BadRequestException when agentId does not reference a real user', async () => {
@@ -906,9 +952,9 @@ describe('TicketsService', () => {
         throw prismaKnownError('P2003', { field_name: 'agentId' });
       });
 
-      await expect(service.assign('t1', 'ghost-agent', actingUser)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        service.assign('t1', 'ghost-agent', actingUser),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -1085,7 +1131,11 @@ describe('TicketsService', () => {
       });
       mockPrismaService.ticket.update.mockResolvedValue({});
 
-      await service.update('t1', { priority: TicketPriority.CRITICAL }, actingUser);
+      await service.update(
+        't1',
+        { priority: TicketPriority.CRITICAL },
+        actingUser,
+      );
 
       expect(mockPrismaService.ticketAudit.create).toHaveBeenCalledWith({
         data: {
@@ -1335,7 +1385,9 @@ describe('TicketsService', () => {
         agentGroups: [],
       });
 
-      await expect(service.cancel('t1', actingUser)).rejects.toThrow(ForbiddenException);
+      await expect(service.cancel('t1', actingUser)).rejects.toThrow(
+        ForbiddenException,
+      );
       expect(mockPrismaService.ticket.update).not.toHaveBeenCalled();
     });
   });
@@ -1517,7 +1569,9 @@ describe('TicketsService', () => {
         isInitial: false,
         isFinal: false,
       });
-      mockPrismaService.ticketStageTransition.findUnique.mockResolvedValue(null);
+      mockPrismaService.ticketStageTransition.findUnique.mockResolvedValue(
+        null,
+      );
 
       await expect(
         service.changeStage('t1', 'stage-n2', actingUser),
