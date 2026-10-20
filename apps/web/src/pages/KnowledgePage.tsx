@@ -11,13 +11,17 @@ import {
   EzCheck,
   EzComboBox,
   EzEmptyCard,
+  EzRichText,
   EzSpinner,
   EzTag,
-  EzTextArea,
   EzTextInput,
 } from '../components/ds';
 import { cn } from '../components/ds/utils';
 import { KnowledgeFolder, KnowledgeFoldersGrid } from '../components/knowledge/KnowledgeFoldersGrid';
+import {
+  KnowledgeArticleAttachments,
+  type KnowledgeAttachment,
+} from '../components/knowledge/KnowledgeArticleAttachments';
 
 interface Article {
   id: string;
@@ -27,6 +31,7 @@ interface Article {
   tags: string[];
   author?: { id: string; name: string } | null;
   updatedAt?: string;
+  attachments?: KnowledgeAttachment[];
 }
 
 type ArticleSort = 'updated_desc' | 'title_asc' | 'title_desc';
@@ -251,13 +256,11 @@ export function KnowledgePage() {
               onChange={(e) => setTitle(e.target.value)}
               required
             />
-            <EzTextArea
-              id="article-content"
-              label="Conteúdo"
+            <EzRichText
               value={content}
-              onChange={(e) => setContent(e.target.value)}
-              required
-              rows={4}
+              onChange={setContent}
+              label="Conteúdo"
+              testId="article-content-editor"
             />
             <EzTextInput
               id="article-tags"
@@ -378,7 +381,17 @@ export function KnowledgePage() {
               </p>
             )}
 
-            <p className="whitespace-pre-wrap text-gray-700 mb-3">{art.content}</p>
+            {/*
+              Safe to render raw: article content only ever reaches the
+              client after passing through the backend's
+              sanitizeArticleContent step on save (strict tag/attribute/
+              inline-style allowlist) — this is never unsanitized HTML
+              typed directly by the current user.
+            */}
+            <div
+              className="prose prose-sm max-w-none text-gray-700 mb-3"
+              dangerouslySetInnerHTML={{ __html: art.content }}
+            />
 
             {art.tags && art.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
@@ -389,6 +402,12 @@ export function KnowledgePage() {
                 ))}
               </div>
             )}
+
+            <KnowledgeArticleAttachments
+              articleId={art.id}
+              attachments={art.attachments ?? []}
+              canManage={canAuthor}
+            />
           </EzCardItem>
         ))}
         {!articles?.length && (

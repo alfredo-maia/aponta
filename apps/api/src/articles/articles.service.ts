@@ -3,12 +3,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { unlink } from 'fs/promises';
+import { join } from 'path';
 import { Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ArticleQueryDto, ArticleSort } from './dto/article-query.dto';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
+import { sanitizeArticleContent } from './sanitize-article-content';
 
 /**
  * Knowledge Base (FAQ) articles. Articles can be public (visible to
@@ -58,8 +61,30 @@ export class ArticlesService {
     return this.prisma.article.findMany({
       where,
       orderBy: this.resolveOrderBy(query?.sort),
-      include: { author: { select: { id: true, name: true } } },
+      include: {
+        author: { select: { id: true, name: true } },
+        attachments: {
+          select: {
+            id: true,
+            originalName: true,
+            mimeType: true,
+            fileUrl: true,
+            createdAt: true,
+          },
+        },
+      },
     });
+  }
+
+  /**
+   * Used by KnowledgeAttachmentsController to 404 early when the parent
+   * article doesn't exist, mirroring how AttachmentsController leans on
+   * TicketsService.findOne before accepting an upload. There is no
+   * public findOne/GET :id route for articles (by design — see module
+   * notes), so this stays a plain existence check, not a full read.
+   */
+  findById(id: string) {
+    return this.prisma.article.findUnique({ where: { id } });
   }
 
   /**
@@ -81,7 +106,7 @@ export class ArticlesService {
     return this.prisma.article.create({
       data: {
         title: dto.title,
-        content: dto.content,
+        content: sanitizeArticleContent(dto.content),
         isPublic: dto.isPublic,
         tags: dto.tags,
         authorId: currentUser.id,
@@ -102,11 +127,19 @@ export class ArticlesService {
 
     this.assertCanModify(article.authorId, currentUser);
 
-    return this.prisma.article.update({ where: { id }, data: dto });
+    const data =
+      dto.content !== undefined
+        ? { ...dto, content: sanitizeArticleContent(dto.content) }
+        : dto;
+
+    return this.prisma.article.update({ where: { id }, data });
   }
 
   async remove(id: string, currentUser: CurrentUserPayload) {
-    const article = await this.prisma.article.findUnique({ where: { id } });
+    const article = await this.prisma.article.findUnique({
+      where: { id },
+      include: { attachments: { select: { filename: true } } },
+    });
 
     if (!article) {
       throw new NotFoundException(`Article with ID ${id} not found`);
@@ -114,7 +147,23 @@ export class ArticlesService {
 
     this.assertCanModify(article.authorId, currentUser);
 
-    return this.prisma.article.delete({ where: { id } });
+    const deleted = await this.prisma.article.delete({ where: { id } });
+
+    // The DB rows cascade-delete with the article (onDelete: Cascade on
+    // KnowledgeAttachment.articleId), but Postgres has no idea the
+    // `filename` it stored also names a file on disk — without this, every
+    // deleted article leaves its uploaded files behind in ./uploads
+    // forever. Best-effort: a file already missing shouldn't block the
+    // article deletion that already succeeded.
+    await Promise.all(
+      article.attachments.map((attachment) =>
+        unlink(join(process.cwd(), 'uploads', attachment.filename)).catch(
+          () => undefined,
+        ),
+      ),
+    );
+
+    return deleted;
   }
 
   /**
