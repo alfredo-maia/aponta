@@ -11,6 +11,8 @@ import {
   EzCheck,
   EzComboBox,
   EzEmptyCard,
+  EzModal,
+  EzMultiSelect,
   EzSpinner,
   EzTag,
   EzTextArea,
@@ -19,14 +21,38 @@ import {
 import { cn } from '../components/ds/utils';
 import { KnowledgeFolder, KnowledgeFoldersGrid } from '../components/knowledge/KnowledgeFoldersGrid';
 
+type ArticleVisibility = 'PUBLIC' | 'PRIVATE';
+
 interface Article {
   id: string;
   title: string;
   content: string;
-  isPublic: boolean;
+  visibility: ArticleVisibility;
+  autoShareWithNewOrganizations?: boolean;
   tags: string[];
   author?: { id: string; name: string } | null;
   updatedAt?: string;
+  allowedAgentGroups?: { id: string; name: string }[];
+  allowedOrganizations?: { id: string; name: string }[];
+  serviceCatalogItems?: { id: string; name: string }[];
+}
+
+interface OrganizationAgentGroup {
+  id: string;
+  name: string;
+  active: boolean;
+}
+
+interface OrganizationWithAgentGroups {
+  id: string;
+  name: string;
+  agentGroups?: OrganizationAgentGroup[];
+}
+
+interface ServiceCatalogItem {
+  id: string;
+  name: string;
+  description?: string | null;
 }
 
 type ArticleSort = 'updated_desc' | 'title_asc' | 'title_desc';
@@ -92,6 +118,47 @@ export function KnowledgePage() {
     enabled: selectedFolderId !== null,
   });
 
+  // Fontes para o diálogo de compartilhamento e para o multi-select de
+  // Catálogo de Serviços — só necessárias para quem pode autorar artigos.
+  const { data: organizations } = useQuery<OrganizationWithAgentGroups[]>({
+    queryKey: ['organizations-for-knowledge-sharing'],
+    queryFn: async () => {
+      const res = await api.get('/organizations');
+      return res.data;
+    },
+    enabled: canAuthor && selectedFolderId !== null,
+  });
+
+  const { data: catalogItems } = useQuery<ServiceCatalogItem[]>({
+    queryKey: ['service-catalog-items'],
+    queryFn: async () => {
+      const res = await api.get('/service-catalog-items');
+      return res.data;
+    },
+    enabled: canAuthor && selectedFolderId !== null,
+  });
+
+  const agentGroupOptions = useMemo(
+    () =>
+      (organizations ?? []).flatMap((org) =>
+        (org.agentGroups ?? []).map((group) => ({
+          value: group.id,
+          label: `${org.name} / ${group.name}`,
+        }))
+      ),
+    [organizations]
+  );
+
+  const organizationOptions = useMemo(
+    () => (organizations ?? []).map((org) => ({ value: org.id, label: org.name })),
+    [organizations]
+  );
+
+  const catalogItemOptions = useMemo(
+    () => (catalogItems ?? []).map((item) => ({ value: item.id, label: item.name })),
+    [catalogItems]
+  );
+
   const totalPages = Math.max(1, Math.ceil((articles?.length ?? 0) / PAGE_SIZE));
   const pagedArticles = useMemo(
     () => (articles ?? []).slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
@@ -107,15 +174,49 @@ export function KnowledgePage() {
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [isPublic, setIsPublic] = useState(true);
+  const [visibility, setVisibility] = useState<ArticleVisibility>('PUBLIC');
   const [tagsInput, setTagsInput] = useState('');
+  const [agentGroupIds, setAgentGroupIds] = useState<string[]>([]);
+  const [organizationIds, setOrganizationIds] = useState<string[]>([]);
+  const [autoShareWithNewOrganizations, setAutoShareWithNewOrganizations] = useState(false);
+  const [serviceCatalogItemIds, setServiceCatalogItemIds] = useState<string[]>([]);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  // Formulário simples (nome + descrição) para cadastrar um novo item de
+  // catálogo sem sair da página de Conhecimentos, suficiente para popular o
+  // multi-select (a tela de administração completa do catálogo não faz
+  // parte desta issue).
+  const [isNewCatalogItemFormOpen, setIsNewCatalogItemFormOpen] = useState(false);
+  const [newCatalogItemName, setNewCatalogItemName] = useState('');
+  const [newCatalogItemDescription, setNewCatalogItemDescription] = useState('');
+
+  const createCatalogItemMutation = useMutation({
+    mutationFn: async () => {
+      const res = await api.post('/service-catalog-items', {
+        name: newCatalogItemName,
+        description: newCatalogItemDescription || undefined,
+      });
+      return res.data as ServiceCatalogItem;
+    },
+    onSuccess: (created) => {
+      queryClient.invalidateQueries({ queryKey: ['service-catalog-items'] });
+      setServiceCatalogItemIds((prev) => [...prev, created.id]);
+      setNewCatalogItemName('');
+      setNewCatalogItemDescription('');
+      setIsNewCatalogItemFormOpen(false);
+    },
+  });
 
   const openNewForm = () => {
     setEditingId(null);
     setTitle('');
     setContent('');
-    setIsPublic(true);
+    setVisibility('PUBLIC');
     setTagsInput('');
+    setAgentGroupIds([]);
+    setOrganizationIds([]);
+    setAutoShareWithNewOrganizations(false);
+    setServiceCatalogItemIds([]);
     setIsFormOpen(true);
   };
 
@@ -123,8 +224,12 @@ export function KnowledgePage() {
     setEditingId(art.id);
     setTitle(art.title);
     setContent(art.content);
-    setIsPublic(art.isPublic);
+    setVisibility(art.visibility);
     setTagsInput(art.tags?.join(', ') || '');
+    setAgentGroupIds((art.allowedAgentGroups ?? []).map((g) => g.id));
+    setOrganizationIds((art.allowedOrganizations ?? []).map((o) => o.id));
+    setAutoShareWithNewOrganizations(art.autoShareWithNewOrganizations ?? false);
+    setServiceCatalogItemIds((art.serviceCatalogItems ?? []).map((c) => c.id));
     setIsFormOpen(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -134,14 +239,22 @@ export function KnowledgePage() {
       const payload: {
         title: string;
         content: string;
-        isPublic: boolean;
+        visibility: ArticleVisibility;
         tags: string[];
         folderId?: string;
+        agentGroupIds: string[];
+        organizationIds: string[];
+        autoShareWithNewOrganizations: boolean;
+        serviceCatalogItemIds: string[];
       } = {
         title,
         content,
-        isPublic,
+        visibility,
         tags: tagsInput.split(',').map((t) => t.trim()).filter(Boolean),
+        agentGroupIds,
+        organizationIds,
+        autoShareWithNewOrganizations,
+        serviceCatalogItemIds,
       };
 
       // Um artigo criado dentro de uma pasta já nasce associado a ela.
@@ -266,12 +379,82 @@ export function KnowledgePage() {
               onChange={(e) => setTagsInput(e.target.value)}
               placeholder="ex: acesso, senha, rh"
             />
-            <EzCheck
-              id="article-is-public"
-              label="Público (visível para clientes sem login)"
-              checked={isPublic}
-              onChange={(e) => setIsPublic(e.target.checked)}
+
+            <div className="flex items-end gap-3">
+              <div className="w-[220px]">
+                <EzComboBox
+                  id="article-visibility"
+                  label="Tipo de acesso"
+                  value={visibility}
+                  onChange={(e) => setVisibility(e.target.value as ArticleVisibility)}
+                >
+                  <option value="PUBLIC">Público</option>
+                  <option value="PRIVATE">Privado</option>
+                </EzComboBox>
+              </div>
+              {visibility === 'PRIVATE' && (
+                <EzButton
+                  type="button"
+                  variant="secondary"
+                  size="small"
+                  onClick={() => setIsShareModalOpen(true)}
+                >
+                  Compartilhar
+                </EzButton>
+              )}
+            </div>
+
+            <EzMultiSelect
+              id="article-service-catalog-items"
+              label="Catálogo de serviços"
+              value={serviceCatalogItemIds}
+              onChange={(values) => setServiceCatalogItemIds(values as string[])}
+              options={catalogItemOptions}
+              placeholder="Associar itens do catálogo de serviços..."
             />
+
+            {!isNewCatalogItemFormOpen ? (
+              <button
+                type="button"
+                className="text-sm text-brand-700 hover:underline"
+                onClick={() => setIsNewCatalogItemFormOpen(true)}
+              >
+                + Novo item de catálogo
+              </button>
+            ) : (
+              <EzCardItem flat className="p-3 space-y-2 bg-gray-90/40">
+                <EzTextInput
+                  id="new-catalog-item-name"
+                  label="Nome do item de catálogo"
+                  value={newCatalogItemName}
+                  onChange={(e) => setNewCatalogItemName(e.target.value)}
+                />
+                <EzTextInput
+                  id="new-catalog-item-description"
+                  label="Descrição (opcional)"
+                  value={newCatalogItemDescription}
+                  onChange={(e) => setNewCatalogItemDescription(e.target.value)}
+                />
+                <div className="flex gap-2">
+                  <EzButton
+                    type="button"
+                    size="small"
+                    disabled={!newCatalogItemName.trim() || createCatalogItemMutation.isPending}
+                    onClick={() => createCatalogItemMutation.mutate()}
+                  >
+                    Adicionar
+                  </EzButton>
+                  <EzButton
+                    type="button"
+                    variant="tertiary"
+                    size="small"
+                    onClick={() => setIsNewCatalogItemFormOpen(false)}
+                  >
+                    Cancelar
+                  </EzButton>
+                </div>
+              </EzCardItem>
+            )}
 
             {saveMutation.isError && (
               <EzAlert variant="error">
@@ -289,6 +472,43 @@ export function KnowledgePage() {
           </EzCardItem>
         </form>
       )}
+
+      <EzModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        title="Compartilhar artigo"
+        maxWidth="md"
+        footer={
+          <EzButton type="button" onClick={() => setIsShareModalOpen(false)}>
+            Concluído
+          </EzButton>
+        }
+      >
+        <div className="space-y-4">
+          <EzMultiSelect
+            id="article-agent-groups"
+            label="Grupos de atendentes"
+            value={agentGroupIds}
+            onChange={(values) => setAgentGroupIds(values as string[])}
+            options={agentGroupOptions}
+            placeholder="Selecione os grupos de atendentes..."
+          />
+          <EzMultiSelect
+            id="article-organizations"
+            label="Clientes"
+            value={organizationIds}
+            onChange={(values) => setOrganizationIds(values as string[])}
+            options={organizationOptions}
+            placeholder="Selecione os clientes..."
+          />
+          <EzCheck
+            id="article-auto-share"
+            label="Adicionar novos clientes automaticamente"
+            checked={autoShareWithNewOrganizations}
+            onChange={(e) => setAutoShareWithNewOrganizations(e.target.checked)}
+          />
+        </div>
+      </EzModal>
 
       {/* Tiflux-parity: ordenação (A-Z/Z-A/última atualização) e alternador Lista/Grade */}
       <div className="flex items-center justify-between mb-4 gap-3">
@@ -347,7 +567,7 @@ export function KnowledgePage() {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
                 <h2 className="text-[16px] font-semibold text-gray-900">{art.title}</h2>
-                {!art.isPublic && <EzTag label="Interno" variant="yellow" />}
+                {art.visibility === 'PRIVATE' && <EzTag label="Interno" variant="yellow" />}
               </div>
               {canAuthor && (
                 <div className="flex gap-2">

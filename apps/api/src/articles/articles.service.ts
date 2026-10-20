@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, Role } from '@prisma/client';
+import { ArticleVisibility, Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -11,34 +11,39 @@ import { ArticleQueryDto, ArticleSort } from './dto/article-query.dto';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 /**
- * Knowledge Base (FAQ) articles. Articles can be public (visible to
- * everyone, including unauthenticated/CLIENT users) or internal
- * (AGENT+ only). Only AGENT and above may author articles — CLIENT and
- * CLIENT_MASTER (and anonymous/unauthenticated callers) are strictly
- * read-only, enforced via RBAC on the controller AND a query-level
- * filter here so an internal article is never even fetched for them.
+ * Knowledge Base (FAQ) articles.
+ *
+ * Visibility (DMTE-88, Stage 2 — supersedes the old boolean `isPublic`):
+ * an Article is either PUBLIC (visible to everyone, including
+ * unauthenticated/CLIENT users) or PRIVATE (visible only to its author, to
+ * members of any of its `allowedAgentGroups`, or to users whose
+ * `organizationId` is in its `allowedOrganizations`).
+ *
+ * ADMIN always sees every article unconditionally (project convention:
+ * ADMIN has global access) — this is a deliberate behavior change from the
+ * old rule where AGENT/AGENT_MASTER also bypassed the visibility filter
+ * entirely; now AGENT/AGENT_MASTER are subject to the same PRIVATE-article
+ * ACL as everyone else (only ADMIN is exempt).
  */
 @Injectable()
 export class ArticlesService {
   constructor(private prisma: PrismaService) {}
 
   findAll(currentUser: CurrentUserPayload | undefined, query?: ArticleQueryDto) {
-    const isClient =
-      !currentUser ||
-      currentUser.role === Role.CLIENT ||
-      currentUser.role === Role.CLIENT_MASTER;
+    const andClauses: Prisma.ArticleWhereInput[] = [];
 
-    const where: Prisma.ArticleWhereInput = {};
-
-    if (isClient) {
-      where.isPublic = true;
+    const visibilityOr = this.buildVisibilityOr(currentUser);
+    if (visibilityOr) {
+      andClauses.push({ OR: visibilityOr });
     }
 
     if (query?.search) {
-      where.OR = [
-        { title: { contains: query.search, mode: 'insensitive' } },
-        { content: { contains: query.search, mode: 'insensitive' } },
-      ];
+      andClauses.push({
+        OR: [
+          { title: { contains: query.search, mode: 'insensitive' } },
+          { content: { contains: query.search, mode: 'insensitive' } },
+        ],
+      });
     }
 
     if (query?.tags) {
@@ -47,19 +52,88 @@ export class ArticlesService {
         .map((t) => t.trim())
         .filter(Boolean);
       if (tagList.length > 0) {
-        where.tags = { hasSome: tagList };
+        andClauses.push({ tags: { hasSome: tagList } });
       }
     }
 
     if (query?.folderId) {
-      where.folderId = query.folderId;
+      andClauses.push({ folderId: query.folderId });
     }
+
+    const where: Prisma.ArticleWhereInput =
+      andClauses.length === 0
+        ? {}
+        : andClauses.length === 1
+          ? andClauses[0]
+          : { AND: andClauses };
 
     return this.prisma.article.findMany({
       where,
       orderBy: this.resolveOrderBy(query?.sort),
       include: { author: { select: { id: true, name: true } } },
     });
+  }
+
+  /**
+   * Fetches a single article applying the same visibility rule as
+   * findAll(). When the article exists but is not visible to currentUser,
+   * throws NotFoundException (never ForbiddenException) so an ID-spoofing
+   * attempt cannot distinguish "doesn't exist" from "exists but private" —
+   * same anti-enumeration convention already used elsewhere for isPublic.
+   */
+  async findOne(id: string, currentUser: CurrentUserPayload | undefined) {
+    const visibilityOr = this.buildVisibilityOr(currentUser);
+
+    const article = await this.prisma.article.findFirst({
+      where: {
+        id,
+        ...(visibilityOr ? { OR: visibilityOr } : {}),
+      },
+      include: {
+        author: { select: { id: true, name: true } },
+        folder: true,
+        allowedAgentGroups: { select: { id: true, name: true, organizationId: true } },
+        allowedOrganizations: { select: { id: true, name: true } },
+        serviceCatalogItems: true,
+      },
+    });
+
+    if (!article) {
+      throw new NotFoundException(`Article with ID ${id} not found`);
+    }
+
+    return article;
+  }
+
+  /**
+   * Builds the OR clause that decides whether a PRIVATE article is visible
+   * to currentUser, shared by findAll() and findOne() so both apply the
+   * exact same rule. Returns undefined for ADMIN, meaning "no filter at
+   * all" (global access).
+   */
+  private buildVisibilityOr(
+    currentUser: CurrentUserPayload | undefined,
+  ): Prisma.ArticleWhereInput[] | undefined {
+    if (currentUser?.role === Role.ADMIN) {
+      return undefined;
+    }
+
+    const or: Prisma.ArticleWhereInput[] = [{ visibility: ArticleVisibility.PUBLIC }];
+
+    if (currentUser) {
+      const privateOr: Prisma.ArticleWhereInput[] = [
+        { authorId: currentUser.id },
+        { allowedAgentGroups: { some: { members: { some: { id: currentUser.id } } } } },
+      ];
+
+      if (currentUser.organizationId) {
+        privateOr.push({ allowedOrganizations: { some: { id: currentUser.organizationId } } });
+      }
+
+      or.push({ visibility: ArticleVisibility.PRIVATE, OR: privateOr });
+    }
+
+    return or;
   }
 
   /**
@@ -78,13 +152,25 @@ export class ArticlesService {
   }
 
   create(dto: CreateArticleDto, currentUser: CurrentUserPayload) {
+    const { agentGroupIds, organizationIds, serviceCatalogItemIds, ...rest } = dto;
+
     return this.prisma.article.create({
       data: {
-        title: dto.title,
-        content: dto.content,
-        isPublic: dto.isPublic,
-        tags: dto.tags,
+        title: rest.title,
+        content: rest.content,
+        visibility: rest.visibility,
+        autoShareWithNewOrganizations: rest.autoShareWithNewOrganizations,
+        tags: rest.tags,
         authorId: currentUser.id,
+        ...(agentGroupIds && {
+          allowedAgentGroups: { connect: agentGroupIds.map((gid) => ({ id: gid })) },
+        }),
+        ...(organizationIds && {
+          allowedOrganizations: { connect: organizationIds.map((oid) => ({ id: oid })) },
+        }),
+        ...(serviceCatalogItemIds && {
+          serviceCatalogItems: { connect: serviceCatalogItemIds.map((cid) => ({ id: cid })) },
+        }),
       },
     });
   }
@@ -102,7 +188,26 @@ export class ArticlesService {
 
     this.assertCanModify(article.authorId, currentUser);
 
-    return this.prisma.article.update({ where: { id }, data: dto });
+    const { agentGroupIds, organizationIds, serviceCatalogItemIds, ...rest } = dto;
+
+    return this.prisma.article.update({
+      where: { id },
+      data: {
+        ...rest,
+        // Relations are only touched when the field is explicitly present
+        // on the DTO; `set` replaces the whole list, matching a multi-select
+        // edit UI (never appends).
+        ...(agentGroupIds !== undefined && {
+          allowedAgentGroups: { set: agentGroupIds.map((gid) => ({ id: gid })) },
+        }),
+        ...(organizationIds !== undefined && {
+          allowedOrganizations: { set: organizationIds.map((oid) => ({ id: oid })) },
+        }),
+        ...(serviceCatalogItemIds !== undefined && {
+          serviceCatalogItems: { set: serviceCatalogItemIds.map((cid) => ({ id: cid })) },
+        }),
+      },
+    });
   }
 
   async remove(id: string, currentUser: CurrentUserPayload) {

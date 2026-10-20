@@ -9,7 +9,7 @@ export function registerArticleTools(server: McpServer, api: AxiosInstance) {
     {
       title: 'Listar Artigos da Base de Conhecimento',
       description:
-        'Lista artigos de FAQ/Wiki. Se o token for de um CLIENT/CLIENT_MASTER, só artigos marcados como públicos (isPublic=true) são retornados — artigos internos nunca saem do backend para esse papel.',
+        'Lista artigos de FAQ/Wiki. Se o token não for de um ADMIN, só artigos com visibility=PUBLIC (mais os PRIVATE aos quais o usuário tem acesso explícito via autoria/grupo/cliente) são retornados — artigos privados sem acesso nunca saem do backend.',
       inputSchema: {
         search: z.string().optional(),
         tag: z.string().optional(),
@@ -33,7 +33,10 @@ export function registerArticleTools(server: McpServer, api: AxiosInstance) {
       inputSchema: {
         title: z.string(),
         content: z.string(),
-        isPublic: z.boolean().optional().describe('true = visível para clientes (FAQ pública); false = interno'),
+        visibility: z
+          .enum(['PUBLIC', 'PRIVATE'])
+          .optional()
+          .describe('PUBLIC = visível para todos, incl. clientes sem login; PRIVATE = restrito ao autor e aos grupos/clientes compartilhados. Default: PUBLIC.'),
         tags: z.array(z.string()).optional(),
       },
     },

@@ -11,9 +11,31 @@ export class OrganizationsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createOrganizationDto: CreateOrganizationDto) {
-    return this.prisma.organization.create({
+    const organization = await this.prisma.organization.create({
       data: createOrganizationDto,
     });
+
+    // Tiflux-parity (DMTE-88, Stage 2): um Article PRIVATE com
+    // autoShareWithNewOrganizations=true deve ficar imediatamente visível
+    // para qualquer cliente recém-criado, sem precisar de compartilhamento
+    // manual.
+    const autoShareArticles = await this.prisma.article.findMany({
+      where: { autoShareWithNewOrganizations: true },
+      select: { id: true },
+    });
+
+    if (autoShareArticles.length > 0) {
+      await this.prisma.organization.update({
+        where: { id: organization.id },
+        data: {
+          articlesSharedWith: {
+            connect: autoShareArticles.map((article) => ({ id: article.id })),
+          },
+        },
+      });
+    }
+
+    return organization;
   }
 
   async findAll(active?: boolean) {
@@ -21,6 +43,7 @@ export class OrganizationsService {
       where: active === undefined ? undefined : { active },
       include: {
         _count: { select: { users: true } },
+        agentGroups: { select: { id: true, name: true, active: true } },
       }
     });
   }
