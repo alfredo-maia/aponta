@@ -1,7 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
 
-export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED' | 'PENDING_CUSTOMER' | 'ON_HOLD' | 'PENDING_APPROVAL' | 'ESCALATED';
+export type TicketStatus =
+  | 'OPEN'
+  | 'IN_PROGRESS'
+  | 'RESOLVED'
+  | 'CLOSED'
+  | 'PENDING_CUSTOMER'
+  | 'ON_HOLD'
+  | 'PENDING_APPROVAL'
+  | 'ESCALATED';
 
 export type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
@@ -26,8 +34,18 @@ export interface Ticket {
   csatScore?: number | null;
   csatComment?: string | null;
   parentTicketId?: string | null;
-  parentTicket?: { id: string; protocol: string; title: string; status: TicketStatus; } | null;
-  subTickets?: { id: string; protocol: string; title: string; status: TicketStatus; }[];
+  parentTicket?: {
+    id: string;
+    protocol: string;
+    title: string;
+    status: TicketStatus;
+  } | null;
+  subTickets?: {
+    id: string;
+    protocol: string;
+    title: string;
+    status: TicketStatus;
+  }[];
   serviceDesk?: {
     id?: string;
     name?: string;
@@ -36,9 +54,19 @@ export interface Ticket {
     ticketSections?: { key: string; enabled: boolean; sortOrder: number }[];
   };
   stageId?: string | null;
-  stage?: { id: string; name: string; isInitial: boolean; isFinal: boolean } | null;
+  stage?: {
+    id: string;
+    name: string;
+    isInitial: boolean;
+    isFinal: boolean;
+  } | null;
   /** Stages reachable from the ticket's current stage (desk-configured `TicketStageTransition`), for "Próximo Estágio". */
-  nextStages?: { id: string; name: string; isFinal: boolean; position: number }[];
+  nextStages?: {
+    id: string;
+    name: string;
+    isFinal: boolean;
+    position: number;
+  }[];
   createdAt: string;
   updatedAt: string;
 }
@@ -59,6 +87,7 @@ export interface TicketFiltersInput {
   serviceDeskId?: string;
   organizationId?: string;
   status?: TicketStatus;
+  priority?: TicketPriority;
   search?: string;
   page?: number;
   /** "Meus" KPI: tickets assigned to the current user. */
@@ -84,7 +113,19 @@ export interface TicketFiltersInput {
  * combination.
  */
 export function useTickets(filters: TicketFiltersInput = {}) {
-  const { serviceDeskId, organizationId, status, search, page, mine, unassigned, paused, overdue, notClosed } = filters;
+  const {
+    serviceDeskId,
+    organizationId,
+    status,
+    priority,
+    search,
+    page,
+    mine,
+    unassigned,
+    paused,
+    overdue,
+    notClosed,
+  } = filters;
 
   return useQuery({
     queryKey: [
@@ -93,6 +134,7 @@ export function useTickets(filters: TicketFiltersInput = {}) {
         serviceDeskId: serviceDeskId ?? null,
         organizationId: organizationId ?? null,
         status: status ?? null,
+        priority: priority ?? null,
         search: search ?? null,
         page: page ?? 1,
         mine: mine ?? false,
@@ -108,6 +150,7 @@ export function useTickets(filters: TicketFiltersInput = {}) {
           ...(serviceDeskId ? { serviceDeskId } : {}),
           ...(organizationId ? { organizationId } : {}),
           ...(status ? { status } : {}),
+          ...(priority ? { priority } : {}),
           ...(search ? { search } : {}),
           ...(mine ? { mine: 'true' } : {}),
           ...(unassigned ? { unassigned: 'true' } : {}),

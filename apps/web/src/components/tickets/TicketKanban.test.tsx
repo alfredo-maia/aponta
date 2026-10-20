@@ -341,6 +341,73 @@ describe('TicketKanban', () => {
     });
   });
 
+  describe('colapsar colunas e abrir novo ticket (TiFlux parity)', () => {
+    it('shows a collapse toggle and an "Abrir novo ticket" link on every column by default (fallback por status)', () => {
+      renderKanban({ tickets: [baseTicket], isLoading: false, isError: false });
+
+      expect(screen.getAllByTestId(/^collapse-column-/).length).toBeGreaterThan(
+        0,
+      );
+      const newTicketLinks = screen.getAllByRole('link', {
+        name: /abrir novo ticket/i,
+      });
+      expect(newTicketLinks.length).toBeGreaterThan(0);
+      expect(newTicketLinks[0]).toHaveAttribute('href', '/tickets/new');
+    });
+
+    it('collapsing a status column hides its ticket list and disables it as a drop target; expanding restores it', () => {
+      renderKanban({ tickets: [baseTicket], isLoading: false, isError: false });
+
+      fireEvent.click(screen.getByTestId('collapse-column-OPEN'));
+
+      // Card no longer rendered while collapsed, and the column is no
+      // longer a valid drop target.
+      expect(screen.queryByText('AP-2026-0001')).not.toBeInTheDocument();
+      expect(capturedDroppables['OPEN'].isDropDisabled).toBe(true);
+
+      fireEvent.click(screen.getByTestId('expand-column'));
+
+      expect(screen.getByText('AP-2026-0001')).toBeInTheDocument();
+      expect(capturedDroppables['OPEN'].isDropDisabled).toBe(false);
+    });
+
+    it('does not show "Abrir novo ticket" for CLIENT role users', () => {
+      useAuthStore.setState({
+        token: 'tok',
+        user: {
+          sub: 'u1',
+          email: 'c@c.com',
+          role: 'CLIENT',
+          organizationId: null,
+        },
+      });
+      renderKanban({ tickets: [], isLoading: false, isError: false });
+
+      expect(
+        screen.queryByRole('link', { name: /abrir novo ticket/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('collapsing a stage column (mesa selecionada) hides its ticket list and disables it as a drop target', async () => {
+      mockApiGet();
+      renderKanban({
+        tickets: [{ ...baseTicket, stageId: 's-n1' }],
+        isLoading: false,
+        isError: false,
+        initialServiceDeskId: 'desk-1',
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('N1')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByTestId('collapse-column-s-n1'));
+
+      expect(screen.queryByText('AP-2026-0001')).not.toBeInTheDocument();
+      expect(capturedDroppables['s-n1'].isDropDisabled).toBe(true);
+    });
+  });
+
   describe('seletor de Mesa dedicado (TiFlux parity)', () => {
     it('lists service desks in the Mesa dropdown and switches to stage-grouped columns on selection, without needing initialServiceDeskId', async () => {
       mockApiGet();

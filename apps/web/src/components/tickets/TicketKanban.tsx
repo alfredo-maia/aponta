@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import {
   DragDropContext,
   Droppable,
   Draggable,
   DropResult,
   DragStart,
+  DroppableProvidedProps,
 } from '@hello-pangea/dnd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
@@ -100,6 +103,63 @@ function extractErrorMessage(err: unknown): string {
   return 'Não foi possível mover o chamado. Tente novamente.';
 }
 
+/** TiFlux parity: a collapsed column shrinks to a thin strip (no ticket
+ * list), with its label rotated vertically and a chevron to re-expand. It
+ * still renders the Droppable's ref/props (required by @hello-pangea/dnd
+ * even while `isDropDisabled`) but never accepts a drop while collapsed. */
+function CollapsedColumn({
+  label,
+  count,
+  onExpand,
+  droppableRef,
+  droppableProps,
+  placeholder,
+}: {
+  label: string;
+  count: number;
+  onExpand: () => void;
+  droppableRef: (element: HTMLElement | null) => void;
+  droppableProps: DroppableProvidedProps;
+  placeholder: ReactNode;
+}) {
+  return (
+    <div
+      ref={droppableRef}
+      {...droppableProps}
+      className="flex w-12 shrink-0 flex-col items-center gap-2 rounded-lg border border-gray-200 bg-gray-80 p-2"
+    >
+      <button
+        type="button"
+        onClick={onExpand}
+        className="text-gray-400 hover:text-gray-700 cursor-pointer"
+        title="Expandir coluna"
+        data-testid="expand-column"
+      >
+        <ChevronRight className="w-3.5 h-3.5" />
+      </button>
+      <EzTag label={String(count)} variant="gray" className="!px-1.5 !py-0.5" />
+      <span className="[writing-mode:vertical-rl] rotate-180 text-xs font-semibold text-gray-900 py-1 whitespace-nowrap">
+        {label}
+      </span>
+      {placeholder}
+    </div>
+  );
+}
+
+/** TiFlux parity: a quick-add link at the bottom of each (expanded) Kanban
+ * column — same destination as the Grid toolbar's "+" action. */
+function NewTicketButton() {
+  return (
+    <Link
+      to="/tickets/new"
+      className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-gray-300 py-2 text-[12px] font-medium text-gray-600 hover:border-brand-400 hover:text-brand-700 hover:bg-brand-50 transition-colors"
+    >
+      <Plus className="w-3.5 h-3.5" />
+      Abrir novo ticket
+    </Link>
+  );
+}
+
 export function TicketKanban({
   tickets,
   isLoading,
@@ -133,6 +193,21 @@ export function TicketKanban({
   // enabled). `null` while nothing is being dragged.
   const [draggingAllowedColumnIds, setDraggingAllowedColumnIds] =
     useState<Set<string> | null>(null);
+
+  // TiFlux parity: columns (status or stage) can be individually collapsed
+  // to a thin strip, independent of which mesa/mode is active. Keyed by
+  // column id, so the set is naturally shared across both render modes.
+  const [collapsedColumnIds, setCollapsedColumnIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const toggleColumnCollapsed = (columnId: string) => {
+    setCollapsedColumnIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(columnId)) next.delete(columnId);
+      else next.add(columnId);
+      return next;
+    });
+  };
 
   const {
     data: stages = [],
@@ -375,13 +450,15 @@ export function TicketKanban({
         <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
           <div className="flex items-start gap-4 overflow-x-auto pb-4">
             {stageColumns.map((col) => {
+              const isCollapsed = collapsedColumnIds.has(col.id);
               const isUnreachableWhileDragging =
                 draggingAllowedColumnIds !== null &&
                 !draggingAllowedColumnIds.has(col.id);
               const dropDisabled =
                 isClient ||
                 col.id === NO_STAGE_COLUMN_ID ||
-                isUnreachableWhileDragging;
+                isUnreachableWhileDragging ||
+                isCollapsed;
 
               return (
                 <Droppable
@@ -389,61 +466,82 @@ export function TicketKanban({
                   droppableId={col.id}
                   isDropDisabled={dropDisabled}
                 >
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className={cn(
-                        'flex w-80 shrink-0 flex-col gap-3 rounded-lg border p-4 min-h-[500px] transition-colors',
-                        snapshot.isDraggingOver && !dropDisabled
-                          ? 'border-brand-500 bg-brand-100/30 ring-1 ring-brand-200'
-                          : 'border-gray-200 bg-gray-80',
-                        isUnreachableWhileDragging && 'opacity-50',
-                      )}
-                    >
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold text-gray-900">
-                          {col.label}
-                        </h3>
-                        <EzTag
-                          label={String(col.tickets.length)}
-                          variant="gray"
-                          className="!px-2 !py-0.5"
-                        />
-                      </div>
+                  {(provided, snapshot) =>
+                    isCollapsed ? (
+                      <CollapsedColumn
+                        label={col.label}
+                        count={col.tickets.length}
+                        onExpand={() => toggleColumnCollapsed(col.id)}
+                        droppableRef={provided.innerRef}
+                        droppableProps={provided.droppableProps}
+                        placeholder={provided.placeholder}
+                      />
+                    ) : (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={cn(
+                          'flex w-80 shrink-0 flex-col gap-3 rounded-lg border p-4 min-h-[500px] transition-colors',
+                          snapshot.isDraggingOver && !dropDisabled
+                            ? 'border-brand-500 bg-brand-100/30 ring-1 ring-brand-200'
+                            : 'border-gray-200 bg-gray-80',
+                          isUnreachableWhileDragging && 'opacity-50',
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <button
+                            type="button"
+                            onClick={() => toggleColumnCollapsed(col.id)}
+                            className="flex items-center gap-1 text-gray-400 hover:text-gray-700 cursor-pointer"
+                            title="Recolher coluna"
+                            data-testid={`collapse-column-${col.id}`}
+                          >
+                            <ChevronLeft className="w-3.5 h-3.5" />
+                          </button>
+                          <h3 className="flex-1 text-sm font-semibold text-gray-900">
+                            {col.label}
+                          </h3>
+                          <EzTag
+                            label={String(col.tickets.length)}
+                            variant="gray"
+                            className="!px-2 !py-0.5"
+                          />
+                        </div>
 
-                      <div className="flex flex-1 flex-col gap-3">
-                        {col.tickets.map((ticket, index) => {
-                          // Unstaged tickets ("Sem estágio") ARE draggable when the mesa has an
-                          // initial stage: the backend allows moving a stageless ticket there
-                          // (TicketsService.changeStage), so getAllowedStageIds mirrors that.
-                          const isDraggable =
-                            col.id !== NO_STAGE_COLUMN_ID || hasInitialStage;
-                          return (
-                            <Draggable
-                              key={ticket.id}
-                              draggableId={ticket.id}
-                              index={index}
-                              isDragDisabled={isClient || !isDraggable}
-                            >
-                              {(dragProvided, dragSnapshot) => (
-                                <div
-                                  ref={dragProvided.innerRef}
-                                  {...dragProvided.draggableProps}
-                                  {...dragProvided.dragHandleProps}
-                                  className={`${dragSnapshot.isDragging ? 'opacity-70 rotate-2 scale-105' : ''} transition-transform`}
-                                  style={dragProvided.draggableProps.style}
-                                >
-                                  <TicketCard ticket={ticket} />
-                                </div>
-                              )}
-                            </Draggable>
-                          );
-                        })}
-                        {provided.placeholder}
+                        <div className="flex flex-1 flex-col gap-3">
+                          {col.tickets.map((ticket, index) => {
+                            // Unstaged tickets ("Sem estágio") ARE draggable when the mesa has an
+                            // initial stage: the backend allows moving a stageless ticket there
+                            // (TicketsService.changeStage), so getAllowedStageIds mirrors that.
+                            const isDraggable =
+                              col.id !== NO_STAGE_COLUMN_ID || hasInitialStage;
+                            return (
+                              <Draggable
+                                key={ticket.id}
+                                draggableId={ticket.id}
+                                index={index}
+                                isDragDisabled={isClient || !isDraggable}
+                              >
+                                {(dragProvided, dragSnapshot) => (
+                                  <div
+                                    ref={dragProvided.innerRef}
+                                    {...dragProvided.draggableProps}
+                                    {...dragProvided.dragHandleProps}
+                                    className={`${dragSnapshot.isDragging ? 'opacity-70 rotate-2 scale-105' : ''} transition-transform`}
+                                    style={dragProvided.draggableProps.style}
+                                  >
+                                    <TicketCard ticket={ticket} />
+                                  </div>
+                                )}
+                              </Draggable>
+                            );
+                          })}
+                          {provided.placeholder}
+                        </div>
+                        {!isClient && <NewTicketButton />}
                       </div>
-                    </div>
-                  )}
+                    )
+                  }
                 </Droppable>
               );
             })}
@@ -467,61 +565,87 @@ export function TicketKanban({
       {mesaSelector}
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex items-start gap-4 overflow-x-auto pb-4">
-          {statusColumns.map((col) => (
-            <Droppable
-              key={col}
-              droppableId={col}
-              isDropDisabled={isClient} // Clientes não podem mudar status arrastando (geralmente nem vêem o Kanban, mas só pra garantir)
-            >
-              {(provided, snapshot) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className={`flex w-80 shrink-0 flex-col gap-3 rounded-lg border p-4 min-h-[500px] transition-colors ${
-                    snapshot.isDraggingOver
-                      ? 'border-brand-500 bg-brand-100/30 ring-1 ring-brand-200'
-                      : 'border-gray-200 bg-gray-80'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-gray-900">
-                      {statusLabels[col]}
-                    </h3>
-                    <EzTag
-                      label={String(grouped[col].length)}
-                      variant="gray"
-                      className="!px-2 !py-0.5"
+          {statusColumns.map((col) => {
+            const isCollapsed = collapsedColumnIds.has(col);
+            return (
+              <Droppable
+                key={col}
+                droppableId={col}
+                isDropDisabled={isClient || isCollapsed} // Clientes não podem mudar status arrastando (geralmente nem vêem o Kanban, mas só pra garantir)
+              >
+                {(provided, snapshot) =>
+                  isCollapsed ? (
+                    <CollapsedColumn
+                      label={statusLabels[col]}
+                      count={grouped[col].length}
+                      onExpand={() => toggleColumnCollapsed(col)}
+                      droppableRef={provided.innerRef}
+                      droppableProps={provided.droppableProps}
+                      placeholder={provided.placeholder}
                     />
-                  </div>
+                  ) : (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className={`flex w-80 shrink-0 flex-col gap-3 rounded-lg border p-4 min-h-[500px] transition-colors ${
+                        snapshot.isDraggingOver
+                          ? 'border-brand-500 bg-brand-100/30 ring-1 ring-brand-200'
+                          : 'border-gray-200 bg-gray-80'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <button
+                          type="button"
+                          onClick={() => toggleColumnCollapsed(col)}
+                          className="flex items-center gap-1 text-gray-400 hover:text-gray-700 cursor-pointer"
+                          title="Recolher coluna"
+                          data-testid={`collapse-column-${col}`}
+                        >
+                          <ChevronLeft className="w-3.5 h-3.5" />
+                        </button>
+                        <h3 className="flex-1 text-sm font-semibold text-gray-900">
+                          {statusLabels[col]}
+                        </h3>
+                        <EzTag
+                          label={String(grouped[col].length)}
+                          variant="gray"
+                          className="!px-2 !py-0.5"
+                        />
+                      </div>
 
-                  <div className="flex flex-1 flex-col gap-3">
-                    {grouped[col].map((ticket, index) => (
-                      <Draggable
-                        key={ticket.id}
-                        draggableId={ticket.id}
-                        index={index}
-                        // Disable drag for clients or closed tickets if needed
-                        isDragDisabled={isClient || ticket.status === 'CLOSED'}
-                      >
-                        {(provided, dragSnapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className={`${dragSnapshot.isDragging ? 'opacity-70 rotate-2 scale-105' : ''} transition-transform`}
-                            style={provided.draggableProps.style}
+                      <div className="flex flex-1 flex-col gap-3">
+                        {grouped[col].map((ticket, index) => (
+                          <Draggable
+                            key={ticket.id}
+                            draggableId={ticket.id}
+                            index={index}
+                            // Disable drag for clients or closed tickets if needed
+                            isDragDisabled={
+                              isClient || ticket.status === 'CLOSED'
+                            }
                           >
-                            <TicketCard ticket={ticket} />
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                </div>
-              )}
-            </Droppable>
-          ))}
+                            {(provided, dragSnapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className={`${dragSnapshot.isDragging ? 'opacity-70 rotate-2 scale-105' : ''} transition-transform`}
+                                style={provided.draggableProps.style}
+                              >
+                                <TicketCard ticket={ticket} />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                      {!isClient && <NewTicketButton />}
+                    </div>
+                  )
+                }
+              </Droppable>
+            );
+          })}
         </div>
       </DragDropContext>
     </div>

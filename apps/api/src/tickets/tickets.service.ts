@@ -1,11 +1,18 @@
 import {
   BadRequestException,
   Injectable,
-  NotFoundException, ForbiddenException,
+  NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Prisma, Role, Ticket, TicketPriority, TicketStatus } from '@prisma/client';
+import {
+  Prisma,
+  Role,
+  Ticket,
+  TicketPriority,
+  TicketStatus,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
@@ -30,7 +37,10 @@ const FOREIGN_KEY_VIOLATION = 'P2003';
 /** Mirrors ReportsService's CLOSED_STATUSES — a closed/resolved ticket is
  * never "open", "unassigned-and-open" or "overdue" in the dashboard's KPI
  * semantics, so query filters that rely on that distinction reuse it. */
-const CLOSED_STATUSES: TicketStatus[] = [TicketStatus.RESOLVED, TicketStatus.CLOSED];
+const CLOSED_STATUSES: TicketStatus[] = [
+  TicketStatus.RESOLVED,
+  TicketStatus.CLOSED,
+];
 
 const PAUSED_STATUSES: TicketStatus[] = [
   TicketStatus.ON_HOLD,
@@ -69,7 +79,12 @@ function calculateSla(
   priority: TicketPriority,
   businessHours: { weekday: number; startTime: string; endTime: string }[],
   holidays: { date: Date }[],
-  slaOverrides?: Partial<Record<TicketPriority, { responseHours?: number | null; resolveHours?: number | null }>>,
+  slaOverrides?: Partial<
+    Record<
+      TicketPriority,
+      { responseHours?: number | null; resolveHours?: number | null }
+    >
+  >,
 ): { responseDeadline: Date; resolveDeadline: Date } {
   const defaults = SLA_HOURS[priority];
   const override = slaOverrides?.[priority];
@@ -107,12 +122,29 @@ function buildSlaOverrides(desk: {
   slaMediumResolveHours: number | null;
   slaLowResponseHours: number | null;
   slaLowResolveHours: number | null;
-}): Partial<Record<TicketPriority, { responseHours?: number | null; resolveHours?: number | null }>> {
+}): Partial<
+  Record<
+    TicketPriority,
+    { responseHours?: number | null; resolveHours?: number | null }
+  >
+> {
   return {
-    CRITICAL: { responseHours: desk.slaCriticalResponseHours, resolveHours: desk.slaCriticalResolveHours },
-    HIGH: { responseHours: desk.slaHighResponseHours, resolveHours: desk.slaHighResolveHours },
-    MEDIUM: { responseHours: desk.slaMediumResponseHours, resolveHours: desk.slaMediumResolveHours },
-    LOW: { responseHours: desk.slaLowResponseHours, resolveHours: desk.slaLowResolveHours },
+    CRITICAL: {
+      responseHours: desk.slaCriticalResponseHours,
+      resolveHours: desk.slaCriticalResolveHours,
+    },
+    HIGH: {
+      responseHours: desk.slaHighResponseHours,
+      resolveHours: desk.slaHighResolveHours,
+    },
+    MEDIUM: {
+      responseHours: desk.slaMediumResponseHours,
+      resolveHours: desk.slaMediumResolveHours,
+    },
+    LOW: {
+      responseHours: desk.slaLowResponseHours,
+      resolveHours: desk.slaLowResolveHours,
+    },
   };
 }
 
@@ -125,7 +157,13 @@ function buildSlaOverrides(desk: {
  */
 const FORWARD_TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
   OPEN: [TicketStatus.IN_PROGRESS, TicketStatus.ESCALATED],
-  IN_PROGRESS: [TicketStatus.RESOLVED, TicketStatus.PENDING_CUSTOMER, TicketStatus.PENDING_APPROVAL, TicketStatus.ON_HOLD, TicketStatus.ESCALATED],
+  IN_PROGRESS: [
+    TicketStatus.RESOLVED,
+    TicketStatus.PENDING_CUSTOMER,
+    TicketStatus.PENDING_APPROVAL,
+    TicketStatus.ON_HOLD,
+    TicketStatus.ESCALATED,
+  ],
   PENDING_CUSTOMER: [TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED],
   PENDING_APPROVAL: [TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED],
   ON_HOLD: [TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED],
@@ -157,11 +195,18 @@ export class TicketsService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  withTransaction(database: Prisma.TransactionClient, afterCommit: Array<() => void>) {
-    const events = { emit: (name: string, payload: unknown) => {
-      afterCommit.push(() => { this.eventEmitter.emit(name, payload); });
-      return true;
-    } } as EventEmitter2;
+  withTransaction(
+    database: Prisma.TransactionClient,
+    afterCommit: Array<() => void>,
+  ) {
+    const events = {
+      emit: (name: string, payload: unknown) => {
+        afterCommit.push(() => {
+          this.eventEmitter.emit(name, payload);
+        });
+        return true;
+      },
+    } as EventEmitter2;
     return new TicketsService(database as PrismaService, events);
   }
 
@@ -181,7 +226,9 @@ export class TicketsService {
       slaAccumulatedPauseTime: number;
       slaPausedAt: Date | null;
     },
-  >(ticket: T): T & { responseSlaStatus: string | null; resolveSlaStatus: string | null } {
+  >(
+    ticket: T,
+  ): T & { responseSlaStatus: string | null; resolveSlaStatus: string | null } {
     // Once a ticket reaches a terminal state, elapsed wall-clock time no
     // longer reflects whether the SLA was honored (we don't track a
     // resolvedAt/closedAt timestamp to compare against). Showing a
@@ -206,14 +253,14 @@ export class TicketsService {
         ticket.responseDeadline,
         now,
         ticket.slaAccumulatedPauseTime,
-        ticket.slaPausedAt
+        ticket.slaPausedAt,
       ),
       resolveSlaStatus: getSlaStatus(
         ticket.createdAt,
         ticket.resolveDeadline,
         now,
         ticket.slaAccumulatedPauseTime,
-        ticket.slaPausedAt
+        ticket.slaPausedAt,
       ),
     };
   }
@@ -262,35 +309,49 @@ export class TicketsService {
     let serviceDeskId = dto.serviceDeskId;
 
     if (dto.catalogItemId) {
-      const catalogItem = await this.prisma.serviceCatalogItem.findUnique({ where: { id: dto.catalogItemId }});
+      const catalogItem = await this.prisma.serviceCatalogItem.findUnique({
+        where: { id: dto.catalogItemId },
+      });
       if (catalogItem && catalogItem.isActive) {
-         priority = catalogItem.defaultPriority;
-         serviceDeskId = catalogItem.defaultServiceDeskId;
+        priority = catalogItem.defaultPriority;
+        serviceDeskId = catalogItem.defaultServiceDeskId;
       }
     }
 
     const createdAt = new Date();
-    const [serviceDesk, businessHours, holidays, requester] = await Promise.all([
-      this.prisma.serviceDesk.findUnique({
-        where: { id: serviceDeskId },
-        include: {
-          priorities: true,
-          agents: { select: { id: true } },
-          agentGroups: { include: { members: { select: { id: true } } } },
-          stages: { where: { isInitial: true }, take: 1, select: { id: true } },
-        },
-      }),
-      this.prisma.businessHour.findMany({
-        where: { serviceDeskId: serviceDeskId },
-      }),
-      this.prisma.holiday.findMany({
-        where: { serviceDeskId: serviceDeskId },
-      }),
-      this.prisma.user.findUnique({
-        where: { id: requesterId },
-        select: { name: true, email: true, phone: true, extension: true, organizationId: true },
-      }),
-    ]);
+    const [serviceDesk, businessHours, holidays, requester] = await Promise.all(
+      [
+        this.prisma.serviceDesk.findUnique({
+          where: { id: serviceDeskId },
+          include: {
+            priorities: true,
+            agents: { select: { id: true } },
+            agentGroups: { include: { members: { select: { id: true } } } },
+            stages: {
+              where: { isInitial: true },
+              take: 1,
+              select: { id: true },
+            },
+          },
+        }),
+        this.prisma.businessHour.findMany({
+          where: { serviceDeskId: serviceDeskId },
+        }),
+        this.prisma.holiday.findMany({
+          where: { serviceDeskId: serviceDeskId },
+        }),
+        this.prisma.user.findUnique({
+          where: { id: requesterId },
+          select: {
+            name: true,
+            email: true,
+            phone: true,
+            extension: true,
+            organizationId: true,
+          },
+        }),
+      ],
+    );
     if (!serviceDesk) {
       throw new BadRequestException(
         'Invalid serviceDeskId: service desk does not exist',
@@ -299,7 +360,12 @@ export class TicketsService {
     assertDeskAllowsOpen({
       desk: serviceDesk,
       user,
-      requester: requester ?? { name: '', email: '', phone: null, extension: null },
+      requester: requester ?? {
+        name: '',
+        email: '',
+        phone: null,
+        extension: null,
+      },
       catalogItemId: dto.catalogItemId,
       priority,
       resourceGroup: dto.resourceGroup,
@@ -319,11 +385,7 @@ export class TicketsService {
     const yearPrefix = `AP-${year}-`;
 
     let lastError: any;
-    for (
-      let attempt = 0;
-      attempt < MAX_PROTOCOL_RETRY_ATTEMPTS;
-      attempt++
-    ) {
+    for (let attempt = 0; attempt < MAX_PROTOCOL_RETRY_ATTEMPTS; attempt++) {
       try {
         return await this.prisma.$transaction(async (tx) => {
           const highest = await tx.ticket.findFirst({
@@ -355,7 +417,7 @@ export class TicketsService {
               requester: { select: { email: true } },
             },
           });
-          
+
           this.eventEmitter.emit('ticket.created', {
             ticket,
             requesterEmail: ticket.requester?.email,
@@ -458,6 +520,9 @@ export class TicketsService {
     if (query.status) {
       where.status = query.status;
     }
+    if (query.priority) {
+      where.priority = query.priority;
+    }
     if (query.notClosed === 'true' && !where.status) {
       where.status = { notIn: CLOSED_STATUSES };
     }
@@ -519,7 +584,9 @@ export class TicketsService {
       const breached = candidates
         .map((t) => this.decorateWithSlaStatus(t))
         .filter(
-          (t) => t.responseSlaStatus === 'BREACHED' || t.resolveSlaStatus === 'BREACHED',
+          (t) =>
+            t.responseSlaStatus === 'BREACHED' ||
+            t.resolveSlaStatus === 'BREACHED',
         );
 
       const total = breached.length;
@@ -528,7 +595,12 @@ export class TicketsService {
 
       return {
         data,
-        meta: { total, page, limit, totalPages: Math.max(Math.ceil(total / limit), 1) },
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages: Math.max(Math.ceil(total / limit), 1),
+        },
       };
     }
 
@@ -544,20 +616,26 @@ export class TicketsService {
 
     return {
       data: data.map((t) => this.decorateWithSlaStatus(t)),
-      meta: { total, page, limit, totalPages: Math.max(Math.ceil(total / limit), 1) },
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.max(Math.ceil(total / limit), 1),
+      },
     };
   }
 
-  async findOne(
-    id: string,
-    currentUser: CurrentUserPayload,
-  ): Promise<Ticket> {
-    const ticket = await this.prisma.ticket.findUnique({ 
+  async findOne(id: string, currentUser: CurrentUserPayload): Promise<Ticket> {
+    const ticket = await this.prisma.ticket.findUnique({
       where: { id },
       include: {
         requester: { select: { organizationId: true } },
-        parentTicket: { select: { id: true, protocol: true, title: true, status: true } },
-        subTickets: { select: { id: true, protocol: true, title: true, status: true } },
+        parentTicket: {
+          select: { id: true, protocol: true, title: true, status: true },
+        },
+        subTickets: {
+          select: { id: true, protocol: true, title: true, status: true },
+        },
         serviceDesk: {
           select: {
             id: true,
@@ -575,12 +653,22 @@ export class TicketsService {
               orderBy: { sortOrder: 'asc' },
             },
             priorities: {
-              select: { ticketPriority: true, enabled: true, label: true, sortOrder: true },
+              select: {
+                ticketPriority: true,
+                enabled: true,
+                label: true,
+                sortOrder: true,
+              },
               orderBy: { sortOrder: 'asc' },
             },
             agents: { where: { id: currentUser.id }, select: { id: true } },
             agentGroups: {
-              select: { members: { where: { id: currentUser.id }, select: { id: true } } },
+              select: {
+                members: {
+                  where: { id: currentUser.id },
+                  select: { id: true },
+                },
+              },
             },
           },
         },
@@ -593,13 +681,18 @@ export class TicketsService {
             transitionsFrom: {
               select: {
                 toStage: {
-                  select: { id: true, name: true, isFinal: true, position: true },
+                  select: {
+                    id: true,
+                    name: true,
+                    isFinal: true,
+                    position: true,
+                  },
                 },
               },
             },
           },
         },
-      }
+      },
     });
 
     if (!ticket) {
@@ -613,13 +706,22 @@ export class TicketsService {
     } else if (currentUser.role === Role.CLIENT) {
       isAuthorized = ticket.requesterId === currentUser.id;
     } else if (currentUser.role === Role.CLIENT_MASTER) {
-      isAuthorized = ticket.requesterId === currentUser.id || 
-                     (!!currentUser.organizationId && (ticket as Ticket & { requester?: any, serviceDesk?: any }).requester?.organizationId === currentUser.organizationId);
-    } else if (currentUser.role === Role.AGENT || currentUser.role === Role.AGENT_MASTER) {
-      const desk = (ticket as Ticket & { requester?: any, serviceDesk?: any }).serviceDesk;
+      isAuthorized =
+        ticket.requesterId === currentUser.id ||
+        (!!currentUser.organizationId &&
+          (ticket as Ticket & { requester?: any; serviceDesk?: any }).requester
+            ?.organizationId === currentUser.organizationId);
+    } else if (
+      currentUser.role === Role.AGENT ||
+      currentUser.role === Role.AGENT_MASTER
+    ) {
+      const desk = (ticket as Ticket & { requester?: any; serviceDesk?: any })
+        .serviceDesk;
       isAuthorized =
         desk?.agents?.length > 0 ||
-        desk?.agentGroups?.some((g: { members?: { id: string }[] }) => (g.members?.length ?? 0) > 0) ||
+        desk?.agentGroups?.some(
+          (g: { members?: { id: string }[] }) => (g.members?.length ?? 0) > 0,
+        ) ||
         desk?.allowCrossDeskInteraction === true;
     }
 
@@ -628,7 +730,11 @@ export class TicketsService {
     }
 
     delete (ticket as Ticket & { requester?: any }).requester;
-    const desk = (ticket as Ticket & { serviceDesk?: { agents?: unknown; agentGroups?: unknown } }).serviceDesk;
+    const desk = (
+      ticket as Ticket & {
+        serviceDesk?: { agents?: unknown; agentGroups?: unknown };
+      }
+    ).serviceDesk;
     if (desk) {
       delete desk.agents;
       delete desk.agentGroups;
@@ -636,9 +742,21 @@ export class TicketsService {
 
     const withNextStages = ticket as Ticket & {
       stage?: {
-        transitionsFrom?: { toStage: { id: string; name: string; isFinal: boolean; position: number } }[];
+        transitionsFrom?: {
+          toStage: {
+            id: string;
+            name: string;
+            isFinal: boolean;
+            position: number;
+          };
+        }[];
       };
-      nextStages?: { id: string; name: string; isFinal: boolean; position: number }[];
+      nextStages?: {
+        id: string;
+        name: string;
+        isFinal: boolean;
+        position: number;
+      }[];
     };
     withNextStages.nextStages =
       withNextStages.stage?.transitionsFrom?.map((item) => item.toStage) ?? [];
@@ -742,7 +860,8 @@ export class TicketsService {
       await this.prisma.ticketAudit.create({
         data: {
           action: 'ASSIGNED',
-          prevVal: (existing as Ticket & { agentId?: string | null }).agentId ?? null,
+          prevVal:
+            (existing as Ticket & { agentId?: string | null }).agentId ?? null,
           newVal: agentId,
           ticketId: id,
           userId: currentUser.id,
@@ -807,7 +926,9 @@ export class TicketsService {
         throw new BadRequestException('Transição de estágio não permitida');
       }
     } else if (!target.isInitial) {
-      throw new BadRequestException('Ticket sem estágio só pode ir para o inicial');
+      throw new BadRequestException(
+        'Ticket sem estágio só pode ir para o inicial',
+      );
     }
 
     const updateData: Prisma.TicketUpdateInput = {
@@ -871,12 +992,21 @@ export class TicketsService {
     }
 
     // RBAC Security Check: Only ADMIN or CLIENT_MASTER can approve/move out of PENDING_APPROVAL
-    if (existing.status === TicketStatus.PENDING_APPROVAL || newStatus === TicketStatus.PENDING_APPROVAL) {
-      if (currentUser.role !== 'ADMIN' && currentUser.role !== 'CLIENT_MASTER' && currentUser.role !== 'AGENT_MASTER') {
-         // Agents can move it to PENDING_APPROVAL, but let's say only ADMIN, AGENT_MASTER, CLIENT_MASTER can approve. Wait, this is controller logic. I'll just check if they are transitioning out of pending_approval.
-         if (existing.status === TicketStatus.PENDING_APPROVAL) {
-           throw new ForbiddenException('Somente perfis administrativos ou responsáveis MASTER podem liberar um chamado comercial.');
-         }
+    if (
+      existing.status === TicketStatus.PENDING_APPROVAL ||
+      newStatus === TicketStatus.PENDING_APPROVAL
+    ) {
+      if (
+        currentUser.role !== 'ADMIN' &&
+        currentUser.role !== 'CLIENT_MASTER' &&
+        currentUser.role !== 'AGENT_MASTER'
+      ) {
+        // Agents can move it to PENDING_APPROVAL, but let's say only ADMIN, AGENT_MASTER, CLIENT_MASTER can approve. Wait, this is controller logic. I'll just check if they are transitioning out of pending_approval.
+        if (existing.status === TicketStatus.PENDING_APPROVAL) {
+          throw new ForbiddenException(
+            'Somente perfis administrativos ou responsáveis MASTER podem liberar um chamado comercial.',
+          );
+        }
       }
     }
 
@@ -890,13 +1020,13 @@ export class TicketsService {
     }
 
     const updateData: Prisma.TicketUpdateInput = { status: newStatus };
-    
+
     if (
       newStatus === TicketStatus.RESOLVED &&
       !existing.csatToken &&
       desk?.evaluationEnabled === true
     ) {
-       updateData.csatToken = randomUUID();
+      updateData.csatToken = randomUUID();
     }
 
     const slaPauseStatuses: TicketStatus[] = [
@@ -904,15 +1034,20 @@ export class TicketsService {
       TicketStatus.ON_HOLD,
     ];
     const enteringPause =
-      slaPauseStatuses.includes(newStatus) && !slaPauseStatuses.includes(existing.status);
+      slaPauseStatuses.includes(newStatus) &&
+      !slaPauseStatuses.includes(existing.status);
     const leavingPause =
-      slaPauseStatuses.includes(existing.status) && !slaPauseStatuses.includes(newStatus);
+      slaPauseStatuses.includes(existing.status) &&
+      !slaPauseStatuses.includes(newStatus);
     if (enteringPause) {
       updateData.slaPausedAt = new Date();
     }
     if (leavingPause && existing.slaPausedAt) {
-      const diffMinutes = Math.floor((new Date().getTime() - existing.slaPausedAt.getTime()) / 60000);
-      updateData.slaAccumulatedPauseTime = existing.slaAccumulatedPauseTime + diffMinutes;
+      const diffMinutes = Math.floor(
+        (new Date().getTime() - existing.slaPausedAt.getTime()) / 60000,
+      );
+      updateData.slaAccumulatedPauseTime =
+        existing.slaAccumulatedPauseTime + diffMinutes;
       updateData.slaPausedAt = null;
     }
 
@@ -1026,8 +1161,18 @@ export class TicketsService {
     const ticket = await this.prisma.ticket.update({
       where: { id },
       data: {
-        responseDeadline: addBusinessHours(responseBase, hours, businessHours, holidays),
-        resolveDeadline: addBusinessHours(resolveBase, hours, businessHours, holidays),
+        responseDeadline: addBusinessHours(
+          responseBase,
+          hours,
+          businessHours,
+          holidays,
+        ),
+        resolveDeadline: addBusinessHours(
+          resolveBase,
+          hours,
+          businessHours,
+          holidays,
+        ),
       },
     });
 
@@ -1137,7 +1282,7 @@ export class TicketsService {
     currentUser: CurrentUserPayload,
   ) {
     await this.findOne(id, currentUser); // checks permissions
-    
+
     if (!parentProtocol) {
       // Disconnect
       return this.prisma.ticket.update({
@@ -1151,7 +1296,9 @@ export class TicketsService {
     });
 
     if (!parent) {
-      throw new NotFoundException(`Parent ticket '${parentProtocol}' not found`);
+      throw new NotFoundException(
+        `Parent ticket '${parentProtocol}' not found`,
+      );
     }
 
     if (parent.id === id) {
@@ -1164,9 +1311,14 @@ export class TicketsService {
     let currentParentId = parent.parentTicketId;
     while (currentParentId) {
       if (currentParentId === id) {
-         throw new ForbiddenException('Cyclic relationship detected. This parent is already your child/descendant.');
+        throw new ForbiddenException(
+          'Cyclic relationship detected. This parent is already your child/descendant.',
+        );
       }
-      const ancestor = await this.prisma.ticket.findUnique({ where: { id: currentParentId }, select: { parentTicketId: true }});
+      const ancestor = await this.prisma.ticket.findUnique({
+        where: { id: currentParentId },
+        select: { parentTicketId: true },
+      });
       currentParentId = ancestor?.parentTicketId || null;
     }
 
