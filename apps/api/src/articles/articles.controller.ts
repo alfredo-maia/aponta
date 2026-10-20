@@ -22,6 +22,14 @@ export class ArticlesController {
     return this.articlesService.findAll(user, query);
   }
 
+  @Get(':id')
+  findOne(
+    @Param('id') id: string,
+    @CurrentUser() user: CurrentUserPayload | undefined,
+  ) {
+    return this.articlesService.findOne(id, user);
+  }
+
   @Post()
   @UseGuards(RolesGuard)
   @Roles(Role.AGENT, Role.AGENT_MASTER, Role.ADMIN)

@@ -1,9 +1,11 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
+  extensions = [pg_trgm]
 }
 
 enum Role {
@@ -63,6 +65,13 @@ enum DocumentType {
   CPF
 }
 
+/// Tiflux-parity (DMTE-88, Stage 2): visibilidade de um Article do painel de
+/// Conhecimentos. Substitui o antigo campo booleano `isPublic`.
+enum ArticleVisibility {
+  PUBLIC
+  PRIVATE
+}
+
 model Organization {
   id        String   @id @default(uuid())
   name      String
@@ -100,6 +109,10 @@ model Organization {
   serviceDesks ServiceDesk[]
   agentGroups  AgentGroup[]
   credentialFolders CredentialFolder[]
+  /// Tiflux-parity (DMTE-88, Stage 2): clientes com quem um Article PRIVATE
+  /// foi explicitamente compartilhado (ACL de compartilhamento do painel de
+  /// Conhecimentos).
+  articlesSharedWith Article[] @relation("ArticleOrganization")
   createdAt DateTime @default(now())
 }
 
@@ -289,6 +302,10 @@ model AgentGroup {
   active         Boolean      @default(true)
   createdAt      DateTime     @default(now())
 
+  /// Tiflux-parity (DMTE-88, Stage 2): grupos de atendentes com quem um
+  /// Article PRIVATE foi explicitamente compartilhado.
+  articles Article[] @relation("ArticleAgentGroup")
+
   @@index([organizationId])
 }
 
@@ -411,10 +428,20 @@ model TicketStageTransition {
 }
 
 model Article {
-  id       String  @id @default(uuid())
-  title    String
-  content  String
-  isPublic Boolean @default(true) // true = public FAQ, false = internal
+  id         String            @id @default(uuid())
+  title      String
+  content    String
+  /// Tiflux-parity (DMTE-88, Stage 2): PUBLIC = visível para todos, incl.
+  /// clientes sem login; PRIVATE = visível apenas para o autor e para quem
+  /// está em allowedAgentGroups/allowedOrganizations. Substitui o antigo
+  /// campo booleano `isPublic` (ver migration
+  /// 20261019230000_add_article_visibility_and_catalog para a migração de
+  /// dados true/false -> PUBLIC/PRIVATE).
+  visibility ArticleVisibility @default(PUBLIC)
+
+  /// Quando true, uma Organization recém-criada passa a ver este artigo
+  /// PRIVATE automaticamente (sem precisar de compartilhamento manual).
+  autoShareWithNewOrganizations Boolean @default(false)
 
   authorId String
   author   User   @relation(fields: [authorId], references: [id])
@@ -423,6 +450,15 @@ model Article {
   folder   KnowledgeFolder? @relation(fields: [folderId], references: [id])
 
   tags String[]
+
+  /// ACL de compartilhamento (só relevante quando visibility = PRIVATE):
+  /// grupos de atendentes e clientes com acesso explícito ao artigo.
+  allowedAgentGroups    AgentGroup[]   @relation("ArticleAgentGroup")
+  allowedOrganizations  Organization[] @relation("ArticleOrganization")
+
+  /// Catálogo de Serviços (DMTE-88, Stage 2): itens de catálogo associados
+  /// a este artigo, para facilitar a navegação cruzada no painel.
+  serviceCatalogItems KnowledgeCatalogItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -443,6 +479,30 @@ model KnowledgeFolder {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+/// Catálogo de Serviços do painel de Conhecimentos (DMTE-88, Stage 2):
+/// lista FLAT (sem hierarquia/árvore) de itens que podem ser associados a
+/// Articles, com busca fuzzy via pg_trgm (ver KnowledgeCatalogService).
+///
+/// NOTA DE NOMENCLATURA: o schema já tinha um model `ServiceCatalogItem`
+/// (migration 20261002160547_add_service_catalog), usado pelo CatalogModule
+/// para o catálogo de categorias/itens exibido na ABERTURA DE CHAMADOS
+/// (vinculado a ServiceCatalogCategory + ServiceDesk, com hierarquia). É um
+/// recurso diferente e já implementado/em uso — não pode ser renomeado ou
+/// reaproveitado aqui sem risco de regressão. Este novo model usa o nome
+/// `KnowledgeCatalogItem` para não colidir, mas a rota HTTP continua
+/// `/service-catalog-items` como pedido na issue (não há colisão de rota).
+model KnowledgeCatalogItem {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  articles    Article[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([name(ops: raw("gin_trgm_ops"))], type: Gin, map: "KnowledgeCatalogItem_name_trgm_idx")
+  @@index([description(ops: raw("gin_trgm_ops"))], type: Gin, map: "KnowledgeCatalogItem_description_trgm_idx")
 }
 
 model TicketAudit {

@@ -17,6 +17,9 @@ describe('OrganizationsService', () => {
         update: jest.fn(),
         delete: jest.fn(),
       },
+      article: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
       organizationAddress: {
         create: jest.fn(),
         findUnique: jest.fn(),
@@ -67,6 +70,39 @@ describe('OrganizationsService', () => {
       expect(result.quarterlyBilling).toBe(true);
       expect(result.billingDueDay).toBe(15);
     });
+
+    it('includes articles with autoShareWithNewOrganizations=true, connecting them to the new organization (DMTE-88)', async () => {
+      const dto = { name: 'Nova Cliente' } as any;
+      mockPrisma.organization.create.mockResolvedValue({ id: 'org-1', ...dto });
+      mockPrisma.article.findMany.mockResolvedValue([{ id: 'article-1' }, { id: 'article-2' }]);
+      mockPrisma.organization.update.mockResolvedValue({ id: 'org-1' });
+
+      const result = await service.create(dto);
+
+      expect(mockPrisma.article.findMany).toHaveBeenCalledWith({
+        where: { autoShareWithNewOrganizations: true },
+        select: { id: true },
+      });
+      expect(mockPrisma.organization.update).toHaveBeenCalledWith({
+        where: { id: 'org-1' },
+        data: {
+          articlesSharedWith: {
+            connect: [{ id: 'article-1' }, { id: 'article-2' }],
+          },
+        },
+      });
+      expect(result).toEqual({ id: 'org-1', ...dto });
+    });
+
+    it('does not call organization.update when there are no auto-share articles', async () => {
+      const dto = { name: 'Outra Cliente' } as any;
+      mockPrisma.organization.create.mockResolvedValue({ id: 'org-2', ...dto });
+      mockPrisma.article.findMany.mockResolvedValue([]);
+
+      await service.create(dto);
+
+      expect(mockPrisma.organization.update).not.toHaveBeenCalled();
+    });
   });
 
   describe('findAll', () => {
@@ -77,7 +113,10 @@ describe('OrganizationsService', () => {
 
       expect(mockPrisma.organization.findMany).toHaveBeenCalledWith({
         where: undefined,
-        include: { _count: { select: { users: true } } },
+        include: {
+          _count: { select: { users: true } },
+          agentGroups: { select: { id: true, name: true, active: true } },
+        },
       });
       expect(result).toEqual([{ id: 'org-1', _count: { users: 3 } }]);
     });
@@ -89,7 +128,10 @@ describe('OrganizationsService', () => {
 
       expect(mockPrisma.organization.findMany).toHaveBeenCalledWith({
         where: { active: true },
-        include: { _count: { select: { users: true } } },
+        include: {
+          _count: { select: { users: true } },
+          agentGroups: { select: { id: true, name: true, active: true } },
+        },
       });
       expect(result).toEqual([{ id: 'org-1', active: true }]);
     });
@@ -101,7 +143,10 @@ describe('OrganizationsService', () => {
 
       expect(mockPrisma.organization.findMany).toHaveBeenCalledWith({
         where: { active: false },
-        include: { _count: { select: { users: true } } },
+        include: {
+          _count: { select: { users: true } },
+          agentGroups: { select: { id: true, name: true, active: true } },
+        },
       });
       expect(result).toEqual([{ id: 'org-2', active: false }]);
     });

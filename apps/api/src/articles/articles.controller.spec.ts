@@ -7,6 +7,7 @@ import { ROLES_KEY } from '../auth/decorators/roles.decorator';
 
 const mockArticlesService = {
   findAll: jest.fn(),
+  findOne: jest.fn(),
   update: jest.fn(),
   remove: jest.fn(),
   create: jest.fn(),
@@ -58,6 +59,10 @@ describe('ArticlesController', () => {
     it('has no @Roles restriction on findAll', () => {
       expect(Reflect.getMetadata(ROLES_KEY, controller.findAll)).toBeUndefined();
     });
+
+    it('has no @Roles restriction on findOne (same public/optional-auth shape as findAll)', () => {
+      expect(Reflect.getMetadata(ROLES_KEY, controller.findOne)).toBeUndefined();
+    });
   });
 
   describe('delegation', () => {
@@ -69,6 +74,14 @@ describe('ArticlesController', () => {
       await controller.findAll(agent, { search: 'test' });
 
       expect(mockArticlesService.findAll).toHaveBeenCalledWith(agent, { search: 'test' });
+    });
+
+    it('findOne delegates to the service with the id and current user', async () => {
+      mockArticlesService.findOne.mockResolvedValue({ id: 'article-1' });
+
+      await controller.findOne('article-1', agent);
+
+      expect(mockArticlesService.findOne).toHaveBeenCalledWith('article-1', agent);
     });
 
     it('create delegates to the service with the dto and current user', async () => {
