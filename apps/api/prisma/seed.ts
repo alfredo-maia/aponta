@@ -35,8 +35,38 @@ const SALT_ROUNDS = 10;
  * moment the feature ships — not an empty list. ADMIN gets every catalog
  * permission; AGENT gets the operational subset; CLIENT gets nothing (the
  * client portal's own ability checks are unrelated to this catalog).
+ *
+ * DMTE-126 (retrabalho da Tarefa 2, QA rejeitou DMTE-121): a primeira
+ * versão só copiou o que fazia sentido "à mão" e deixou buracos reais —
+ * o enforcement já trocou de `RolesGuard`/`@Roles` para `PermissionsGuard`/
+ * `@RequirePermission` nesta mesma branch, então uma chave ausente aqui é
+ * perda de acesso em produção, não hipotética. As listas abaixo foram
+ * recalculadas pelo cruzamento completo de `grep -rn "@RequirePermission("
+ * apps/api/src` contra o `@Roles(...)` que existia no commit `d729bf9`
+ * (pré-Tarefa 2, 105 ocorrências em 20 controllers) — ver o comentário em
+ * `seed.spec.ts` para a tabela completa chave-por-chave.
+ *
+ * Duas decisões de produto ficam registradas aqui porque o cruzamento as
+ * expôs (mesmo não sendo, estritamente, "gaps" de acesso perdido):
+ *  - EDIT_TICKETS agora é uma única chave para update/assign/changeStage/
+ *    changeStatus/cancel/updateParent; `cancel` e `updateParent` já
+ *    incluíam AGENT_MASTER no @Roles antigo, então a chave única também
+ *    concede a AGENT_MASTER as outras ações (update/assign/changeStage/
+ *    changeStatus) que antes eram só AGENT/ADMIN. Decisão: manter —
+ *    AGENT_MASTER é hierarquicamente superior a AGENT, então ganhar essa
+ *    capacidade é razoável, não uma regressão de segurança.
+ *  - MANAGE_SERVICE_CATALOGS, MANAGE_SERVICE_DESKS e
+ *    VIEW_CLIENT_CONSUMPTION_STATEMENT_REPORT cada uma cobre, com a MESMA
+ *    chave, tanto um endpoint que era ADMIN-only quanto outro que também
+ *    liberava AGENT/AGENT_MASTER/CLIENT_MASTER — dar a chave a esses
+ *    papéis para restaurar o acesso que tinham também amplia o alcance
+ *    deles para o endpoint que antes era só-ADMIN (ex.: AGENT_MASTER
+ *    ganha CRUD completo de Service Desks, não só import de feriados e
+ *    business-hours). Inerente à granularidade de chaves definida na
+ *    Tarefa 2 (catálogo de ~86 chaves, não um-para-um por endpoint);
+ *    dividir a chave fica fora do escopo deste retrabalho do seed.
  */
-const DEFAULT_PERMISSION_GROUPS: Record<Role, { description: string; permissions: string[] }> = {
+export const DEFAULT_PERMISSION_GROUPS: Record<Role, { description: string; permissions: string[] }> = {
   [Role.ADMIN]: {
     description: 'Acesso administrativo completo (grupo padrão migrado do papel ADMIN)',
     permissions: [...PERMISSION_KEYS],
@@ -54,6 +84,14 @@ const DEFAULT_PERMISSION_GROUPS: Record<Role, { description: string; permissions
       'ACCESS_CHAT',
       'VIEW_AGENT_REPORTS',
       'VIEW_USERS_IN_AGENT_REPORTS',
+      'VIEW_ALL_SCHEDULES',
+      'CREATE_TICKET_SCHEDULING',
+      'MANAGE_PASSWORD_VAULT',
+      'VIEW_CONTRACTS_ADMIN',
+      'MANAGE_CHECKLISTS',
+      'ADD_SLA_TIME',
+      'MANAGE_SERVICE_CATALOGS',
+      'MANAGE_SERVICE_DESKS',
     ],
   },
   [Role.AGENT]: {
@@ -64,15 +102,34 @@ const DEFAULT_PERMISSION_GROUPS: Record<Role, { description: string; permissions
       'EDIT_TICKETS',
       'VIEW_ADD_INTERNAL_COMMUNICATION',
       'ACCESS_CHAT',
+      'VIEW_ALL_SCHEDULES',
+      'CREATE_TICKET_SCHEDULING',
+      'MANAGE_PASSWORD_VAULT',
+      'MANAGE_CHECKLISTS',
+      'MANAGE_KNOWLEDGE_BASE',
+      'VIEW_AGENT_REPORTS',
+      'VIEW_CONTRACTS_ADMIN',
+      'ADD_SLA_TIME',
+      'MANAGE_SERVICE_CATALOGS',
     ],
   },
   [Role.CLIENT_MASTER]: {
     description: 'Cliente com visão da organização (grupo padrão migrado do papel CLIENT_MASTER)',
-    permissions: ['ACCESS_CLIENT_PORTAL', 'VIEW_ALL_CLIENT_TICKETS', 'UPLOAD_TICKET_ATTACHMENTS'],
+    permissions: [
+      'ACCESS_CLIENT_PORTAL',
+      'VIEW_ALL_CLIENT_TICKETS',
+      'UPLOAD_TICKET_ATTACHMENTS',
+      'VIEW_ALL_SCHEDULES',
+      'CREATE_TICKET_SCHEDULING',
+      'VIEW_CONTRACTS_CLIENT',
+      'VIEW_CLIENT_CONSUMPTION_STATEMENT_REPORT',
+      'VIEW_LAST_30_DAYS_TICKETS_WIDGET',
+      'VIEW_WORKLOG_INFO',
+    ],
   },
   [Role.CLIENT]: {
     description: 'Cliente isolado (grupo padrão migrado do papel CLIENT)',
-    permissions: ['ACCESS_CLIENT_PORTAL', 'UPLOAD_TICKET_ATTACHMENTS'],
+    permissions: ['ACCESS_CLIENT_PORTAL', 'UPLOAD_TICKET_ATTACHMENTS', 'VIEW_LAST_30_DAYS_TICKETS_WIDGET'],
   },
 };
 
@@ -270,7 +327,13 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error('Seed failed:', error);
-  process.exit(1);
-});
+// Guarded so `seed.spec.ts` can import DEFAULT_PERMISSION_GROUPS without
+// triggering a real Postgres connection attempt; `ts-node prisma/seed.ts`
+// (the only real invocation path, via the `prisma-seed` Nx target) sets
+// require.main to this file, so production execution is unaffected.
+if (require.main === module) {
+  main().catch((error) => {
+    console.error('Seed failed:', error);
+    process.exit(1);
+  });
+}
