@@ -57,3 +57,97 @@ Cria um `PermissionGroup` default por valor de `Role` (Administrador, Gerente de
 5. Seed idempotente cria os grupos default e vincula os usuários seedados sem duplicar linhas em reexecuções.
 6. Nenhum `@Roles(...)` existente foi alterado nesta tarefa (mudança de autorização fica só na Tarefa 2).
 7. Suíte local (`nx run-many -t test,lint,typecheck --projects=api,web`) verde antes do commit.
+
+### Validação do Architect (DMTE-119)
+
+Tarefa 1 (commit `d729bf9`) foi conferida linha a linha contra este SPEC: `schema.prisma` (join tables explícitas, `User.technicalGroupId`), a migration manual `20261021170000_add_permission_and_technical_groups` (tabelas/FKs/índices batem 1:1 com o schema), `permission-catalog.ts` (86 chaves, 5 categorias, sem duplicatas — 17 Administrativas + 22 Cliente + 13 Gestão + 10 Relatório + 24 Técnicas), os dois controllers (ADMIN-only em todos os handlers, como descrito) e `seed.ts` (idempotente via `findFirst` por nome + `upsert` no vínculo). Todos os critérios de aceite 1–6 se confirmam pela leitura do código. Correção de um número do SPEC original: a contagem real de `@Roles(...)` no código é **105 ocorrências em 20 controllers** (não ~85) — a Tarefa 2 deve tratar esse número como o escopo real, não uma estimativa. Além disso, há **42 comparações diretas `user.role === ...`/`.role ==` fora dos controllers** (majoritariamente em `apps/api/src/core/security/tenant.helper.ts`), que a Tarefa 2 **não** deve tocar (ver decisão abaixo).
+
+As seções abaixo detalham os critérios de aceite das Tarefas 2–5, fechando a lacuna de ambiguidade apontada em DMTE-119. O critério 7 (suíte local verde) não pôde ser reexecutado neste ambiente de validação por falta de uma `DATABASE_URL` configurada (mesma limitação de ambiente sem Postgres local já registrada acima para a Tarefa 1) — a leitura de código substitui a reexecução para fins desta validação, mas o Developer deve confirmar a suíte verde normalmente ao iniciar a Tarefa 2.
+
+### Tarefa 2 — Refactor da autorização
+
+#### Decisão travada (confirmada nesta validação, lendo `tenant.helper.ts`)
+
+`TenantHelper` (`apps/api/src/core/security/tenant.helper.ts`) já implementa toda a visibilidade multi-tenant (`getTicketWhere`, `getServiceDeskWhere`, `getCredentialWhere`, `getContractWhere`, `getAppointmentWhere`) com base direta no `Role` enum (família ADMIN/AGENT_MASTER/AGENT/CLIENT_MASTER/CLIENT) — não em permissões granulares. Confirmando a recomendação do Tech Lead: **`TenantHelper` fica fora do escopo da Tarefa 2, sem nenhuma alteração.** `Role` continua sendo a família grosseira que decide "o que o usuário pode ver" (escopo/tenant); `PermissionGroup` passa a decidir "o que o usuário pode fazer" (ação/endpoint), e só isso. Os dois sistemas convivem lado a lado — não há migração de um para o outro.
+
+#### Escopo
+
+- Novo decorator `@RequirePermission(...chaves: string[])` (análogo a `@Roles`), e um `PermissionsGuard` que resolve as permissões efetivas do usuário autenticado: união das permissões de todo `PermissionGroup` vinculado diretamente (`PermissionGroupUser`) **mais** as de todo `PermissionGroup` vinculado via o `TechnicalGroup` do usuário (`PermissionGroupTechnicalGroup`), deduplicada.
+- `ADMIN` continua com bypass total (equivalente a ter todas as 86 permissões) — não depende de estar num `PermissionGroup` específico, para nunca haver um estado em que um ADMIN fica trancado para fora por um grupo mal configurado.
+- Troca de **todos os 105 `@Roles(...)`** (20 controllers) por `@RequirePermission(...)` com a chave do catálogo mais próxima semanticamente (mapeamento 1:1 documentado numa tabela no PR, controller por controller) — exceto os handlers que hoje usam `@Roles(Role.ADMIN)` apenas como guarda de "é admin de verdade" sem relação com uma permissão de negócio (ex.: endpoints internos de manutenção, se existirem) — esses casos ficam com `@Roles(Role.ADMIN)` e devem ser listados explicitamente no PR com a justificativa.
+- `RolesGuard` e `@Roles` continuam existindo (não removidos) para esses casos residuais e para não quebrar `TenantHelper`/testes que dependem de `user.role` no payload do JWT — o JWT continua carregando `role` como hoje.
+- Nenhuma mudança de schema nesta tarefa (o modelo já existe desde a Tarefa 1).
+
+#### Critérios de aceite (Tarefa 2)
+
+1. `PermissionsGuard` resolve corretamente a união de permissões diretas + via `TechnicalGroup`, com teste unitário cobrindo: usuário só com vínculo direto, só via grupo de atendentes, via ambos (sem duplicar), e sem nenhum vínculo (nega tudo, exceto ADMIN).
+2. ADMIN sempre passa em qualquer `@RequirePermission(...)`, mesmo sem nenhum `PermissionGroup` vinculado — teste unitário dedicado para esse caso.
+3. Os 105 `@Roles(...)` atuais foram substituídos por `@RequirePermission(...)` ou explicitamente mantidos como `@Roles(Role.ADMIN)` com justificativa no PR — nenhum endpoint ficou sem guarda de autorização (checagem automatizada: todo handler `@Get/@Post/@Patch/@Delete` num `@Controller` com `@UseGuards(JwtAuthGuard, ...)` tem ou `@RequirePermission` ou `@Roles`).
+4. `tenant.helper.ts` não sofreu nenhuma alteração (diff do arquivo vazio nesta tarefa).
+5. Testes de regressão (os specs de controller/service já existentes que hoje dependem de `@Roles`) atualizados para o novo decorator sem perder cobertura — nenhum teste removido sem substituição equivalente.
+6. Suíte completa (`nx run-many -t test,lint,typecheck --projects=api`) verde antes do commit.
+
+### Tarefa 3 — APIs
+
+#### Gap adicional encontrado nesta validação (não previsto no SPEC original)
+
+`UsersController`/`UsersService` já têm `GET /users` (lista **todos** os usuários, sem paginação/busca/filtro) e `PATCH /users/:id` (atualiza `role`/`organizationId`). O que falta de verdade: paginação + busca por nome/e-mail, filtro por `PermissionGroup`/`TechnicalGroup`, e **ativar/inativar** — este último não tem onde guardar o estado hoje, porque **o model `User` não tem nenhum campo `active`/`isActive`** (diferente de `Organization.active`, que já existe). Isso é uma lacuna real: a Tarefa 3 precisa de uma migration aditiva (`User.active Boolean @default(true)`) antes de poder implementar o toggle "Usuário ativo" da aba Perfil do Tiflux — não é só código novo, é mais um ajuste de schema.
+
+#### Escopo
+
+- Migration aditiva: `User.active Boolean @default(true)` (não quebra nenhum usuário existente — todos nascem ativos).
+- `GET /users` ganha paginação (`page`/`pageSize`), busca (`q` — nome ou e-mail) e filtro opcional por `technicalGroupId`/`permissionGroupId`, mantendo retrocompatibilidade com qualquer chamador atual que não passe esses query params (resposta hoje é um array; decidir e documentar no PR se a resposta paginada muda o formato para `{ items, total, page, pageSize }` — isso é uma mudança de contrato que quebra chamadores existentes do array simples, então deve ser avaliada com cuidado contra o frontend atual antes de implementar).
+- `PATCH /users/:id/active` (ou campo `active` dentro do `PATCH /users/:id` existente — decisão do Developer, documentar a escolhida) para ativar/inativar.
+- Conectar usuário aos grupos na própria resposta de `GET /users` e `GET /users/:id` (grupos de permissão + grupo de atendentes, para preencher as colunas da tela "Usuários" do Tiflux).
+- Um usuário inativo (`active: false`) deve continuar conseguindo ser **lido** (histórico/auditoria de tickets antigos não pode quebrar), mas **não deve conseguir autenticar** — `AuthService.validateUser`/login precisa checar `active` e recusar login com uma mensagem clara, não um erro genérico.
+
+#### Critérios de aceite (Tarefa 3)
+
+1. Migration `User.active` aplicada, default `true`, nenhum usuário existente fica inativo após a migration.
+2. `GET /users` suporta paginação e busca; resposta documentada no PR (array simples vs. envelope paginado) com decisão explícita sobre compatibilidade do frontend atual.
+3. Endpoint de ativar/inativar funciona e é coberto por teste unitário (Prisma mockado) + o login de um usuário inativado passa a falhar com mensagem apropriada (teste no `AuthService`).
+4. `GET /users`/`GET /users/:id` retornam os grupos (permissão + atendentes) vinculados ao usuário.
+5. Os novos endpoints usam `@RequirePermission('MANAGE_USERS')` (Tarefa 2 já deve estar mergeada) em vez de `@Roles(Role.ADMIN)`.
+6. Suíte completa (`nx run-many -t test,lint,typecheck --projects=api`) verde antes do commit.
+
+### Tarefa 4 — Frontend
+
+#### Gap adicional encontrado nesta validação
+
+`SettingsPage.tsx` hoje é uma lista plana de links (`Minha Conta`, e `Mesa` só para ADMIN) — não existe conceito de submenu. Também não existe nenhuma abstração de permissão no frontend: 18 arquivos checam `user?.role === 'ADMIN'` diretamente. Replicar o Tiflux (ocultar "Usuários"/"Grupos de atendentes"/"Grupos de permissões" por permissão granular, não só por `role === 'ADMIN'`) exige um hook novo, ex. `useHasPermission(key)`, que busca as permissões efetivas do usuário autenticado (endpoint novo ou calculado a partir do payload do JWT/perfil — decisão do Developer, documentar no PR) — isso é trabalho novo, não só telas.
+
+#### Escopo
+
+- Hook/seletor `useHasPermission(key: string)` (ou equivalente) consultando as permissões efetivas do usuário logado.
+- Reestruturar `SettingsPage` para suportar submenus (pelo menos o submenu "Usuários" com os 4 itens: Minha conta / Usuários / Grupos de atendentes / Grupos de permissões), cada item visível conforme a permissão correspondente (`MANAGE_USERS`, `MANAGE_PERMISSION_GROUPS`) em vez do atual `isAdmin` hardcoded.
+- Tela **Usuários** (lista com busca + colunas Nome/Grupos de permissões/Grupos de atendentes/Tipo/Status conforme mapeamento já postado em DMTE-84; detalhe com abas Perfil e Segurança — Segurança pode ficar como stub nesta tarefa se 2FA não for escopo desta feature, documentar a decisão no PR).
+- Tela **Grupos de atendentes** (lista + detalhe com abas Informações/Equipe/Acessos).
+- Tela **Grupos de permissões** (lista + detalhe: Nome/Descrição, vínculos, matriz de permissões por categoria com "Selecionar todos" por bloco, buscando o catálogo em `GET /permission-groups/catalog`).
+- Toggle "Usuário ativo" na aba Perfil, consumindo o endpoint da Tarefa 3.
+- Toda a cópia da UI em pt-BR (labels, estados vazio/erro/carregando), seguindo o padrão já usado no resto do Aponta.
+
+#### Critérios de aceite (Tarefa 4)
+
+1. Submenu "Usuários" aparece em Configurações com os 4 itens, cada um visível apenas para quem tem a permissão correspondente (teste: usuário sem `MANAGE_USERS` não vê o item "Usuários"; ADMIN vê todos).
+2. Tela de Usuários lista, busca e pagina (consumindo a Tarefa 3), com toggle de ativar/inativar funcional.
+3. Tela de Grupos de atendentes: CRUD completo nas 3 abas (Informações/Equipe/Acessos), cobrindo adicionar/remover membro, cliente e mesa de serviço.
+4. Tela de Grupos de permissões: CRUD completo, matriz de permissões reflete exatamente o catálogo (86 chaves, 5 categorias), "Selecionar todos" por categoria funciona, e salvar reflete-se de fato num novo login do usuário afetado (fechado pelo E2E da Tarefa 5).
+5. Nenhuma tela nova quebra o padrão de design system já existente (`EzCardItem` e demais componentes de `components/ds`, conforme o restante do Aponta).
+6. Suíte completa (`nx run-many -t test,lint,typecheck --projects=web`) verde antes do commit.
+
+### Tarefa 5 — Testes e revisão final
+
+#### Escopo
+
+- E2E Playwright cobrindo o fluxo completo citado no SPEC original: criar um `PermissionGroup` com um subconjunto de permissões, vincular um usuário de teste, fazer login como esse usuário e confirmar que a UI/API realmente reflete a permissão concedida (ex.: um usuário só com `VIEW_AND_OPEN_TICKETS` não vê a tela de Usuários; um usuário com `MANAGE_USERS` vê e consegue operar).
+- Suíte completa do monorepo (`nx run-many -t test,lint,typecheck`, todos os projetos) verde.
+- Revisão por sub-agente independente com autoridade para reprovar, obrigatória antes de qualquer commit/PR — critério já herdado da classificação Tier 3 desta feature.
+- Checklist de regressão manual (ou automatizada) nos 5 `TenantHelper.get*Where` existentes, confirmando que continuam se comportando exatamente como antes da Tarefa 2 (já que a Tarefa 2 não deveria ter tocado neles) — evita que uma mudança incidental em `Role`/JWT quebre visibilidade multi-tenant sem ser percebida.
+
+#### Critérios de aceite (Tarefa 5)
+
+1. Pelo menos um cenário E2E cobre criação de grupo → vínculo → mudança real de acesso observável (não apenas chamada de API isolada).
+2. `nx run-many -t test,lint,typecheck` (sem `--projects`, todo o monorepo) verde.
+3. Revisão do sub-agente aprovada e registrada (comentário/relatório anexado ao PR ou à issue) antes do merge.
+4. Nenhuma regressão nos testes existentes de `TenantHelper`/multi-tenant (os specs já existentes continuam passando sem modificação de asserção).
+5. PR aberto com CI verde (ou, se o ambiente de execução não tiver acesso ao CI real, descrito explicitamente o que falta para confirmar — nunca reportado como "pronto para produção" sem essa confirmação).
