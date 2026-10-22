@@ -28,7 +28,13 @@ describe('DEFAULT_PERMISSION_GROUPS (DMTE-126)', () => {
   describe.each([
     // key, old @Roles(...) superset (commit d729bf9, pré-Tarefa 2)
     ['MANAGE_SERVICE_CATALOGS', [Role.ADMIN, Role.AGENT_MASTER, Role.AGENT]],
-    ['MANAGE_PASSWORD_VAULT', [Role.ADMIN, Role.AGENT_MASTER, Role.AGENT]],
+    // DMTE-128: MANAGE_PASSWORD_VAULT agora cobre só escrita (createFolder/
+    // updateFolder/removeFolder/createCredential/updateCredential/
+    // removeCredential), que no @Roles antigo era ADMIN-only. Leitura/
+    // revelação ficou em VIEW_PASSWORD_VAULT (linha abaixo).
+    ['MANAGE_PASSWORD_VAULT', [Role.ADMIN]],
+    ['VIEW_PASSWORD_VAULT', [Role.ADMIN, Role.AGENT_MASTER, Role.AGENT]],
+    ['VIEW_PASSWORD_VAULT_AUDIT', [Role.ADMIN]],
     ['EDIT_TICKETS', [Role.ADMIN, Role.AGENT, Role.AGENT_MASTER]],
     ['ADD_SLA_TIME', [Role.ADMIN, Role.AGENT, Role.AGENT_MASTER]],
     ['MANAGE_KNOWLEDGE_BASE', [Role.ADMIN, Role.AGENT_MASTER, Role.AGENT]],
@@ -39,7 +45,11 @@ describe('DEFAULT_PERMISSION_GROUPS (DMTE-126)', () => {
     ['VIEW_TICKET_VALUES', [Role.ADMIN]],
     ['VIEW_ADD_INTERNAL_COMMUNICATION', [Role.ADMIN, Role.AGENT]],
     ['VIEW_ALL_SCHEDULES', [Role.ADMIN, Role.AGENT_MASTER, Role.AGENT, Role.CLIENT_MASTER]],
-    ['CREATE_TICKET_SCHEDULING', [Role.ADMIN, Role.AGENT_MASTER, Role.AGENT, Role.CLIENT_MASTER]],
+    // DMTE-128: CREATE_TICKET_SCHEDULING cobre create/update/remove de
+    // compromissos na Agenda. No @Roles antigo esses handlers eram só
+    // ADMIN/AGENT_MASTER/AGENT — CLIENT_MASTER só tinha os GETs via
+    // VIEW_ALL_SCHEDULES (linha acima), nunca poder de escrita.
+    ['CREATE_TICKET_SCHEDULING', [Role.ADMIN, Role.AGENT_MASTER, Role.AGENT]],
     ['MANAGE_CONTRACTS', [Role.ADMIN]],
     ['MANAGE_CHECKLISTS', [Role.ADMIN, Role.AGENT_MASTER, Role.AGENT]],
     ['MANAGE_PERMISSION_GROUPS', [Role.ADMIN]],
@@ -79,5 +89,27 @@ describe('DEFAULT_PERMISSION_GROUPS (DMTE-126)', () => {
     expect(hasKey(Role.CLIENT, 'MANAGE_PASSWORD_VAULT')).toBe(false);
     expect(hasKey(Role.CLIENT, 'EDIT_TICKETS')).toBe(false);
     expect(hasKey(Role.CLIENT, 'VIEW_ALL_SCHEDULES')).toBe(false);
+  });
+
+  /**
+   * DMTE-128: achados do QA (2ª rodada) — o spec acima só cobria "quem
+   * deveria ter e não tem" (under-grant); estes casos capturam o inverso
+   * ("quem tem e não deveria", over-grant), que foi exatamente o que
+   * escapou da 1ª correção.
+   */
+  describe('over-grants reais verificados pelo QA (DMTE-128, não devem reaparecer)', () => {
+    it('CLIENT_MASTER nunca ganha CREATE_TICKET_SCHEDULING (nunca teve poder de criar/editar/excluir compromissos, só VIEW_ALL_SCHEDULES)', () => {
+      expect(hasKey(Role.CLIENT_MASTER, 'CREATE_TICKET_SCHEDULING')).toBe(false);
+    });
+
+    it('AGENT e AGENT_MASTER não ganham escrita no cofre de senhas via MANAGE_PASSWORD_VAULT (agora chave só de escrita, ADMIN-only)', () => {
+      expect(hasKey(Role.AGENT, 'MANAGE_PASSWORD_VAULT')).toBe(false);
+      expect(hasKey(Role.AGENT_MASTER, 'MANAGE_PASSWORD_VAULT')).toBe(false);
+    });
+
+    it('AGENT e AGENT_MASTER não ganham visibilidade da trilha de auditoria do cofre via VIEW_PASSWORD_VAULT_AUDIT', () => {
+      expect(hasKey(Role.AGENT, 'VIEW_PASSWORD_VAULT_AUDIT')).toBe(false);
+      expect(hasKey(Role.AGENT_MASTER, 'VIEW_PASSWORD_VAULT_AUDIT')).toBe(false);
+    });
   });
 });

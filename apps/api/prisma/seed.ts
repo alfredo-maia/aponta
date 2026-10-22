@@ -65,6 +65,36 @@ const SALT_ROUNDS = 10;
  *    business-hours). Inerente à granularidade de chaves definida na
  *    Tarefa 2 (catálogo de ~86 chaves, não um-para-um por endpoint);
  *    dividir a chave fica fora do escopo deste retrabalho do seed.
+ *  - MANAGE_KNOWLEDGE_BASE dá a AGENT (igual a AGENT_MASTER/ADMIN) poder de
+ *    excluir artigos da Base de Conhecimento (`articles.controller.ts`'s
+ *    `remove`), que no `@Roles` antigo era ADMIN-only (`create`/`update`
+ *    eram AGENT/AGENT_MASTER/ADMIN, mas `remove` não incluía AGENT).
+ *    Decisão (DMTE-128, 2ª rodada de QA): manter — over-grant de risco
+ *    baixo-médio, aceitável para conteúdo de base de conhecimento (não é
+ *    dado sensível como credenciais/financeiro), e dividir a chave só
+ *    para isolar `remove` fica fora do escopo deste retrabalho.
+ *
+ * DMTE-128 (retrabalho da Tarefa 2, QA rejeitou DMTE-126, 2ª rodada):
+ * três escalações de privilégio reais, verificadas endpoint a endpoint:
+ *  - CREATE_TICKET_SCHEDULING dava a CLIENT_MASTER poder de criar/editar/
+ *    excluir compromissos na Agenda (`agenda.controller.ts`'s `create`/
+ *    `update`/`remove`), que ele nunca teve — no `@Roles` antigo esses
+ *    handlers eram só ADMIN/AGENT_MASTER/AGENT; CLIENT_MASTER só tinha os
+ *    GETs via VIEW_ALL_SCHEDULES. Corrigido: removida de CLIENT_MASTER.
+ *  - MANAGE_PASSWORD_VAULT dava a AGENT/AGENT_MASTER CRUD completo de
+ *    credenciais de senha + visibilidade da trilha de auditoria, não só
+ *    leitura/revelação que tinham antes (`vault.controller.ts` usava a
+ *    mesma chave nos 10 endpoints; no `@Roles` antigo só
+ *    `findFolders`/`findCredentials`/`reveal` eram
+ *    ADMIN+AGENT_MASTER+AGENT — as demais ações, incluindo `findAudit`,
+ *    eram ADMIN-only). Corrigido indo pela opção mais segura por padrão
+ *    (dado de credencial): a chave única foi dividida em 3
+ *    (`permission-catalog.ts`, categoria TECHNICAL) —
+ *    VIEW_PASSWORD_VAULT (leitura/revelação), MANAGE_PASSWORD_VAULT
+ *    (agora só escrita: create/update/remove de pastas e credenciais) e
+ *    VIEW_PASSWORD_VAULT_AUDIT (`findAudit`, ADMIN-only). AGENT/
+ *    AGENT_MASTER ganham só VIEW_PASSWORD_VAULT; ADMIN ganha as 3 (via
+ *    spread de todo o catálogo, abaixo).
  */
 export const DEFAULT_PERMISSION_GROUPS: Record<Role, { description: string; permissions: string[] }> = {
   [Role.ADMIN]: {
@@ -86,7 +116,7 @@ export const DEFAULT_PERMISSION_GROUPS: Record<Role, { description: string; perm
       'VIEW_USERS_IN_AGENT_REPORTS',
       'VIEW_ALL_SCHEDULES',
       'CREATE_TICKET_SCHEDULING',
-      'MANAGE_PASSWORD_VAULT',
+      'VIEW_PASSWORD_VAULT',
       'VIEW_CONTRACTS_ADMIN',
       'MANAGE_CHECKLISTS',
       'ADD_SLA_TIME',
@@ -104,7 +134,7 @@ export const DEFAULT_PERMISSION_GROUPS: Record<Role, { description: string; perm
       'ACCESS_CHAT',
       'VIEW_ALL_SCHEDULES',
       'CREATE_TICKET_SCHEDULING',
-      'MANAGE_PASSWORD_VAULT',
+      'VIEW_PASSWORD_VAULT',
       'MANAGE_CHECKLISTS',
       'MANAGE_KNOWLEDGE_BASE',
       'VIEW_AGENT_REPORTS',
@@ -120,7 +150,6 @@ export const DEFAULT_PERMISSION_GROUPS: Record<Role, { description: string; perm
       'VIEW_ALL_CLIENT_TICKETS',
       'UPLOAD_TICKET_ATTACHMENTS',
       'VIEW_ALL_SCHEDULES',
-      'CREATE_TICKET_SCHEDULING',
       'VIEW_CONTRACTS_CLIENT',
       'VIEW_CLIENT_CONSUMPTION_STATEMENT_REPORT',
       'VIEW_LAST_30_DAYS_TICKETS_WIDGET',

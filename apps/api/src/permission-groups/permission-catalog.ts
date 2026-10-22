@@ -108,7 +108,14 @@ export const PERMISSION_CATALOG: PermissionDefinition[] = [
   { key: 'VIEW_TICKETS_NOT_RESPONSIBLE_FOR', category: PermissionCategory.TECHNICAL, label: 'Visualizar tickets em que eu não sou o responsável' },
   { key: 'ACCESS_CHAT', category: PermissionCategory.TECHNICAL, label: 'Acessar o chat' },
   { key: 'CREATE_TICKET_SCHEDULING', category: PermissionCategory.TECHNICAL, label: 'Criar agendamento de tickets' },
-  { key: 'MANAGE_PASSWORD_VAULT', category: PermissionCategory.TECHNICAL, label: 'Gerenciar cofre de senhas' },
+  // DMTE-128: MANAGE_PASSWORD_VAULT cobria leitura+revelação+escrita+
+  // auditoria sob uma única chave, dando a quem a tivesse (AGENT/
+  // AGENT_MASTER) CRUD completo de credenciais e acesso à trilha de
+  // auditoria. Dividida em 3 chaves granulares (ver seed.ts para quem
+  // recebe cada uma).
+  { key: 'VIEW_PASSWORD_VAULT', category: PermissionCategory.TECHNICAL, label: 'Visualizar e revelar senhas do cofre' },
+  { key: 'MANAGE_PASSWORD_VAULT', category: PermissionCategory.TECHNICAL, label: 'Gerenciar cofre de senhas (criar/editar/excluir pastas e credenciais)' },
+  { key: 'VIEW_PASSWORD_VAULT_AUDIT', category: PermissionCategory.TECHNICAL, label: 'Visualizar trilha de auditoria do cofre de senhas' },
   { key: 'VIEW_ALL_SCHEDULES', category: PermissionCategory.TECHNICAL, label: 'Visualizar todas as agendas' },
   { key: 'MANAGE_REQUESTERS_AND_CLIENT_USERS', category: PermissionCategory.TECHNICAL, label: 'Gerenciar solicitantes e usuários clientes' },
   { key: 'MANAGE_PRE_WORKLOGS', category: PermissionCategory.TECHNICAL, label: 'Gerenciar pré-apontamentos' },

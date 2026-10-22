@@ -30,7 +30,7 @@ export class VaultController {
   // ---------------------------------------------------------------------
 
   @Get('folders')
-  @RequirePermission('MANAGE_PASSWORD_VAULT')
+  @RequirePermission('VIEW_PASSWORD_VAULT')
   @ApiOperation({ summary: 'List credential folders (vault folder tree) with credential counts' })
   findFolders(@CurrentUser() user: CurrentUserPayload) {
     return this.vaultService.findFolders(user);
@@ -67,7 +67,7 @@ export class VaultController {
   // ---------------------------------------------------------------------
 
   @Get('credentials')
-  @RequirePermission('MANAGE_PASSWORD_VAULT')
+  @RequirePermission('VIEW_PASSWORD_VAULT')
   @ApiOperation({ summary: 'List credentials (paginated, searchable); never returns raw password/username' })
   findCredentials(@Query() query: CredentialQueryDto, @CurrentUser() user: CurrentUserPayload) {
     return this.vaultService.findCredentials(query, user);
@@ -104,7 +104,7 @@ export class VaultController {
   }
 
   @Post('credentials/:id/reveal')
-  @RequirePermission('MANAGE_PASSWORD_VAULT')
+  @RequirePermission('VIEW_PASSWORD_VAULT')
   @ApiOperation({ summary: 'Reveal or copy a credential field (username/password); always audited' })
   reveal(
     @Param('id') id: string,
@@ -120,7 +120,7 @@ export class VaultController {
   // ---------------------------------------------------------------------
 
   @Get('audit')
-  @RequirePermission('MANAGE_PASSWORD_VAULT')
+  @RequirePermission('VIEW_PASSWORD_VAULT_AUDIT')
   @ApiOperation({ summary: 'List vault audit trail entries (ADMIN only)' })
   findAudit(@Query() query: AuditQueryDto, @CurrentUser() user: CurrentUserPayload) {
     return this.vaultService.findAudit(query, user);
