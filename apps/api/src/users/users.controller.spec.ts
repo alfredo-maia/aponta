@@ -6,10 +6,20 @@ import { PermissionsService } from '../permissions/permissions.service';
 
 describe('UsersController', () => {
   let controller: UsersController;
-  let service: { findAgents: jest.Mock };
+  let service: {
+    findAgents: jest.Mock;
+    findAll: jest.Mock;
+    findOne: jest.Mock;
+    setActive: jest.Mock;
+  };
 
   beforeEach(async () => {
-    service = { findAgents: jest.fn() };
+    service = {
+      findAgents: jest.fn(),
+      findAll: jest.fn(),
+      findOne: jest.fn(),
+      setActive: jest.fn(),
+    };
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
       providers: [
@@ -37,6 +47,41 @@ describe('UsersController', () => {
 
       expect(service.findAgents).toHaveBeenCalled();
       expect(result).toEqual(mockAgents);
+    });
+  });
+
+  describe('findAll', () => {
+    it('forwards the query params to the service', async () => {
+      const query = { q: 'jane', page: '1' };
+      service.findAll.mockResolvedValueOnce({ data: [], meta: {} });
+
+      await controller.findAll(query as never);
+
+      expect(service.findAll).toHaveBeenCalledWith(query);
+    });
+  });
+
+  describe('findOne', () => {
+    it('returns the user enriched with groups', async () => {
+      const mockUser = { id: 'user-1', name: 'Jane', permissionGroups: [] };
+      service.findOne.mockResolvedValueOnce(mockUser);
+
+      const result = await controller.findOne('user-1');
+
+      expect(service.findOne).toHaveBeenCalledWith('user-1');
+      expect(result).toEqual(mockUser);
+    });
+  });
+
+  describe('setActive', () => {
+    it('toggles the active flag via the service', async () => {
+      const mockUser = { id: 'user-1', active: false };
+      service.setActive.mockResolvedValueOnce(mockUser);
+
+      const result = await controller.setActive('user-1', { active: false });
+
+      expect(service.setActive).toHaveBeenCalledWith('user-1', false);
+      expect(result).toEqual(mockUser);
     });
   });
 });

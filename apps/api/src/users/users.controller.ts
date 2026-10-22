@@ -1,9 +1,11 @@
-import { Controller, Get, Patch, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserQueryDto } from './dto/user-query.dto';
+import { UpdateUserActiveDto } from './dto/update-user-active.dto';
 
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('users')
@@ -12,8 +14,8 @@ export class UsersController {
 
   @Get()
   @RequirePermission('MANAGE_USERS')
-  async findAll() {
-    return this.usersService.findAll();
+  async findAll(@Query() query: UserQueryDto) {
+    return this.usersService.findAll(query);
   }
 
   // Agent-assignment dropdown: any user who can work tickets needs to see
@@ -26,9 +28,24 @@ export class UsersController {
     return this.usersService.findAgents();
   }
 
+  @Get(':id')
+  @RequirePermission('MANAGE_USERS')
+  async findOne(@Param('id') id: string) {
+    return this.usersService.findOne(id);
+  }
+
   @Patch(':id')
   @RequirePermission('MANAGE_USERS')
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.updateAdminFields(id, updateUserDto);
+  }
+
+  @Patch(':id/active')
+  @RequirePermission('MANAGE_USERS')
+  async setActive(
+    @Param('id') id: string,
+    @Body() updateUserActiveDto: UpdateUserActiveDto,
+  ) {
+    return this.usersService.setActive(id, updateUserActiveDto.active);
   }
 }

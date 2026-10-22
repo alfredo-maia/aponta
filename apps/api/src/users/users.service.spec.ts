@@ -1,8 +1,8 @@
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as bcrypt from 'bcryptjs';
 import { Prisma, Role } from '@prisma/client';
-import { UsersService } from './users.service';
+import { UsersService, PaginatedUsers, UserWithGroups } from './users.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 describe('UsersService', () => {
@@ -13,6 +13,7 @@ describe('UsersService', () => {
       create: jest.Mock;
       update: jest.Mock;
       findMany: jest.Mock;
+      count: jest.Mock;
     };
   };
 
@@ -23,6 +24,7 @@ describe('UsersService', () => {
         create: jest.fn(),
         update: jest.fn(),
         findMany: jest.fn(),
+        count: jest.fn(),
       },
     };
 
@@ -223,6 +225,189 @@ describe('UsersService', () => {
       expect(result[0]).not.toHaveProperty('password');
       expect(result[0].name).toBe('Agent');
       expect(result[1].name).toBe('Admin');
+    });
+  });
+
+  describe('setActive', () => {
+    const existingUser = {
+      id: 'user-1',
+      name: 'Jane Doe',
+      email: 'jane@example.com',
+      password: 'hashed',
+      role: Role.AGENT,
+      active: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    it('deactivates a user and returns the safe user', async () => {
+      prisma.user.update.mockResolvedValue({ ...existingUser, active: false });
+
+      const result = await service.setActive('user-1', false);
+
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id: 'user-1' },
+        data: { active: false },
+        include: { organization: true },
+      });
+      expect(result).not.toHaveProperty('password');
+      expect(result.active).toBe(false);
+    });
+
+    it('reactivates a user', async () => {
+      prisma.user.update.mockResolvedValue({ ...existingUser, active: true });
+
+      const result = await service.setActive('user-1', true);
+
+      expect(result.active).toBe(true);
+    });
+
+    it('throws NotFoundException when the user does not exist', async () => {
+      const prismaError = new Prisma.PrismaClientKnownRequestError(
+        'An operation failed because it depends on one or more records that were required but not found.',
+        { code: 'P2025', clientVersion: '7.8.0' },
+      );
+      prisma.user.update.mockRejectedValue(prismaError);
+
+      await expect(service.setActive('missing-user', false)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('findAll with query params', () => {
+    it('returns a plain array (backward compatible) when no query params are passed', async () => {
+      const mockUsers = [
+        {
+          id: '1',
+          name: 'Agent',
+          email: 'agent@example.com',
+          password: 'hash',
+          role: Role.AGENT,
+          active: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          organization: null,
+          technicalGroup: null,
+          permissionGroupLinks: [],
+        },
+      ];
+      prisma.user.findMany.mockResolvedValueOnce(mockUsers);
+
+      const result = (await service.findAll({})) as UserWithGroups[];
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(prisma.user.count).not.toHaveBeenCalled();
+      expect(result[0]).not.toHaveProperty('password');
+      expect(result[0]).not.toHaveProperty('permissionGroupLinks');
+      expect(result[0].permissionGroups).toEqual([]);
+    });
+
+    it('returns a paginated envelope when page/pageSize are passed', async () => {
+      const mockUsers = [
+        {
+          id: '1',
+          name: 'Agent',
+          email: 'agent@example.com',
+          password: 'hash',
+          role: Role.AGENT,
+          active: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          organization: null,
+          technicalGroup: null,
+          permissionGroupLinks: [
+            { permissionGroup: { id: 'pg-1', name: 'Atendentes' } },
+          ],
+        },
+      ];
+      prisma.user.count.mockResolvedValueOnce(1);
+      prisma.user.findMany.mockResolvedValueOnce(mockUsers);
+
+      const result = (await service.findAll({
+        page: '1',
+        pageSize: '20',
+      })) as PaginatedUsers;
+
+      expect(result).toEqual({
+        data: expect.any(Array),
+        meta: { total: 1, page: 1, pageSize: 20, totalPages: 1 },
+      });
+      expect(result.data[0].permissionGroups).toEqual([
+        { id: 'pg-1', name: 'Atendentes' },
+      ]);
+      expect(result.data[0]).not.toHaveProperty('password');
+    });
+
+    it('searches by name or email when q is passed', async () => {
+      prisma.user.count.mockResolvedValueOnce(0);
+      prisma.user.findMany.mockResolvedValueOnce([]);
+
+      await service.findAll({ q: 'jane' });
+
+      const whereArg = prisma.user.findMany.mock.calls[0][0].where;
+      expect(whereArg.OR).toEqual([
+        { name: { contains: 'jane', mode: 'insensitive' } },
+        { email: { contains: 'jane', mode: 'insensitive' } },
+      ]);
+    });
+
+    it('filters by technicalGroupId when passed', async () => {
+      prisma.user.count.mockResolvedValueOnce(0);
+      prisma.user.findMany.mockResolvedValueOnce([]);
+
+      await service.findAll({ technicalGroupId: 'tg-1' });
+
+      const whereArg = prisma.user.findMany.mock.calls[0][0].where;
+      expect(whereArg.technicalGroupId).toBe('tg-1');
+    });
+
+    it('filters by permissionGroupId when passed', async () => {
+      prisma.user.count.mockResolvedValueOnce(0);
+      prisma.user.findMany.mockResolvedValueOnce([]);
+
+      await service.findAll({ permissionGroupId: 'pg-1' });
+
+      const whereArg = prisma.user.findMany.mock.calls[0][0].where;
+      expect(whereArg.permissionGroupLinks).toEqual({
+        some: { permissionGroupId: 'pg-1' },
+      });
+    });
+  });
+
+  describe('findOne', () => {
+    it('returns the user enriched with groups', async () => {
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'user-1',
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+        password: 'hashed',
+        role: Role.AGENT,
+        active: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        organization: null,
+        technicalGroup: { id: 'tg-1', name: 'Suporte N1' },
+        permissionGroupLinks: [
+          { permissionGroup: { id: 'pg-1', name: 'Atendentes' } },
+        ],
+      });
+
+      const result = await service.findOne('user-1');
+
+      expect(result).not.toHaveProperty('password');
+      expect(result.technicalGroup).toEqual({ id: 'tg-1', name: 'Suporte N1' });
+      expect(result.permissionGroups).toEqual([
+        { id: 'pg-1', name: 'Atendentes' },
+      ]);
+    });
+
+    it('throws NotFoundException when the user does not exist', async () => {
+      prisma.user.findUnique.mockResolvedValue(null);
+
+      await expect(service.findOne('missing-user')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 });
