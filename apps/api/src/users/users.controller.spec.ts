@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { Role } from '@prisma/client';
+import { PermissionsService } from '../permissions/permissions.service';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -11,7 +12,10 @@ describe('UsersController', () => {
     service = { findAgents: jest.fn() };
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
-      providers: [{ provide: UsersService, useValue: service }],
+      providers: [
+        { provide: UsersService, useValue: service },
+        { provide: PermissionsService, useValue: { hasPermission: jest.fn() } },
+      ],
     }).compile();
 
     controller = module.get<UsersController>(UsersController);

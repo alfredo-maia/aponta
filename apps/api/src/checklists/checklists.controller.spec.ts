@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ChecklistsController } from './checklists.controller';
 import { ChecklistsService } from './checklists.service';
+import { PermissionsService } from '../permissions/permissions.service';
 
 const mockChecklistsService = {
   getChecklists: jest.fn(),
@@ -17,7 +18,10 @@ describe('ChecklistsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ChecklistsController],
-      providers: [{ provide: ChecklistsService, useValue: mockChecklistsService }],
+      providers: [
+        { provide: ChecklistsService, useValue: mockChecklistsService },
+        { provide: PermissionsService, useValue: { hasPermission: jest.fn() } },
+      ],
     }).compile();
 
     controller = module.get<ChecklistsController>(ChecklistsController);

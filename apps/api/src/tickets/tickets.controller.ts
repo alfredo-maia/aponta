@@ -9,7 +9,6 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { Role } from '@prisma/client';
 import { TicketsService } from './tickets.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
@@ -21,8 +20,8 @@ import { ChangeServiceDeskDto } from "./dto/change-service-desk.dto";
 import { UpdateParentDto } from "./dto/update-parent.dto";
 import { AddSlaHoursDto } from './dto/add-sla-hours.dto';
 import { JwtOrTokenAuthGuard } from '../auth/guards/jwt-or-token-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUserPayload } from './decorators/current-user.decorator';
 
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -68,8 +67,8 @@ export class TicketsController {
   }
 
   @Patch(':id')
-  @UseGuards(RolesGuard)
-  @Roles(Role.AGENT, Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('EDIT_TICKETS')
   update(
     @Param('id') id: string,
     @Body() updateTicketDto: UpdateTicketDto,
@@ -79,8 +78,8 @@ export class TicketsController {
   }
 
   @Patch(':id/assign')
-  @UseGuards(RolesGuard)
-  @Roles(Role.AGENT, Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('EDIT_TICKETS')
   assign(
     @Param('id') id: string,
     @Body() assignTicketDto: AssignTicketDto,
@@ -90,8 +89,8 @@ export class TicketsController {
   }
 
   @Patch(':id/stage')
-  @UseGuards(RolesGuard)
-  @Roles(Role.AGENT, Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('EDIT_TICKETS')
   changeStage(
     @Param('id') id: string,
     @Body() dto: ChangeTicketStageDto,
@@ -101,8 +100,8 @@ export class TicketsController {
   }
 
   @Patch(':id/status')
-  @UseGuards(RolesGuard)
-  @Roles(Role.AGENT, Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('EDIT_TICKETS')
   @ApiOperation({ summary: 'Fast mutate ticket status', description: 'Dedicated Action intent to change a ticket status, triggering specific events on the state machine' })
   changeStatus(
     @Param('id') id: string,
@@ -117,16 +116,16 @@ export class TicketsController {
   }
 
   @Post(':id/cancel')
-  @UseGuards(RolesGuard)
-  @Roles(Role.AGENT, Role.AGENT_MASTER, Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('EDIT_TICKETS')
   @ApiOperation({ summary: 'Cancel a ticket', description: 'Closes the ticket as cancelled when the mesa allows it' })
   cancel(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     return this.ticketsService.cancel(id, req.user);
   }
 
   @Post(':id/sla/add-hours')
-  @UseGuards(RolesGuard)
-  @Roles(Role.AGENT, Role.AGENT_MASTER, Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('ADD_SLA_TIME')
   @ApiOperation({ summary: 'Add SLA hours', description: 'Extends response and resolve deadlines when the mesa allows it' })
   addSlaHours(
     @Param('id') id: string,
@@ -137,8 +136,8 @@ export class TicketsController {
   }
 
   @Patch(':id/service-desk')
-  @UseGuards(RolesGuard)
-  @Roles(Role.AGENT, Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('EDIT_TICKETS')
   changeServiceDesk(
     @Param('id') id: string,
     @Body() changeServiceDeskDto: ChangeServiceDeskDto,
@@ -151,7 +150,8 @@ export class TicketsController {
     );
   }
 @Patch(':id/parent')
-  @Roles(Role.AGENT, Role.AGENT_MASTER, Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('EDIT_TICKETS')
   async updateParent(
     @Param('id') id: string,
     @Body() dto: UpdateParentDto,

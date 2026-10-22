@@ -1,65 +1,66 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { Role } from '@prisma/client';
 import { TechnicalGroupsService } from './technical-groups.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CreateTechnicalGroupDto } from './dto/create-technical-group.dto';
 import { UpdateTechnicalGroupDto } from './dto/update-technical-group.dto';
 
 /**
- * ADMIN-only for every handler, same reasoning as PermissionGroupsController:
- * Tarefa 1 only adds the data model, it does not change who can manage it.
+ * MANAGE_USERS on every handler (DMTE-84, Tarefa 2) — "Grupos de atendentes"
+ * is one of the 4 items under the "Usuários" settings submenu (SPEC Tarefa
+ * 4), and the catalog has no dedicated "manage teams" key, so it shares
+ * MANAGE_USERS with the Usuários screen itself.
  */
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('technical-groups')
 export class TechnicalGroupsController {
   constructor(private readonly technicalGroupsService: TechnicalGroupsService) {}
 
   @Get()
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_USERS')
   findAll() {
     return this.technicalGroupsService.findAll();
   }
 
   @Get(':id')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_USERS')
   findOne(@Param('id') id: string) {
     return this.technicalGroupsService.findOne(id);
   }
 
   @Post()
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_USERS')
   create(@Body() dto: CreateTechnicalGroupDto) {
     return this.technicalGroupsService.create(dto);
   }
 
   @Patch(':id')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_USERS')
   update(@Param('id') id: string, @Body() dto: UpdateTechnicalGroupDto) {
     return this.technicalGroupsService.update(id, dto);
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_USERS')
   remove(@Param('id') id: string) {
     return this.technicalGroupsService.remove(id);
   }
 
   @Post(':id/members/:userId')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_USERS')
   addMember(@Param('id') id: string, @Param('userId') userId: string) {
     return this.technicalGroupsService.addMember(id, userId);
   }
 
   @Delete(':id/members/:userId')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_USERS')
   removeMember(@Param('id') id: string, @Param('userId') userId: string) {
     return this.technicalGroupsService.removeMember(id, userId);
   }
 
   @Post(':id/organizations/:organizationId')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_USERS')
   addOrganization(
     @Param('id') id: string,
     @Param('organizationId') organizationId: string,
@@ -68,7 +69,7 @@ export class TechnicalGroupsController {
   }
 
   @Delete(':id/organizations/:organizationId')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_USERS')
   removeOrganization(
     @Param('id') id: string,
     @Param('organizationId') organizationId: string,
@@ -77,7 +78,7 @@ export class TechnicalGroupsController {
   }
 
   @Post(':id/service-desks/:serviceDeskId')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_USERS')
   addServiceDesk(
     @Param('id') id: string,
     @Param('serviceDeskId') serviceDeskId: string,
@@ -86,7 +87,7 @@ export class TechnicalGroupsController {
   }
 
   @Delete(':id/service-desks/:serviceDeskId')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_USERS')
   removeServiceDesk(
     @Param('id') id: string,
     @Param('serviceDeskId') serviceDeskId: string,

@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
-import { Role } from '@prisma/client';
 import { CatalogController } from './catalog.controller';
 import { CatalogService } from './catalog.service';
-import { ROLES_KEY } from '../auth/decorators/roles.decorator';
+import { PERMISSIONS_KEY } from '../auth/decorators/require-permission.decorator';
+import { PermissionsService } from '../permissions/permissions.service';
 
 const mockCatalogService = {
   findAllCategories: jest.fn(),
@@ -21,7 +21,11 @@ describe('CatalogController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CatalogController],
-      providers: [{ provide: CatalogService, useValue: mockCatalogService }, Reflector],
+      providers: [
+        { provide: CatalogService, useValue: mockCatalogService },
+        { provide: PermissionsService, useValue: { hasPermission: jest.fn() } },
+        Reflector,
+      ],
     }).compile();
 
     controller = module.get<CatalogController>(CatalogController);
@@ -32,7 +36,7 @@ describe('CatalogController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('@Roles metadata (admin-only mutation endpoints)', () => {
+  describe('@RequirePermission metadata (admin-only mutation endpoints)', () => {
     it.each([
       ['getAllCategories', 'getAllCategories'],
       ['createCategory', 'createCategory'],
@@ -41,14 +45,14 @@ describe('CatalogController', () => {
       ['createItem', 'createItem'],
       ['updateItem', 'updateItem'],
       ['deleteItem', 'deleteItem'],
-    ])('requires ADMIN on %s', (_label, methodName) => {
+    ])('requires MANAGE_SERVICE_CATALOGS on %s', (_label, methodName) => {
       expect(
-        Reflect.getMetadata(ROLES_KEY, (controller as any)[methodName]),
-      ).toEqual([Role.ADMIN]);
+        Reflect.getMetadata(PERMISSIONS_KEY, (controller as any)[methodName]),
+      ).toEqual(['MANAGE_SERVICE_CATALOGS']);
     });
 
-    it('getActiveCatalog has NO role restriction (any authenticated user)', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.getActiveCatalog)).toBeUndefined();
+    it('getActiveCatalog has NO permission restriction (any authenticated user)', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.getActiveCatalog)).toBeUndefined();
     });
   });
 

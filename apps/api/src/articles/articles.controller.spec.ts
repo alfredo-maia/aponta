@@ -3,7 +3,8 @@ import { Reflector } from '@nestjs/core';
 import { Role } from '@prisma/client';
 import { ArticlesController } from './articles.controller';
 import { ArticlesService } from './articles.service';
-import { ROLES_KEY } from '../auth/decorators/roles.decorator';
+import { PERMISSIONS_KEY } from '../auth/decorators/require-permission.decorator';
+import { PermissionsService } from '../permissions/permissions.service';
 
 const mockArticlesService = {
   findAll: jest.fn(),
@@ -21,6 +22,7 @@ describe('ArticlesController', () => {
       controllers: [ArticlesController],
       providers: [
         { provide: ArticlesService, useValue: mockArticlesService },
+        { provide: PermissionsService, useValue: { hasPermission: jest.fn() } },
         Reflector,
       ],
     }).compile();
@@ -33,35 +35,31 @@ describe('ArticlesController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('@Roles metadata', () => {
-    it('requires AGENT, AGENT_MASTER or ADMIN on create (CLIENT cannot author articles)', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.create)).toEqual([
-        Role.AGENT,
-        Role.AGENT_MASTER,
-        Role.ADMIN,
+  describe('@RequirePermission metadata', () => {
+    it('requires MANAGE_KNOWLEDGE_BASE on create', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.create)).toEqual([
+        'MANAGE_KNOWLEDGE_BASE',
       ]);
     });
 
-    it('requires AGENT, AGENT_MASTER or ADMIN on update', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.update)).toEqual([
-        Role.AGENT,
-        Role.AGENT_MASTER,
-        Role.ADMIN,
+    it('requires MANAGE_KNOWLEDGE_BASE on update', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.update)).toEqual([
+        'MANAGE_KNOWLEDGE_BASE',
       ]);
     });
 
-    it('requires strict ADMIN on remove', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.remove)).toEqual([
-        Role.ADMIN,
+    it('requires MANAGE_KNOWLEDGE_BASE on remove', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.remove)).toEqual([
+        'MANAGE_KNOWLEDGE_BASE',
       ]);
     });
 
-    it('has no @Roles restriction on findAll', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.findAll)).toBeUndefined();
+    it('has no @RequirePermission restriction on findAll', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.findAll)).toBeUndefined();
     });
 
-    it('has no @Roles restriction on findOne (same public/optional-auth shape as findAll)', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.findOne)).toBeUndefined();
+    it('has no @RequirePermission restriction on findOne (same public/optional-auth shape as findAll)', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.findOne)).toBeUndefined();
     });
   });
 

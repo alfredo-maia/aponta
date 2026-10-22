@@ -4,9 +4,10 @@ import { ServiceDesksController } from './service-desks.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { HolidaysImportService } from './holidays-import.service';
 import { TicketStagesService } from './ticket-stages.service';
+import { PermissionsModule } from '../permissions/permissions.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, PermissionsModule],
   controllers: [ServiceDesksController],
   providers: [ServiceDesksService, HolidaysImportService, TicketStagesService],
   exports: [ServiceDesksService, TicketStagesService],

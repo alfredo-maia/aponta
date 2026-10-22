@@ -13,13 +13,12 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { randomUUID } from 'crypto';
-import { Role } from '@prisma/client';
 import { resolveSafeUploadExtension } from '../common/safe-upload-extension';
 import { ArticlesService } from '../articles/articles.service';
 import { KnowledgeAttachmentsService } from './knowledge-attachments.service';
 import { OptionalJwtOrTokenAuthGuard } from '../auth/guards/optional-jwt-or-token-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 interface AuthenticatedRequest {
@@ -47,8 +46,8 @@ const ALLOWED_MIME = [
 /**
  * Mirrors ArticlesController's guard shape (see the comment there and on
  * KnowledgeFoldersController): class-level OptionalJwtOrTokenAuthGuard
- * populates request.user without ever rejecting, so RolesGuard on the
- * write handlers below can actually see a role to check.
+ * populates request.user without ever rejecting, so PermissionsGuard on
+ * the write handlers below can actually see a user to check.
  */
 @UseGuards(OptionalJwtOrTokenAuthGuard)
 @Controller('articles/:articleId/attachments')
@@ -59,8 +58,8 @@ export class KnowledgeAttachmentsController {
   ) {}
 
   @Post()
-  @UseGuards(RolesGuard)
-  @Roles(Role.AGENT, Role.AGENT_MASTER, Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_KNOWLEDGE_BASE')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
@@ -113,8 +112,8 @@ export class KnowledgeAttachmentsController {
   }
 
   @Delete(':attachmentId')
-  @UseGuards(RolesGuard)
-  @Roles(Role.AGENT, Role.AGENT_MASTER, Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_KNOWLEDGE_BASE')
   async remove(
     @Param('articleId') articleId: string,
     @Param('attachmentId') attachmentId: string,

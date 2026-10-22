@@ -7,12 +7,11 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { Role } from '@prisma/client';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 interface AuthenticatedRequest {
@@ -21,11 +20,11 @@ interface AuthenticatedRequest {
 
 /**
  * Comment timeline endpoints, nested under the ticket resource.
- * Currently restricted to AGENT and ADMIN roles per business requirements.
+ * Requires VIEW_ADD_INTERNAL_COMMUNICATION (DMTE-84, Tarefa 2).
  */
 @Controller('tickets')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.AGENT, Role.ADMIN)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+@RequirePermission('VIEW_ADD_INTERNAL_COMMUNICATION')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 

@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
 import { GUARDS_METADATA } from '@nestjs/common/constants';
-import { Role } from '@prisma/client';
 import { PermissionGroupsController } from './permission-groups.controller';
 import { PermissionGroupsService } from './permission-groups.service';
-import { ROLES_KEY } from '../auth/decorators/roles.decorator';
+import { PERMISSIONS_KEY } from '../auth/decorators/require-permission.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { PermissionsService } from '../permissions/permissions.service';
 
 const mockService = {
   findAll: jest.fn(),
@@ -29,6 +29,7 @@ describe('PermissionGroupsController', () => {
       controllers: [PermissionGroupsController],
       providers: [
         { provide: PermissionGroupsService, useValue: mockService },
+        { provide: PermissionsService, useValue: { hasPermission: jest.fn() } },
         Reflector,
       ],
     }).compile();
@@ -41,14 +42,14 @@ describe('PermissionGroupsController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('registers JwtAuthGuard and RolesGuard at the class level', () => {
+  it('registers JwtAuthGuard and PermissionsGuard at the class level', () => {
     expect(Reflect.getMetadata(GUARDS_METADATA, PermissionGroupsController)).toEqual([
       JwtAuthGuard,
-      RolesGuard,
+      PermissionsGuard,
     ]);
   });
 
-  it('requires ADMIN on every handler', () => {
+  it('requires MANAGE_PERMISSION_GROUPS on every handler', () => {
     const handlers = [
       controller.getCatalog,
       controller.findAll,
@@ -64,7 +65,7 @@ describe('PermissionGroupsController', () => {
     ];
 
     for (const handler of handlers) {
-      expect(Reflect.getMetadata(ROLES_KEY, handler)).toEqual([Role.ADMIN]);
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, handler)).toEqual(['MANAGE_PERMISSION_GROUPS']);
     }
   });
 

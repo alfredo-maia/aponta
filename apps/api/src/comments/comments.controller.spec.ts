@@ -4,8 +4,9 @@ import { Role } from '@prisma/client';
 import { CommentsController } from './comments.controller';
 import { CommentsService } from './comments.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { ROLES_KEY } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { PERMISSIONS_KEY } from '../auth/decorators/require-permission.decorator';
+import { PermissionsService } from '../permissions/permissions.service';
 
 const mockCommentsService = {
   create: jest.fn(),
@@ -18,7 +19,10 @@ describe('CommentsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CommentsController],
-      providers: [{ provide: CommentsService, useValue: mockCommentsService }],
+      providers: [
+        { provide: CommentsService, useValue: mockCommentsService },
+        { provide: PermissionsService, useValue: { hasPermission: jest.fn() } },
+      ],
     }).compile();
 
     controller = module.get<CommentsController>(CommentsController);
@@ -66,11 +70,11 @@ describe('CommentsController', () => {
       ).toContain(JwtAuthGuard);
     });
 
-    it('does not register RolesGuard on any handler (role rules live in the service)', () => {
+    it('does not register PermissionsGuard on any handler (required at the class level)', () => {
       for (const handler of [controller.create, controller.findByTicket]) {
         const guards = Reflect.getMetadata(GUARDS_METADATA, handler) ?? [];
-        expect(guards).not.toContain(RolesGuard);
-        expect(Reflect.getMetadata(ROLES_KEY, handler)).toBeUndefined();
+        expect(guards).not.toContain(PermissionsGuard);
+        expect(Reflect.getMetadata(PERMISSIONS_KEY, handler)).toBeUndefined();
       }
     });
   });

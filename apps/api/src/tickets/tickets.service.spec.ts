@@ -1113,10 +1113,10 @@ describe('TicketsService', () => {
     });
 
     // Note: CLIENT is blocked from ever reaching changeStatus() at the route
-    // level (JwtAuthGuard + RolesGuard(AGENT, ADMIN) on the controller
-    // method) — see tickets.controller.spec.ts for that assertion. There is
-    // no route through which a CLIENT-authenticated request invokes this
-    // service method at all.
+    // level (JwtOrTokenAuthGuard + PermissionsGuard requiring EDIT_TICKETS
+    // on the controller method) — see tickets.controller.spec.ts for that
+    // assertion. There is no route through which a CLIENT-authenticated
+    // request invokes this service method at all.
   });
 
   describe('audit trail', () => {

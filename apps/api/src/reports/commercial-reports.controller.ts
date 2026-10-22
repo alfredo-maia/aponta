@@ -1,10 +1,9 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { IsOptional, IsUUID, Matches } from 'class-validator';
-import { Role } from '@prisma/client';
 import { CommercialReportsService } from './commercial-reports.service';
 import { JwtOrTokenAuthGuard } from '../auth/guards/jwt-or-token-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUser, CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 export class CommercialFilterDto {
@@ -13,8 +12,8 @@ export class CommercialFilterDto {
 }
 
 @Controller('reports/commercial')
-@UseGuards(JwtOrTokenAuthGuard, RolesGuard)
-@Roles(Role.ADMIN)
+@UseGuards(JwtOrTokenAuthGuard, PermissionsGuard)
+@RequirePermission('VIEW_CLIENT_CONSUMPTION_STATEMENT_REPORT')
 export class CommercialReportsController {
   constructor(private readonly service: CommercialReportsService) {}
   @Get() get(@CurrentUser() user: CurrentUserPayload, @Query() filters: CommercialFilterDto) {

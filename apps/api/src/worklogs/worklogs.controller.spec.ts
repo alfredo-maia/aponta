@@ -3,6 +3,7 @@ import { Role } from '@prisma/client';
 import { WorklogsController } from './worklogs.controller';
 import { WorklogsService } from './worklogs.service';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
+import { PermissionsService } from '../permissions/permissions.service';
 
 describe('WorklogsController', () => {
   let controller: WorklogsController;
@@ -31,7 +32,10 @@ describe('WorklogsController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [WorklogsController],
-      providers: [{ provide: WorklogsService, useValue: service }],
+      providers: [
+        { provide: WorklogsService, useValue: service },
+        { provide: PermissionsService, useValue: { hasPermission: jest.fn() } },
+      ],
     }).compile();
 
     controller = module.get<WorklogsController>(WorklogsController);

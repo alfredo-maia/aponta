@@ -1,30 +1,33 @@
 import { Controller, Get, Patch, Param, Body, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@prisma/client';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_USERS')
   async findAll() {
     return this.usersService.findAll();
   }
 
+  // Agent-assignment dropdown: any user who can work tickets needs to see
+  // who tickets can be assigned to, so this rides VIEW_AND_OPEN_TICKETS
+  // rather than MANAGE_USERS (which would wrongly require admin-grade
+  // access just to populate an assignee picker).
   @Get('agents')
-  @Roles(Role.AGENT, Role.ADMIN)
+  @RequirePermission('VIEW_AND_OPEN_TICKETS')
   async getAgents() {
     return this.usersService.findAgents();
   }
 
   @Patch(':id')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_USERS')
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.updateAdminFields(id, updateUserDto);
   }

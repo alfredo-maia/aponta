@@ -93,8 +93,8 @@ export class ArticlesService {
    * article doesn't exist, mirroring how AttachmentsController leans on
    * TicketsService.findOne before accepting an upload. Deliberately a
    * plain existence check (no visibility filter) — the attachments
-   * endpoints already gate who can reach them via RolesGuard
-   * (AGENT/AGENT_MASTER/ADMIN only), so there's no anonymous/CLIENT path
+   * endpoints already gate who can reach them via PermissionsGuard
+   * (MANAGE_KNOWLEDGE_BASE only), so there's no anonymous/CLIENT path
    * that could use this to probe for private article IDs.
    */
   findById(id: string) {

@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
-import { Role } from '@prisma/client';
 import { KnowledgeCatalogController } from './knowledge-catalog.controller';
 import { KnowledgeCatalogService } from './knowledge-catalog.service';
-import { ROLES_KEY } from '../auth/decorators/roles.decorator';
+import { PERMISSIONS_KEY } from '../auth/decorators/require-permission.decorator';
+import { PermissionsService } from '../permissions/permissions.service';
 
 const mockKnowledgeCatalogService = {
   findAll: jest.fn(),
@@ -21,6 +21,7 @@ describe('KnowledgeCatalogController', () => {
       controllers: [KnowledgeCatalogController],
       providers: [
         { provide: KnowledgeCatalogService, useValue: mockKnowledgeCatalogService },
+        { provide: PermissionsService, useValue: { hasPermission: jest.fn() } },
         Reflector,
       ],
     }).compile();
@@ -33,33 +34,31 @@ describe('KnowledgeCatalogController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('@Roles metadata', () => {
-    it('has no @Roles restriction on findAll (public/optional-auth browsing)', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.findAll)).toBeUndefined();
+  describe('@RequirePermission metadata', () => {
+    it('has no @RequirePermission restriction on findAll (public/optional-auth browsing)', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.findAll)).toBeUndefined();
     });
 
-    it('has no @Roles restriction on findOne', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.findOne)).toBeUndefined();
+    it('has no @RequirePermission restriction on findOne', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.findOne)).toBeUndefined();
     });
 
-    it('requires AGENT, AGENT_MASTER or ADMIN on create', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.create)).toEqual([
-        Role.AGENT,
-        Role.AGENT_MASTER,
-        Role.ADMIN,
+    it('requires MANAGE_SERVICE_CATALOGS on create', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.create)).toEqual([
+        'MANAGE_SERVICE_CATALOGS',
       ]);
     });
 
-    it('requires AGENT, AGENT_MASTER or ADMIN on update', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.update)).toEqual([
-        Role.AGENT,
-        Role.AGENT_MASTER,
-        Role.ADMIN,
+    it('requires MANAGE_SERVICE_CATALOGS on update', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.update)).toEqual([
+        'MANAGE_SERVICE_CATALOGS',
       ]);
     });
 
-    it('requires strict ADMIN on remove', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.remove)).toEqual([Role.ADMIN]);
+    it('requires MANAGE_SERVICE_CATALOGS on remove', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.remove)).toEqual([
+        'MANAGE_SERVICE_CATALOGS',
+      ]);
     });
   });
 

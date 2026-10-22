@@ -1,10 +1,9 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { IsDateString, IsInt, IsUUID, Max, Min } from 'class-validator';
-import { Role } from '@prisma/client';
 import { CostRatesService } from './cost-rates.service';
 import { JwtOrTokenAuthGuard } from '../auth/guards/jwt-or-token-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUser, CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 export class CreateCostRateDto {
@@ -14,8 +13,8 @@ export class CreateCostRateDto {
 }
 
 @Controller('contracts/cost-rates')
-@UseGuards(JwtOrTokenAuthGuard, RolesGuard)
-@Roles(Role.ADMIN)
+@UseGuards(JwtOrTokenAuthGuard, PermissionsGuard)
+@RequirePermission('MANAGE_BILLING')
 export class CostRatesController {
   constructor(private readonly service: CostRatesService) {}
   @Get() list(@CurrentUser() user: CurrentUserPayload) { return this.service.list(user); }

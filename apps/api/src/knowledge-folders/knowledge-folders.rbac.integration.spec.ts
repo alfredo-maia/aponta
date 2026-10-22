@@ -12,15 +12,18 @@ import { JwtStrategy } from '../auth/jwt.strategy';
 import { ApiTokenStrategy } from '../auth/api-token.strategy';
 import { UsersService } from '../users/users.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { PermissionsService } from '../permissions/permissions.service';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
 
 /**
  * Real HTTP-level integration test proving RBAC is actually wired on
- * KnowledgeFoldersController - not just that @Roles() decorators exist.
+ * KnowledgeFoldersController - not just that @RequirePermission()
+ * decorators exist.
  *
  * Code review caught a real bug here: the controller originally had no
  * class-level auth guard (unlike every other RBAC-protected controller,
  * e.g. ArticlesController, CommentsController), so request.user was never
- * populated and RolesGuard rejected every caller with 403 - including a
+ * populated and the guard rejected every caller with 403 - including a
  * legitimate ADMIN holding a valid JWT. OptionalJwtOrTokenAuthGuard was
  * added at the class level to fix it (see knowledge-folders.controller.ts).
  */
@@ -71,9 +74,20 @@ describe('KnowledgeFoldersController RBAC (real HTTP)', () => {
       providers: [
         JwtStrategy,
         ApiTokenStrategy,
+        PermissionsGuard,
+        PermissionsService,
         { provide: UsersService, useValue: usersService },
         { provide: KnowledgeFoldersService, useValue: knowledgeFoldersService },
-        { provide: PrismaService, useValue: { apiToken: { findFirst: jest.fn().mockResolvedValue(null) } } },
+        {
+          provide: PrismaService,
+          useValue: {
+            apiToken: { findFirst: jest.fn().mockResolvedValue(null) },
+            // CLIENT holds no PermissionGroup link, so getEffectivePermissions
+            // resolves to an empty set and MANAGE_KNOWLEDGE_BASE is denied -
+            // ADMIN never reaches this lookup (PermissionsGuard bypass).
+            user: { findUnique: jest.fn().mockResolvedValue(null) },
+          },
+        },
       ],
     }).compile();
 
