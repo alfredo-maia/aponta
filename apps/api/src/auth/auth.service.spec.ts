@@ -107,6 +107,7 @@ describe('AuthService', () => {
         extension: null,
         role: mockUser.role,
         organizationId: mockUser.organizationId,
+        technicalGroupId: null,
         createdAt: mockUser.createdAt,
         updatedAt: mockUser.updatedAt,
       };

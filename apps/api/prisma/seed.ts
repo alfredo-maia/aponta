@@ -25,8 +25,64 @@
 import { PrismaClient, Role, AttendanceType } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import * as bcrypt from 'bcryptjs';
+import { PERMISSION_KEYS } from '../src/permission-groups/permission-catalog';
 
 const SALT_ROUNDS = 10;
+
+/**
+ * DMTE-84 (Tarefa 1): one default PermissionGroup per legacy Role enum
+ * value, so every existing user has a real, visible permission group the
+ * moment the feature ships — not an empty list. ADMIN gets every catalog
+ * permission; AGENT gets the operational subset; CLIENT gets nothing (the
+ * client portal's own ability checks are unrelated to this catalog).
+ */
+const DEFAULT_PERMISSION_GROUPS: Record<Role, { description: string; permissions: string[] }> = {
+  [Role.ADMIN]: {
+    description: 'Acesso administrativo completo (grupo padrão migrado do papel ADMIN)',
+    permissions: [...PERMISSION_KEYS],
+  },
+  [Role.AGENT_MASTER]: {
+    description: 'Gestão de atendimento (grupo padrão migrado do papel AGENT_MASTER)',
+    permissions: [
+      'VIEW_AND_OPEN_TICKETS',
+      'CREATE_EDIT_WORKLOGS',
+      'EDIT_TICKETS',
+      'EDIT_ALL_WORKLOGS',
+      'VIEW_ADD_INTERNAL_COMMUNICATION',
+      'MANAGE_KNOWLEDGE_BASE',
+      'PAUSE_RESUME_SLA',
+      'ACCESS_CHAT',
+      'VIEW_AGENT_REPORTS',
+      'VIEW_USERS_IN_AGENT_REPORTS',
+    ],
+  },
+  [Role.AGENT]: {
+    description: 'Atendimento operacional (grupo padrão migrado do papel AGENT)',
+    permissions: [
+      'VIEW_AND_OPEN_TICKETS',
+      'CREATE_EDIT_WORKLOGS',
+      'EDIT_TICKETS',
+      'VIEW_ADD_INTERNAL_COMMUNICATION',
+      'ACCESS_CHAT',
+    ],
+  },
+  [Role.CLIENT_MASTER]: {
+    description: 'Cliente com visão da organização (grupo padrão migrado do papel CLIENT_MASTER)',
+    permissions: ['ACCESS_CLIENT_PORTAL', 'VIEW_ALL_CLIENT_TICKETS', 'UPLOAD_TICKET_ATTACHMENTS'],
+  },
+  [Role.CLIENT]: {
+    description: 'Cliente isolado (grupo padrão migrado do papel CLIENT)',
+    permissions: ['ACCESS_CLIENT_PORTAL', 'UPLOAD_TICKET_ATTACHMENTS'],
+  },
+};
+
+const ROLE_GROUP_NAME: Record<Role, string> = {
+  [Role.ADMIN]: 'Administrador',
+  [Role.AGENT_MASTER]: 'Gerente de Atendimento',
+  [Role.AGENT]: 'Atendente',
+  [Role.CLIENT_MASTER]: 'Cliente Master',
+  [Role.CLIENT]: 'Cliente',
+};
 
 const SEED_AGENT = {
   name: 'Seed Agent',
@@ -124,6 +180,42 @@ async function main() {
     console.log(
       `Assigned ${user.email} as agent of: ${serviceDesk.name}, ${secondaryServiceDesk.name}`,
     );
+
+    // DMTE-84 (Tarefa 1): seed one default PermissionGroup per Role and link
+    // each seeded user to the group matching their own role, so the new
+    // Configurações > Usuários > Grupos de permissões screen has real data
+    // from the very first run instead of an empty list.
+    const roleToGroup = new Map<Role, { id: string }>();
+    for (const role of Object.values(Role)) {
+      const name = ROLE_GROUP_NAME[role];
+      let group = await prisma.permissionGroup.findFirst({ where: { name } });
+      if (!group) {
+        group = await prisma.permissionGroup.create({
+          data: {
+            name,
+            description: DEFAULT_PERMISSION_GROUPS[role].description,
+            permissions: DEFAULT_PERMISSION_GROUPS[role].permissions,
+          },
+        });
+        console.log(`Created permission group: ${group.name}`);
+      } else {
+        console.log(`Permission group already exists: ${group.name}`);
+      }
+      roleToGroup.set(role, group);
+    }
+
+    for (const seededUser of [user, admin]) {
+      const group = roleToGroup.get(seededUser.role);
+      if (!group) continue;
+      await prisma.permissionGroupUser.upsert({
+        where: {
+          permissionGroupId_userId: { permissionGroupId: group.id, userId: seededUser.id },
+        },
+        update: {},
+        create: { permissionGroupId: group.id, userId: seededUser.id },
+      });
+    }
+    console.log('Linked seeded users to their default permission group');
 
     // Seed sample ticket and worklogs if needed (paridade com critério DMTE-12)
     let sampleTicket = await prisma.ticket.findFirst({
