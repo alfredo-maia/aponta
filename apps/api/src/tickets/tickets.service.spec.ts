@@ -733,6 +733,219 @@ describe('TicketsService', () => {
         totalPages: 2,
       });
     });
+
+    it('filters by protocol substring via "number" (Busca avançada)', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { number: '0007' },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: { protocol: { contains: '0007', mode: 'insensitive' } },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('filters by title substring via "titleContains" (Busca avançada)', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { titleContains: 'impressora' },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: { title: { contains: 'impressora', mode: 'insensitive' } },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('filters by requester name/email substring via "requesterQuery" (Busca avançada)', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { requesterQuery: 'maria' },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: {
+          requester: {
+            OR: [
+              { name: { contains: 'maria', mode: 'insensitive' } },
+              { email: { contains: 'maria', mode: 'insensitive' } },
+            ],
+          },
+        },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('filters by a specific agentId (Busca avançada "Atendente")', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { agentId: 'agent-7' },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: { agentId: 'agent-7' },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('filters by a list of agentIds (Kanban avatar filter, multi-select)', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { agentIds: ['agent-1', 'agent-2'] },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: { agentId: { in: ['agent-1', 'agent-2'] } },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('"mine=true" wins over an explicit agentId/agentIds (prevents a client faking another agent\'s queue)', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { mine: 'true', agentId: 'someone-else' },
+        { id: 'agent-1', role: Role.AGENT },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ agentId: 'agent-1' }) }),
+      );
+    });
+
+    it('filters by stageId (Busca avançada "Estágio")', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { stageId: 'stage-1' },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: { stageId: 'stage-1' },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('filters by a createdAt date range when dateField is createdAt (or omitted)', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { dateFrom: '2026-01-01', dateTo: '2026-01-31' },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: {
+          createdAt: {
+            gte: new Date('2026-01-01'),
+            lte: new Date('2026-01-31'),
+          },
+        },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('filters by a closedAt date range when dateField is closedAt', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { dateField: 'closedAt', dateFrom: '2026-02-01', dateTo: '2026-02-28' },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: {
+          closedAt: {
+            gte: new Date('2026-02-01'),
+            lte: new Date('2026-02-28'),
+          },
+        },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('sorts by an allow-listed field and direction via sortBy/sortDir', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { sortBy: 'title', sortDir: 'asc' },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: {},
+        skip: 0,
+        take: 20,
+        orderBy: { title: 'asc' },
+      });
+    });
+
+    it('ignores a sortBy field not on the allow-list and falls back to createdAt desc', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { sortBy: 'description' as any, sortDir: 'asc' },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: {},
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('AC10: a CLIENT forcing agentId/organizationId in the query still only gets their own tickets', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { agentId: 'someone-else', organizationId: 'org-not-mine' },
+        { id: 'client-1', role: Role.CLIENT },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: {
+          requesterId: 'client-1',
+          agentId: 'someone-else',
+          requester: { organizationId: 'org-not-mine' },
+        },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+      // requesterId: 'client-1' is ANDed with the attacker-supplied filters,
+      // so Prisma can never return a row that isn't also the client's own —
+      // the base tenant scope always wins regardless of what the client sends.
+    });
   });
 
   describe('findOne', () => {
@@ -1083,7 +1296,11 @@ describe('TicketsService', () => {
 
       expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
         where: { id: 't1' },
-        data: { status: TicketStatus.RESOLVED, csatToken: expect.any(String) },
+        data: {
+          status: TicketStatus.RESOLVED,
+          csatToken: expect.any(String),
+          closedAt: expect.any(Date),
+        },
         include: { requester: { select: { email: true } } },
       });
     });
@@ -1107,9 +1324,55 @@ describe('TicketsService', () => {
 
       expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
         where: { id: 't1' },
-        data: { status: TicketStatus.RESOLVED },
+        data: { status: TicketStatus.RESOLVED, closedAt: expect.any(Date) },
         include: { requester: { select: { email: true } } },
       });
+    });
+
+    it('sets closedAt when transitioning to CLOSED (Busca avançada "Data de Fechamento", D8/Q1)', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.RESOLVED,
+        csatToken: null,
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.CLOSED,
+      });
+
+      await service.changeStatus('t1', TicketStatus.CLOSED, {
+        id: 'agent-1',
+        role: Role.AGENT,
+      });
+
+      expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
+        where: { id: 't1' },
+        data: { status: TicketStatus.CLOSED, closedAt: expect.any(Date) },
+        include: { requester: { select: { email: true } } },
+      });
+    });
+
+    it('clears closedAt when an ADMIN reopens a CLOSED ticket back to OPEN', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.CLOSED,
+        closedAt: new Date('2026-01-01T00:00:00.000Z'),
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.OPEN,
+      });
+
+      await service.changeStatus('t1', TicketStatus.OPEN, {
+        id: 'admin-1',
+        role: Role.ADMIN,
+      });
+
+      expect(mockPrismaService.ticket.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ closedAt: null }),
+        }),
+      );
     });
 
     // Note: CLIENT is blocked from ever reaching changeStatus() at the route
@@ -1357,7 +1620,7 @@ describe('TicketsService', () => {
 
       expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
         where: { id: 't1' },
-        data: { status: TicketStatus.CLOSED },
+        data: { status: TicketStatus.CLOSED, closedAt: expect.any(Date) },
         include: { requester: { select: { email: true } } },
       });
       expect(mockPrismaService.ticketAudit.create).toHaveBeenCalledWith({
