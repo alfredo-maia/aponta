@@ -1,7 +1,9 @@
+import type { MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
 import type { Ticket, TicketPriority, TicketStatus } from '../../hooks/useTickets';
 import { SlaBadge } from './SlaBadge';
 import { EzTag } from '../ds';
+import { useOpenInTab } from '../../contexts/TabsContext';
 
 export const statusLabels: Record<TicketStatus, string> = {
   OPEN: 'Aberto',
@@ -53,15 +55,25 @@ export function TicketCard({ ticket }: TicketCardProps) {
   const hasSlaBadges = Boolean(
     ticket.responseSlaStatus || ticket.resolveSlaStatus,
   );
+  const openInTab = useOpenInTab();
+  const path = `/tickets/${ticket.id}`;
+  const tabTitle = `#${ticket.protocol} - ${ticket.title}`;
+
+  // Internal navigation opens/activates a workspace tab instead of a real
+  // browser tab (D2) — but Ctrl/Cmd/Shift+click or a middle-click must
+  // still fall through to the anchor's native "open in a new browser tab"
+  // behavior, so only a plain left click is intercepted here.
+  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) {
+      return;
+    }
+    event.preventDefault();
+    openInTab(path, tabTitle);
+  };
 
   return (
     <li className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-      <Link
-        to={`/tickets/${ticket.id}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block"
-      >
+      <Link to={path} onClick={handleClick} className="block">
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0 space-y-1">
             <span className="font-mono text-xs text-gray-500">

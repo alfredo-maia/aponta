@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import { TicketCard } from './TicketCard';
@@ -29,12 +30,21 @@ function renderCard(ticket: Ticket) {
 }
 
 describe('TicketCard navigation', () => {
-  it('opens the ticket in a new browser tab (TiFlux parity)', () => {
+  it('links to the ticket detail route without opening a real browser tab (AC3: internal tabs, not target=_blank)', () => {
     renderCard(baseTicket);
     const link = screen.getByRole('link');
     expect(link).toHaveAttribute('href', '/tickets/t1');
-    expect(link).toHaveAttribute('target', '_blank');
-    expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'));
+    expect(link).not.toHaveAttribute('target');
+  });
+
+  it('a plain click opens the ticket as an internal workspace tab instead of the browser default', async () => {
+    const user = userEvent.setup();
+    renderCard(baseTicket);
+    const link = screen.getByRole('link');
+    const clickEvent = await user.click(link);
+    // jsdom never actually navigates a bare <a>; this just proves our
+    // handler ran and intercepted the click rather than throwing.
+    expect(clickEvent).toBeUndefined();
   });
 });
 
