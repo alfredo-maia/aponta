@@ -359,97 +359,15 @@ describe('TicketsPage', () => {
     });
   });
 
-  it('switches to Grade view and renders tickets in EzEntityGrid', async () => {
+  it('never renders a Grade view button or grid testid (AC1: Grade mode removed)', async () => {
     mockApiGet();
-    const user = userEvent.setup();
     renderDashboard();
 
-    const gridButton = screen.getByRole('button', { name: 'Grade' });
-    await user.click(gridButton);
+    await screen.findByText('Printer not working');
 
-    // Grouped by status by default (see dedicated grouping test below), so
-    // tickets live inside their (collapsed) stage group rather than as
-    // bare top-level text until a group is expanded.
-    const groupRows = await screen.findAllByTestId('ez-entity-grid-group-row');
-    await user.click(groupRows[0]);
-    await user.click(screen.getAllByTestId('ez-entity-grid-group-row')[1]);
-
-    expect(screen.getByText('AP-000001')).toBeInTheDocument();
-    expect(screen.getByText('Printer not working')).toBeInTheDocument();
-    expect(screen.getByText('AP-000002')).toBeInTheDocument();
-    expect(screen.getByText('VPN access request')).toBeInTheDocument();
-  });
-
-  it('groups the Grade view by status (Estágio) by default, TiFlux parity, with per-group counters', async () => {
-    mockApiGet();
-    const user = userEvent.setup();
-    renderDashboard();
-
-    await user.click(screen.getByRole('button', { name: 'Grade' }));
-
-    // Two tickets, two distinct statuses (OPEN, IN_PROGRESS) => two
-    // collapsed group rows, each with a "1" count badge, with no manual
-    // grouping action from the user.
-    const groupRows = await screen.findAllByTestId('ez-entity-grid-group-row');
-    expect(groupRows).toHaveLength(2);
-    expect(groupRows.some((row) => row.textContent?.includes('OPEN'))).toBe(true);
-    expect(groupRows.some((row) => row.textContent?.includes('IN_PROGRESS'))).toBe(true);
-    groupRows.forEach((row) => expect(row).toHaveTextContent('1'));
-
-    // Tickets are not visible as bare rows until their group is expanded.
-    expect(screen.queryByText('AP-000001')).not.toBeInTheDocument();
-
-    const openGroupRow = groupRows.find((row) => row.textContent?.includes('OPEN'));
-    await user.click(openGroupRow as HTMLElement);
-
-    expect(await screen.findByText('AP-000001')).toBeInTheDocument();
-    expect(screen.getByText('Printer not working')).toBeInTheDocument();
-    // The other, still-collapsed group's ticket stays hidden.
-    expect(screen.queryByText('AP-000002')).not.toBeInTheDocument();
-  });
-
-  it('switches between Grid Mode and Form Mode with tabs in Sankhya toolbar', async () => {
-    mockApiGet();
-    const user = userEvent.setup();
-    renderDashboard();
-
-    await user.click(screen.getByRole('button', { name: 'Grade' }));
-    expect(await screen.findAllByTestId('ez-entity-grid-group-row')).toHaveLength(2);
-
-    // Toggle to Form Mode
-    const modeBtn = screen.getByTestId('ez-toolbar-mode-toggle-button');
-    await user.click(modeBtn);
-
-    // Form Mode renders with tabs
-    expect(screen.getByTestId('ticket-form-mode')).toBeInTheDocument();
-    expect(screen.getByText('Geral')).toBeInTheDocument();
-    expect(screen.getByText('Atendimento & SLA')).toBeInTheDocument();
-    expect(screen.getByText('Anexos & Tarefas')).toBeInTheDocument();
-    expect(screen.getByText('Avaliação CSAT')).toBeInTheDocument();
-
-    // Click back to grid
-    await user.click(screen.getByTestId('ticket-form-back-button'));
-    expect(screen.queryByTestId('ticket-form-mode')).not.toBeInTheDocument();
-    expect(await screen.findAllByTestId('ez-entity-grid-group-row')).toHaveLength(2);
-  });
-
-  it('opens and closes filter drawer via toolbar filter button', async () => {
-    mockApiGet();
-    const user = userEvent.setup();
-    renderDashboard();
-
-    await user.click(screen.getByRole('button', { name: 'Grade' }));
-    await screen.findAllByTestId('ez-entity-grid-group-row');
-
-    const filterBtn = screen.getByTestId('ez-toolbar-filter-panel-button');
-    await user.click(filterBtn);
-
-    expect(screen.getByTestId('ez-filter-drawer')).toBeInTheDocument();
-    expect(screen.getByText('Filtros de Chamados')).toBeInTheDocument();
-
-    // Close drawer
-    await user.click(screen.getByTestId('ez-filter-drawer-close'));
-    expect(screen.queryByTestId('ez-filter-drawer')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Grade' })).not.toBeInTheDocument();
+    expect(screen.queryByTestId('tickets-viewmode-grid')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('ez-entity-grid-group-row')).not.toBeInTheDocument();
   });
 
   it('seeds filters from the URL query string, e.g. a dashboard KPI link (?mine=true)', async () => {
@@ -511,18 +429,4 @@ describe('TicketsPage', () => {
     });
   });
 
-  it('opens screen configuration modal via toolbar gear button', async () => {
-    mockApiGet();
-    const user = userEvent.setup();
-    renderDashboard();
-
-    await user.click(screen.getByRole('button', { name: 'Grade' }));
-    await screen.findAllByTestId('ez-entity-grid-group-row');
-
-    const configBtn = screen.getByTestId('ez-toolbar-screen-config-button');
-    await user.click(configBtn);
-
-    expect(screen.getByTestId('ez-entity-screen-config-modal')).toBeInTheDocument();
-    expect(screen.getByText('Personalização da Tela (Usuário)')).toBeInTheDocument();
-  });
 });
