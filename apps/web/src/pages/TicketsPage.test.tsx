@@ -122,7 +122,7 @@ describe('TicketsPage', () => {
     expect(await screen.findByRole('heading', { name: 'Aberto' })).toBeInTheDocument();
   });
 
-  it('should render a card per ticket with protocol, status and priority badges', async () => {
+  it('should render a Kanban card per ticket with protocol, title and status tag (D7)', async () => {
     mockApiGet();
     renderDashboard();
 
@@ -130,17 +130,15 @@ describe('TicketsPage', () => {
     const firstCard = firstTitle.closest('li');
     expect(firstCard).not.toBeNull();
     const first = within(firstCard as HTMLElement);
-    expect(first.getByText('AP-000001')).toBeInTheDocument();
+    expect(first.getByText('#AP-000001')).toBeInTheDocument();
     expect(first.getByText('Aberto')).toBeInTheDocument();
-    expect(first.getByText('Alta')).toBeInTheDocument();
 
     const secondTitle = screen.getByText('VPN access request');
     const secondCard = secondTitle.closest('li');
     expect(secondCard).not.toBeNull();
     const second = within(secondCard as HTMLElement);
-    expect(second.getByText('AP-000002')).toBeInTheDocument();
+    expect(second.getByText('#AP-000002')).toBeInTheDocument();
     expect(second.getByText('Em Andamento')).toBeInTheDocument();
-    expect(second.getByText('Média')).toBeInTheDocument();
   });
 
   it('should show an error state when the tickets request fails', async () => {

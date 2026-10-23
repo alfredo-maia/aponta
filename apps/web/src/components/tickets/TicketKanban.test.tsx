@@ -211,9 +211,9 @@ describe('TicketKanban', () => {
       ];
       renderKanban({ tickets, isLoading: false, isError: false });
 
-      expect(screen.getByText('AP-2026-0001')).toBeInTheDocument();
-      expect(screen.getByText('AP-2026-0002')).toBeInTheDocument();
-      expect(screen.getByText('AP-2026-0003')).toBeInTheDocument();
+      expect(screen.getByText(/AP-2026-0001/)).toBeInTheDocument();
+      expect(screen.getByText(/AP-2026-0002/)).toBeInTheDocument();
+      expect(screen.getByText(/AP-2026-0003/)).toBeInTheDocument();
 
       // "Aberto" column (OPEN) should show count 2, "Em Andamento" should show 1
       const abertoHeading = screen
@@ -327,7 +327,7 @@ describe('TicketKanban', () => {
       // are passed down to the (mocked) Droppable/Draggable render props, which we
       // can't introspect directly through this shallow mock, but we confirm the
       // page renders without crashing and the ticket is still visible read-only.
-      expect(screen.getByText('AP-2026-0001')).toBeInTheDocument();
+      expect(screen.getByText(/AP-2026-0001/)).toBeInTheDocument();
     });
 
     it('does not fetch mesa stages when no mesa is selected (fetches only the Mesa dropdown list)', async () => {
@@ -362,12 +362,12 @@ describe('TicketKanban', () => {
 
       // Card no longer rendered while collapsed, and the column is no
       // longer a valid drop target.
-      expect(screen.queryByText('AP-2026-0001')).not.toBeInTheDocument();
+      expect(screen.queryByText(/AP-2026-0001/)).not.toBeInTheDocument();
       expect(capturedDroppables['OPEN'].isDropDisabled).toBe(true);
 
       fireEvent.click(screen.getByTestId('expand-column'));
 
-      expect(screen.getByText('AP-2026-0001')).toBeInTheDocument();
+      expect(screen.getByText(/AP-2026-0001/)).toBeInTheDocument();
       expect(capturedDroppables['OPEN'].isDropDisabled).toBe(false);
     });
 
@@ -403,7 +403,7 @@ describe('TicketKanban', () => {
 
       fireEvent.click(screen.getByTestId('collapse-column-s-n1'));
 
-      expect(screen.queryByText('AP-2026-0001')).not.toBeInTheDocument();
+      expect(screen.queryByText(/AP-2026-0001/)).not.toBeInTheDocument();
       expect(capturedDroppables['s-n1'].isDropDisabled).toBe(true);
     });
   });

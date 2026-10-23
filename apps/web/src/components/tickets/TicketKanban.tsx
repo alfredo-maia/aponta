@@ -14,7 +14,8 @@ import axios from 'axios';
 import { api } from '../../lib/api';
 import type { Ticket, TicketStatus, TicketsPage } from '../../hooks/useTickets';
 import type { DeskStage } from '../MesaStagesEditor';
-import { TicketCard, statusLabels } from './TicketCard';
+import { statusLabels } from './TicketCard';
+import { TicketKanbanCard } from './TicketKanbanCard';
 import { useAuthStore } from '../../stores/authStore';
 import { EzAlert, EzSpinner, EzTag } from '../ds';
 import { cn } from '../ds/utils';
@@ -530,7 +531,7 @@ export function TicketKanban({
                                     className={`${dragSnapshot.isDragging ? 'opacity-70 rotate-2 scale-105' : ''} transition-transform`}
                                     style={dragProvided.draggableProps.style}
                                   >
-                                    <TicketCard ticket={ticket} />
+                                    <TicketKanbanCard ticket={ticket} />
                                   </div>
                                 )}
                               </Draggable>
@@ -632,7 +633,7 @@ export function TicketKanban({
                                 className={`${dragSnapshot.isDragging ? 'opacity-70 rotate-2 scale-105' : ''} transition-transform`}
                                 style={provided.draggableProps.style}
                               >
-                                <TicketCard ticket={ticket} />
+                                <TicketKanbanCard ticket={ticket} />
                               </div>
                             )}
                           </Draggable>
