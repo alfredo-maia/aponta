@@ -18,6 +18,8 @@ export interface UserScreenConfig {
   };
   viewMode: 'GRID' | 'FORM';
   savedFilters: SavedFilter[];
+  /** Generic "Agrupar por" preference (e.g. Lista de Tickets, D5) — an opaque key the caller defines. */
+  groupBy: string;
 }
 
 const DEFAULT_CONFIG: UserScreenConfig = {
@@ -31,6 +33,7 @@ const DEFAULT_CONFIG: UserScreenConfig = {
   },
   viewMode: 'GRID',
   savedFilters: [],
+  groupBy: '',
 };
 
 function getStorageKey(userId: string | null | undefined, screenId: string): string {
@@ -61,6 +64,7 @@ export function useUserScreenConfig(
     },
     viewMode: initialDefaults?.viewMode ?? DEFAULT_CONFIG.viewMode,
     savedFilters: initialDefaults?.savedFilters ?? DEFAULT_CONFIG.savedFilters,
+    groupBy: initialDefaults?.groupBy ?? DEFAULT_CONFIG.groupBy,
   };
 
   const loadConfig = useCallback((): UserScreenConfig => {
@@ -79,6 +83,7 @@ export function useUserScreenConfig(
         },
         viewMode: parsed.viewMode ?? resolvedDefaults.viewMode,
         savedFilters: Array.isArray(parsed.savedFilters) ? parsed.savedFilters : resolvedDefaults.savedFilters,
+        groupBy: parsed.groupBy ?? resolvedDefaults.groupBy,
       };
     } catch {
       return resolvedDefaults;
@@ -195,6 +200,21 @@ export function useUserScreenConfig(
     [userId, screenId]
   );
 
+  const setGroupBy = useCallback(
+    (groupBy: string) => {
+      setConfig((prev) => {
+        const next: UserScreenConfig = { ...prev, groupBy };
+        try {
+          localStorage.setItem(getStorageKey(userId, screenId), JSON.stringify(next));
+        } catch {
+          // ignore storage error
+        }
+        return next;
+      });
+    },
+    [userId, screenId]
+  );
+
   const saveFilter = useCallback(
     (name: string, criteria: Record<string, any>) => {
       setConfig((prev) => {
@@ -251,6 +271,7 @@ export function useUserScreenConfig(
     setDensity,
     setFormLayout,
     setViewMode,
+    setGroupBy,
     saveFilter,
     deleteFilter,
     restoreDefaults,
