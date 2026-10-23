@@ -13,6 +13,8 @@ export type TicketStatus =
 
 export type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
+export type TicketSource = 'WEB' | 'EMAIL' | 'WHATSAPP';
+
 export type SlaStatus = 'ON_TRACK' | 'AT_RISK' | 'BREACHED';
 
 export interface Ticket {
@@ -22,11 +24,21 @@ export interface Ticket {
   description: string;
   status: TicketStatus;
   priority: TicketPriority;
+  source?: TicketSource;
   requesterId: string;
+  requester?: {
+    id: string;
+    name: string;
+    email: string;
+    organizationId: string | null;
+    organization?: { id: string; name: string } | null;
+  };
   agentId: string | null;
+  agent?: { id: string; name: string } | null;
   serviceDeskId: string;
   responseDeadline: string | null;
   resolveDeadline: string | null;
+  closedAt?: string | null;
   slaPausedAt?: string | null;
   slaAccumulatedPauseTime?: number;
   responseSlaStatus?: SlaStatus | null;

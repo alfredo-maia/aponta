@@ -392,6 +392,24 @@ describe('TicketsPage', () => {
     );
   });
 
+  it('refetches with sortBy/sortDir when a List column header is clicked (D5)', async () => {
+    mockApiGet();
+    const user = userEvent.setup();
+    renderDashboard(['/?view=list']);
+
+    await screen.findByText('Printer not working');
+    vi.mocked(api.get).mockClear();
+    mockApiGet();
+
+    await user.click(screen.getByRole('button', { name: 'Título' }));
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith(
+        expect.stringContaining('/tickets'),
+        expect.objectContaining({ params: expect.objectContaining({ sortBy: 'title', sortDir: 'asc' }) }),
+      );
+    });
+  });
+
   it('navigates to /tickets/search when "Busca avançada" is clicked (AC3)', async () => {
     mockApiGet();
     const user = userEvent.setup();

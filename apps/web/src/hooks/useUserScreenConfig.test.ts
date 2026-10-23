@@ -109,6 +109,24 @@ describe('useUserScreenConfig', () => {
     expect(localStorage.getItem('aponta_screen_config_user-123_tickets')).toBeNull();
   });
 
+  it('persists groupBy per user (D5: Lista "Agrupar por")', () => {
+    const { result } = renderHook(() =>
+      useUserScreenConfig('tickets-list', { groupBy: 'organization' }),
+    );
+
+    expect(result.current.config.groupBy).toBe('organization');
+
+    act(() => {
+      result.current.setGroupBy('stage');
+    });
+
+    expect(result.current.config.groupBy).toBe('stage');
+    const stored = JSON.parse(
+      localStorage.getItem('aponta_screen_config_user-123_tickets-list') || '{}',
+    );
+    expect(stored.groupBy).toBe('stage');
+  });
+
   it('persists columnOrder and savedFilters per user', () => {
     const { result } = renderHook(() => useUserScreenConfig('organizations'));
 

@@ -95,6 +95,12 @@ export function TicketsPage() {
             tickets={tickets}
             isLoading={isLoading}
             isError={isError}
+            totalPages={meta?.totalPages}
+            sortBy={filters.sortBy}
+            sortDir={filters.sortDir}
+            onSortChange={(sortBy, sortDir) =>
+              setFilters((prev) => ({ ...prev, sortBy, sortDir, page: 1 }))
+            }
           />
           {meta && meta.totalPages > 1 && (
             <nav
