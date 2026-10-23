@@ -442,6 +442,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
     });
 
@@ -458,6 +459,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
     });
 
@@ -471,6 +473,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
     });
 
@@ -487,6 +490,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
     });
 
@@ -509,6 +513,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
     });
 
@@ -526,6 +531,7 @@ describe('TicketsService', () => {
         skip: 10,
         take: 10,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
       expect(result).toEqual({
         data: [{ id: 't-1', responseSlaStatus: null, resolveSlaStatus: null }],
@@ -608,6 +614,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
     });
 
@@ -627,6 +634,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
     });
 
@@ -651,6 +659,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
     });
 
@@ -690,6 +699,7 @@ describe('TicketsService', () => {
           status: { notIn: [TicketStatus.RESOLVED, TicketStatus.CLOSED] },
         },
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
       expect(mockPrismaService.ticket.count).not.toHaveBeenCalled();
 
@@ -747,6 +757,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
     });
 
@@ -763,6 +774,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
     });
 
@@ -786,6 +798,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
     });
 
@@ -802,6 +815,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
     });
 
@@ -818,6 +832,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
     });
 
@@ -847,6 +862,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
     });
 
@@ -868,6 +884,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
     });
 
@@ -889,6 +906,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
     });
 
@@ -905,6 +923,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { title: 'asc' },
+        include: expect.any(Object),
       });
     });
 
@@ -921,6 +940,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
     });
 
@@ -941,6 +961,7 @@ describe('TicketsService', () => {
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
       });
       // requesterId: 'client-1' is ANDed with the attacker-supplied filters,
       // so Prisma can never return a row that isn't also the client's own —

@@ -188,6 +188,27 @@ const MAX_PROTOCOL_RETRY_ATTEMPTS = 3;
 const PROTOCOL_SEQUENCE_WIDTH = 4;
 const MAX_PROTOCOL_SEQUENCE = 10 ** PROTOCOL_SEQUENCE_WIDTH - 1;
 
+/**
+ * Relations the ticket List/Kanban need to show real names instead of raw
+ * UUIDs (SPEC DMTE-137 D5/D7: Cliente, Mesa de serviço, Responsável,
+ * Solicitante, Estágio columns/card fields) — shared by both `findAll`
+ * query paths (normal page and the in-memory "overdue" candidate fetch).
+ */
+const TICKET_LIST_INCLUDE = {
+  requester: {
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      organizationId: true,
+      organization: { select: { id: true, name: true } },
+    },
+  },
+  agent: { select: { id: true, name: true } },
+  serviceDesk: { select: { id: true, name: true, displayName: true } },
+  stage: { select: { id: true, name: true } },
+} satisfies Prisma.TicketInclude;
+
 @Injectable()
 export class TicketsService {
   constructor(
@@ -617,6 +638,7 @@ export class TicketsService {
       const candidates = await this.prisma.ticket.findMany({
         where,
         orderBy,
+        include: TICKET_LIST_INCLUDE,
       });
       const breached = candidates
         .map((t) => this.decorateWithSlaStatus(t))
@@ -647,6 +669,7 @@ export class TicketsService {
         skip: (page - 1) * limit,
         take: limit,
         orderBy,
+        include: TICKET_LIST_INCLUDE,
       }),
       this.prisma.ticket.count({ where }),
     ]);
