@@ -100,6 +100,25 @@ export interface TicketFiltersInput {
   overdue?: boolean;
   /** Only tickets not yet RESOLVED/CLOSED — used by the Agenda ticket picker. */
   notClosed?: boolean;
+  /** Busca avançada "Número" — substring do protocolo. */
+  number?: string;
+  /** Busca avançada "Título" — substring do título. */
+  titleContains?: string;
+  /** Busca avançada "Solicitante" — substring de nome/e-mail. */
+  requesterQuery?: string;
+  /** Busca avançada "Atendente". */
+  agentId?: string;
+  /** Kanban: filtro de avatares (multi-seleção). */
+  agentIds?: string[];
+  /** Busca avançada "Estágio" (desabilitado até escolher a Mesa). */
+  stageId?: string;
+  /** Busca avançada "Data": abertura (createdAt, padrão) ou fechamento. */
+  dateField?: 'createdAt' | 'closedAt';
+  dateFrom?: string;
+  dateTo?: string;
+  /** Kanban "Ordenar" / Busca avançada — campo e direção de ordenação. */
+  sortBy?: string;
+  sortDir?: 'asc' | 'desc';
 }
 
 /**
@@ -125,6 +144,17 @@ export function useTickets(filters: TicketFiltersInput = {}) {
     paused,
     overdue,
     notClosed,
+    number,
+    titleContains,
+    requesterQuery,
+    agentId,
+    agentIds,
+    stageId,
+    dateField,
+    dateFrom,
+    dateTo,
+    sortBy,
+    sortDir,
   } = filters;
 
   return useQuery({
@@ -142,6 +172,17 @@ export function useTickets(filters: TicketFiltersInput = {}) {
         paused: paused ?? false,
         overdue: overdue ?? false,
         notClosed: notClosed ?? false,
+        number: number ?? null,
+        titleContains: titleContains ?? null,
+        requesterQuery: requesterQuery ?? null,
+        agentId: agentId ?? null,
+        agentIds: agentIds ?? null,
+        stageId: stageId ?? null,
+        dateField: dateField ?? null,
+        dateFrom: dateFrom ?? null,
+        dateTo: dateTo ?? null,
+        sortBy: sortBy ?? null,
+        sortDir: sortDir ?? null,
       },
     ],
     queryFn: async () => {
@@ -157,6 +198,17 @@ export function useTickets(filters: TicketFiltersInput = {}) {
           ...(paused ? { paused: 'true' } : {}),
           ...(overdue ? { overdue: 'true' } : {}),
           ...(notClosed ? { notClosed: 'true' } : {}),
+          ...(number ? { number } : {}),
+          ...(titleContains ? { titleContains } : {}),
+          ...(requesterQuery ? { requesterQuery } : {}),
+          ...(agentId ? { agentId } : {}),
+          ...(agentIds && agentIds.length > 0 ? { agentIds } : {}),
+          ...(stageId ? { stageId } : {}),
+          ...(dateField ? { dateField } : {}),
+          ...(dateFrom ? { dateFrom } : {}),
+          ...(dateTo ? { dateTo } : {}),
+          ...(sortBy ? { sortBy } : {}),
+          ...(sortDir ? { sortDir } : {}),
           page: page ?? 1,
           limit: 20,
         },

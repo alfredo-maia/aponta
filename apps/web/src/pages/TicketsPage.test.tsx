@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
@@ -63,18 +63,22 @@ function mockApiGet(ticketData: unknown[] = tickets) {
   });
 }
 
-function renderDashboard(initialEntries: string[] = ['/tickets']) {
+function LocationProbe() {
+  const location = useLocation();
+  return <div data-testid="location-probe">{location.pathname + location.search}</div>;
+}
+
+function renderDashboard(initialEntries: string[] = ['/']) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      {/* TicketCard links to the ticket detail route, so a router context is
-          required even though these tests never navigate.
-          `initialEntries` lets tests simulate arriving via a URL that
-          already carries filters, e.g. a dashboard KPI link. */}
       <MemoryRouter initialEntries={initialEntries}>
-        <TicketsPage />
+        <LocationProbe />
+        <Routes>
+          <Route path="/" element={<TicketsPage />} />
+        </Routes>
       </MemoryRouter>
     </QueryClientProvider>,
   );
@@ -91,9 +95,9 @@ describe('TicketsPage', () => {
     renderDashboard();
 
     expect(
-      screen.getByRole('heading', { level: 1 }),
+      screen.getByRole('heading', { level: 1, name: 'Tickets' }),
     ).toBeInTheDocument();
-    
+
     expect(await screen.findByText('Printer not working')).toBeInTheDocument();
   });
 
@@ -153,36 +157,6 @@ describe('TicketsPage', () => {
     ).toBeInTheDocument();
   });
 
-  it('should refetch tickets with query params when filters change', async () => {
-    mockApiGet();
-    const user = userEvent.setup();
-    renderDashboard();
-
-    await screen.findByText('Printer not working');
-    await screen.findByRole('option', { name: 'Suporte N1' });
-
-    // Mock resolve before interaction to avoid unhandled rejections
-    vi.mocked(api.get).mockClear();
-    mockApiGet();
-
-    await user.selectOptions(screen.getByLabelText(/departamento/i), 'sd-1');
-    await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith(expect.stringContaining('/tickets'), expect.objectContaining({
-        params: expect.objectContaining({ serviceDeskId: 'sd-1' }),
-      }));
-    });
-
-    vi.mocked(api.get).mockClear();
-    mockApiGet();
-
-    await user.selectOptions(screen.getByLabelText(/status/i), 'OPEN');
-    await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith(expect.stringContaining('/tickets'), expect.objectContaining({
-        params: expect.objectContaining({ serviceDeskId: 'sd-1', status: 'OPEN' }),
-      }));
-    });
-  });
-
   it('defaults non-CLIENT users to the Kanban view and lets them switch to List', async () => {
     mockApiGet();
     const user = userEvent.setup();
@@ -203,7 +177,7 @@ describe('TicketsPage', () => {
     expect(await screen.findByText('Printer not working')).toBeInTheDocument();
   });
 
-  it('shows "Meus Chamados" title and hides the view toggle entirely for CLIENT users', async () => {
+  it('shows the "Tickets" title and hides the view toggle entirely for CLIENT users (AC2)', async () => {
     useAuthStore.setState({
       token: 'tok',
       user: { sub: 'u1', email: 'client@example.com', role: 'CLIENT', organizationId: null },
@@ -211,42 +185,12 @@ describe('TicketsPage', () => {
     mockApiGet();
     renderDashboard();
 
-    expect(await screen.findByRole('heading', { name: 'Meus Chamados' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Tickets' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Kanban' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Lista' })).not.toBeInTheDocument();
     // CLIENT always gets the flat list, never the Kanban columns.
     expect(screen.queryByRole('heading', { name: 'Aberto' })).not.toBeInTheDocument();
     expect(await screen.findByText('Printer not working')).toBeInTheDocument();
-  });
-
-  it('resets back to page 1 when filters change while on a later page', async () => {
-    vi.mocked(api.get).mockImplementation((url: string) => {
-      if (url === '/service-desks') {
-        return Promise.resolve({ data: serviceDesks });
-      }
-      if (url === '/tickets') {
-        return Promise.resolve({
-          data: { data: tickets, meta: { total: 25, page: 2, totalPages: 3 } },
-        });
-      }
-      return Promise.reject(new Error(`Unexpected GET ${url}`));
-    });
-    const user = userEvent.setup();
-    renderDashboard();
-
-    await user.click(screen.getByRole('button', { name: 'Lista' }));
-    await screen.findByText('Printer not working');
-
-    vi.mocked(api.get).mockClear();
-    mockApiGet();
-    await user.selectOptions(screen.getByLabelText(/status/i), 'OPEN');
-
-    await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith(
-        expect.stringContaining('/tickets'),
-        expect.objectContaining({ params: expect.objectContaining({ page: 1 }) }),
-      );
-    });
   });
 
   it('renders pagination controls in List view and navigates between pages', async () => {
@@ -370,9 +314,19 @@ describe('TicketsPage', () => {
     expect(screen.queryByTestId('ez-entity-grid-group-row')).not.toBeInTheDocument();
   });
 
+  it('never renders the old TicketFilters panel (AC5: migrated to Busca avançada, not duplicated)', async () => {
+    mockApiGet();
+    renderDashboard();
+
+    await screen.findByText('Printer not working');
+
+    expect(screen.queryByTestId('quick-filter-mine')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/departamento/i)).not.toBeInTheDocument();
+  });
+
   it('seeds filters from the URL query string, e.g. a dashboard KPI link (?mine=true)', async () => {
     mockApiGet();
-    renderDashboard(['/tickets?mine=true']);
+    renderDashboard(['/?mine=true']);
 
     await screen.findByText('Printer not working');
 
@@ -384,7 +338,7 @@ describe('TicketsPage', () => {
 
   it('seeds the "overdue" and "unassigned" boolean filters from the URL too', async () => {
     mockApiGet();
-    renderDashboard(['/tickets?overdue=true']);
+    renderDashboard(['/?overdue=true']);
 
     await screen.findByText('Printer not working');
 
@@ -394,39 +348,60 @@ describe('TicketsPage', () => {
     );
   });
 
-  it('reflects a filter change made via the UI back into the URL (bookmarkable/shareable)', async () => {
+  it('keeps the view mode in the URL (?view=) so it is bookmarkable (D3)', async () => {
     mockApiGet();
     const user = userEvent.setup();
-
-    // Probe component rendered alongside TicketsPage to read the
-    // MemoryRouter's current location — the only way to assert the URL
-    // itself (rather than just the outgoing API request) changed.
-    function LocationProbe() {
-      const location = useLocation();
-      return <div data-testid="location-probe">{location.pathname + location.search}</div>;
-    }
-
-    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-    render(
-      <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={['/tickets']}>
-          <LocationProbe />
-          <TicketsPage />
-        </MemoryRouter>
-      </QueryClientProvider>,
-    );
+    renderDashboard();
 
     await screen.findByText('Printer not working');
-    await screen.findByRole('option', { name: 'Suporte N1' });
-    expect(screen.getByTestId('location-probe')).toHaveTextContent('/tickets');
+    await waitFor(() =>
+      expect(screen.getByTestId('location-probe')).toHaveTextContent('view=kanban'),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Lista' }));
+    await waitFor(() =>
+      expect(screen.getByTestId('location-probe')).toHaveTextContent('view=list'),
+    );
+  });
+
+  it('starts in the view mode named by an existing ?view= URL param', async () => {
+    mockApiGet();
+    renderDashboard(['/?view=list']);
+
+    await screen.findByText('Printer not working');
+    expect(screen.queryByRole('heading', { name: 'Aberto' })).not.toBeInTheDocument();
+  });
+
+  it('reflects a search typed in the header back into the URL (bookmarkable/shareable)', async () => {
+    mockApiGet();
+    const user = userEvent.setup();
+    renderDashboard();
+
+    await screen.findByText('Printer not working');
 
     vi.mocked(api.get).mockClear();
     mockApiGet();
 
-    await user.selectOptions(screen.getByLabelText(/departamento/i), 'sd-1');
+    await user.type(screen.getByLabelText(/buscar/i), 'printer');
     await waitFor(() => {
-      expect(screen.getByTestId('location-probe')).toHaveTextContent('serviceDeskId=sd-1');
+      expect(screen.getByTestId('location-probe')).toHaveTextContent('search=printer');
     });
+    expect(api.get).toHaveBeenCalledWith(
+      expect.stringContaining('/tickets'),
+      expect.objectContaining({ params: expect.objectContaining({ search: 'printer' }) }),
+    );
   });
 
+  it('navigates to /tickets/search when "Busca avançada" is clicked (AC3)', async () => {
+    mockApiGet();
+    const user = userEvent.setup();
+    renderDashboard();
+
+    await screen.findByText('Printer not working');
+    await user.click(screen.getByRole('button', { name: 'Busca avançada' }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('location-probe')).toHaveTextContent('/tickets/search'),
+    );
+  });
 });
