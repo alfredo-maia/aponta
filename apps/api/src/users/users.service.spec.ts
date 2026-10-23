@@ -14,6 +14,9 @@ describe('UsersService', () => {
       update: jest.Mock;
       findMany: jest.Mock;
     };
+    serviceDesk: {
+      findMany: jest.Mock;
+    };
   };
 
   beforeEach(async () => {
@@ -22,6 +25,9 @@ describe('UsersService', () => {
         findUnique: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        findMany: jest.fn(),
+      },
+      serviceDesk: {
         findMany: jest.fn(),
       },
     };
@@ -206,23 +212,59 @@ describe('UsersService', () => {
   });
 
   describe('findAgents', () => {
-    it('returns a list of agents and admins mapped to SafeUsers', async () => {
+    it('ADMIN sees every agent/agent_master/admin with no desk scoping (D8/T4)', async () => {
       const mockUsers = [
         { id: '1', email: 'agent@example.com', password: 'hash', createdAt: new Date(), updatedAt: new Date(), role: Role.AGENT, name: 'Agent' },
         { id: '2', email: 'admin@example.com', password: 'hash', createdAt: new Date(), updatedAt: new Date(), role: Role.ADMIN, name: 'Admin' },
       ];
       prisma.user.findMany.mockResolvedValueOnce(mockUsers);
 
-      const result = await service.findAgents();
+      const result = await service.findAgents({ id: 'admin-1', role: Role.ADMIN });
 
       expect(prisma.user.findMany).toHaveBeenCalledWith({
-        where: { role: { in: ['AGENT', 'ADMIN'] } },
+        where: { role: { in: ['AGENT', 'AGENT_MASTER', 'ADMIN'] } },
         orderBy: { name: 'asc' },
       });
+      expect(prisma.serviceDesk.findMany).not.toHaveBeenCalled();
       expect(result).toHaveLength(2);
       expect(result[0]).not.toHaveProperty('password');
       expect(result[0].name).toBe('Agent');
       expect(result[1].name).toBe('Admin');
+    });
+
+    it('AGENT/AGENT_MASTER only see agents of the service desks they can access (D8/T4 — Atendente lista agentes dessas mesas)', async () => {
+      prisma.serviceDesk.findMany.mockResolvedValueOnce([
+        {
+          agents: [{ id: 'agent-1' }],
+          agentGroups: [{ members: [{ id: 'agent-2' }] }],
+        },
+      ]);
+      prisma.user.findMany.mockResolvedValueOnce([
+        { id: 'agent-1', email: 'a1@example.com', password: 'hash', createdAt: new Date(), updatedAt: new Date(), role: Role.AGENT, name: 'Agent 1' },
+      ]);
+
+      await service.findAgents({ id: 'agent-1', role: Role.AGENT });
+
+      expect(prisma.serviceDesk.findMany).toHaveBeenCalledWith({
+        where: {
+          OR: [
+            { agents: { some: { id: 'agent-1' } } },
+            { agentGroups: { some: { members: { some: { id: 'agent-1' } } } } },
+            { allowCrossDeskInteraction: true, active: true },
+          ],
+        },
+        select: {
+          agents: { select: { id: true } },
+          agentGroups: { select: { members: { select: { id: true } } } },
+        },
+      });
+      expect(prisma.user.findMany).toHaveBeenCalledWith({
+        where: {
+          role: { in: ['AGENT', 'AGENT_MASTER', 'ADMIN'] },
+          id: { in: ['agent-1', 'agent-2'] },
+        },
+        orderBy: { name: 'asc' },
+      });
     });
   });
 });
