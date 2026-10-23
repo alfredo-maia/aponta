@@ -5,6 +5,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -164,6 +165,7 @@ function renderKanban(props: {
 
 describe('TicketKanban', () => {
   beforeEach(() => {
+    localStorage.clear();
     useAuthStore.setState({ token: null, user: null });
     capturedOnDragStart = null;
     capturedOnDragEnd = null;
@@ -812,6 +814,91 @@ describe('TicketKanban', () => {
           screen.getByText(/ainda não possui estágios configurados/i),
         ).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('avatares, Ordenar e Configurações (D6/T8)', () => {
+    const ticketsWithAgents = [
+      { ...baseTicket, id: 't1', protocol: 'AP-2026-0001', title: 'B ticket', agentId: 'agent-1', agent: { id: 'agent-1', name: 'Ana Costa' } },
+      { ...baseTicket, id: 't2', protocol: 'AP-2026-0002', title: 'A ticket', status: 'IN_PROGRESS' as const, agentId: 'agent-2', agent: { id: 'agent-2', name: 'Bruno Dias' } },
+      { ...baseTicket, id: 't3', protocol: 'AP-2026-0003', title: 'C ticket', agentId: null },
+    ];
+
+    it('renders one avatar per distinct agent present in the tickets', () => {
+      mockApiGet();
+      renderKanban({ tickets: ticketsWithAgents, isLoading: false, isError: false });
+
+      expect(screen.getByRole('button', { name: /filtrar por ana costa/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /filtrar por bruno dias/i })).toBeInTheDocument();
+    });
+
+    it('clicking an avatar filters the board to that agent\'s tickets (toggle, multi-select)', async () => {
+      mockApiGet();
+      renderKanban({ tickets: ticketsWithAgents, isLoading: false, isError: false });
+
+      expect(screen.getByText(/AP-2026-0001/)).toBeInTheDocument();
+      expect(screen.getByText(/AP-2026-0002/)).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: /filtrar por ana costa/i }));
+
+      expect(screen.getByText(/AP-2026-0001/)).toBeInTheDocument();
+      expect(screen.queryByText(/AP-2026-0002/)).not.toBeInTheDocument();
+
+      // Toggling back off restores the full board.
+      fireEvent.click(screen.getByRole('button', { name: /filtrar por ana costa/i }));
+      expect(screen.getByText(/AP-2026-0002/)).toBeInTheDocument();
+    });
+
+    it('opens "Ordenar", sorts cards by Título asc/desc, and "Limpar" restores the original order', async () => {
+      mockApiGet();
+      renderKanban({ tickets: ticketsWithAgents, isLoading: false, isError: false });
+
+      function openColumnContainer(): HTMLElement {
+        const heading = screen.getByRole('heading', { name: 'Aberto' });
+        return heading.parentElement?.parentElement as HTMLElement;
+      }
+
+      fireEvent.click(screen.getByRole('button', { name: 'Ordenar' }));
+      fireEvent.click(screen.getByRole('button', { name: /^Título/ }));
+
+      const titlesAsc = within(openColumnContainer()).getAllByText(/^[A-Z] ticket$/).map((el) => el.textContent);
+      expect(titlesAsc).toEqual(['B ticket', 'C ticket']);
+
+      fireEvent.click(screen.getByRole('button', { name: /^Título/ }));
+      const titlesDesc = within(openColumnContainer())
+        .getAllByText(/^[A-Z] ticket$/)
+        .map((el) => el.textContent);
+      expect(titlesDesc).toEqual(['C ticket', 'B ticket']);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Limpar ordenação' }));
+      const titlesCleared = within(openColumnContainer())
+        .getAllByText(/^[A-Z] ticket$/)
+        .map((el) => el.textContent);
+      expect(titlesCleared).toEqual(['B ticket', 'C ticket']);
+    });
+
+    it('"Configurações" lets the user group by Responsável instead of Status/Estágio', async () => {
+      mockApiGet();
+      renderKanban({ tickets: ticketsWithAgents, isLoading: false, isError: false });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
+      fireEvent.change(screen.getByLabelText(/agrupar por/i), { target: { value: 'agent' } });
+
+      expect(screen.getByRole('heading', { name: 'Ana Costa' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Bruno Dias' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Não atribuído' })).toBeInTheDocument();
+      // No drag-and-drop in this read-only grouping — no "Aberto" column heading.
+      expect(screen.queryByRole('heading', { name: 'Aberto' })).not.toBeInTheDocument();
+    });
+
+    it('"Configurações" lets the user group by Prioridade', async () => {
+      mockApiGet();
+      renderKanban({ tickets: ticketsWithAgents, isLoading: false, isError: false });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
+      fireEvent.change(screen.getByLabelText(/agrupar por/i), { target: { value: 'priority' } });
+
+      expect(screen.getByRole('heading', { name: 'Alta' })).toBeInTheDocument();
     });
   });
 });
