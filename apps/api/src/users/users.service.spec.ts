@@ -4,6 +4,10 @@ import * as bcrypt from 'bcryptjs';
 import { Prisma, Role } from '@prisma/client';
 import { UsersService, PaginatedUsers, UserWithGroups } from './users.service';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  DEFAULT_PERMISSION_GROUPS,
+  ROLE_GROUP_NAME,
+} from '../permission-groups/default-permission-groups';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -15,6 +19,13 @@ describe('UsersService', () => {
       findMany: jest.Mock;
       count: jest.Mock;
     };
+    permissionGroup: {
+      findFirst: jest.Mock;
+      create: jest.Mock;
+    };
+    permissionGroupUser: {
+      create: jest.Mock;
+    };
   };
 
   beforeEach(async () => {
@@ -25,6 +36,13 @@ describe('UsersService', () => {
         update: jest.fn(),
         findMany: jest.fn(),
         count: jest.fn(),
+      },
+      permissionGroup: {
+        findFirst: jest.fn(),
+        create: jest.fn(),
+      },
+      permissionGroupUser: {
+        create: jest.fn(),
       },
     };
 
@@ -89,11 +107,77 @@ describe('UsersService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       });
+      prisma.permissionGroup.findFirst.mockResolvedValue({ id: 'group-client' });
 
       const result = await service.create({ ...dto, role: Role.CLIENT });
 
       expect(result).not.toHaveProperty('password');
       expect(result.email).toBe(dto.email);
+    });
+
+    // DMTE-133: retrabalho apontado pelo E2E real da Tarefa 3 — sem este
+    // vínculo, PermissionsService.getEffectivePermissions não encontra
+    // nenhum PermissionGroup para o usuário novo e ele nasce sem nenhuma
+    // permissão (ADMIN tem bypass no guard, os demais papéis não).
+    it('links the newly created user to the existing default PermissionGroup for their role', async () => {
+      prisma.user.findUnique.mockResolvedValue(null);
+      prisma.user.create.mockResolvedValue({
+        id: 'user-1',
+        name: dto.name,
+        email: dto.email,
+        password: 'hashed',
+        role: Role.AGENT,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      prisma.permissionGroup.findFirst.mockResolvedValue({
+        id: 'group-agent',
+        name: ROLE_GROUP_NAME[Role.AGENT],
+      });
+
+      await service.create({ ...dto, role: Role.AGENT });
+
+      expect(prisma.permissionGroup.findFirst).toHaveBeenCalledWith({
+        where: { name: ROLE_GROUP_NAME[Role.AGENT] },
+      });
+      expect(prisma.permissionGroup.create).not.toHaveBeenCalled();
+      expect(prisma.permissionGroupUser.create).toHaveBeenCalledWith({
+        data: { permissionGroupId: 'group-agent', userId: 'user-1' },
+      });
+    });
+
+    it("creates the role's default PermissionGroup when it does not exist yet, then links the user to it", async () => {
+      prisma.user.findUnique.mockResolvedValue(null);
+      prisma.user.create.mockResolvedValue({
+        id: 'user-1',
+        name: dto.name,
+        email: dto.email,
+        password: 'hashed',
+        role: Role.AGENT_MASTER,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      prisma.permissionGroup.findFirst.mockResolvedValue(null);
+      prisma.permissionGroup.create.mockResolvedValue({
+        id: 'new-group-agent-master',
+        name: ROLE_GROUP_NAME[Role.AGENT_MASTER],
+      });
+
+      await service.create({ ...dto, role: Role.AGENT_MASTER });
+
+      expect(prisma.permissionGroup.create).toHaveBeenCalledWith({
+        data: {
+          name: ROLE_GROUP_NAME[Role.AGENT_MASTER],
+          description: DEFAULT_PERMISSION_GROUPS[Role.AGENT_MASTER].description,
+          permissions: DEFAULT_PERMISSION_GROUPS[Role.AGENT_MASTER].permissions,
+        },
+      });
+      expect(prisma.permissionGroupUser.create).toHaveBeenCalledWith({
+        data: {
+          permissionGroupId: 'new-group-agent-master',
+          userId: 'user-1',
+        },
+      });
     });
   });
 

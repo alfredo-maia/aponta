@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { PrismaClient, Role } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { createHmac, randomUUID } from 'node:crypto';
+import { linkFixtureUserToDefaultPermissionGroup } from './support/permission-groups';
 
 // These fixtures may only be written to an explicitly opted-in local test DB.
 // No credentials or remote application data are used by this suite.
@@ -34,6 +35,12 @@ test.describe('contracts and recorded valuation (real API/Postgres)', () => {
         { id: ids.outsider, role: Role.CLIENT_MASTER, organizationId: ids.otherOrg },
         { id: ids.requester, role: Role.CLIENT, organizationId: ids.org },
       ].map((user) => ({ ...user, name: `E2E ${user.role}`, email: `${user.id}@e2e.invalid`, password: 'unused-jwt-fixture' })) });
+      for (const [userId, role] of [
+        [ids.agent, Role.AGENT], [ids.master, Role.CLIENT_MASTER],
+        [ids.outsider, Role.CLIENT_MASTER], [ids.requester, Role.CLIENT],
+      ] as const) {
+        await linkFixtureUserToDefaultPermissionGroup(prisma, userId, role);
+      }
       await prisma.serviceDesk.create({ data: { id: ids.desk, name: `Mesa E2E ${suffix}`, organizations: { connect: { id: ids.org } }, agents: { connect: { id: ids.agent } } } });
       await prisma.ticket.create({ data: { id: ids.ticket, protocol: `E2E-${suffix}`, title: `Valorização ${suffix}`, description: 'Apontamento real', requesterId: ids.requester, commercialOrganizationId: ids.org, serviceDeskId: ids.desk } });
       await page.addInitScript((jwt) => localStorage.setItem('aponta-auth', JSON.stringify({ state: { token: jwt }, version: 0 })), adminToken);

@@ -5,6 +5,10 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserQueryDto } from './dto/user-query.dto';
 import type { User } from '@prisma/client';
+import {
+  DEFAULT_PERMISSION_GROUPS,
+  ROLE_GROUP_NAME,
+} from '../permission-groups/default-permission-groups';
 
 const SALT_ROUNDS = 10;
 const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
@@ -65,8 +69,9 @@ export class UsersService {
 
     const hashedPassword = await bcrypt.hash(dto.password, SALT_ROUNDS);
 
+    let user: User;
     try {
-      const user = await this.prisma.user.create({
+      user = await this.prisma.user.create({
         data: {
           name: dto.name,
           email: dto.email,
@@ -74,8 +79,6 @@ export class UsersService {
           ...(dto.role ? { role: dto.role } : {}),
         },
       });
-
-      return this.toSafeUser(user);
     } catch (error) {
       // Two concurrent registrations can both pass the findByEmail check
       // above (TOCTOU race). Translate the resulting unique-constraint
@@ -89,6 +92,34 @@ export class UsersService {
       }
       throw error;
     }
+
+    await this.linkToDefaultPermissionGroup(user);
+
+    return this.toSafeUser(user);
+  }
+
+  // DMTE-133: sem isto, PermissionsService.getEffectivePermissions não
+  // encontra nenhum PermissionGroup vinculado a um usuário recém-criado e
+  // ele nasce sem nenhuma permissão (ADMIN tem bypass no PermissionsGuard,
+  // os demais papéis não) — reusa o mesmo mapeamento Role -> grupo padrão
+  // que o seed usa para os 2 usuários fixos (find-or-create pelo `name`,
+  // já que PermissionGroup não tem unique constraint nesse campo).
+  private async linkToDefaultPermissionGroup(user: User): Promise<void> {
+    const name = ROLE_GROUP_NAME[user.role];
+    let group = await this.prisma.permissionGroup.findFirst({ where: { name } });
+    if (!group) {
+      group = await this.prisma.permissionGroup.create({
+        data: {
+          name,
+          description: DEFAULT_PERMISSION_GROUPS[user.role].description,
+          permissions: DEFAULT_PERMISSION_GROUPS[user.role].permissions,
+        },
+      });
+    }
+
+    await this.prisma.permissionGroupUser.create({
+      data: { permissionGroupId: group.id, userId: user.id },
+    });
   }
 
   toSafeUser(user: User): SafeUser {

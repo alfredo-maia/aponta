@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { PrismaClient, Role } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { createHmac, randomUUID } from 'node:crypto';
+import { linkFixtureUserToDefaultPermissionGroup } from './support/permission-groups';
 
 // These fixtures may only be written to an explicitly opted-in local test DB.
 // No credentials or remote application data are used by this suite.
@@ -36,6 +37,11 @@ test.describe('worklog advances the ticket through desk-configured stages (real 
         { id: ids.admin, role: Role.ADMIN }, { id: ids.agent, role: Role.AGENT },
         { id: ids.requester, role: Role.CLIENT, organizationId: ids.org },
       ].map((user) => ({ ...user, name: `E2E ${user.role}`, email: `${user.id}@e2e.invalid`, password: 'unused-jwt-fixture' })) });
+      for (const [userId, role] of [
+        [ids.agent, Role.AGENT], [ids.requester, Role.CLIENT],
+      ] as const) {
+        await linkFixtureUserToDefaultPermissionGroup(prisma, userId, role);
+      }
       await prisma.serviceDesk.create({ data: { id: ids.desk, name: `Mesa Estágio E2E ${suffix}`, organizations: { connect: { id: ids.org } }, agents: { connect: { id: ids.agent } } } });
       // Mesa-configured workflow: N1 (initial) -> N2, N1 -> Resolvido (final). N1 -> N1 and
       // any transition into N2 from elsewhere is deliberately left unconfigured, so the
