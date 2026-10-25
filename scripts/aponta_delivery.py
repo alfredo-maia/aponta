@@ -270,6 +270,18 @@ def validate_pr(body: str, manifest: dict) -> list[str]:
     return errors
 
 
+def validate_binding(manifest: dict, entry: dict | None) -> list[str]:
+    if not entry:
+        return ['Delivery is absent from canonical registry.']
+    errors = []
+    if entry.get('kind') != 'delivery':
+        errors.append('Epics cannot be used as implementation deliveries.')
+    for field in ['delivery', 'repository', 'github_issue', 'multica_id', 'tier', 'cycle']:
+        if entry.get(field) != manifest.get(field):
+            errors.append('Manifest differs from canonical registry: ' + field)
+    return errors
+
+
 @contextlib.contextmanager
 def writer_lock(path: Path):
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -347,8 +359,7 @@ def main() -> int:
                 if manifest.get('base_sha') != git(root, 'merge-base', base, head):
                     errors.append('Manifest base_sha differs from the PR merge base.')
             entry = registry.get('deliveries', {}).get(manifest.get('delivery'))
-            if not entry or entry.get('github_issue') != manifest.get('github_issue') or entry.get('multica_id') != manifest.get('multica_id'):
-                errors.append('Manifest identity differs from canonical registry.')
+            errors += validate_binding(manifest, entry)
     for error in errors:
         print('ERROR: ' + error, file=sys.stderr)
     if not errors:

@@ -7,6 +7,10 @@ test_foreign_repository_rejected (test_aponta_delivery.DeliveryTests.test_foreig
 test_green_for_other_source_rejected (test_aponta_delivery.DeliveryTests.test_green_for_other_source_rejected) ... ok
 test_invalid_uuid_rejected (test_aponta_delivery.DeliveryTests.test_invalid_uuid_rejected) ... ok
 test_irrelevant_ui_exemption_needs_reason (test_aponta_delivery.DeliveryTests.test_irrelevant_ui_exemption_needs_reason) ... ok
+test_manifest_cannot_use_epic_as_delivery (test_aponta_delivery.DeliveryTests.test_manifest_cannot_use_epic_as_delivery) ... ok
+test_manifest_canonical_binding_passes (test_aponta_delivery.DeliveryTests.test_manifest_canonical_binding_passes) ... ok
+test_manifest_cycle_must_match_registry (test_aponta_delivery.DeliveryTests.test_manifest_cycle_must_match_registry) ... ok
+test_manifest_tier_must_match_registry (test_aponta_delivery.DeliveryTests.test_manifest_tier_must_match_registry) ... ok
 test_mismatched_command_rejected (test_aponta_delivery.DeliveryTests.test_mismatched_command_rejected) ... ok
 test_missing_acceptance_coverage_rejected (test_aponta_delivery.DeliveryTests.test_missing_acceptance_coverage_rejected) ... ok
 test_new_ds_component_requires_story (test_aponta_delivery.DeliveryTests.test_new_ds_component_requires_story) ... ok
@@ -28,6 +32,6 @@ test_valid_identity (test_aponta_delivery.DeliveryTests.test_valid_identity) ...
 test_writer_lock_rejects_competing_process (test_aponta_delivery.DeliveryTests.test_writer_lock_rejects_competing_process) ... ok
 
 ----------------------------------------------------------------------
-Ran 28 tests in 0.197s
+Ran 32 tests in 0.185s
 
 OK

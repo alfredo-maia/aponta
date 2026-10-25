@@ -79,6 +79,21 @@ class DeliveryTests(unittest.TestCase):
         entries = {'DMTE-159': self.manifest, 'DMTE-160': {**self.manifest, 'delivery': 'DMTE-160'}}
         self.assertTrue(delivery.validate_registry({'version': 1, 'deliveries': entries}))
 
+    def test_manifest_cannot_use_epic_as_delivery(self):
+        entry = {**self.manifest, 'kind': 'epic'}
+        self.assertTrue(delivery.validate_binding(self.manifest, entry))
+
+    def test_manifest_tier_must_match_registry(self):
+        entry = {**self.manifest, 'kind': 'delivery', 'tier': 3}
+        self.assertTrue(delivery.validate_binding(self.manifest, entry))
+
+    def test_manifest_cycle_must_match_registry(self):
+        entry = {**self.manifest, 'kind': 'delivery', 'cycle': None}
+        self.assertTrue(delivery.validate_binding(self.manifest, entry))
+
+    def test_manifest_canonical_binding_passes(self):
+        self.assertEqual(delivery.validate_binding(self.manifest, {**self.manifest, 'kind': 'delivery'}), [])
+
     def test_pr_link_contract(self):
         self.assertEqual(delivery.validate_pr('Aponta-Delivery: DMTE-159\nRefs alfredo-maia/aponta#92', self.manifest), [])
 

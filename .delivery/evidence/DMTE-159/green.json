@@ -1,8 +1,8 @@
 {
   "version": 1,
   "phase": "green",
-  "started_at": "2026-10-25T19:49:32.662976+00:00",
-  "finished_at": "2026-10-25T19:49:33.009896+00:00",
+  "started_at": "2026-10-25T20:05:36.780463+00:00",
+  "finished_at": "2026-10-25T20:05:37.096520+00:00",
   "command": [
     "python3",
     "-m",
@@ -15,10 +15,10 @@
     "-v"
   ],
   "base_sha": "041dc087ed92bf6f5a23ad4d2115314e8d3a5e5c",
-  "head_sha": "041dc087ed92bf6f5a23ad4d2115314e8d3a5e5c",
+  "head_sha": "e30c007840606d806759c0aeb32cf2be3c90b9ec",
   "exit_code": 0,
   "tests": {
-    "scripts/test_aponta_delivery.py": "7fdf9e2fc3b27232ee3428bb45209610c1ae993421f3941f77a3a7e4bad43a29"
+    "scripts/test_aponta_delivery.py": "66cb24bd540e108e30c3a83f5a3eb720abe61ea846d604df19913c199829acd0"
   },
   "criteria": [
     "AC-01",
@@ -28,9 +28,9 @@
   ],
   "source_hashes": {
     ".gitignore": "6b75a3d0faff9444d436818ed6fef4957231efa69b0a99b01bfea51fd03bd7fd",
-    "scripts/aponta_delivery.py": "cf19e1151a731d59eb0b8056e1cccfa5f5c3499d607e97db4c7fb0a055a29f58",
-    "scripts/test_aponta_delivery.py": "7fdf9e2fc3b27232ee3428bb45209610c1ae993421f3941f77a3a7e4bad43a29"
+    "scripts/aponta_delivery.py": "3db9aa709a1c61f1109600a05ebb0b093b8447ec696f1b027f26cb656671bca8",
+    "scripts/test_aponta_delivery.py": "66cb24bd540e108e30c3a83f5a3eb720abe61ea846d604df19913c199829acd0"
   },
   "log": ".delivery/evidence/DMTE-159/green.log",
-  "log_sha256": "d44807f274854227b090a38ffd1237df659683f8499dca31dc7401d8c267e2cd"
+  "log_sha256": "17098c4b1306f69a73960498555fdd95c753618c09765de90b87ff35578001fd"
 }
