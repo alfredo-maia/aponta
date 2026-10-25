@@ -59,3 +59,7 @@ apps/**/.env.*
 
 
 storybook-static
+# Python delivery-tool cache is local; redacted evidence logs are versioned.
+**/__pycache__/
+*.pyc
+!.delivery/evidence/**/*.log

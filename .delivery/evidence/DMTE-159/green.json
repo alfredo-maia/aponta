@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-10-25T19:49:32.662976+00:00",
+  "finished_at": "2026-10-25T19:49:33.009896+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_aponta_delivery.py",
+    "-v"
+  ],
+  "base_sha": "041dc087ed92bf6f5a23ad4d2115314e8d3a5e5c",
+  "head_sha": "041dc087ed92bf6f5a23ad4d2115314e8d3a5e5c",
+  "exit_code": 0,
+  "tests": {
+    "scripts/test_aponta_delivery.py": "7fdf9e2fc3b27232ee3428bb45209610c1ae993421f3941f77a3a7e4bad43a29"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-06"
+  ],
+  "source_hashes": {
+    ".gitignore": "6b75a3d0faff9444d436818ed6fef4957231efa69b0a99b01bfea51fd03bd7fd",
+    "scripts/aponta_delivery.py": "cf19e1151a731d59eb0b8056e1cccfa5f5c3499d607e97db4c7fb0a055a29f58",
+    "scripts/test_aponta_delivery.py": "7fdf9e2fc3b27232ee3428bb45209610c1ae993421f3941f77a3a7e4bad43a29"
+  },
+  "log": ".delivery/evidence/DMTE-159/green.log",
+  "log_sha256": "d44807f274854227b090a38ffd1237df659683f8499dca31dc7401d8c267e2cd"
+}

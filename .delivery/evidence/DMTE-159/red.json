@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-10-25T19:28:26.855166+00:00",
+  "finished_at": "2026-10-25T19:28:27.147583+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_aponta_delivery.py",
+    "-v"
+  ],
+  "base_sha": "041dc08",
+  "head_sha": "041dc087ed92bf6f5a23ad4d2115314e8d3a5e5c",
+  "exit_code": 1,
+  "tests": {
+    "scripts/test_aponta_delivery.py": "7fdf9e2fc3b27232ee3428bb45209610c1ae993421f3941f77a3a7e4bad43a29"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-06"
+  ],
+  "source_hashes": {
+    "scripts/__pycache__/aponta_delivery.cpython-312.pyc": "65239ae9d1d89bcf8ee12f0af9eb3fe0ab6c7dbee3d0f416a6b5967076b4aa20",
+    "scripts/__pycache__/test_aponta_delivery.cpython-312.pyc": "2f4294acd875272a2900781c9a36ab1cf3b1b00ce32acaf7bda55f0b7d9a89c1",
+    "scripts/aponta_delivery.py": "4a1b8545589b465c1c17a425d4f44a4c4c2a036bb21ca8ca87775ad95edf2faf",
+    "scripts/test_aponta_delivery.py": "7fdf9e2fc3b27232ee3428bb45209610c1ae993421f3941f77a3a7e4bad43a29"
+  },
+  "log": ".delivery/evidence/DMTE-159/red.log",
+  "log_sha256": "4ac1dfb16ef7715052ca4548ff4b07a0613605dbcda6c3b4150a2e57a7cafdbd"
+}

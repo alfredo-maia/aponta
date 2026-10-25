@@ -1,0 +1,50 @@
+name: Aponta delivery
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: delivery-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    name: Delivery contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Test the verifier
+        run: python3 -m unittest discover -s scripts -p test_aponta_delivery.py -v
+      - name: Verify identity, SPEC, TDD and design system
+        run: python3 scripts/aponta_delivery.py check --event "$GITHUB_EVENT_PATH"
+      - name: Build affected Storybook
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          if git diff --name-only "$BASE_SHA...$HEAD_SHA" -- apps/web/src/components/ds apps/web/.storybook | read -r changed; then
+            corepack enable
+            corepack prepare pnpm@12.8.1 --activate
+            pnpm install --frozen-lockfile
+            pnpm exec nx run web:build-storybook
+          fi
+      - name: Preserve delivery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: delivery-${{ github.event.pull_request.head.sha }}
+          path: .delivery/
+          retention-days: 30
