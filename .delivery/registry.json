@@ -49,11 +49,11 @@
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-84",
       "kind": "delivery",
       "tier": 3,
-      "state": "Bloqueada",
+      "state": "Em revisão",
       "cycle": "2026-10-26/2026-11-08",
       "epic": 81,
       "title": "Configurações: Usuários, grupos e permissões",
-      "note": "Preservar SPEC e histórico; QA DMTE-141 ainda sem veredito. Branch agent/aponta-tech-lead/359731a6b4c2, SHA 861eadf9fcb47e837f49e16a52f577d318fcc4e9. Revisar antes de retomar."
+      "note": "Tarefa 3 (APIs) aprovada no QA (DMTE-141). Tarefa 4 (frontend: submenu Usuários, telas de Usuários/Grupos de atendentes/Grupos de permissões) entregue nesta SHA, aguardando QA (DMTE-239). Branch agent/aponta-tech-lead/359731a6b4c2 (PR #107), SHA b283cc6f3b1f8422e4db7d1f5c0dbc8107e6019b. Falta Tarefa 5 (E2E + revisão final)."
     },
     "DMTE-46": {
       "delivery": "DMTE-46",
