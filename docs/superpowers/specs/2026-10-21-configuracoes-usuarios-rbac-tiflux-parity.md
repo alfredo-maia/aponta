@@ -163,3 +163,5 @@ Mapeamento dos critérios acima para os `AC-NN` do manifest v4, cada um com RED/
 3. Revisão do sub-agente aprovada e registrada (comentário/relatório anexado ao PR ou à issue) antes do merge.
 4. Nenhuma regressão nos testes existentes de `TenantHelper`/multi-tenant (os specs já existentes continuam passando sem modificação de asserção).
 5. PR aberto com CI verde (ou, se o ambiente de execução não tiver acesso ao CI real, descrito explicitamente o que falta para confirmar — nunca reportado como "pronto para produção" sem essa confirmação).
+
+**AC-08** (manifest v4) — critério 1 acima: `apps/web-e2e/src/users-permissions.spec.ts` cobre o cenário completo (cria `PermissionGroup` só com `MANAGE_USERS` pela UI real de Grupos de permissões, vincula um usuário de teste pela mesma UI, faz logout/login real desse usuário e confirma que "Usuários" aparece em Configurações e que a tela realmente opera via `PATCH /users/:id/active`); roda junto do restante da suíte `web-e2e` (critério 4), sem alterar nenhum spec existente de `TenantHelper`.

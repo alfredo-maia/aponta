@@ -1,0 +1,40 @@
+
+> nx run web-e2e:e2e  [existing outputs match the cache, left as is]
+
+> playwright test
+
+[1A[2K[2m[WebServer] [22m[36mapi:[39m [1m[31mDebugger listening on ws://localhost:9229/6269d2e9-1b18-4dd0-94e8-c5d4ffc9667d
+[2m[WebServer] [22m[36mapi:[39m Debugger listening on ws://localhost:9229/6269d2e9-1b18-4dd0-94e8-c5d4ffc9667d
+[2m[WebServer] [22m[36mapi:[39m For help, see: https://nodejs.org/learn/getting-started/debugging
+[2m[WebServer] [22m[36mapi:[39m [39m[22m
+
+
+[2mRunning [22m15[2m tests using [22m2[2m workers[22m
+
+[1A[2K[1/15] [chromium] › src/auth.spec.ts:31:7 › authentication › the seeded agent can login and see the dashboard
+[1A[2K[2/15] [chromium] › src/auth.spec.ts:13:7 › authentication › a new user can register and land on the dashboard
+[1A[2K[3/15] [chromium] › src/auth.spec.ts:46:7 › authentication › an invalid login shows an error and stays on /login
+[1A[2K[4/15] [chromium] › src/auth.spec.ts:60:7 › authentication › a user can change their password and log in with the new one
+[1A[2K[5/15] [chromium] › src/auth.spec.ts:104:7 › authentication › a user can update their name and email from Minha Conta
+[1A[2K[6/15] [chromium] › src/commercial-v2.spec.ts:7:5 › commercial modalities, immutable costs, mandatory gate and stoppable timers (real Postgres)
+[1A[2K[7/15] [chromium] › src/contracts.spec.ts:11:7 › contracts and recorded valuation (real API/Postgres) › admin creates contract, values excess, preserves history and protects financial data
+[1A[2K[2m[WebServer] [22m[36mapi:[39m [1m[31m(node:2587213) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[2m[WebServer] [22m[36mapi:[39m (Use `node --trace-deprecation ...` to show where the warning was created)
+[2m[WebServer] [22m[36mapi:[39m [39m[22m
+
+[1A[2K[8/15] [chromium] › src/dashboard.spec.ts:80:7 › dashboard filtering › service desk filter narrows the real ticket list
+[1A[2K[9/15] [chromium] › src/dashboard.spec.ts:130:7 › dashboard filtering › status filter narrows the real ticket list
+[1A[2K[10/15] [chromium] › src/mesa.spec.ts:12:7 › admin Mesa screen › ADMIN opens Mesa, creates a desk, and sees TiFlux-parity tabs
+[1A[2K[11/15] [chromium] › src/ticket-stage-transition.spec.ts:11:7 › worklog advances the ticket through desk-configured stages (real API/Postgres) › saving an apontamento moves the ticket to an allowed next stage, and closes it on a final one
+[1A[2K[12/15] [chromium] › src/tickets.spec.ts:18:7 › ticket creation and detail view › creating a ticket via the real form shows it on its detail page
+[1A[2K[13/15] [chromium] › src/tickets.spec.ts:58:7 › ticket creation and detail view › a freshly created ticket is retrievable by reloading its detail URL
+[1A[2K[14/15] [chromium] › src/tickets.spec.ts:84:7 › ticket creation and detail view › an agent can assign a ticket
+[1A[2K[15/15] [chromium] › src/users-permissions.spec.ts:24:7 › grupo de permissões concede MANAGE_USERS e a mudança reflete num novo login (real API/Postgres) › usuário sem MANAGE_USERS não vê Usuários; após vínculo via Grupos de permissões e novo login, vê e opera
+[1A[2K[32m  15 passed[39m[2m (1.3m)[22m
+
+
+
+ NX   Successfully ran target e2e for project web-e2e
+
+Nx read the output from the cache instead of running the command for 1 out of 1 tasks.
+

@@ -79,6 +79,15 @@
       ],
       "tdd_required": false,
       "reason": "Coberto pela evidência GREEN combinada (nx run-many -t test --projects=api,web, 0 falhas) e por nx run-many -t lint,typecheck --projects=api,web (0 erros, apenas warnings pré-existentes) executados antes do commit; não é um RED/GREEN comportamental próprio."
+    },
+    {
+      "id": "AC-08",
+      "description": "Tarefa 5: E2E real cobre criação de PermissionGroup → vínculo de usuário → mudança de acesso observável num novo login, sem regressão no restante da suíte E2E",
+      "tests": [
+        "apps/web-e2e/src/users-permissions.spec.ts > grupo de permissões concede MANAGE_USERS e a mudança reflete num novo login (real API/Postgres) > usuário sem MANAGE_USERS não vê Usuários; após vínculo via Grupos de permissões e novo login, vê e opera"
+      ],
+      "tdd_required": false,
+      "reason": "Cobertura E2E nova sobre comportamento já aprovado na Tarefa 4 (SHA e888a425ec9f7efad1a9327369a77500adab6f21, QA DMTE-239); nenhum código de produto foi alterado nesta tarefa, só o spec novo, então não há RED/GREEN comportamental próprio a capturar — a prova é a execução real do comando registrada no comentário final (specs passando/comando exato), igual ao padrão do AC-07."
     }
   ],
   "spec": "docs/superpowers/specs/2026-10-21-configuracoes-usuarios-rbac-tiflux-parity.md",
@@ -100,7 +109,8 @@
     "apps/web/src/pages/TechnicalGroupsPage.test.tsx",
     "apps/web/src/pages/TechnicalGroupsPage.tsx",
     "apps/web/src/pages/UsersPage.test.tsx",
-    "apps/web/src/pages/UsersPage.tsx"
+    "apps/web/src/pages/UsersPage.tsx",
+    "apps/web-e2e/src/users-permissions.spec.ts"
   ],
   "tdd": {
     "mode": "required",
