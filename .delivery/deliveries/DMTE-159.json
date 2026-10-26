@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "delivery": "DMTE-159",
+  "repository": "alfredo-maia/aponta",
+  "github_issue": 92,
+  "multica_id": "01a17485-8de1-7e6d-950a-1e295fef336b",
+  "cycle": "2026-10-26/2026-11-08",
+  "tier": 2,
+  "base_sha": "041dc087ed92bf6f5a23ad4d2115314e8d3a5e5c",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "Canonical identity and PR linkage",
+      "tests": [
+        "test_invalid_uuid_rejected",
+        "test_duplicate_canonical_github_identity_rejected",
+        "test_pr_link_contract"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "Behavioral RED/GREEN and immutable evidence checks",
+      "tests": [
+        "test_behavioral_failure_is_red",
+        "test_setup_failure_is_not_red",
+        "test_tampered_log_rejected",
+        "test_reversed_time_rejected"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "SPEC and DS assessments",
+      "tests": [
+        "test_tier_two_requires_spec",
+        "test_criteria_must_exist_in_spec",
+        "test_new_ds_component_requires_story",
+        "test_ui_requires_ds_assessment"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "CI contract and PR template",
+      "tests": [
+        "GitHub Actions: Delivery contract"
+      ],
+      "tdd_required": false,
+      "reason": "Workflow wiring and documentation are validated in the PR workflow, not fabricated RED."
+    },
+    {
+      "id": "AC-05",
+      "description": "Reconcile trackers and organize cycle",
+      "tests": [
+        "Live authenticated registry/board verification"
+      ],
+      "tdd_required": false,
+      "reason": "Administrative migration checked through both service APIs; no helpdesk behavior changed."
+    },
+    {
+      "id": "AC-06",
+      "description": "Writer exclusion and safe agent instructions",
+      "tests": [
+        "test_writer_lock_rejects_competing_process",
+        "test_secret_redaction"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-159.md",
+  "changed_files": [
+    ".gitignore",
+    ".github/pull_request_template.md",
+    ".github/workflows/delivery.yml",
+    "AGENTS.md",
+    "docs/delivery/WORKFLOW.md",
+    "docs/delivery/specs/DMTE-159.md",
+    "scripts/aponta_delivery.py",
+    "scripts/test_aponta_delivery.py"
+  ],
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-159/red.json",
+    "green": ".delivery/evidence/DMTE-159/green.json"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Governance tools/workflow/docs; no UI or DS implementation changed."
+  }
+}
