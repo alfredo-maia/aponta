@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "delivery": "DMTE-84",
+  "repository": "alfredo-maia/aponta",
+  "github_issue": 94,
+  "multica_id": "01a153ba-593c-710a-9a2d-f9c4e3e1cbea",
+  "cycle": "2026-10-26/2026-11-08",
+  "tier": 3,
+  "base_sha": "92b1d6a5b6369930b187442d4f6cc8ff3162bad7",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "GET /auth/me expõe isAdmin/permissions efetivas e useHasPermission consome o endpoint",
+      "tests": [
+        "AuthController > getProfile > returns the safe user record plus effective permissions for a non-admin",
+        "AuthController > getProfile > marks ADMIN as isAdmin without requiring any PermissionGroup link",
+        "useHasPermission > returns false for a key the user does not hold, then true once the effective permissions load",
+        "useHasPermission > grants every permission key to an ADMIN even with an empty permissions list"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "Submenu Usuários em Configurações com 4 itens, visibilidade por MANAGE_USERS/MANAGE_PERMISSION_GROUPS",
+      "tests": [
+        "SettingsPage > always shows Minha conta inside the Usuários submenu, regardless of permissions",
+        "SettingsPage > shows Usuários and Grupos de atendentes only for a user with MANAGE_USERS",
+        "SettingsPage > shows Grupos de permissões only for a user with MANAGE_PERMISSION_GROUPS",
+        "SettingsPage > shows every Usuários submenu item for an ADMIN even with no PermissionGroup linked",
+        "SettingsPage > does not show Usuários/Grupos links for a user without MANAGE_USERS or MANAGE_PERMISSION_GROUPS"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "Tela de Usuários: lista paginada/busca, detalhe com abas Perfil/Segurança, toggle de ativar/inativar",
+      "tests": [
+        "UsersPage > lists users paginated from GET /users with name, groups and status columns",
+        "UsersPage > searches by typing in the search box, sending q to GET /users",
+        "UsersPage > opens the user detail and toggles Usuário ativo via PATCH /users/:id/active",
+        "UsersPage > renders Perfil and Segurança tabs in the detail view"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "Tela de Grupos de atendentes: CRUD nas abas Informações/Equipe/Acessos (membro, cliente, mesa de serviço)",
+      "tests": [
+        "TechnicalGroupsPage > lists technical groups from GET /technical-groups",
+        "TechnicalGroupsPage > opens a group detail with Informações, Equipe and Acessos tabs",
+        "TechnicalGroupsPage > adds a member on the Equipe tab via POST /technical-groups/:id/members/:userId",
+        "TechnicalGroupsPage > removes a member on the Equipe tab via DELETE /technical-groups/:id/members/:userId",
+        "TechnicalGroupsPage > adds an organization access on the Acessos tab via POST .../organizations/:id",
+        "TechnicalGroupsPage > adds a service desk access on the Acessos tab via POST .../service-desks/:id"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "Tela de Grupos de permissões: matriz por categoria, Selecionar todos por categoria, vínculos",
+      "tests": [
+        "PermissionGroupsPage > lists permission groups from GET /permission-groups",
+        "PermissionGroupsPage > renders the permission matrix grouped by category from the catalog",
+        "PermissionGroupsPage > \"Selecionar todos\" checks every permission in that category only, and Save persists the result",
+        "PermissionGroupsPage > adds a user link via POST /permission-groups/:id/users/:userId"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "description": "Reuso do design system (components/ds) em todas as telas novas, sem DS paralelo",
+      "tests": [
+        "Code review: UsersPage/TechnicalGroupsPage/PermissionGroupsPage/SettingsPage only import components/ds"
+      ],
+      "tdd_required": false,
+      "reason": "Reuso de componentes de DS existentes (EzCardItem, EzTabs, EzDoubleList, EzCheck, EzTag, EzPagination, EzModal, EzTextInput, EzTextArea, EzButton, EzPageLayout/Header, EzListItem, EzSpinner, EzEmptyCard) verificado por revisão de código; não é comportamento testável isoladamente."
+    },
+    {
+      "id": "AC-07",
+      "description": "Suíte local verde (lint, typecheck, test) nos projetos api e web antes do commit",
+      "tests": [
+        "nx run-many -t test --projects=api,web",
+        "nx run-many -t lint,typecheck --projects=api,web"
+      ],
+      "tdd_required": false,
+      "reason": "Coberto pela evidência GREEN combinada (nx run-many -t test --projects=api,web, 0 falhas) e por nx run-many -t lint,typecheck --projects=api,web (0 erros, apenas warnings pré-existentes) executados antes do commit; não é um RED/GREEN comportamental próprio."
+    }
+  ],
+  "spec": "docs/superpowers/specs/2026-10-21-configuracoes-usuarios-rbac-tiflux-parity.md",
+  "changed_files": [
+    "apps/api/src/auth/auth-rate-limit.integration.spec.ts",
+    "apps/api/src/auth/auth.controller.spec.ts",
+    "apps/api/src/auth/auth.controller.ts",
+    "apps/api/src/auth/auth.module.ts",
+    "apps/web/src/App.tsx",
+    "apps/web/src/hooks/usePermissionGroups.ts",
+    "apps/web/src/hooks/usePermissions.test.tsx",
+    "apps/web/src/hooks/usePermissions.ts",
+    "apps/web/src/hooks/useTechnicalGroups.ts",
+    "apps/web/src/hooks/useUsers.ts",
+    "apps/web/src/pages/PermissionGroupsPage.test.tsx",
+    "apps/web/src/pages/PermissionGroupsPage.tsx",
+    "apps/web/src/pages/SettingsPage.test.tsx",
+    "apps/web/src/pages/SettingsPage.tsx",
+    "apps/web/src/pages/TechnicalGroupsPage.test.tsx",
+    "apps/web/src/pages/TechnicalGroupsPage.tsx",
+    "apps/web/src/pages/UsersPage.test.tsx",
+    "apps/web/src/pages/UsersPage.tsx"
+  ],
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-238/red.json",
+    "green": ".delivery/evidence/DMTE-238/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzCardItem",
+      "EzCheck",
+      "EzTag",
+      "EzPagination",
+      "EzSpinner",
+      "EzEmptyCard",
+      "EzPageLayout",
+      "EzTabs",
+      "EzTextInput",
+      "EzTextArea",
+      "EzButton",
+      "EzModal",
+      "EzDoubleList",
+      "EzListItem"
+    ],
+    "exception": "Nenhum componente novo/alterado em components/ds nesta entrega — só composição de componentes já existentes nas telas de produto (UsersPage, TechnicalGroupsPage, PermissionGroupsPage, SettingsPage); por isso não há stories novas a declarar."
+  }
+}

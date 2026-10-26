@@ -3,6 +3,7 @@ import { Role } from '@prisma/client';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { UsersService, SafeUser } from '../users/users.service';
+import { PermissionsService } from '../permissions/permissions.service';
 import { RegisterDto } from '../users/dto/register.dto';
 import { ChangePasswordDto } from '../users/dto/change-password.dto';
 import { UpdateProfileDto } from '../users/dto/update-profile.dto';
@@ -25,6 +26,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
+    private readonly permissionsService: PermissionsService,
   ) {}
 
   @UseGuards(LocalAuthGuard)
@@ -57,11 +59,24 @@ export class AuthController {
     return { message: 'Password updated successfully' };
   }
 
+  // Backs useHasPermission on the frontend (DMTE-84, Tarefa 4): the JWT only
+  // carries `role`, never the granular PermissionGroup keys, so the client
+  // needs this round-trip to know which Configurações > Usuários submenu
+  // items to render. ADMIN mirrors PermissionsGuard's bypass — isAdmin=true
+  // regardless of PermissionGroup links, never computed from `permissions`.
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getProfile(@Request() req: AuthenticatedRequest) {
     const user = await this.usersService.findById(req.user.id);
-    return user ? this.usersService.toSafeUser(user) : null;
+    if (!user) {
+      return null;
+    }
+    const safeUser = this.usersService.toSafeUser(user);
+    const isAdmin = user.role === Role.ADMIN;
+    const permissions = isAdmin
+      ? []
+      : Array.from(await this.permissionsService.getEffectivePermissions(user.id));
+    return { ...safeUser, isAdmin, permissions };
   }
 
   @UseGuards(JwtAuthGuard)

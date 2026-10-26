@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-10-26T19:02:53.409989+00:00",
+  "finished_at": "2026-10-26T19:05:27.941536+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run-many",
+    "-t",
+    "test",
+    "--projects=api,web",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "92b1d6a5b6369930b187442d4f6cc8ff3162bad7",
+  "head_sha": "92b1d6a5b6369930b187442d4f6cc8ff3162bad7",
+  "exit_code": 0,
+  "tests": {
+    "apps/api/src/auth/auth.controller.spec.ts": "508d9b35779508383ce546dbdb4766e983cee57ff23f66a1809e168d7385c50b",
+    "apps/web/src/hooks/usePermissions.test.tsx": "119076f028f1368d6cf5f2692518c1c358db46b9251fe2ef00745b25712e85bb",
+    "apps/web/src/pages/SettingsPage.test.tsx": "f2e0012a8b8f6827aed8b6d79bc255d02a244a8d62e9fc8526e1438b8446e138",
+    "apps/web/src/pages/UsersPage.test.tsx": "a2e214c70f9abd0dc78ed7561221d76778e54ac75cc90f42eeb44141e42cbd69",
+    "apps/web/src/pages/TechnicalGroupsPage.test.tsx": "0bd1c4d59995fee2fa72dc99847f798d2c098622e7ae09ef4a57ebb03703328e",
+    "apps/web/src/pages/PermissionGroupsPage.test.tsx": "78a3187dc9f87d18b9892392a8780217f2a4247af3219eb25b0decbb7ff29918"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "source_hashes": {
+    "apps/api/src/auth/auth-rate-limit.integration.spec.ts": "602f5275baf1d335b4a462dd8f596be9d80548b439e0d27144111cb13d770849",
+    "apps/api/src/auth/auth.controller.spec.ts": "508d9b35779508383ce546dbdb4766e983cee57ff23f66a1809e168d7385c50b",
+    "apps/api/src/auth/auth.controller.ts": "9c135afb36a0471be9417b06252f1f7f569279cc54947d960ef2290d20061e5e",
+    "apps/api/src/auth/auth.module.ts": "0dbe922adae112a80163e9873e209b784c234b4e60671f1c416030fb181665bb",
+    "apps/web/src/App.tsx": "18d7cbd9f732e0e91761a320aa4dd92eae21c79d0e2639c8aa65ceac0636f3f3",
+    "apps/web/src/hooks/usePermissionGroups.ts": "03abba2f8c2b9b38794a9eca068f77318ea6c63a3ea3572600a41fd45f80bb60",
+    "apps/web/src/hooks/usePermissions.test.tsx": "119076f028f1368d6cf5f2692518c1c358db46b9251fe2ef00745b25712e85bb",
+    "apps/web/src/hooks/usePermissions.ts": "0a48d59137efe2ec84ac3a2db700352f19164476dc09340c2cb584b323d5b18e",
+    "apps/web/src/hooks/useTechnicalGroups.ts": "3761f912fa511bc1c4c12c9424c756294e5dbf59a3324469f8f17de43f0f2321",
+    "apps/web/src/hooks/useUsers.ts": "e640deb6501fc645b5915a9fd83267cdd320b134b74af0385f3001d1476048c6",
+    "apps/web/src/pages/PermissionGroupsPage.test.tsx": "78a3187dc9f87d18b9892392a8780217f2a4247af3219eb25b0decbb7ff29918",
+    "apps/web/src/pages/PermissionGroupsPage.tsx": "88a32f0a5d9163cd10cd3c4fdfc97856a6230a16a4eb1bcd2ab0922052e42e68",
+    "apps/web/src/pages/SettingsPage.test.tsx": "f2e0012a8b8f6827aed8b6d79bc255d02a244a8d62e9fc8526e1438b8446e138",
+    "apps/web/src/pages/SettingsPage.tsx": "fc5d491d2395e7a7c3371dad16550d5f4cf28eb65cd8acdc6d0ac019b7a3244e",
+    "apps/web/src/pages/TechnicalGroupsPage.test.tsx": "0bd1c4d59995fee2fa72dc99847f798d2c098622e7ae09ef4a57ebb03703328e",
+    "apps/web/src/pages/TechnicalGroupsPage.tsx": "049bfa386e7f19073f3d90adad825eb0db3c09ae10b7f019b3c0bad103ec2615",
+    "apps/web/src/pages/UsersPage.test.tsx": "a2e214c70f9abd0dc78ed7561221d76778e54ac75cc90f42eeb44141e42cbd69",
+    "apps/web/src/pages/UsersPage.tsx": "13d9be2e64f85d66f6a668fedb0bd36cae57207a45b768dd159d3a984529f2ce"
+  },
+  "log": ".delivery/evidence/DMTE-238/green.log",
+  "log_sha256": "b3239f19b34b44af4ab15b4545bd10cd021cc2252eef4540de4ef9dc53c6a2f9"
+}

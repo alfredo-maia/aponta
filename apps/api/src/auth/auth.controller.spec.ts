@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
+import { PermissionsService } from '../permissions/permissions.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -14,6 +15,7 @@ describe('AuthController', () => {
     findById: jest.Mock;
     toSafeUser: jest.Mock;
   };
+  let permissionsService: { getEffectivePermissions: jest.Mock };
 
   const mockSafeUser = {
     id: 'user-1',
@@ -32,7 +34,10 @@ describe('AuthController', () => {
       changePassword: jest.fn().mockResolvedValue(undefined),
       updateProfile: jest.fn().mockResolvedValue(mockSafeUser),
       findById: jest.fn().mockResolvedValue(mockSafeUser),
-      toSafeUser: jest.fn().mockReturnValue(mockSafeUser),
+      toSafeUser: jest.fn((user: typeof mockSafeUser) => user),
+    };
+    permissionsService = {
+      getEffectivePermissions: jest.fn().mockResolvedValue(new Set(['MANAGE_USERS'])),
     };
 
     const moduleRef = await Test.createTestingModule({
@@ -40,6 +45,7 @@ describe('AuthController', () => {
       providers: [
         { provide: AuthService, useValue: authService },
         { provide: UsersService, useValue: usersService },
+        { provide: PermissionsService, useValue: permissionsService },
       ],
     }).compile();
 
@@ -115,14 +121,30 @@ describe('AuthController', () => {
   });
 
   describe('getProfile', () => {
-    it('returns the full safe user record for the authenticated user id', async () => {
+    it('returns the safe user record plus effective permissions for a non-admin', async () => {
       usersService.findById = jest.fn().mockResolvedValue(mockSafeUser);
       const req = { user: mockSafeUser };
 
       const result = await controller.getProfile(req as never);
 
       expect(usersService.findById).toHaveBeenCalledWith(mockSafeUser.id);
-      expect(result).toEqual(mockSafeUser);
+      expect(permissionsService.getEffectivePermissions).toHaveBeenCalledWith(mockSafeUser.id);
+      expect(result).toEqual({
+        ...mockSafeUser,
+        isAdmin: false,
+        permissions: ['MANAGE_USERS'],
+      });
+    });
+
+    it('marks ADMIN as isAdmin without requiring any PermissionGroup link', async () => {
+      const adminUser = { ...mockSafeUser, id: 'admin-1', role: 'ADMIN' };
+      usersService.findById = jest.fn().mockResolvedValue(adminUser);
+      const req = { user: adminUser };
+
+      const result = await controller.getProfile(req as never);
+
+      expect(permissionsService.getEffectivePermissions).not.toHaveBeenCalled();
+      expect(result).toEqual({ ...adminUser, isAdmin: true, permissions: [] });
     });
   });
 

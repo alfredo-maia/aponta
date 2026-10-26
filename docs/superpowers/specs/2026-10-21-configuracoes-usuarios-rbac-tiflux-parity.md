@@ -135,6 +135,18 @@ As seções abaixo detalham os critérios de aceite das Tarefas 2–5, fechando 
 5. Nenhuma tela nova quebra o padrão de design system já existente (`EzCardItem` e demais componentes de `components/ds`, conforme o restante do Aponta).
 6. Suíte completa (`nx run-many -t test,lint,typecheck --projects=web`) verde antes do commit.
 
+#### Rastreamento desta entrega (DMTE-238, manifest `.delivery/deliveries/DMTE-238.json`)
+
+Mapeamento dos critérios acima para os `AC-NN` do manifest v4, cada um com RED/GREEN comportamental próprio salvo em `.delivery/evidence/DMTE-238/`:
+
+- **AC-01** — `GET /auth/me` passa a expor `isAdmin`/`permissions` efetivas (pré-requisito não previsto no SPEC original: o JWT só carrega `role`, nunca as chaves granulares do `PermissionGroup`) e o hook `useHasPermission` consome esse endpoint. Sustenta o critério 1 acima.
+- **AC-02** — Critério 1: submenu "Usuários" em `SettingsPage`, 4 itens, visibilidade por `MANAGE_USERS`/`MANAGE_PERMISSION_GROUPS` em vez de `role === 'ADMIN'`.
+- **AC-03** — Critério 2: tela de Usuários (lista paginada/busca, detalhe com abas Perfil/Segurança, toggle ativo). Segurança fica como stub nesta tarefa (2FA não é escopo desta feature).
+- **AC-04** — Critério 3: tela de Grupos de atendentes (lista + detalhe Informações/Equipe/Acessos; adicionar/remover membro, cliente e mesa de serviço).
+- **AC-05** — Critério 4: tela de Grupos de permissões (lista + detalhe com matriz por categoria, "Selecionar todos" por categoria, vínculos de usuário/grupo de atendentes).
+- **AC-06** — Critério 5 (reuso de DS): avaliado por revisão de código (componentes de `components/ds` reaproveitados em todas as telas novas, nenhum DS paralelo), sem RED/GREEN dedicado — não é comportamento testável isoladamente.
+- **AC-07** — Critério 6 (suíte verde): coberto pela própria evidência GREEN combinada (`nx run-many -t test --projects=api,web`, 0 falhas) mais `nx run-many -t lint,typecheck --projects=api,web` (0 erros) rodados antes do commit.
+
 ### Tarefa 5 — Testes e revisão final
 
 #### Escopo
