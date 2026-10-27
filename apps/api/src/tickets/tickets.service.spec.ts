@@ -967,6 +967,72 @@ describe('TicketsService', () => {
       // so Prisma can never return a row that isn't also the client's own —
       // the base tenant scope always wins regardless of what the client sends.
     });
+
+    it('RODADA 2 - vazamento entre organizações: CLIENT_MASTER forcing organizationId from another org never drops the TenantHelper org scope', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { organizationId: 'org-not-mine' },
+        {
+          id: 'client-master-1',
+          role: Role.CLIENT_MASTER,
+          organizationId: 'my-org',
+        },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: {
+          requester: {
+            AND: [
+              { organizationId: 'my-org' },
+              { organizationId: 'org-not-mine' },
+            ],
+          },
+        },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
+      });
+      // Both conditions target requester.organizationId: no requester can
+      // satisfy "my-org" AND "org-not-mine" at once (round 1 bug: plain
+      // `where.requester = { organizationId: ... }` assignment overwrote
+      // the TenantHelper scope instead of ANDing with it, so a CLIENT_MASTER
+      // could read tickets from any organization).
+    });
+
+    it('RODADA 2 - vazamento entre organizações: requesterQuery from a CLIENT_MASTER never drops the TenantHelper org scope', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { requesterQuery: 'maria' },
+        {
+          id: 'client-master-1',
+          role: Role.CLIENT_MASTER,
+          organizationId: 'my-org',
+        },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: {
+          requester: {
+            AND: [
+              { organizationId: 'my-org' },
+              {
+                OR: [
+                  { name: { contains: 'maria', mode: 'insensitive' } },
+                  { email: { contains: 'maria', mode: 'insensitive' } },
+                ],
+              },
+            ],
+          },
+        },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
+      });
+    });
   });
 
   describe('findOne', () => {
