@@ -41,11 +41,22 @@ export function TabBar() {
                 : 'border-transparent text-gray-500 hover:bg-gray-90',
             )}
           >
-            <span className="truncate">{tab.title}</span>
+            <span className="truncate" id={`tab-title-${tab.id}`}>
+              {tab.title}
+            </span>
             {tab.closable && (
               <button
                 type="button"
-                aria-label={`Fechar ${tab.title}`}
+                // A generic, constant accessible NAME keeps this button from
+                // ever colliding with another control on the page named
+                // after the tab's title (e.g. a "Busca avançada" toggle
+                // button) — `aria-label={"Fechar " + tab.title}` used to
+                // make `getByRole('button', { name: 'Busca avançada' })`
+                // resolve to two elements once that tab was open. The title
+                // is still conveyed to screen readers via the DESCRIPTION
+                // (aria-describedby), which role-name queries don't match.
+                aria-label="Fechar aba"
+                aria-describedby={`tab-title-${tab.id}`}
                 onClick={(event) => {
                   event.stopPropagation();
                   closeTab(tab.path);
