@@ -42,7 +42,7 @@ describe('App', () => {
     render(<App />);
 
     expect(
-      await screen.findByRole('heading', { name: /chamados/i }),
+      await screen.findByRole('heading', { name: 'Tickets' }),
     ).toBeInTheDocument();
   });
 });

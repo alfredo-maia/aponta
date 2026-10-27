@@ -1,6 +1,40 @@
-import { IsEnum, IsOptional, IsUUID, IsString, IsIn } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsUUID,
+  IsString,
+  IsIn,
+  IsArray,
+} from 'class-validator';
 import { TicketPriority, TicketStatus } from '@prisma/client';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+
+/** Whitelisted date field for the Busca avançada "Data" filter (D8/Q1). */
+export type TicketDateField = 'createdAt' | 'closedAt';
+
+/** Whitelisted sort fields for the Busca avançada / Kanban "Ordenar" (D8/D6). */
+export type TicketSortField =
+  | 'title'
+  | 'protocol'
+  | 'priority'
+  | 'status'
+  | 'agentId'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'responseDeadline'
+  | 'resolveDeadline';
+
+export const TICKET_SORT_FIELDS: TicketSortField[] = [
+  'title',
+  'protocol',
+  'priority',
+  'status',
+  'agentId',
+  'createdAt',
+  'updatedAt',
+  'responseDeadline',
+  'resolveDeadline',
+];
 
 export class TicketQueryDto {
   @ApiPropertyOptional({
@@ -92,10 +126,106 @@ export class TicketQueryDto {
 
   @ApiPropertyOptional({
     description:
-      'Somente chamados não fechados (exclui RESOLVED e CLOSED) — usado para vincular um chamado a um compromisso da Agenda',
+      'Somente chamados não fechados (exclui RESOLVED e CLOSED) — usado para vincular um chamado a um compromisso da Agenda e pelo atalho "Abertos" da Busca avançada',
     example: 'true',
   })
   @IsOptional()
   @IsIn(['true', 'false'])
   notClosed?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Somente chamados fechados (RESOLVED ou CLOSED) — atalho "Fechados" da Busca avançada (D4)',
+    example: 'true',
+  })
+  @IsOptional()
+  @IsIn(['true', 'false'])
+  closedOnly?: string;
+
+  @ApiPropertyOptional({
+    description: 'Busca por substring do protocolo (Busca avançada "Número")',
+  })
+  @IsOptional()
+  @IsString()
+  number?: string;
+
+  @ApiPropertyOptional({
+    description: 'Busca por substring do título (Busca avançada "Título")',
+  })
+  @IsOptional()
+  @IsString()
+  titleContains?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Busca por substring do nome/e-mail do solicitante (Busca avançada "Solicitante")',
+  })
+  @IsOptional()
+  @IsString()
+  requesterQuery?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filtrar por UUID de um atendente específico',
+  })
+  @IsOptional()
+  @IsUUID()
+  agentId?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Filtrar por uma lista de UUIDs de atendentes (filtro de avatares do Kanban, multi-seleção)',
+    type: [String],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsUUID('all', { each: true })
+  agentIds?: string[];
+
+  @ApiPropertyOptional({
+    description: 'Filtrar por UUID de um estágio específico da mesa',
+  })
+  @IsOptional()
+  @IsUUID()
+  stageId?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Campo de data usado por dateFrom/dateTo: abertura (createdAt, padrão) ou fechamento (closedAt)',
+    enum: ['createdAt', 'closedAt'],
+  })
+  @IsOptional()
+  @IsIn(['createdAt', 'closedAt'])
+  dateField?: TicketDateField;
+
+  @ApiPropertyOptional({
+    description: 'Data inicial (inclusive) do intervalo de dateField',
+    example: '2026-01-01',
+  })
+  @IsOptional()
+  @IsString()
+  dateFrom?: string;
+
+  @ApiPropertyOptional({
+    description: 'Data final (inclusive) do intervalo de dateField',
+    example: '2026-01-31',
+  })
+  @IsOptional()
+  @IsString()
+  dateTo?: string;
+
+  @ApiPropertyOptional({
+    description: 'Campo de ordenação (whitelist); padrão é createdAt',
+    enum: TICKET_SORT_FIELDS,
+  })
+  @IsOptional()
+  @IsString()
+  sortBy?: string;
+
+  @ApiPropertyOptional({
+    description: 'Direção da ordenação',
+    enum: ['asc', 'desc'],
+  })
+  @IsOptional()
+  @IsIn(['asc', 'desc'])
+  sortDir?: 'asc' | 'desc';
 }

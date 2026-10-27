@@ -55,3 +55,24 @@ O usuário gerencia deploy. O agente de Delivery recebe o SHA aprovado, confirma
 ## Medição
 
 Medir por entrega/Tier: tempo até entrega, espera, aprovação de primeira revisão, rodadas, falhas de ambiente, custo e tokens/cache por agente. O ciclo inicial é um piloto, não uma promessa de capacidade. Não equiparar redução de caracteres de skills a economia faturada.
+
+
+## Exceção explícita para legado
+
+`not-applicable` continua proibido para código de comportamento. O modo
+`legacy-exception` referencia um registro em `.delivery/exceptions/DMTE-N.json`
+com `version: 1`, `delivery`, `github_issue`, `base_sha`, `legacy_sha`, `criteria`,
+`reason` e `approval` (`status`, `approved_by`, `source`).
+
+A aprovação deve ser explícita, com status `approved`, nome do responsável e
+link ao comentário na issue GitHub canônica (`#issuecomment-N`). O registro
+pendente bloqueia o contrato. Não atribua uma aprovação inexistente ao usuário.
+QA confere a autoria e o conteúdo na origem: o gate valida o registro e seu
+vínculo, mas não autentica aprovação remota nem prova a identidade de quem o editou.
+
+O snapshot legado e a base precisam ser SHAs completos e ancestrais do checkout.
+`criteria` enumera exatamente os ACs com `tdd_required: false`, cada um com sua
+justificativa. A exceção não elimina os critérios funcionais nem a revisão de QA.
+As evidências `red` e `green` continuam obrigatórias para o trabalho novo, usando
+`legacy_sha` como base, e cobrem os critérios não dispensados. Alterações após o
+GREEN invalidam os hashes. Não capture um RED retroativo para o código legado.

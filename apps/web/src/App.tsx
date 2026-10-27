@@ -5,6 +5,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { CreateTicketPage } from './pages/CreateTicketPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { TicketsPage } from './pages/TicketsPage';
+import { TicketAdvancedSearchPage } from './pages/TicketAdvancedSearchPage';
 import { LoginPage } from './pages/LoginPage';
 import { MyAccountPage } from './pages/MyAccountPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -45,6 +46,7 @@ export function App() {
             <Route element={<AppLayout />}>
               <Route path="/" element={<TicketsPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/tickets/search" element={<TicketAdvancedSearchPage />} />
               <Route path="/tickets/new" element={<CreateTicketPage />} />
               <Route path="/tickets/:id" element={<TicketDetailPage />} />
               <Route path="/service-desks" element={<ServiceDesksPage />} />

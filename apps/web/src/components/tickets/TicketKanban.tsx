@@ -1,6 +1,6 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import {
   DragDropContext,
   Droppable,
@@ -14,10 +14,12 @@ import axios from 'axios';
 import { api } from '../../lib/api';
 import type { Ticket, TicketStatus, TicketsPage } from '../../hooks/useTickets';
 import type { DeskStage } from '../MesaStagesEditor';
-import { TicketCard, statusLabels } from './TicketCard';
+import { statusLabels, priorityLabels } from './TicketCard';
+import { TicketKanbanCard, type TicketKanbanCardVisibleFields } from './TicketKanbanCard';
 import { useAuthStore } from '../../stores/authStore';
-import { EzAlert, EzSpinner, EzTag } from '../ds';
+import { EzAlert, EzAvatar, EzSpinner, EzTag } from '../ds';
 import { cn } from '../ds/utils';
+import { useUserScreenConfig } from '../../hooks/useUserScreenConfig';
 
 const statusColumns: TicketStatus[] = [
   'OPEN',
@@ -29,6 +31,87 @@ const statusColumns: TicketStatus[] = [
   'RESOLVED',
   'CLOSED',
 ];
+
+/** "Ordenar" fields (D6b) — only fields that exist in the Aponta ticket model. */
+const SORT_FIELDS: { id: string; label: string }[] = [
+  { id: 'title', label: 'Título' },
+  { id: 'protocol', label: 'Número' },
+  { id: 'agent', label: 'Responsável' },
+  { id: 'priority', label: 'Prioridade' },
+  { id: 'resolveDeadline', label: 'Vencimento de solução' },
+  { id: 'responseDeadline', label: 'Vencimento de atendimento' },
+  { id: 'createdAt', label: 'Data de criação' },
+  { id: 'status', label: 'Status' },
+  { id: 'updatedAt', label: 'Data de atualização' },
+];
+
+/**
+ * D6c "Exibir campos": card fields the Configurações popover can toggle.
+ * Título/Número are fixed (D6c/D7) and have no entry here. Defaults mirror
+ * the TiFlux benchmark (§2.4): Responsável/Cumprimento SLA on, Cliente off.
+ * "Tempo no estágio" from the benchmark is NOT included — it would need a
+ * new per-ticket aggregation over `TicketAudit` STAGE_CHANGED entries (no
+ * such field exists on Ticket today), which is a backend decision beyond
+ * this correction round's scope.
+ */
+const KANBAN_FIELDS: { id: keyof TicketKanbanCardVisibleFields; label: string; defaultVisible: boolean }[] = [
+  { id: 'agent', label: 'Responsável', defaultVisible: true },
+  { id: 'client', label: 'Cliente', defaultVisible: false },
+  { id: 'sla', label: 'Cumprimento SLA', defaultVisible: true },
+  { id: 'createdAt', label: 'Data de criação', defaultVisible: false },
+  { id: 'updatedAt', label: 'Data de última atualização', defaultVisible: false },
+];
+
+const DEFAULT_KANBAN_FIELD_VISIBILITY = KANBAN_FIELDS.reduce<Record<string, boolean>>(
+  (acc, field) => {
+    acc[field.id] = field.defaultVisible;
+    return acc;
+  },
+  {},
+);
+
+const PRIORITY_RANK: Record<string, number> = { LOW: 0, MEDIUM: 1, HIGH: 2, CRITICAL: 3 };
+const STATUS_RANK: Record<string, number> = Object.fromEntries(
+  statusColumns.map((status, index) => [status, index]),
+);
+
+function sortValue(ticket: Ticket, field: string): string | number {
+  switch (field) {
+    case 'title':
+      return ticket.title.toLowerCase();
+    case 'protocol':
+      return ticket.protocol.toLowerCase();
+    case 'agent':
+      return (ticket.agent?.name ?? '').toLowerCase();
+    case 'priority':
+      return PRIORITY_RANK[ticket.priority] ?? 0;
+    case 'status':
+      return STATUS_RANK[ticket.status] ?? 0;
+    case 'resolveDeadline':
+      return ticket.resolveDeadline ? new Date(ticket.resolveDeadline).getTime() : 0;
+    case 'responseDeadline':
+      return ticket.responseDeadline ? new Date(ticket.responseDeadline).getTime() : 0;
+    case 'createdAt':
+      return new Date(ticket.createdAt).getTime();
+    case 'updatedAt':
+      return new Date(ticket.updatedAt).getTime();
+    default:
+      return 0;
+  }
+}
+
+/** Reorders cards within a column (D6b) — purely cosmetic, never re-fetches. */
+function applySort(list: Ticket[], field: string | null, dir: 'asc' | 'desc'): Ticket[] {
+  if (!field) return list;
+  const sorted = [...list].sort((a, b) => {
+    const va = sortValue(a, field);
+    const vb = sortValue(b, field);
+    if (va < vb) return -1;
+    if (va > vb) return 1;
+    return 0;
+  });
+  return dir === 'desc' ? sorted.reverse() : sorted;
+}
 
 /**
  * Synthetic column id for tickets with no recognized current stage on the
@@ -178,6 +261,60 @@ export function TicketKanban({
     initialServiceDeskId ?? '',
   );
   const stageMode = Boolean(selectedDeskId);
+
+  // D6c "Configurações": Agrupar por (Estágio padrão, Status, Responsável,
+  // Prioridade), persisted per user. "Estágio" only applies while a Mesa is
+  // selected — falls back to "Status" otherwise (same as the pre-D6c
+  // behavior), so switching Mesa off never leaves the board stuck on an
+  // ungroupable dimension.
+  const { config: kanbanConfig, setGroupBy, setColumnVisibility } = useUserScreenConfig('tickets-kanban', {
+    groupBy: 'stage',
+    grid: { columnVisibility: DEFAULT_KANBAN_FIELD_VISIBILITY, density: 'compact' },
+  });
+  const groupBy = kanbanConfig.groupBy || 'stage';
+  const effectiveGroupBy = groupBy === 'stage' && !stageMode ? 'status' : groupBy;
+  const visibleCardFields: TicketKanbanCardVisibleFields = kanbanConfig.grid.columnVisibility;
+
+  // D6a: fila de avatares dos agentes presentes no board inteiro (não só os
+  // visíveis após outros filtros), clique alterna filtro por agente (multi).
+  const [selectedAgentIds, setSelectedAgentIds] = useState<Set<string>>(new Set());
+  const presentAgents = useMemo(() => {
+    const byId = new Map<string, { id: string; name: string }>();
+    tickets.forEach((t) => {
+      if (t.agent) byId.set(t.agent.id, t.agent);
+    });
+    return Array.from(byId.values());
+  }, [tickets]);
+  const toggleAgentFilter = (agentId: string) => {
+    setSelectedAgentIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(agentId)) next.delete(agentId);
+      else next.add(agentId);
+      return next;
+    });
+  };
+  const visibleTickets = useMemo(
+    () =>
+      selectedAgentIds.size === 0
+        ? tickets
+        : tickets.filter((t) => t.agentId && selectedAgentIds.has(t.agentId)),
+    [tickets, selectedAgentIds],
+  );
+
+  // D6b "Ordenar": reorders cards within each column; purely client-side,
+  // not persisted (session-local).
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
+  const [isConfigMenuOpen, setIsConfigMenuOpen] = useState(false);
+  const handleSortFieldClick = (field: string) => {
+    if (sortField === field) {
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortDir('asc');
+    }
+  };
 
   const { data: serviceDesks = [] } = useQuery({
     queryKey: ['service-desks'],
@@ -362,6 +499,124 @@ export function TicketKanban({
     </div>
   );
 
+  // D6a: fila de avatares (clique alterna filtro por agente, multi).
+  const agentAvatarRow = presentAgents.length > 0 && (
+    <div className="flex items-center -space-x-1.5" role="group" aria-label="Filtrar por responsável">
+      {presentAgents.map((agent) => (
+        <button
+          key={agent.id}
+          type="button"
+          aria-label={`Filtrar por ${agent.name}`}
+          aria-pressed={selectedAgentIds.has(agent.id)}
+          onClick={() => toggleAgentFilter(agent.id)}
+          className={cn(
+            'rounded-full ring-2 ring-white transition-transform hover:z-10 hover:scale-110',
+            selectedAgentIds.has(agent.id) && 'ring-brand-500',
+          )}
+        >
+          <EzAvatar name={agent.name} size={28} />
+        </button>
+      ))}
+    </div>
+  );
+
+  // D6b "Ordenar": popover with one button per sortable field + Limpar.
+  const sortMenu = (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setIsSortMenuOpen((prev) => !prev)}
+        className="flex h-[38px] items-center gap-1.5 rounded-[10px] border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"
+      >
+        <ArrowUpDown className="h-3.5 w-3.5" />
+        Ordenar
+      </button>
+      {isSortMenuOpen && (
+        <div className="absolute z-20 mt-1 w-64 rounded-[10px] border border-gray-200 bg-white p-2 shadow-md">
+          <p className="px-1 pb-1 text-[12px] font-semibold text-gray-500">
+            Ordenar os cards por
+          </p>
+          {SORT_FIELDS.map((field) => (
+            <button
+              key={field.id}
+              type="button"
+              onClick={() => handleSortFieldClick(field.id)}
+              className="flex w-full items-center justify-between rounded-[6px] px-2 py-1.5 text-left text-[13px] text-gray-700 hover:bg-gray-80"
+            >
+              {field.label}
+              {sortField === field.id && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => setSortField(null)}
+            className="mt-1 w-full rounded-[6px] px-2 py-1.5 text-left text-[13px] text-red-600 hover:bg-red-50"
+          >
+            Limpar ordenação
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
+  // D6c "Configurações": Agrupar por + Exibir campos (quais campos opcionais
+  // o card mostra — Título/Número são fixos, ver KANBAN_FIELDS acima).
+  const configMenu = (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setIsConfigMenuOpen((prev) => !prev)}
+        className="flex h-[38px] items-center gap-1.5 rounded-[10px] border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"
+      >
+        <SlidersHorizontal className="h-3.5 w-3.5" />
+        Configurações
+      </button>
+      {isConfigMenuOpen && (
+        <div className="absolute z-20 mt-1 w-64 rounded-[10px] border border-gray-200 bg-white p-2 shadow-md">
+          <label htmlFor="kanban-group-by" className="px-1 text-[12px] font-semibold text-gray-500">
+            Agrupar por
+          </label>
+          <select
+            id="kanban-group-by"
+            value={groupBy}
+            onChange={(e) => setGroupBy(e.target.value)}
+            className="mt-1 h-[34px] w-full rounded-[8px] border border-gray-200 bg-white px-2 text-[13px] text-gray-900"
+          >
+            <option value="stage">Estágio</option>
+            <option value="status">Status</option>
+            <option value="agent">Responsável</option>
+            <option value="priority">Prioridade</option>
+          </select>
+
+          <div className="mt-3 border-t border-gray-100 pt-2">
+            <p className="px-1 text-[12px] font-semibold text-gray-500">Exibir campos</p>
+            {KANBAN_FIELDS.map((field) => (
+              <label key={field.id} className="flex items-center gap-2 px-1 py-1 text-[13px]">
+                <input
+                  type="checkbox"
+                  checked={kanbanConfig.grid.columnVisibility[field.id] !== false}
+                  onChange={(e) =>
+                    setColumnVisibility((prev) => ({ ...prev, [field.id]: e.target.checked }))
+                  }
+                />
+                {field.label}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const toolbar = (
+    <div className="flex flex-wrap items-center gap-3">
+      {mesaSelector}
+      {agentAvatarRow}
+      {sortMenu}
+      {configMenu}
+    </div>
+  );
+
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -418,25 +673,29 @@ export function TicketKanban({
     );
   }
 
-  if (stageMode) {
+  if (effectiveGroupBy === 'stage') {
     const orderedStages = [...stages].sort((a, b) => a.position - b.position);
     const hasInitialStage = stages.some((stage) => stage.isInitial);
     const stageColumns = orderedStages.map((stage) => ({
       id: stage.id,
       label: stage.name,
-      tickets: tickets.filter((t) => t.stageId === stage.id),
+      tickets: applySort(visibleTickets.filter((t) => t.stageId === stage.id), sortField, sortDir),
     }));
     stageColumns.push({
       id: NO_STAGE_COLUMN_ID,
       label: 'Sem estágio',
-      tickets: tickets.filter(
-        (t) => stageColumnIdFor(t, stages) === NO_STAGE_COLUMN_ID,
+      tickets: applySort(
+        visibleTickets.filter(
+          (t) => stageColumnIdFor(t, stages) === NO_STAGE_COLUMN_ID,
+        ),
+        sortField,
+        sortDir,
       ),
     });
 
     return (
       <div className="space-y-3">
-        {mesaSelector}
+        {toolbar}
         {dropError && (
           <EzAlert variant="error" onClose={() => setDropError(null)}>
             {dropError}
@@ -530,7 +789,7 @@ export function TicketKanban({
                                     className={`${dragSnapshot.isDragging ? 'opacity-70 rotate-2 scale-105' : ''} transition-transform`}
                                     style={dragProvided.draggableProps.style}
                                   >
-                                    <TicketCard ticket={ticket} />
+                                    <TicketKanbanCard ticket={ticket} visibleFields={visibleCardFields} />
                                   </div>
                                 )}
                               </Draggable>
@@ -551,10 +810,12 @@ export function TicketKanban({
     );
   }
 
-  // Fallback: no mesa selected — groups by the generic `status` enum (visão "todas as mesas").
+  if (effectiveGroupBy === 'status') {
+  // Groups by the generic `status` enum (visão "todas as mesas", ou Status
+  // escolhido explicitamente em Configurações mesmo com uma Mesa ativa).
   const grouped = statusColumns.reduce(
     (acc, col) => {
-      acc[col] = tickets.filter((t) => t.status === col);
+      acc[col] = applySort(visibleTickets.filter((t) => t.status === col), sortField, sortDir);
       return acc;
     },
     {} as Record<TicketStatus, Ticket[]>,
@@ -562,7 +823,7 @@ export function TicketKanban({
 
   return (
     <div className="space-y-3">
-      {mesaSelector}
+      {toolbar}
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex items-start gap-4 overflow-x-auto pb-4">
           {statusColumns.map((col) => {
@@ -632,7 +893,7 @@ export function TicketKanban({
                                 className={`${dragSnapshot.isDragging ? 'opacity-70 rotate-2 scale-105' : ''} transition-transform`}
                                 style={provided.draggableProps.style}
                               >
-                                <TicketCard ticket={ticket} />
+                                <TicketKanbanCard ticket={ticket} visibleFields={visibleCardFields} />
                               </div>
                             )}
                           </Draggable>
@@ -648,6 +909,61 @@ export function TicketKanban({
           })}
         </div>
       </DragDropContext>
+    </div>
+  );
+  }
+
+  // D6c: Agrupar por Responsável ou Prioridade — visão somente leitura
+  // (nenhuma dessas dimensões tem uma operação de arrastar-para-mudar no
+  // backend atual, diferente de Estágio/Status).
+  const dynamicColumns =
+    effectiveGroupBy === 'agent'
+      ? (() => {
+          const byAgent = new Map<string, { label: string; tickets: Ticket[] }>();
+          visibleTickets.forEach((t) => {
+            const key = t.agent?.id ?? '__unassigned__';
+            const label = t.agent?.name ?? 'Não atribuído';
+            const bucket = byAgent.get(key) ?? { label, tickets: [] };
+            bucket.tickets.push(t);
+            byAgent.set(key, bucket);
+          });
+          return Array.from(byAgent.entries()).map(([id, { label, tickets: colTickets }]) => ({
+            id,
+            label,
+            tickets: applySort(colTickets, sortField, sortDir),
+          }));
+        })()
+      : (['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'] as const).map((priority) => ({
+          id: priority,
+          label: priorityLabels[priority],
+          tickets: applySort(
+            visibleTickets.filter((t) => t.priority === priority),
+            sortField,
+            sortDir,
+          ),
+        }));
+
+  return (
+    <div className="space-y-3">
+      {toolbar}
+      <div className="flex items-start gap-4 overflow-x-auto pb-4">
+        {dynamicColumns.map((col) => (
+          <div
+            key={col.id}
+            className="flex w-80 shrink-0 flex-col gap-3 rounded-lg border border-gray-200 bg-gray-80 p-4 min-h-[500px]"
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="flex-1 text-sm font-semibold text-gray-900">{col.label}</h3>
+              <EzTag label={String(col.tickets.length)} variant="gray" className="!px-2 !py-0.5" />
+            </div>
+            <div className="flex flex-1 flex-col gap-3">
+              {col.tickets.map((ticket) => (
+                <TicketKanbanCard key={ticket.id} ticket={ticket} visibleFields={visibleCardFields} />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

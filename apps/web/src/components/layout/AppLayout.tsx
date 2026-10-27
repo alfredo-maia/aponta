@@ -1,6 +1,8 @@
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { UserMenu } from './UserMenu';
+import { TabBar } from './TabBar';
+import { TabsProvider } from '../../contexts/TabsContext';
 
 export function AppLayout() {
   return (
@@ -10,9 +12,12 @@ export function AppLayout() {
         <header className="flex justify-end border-b border-gray-200 bg-white p-3">
           <UserMenu />
         </header>
-        <main className="flex-1 overflow-auto p-6 min-w-0">
-          <Outlet />
-        </main>
+        <TabsProvider>
+          <TabBar />
+          <main className="flex-1 overflow-auto p-6 min-w-0">
+            <Outlet />
+          </main>
+        </TabsProvider>
       </div>
     </div>
   );

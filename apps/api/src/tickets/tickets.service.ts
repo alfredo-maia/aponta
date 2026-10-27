@@ -16,7 +16,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
-import { TicketQueryDto } from './dto/ticket-query.dto';
+import { TICKET_SORT_FIELDS, TicketQueryDto } from './dto/ticket-query.dto';
 import { CurrentUserPayload } from './decorators/current-user.decorator';
 import { TenantHelper } from '../core/security/tenant.helper';
 import { addBusinessHours } from '../scheduling/business-hours';
@@ -187,6 +187,27 @@ const MAX_PROTOCOL_RETRY_ATTEMPTS = 3;
  */
 const PROTOCOL_SEQUENCE_WIDTH = 4;
 const MAX_PROTOCOL_SEQUENCE = 10 ** PROTOCOL_SEQUENCE_WIDTH - 1;
+
+/**
+ * Relations the ticket List/Kanban need to show real names instead of raw
+ * UUIDs (SPEC DMTE-137 D5/D7: Cliente, Mesa de serviço, Responsável,
+ * Solicitante, Estágio columns/card fields) — shared by both `findAll`
+ * query paths (normal page and the in-memory "overdue" candidate fetch).
+ */
+const TICKET_LIST_INCLUDE = {
+  requester: {
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      organizationId: true,
+      organization: { select: { id: true, name: true } },
+    },
+  },
+  agent: { select: { id: true, name: true } },
+  serviceDesk: { select: { id: true, name: true, displayName: true } },
+  stage: { select: { id: true, name: true } },
+} satisfies Prisma.TicketInclude;
 
 @Injectable()
 export class TicketsService {
@@ -511,11 +532,22 @@ export class TicketsService {
   }> {
     const baseWhere = TenantHelper.getTicketWhere(currentUser);
     const where: Prisma.TicketWhereInput = { ...baseWhere };
+    // `requester` is the one key both TenantHelper (CLIENT_MASTER's org
+    // scope) and the Busca avançada filters (organizationId, requesterQuery)
+    // can write to. Collecting every condition here and ANDing them —
+    // instead of letting a later `where.requester = {...}` assignment
+    // silently replace the TenantHelper scope — is what stops a
+    // CLIENT_MASTER from reading another organization's tickets by sending
+    // `organizationId`/`requesterQuery` in the query string.
+    const requesterConditions: Prisma.UserWhereInput[] = [];
+    if (baseWhere.requester) {
+      requesterConditions.push(baseWhere.requester as Prisma.UserWhereInput);
+    }
     if (query.serviceDeskId) {
       where.serviceDeskId = query.serviceDeskId;
     }
     if (query.organizationId) {
-      where.requester = { organizationId: query.organizationId };
+      requesterConditions.push({ organizationId: query.organizationId });
     }
     if (query.status) {
       where.status = query.status;
@@ -532,6 +564,41 @@ export class TicketsService {
         { protocol: { contains: query.search, mode: 'insensitive' } },
         { description: { contains: query.search, mode: 'insensitive' } },
       ];
+    }
+    if (query.number) {
+      where.protocol = { contains: query.number, mode: 'insensitive' };
+    }
+    if (query.titleContains) {
+      where.title = { contains: query.titleContains, mode: 'insensitive' };
+    }
+    if (query.requesterQuery) {
+      requesterConditions.push({
+        OR: [
+          { name: { contains: query.requesterQuery, mode: 'insensitive' } },
+          { email: { contains: query.requesterQuery, mode: 'insensitive' } },
+        ],
+      });
+    }
+    if (requesterConditions.length === 1) {
+      where.requester = requesterConditions[0];
+    } else if (requesterConditions.length > 1) {
+      where.requester = { AND: requesterConditions };
+    }
+    if (query.stageId) {
+      where.stageId = query.stageId;
+    }
+    if (query.dateFrom || query.dateTo) {
+      const field = query.dateField ?? 'createdAt';
+      where[field] = {
+        ...(query.dateFrom ? { gte: new Date(query.dateFrom) } : {}),
+        ...(query.dateTo ? { lte: new Date(query.dateTo) } : {}),
+      };
+    }
+    if (query.agentId) {
+      where.agentId = query.agentId;
+    }
+    if (query.agentIds && query.agentIds.length > 0) {
+      where.agentId = { in: query.agentIds };
     }
 
     // These mirror the exact KPI definitions ReportsService.getSummary()
@@ -559,12 +626,24 @@ export class TicketsService {
     if (wantsPaused) {
       where.status = { in: PAUSED_STATUSES };
     }
+    // Busca avançada "Fechados" shortcut (D4): an explicit `status` still
+    // wins, same precedence as every other aggregate flag above.
+    if (query.closedOnly === 'true' && !where.status) {
+      where.status = { in: CLOSED_STATUSES };
+    }
 
     const page = Math.max(parseInt(query.page ?? '1', 10) || 1, 1);
     const limit = Math.min(
       Math.max(parseInt(query.limit ?? '20', 10) || 20, 1),
       100,
     );
+
+    const sortDir = query.sortDir ?? 'desc';
+    const orderBy: Prisma.TicketOrderByWithRelationInput =
+      query.sortBy &&
+      TICKET_SORT_FIELDS.includes(query.sortBy as (typeof TICKET_SORT_FIELDS)[number])
+        ? { [query.sortBy]: sortDir }
+        : { createdAt: 'desc' };
 
     if (wantsOverdue) {
       // SLA breach ("Vencidos") depends on `now` and accumulated pause
@@ -579,7 +658,8 @@ export class TicketsService {
 
       const candidates = await this.prisma.ticket.findMany({
         where,
-        orderBy: { createdAt: 'desc' },
+        orderBy,
+        include: TICKET_LIST_INCLUDE,
       });
       const breached = candidates
         .map((t) => this.decorateWithSlaStatus(t))
@@ -609,7 +689,8 @@ export class TicketsService {
         where,
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy,
+        include: TICKET_LIST_INCLUDE,
       }),
       this.prisma.ticket.count({ where }),
     ]);
@@ -1021,6 +1102,16 @@ export class TicketsService {
 
     const updateData: Prisma.TicketUpdateInput = { status: newStatus };
 
+    // Busca avançada "Data de Fechamento" (D8/Q1): closedAt tracks the
+    // moment the ticket last entered a terminal (CLOSED_STATUSES) state,
+    // and is cleared on the one allowed backward move (admin reopen) so a
+    // reopened ticket doesn't keep reporting a stale closing date.
+    if (CLOSED_STATUSES.includes(newStatus)) {
+      updateData.closedAt = new Date();
+    } else if (isReopenByAdmin) {
+      updateData.closedAt = null;
+    }
+
     if (
       newStatus === TicketStatus.RESOLVED &&
       !existing.csatToken &&
@@ -1106,7 +1197,7 @@ export class TicketsService {
     const closedStatus = desk.defaultClosedStatus ?? TicketStatus.CLOSED;
     const ticket = await this.prisma.ticket.update({
       where: { id },
-      data: { status: closedStatus },
+      data: { status: closedStatus, closedAt: new Date() },
       include: { requester: { select: { email: true } } },
     });
 

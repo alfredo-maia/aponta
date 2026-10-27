@@ -5,10 +5,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserQueryDto } from './dto/user-query.dto';
 import type { User } from '@prisma/client';
-import {
-  DEFAULT_PERMISSION_GROUPS,
-  ROLE_GROUP_NAME,
-} from '../permission-groups/default-permission-groups';
+import { TenantHelper } from '../core/security/tenant.helper';
+import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 const SALT_ROUNDS = 10;
 const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
@@ -301,13 +299,43 @@ export class UsersService {
     return this.toSafeUser(user);
   }
 
-  async findAgents(): Promise<SafeUser[]> {
-    const users = await this.prisma.user.findMany({
-      where: {
-        role: {
-          in: ['AGENT', 'ADMIN'],
-        },
+  /**
+   * "Atendente" picker for the ticket Busca avançada / assignment UI
+   * (SPEC DMTE-137 D8/T4). ADMIN sees every agent with no desk scoping;
+   * AGENT/AGENT_MASTER only see agents of the service desks they can
+   * themselves access, reusing the exact same scope
+   * `TenantHelper.getServiceDeskWhere` applies to ticket/desk visibility.
+   */
+  async findAgents(currentUser: CurrentUserPayload): Promise<SafeUser[]> {
+    const roleFilter: Prisma.UserWhereInput = {
+      role: { in: [Role.AGENT, Role.AGENT_MASTER, Role.ADMIN] },
+    };
+
+    if (currentUser.role === Role.ADMIN) {
+      const users = await this.prisma.user.findMany({
+        where: roleFilter,
+        orderBy: { name: 'asc' },
+      });
+      return users.map((user) => this.toSafeUser(user));
+    }
+
+    const desks = await this.prisma.serviceDesk.findMany({
+      where: TenantHelper.getServiceDeskWhere(currentUser),
+      select: {
+        agents: { select: { id: true } },
+        agentGroups: { select: { members: { select: { id: true } } } },
       },
+    });
+    const agentIds = new Set<string>();
+    for (const desk of desks) {
+      desk.agents.forEach((agent) => agentIds.add(agent.id));
+      desk.agentGroups.forEach((group) =>
+        group.members.forEach((member) => agentIds.add(member.id)),
+      );
+    }
+
+    const users = await this.prisma.user.findMany({
+      where: { ...roleFilter, id: { in: Array.from(agentIds) } },
       orderBy: { name: 'asc' },
     });
     return users.map((user) => this.toSafeUser(user));

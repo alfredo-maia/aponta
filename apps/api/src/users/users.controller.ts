@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
@@ -6,6 +6,11 @@ import { RequirePermission } from '../auth/decorators/require-permission.decorat
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserQueryDto } from './dto/user-query.dto';
 import { UpdateUserActiveDto } from './dto/update-user-active.dto';
+import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
+
+interface AuthenticatedRequest {
+  user: CurrentUserPayload;
+}
 
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('users')

@@ -43,9 +43,10 @@ describe('UsersController', () => {
       ];
       service.findAgents.mockResolvedValueOnce(mockAgents);
 
-      const result = await controller.getAgents();
+      const fakeUser = { id: 'admin-1', role: Role.ADMIN };
+      const result = await controller.getAgents({ user: fakeUser } as any);
 
-      expect(service.findAgents).toHaveBeenCalled();
+      expect(service.findAgents).toHaveBeenCalledWith(fakeUser);
       expect(result).toEqual(mockAgents);
     });
   });

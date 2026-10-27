@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-10-27T09:55:29.458362+00:00",
+  "finished_at": "2026-10-27T09:55:29.813772+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_*.py",
+    "-v"
+  ],
+  "base_sha": "b7588437b54aa8da42c57ed2dbc971bab3184e41",
+  "head_sha": "b7588437b54aa8da42c57ed2dbc971bab3184e41",
+  "exit_code": 0,
+  "tests": {
+    "scripts/test_aponta_delivery.py": "e44873f8bc8f32badc90cd9549d11a9e2df625ce099537432c6b3662dbc8a473"
+  },
+  "criteria": [
+    "AC-12"
+  ],
+  "source_hashes": {
+    "scripts/aponta_delivery.py": "8813a0a0ec2350c43836cdd912ee7aafebe1a9ca260e902d8b1277fa0c3aacd6",
+    "scripts/test_aponta_delivery.py": "e44873f8bc8f32badc90cd9549d11a9e2df625ce099537432c6b3662dbc8a473"
+  },
+  "log": ".delivery/evidence/DMTE-78/gate-green.log",
+  "log_sha256": "109835853543c6cf737a39a90a6806e3a3faca2a9b654cdc948c75dd49b7b1e6"
+}
