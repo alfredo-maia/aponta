@@ -122,6 +122,73 @@ class DeliveryTests(unittest.TestCase):
         self.manifest['tdd'] = {'mode': 'not-applicable', 'reason': 'Convenient'}
         self.assertTrue(self.check())
 
+    def legacy_manifest(self):
+        self.manifest['tdd'] = {
+            'mode': 'legacy-exception', 'exception': '.delivery/exception.json',
+            'red': '.delivery/red.json', 'green': '.delivery/green.json',
+        }
+        record = {
+            'version': 1, 'delivery': 'DMTE-159', 'github_issue': 92,
+            'base_sha': 'a' * 40, 'legacy_sha': 'b' * 40,
+            'reason': 'Implementation predates the evidence collector.',
+            'approval': {'status': 'approved', 'approved_by': 'owner',
+                         'source': 'https://github.com/alfredo-maia/aponta/issues/92#issuecomment-123'},
+        }
+        self.manifest['base_sha'] = 'a' * 40
+        (self.root / '.delivery').mkdir(exist_ok=True)
+        (self.root / '.delivery/exception.json').write_text(json.dumps(record))
+        return record
+
+    def save_legacy_record(self, record):
+        (self.root / '.delivery/exception.json').write_text(json.dumps(record))
+
+    def test_approved_legacy_exception_checks_new_work_evidence(self):
+        self.legacy_manifest()
+        with patch.object(delivery, 'git', return_value=''), patch.object(delivery, 'source_hashes', return_value={}), patch.object(delivery, 'validate_evidence', return_value=[]) as evidence:
+            self.assertEqual(delivery.validate_manifest(self.root, self.manifest), [])
+            self.assertEqual(evidence.call_args.args[3], 'b' * 40)
+            self.assertEqual(evidence.call_args.args[2], {'AC-01'})
+
+    def test_pending_legacy_exception_is_blocked_even_without_evidence_check(self):
+        record = self.legacy_manifest()
+        record['approval'] = {'status': 'pending'}
+        self.save_legacy_record(record)
+        with patch.object(delivery, 'git', return_value=''):
+            self.assertTrue(self.check())
+
+    def test_legacy_approval_requires_canonical_issue_comment(self):
+        record = self.legacy_manifest()
+        record['approval']['source'] = 'https://example.com/approval'
+        self.save_legacy_record(record)
+        with patch.object(delivery, 'git', return_value=''):
+            self.assertTrue(self.check())
+
+    def test_legacy_exception_cannot_be_reused_for_another_delivery(self):
+        record = self.legacy_manifest()
+        record['delivery'] = 'DMTE-78'
+        self.save_legacy_record(record)
+        with patch.object(delivery, 'git', return_value=''):
+            self.assertTrue(self.check())
+
+    def test_legacy_exception_requires_full_commit_and_matching_base(self):
+        for field in ['base_sha', 'legacy_sha']:
+            with self.subTest(field=field):
+                record = self.legacy_manifest()
+                record[field] = 'bad'
+                self.save_legacy_record(record)
+                with patch.object(delivery, 'git', return_value=''):
+                    self.assertTrue(self.check())
+
+    def test_legacy_exception_does_not_skip_evidence_for_new_changes(self):
+        self.legacy_manifest()
+        with patch.object(delivery, 'git', return_value=''), patch.object(delivery, 'source_hashes', return_value={}), patch.object(delivery, 'validate_evidence', return_value=['Missing new RED/GREEN']):
+            self.assertIn('Missing new RED/GREEN', delivery.validate_manifest(self.root, self.manifest))
+
+    def test_legacy_exception_commit_must_be_in_current_history(self):
+        self.legacy_manifest()
+        with patch.object(delivery, 'git', side_effect=subprocess.CalledProcessError(1, 'git')):
+            self.assertTrue(self.check())
+
     def test_secret_redaction(self):
         with patch.dict(os.environ, {'APPOINT_TEST_TOKEN': 'private-test-value-123'}):
             self.assertNotIn('private-test-value-123', delivery.redact('value=private-test-value-123'))

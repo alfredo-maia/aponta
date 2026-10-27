@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "delivery": "DMTE-78",
+  "github_issue": 93,
+  "base_sha": "a737b6a445b000716921fe9cecaa069f3f9fef63",
+  "legacy_sha": "b7588437b54aa8da42c57ed2dbc971bab3184e41",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-6",
+    "AC-7",
+    "AC-8",
+    "AC-9",
+    "AC-10",
+    "AC-11"
+  ],
+  "reason": "Implementação legada sem evidência histórica RED/GREEN. A afirmação anterior de aprovação pelo Alfredo não foi comprovada e foi retirada. Testes e E2E no snapshot: https://github.com/alfredo-maia/aponta/actions/runs/40482764385 . Aprovação pendente; evidência de TDD não será fabricada.",
+  "approval": {
+    "status": "pending",
+    "approved_by": null,
+    "source": null
+  }
+}

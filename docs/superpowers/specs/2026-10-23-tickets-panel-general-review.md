@@ -102,21 +102,21 @@ D8. **API**. Estender `TicketQueryDto`/`findAll` (compatível com os chamadores 
 D9. **Sem Clarify bloqueante**: premissas assumidas estão em §9 e listadas na entrega; qualquer objeção do Alfredo vira ajuste de tarefa, não de arquitetura.
 
 ## 5. Critérios de aceite (testáveis)
-- AC1: `/` não mostra botão nem rota de Grade; só Lista e Kanban (teste: `queryByTestId('tickets-viewmode-grid')` é null).
-- AC2: Cabeçalho tem "Tickets", alternância Lista/Kanban, campo Buscar e botão Busca avançada, nessa disposição; CLIENT não vê o Kanban.
-- AC3: Clicar em Busca avançada abre aba interna `/tickets/search` sem abrir janela do navegador (teste: `window.open` não chamado; nenhum `<a target="_blank">` para rotas internas de ticket).
-- AC4: Busca avançada tem todos os campos de D4; Estágio desabilitado sem Mesa; Buscar aplica filtros e mostra resultados + contador; Limpar zera.
-- AC5: Painel de filtros antigo não existe mais em `/`.
-- AC6: Lista agrupa por Cliente/Estágio/Status/Prioridade/Responsável/Mesa/Solicitante/Nenhum, grupos colapsam e mostram contador; colunas padrão são Número, Título, Cliente, Origem, Prioridade, Status, Estágio; "Exibir colunas" liga/desliga e persiste após recarregar.
-- AC7: Kanban: avatares redondos filtram por agente (clique alterna); Mesa, Ordenar e Configurações funcionam; ordenação asc/desc/limpar altera a ordem dos cards em cada coluna.
-- AC8: Card exibe código, título com reticências (2 linhas), cliente + status, avatares pequenos; não há botão de apontamento; clicar abre o ticket em aba interna.
-- AC9: Abas internas: abrir 2 tickets cria 2 abas; reabrir o mesmo ativa a existente; fechar a ativa vai para a vizinha; título da aba `#protocolo - título`; sobrevive a refresh na mesma sessão.
-- AC10: RBAC: CLIENT só retorna os próprios tickets mesmo forçando `agentId`/`organizationId` na query; CLIENT_MASTER limitado à organização; AGENT só mesas permitidas (testes de API por papel).
-- AC11: Toda a UI nova em pt-BR; `lint`, `typecheck`, testes unitários e `nx run web-e2e:e2e` verdes.
+- AC-1: `/` não mostra botão nem rota de Grade; só Lista e Kanban (teste: `queryByTestId('tickets-viewmode-grid')` é null).
+- AC-2: Cabeçalho tem "Tickets", alternância Lista/Kanban, campo Buscar e botão Busca avançada, nessa disposição; CLIENT não vê o Kanban.
+- AC-3: Clicar em Busca avançada abre aba interna `/tickets/search` sem abrir janela do navegador (teste: `window.open` não chamado; nenhum `<a target="_blank">` para rotas internas de ticket).
+- AC-4: Busca avançada tem todos os campos de D4; Estágio desabilitado sem Mesa; Buscar aplica filtros e mostra resultados + contador; Limpar zera.
+- AC-5: Painel de filtros antigo não existe mais em `/`.
+- AC-6: Lista agrupa por Cliente/Estágio/Status/Prioridade/Responsável/Mesa/Solicitante/Nenhum, grupos colapsam e mostram contador; colunas padrão são Número, Título, Cliente, Origem, Prioridade, Status, Estágio; "Exibir colunas" liga/desliga e persiste após recarregar.
+- AC-7: Kanban: avatares redondos filtram por agente (clique alterna); Mesa, Ordenar e Configurações funcionam; ordenação asc/desc/limpar altera a ordem dos cards em cada coluna.
+- AC-8: Card exibe código, título com reticências (2 linhas), cliente + status, avatares pequenos; não há botão de apontamento; clicar abre o ticket em aba interna.
+- AC-9: Abas internas: abrir 2 tickets cria 2 abas; reabrir o mesmo ativa a existente; fechar a ativa vai para a vizinha; título da aba `#protocolo - título`; sobrevive a refresh na mesma sessão.
+- AC-10: RBAC: CLIENT só retorna os próprios tickets mesmo forçando `agentId`/`organizationId` na query; CLIENT_MASTER limitado à organização; AGENT só mesas permitidas (testes de API por papel).
+- AC-11: Toda a UI nova em pt-BR; `lint`, `typecheck`, testes unitários e `nx run web-e2e:e2e` verdes.
 
 ## 6. Tarefas discretas (ordem sugerida)
-T1. Remover Grade: tipo, botão, `EzEntityGrid`/toolbar/modal de config da tela, testes e e2e que referenciam Grade; migrar `useUserScreenConfig('tickets')`. (RED: teste AC1.)
-T2. Infra de abas internas: `TabsProvider`, `TabBar` no `AppLayout`, persistência `sessionStorage`, hook `useOpenInTab`; substituir `target="_blank"` internos em `TicketsPage`, `TicketCard`, `TicketKanban`, Dashboard. (AC3, AC9)
+T1. Remover Grade: tipo, botão, `EzEntityGrid`/toolbar/modal de config da tela, testes e e2e que referenciam Grade; migrar `useUserScreenConfig('tickets')`. (RED: teste AC-1.)
+T2. Infra de abas internas: `TabsProvider`, `TabBar` no `AppLayout`, persistência `sessionStorage`, hook `useOpenInTab`; substituir `target="_blank"` internos em `TicketsPage`, `TicketCard`, `TicketKanban`, Dashboard. (AC-3, AC-9)
 T3. API: estender `TicketQueryDto` e `findAll` (D8) + testes unitários por papel; decidir `closedAt` (Q1) e migration se aprovada (usar skill nx-nestjs-prisma-workspace; migration via `prisma migrate`, sem `db push`).
 T4. API: garantir endpoints de apoio com escopo por papel (organizações, agentes, estágios por mesa). Testes.
 T5. `TicketsHeader` (D3) com URL `?view=`.
@@ -143,3 +143,21 @@ Apontamento inline/play no card; modo Grade; campos customizados do TiFlux; filt
 - Q3. Os atalhos Pré-tickets/Autorizações/Revisão/Fechados do TiFlux ficam de fora (já decidido em DMTE-78; "Tickets fechados" é coberto por Status = Fechados na Busca avançada).
 - Q4. "Abertura rápida de ticket" do Kanban (toggle) não entra agora.
 - Q5. Presets (Meus, Não atendidos, Pausados, Vencidos) ficam em "Filtros adicionais" da Busca avançada, e continuam acessíveis por link do Dashboard (`?mine=true` etc.).
+
+
+## Correção do contrato de entrega (DMTE-78)
+
+- AC-12: O gate admite `legacy-exception` somente com registro versionado que
+  identifique entrega, issue, base SHA, snapshot legado, critérios dispensados,
+  justificativa e aprovação explícita com link ao comentário na issue GitHub canônica.
+  Registro pendente ou de outra entrega, base divergente, commit fora do histórico,
+  link inválido e critérios dispensados divergentes bloqueiam o contrato.
+  Teste: `scripts/test_aponta_delivery.py`.
+- A dispensa cobre a ausência de evidência histórica dos AC-1 a AC-11 no snapshot
+  `b7588437b54aa8da42c57ed2dbc971bab3184e41`; não declara TDD retroativo.
+- Mudanças posteriores ao snapshot, inclusive no gate, continuam exigindo
+  RED/GREEN real, com o snapshot como base e cobertura do AC-12.
+- Aprovação é um registro revisado por humanos; o arquivo local não autentica
+  a identidade do aprovador. QA deve conferir o comentário original e seu escopo.
+- A aprovação anterior atribuída ao Alfredo não foi comprovada. A exceção fica
+  pendente até decisão explícita, sem merge/deploy ou dispensa genérica de TDD.

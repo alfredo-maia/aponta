@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-10-27T09:53:31.886708+00:00",
+  "finished_at": "2026-10-27T09:53:32.219210+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_*.py",
+    "-v"
+  ],
+  "base_sha": "b7588437b54aa8da42c57ed2dbc971bab3184e41",
+  "head_sha": "b7588437b54aa8da42c57ed2dbc971bab3184e41",
+  "exit_code": 1,
+  "tests": {
+    "scripts/test_aponta_delivery.py": "e44873f8bc8f32badc90cd9549d11a9e2df625ce099537432c6b3662dbc8a473"
+  },
+  "criteria": [
+    "AC-12"
+  ],
+  "source_hashes": {
+    "scripts/test_aponta_delivery.py": "e44873f8bc8f32badc90cd9549d11a9e2df625ce099537432c6b3662dbc8a473"
+  },
+  "log": ".delivery/evidence/DMTE-78/gate-red.log",
+  "log_sha256": "89f0af18bad7d4cf671e4e8c08f1fa4fd303592cc37a01aa787b3c959694ff4c"
+}
