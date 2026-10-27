@@ -900,5 +900,29 @@ describe('TicketKanban', () => {
 
       expect(screen.getByRole('heading', { name: 'Alta' })).toBeInTheDocument();
     });
+
+    it('RODADA 2 ("Exibir campos", D6c): "Configurações" lets the user toggle optional card fields, persisted like "Agrupar por"', () => {
+      mockApiGet();
+      const ticketsWithOrg = ticketsWithAgents.map((t) => ({
+        ...t,
+        requester: { id: 'r1', name: 'Maria', email: 'maria@x.com', organizationId: 'org-1', organization: { id: 'org-1', name: 'Acme Corp' } },
+      }));
+      renderKanban({ tickets: ticketsWithOrg, isLoading: false, isError: false });
+
+      // Responsável (agent) is visible by default: one "Ana Costa" avatar in
+      // the D6a filter row, another on her ticket's card.
+      expect(screen.getAllByTitle('Ana Costa')).toHaveLength(2);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
+      fireEvent.click(screen.getByLabelText('Responsável'));
+
+      // Only the filter-row avatar remains once the card's is turned off.
+      expect(screen.getAllByTitle('Ana Costa')).toHaveLength(1);
+
+      // Cliente is OFF by default (TiFlux benchmark) — turning it on shows it.
+      expect(screen.queryByText('Acme Corp')).not.toBeInTheDocument();
+      fireEvent.click(screen.getByLabelText('Cliente'));
+      expect(screen.getAllByText('Acme Corp').length).toBeGreaterThan(0);
+    });
   });
 });

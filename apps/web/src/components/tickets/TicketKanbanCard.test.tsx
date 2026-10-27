@@ -102,4 +102,42 @@ describe('TicketKanbanCard (D7)', () => {
     // "not implemented: navigation" error; reaching this line proves it didn't.
     expect(screen.getByRole('menu')).toBeInTheDocument();
   });
+
+  it('RODADA 2 ("Exibir campos", D6c): hides Cliente, Responsável and SLA when their field is turned off', () => {
+    render(
+      <MemoryRouter>
+        <TicketKanbanCard
+          ticket={{ ...baseTicket, responseSlaStatus: 'AT_RISK', resolveSlaStatus: 'BREACHED' }}
+          visibleFields={{ agent: false, client: false, sla: false }}
+        />
+      </MemoryRouter>,
+    );
+    expect(screen.queryByText('Acme Corporation')).not.toBeInTheDocument();
+    expect(screen.queryByText('JP')).not.toBeInTheDocument();
+    expect(screen.queryByText(/em risco/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/vencido/i)).not.toBeInTheDocument();
+  });
+
+  it('RODADA 2 ("Exibir campos", D6c): shows "Data de criação"/"Data de última atualização" only when explicitly turned on', () => {
+    // Noon UTC, not midnight: keeps the formatted calendar day stable
+    // regardless of the test runner's local timezone offset.
+    const ticket = {
+      ...baseTicket,
+      createdAt: '2026-01-01T12:00:00.000Z',
+      updatedAt: '2026-01-01T12:00:00.000Z',
+    };
+    render(
+      <MemoryRouter>
+        <TicketKanbanCard ticket={ticket} visibleFields={{ createdAt: true, updatedAt: true }} />
+      </MemoryRouter>,
+    );
+    expect(screen.getByText(/criado em 01\/01\/2026/i)).toBeInTheDocument();
+    expect(screen.getByText(/atualizado em 01\/01\/2026/i)).toBeInTheDocument();
+  });
+
+  it('RODADA 2 ("Exibir campos", D6c): omits the date fields by default (back-compat with existing callers)', () => {
+    renderCard();
+    expect(screen.queryByText(/criado em/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/atualizado em/i)).not.toBeInTheDocument();
+  });
 });

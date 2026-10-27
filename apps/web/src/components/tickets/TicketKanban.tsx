@@ -15,7 +15,7 @@ import { api } from '../../lib/api';
 import type { Ticket, TicketStatus, TicketsPage } from '../../hooks/useTickets';
 import type { DeskStage } from '../MesaStagesEditor';
 import { statusLabels, priorityLabels } from './TicketCard';
-import { TicketKanbanCard } from './TicketKanbanCard';
+import { TicketKanbanCard, type TicketKanbanCardVisibleFields } from './TicketKanbanCard';
 import { useAuthStore } from '../../stores/authStore';
 import { EzAlert, EzAvatar, EzSpinner, EzTag } from '../ds';
 import { cn } from '../ds/utils';
@@ -44,6 +44,31 @@ const SORT_FIELDS: { id: string; label: string }[] = [
   { id: 'status', label: 'Status' },
   { id: 'updatedAt', label: 'Data de atualização' },
 ];
+
+/**
+ * D6c "Exibir campos": card fields the Configurações popover can toggle.
+ * Título/Número are fixed (D6c/D7) and have no entry here. Defaults mirror
+ * the TiFlux benchmark (§2.4): Responsável/Cumprimento SLA on, Cliente off.
+ * "Tempo no estágio" from the benchmark is NOT included — it would need a
+ * new per-ticket aggregation over `TicketAudit` STAGE_CHANGED entries (no
+ * such field exists on Ticket today), which is a backend decision beyond
+ * this correction round's scope.
+ */
+const KANBAN_FIELDS: { id: keyof TicketKanbanCardVisibleFields; label: string; defaultVisible: boolean }[] = [
+  { id: 'agent', label: 'Responsável', defaultVisible: true },
+  { id: 'client', label: 'Cliente', defaultVisible: false },
+  { id: 'sla', label: 'Cumprimento SLA', defaultVisible: true },
+  { id: 'createdAt', label: 'Data de criação', defaultVisible: false },
+  { id: 'updatedAt', label: 'Data de última atualização', defaultVisible: false },
+];
+
+const DEFAULT_KANBAN_FIELD_VISIBILITY = KANBAN_FIELDS.reduce<Record<string, boolean>>(
+  (acc, field) => {
+    acc[field.id] = field.defaultVisible;
+    return acc;
+  },
+  {},
+);
 
 const PRIORITY_RANK: Record<string, number> = { LOW: 0, MEDIUM: 1, HIGH: 2, CRITICAL: 3 };
 const STATUS_RANK: Record<string, number> = Object.fromEntries(
@@ -242,11 +267,13 @@ export function TicketKanban({
   // selected — falls back to "Status" otherwise (same as the pre-D6c
   // behavior), so switching Mesa off never leaves the board stuck on an
   // ungroupable dimension.
-  const { config: kanbanConfig, setGroupBy } = useUserScreenConfig('tickets-kanban', {
+  const { config: kanbanConfig, setGroupBy, setColumnVisibility } = useUserScreenConfig('tickets-kanban', {
     groupBy: 'stage',
+    grid: { columnVisibility: DEFAULT_KANBAN_FIELD_VISIBILITY, density: 'compact' },
   });
   const groupBy = kanbanConfig.groupBy || 'stage';
   const effectiveGroupBy = groupBy === 'stage' && !stageMode ? 'status' : groupBy;
+  const visibleCardFields: TicketKanbanCardVisibleFields = kanbanConfig.grid.columnVisibility;
 
   // D6a: fila de avatares dos agentes presentes no board inteiro (não só os
   // visíveis após outros filtros), clique alterna filtro por agente (multi).
@@ -532,8 +559,8 @@ export function TicketKanban({
     </div>
   );
 
-  // D6c "Configurações": por ora, Agrupar por (Exibir campos do card fica
-  // fora desta rodada — ver comentário no report do SPEC).
+  // D6c "Configurações": Agrupar por + Exibir campos (quais campos opcionais
+  // o card mostra — Título/Número são fixos, ver KANBAN_FIELDS acima).
   const configMenu = (
     <div className="relative">
       <button
@@ -560,6 +587,22 @@ export function TicketKanban({
             <option value="agent">Responsável</option>
             <option value="priority">Prioridade</option>
           </select>
+
+          <div className="mt-3 border-t border-gray-100 pt-2">
+            <p className="px-1 text-[12px] font-semibold text-gray-500">Exibir campos</p>
+            {KANBAN_FIELDS.map((field) => (
+              <label key={field.id} className="flex items-center gap-2 px-1 py-1 text-[13px]">
+                <input
+                  type="checkbox"
+                  checked={kanbanConfig.grid.columnVisibility[field.id] !== false}
+                  onChange={(e) =>
+                    setColumnVisibility((prev) => ({ ...prev, [field.id]: e.target.checked }))
+                  }
+                />
+                {field.label}
+              </label>
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -746,7 +789,7 @@ export function TicketKanban({
                                     className={`${dragSnapshot.isDragging ? 'opacity-70 rotate-2 scale-105' : ''} transition-transform`}
                                     style={dragProvided.draggableProps.style}
                                   >
-                                    <TicketKanbanCard ticket={ticket} />
+                                    <TicketKanbanCard ticket={ticket} visibleFields={visibleCardFields} />
                                   </div>
                                 )}
                               </Draggable>
@@ -850,7 +893,7 @@ export function TicketKanban({
                                 className={`${dragSnapshot.isDragging ? 'opacity-70 rotate-2 scale-105' : ''} transition-transform`}
                                 style={provided.draggableProps.style}
                               >
-                                <TicketKanbanCard ticket={ticket} />
+                                <TicketKanbanCard ticket={ticket} visibleFields={visibleCardFields} />
                               </div>
                             )}
                           </Draggable>
@@ -915,7 +958,7 @@ export function TicketKanban({
             </div>
             <div className="flex flex-1 flex-col gap-3">
               {col.tickets.map((ticket) => (
-                <TicketKanbanCard key={ticket.id} ticket={ticket} />
+                <TicketKanbanCard key={ticket.id} ticket={ticket} visibleFields={visibleCardFields} />
               ))}
             </div>
           </div>

@@ -7,10 +7,29 @@ import { EzAvatar, EzDropdown, EzTag } from '../ds';
 import { useOpenInTab } from '../../contexts/TabsContext';
 import { statusLabels, priorityLabels, statusTagVariants, priorityTagVariants } from './TicketCard';
 
+/** D6c "Exibir campos": optional card fields the Kanban's Configurações
+ * popover can toggle. Título/Número are always shown (SPEC D6c/D7), so they
+ * have no entry here. Omitted/undefined keeps the pre-existing behavior
+ * (back-compat default: agent/client/sla visible, dates hidden) for callers
+ * that don't wire a config — only `TicketKanban` passes real values. */
+export interface TicketKanbanCardVisibleFields {
+  agent?: boolean;
+  client?: boolean;
+  sla?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+}
+
 interface TicketKanbanCardProps {
   ticket: Ticket;
   /** D6 Configurações "Tag": Status (padrão) ou Prioridade. */
   tagField?: 'status' | 'priority';
+  visibleFields?: TicketKanbanCardVisibleFields;
+}
+
+function formatCardDate(value: string | null | undefined): string | null {
+  if (!value) return null;
+  return new Date(value).toLocaleDateString('pt-BR');
 }
 
 /**
@@ -18,11 +37,23 @@ interface TicketKanbanCardProps {
  * — o menu só abre o ticket (nesta aba interna ou, por nome, "em nova aba
  * interna"; o modelo de abas já evita duplicar, ver TabsContext).
  */
-export function TicketKanbanCard({ ticket, tagField = 'status' }: TicketKanbanCardProps) {
+export function TicketKanbanCard({
+  ticket,
+  tagField = 'status',
+  visibleFields,
+}: TicketKanbanCardProps) {
   const openInTab = useOpenInTab();
   const path = `/tickets/${ticket.id}`;
   const tabTitle = `#${ticket.protocol} - ${ticket.title}`;
-  const hasSlaBadges = Boolean(ticket.responseSlaStatus || ticket.resolveSlaStatus);
+  const showClient = visibleFields?.client !== false;
+  const showAgent = visibleFields?.agent !== false;
+  const showSla = visibleFields?.sla !== false;
+  const showCreatedAt = visibleFields?.createdAt === true;
+  const showUpdatedAt = visibleFields?.updatedAt === true;
+  const hasSlaBadges =
+    showSla && Boolean(ticket.responseSlaStatus || ticket.resolveSlaStatus);
+  const createdAtLabel = showCreatedAt ? formatCardDate(ticket.createdAt) : null;
+  const updatedAtLabel = showUpdatedAt ? formatCardDate(ticket.updatedAt) : null;
 
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) {
@@ -66,7 +97,7 @@ export function TicketKanbanCard({ ticket, tagField = 'status' }: TicketKanbanCa
 
         <div className="mt-2 flex items-center justify-between gap-2">
           <span className="truncate text-[12px] text-gray-500">
-            {ticket.requester?.organization?.name ?? '—'}
+            {showClient ? ticket.requester?.organization?.name ?? '—' : ''}
           </span>
           {tagField === 'priority' ? (
             <EzTag label={priorityLabels[ticket.priority]} variant={priorityTagVariants[ticket.priority]} />
@@ -82,8 +113,15 @@ export function TicketKanbanCard({ ticket, tagField = 'status' }: TicketKanbanCa
           </div>
         )}
 
+        {(createdAtLabel || updatedAtLabel) && (
+          <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-gray-400">
+            {createdAtLabel && <span>Criado em {createdAtLabel}</span>}
+            {updatedAtLabel && <span>Atualizado em {updatedAtLabel}</span>}
+          </div>
+        )}
+
         <div className="mt-2 flex -space-x-2">
-          {ticket.agent && (
+          {showAgent && ticket.agent && (
             <EzAvatar
               name={ticket.agent.name}
               size={24}
