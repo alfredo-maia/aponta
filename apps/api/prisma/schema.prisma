@@ -373,6 +373,7 @@ model Ticket {
 
   responseDeadline DateTime?
   resolveDeadline  DateTime?
+  closedAt         DateTime?
 
   csatScore   Int?
   csatComment String?

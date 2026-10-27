@@ -100,29 +100,34 @@ test.describe('dashboard filtering', () => {
       serviceDeskId: itDesk.id,
     });
 
-    await page.goto('/');
+    await page.goto('/?view=list');
     // Unfiltered: both freshly created tickets are visible.
     await expect(page.getByText(generalTitle)).toBeVisible();
     await expect(page.getByText(itTitle)).toBeVisible();
 
-    // Filter down to IT Infrastructure only.
+    // Filter down to IT Infrastructure only via Busca avançada (D4).
+    await page.getByRole('button', { name: 'Busca avançada' }).click();
     await page
-      .locator('#filter-service-desk')
+      .locator('#adv-search-service-desk')
       .selectOption({ label: 'IT Infrastructure' });
+    await page.getByRole('button', { name: 'Buscar' }).click();
+    await expect(page).toHaveURL(/serviceDeskId=/);
     await expect(page.getByText(itTitle)).toBeVisible();
     await expect(page.getByText(generalTitle)).toBeHidden();
 
     // Switch the filter to General Support only.
+    await page.getByRole('button', { name: 'Busca avançada' }).click();
     await page
-      .locator('#filter-service-desk')
+      .locator('#adv-search-service-desk')
       .selectOption({ label: 'General Support' });
+    await page.getByRole('button', { name: 'Buscar' }).click();
     await expect(page.getByText(generalTitle)).toBeVisible();
     await expect(page.getByText(itTitle)).toBeHidden();
 
     // Clear the filter: both are visible again.
-    await page
-      .locator('#filter-service-desk')
-      .selectOption({ label: 'Todos os departamentos' });
+    await page.getByRole('button', { name: 'Busca avançada' }).click();
+    await page.getByRole('button', { name: 'Limpar' }).click();
+    await page.getByRole('button', { name: 'Buscar' }).click();
     await expect(page.getByText(generalTitle)).toBeVisible();
     await expect(page.getByText(itTitle)).toBeVisible();
   });
@@ -143,16 +148,22 @@ test.describe('dashboard filtering', () => {
       serviceDeskId: generalDesk.id,
     });
 
-    await page.goto('/');
+    await page.goto('/?view=list');
     await expect(page.getByText(uniqueTitle)).toBeVisible();
 
-    await page.locator('#filter-status').selectOption({ label: 'Aberto' });
+    await page.getByRole('button', { name: 'Busca avançada' }).click();
+    await page.locator('#adv-search-status').selectOption({ label: 'Aberto' });
+    await page.getByRole('button', { name: 'Buscar' }).click();
     await expect(page.getByText(uniqueTitle)).toBeVisible();
 
-    await page.locator('#filter-status').selectOption({ label: 'Fechado' });
+    await page.getByRole('button', { name: 'Busca avançada' }).click();
+    await page.locator('#adv-search-status').selectOption({ label: 'Fechado' });
+    await page.getByRole('button', { name: 'Buscar' }).click();
     await expect(page.getByText(uniqueTitle)).toBeHidden();
 
-    await page.locator('#filter-status').selectOption({ label: 'Todos os status' });
+    await page.getByRole('button', { name: 'Busca avançada' }).click();
+    await page.getByRole('button', { name: 'Limpar' }).click();
+    await page.getByRole('button', { name: 'Buscar' }).click();
     await expect(page.getByText(uniqueTitle)).toBeVisible();
   });
 });

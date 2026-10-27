@@ -182,6 +182,50 @@ def validate_evidence(root: Path, tdd: dict, criteria: set[str], base: str,
     return errors
 
 
+def validate_legacy_exception(root: Path, manifest: dict, tdd_ids: set[str],
+                              check_evidence: bool) -> list[str]:
+    """A recorded human decision waives history, never evidence for subsequent work.
+
+    Approval provenance is reviewed by humans, like the existing evidence files;
+    an in-repository record is not an authenticated GitHub approval.
+    """
+    try:
+        tdd = manifest['tdd']
+        record = json.loads(safe_path(root, tdd.get('exception')).read_text())
+        if not isinstance(record, dict) or record.get('version') != 1:
+            raise ValueError('Invalid legacy exception record.')
+        for field in ['delivery', 'github_issue', 'base_sha']:
+            if record.get(field) != manifest.get(field):
+                raise ValueError('Legacy exception differs from manifest: ' + field)
+        base, legacy = record.get('base_sha'), record.get('legacy_sha')
+        if not all(isinstance(value, str) and re.fullmatch(r'[0-9a-f]{40}', value)
+                   for value in [base, legacy]) or not record.get('reason'):
+            raise ValueError('Legacy exception needs full base/legacy SHAs and reason.')
+        approval = record.get('approval') or {}
+        if not isinstance(approval, dict):
+            raise ValueError('Legacy approval must be an object.')
+        source = approval.get('source', '')
+        expected = (r'https://github\.com/alfredo-maia/aponta/issues/'
+                    + str(manifest['github_issue']) + r'#issuecomment-\d+')
+        if (approval.get('status') != 'approved' or not approval.get('approved_by')
+                or not isinstance(source, str) or not re.fullmatch(expected, source)):
+            raise ValueError('Legacy exception requires explicit approval and its canonical issue comment; pending approval blocks delivery.')
+        waived = record.get('criteria', [])
+        ids = {criterion['id'] for criterion in manifest['criteria']}
+        if (not isinstance(waived, list) or not all(isinstance(key, str) for key in waived)
+                or len(set(waived)) != len(waived) or set(waived) != ids - tdd_ids):
+            raise ValueError('Legacy exception criteria must match exactly the waived criteria.')
+        git(root, 'merge-base', '--is-ancestor', base, legacy)
+        git(root, 'merge-base', '--is-ancestor', legacy, 'HEAD')
+        # New tests and source changes are measured from the approved legacy snapshot.
+        # Legacy evidence must never be manufactured by replaying old implementation.
+        if check_evidence:
+            return validate_evidence(root, tdd, tdd_ids, legacy, source_hashes(root, legacy))
+        return []
+    except (ValueError, TypeError, KeyError, OSError, subprocess.CalledProcessError) as error:
+        return ['Invalid legacy TDD exception: ' + str(error)]
+
+
 def validate_manifest(root: Path, manifest: dict, *, check_evidence: bool = True) -> list[str]:
     errors = identity_errors(manifest)
     if manifest.get('version') != 1 or manifest.get('tier') not in [1, 2, 3]:
@@ -220,8 +264,10 @@ def validate_manifest(root: Path, manifest: dict, *, check_evidence: bool = True
     if tdd.get('mode') == 'not-applicable':
         if behavior or not tdd.get('reason'):
             errors.append('Behavioral code cannot silently opt out of TDD.')
+    elif tdd.get('mode') == 'legacy-exception':
+        errors += validate_legacy_exception(root, manifest, tdd_ids, check_evidence)
     elif tdd.get('mode') != 'required':
-        errors.append('TDD mode must be required or justified not-applicable.')
+        errors.append('TDD mode must be required, legacy-exception or justified not-applicable.')
     elif check_evidence:
         base = manifest.get('base_sha')
         if not isinstance(base, str) or not re.fullmatch(r'[0-9a-f]{40}', base):
