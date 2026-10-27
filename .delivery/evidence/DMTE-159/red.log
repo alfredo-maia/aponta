@@ -1,0 +1,61 @@
+test_arbitrary_error_is_not_red (test_aponta_delivery.DeliveryTests.test_arbitrary_error_is_not_red) ... ok
+test_behavioral_failure_is_red (test_aponta_delivery.DeliveryTests.test_behavioral_failure_is_red) ... ok
+test_criteria_must_exist_in_spec (test_aponta_delivery.DeliveryTests.test_criteria_must_exist_in_spec) ... ok
+test_criteria_require_tests (test_aponta_delivery.DeliveryTests.test_criteria_require_tests) ... ok
+test_duplicate_canonical_github_identity_rejected (test_aponta_delivery.DeliveryTests.test_duplicate_canonical_github_identity_rejected) ... ok
+test_foreign_repository_rejected (test_aponta_delivery.DeliveryTests.test_foreign_repository_rejected) ... ok
+test_green_for_other_source_rejected (test_aponta_delivery.DeliveryTests.test_green_for_other_source_rejected) ... ok
+test_invalid_uuid_rejected (test_aponta_delivery.DeliveryTests.test_invalid_uuid_rejected) ... ok
+test_irrelevant_ui_exemption_needs_reason (test_aponta_delivery.DeliveryTests.test_irrelevant_ui_exemption_needs_reason) ... ok
+test_manifest_cannot_use_epic_as_delivery (test_aponta_delivery.DeliveryTests.test_manifest_cannot_use_epic_as_delivery) ... FAIL
+test_manifest_canonical_binding_passes (test_aponta_delivery.DeliveryTests.test_manifest_canonical_binding_passes) ... ok
+test_manifest_cycle_must_match_registry (test_aponta_delivery.DeliveryTests.test_manifest_cycle_must_match_registry) ... FAIL
+test_manifest_tier_must_match_registry (test_aponta_delivery.DeliveryTests.test_manifest_tier_must_match_registry) ... FAIL
+test_mismatched_command_rejected (test_aponta_delivery.DeliveryTests.test_mismatched_command_rejected) ... ok
+test_missing_acceptance_coverage_rejected (test_aponta_delivery.DeliveryTests.test_missing_acceptance_coverage_rejected) ... ok
+test_new_ds_component_requires_story (test_aponta_delivery.DeliveryTests.test_new_ds_component_requires_story) ... ok
+test_passing_test_is_not_red (test_aponta_delivery.DeliveryTests.test_passing_test_is_not_red) ... ok
+test_pr_cannot_close_issue_before_delivery (test_aponta_delivery.DeliveryTests.test_pr_cannot_close_issue_before_delivery) ... ok
+test_pr_cannot_reference_different_primary (test_aponta_delivery.DeliveryTests.test_pr_cannot_reference_different_primary) ... ok
+test_pr_link_contract (test_aponta_delivery.DeliveryTests.test_pr_link_contract) ... ok
+test_production_behavior_cannot_silently_skip_tdd (test_aponta_delivery.DeliveryTests.test_production_behavior_cannot_silently_skip_tdd) ... ok
+test_reversed_time_rejected (test_aponta_delivery.DeliveryTests.test_reversed_time_rejected) ... ok
+test_secret_redaction (test_aponta_delivery.DeliveryTests.test_secret_redaction) ... ok
+test_setup_failure_cannot_hide_behind_assertion (test_aponta_delivery.DeliveryTests.test_setup_failure_cannot_hide_behind_assertion) ... ok
+test_setup_failure_is_not_red (test_aponta_delivery.DeliveryTests.test_setup_failure_is_not_red) ... ok
+test_spec_cannot_escape_checkout (test_aponta_delivery.DeliveryTests.test_spec_cannot_escape_checkout) ... ok
+test_tampered_log_rejected (test_aponta_delivery.DeliveryTests.test_tampered_log_rejected) ... ok
+test_tier_two_requires_spec (test_aponta_delivery.DeliveryTests.test_tier_two_requires_spec) ... ok
+test_ui_requires_ds_assessment (test_aponta_delivery.DeliveryTests.test_ui_requires_ds_assessment) ... ok
+test_valid_evidence_pair (test_aponta_delivery.DeliveryTests.test_valid_evidence_pair) ... ok
+test_valid_identity (test_aponta_delivery.DeliveryTests.test_valid_identity) ... ok
+test_writer_lock_rejects_competing_process (test_aponta_delivery.DeliveryTests.test_writer_lock_rejects_competing_process) ... ok
+
+======================================================================
+FAIL: test_manifest_cannot_use_epic_as_delivery (test_aponta_delivery.DeliveryTests.test_manifest_cannot_use_epic_as_delivery)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/implantacao-fluxo-2026-10-25/checkout/scripts/test_aponta_delivery.py", line 84, in test_manifest_cannot_use_epic_as_delivery
+    self.assertTrue(delivery.validate_binding(self.manifest, entry))
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_manifest_cycle_must_match_registry (test_aponta_delivery.DeliveryTests.test_manifest_cycle_must_match_registry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/implantacao-fluxo-2026-10-25/checkout/scripts/test_aponta_delivery.py", line 92, in test_manifest_cycle_must_match_registry
+    self.assertTrue(delivery.validate_binding(self.manifest, entry))
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_manifest_tier_must_match_registry (test_aponta_delivery.DeliveryTests.test_manifest_tier_must_match_registry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/implantacao-fluxo-2026-10-25/checkout/scripts/test_aponta_delivery.py", line 88, in test_manifest_tier_must_match_registry
+    self.assertTrue(delivery.validate_binding(self.manifest, entry))
+AssertionError: [] is not true
+
+----------------------------------------------------------------------
+Ran 32 tests in 0.318s
+
+FAILED (failures=3)
