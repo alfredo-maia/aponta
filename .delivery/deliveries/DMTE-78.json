@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "delivery": "DMTE-78",
+  "repository": "alfredo-maia/aponta",
+  "github_issue": 93,
+  "multica_id": "01a15227-26cc-719a-810c-e7e86734481b",
+  "cycle": "2026-10-26/2026-11-08",
+  "tier": 3,
+  "base_sha": "a737b6a445b000716921fe9cecaa069f3f9fef63",
+  "criteria": [
+    {
+      "id": "AC-1",
+      "description": "Remover o modo Grade: sem botão nem rota de Grade, só Lista e Kanban (SPEC AC1/T1)",
+      "tests": ["apps/web/src/pages/TicketsPage.test.tsx"]
+    },
+    {
+      "id": "AC-2",
+      "description": "Cabeçalho com título, alternância Lista/Kanban, Buscar e Busca avançada; CLIENT não vê Kanban (SPEC AC2/T5)",
+      "tests": ["apps/web/src/components/tickets/TicketsHeader.test.tsx"]
+    },
+    {
+      "id": "AC-3",
+      "description": "Busca avançada abre como aba interna, sem window.open/target=_blank para rotas internas (SPEC AC3/T2/T6)",
+      "tests": [
+        "apps/web/src/components/layout/TabBar.test.tsx",
+        "apps/web/src/contexts/TabsContext.test.tsx",
+        "apps/web/src/pages/TicketAdvancedSearchPage.test.tsx"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "description": "Busca avançada com os campos de D4, Estágio desabilitado sem Mesa, Buscar/Limpar (SPEC AC4/T6)",
+      "tests": ["apps/web/src/pages/TicketAdvancedSearchPage.test.tsx"]
+    },
+    {
+      "id": "AC-5",
+      "description": "Painel de filtros antigo (TicketFilters/EzFilterDrawer) removido de '/' (SPEC AC5/T6)",
+      "tests": ["apps/web/src/pages/TicketsPage.test.tsx", "apps/web/src/components/tickets/TicketFilters.test.tsx"]
+    },
+    {
+      "id": "AC-6",
+      "description": "Lista agrupável (Agrupar por, Exibir colunas, colunas padrão, persistência) (SPEC AC6/T7)",
+      "tests": ["apps/web/src/components/tickets/TicketList.test.tsx", "apps/web/src/hooks/useUserScreenConfig.test.ts"]
+    },
+    {
+      "id": "AC-7",
+      "description": "Kanban: avatares filtram por agente, Mesa/Ordenar/Configurações funcionam (SPEC AC7/T8)",
+      "tests": ["apps/web/src/components/tickets/TicketKanban.test.tsx"]
+    },
+    {
+      "id": "AC-8",
+      "description": "Card redesenhado: código, título com reticências, cliente+status, avatares, sem apontamento inline (SPEC AC8/T9)",
+      "tests": ["apps/web/src/components/tickets/TicketKanbanCard.test.tsx"]
+    },
+    {
+      "id": "AC-9",
+      "description": "Abas internas: abrir/reabrir/fechar ticket, título #protocolo - título, sobrevive a refresh (SPEC AC9/T2)",
+      "tests": ["apps/web/src/components/layout/TabBar.test.tsx", "apps/web/src/contexts/TabsContext.test.tsx"]
+    },
+    {
+      "id": "AC-10",
+      "description": "RBAC: CLIENT só os próprios tickets, CLIENT_MASTER por organização, AGENT por mesas permitidas (SPEC AC10/T3/T4)",
+      "tests": [
+        "apps/api/src/tickets/tickets.service.spec.ts",
+        "apps/api/src/users/users.controller.spec.ts",
+        "apps/api/src/users/users.service.spec.ts"
+      ]
+    },
+    {
+      "id": "AC-11",
+      "description": "UI nova em pt-BR; lint/typecheck/testes unitários verdes; nx run web-e2e:e2e verde (SPEC AC11)",
+      "tests": ["GitHub Actions: Delivery contract"],
+      "tdd_required": false,
+      "reason": "Gate agregado de suíte completa, não um teste unitário único. PR #91 reporta lint/typecheck/unitários verdes (api 904/904, web 1088/1088); o e2e completo (nx run web-e2e:e2e) está explicitamente pendente como gap consciente do PR, escopo de QA/T10."
+    }
+  ],
+  "spec": "docs/superpowers/specs/2026-10-23-tickets-panel-general-review.md",
+  "changed_files": [
+    "apps/api/prisma/migrations/20261023201447_add_ticket_closed_at/migration.sql",
+    "apps/api/prisma/migrations/20261023201500_backfill_ticket_closed_at/migration.sql",
+    "apps/api/prisma/schema.prisma",
+    "apps/api/src/tickets/dto/ticket-query.dto.ts",
+    "apps/api/src/tickets/tickets.service.spec.ts",
+    "apps/api/src/tickets/tickets.service.ts",
+    "apps/api/src/users/users.controller.spec.ts",
+    "apps/api/src/users/users.controller.ts",
+    "apps/api/src/users/users.service.spec.ts",
+    "apps/api/src/users/users.service.ts",
+    "apps/web-e2e/src/auth.spec.ts",
+    "apps/web-e2e/src/dashboard.spec.ts",
+    "apps/web/src/App.test.tsx",
+    "apps/web/src/App.tsx",
+    "apps/web/src/components/layout/AppLayout.tsx",
+    "apps/web/src/components/layout/TabBar.test.tsx",
+    "apps/web/src/components/layout/TabBar.tsx",
+    "apps/web/src/components/tickets/TicketCard.test.tsx",
+    "apps/web/src/components/tickets/TicketCard.tsx",
+    "apps/web/src/components/tickets/TicketFilters.test.tsx",
+    "apps/web/src/components/tickets/TicketFilters.tsx",
+    "apps/web/src/components/tickets/TicketKanban.test.tsx",
+    "apps/web/src/components/tickets/TicketKanban.tsx",
+    "apps/web/src/components/tickets/TicketKanbanCard.test.tsx",
+    "apps/web/src/components/tickets/TicketKanbanCard.tsx",
+    "apps/web/src/components/tickets/TicketList.test.tsx",
+    "apps/web/src/components/tickets/TicketList.tsx",
+    "apps/web/src/components/tickets/TicketsHeader.test.tsx",
+    "apps/web/src/components/tickets/TicketsHeader.tsx",
+    "apps/web/src/contexts/TabsContext.test.tsx",
+    "apps/web/src/contexts/TabsContext.tsx",
+    "apps/web/src/hooks/useTickets.test.tsx",
+    "apps/web/src/hooks/useTickets.ts",
+    "apps/web/src/hooks/useUserScreenConfig.test.ts",
+    "apps/web/src/hooks/useUserScreenConfig.ts",
+    "apps/web/src/lib/ticketFilterParams.test.ts",
+    "apps/web/src/lib/ticketFilterParams.ts",
+    "apps/web/src/pages/TicketAdvancedSearchPage.test.tsx",
+    "apps/web/src/pages/TicketAdvancedSearchPage.tsx",
+    "apps/web/src/pages/TicketsPage.test.tsx",
+    "apps/web/src/pages/TicketsPage.tsx",
+    "docs/superpowers/specs/2026-10-23-tickets-panel-general-review.md"
+  ],
+  "tdd": {
+    "mode": "required"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": ["EzAlert", "EzSpinner", "EzComboBox", "EzTextInput", "EzButton"],
+    "exception": "SPEC D7: visual segue o DS (components/ds, tokens existentes), sem cores novas fora do DS e sem novo componente DS nesta entrega."
+  }
+}
