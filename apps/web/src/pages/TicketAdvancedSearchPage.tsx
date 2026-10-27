@@ -62,7 +62,9 @@ export function TicketAdvancedSearchPage() {
   const { data: agents = [] } = useQuery({
     queryKey: ['agents', 'advanced-search'],
     queryFn: async () => (await api.get<PickerOption[]>('/users/agents')).data,
-    enabled: !isClient,
+    // GET /users/agents rejects CLIENT_MASTER with 403 (it's an agent-scoped
+    // endpoint) — hide the field instead of leaving it permanently empty.
+    enabled: !isClient && !isClientMaster,
   });
   const { data: stages = [] } = useQuery({
     queryKey: ['service-desk-stages', 'advanced-search', form.serviceDeskId],
@@ -197,7 +199,7 @@ export function TicketAdvancedSearchPage() {
             />
           )}
 
-          {!isClient && (
+          {!isClient && !isClientMaster && (
             <EzComboBox
               id="adv-search-agent"
               label="Atendente"
