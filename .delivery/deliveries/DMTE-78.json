@@ -120,7 +120,8 @@
     "docs/superpowers/specs/2026-10-23-tickets-panel-general-review.md"
   ],
   "tdd": {
-    "mode": "required"
+    "mode": "not-applicable",
+    "reason": "Exceção documentada aprovada pelo Alfredo em 2026-10-27 (comentário na issue DMTE-277/01a17b75-47a5-7ebf-a73a-e3ea1ff5b80f): T1-T9 foram implementados antes de scripts/aponta_delivery.py existir nesta branch (chegou pelo merge de governanca #108, feito em cima de trabalho ja em andamento). Nao ha RED/GREEN real para capturar sem reescrever historico ou fabricar prova retroativa, o que aponta-tdd proibe. PR #91 reporta lint/typecheck/testes unitarios verdes (api 904/904, web 1088/1088) como validacao proporcional ao risco para este legado pre-governanca."
   },
   "design_system": {
     "applicable": true,
