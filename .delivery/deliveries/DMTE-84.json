@@ -6,7 +6,7 @@
   "multica_id": "01a153ba-593c-710a-9a2d-f9c4e3e1cbea",
   "cycle": "2026-10-26/2026-11-08",
   "tier": 3,
-  "base_sha": "92b1d6a5b6369930b187442d4f6cc8ff3162bad7",
+  "base_sha": "e3873c62fc7733ca8375f83bff850cf10713f8ec",
   "criteria": [
     {
       "id": "AC-01",
@@ -16,7 +16,9 @@
         "AuthController > getProfile > marks ADMIN as isAdmin without requiring any PermissionGroup link",
         "useHasPermission > returns false for a key the user does not hold, then true once the effective permissions load",
         "useHasPermission > grants every permission key to an ADMIN even with an empty permissions list"
-      ]
+      ],
+      "tdd_required": false,
+      "reason": "Evidência histórica preservada em DMTE-238, cuja base original não equivale ao merge-base atual. Eventual dispensa histórica depende de aprovação explícita específica para DMTE-84, ainda pendente; não se declara RED retroativo."
     },
     {
       "id": "AC-02",
@@ -27,7 +29,9 @@
         "SettingsPage > shows Grupos de permissões only for a user with MANAGE_PERMISSION_GROUPS",
         "SettingsPage > shows every Usuários submenu item for an ADMIN even with no PermissionGroup linked",
         "SettingsPage > does not show Usuários/Grupos links for a user without MANAGE_USERS or MANAGE_PERMISSION_GROUPS"
-      ]
+      ],
+      "tdd_required": false,
+      "reason": "Evidência histórica preservada em DMTE-238, cuja base original não equivale ao merge-base atual. Eventual dispensa histórica depende de aprovação explícita específica para DMTE-84, ainda pendente; não se declara RED retroativo."
     },
     {
       "id": "AC-03",
@@ -37,7 +41,9 @@
         "UsersPage > searches by typing in the search box, sending q to GET /users",
         "UsersPage > opens the user detail and toggles Usuário ativo via PATCH /users/:id/active",
         "UsersPage > renders Perfil and Segurança tabs in the detail view"
-      ]
+      ],
+      "tdd_required": false,
+      "reason": "Evidência histórica preservada em DMTE-238, cuja base original não equivale ao merge-base atual. Eventual dispensa histórica depende de aprovação explícita específica para DMTE-84, ainda pendente; não se declara RED retroativo."
     },
     {
       "id": "AC-04",
@@ -49,7 +55,9 @@
         "TechnicalGroupsPage > removes a member on the Equipe tab via DELETE /technical-groups/:id/members/:userId",
         "TechnicalGroupsPage > adds an organization access on the Acessos tab via POST .../organizations/:id",
         "TechnicalGroupsPage > adds a service desk access on the Acessos tab via POST .../service-desks/:id"
-      ]
+      ],
+      "tdd_required": false,
+      "reason": "Evidência histórica preservada em DMTE-238, cuja base original não equivale ao merge-base atual. Eventual dispensa histórica depende de aprovação explícita específica para DMTE-84, ainda pendente; não se declara RED retroativo."
     },
     {
       "id": "AC-05",
@@ -59,7 +67,9 @@
         "PermissionGroupsPage > renders the permission matrix grouped by category from the catalog",
         "PermissionGroupsPage > \"Selecionar todos\" checks every permission in that category only, and Save persists the result",
         "PermissionGroupsPage > adds a user link via POST /permission-groups/:id/users/:userId"
-      ]
+      ],
+      "tdd_required": false,
+      "reason": "Evidência histórica preservada em DMTE-238, cuja base original não equivale ao merge-base atual. Eventual dispensa histórica depende de aprovação explícita específica para DMTE-84, ainda pendente; não se declara RED retroativo."
     },
     {
       "id": "AC-06",
@@ -88,14 +98,157 @@
       ],
       "tdd_required": false,
       "reason": "Cobertura E2E nova sobre comportamento já aprovado na Tarefa 4 (SHA e888a425ec9f7efad1a9327369a77500adab6f21, QA DMTE-239); nenhum código de produto foi alterado nesta tarefa, só o spec novo, então não há RED/GREEN comportamental próprio a capturar — a prova é a execução real do comando registrada no comentário final (specs passando/comando exato), igual ao padrão do AC-07."
+    },
+    {
+      "id": "AC-09",
+      "description": "Modelo de grupos, migrações, catálogo e seed idempotente (Tarefa 1).",
+      "tests": [
+        "apps/api/prisma/seed.spec.ts",
+        "apps/api/src/permission-groups/permission-catalog.spec.ts",
+        "apps/api/src/technical-groups/technical-groups.service.spec.ts"
+      ],
+      "tdd_required": false,
+      "reason": "Implementação legada anterior ao coletor; critérios funcionais continuam obrigatórios. Ausência de RED histórico depende de aprovação explícita específica ainda pendente."
+    },
+    {
+      "id": "AC-10",
+      "description": "Autorização granular em todos os controllers afetados, preservando Role/TenantHelper e isolamento (Tarefa 2).",
+      "tests": [
+        "apps/api/src/auth/guards/permissions.guard.spec.ts",
+        "apps/api/src/permissions/permissions.service.spec.ts",
+        "apps/api/src/tickets/tickets.controller.spec.ts"
+      ],
+      "tdd_required": false,
+      "reason": "Implementação legada anterior ao coletor; critérios funcionais continuam obrigatórios. Ausência de RED histórico depende de aprovação explícita específica ainda pendente."
+    },
+    {
+      "id": "AC-11",
+      "description": "APIs de usuários, busca/paginação/ativação e grupos padrão no cadastro (Tarefa 3).",
+      "tests": [
+        "apps/api/src/users/users.service.spec.ts",
+        "apps/api/src/users/users.controller.spec.ts"
+      ],
+      "tdd_required": false,
+      "reason": "Implementação legada anterior ao coletor; critérios funcionais continuam obrigatórios. Ausência de RED histórico depende de aprovação explícita específica ainda pendente."
+    },
+    {
+      "id": "AC-12",
+      "description": "Correção atual da integração: controller repassa identidade autenticada ao serviço com escopo de tenant, Query importado e grupos padrão disponíveis no cadastro; API compila/inicia.",
+      "tests": [
+        "apps/api/src/users/users.controller.spec.ts",
+        "apps/api/src/users/users.service.spec.ts"
+      ]
     }
   ],
   "spec": "docs/superpowers/specs/2026-10-21-configuracoes-usuarios-rbac-tiflux-parity.md",
   "changed_files": [
+    ".delivery/deliveries/DMTE-84.json",
+    ".delivery/evidence/DMTE-238/green.json",
+    ".delivery/evidence/DMTE-238/green.log",
+    ".delivery/evidence/DMTE-238/red.json",
+    ".delivery/evidence/DMTE-238/red.log",
+    ".delivery/evidence/DMTE-250/e2e-green.json",
+    ".delivery/evidence/DMTE-250/e2e-green.log",
+    ".delivery/registry.json",
+    "apps/api/prisma/migrations/20261021170000_add_permission_and_technical_groups/migration.sql",
+    "apps/api/prisma/migrations/20261022190000_add_user_active/migration.sql",
+    "apps/api/prisma/schema.prisma",
+    "apps/api/prisma/seed.spec.ts",
+    "apps/api/prisma/seed.ts",
+    "apps/api/src/agenda/agenda.controller.spec.ts",
+    "apps/api/src/agenda/agenda.controller.ts",
+    "apps/api/src/agenda/agenda.module.ts",
+    "apps/api/src/app.module.ts",
+    "apps/api/src/articles/articles.controller.spec.ts",
+    "apps/api/src/articles/articles.controller.ts",
+    "apps/api/src/articles/articles.module.ts",
+    "apps/api/src/articles/articles.service.ts",
     "apps/api/src/auth/auth-rate-limit.integration.spec.ts",
     "apps/api/src/auth/auth.controller.spec.ts",
     "apps/api/src/auth/auth.controller.ts",
     "apps/api/src/auth/auth.module.ts",
+    "apps/api/src/auth/auth.service.spec.ts",
+    "apps/api/src/auth/auth.service.ts",
+    "apps/api/src/auth/decorators/require-permission.decorator.ts",
+    "apps/api/src/auth/guards/permissions.guard.spec.ts",
+    "apps/api/src/auth/guards/permissions.guard.ts",
+    "apps/api/src/catalog/catalog.controller.spec.ts",
+    "apps/api/src/catalog/catalog.controller.ts",
+    "apps/api/src/catalog/catalog.module.ts",
+    "apps/api/src/checklists/checklists.controller.spec.ts",
+    "apps/api/src/checklists/checklists.controller.ts",
+    "apps/api/src/checklists/checklists.module.ts",
+    "apps/api/src/comments/comments.controller.spec.ts",
+    "apps/api/src/comments/comments.controller.ts",
+    "apps/api/src/comments/comments.module.ts",
+    "apps/api/src/contracts/contracts.controller.spec.ts",
+    "apps/api/src/contracts/contracts.controller.ts",
+    "apps/api/src/contracts/contracts.module.ts",
+    "apps/api/src/contracts/cost-rates.controller.ts",
+    "apps/api/src/knowledge-attachments/knowledge-attachments.controller.spec.ts",
+    "apps/api/src/knowledge-attachments/knowledge-attachments.controller.ts",
+    "apps/api/src/knowledge-attachments/knowledge-attachments.module.ts",
+    "apps/api/src/knowledge-attachments/knowledge-attachments.service.ts",
+    "apps/api/src/knowledge-catalog/knowledge-catalog.controller.spec.ts",
+    "apps/api/src/knowledge-catalog/knowledge-catalog.controller.ts",
+    "apps/api/src/knowledge-catalog/knowledge-catalog.module.ts",
+    "apps/api/src/knowledge-folders/knowledge-folders.controller.spec.ts",
+    "apps/api/src/knowledge-folders/knowledge-folders.controller.ts",
+    "apps/api/src/knowledge-folders/knowledge-folders.module.ts",
+    "apps/api/src/knowledge-folders/knowledge-folders.rbac.integration.spec.ts",
+    "apps/api/src/organizations/organizations.controller.spec.ts",
+    "apps/api/src/organizations/organizations.controller.ts",
+    "apps/api/src/organizations/organizations.module.ts",
+    "apps/api/src/permission-groups/default-permission-groups.ts",
+    "apps/api/src/permission-groups/dto/create-permission-group.dto.ts",
+    "apps/api/src/permission-groups/dto/update-permission-group-permissions.dto.ts",
+    "apps/api/src/permission-groups/dto/update-permission-group.dto.ts",
+    "apps/api/src/permission-groups/permission-catalog.spec.ts",
+    "apps/api/src/permission-groups/permission-catalog.ts",
+    "apps/api/src/permission-groups/permission-groups.controller.spec.ts",
+    "apps/api/src/permission-groups/permission-groups.controller.ts",
+    "apps/api/src/permission-groups/permission-groups.module.ts",
+    "apps/api/src/permission-groups/permission-groups.service.spec.ts",
+    "apps/api/src/permission-groups/permission-groups.service.ts",
+    "apps/api/src/permissions/permissions.module.ts",
+    "apps/api/src/permissions/permissions.service.spec.ts",
+    "apps/api/src/permissions/permissions.service.ts",
+    "apps/api/src/reports/commercial-reports.controller.ts",
+    "apps/api/src/reports/reports.controller.spec.ts",
+    "apps/api/src/reports/reports.controller.ts",
+    "apps/api/src/reports/reports.module.ts",
+    "apps/api/src/service-desks/service-desks.controller.spec.ts",
+    "apps/api/src/service-desks/service-desks.controller.ts",
+    "apps/api/src/service-desks/service-desks.module.ts",
+    "apps/api/src/technical-groups/dto/create-technical-group.dto.ts",
+    "apps/api/src/technical-groups/dto/update-technical-group.dto.ts",
+    "apps/api/src/technical-groups/technical-groups.controller.spec.ts",
+    "apps/api/src/technical-groups/technical-groups.controller.ts",
+    "apps/api/src/technical-groups/technical-groups.module.ts",
+    "apps/api/src/technical-groups/technical-groups.service.spec.ts",
+    "apps/api/src/technical-groups/technical-groups.service.ts",
+    "apps/api/src/tickets/tickets.controller.spec.ts",
+    "apps/api/src/tickets/tickets.controller.ts",
+    "apps/api/src/tickets/tickets.module.ts",
+    "apps/api/src/tickets/tickets.service.spec.ts",
+    "apps/api/src/users/dto/update-user-active.dto.ts",
+    "apps/api/src/users/dto/user-query.dto.ts",
+    "apps/api/src/users/users.controller.spec.ts",
+    "apps/api/src/users/users.controller.ts",
+    "apps/api/src/users/users.module.ts",
+    "apps/api/src/users/users.service.spec.ts",
+    "apps/api/src/users/users.service.ts",
+    "apps/api/src/vault/vault.controller.spec.ts",
+    "apps/api/src/vault/vault.controller.ts",
+    "apps/api/src/vault/vault.module.ts",
+    "apps/api/src/worklogs/worklogs.controller.spec.ts",
+    "apps/api/src/worklogs/worklogs.controller.ts",
+    "apps/api/src/worklogs/worklogs.module.ts",
+    "apps/web-e2e/src/commercial-v2.spec.ts",
+    "apps/web-e2e/src/contracts.spec.ts",
+    "apps/web-e2e/src/support/permission-groups.ts",
+    "apps/web-e2e/src/ticket-stage-transition.spec.ts",
+    "apps/web-e2e/src/users-permissions.spec.ts",
     "apps/web/src/App.tsx",
     "apps/web/src/hooks/usePermissionGroups.ts",
     "apps/web/src/hooks/usePermissions.test.tsx",
@@ -110,12 +263,14 @@
     "apps/web/src/pages/TechnicalGroupsPage.tsx",
     "apps/web/src/pages/UsersPage.test.tsx",
     "apps/web/src/pages/UsersPage.tsx",
-    "apps/web-e2e/src/users-permissions.spec.ts"
+    "docs/superpowers/specs/2026-10-21-configuracoes-usuarios-rbac-tiflux-parity.md"
   ],
   "tdd": {
-    "mode": "required",
-    "red": ".delivery/evidence/DMTE-238/red.json",
-    "green": ".delivery/evidence/DMTE-238/green.json"
+    "mode": "legacy-exception",
+    "exception": ".delivery/exceptions/DMTE-84.json",
+    "red": ".delivery/evidence/DMTE-84/integration-red.json",
+    "green": ".delivery/evidence/DMTE-84/integration-green.json",
+    "reason": "Evidência histórica original preservada, sem recaptura retroativa. A exceção DMTE-84 permanece pendente; a correção atual AC-12 possui evidência real própria."
   },
   "design_system": {
     "applicable": true,

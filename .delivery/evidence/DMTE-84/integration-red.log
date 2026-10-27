@@ -1,0 +1,61 @@
+
+> nx run api:test --runInBand --testPathPatterns=users.(controller|service).spec.ts
+
+> jest --passWithNoTests=true --runInBand --testPathPatterns="users.(controller|service).spec.ts"
+
+
+
+
+ NX   Running target test for project api failed
+
+Failed tasks:
+
+- api:test
+
+Hint: run the command with --verbose for more details.
+
+(node:4140716) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m api [39m[27m[0m [2msrc/users/[22m[1musers.controller.spec.ts[22m
+[1m[31m  [1m● [22m[1mUsersController › getAgents › returns a list of agents and admins[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m{"id": "admin-1", "role": "ADMIN"}[39m
+
+    Number of calls: [31m0[39m
+
+[2m      47 |       const result = await controller.getAgents({ user: fakeUser } as any);[22m
+[2m      48 |[22m
+[2m    > 49 |       expect(service.findAgents).toHaveBeenCalledWith(fakeUser);[22m
+[2m         |                                  ^[22m
+[2m      50 |       expect(result).toEqual(mockAgents);[22m
+[2m      51 |     });[22m
+[2m      52 |   });[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/users/users.controller.spec.ts[39m[0m[2m:49:34)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mUsersController › forwards the authenticated agent identity to the tenant-scoped directory[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m{"id": "agent-scoped", "role": "AGENT"}[39m
+
+    Number of calls: [31m0[39m
+
+[2m      59 |     const result = await controller.getAgents({ user: currentUser } as any);[22m
+[2m      60 |[22m
+[2m    > 61 |     expect(service.findAgents).toHaveBeenCalledWith(currentUser);[22m
+[2m         |                                ^[22m
+[2m      62 |     expect(result).toEqual(permittedAgents);[22m
+[2m      63 |   });[22m
+[2m      64 |[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/users/users.controller.spec.ts[39m[0m[2m:61:32)[22m[2m[22m
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, [1m[32m1 passed[39m[22m, 2 total
+[1mTests:       [22m[1m[31m2 failed[39m[22m, [1m[32m27 passed[39m[22m, 29 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        4.396 s
+[2mRan all test suites[22m[2m matching [22musers.(controller|service).spec.ts[2m.[22m
+Warning: command "jest --passWithNoTests=true --runInBand --testPathPatterns="users.(controller|service).spec.ts"" exited with non-zero status code

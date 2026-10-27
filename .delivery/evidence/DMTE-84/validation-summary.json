@@ -1,0 +1,77 @@
+{
+  "node": "v24.21.0",
+  "pnpm": "12.8.1",
+  "snapshot_before_correction": "5934446026c6c292b4baf184e2140814e669a5b1",
+  "lint_typecheck": "passed (api,web,web-e2e)",
+  "api": {
+    "suites": 79,
+    "tests": 1068,
+    "coverage": "CI thresholds passed"
+  },
+  "web": {
+    "files": 153,
+    "tests": 1117,
+    "coverage": "CI thresholds passed"
+  },
+  "build": "passed (api,web)",
+  "verifier_tests": 39,
+  "e2e": {
+    "result": "passed",
+    "tests": 15,
+    "command": [
+      "pnpm",
+      "exec",
+      "nx",
+      "run",
+      "web-e2e:e2e",
+      "--skip-nx-cache"
+    ],
+    "database": "isolated Postgres 16; migrations and seed passed; synthetic data"
+  },
+  "validation_commands": [
+    {
+      "command": [
+        "pnpm",
+        "exec",
+        "nx",
+        "run-many",
+        "-t",
+        "lint,typecheck",
+        "--projects=api,web,web-e2e",
+        "--skip-nx-cache"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "pnpm",
+        "exec",
+        "nx",
+        "run-many",
+        "-t",
+        "test",
+        "--projects=api,web",
+        "--skip-nx-cache",
+        "--",
+        "--coverage"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "pnpm",
+        "exec",
+        "nx",
+        "run-many",
+        "-t",
+        "build",
+        "--projects=api,web",
+        "--skip-nx-cache"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "historical_evidence": "DMTE-238 and DMTE-250 unchanged",
+  "contract": "Real merge-base and declared diff aligned. Pending approval intentionally blocks delivery; full evidence validation passes when approval is supplied only as an in-memory test fixture. No false approval written.",
+  "raw_logs_local": "/home/hermes/multica/dmte-84-resolution/validation"
+}

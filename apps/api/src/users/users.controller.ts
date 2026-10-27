@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body, Query, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
@@ -29,8 +29,8 @@ export class UsersController {
   // access just to populate an assignee picker).
   @Get('agents')
   @RequirePermission('VIEW_AND_OPEN_TICKETS')
-  async getAgents() {
-    return this.usersService.findAgents();
+  async getAgents(@Req() req: AuthenticatedRequest) {
+    return this.usersService.findAgents(req.user);
   }
 
   @Get(':id')

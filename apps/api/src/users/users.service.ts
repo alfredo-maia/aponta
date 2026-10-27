@@ -5,6 +5,10 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserQueryDto } from './dto/user-query.dto';
 import type { User } from '@prisma/client';
+import {
+  DEFAULT_PERMISSION_GROUPS,
+  ROLE_GROUP_NAME,
+} from '../permission-groups/default-permission-groups';
 import { TenantHelper } from '../core/security/tenant.helper';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 

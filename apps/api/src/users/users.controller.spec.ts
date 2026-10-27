@@ -51,6 +51,17 @@ describe('UsersController', () => {
     });
   });
 
+  it('forwards the authenticated agent identity to the tenant-scoped directory', async () => {
+    const currentUser = { id: 'agent-scoped', role: Role.AGENT };
+    const permittedAgents = [{ id: 'same-desk-agent', role: Role.AGENT }];
+    service.findAgents.mockResolvedValueOnce(permittedAgents);
+
+    const result = await controller.getAgents({ user: currentUser } as any);
+
+    expect(service.findAgents).toHaveBeenCalledWith(currentUser);
+    expect(result).toEqual(permittedAgents);
+  });
+
   describe('findAll', () => {
     it('forwards the query params to the service', async () => {
       const query = { q: 'jane', page: '1' };

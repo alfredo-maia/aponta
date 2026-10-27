@@ -165,3 +165,36 @@ Mapeamento dos critérios acima para os `AC-NN` do manifest v4, cada um com RED/
 5. PR aberto com CI verde (ou, se o ambiente de execução não tiver acesso ao CI real, descrito explicitamente o que falta para confirmar — nunca reportado como "pronto para produção" sem essa confirmação).
 
 **AC-08** (manifest v4) — critério 1 acima: `apps/web-e2e/src/users-permissions.spec.ts` cobre o cenário completo (cria `PermissionGroup` só com `MANAGE_USERS` pela UI real de Grupos de permissões, vincula um usuário de teste pela mesma UI, faz logout/login real desse usuário e confirma que "Usuários" aparece em Configurações e que a tela realmente opera via `PATCH /users/:id/active`); roda junto do restante da suíte `web-e2e` (critério 4), sem alterar nenhum spec existente de `TenantHelper`.
+
+
+## Correção da integração com main e do contrato da entrega completa
+
+O PR representa as Tarefas 1 a 5 da DMTE-84. A substituição dos decorators e
+wiring dos módulos é parte da autorização granular aprovada na Tarefa 2,
+incluindo os controllers de tickets, vault, relatórios e demais módulos.
+O manifest deve declarar o diff completo contra o merge-base real do PR.
+Não considerar esses arquivos automaticamente fora do escopo apenas por nome.
+
+- AC-09: Modelo de PermissionGroup/TechnicalGroup, migrações, catálogo e seed
+  coerentes e idempotentes. Testes: apps/api/prisma/seed.spec.ts,
+  apps/api/src/permission-groups/permission-catalog.spec.ts e os specs de
+  permission-groups e technical-groups; validar migrações com Postgres isolado.
+- AC-10: Autorização granular cobre os controllers afetados e mantém isolamento
+  por Role/TenantHelper. Testes: apps/api/src/auth/guards/permissions.guard.spec.ts,
+  apps/api/src/permissions/permissions.service.spec.ts, specs dos controllers e
+  E2E de users-permissions. Nenhuma dispensa dos critérios de segurança.
+- AC-11: APIs de usuários mantêm paginação, busca, atualização e ativação, além
+  de grupos padrão no cadastro. Testes: apps/api/src/users/users.service.spec.ts
+  e apps/api/src/users/users.controller.spec.ts.
+- AC-12: A integração com main preserva o filtro autenticado de GET /users/agents
+  e os grupos padrão no cadastro, junto da autorização granular e da listagem
+  paginada. A API compila e inicia, e o E2E passa. Reproduzir o RED/GREEN real
+  da correção atual nos dois specs de users; import/setup/sintaxe falhando não
+  constituem RED. Usar stub neutro importável se necessário, documentando-o.
+
+As evidências originais em DMTE-238/DMTE-250 permanecem inalteradas como histórico.
+A base antiga 92b1d6a não é o merge-base atual. Reescrever metadados de RED
+histórico para declarar outra base seria desonesto. A eventual dispensa dessa
+exigência histórica na entrega completa precisa de aprovação explícita específica
+para DMTE-84; a aprovação da DMTE-78 não se aplica. Preparar registro pendente,
+sem publicar sucesso ou atribuir aprovação ao usuário.
