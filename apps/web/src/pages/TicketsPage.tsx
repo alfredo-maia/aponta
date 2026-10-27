@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { TicketList } from '../components/tickets/TicketList';
 import { TicketKanban } from '../components/tickets/TicketKanban';
@@ -40,7 +40,23 @@ export function TicketsPage() {
     return isClient ? 'list' : 'kanban';
   });
 
+  // Only writes `?view=` once `viewMode` actually CHANGES from what this
+  // effect last saw — never on mount, where it still equals the value
+  // `viewMode`'s own lazy initializer above already read from the URL (or
+  // picked as the role default). A plain "first render" boolean ref is NOT
+  // enough here: React 18 StrictMode (apps/web/src/main.tsx) double-invokes
+  // effects on the initial mount commit, which would flip a one-shot flag
+  // on the first invocation and then fall through to the write on the
+  // immediate second one — reintroducing `?view=` on a bare `/` URL and
+  // breaking `toHaveURL('/')` right after login (auth/dashboard/tickets
+  // e2e specs). Comparing against the last-seen VALUE is idempotent across
+  // that double-invoke, since the value never changed between the two.
+  const lastSyncedViewMode = useRef(viewMode);
   useEffect(() => {
+    if (lastSyncedViewMode.current === viewMode) {
+      return;
+    }
+    lastSyncedViewMode.current = viewMode;
     const params = new URLSearchParams(searchParams);
     if (params.get('view') !== viewMode) {
       params.set('view', viewMode);
