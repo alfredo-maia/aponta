@@ -177,7 +177,7 @@
     "exception": ".delivery/exceptions/DMTE-78.json",
     "red": ".delivery/evidence/DMTE-78/gate-red.json",
     "green": ".delivery/evidence/DMTE-78/gate-green.json",
-    "reason": "Sem aprovação anterior comprovada. A exceção histórica está pendente; a alteração nova do gate tem evidência própria."
+    "reason": "A alegação de aprovação anterior foi retirada. A exceção histórica foi agora aprovada explicitamente pelo Alfredo e registrada em https://github.com/alfredo-maia/aponta/issues/93#issuecomment-6438811477. A alteração nova do gate tem evidência RED/GREEN própria."
   },
   "design_system": {
     "applicable": true,

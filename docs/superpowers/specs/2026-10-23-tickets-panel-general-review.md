@@ -159,5 +159,6 @@ Apontamento inline/play no card; modo Grade; campos customizados do TiFlux; filt
   RED/GREEN real, com o snapshot como base e cobertura do AC-12.
 - Aprovação é um registro revisado por humanos; o arquivo local não autentica
   a identidade do aprovador. QA deve conferir o comentário original e seu escopo.
-- A aprovação anterior atribuída ao Alfredo não foi comprovada. A exceção fica
-  pendente até decisão explícita, sem merge/deploy ou dispensa genérica de TDD.
+- A aprovação anterior atribuída ao Alfredo não foi comprovada. A exceção foi
+  agora aprovada explicitamente e registrada em https://github.com/alfredo-maia/aponta/issues/93#issuecomment-6438811477.
+  A decisão não autoriza merge/deploy nem dispensa genérica de TDD.

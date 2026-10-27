@@ -17,10 +17,10 @@
     "AC-10",
     "AC-11"
   ],
-  "reason": "Implementação legada sem evidência histórica RED/GREEN. A afirmação anterior de aprovação pelo Alfredo não foi comprovada e foi retirada. Testes e E2E no snapshot: https://github.com/alfredo-maia/aponta/actions/runs/40482764385 . Aprovação pendente; evidência de TDD não será fabricada.",
+  "reason": "Implementação legada sem evidência histórica RED/GREEN. A afirmação anterior de aprovação pelo Alfredo não foi comprovada e foi retirada. Testes e E2E no snapshot: https://github.com/alfredo-maia/aponta/actions/runs/40482764385 . Exceção aprovada explicitamente nesta sessão e registrada na issue canônica; evidência de TDD não será fabricada.",
   "approval": {
-    "status": "pending",
-    "approved_by": null,
-    "source": null
+    "status": "approved",
+    "approved_by": "Alfredo (alfredo-maia)",
+    "source": "https://github.com/alfredo-maia/aponta/issues/93#issuecomment-6438811477"
   }
 }
