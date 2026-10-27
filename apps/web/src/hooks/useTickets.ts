@@ -110,8 +110,10 @@ export interface TicketFiltersInput {
   paused?: boolean;
   /** "Vencidos" KPI: SLA response or resolve deadline breached. */
   overdue?: boolean;
-  /** Only tickets not yet RESOLVED/CLOSED — used by the Agenda ticket picker. */
+  /** Only tickets not yet RESOLVED/CLOSED — used by the Agenda ticket picker and Busca avançada "Abertos" shortcut. */
   notClosed?: boolean;
+  /** Busca avançada "Fechados" shortcut (D4): only RESOLVED/CLOSED tickets. */
+  closedOnly?: boolean;
   /** Busca avançada "Número" — substring do protocolo. */
   number?: string;
   /** Busca avançada "Título" — substring do título. */
@@ -156,6 +158,7 @@ export function useTickets(filters: TicketFiltersInput = {}) {
     paused,
     overdue,
     notClosed,
+    closedOnly,
     number,
     titleContains,
     requesterQuery,
@@ -184,6 +187,7 @@ export function useTickets(filters: TicketFiltersInput = {}) {
         paused: paused ?? false,
         overdue: overdue ?? false,
         notClosed: notClosed ?? false,
+        closedOnly: closedOnly ?? false,
         number: number ?? null,
         titleContains: titleContains ?? null,
         requesterQuery: requesterQuery ?? null,
@@ -210,6 +214,7 @@ export function useTickets(filters: TicketFiltersInput = {}) {
           ...(paused ? { paused: 'true' } : {}),
           ...(overdue ? { overdue: 'true' } : {}),
           ...(notClosed ? { notClosed: 'true' } : {}),
+          ...(closedOnly ? { closedOnly: 'true' } : {}),
           ...(number ? { number } : {}),
           ...(titleContains ? { titleContains } : {}),
           ...(requesterQuery ? { requesterQuery } : {}),

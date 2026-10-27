@@ -126,12 +126,21 @@ export class TicketQueryDto {
 
   @ApiPropertyOptional({
     description:
-      'Somente chamados não fechados (exclui RESOLVED e CLOSED) — usado para vincular um chamado a um compromisso da Agenda',
+      'Somente chamados não fechados (exclui RESOLVED e CLOSED) — usado para vincular um chamado a um compromisso da Agenda e pelo atalho "Abertos" da Busca avançada',
     example: 'true',
   })
   @IsOptional()
   @IsIn(['true', 'false'])
   notClosed?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Somente chamados fechados (RESOLVED ou CLOSED) — atalho "Fechados" da Busca avançada (D4)',
+    example: 'true',
+  })
+  @IsOptional()
+  @IsIn(['true', 'false'])
+  closedOnly?: string;
 
   @ApiPropertyOptional({
     description: 'Busca por substring do protocolo (Busca avançada "Número")',

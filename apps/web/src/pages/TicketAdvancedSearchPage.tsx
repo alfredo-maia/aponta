@@ -17,13 +17,18 @@ interface PickerOption {
 const ticketStatuses = Object.keys(statusLabels) as TicketStatus[];
 const ticketPriorities = Object.keys(priorityLabels) as TicketPriority[];
 
+/** D4 "Status" atalhos agregados: convivem na mesma lista de opções que os
+ * `TicketStatus` individuais, mas não são um status literal — mapeiam para
+ * `notClosed`/`closedOnly` no submit (ver `handleSearch`). */
+type StatusFieldValue = TicketStatus | '' | 'OPEN_SHORTCUT' | 'CLOSED_SHORTCUT';
+
 const EMPTY_FORM = {
   dateField: 'createdAt' as 'createdAt' | 'closedAt',
   dateFrom: '',
   dateTo: '',
   number: '',
   titleContains: '',
-  status: '' as TicketStatus | '',
+  status: '' as StatusFieldValue,
   organizationId: '',
   requesterQuery: '',
   agentId: '',
@@ -78,7 +83,9 @@ export function TicketAdvancedSearchPage() {
     const filters: TicketFiltersInput = {};
     if (form.number) filters.number = form.number;
     if (form.titleContains) filters.titleContains = form.titleContains;
-    if (form.status) filters.status = form.status;
+    if (form.status === 'OPEN_SHORTCUT') filters.notClosed = true;
+    else if (form.status === 'CLOSED_SHORTCUT') filters.closedOnly = true;
+    else if (form.status) filters.status = form.status;
     if (form.organizationId) filters.organizationId = form.organizationId;
     if (form.requesterQuery) filters.requesterQuery = form.requesterQuery;
     if (form.agentId) filters.agentId = form.agentId;
@@ -149,14 +156,20 @@ export function TicketAdvancedSearchPage() {
             id="adv-search-status"
             label="Status"
             value={form.status}
-            onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as TicketStatus | '' }))}
+            onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as StatusFieldValue }))}
           >
             <option value="">Qualquer status</option>
-            {ticketStatuses.map((status) => (
-              <option key={status} value={status}>
-                {statusLabels[status]}
-              </option>
-            ))}
+            <optgroup label="Atalhos">
+              <option value="OPEN_SHORTCUT">Abertos</option>
+              <option value="CLOSED_SHORTCUT">Fechados</option>
+            </optgroup>
+            <optgroup label="Status">
+              {ticketStatuses.map((status) => (
+                <option key={status} value={status}>
+                  {statusLabels[status]}
+                </option>
+              ))}
+            </optgroup>
           </EzComboBox>
 
           <EzComboBox

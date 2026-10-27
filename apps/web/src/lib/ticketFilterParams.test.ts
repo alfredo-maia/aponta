@@ -48,6 +48,8 @@ describe('parseFiltersFromSearchParams (D4/D8)', () => {
       unassigned: true,
       paused: true,
       overdue: true,
+      notClosed: true,
+      closedOnly: true,
     };
 
     const roundTripped = parseFiltersFromSearchParams(

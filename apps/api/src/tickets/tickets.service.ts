@@ -626,6 +626,11 @@ export class TicketsService {
     if (wantsPaused) {
       where.status = { in: PAUSED_STATUSES };
     }
+    // Busca avançada "Fechados" shortcut (D4): an explicit `status` still
+    // wins, same precedence as every other aggregate flag above.
+    if (query.closedOnly === 'true' && !where.status) {
+      where.status = { in: CLOSED_STATUSES };
+    }
 
     const page = Math.max(parseInt(query.page ?? '1', 10) || 1, 1);
     const limit = Math.min(

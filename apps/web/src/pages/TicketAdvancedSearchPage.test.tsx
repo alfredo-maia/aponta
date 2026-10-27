@@ -78,6 +78,45 @@ describe('TicketAdvancedSearchPage (D4)', () => {
     expect(screen.queryByLabelText(/atendente/i)).not.toBeInTheDocument();
   });
 
+  it('RODADA 2: hides Atendente (but keeps Solicitante) for CLIENT_MASTER, since GET /users/agents returns 403 for this role', () => {
+    useAuthStore.setState({
+      token: 'tok',
+      user: { sub: 'u3', email: 'master@x.com', role: 'CLIENT_MASTER', organizationId: 'org-1' },
+    });
+    renderPage();
+
+    expect(screen.queryByLabelText(/^cliente$/i)).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/solicitante/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/atendente/i)).not.toBeInTheDocument();
+    expect(api.get).not.toHaveBeenCalledWith('/users/agents');
+  });
+
+  it('RODADA 2: "Status" has Abertos/Fechados shortcuts that map to notClosed/closedOnly, not a literal status (D4)', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.selectOptions(screen.getByLabelText(/^status$/i), 'Abertos');
+    await user.click(screen.getByRole('button', { name: 'Buscar' }));
+    await waitFor(() => {
+      const probe = screen.getByTestId('location-probe');
+      expect(probe.textContent).toContain('notClosed=true');
+      expect(probe.textContent).not.toContain('status=');
+    });
+  });
+
+  it('RODADA 2: "Fechados" shortcut maps to closedOnly', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.selectOptions(screen.getByLabelText(/^status$/i), 'Fechados');
+    await user.click(screen.getByRole('button', { name: 'Buscar' }));
+    await waitFor(() => {
+      const probe = screen.getByTestId('location-probe');
+      expect(probe.textContent).toContain('closedOnly=true');
+      expect(probe.textContent).not.toContain('status=');
+    });
+  });
+
   it('keeps Estágio disabled until a Mesa is chosen', async () => {
     renderPage();
 

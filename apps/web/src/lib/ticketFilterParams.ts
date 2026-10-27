@@ -27,6 +27,8 @@ export function parseFiltersFromSearchParams(
   if (params.get('unassigned') === 'true') filters.unassigned = true;
   if (params.get('paused') === 'true') filters.paused = true;
   if (params.get('overdue') === 'true') filters.overdue = true;
+  if (params.get('notClosed') === 'true') filters.notClosed = true;
+  if (params.get('closedOnly') === 'true') filters.closedOnly = true;
   const number = params.get('number');
   if (number) filters.number = number;
   const titleContains = params.get('titleContains');
@@ -62,6 +64,8 @@ export function filtersToSearchParams(
   if (filters.unassigned) params.set('unassigned', 'true');
   if (filters.paused) params.set('paused', 'true');
   if (filters.overdue) params.set('overdue', 'true');
+  if (filters.notClosed) params.set('notClosed', 'true');
+  if (filters.closedOnly) params.set('closedOnly', 'true');
   if (filters.number) params.set('number', filters.number);
   if (filters.titleContains) params.set('titleContains', filters.titleContains);
   if (filters.requesterQuery) params.set('requesterQuery', filters.requesterQuery);

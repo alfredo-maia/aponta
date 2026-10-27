@@ -663,6 +663,42 @@ describe('TicketsService', () => {
       });
     });
 
+    it('RODADA 2: filters to closed/resolved tickets when closedOnly=true (Busca avançada "Fechados" shortcut, D4)', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { closedOnly: 'true' },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: {
+          status: { in: [TicketStatus.RESOLVED, TicketStatus.CLOSED] },
+        },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
+      });
+    });
+
+    it('RODADA 2: an explicit status wins over closedOnly=true', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { closedOnly: 'true', status: TicketStatus.OPEN },
+        { id: 'admin-1', role: Role.ADMIN },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: { status: TicketStatus.OPEN },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
+      });
+    });
+
     it('filters to SLA-breached open tickets when overdue=true, computed in memory and paginated manually (dashboard "Vencidos" KPI)', async () => {
       jest.useFakeTimers().setSystemTime(new Date('2026-01-02T00:00:00.000Z'));
       mockPrismaService.ticket.findMany.mockResolvedValue([
