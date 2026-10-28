@@ -194,7 +194,8 @@ Não considerar esses arquivos automaticamente fora do escopo apenas por nome.
 
 As evidências originais em DMTE-238/DMTE-250 permanecem inalteradas como histórico.
 A base antiga 92b1d6a não é o merge-base atual. Reescrever metadados de RED
-histórico para declarar outra base seria desonesto. A eventual dispensa dessa
-exigência histórica na entrega completa precisa de aprovação explícita específica
-para DMTE-84; a aprovação da DMTE-78 não se aplica. Preparar registro pendente,
-sem publicar sucesso ou atribuir aprovação ao usuário.
+histórico para declarar outra base seria desonesto. A dispensa dessa
+exigência histórica na entrega completa recebeu aprovação explícita específica
+para DMTE-84 nesta sessão, registrada em https://github.com/alfredo-maia/aponta/issues/94#issuecomment-6472599468.
+A decisão não deriva da aprovação da DMTE-78 e não dispensa os critérios
+funcionais, segurança, CI ou QA independente no SHA final.

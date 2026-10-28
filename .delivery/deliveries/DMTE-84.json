@@ -18,7 +18,7 @@
         "useHasPermission > grants every permission key to an ADMIN even with an empty permissions list"
       ],
       "tdd_required": false,
-      "reason": "Evidência histórica preservada em DMTE-238, cuja base original não equivale ao merge-base atual. Eventual dispensa histórica depende de aprovação explícita específica para DMTE-84, ainda pendente; não se declara RED retroativo."
+      "reason": "Evidência histórica preservada em DMTE-238, cuja base original não equivale ao merge-base atual. Dispensa histórica aprovada explicitamente pelo Alfredo e registrada em https://github.com/alfredo-maia/aponta/issues/94#issuecomment-6472599468; não se declara RED retroativo."
     },
     {
       "id": "AC-02",
@@ -31,7 +31,7 @@
         "SettingsPage > does not show Usuários/Grupos links for a user without MANAGE_USERS or MANAGE_PERMISSION_GROUPS"
       ],
       "tdd_required": false,
-      "reason": "Evidência histórica preservada em DMTE-238, cuja base original não equivale ao merge-base atual. Eventual dispensa histórica depende de aprovação explícita específica para DMTE-84, ainda pendente; não se declara RED retroativo."
+      "reason": "Evidência histórica preservada em DMTE-238, cuja base original não equivale ao merge-base atual. Dispensa histórica aprovada explicitamente pelo Alfredo e registrada em https://github.com/alfredo-maia/aponta/issues/94#issuecomment-6472599468; não se declara RED retroativo."
     },
     {
       "id": "AC-03",
@@ -43,7 +43,7 @@
         "UsersPage > renders Perfil and Segurança tabs in the detail view"
       ],
       "tdd_required": false,
-      "reason": "Evidência histórica preservada em DMTE-238, cuja base original não equivale ao merge-base atual. Eventual dispensa histórica depende de aprovação explícita específica para DMTE-84, ainda pendente; não se declara RED retroativo."
+      "reason": "Evidência histórica preservada em DMTE-238, cuja base original não equivale ao merge-base atual. Dispensa histórica aprovada explicitamente pelo Alfredo e registrada em https://github.com/alfredo-maia/aponta/issues/94#issuecomment-6472599468; não se declara RED retroativo."
     },
     {
       "id": "AC-04",
@@ -57,7 +57,7 @@
         "TechnicalGroupsPage > adds a service desk access on the Acessos tab via POST .../service-desks/:id"
       ],
       "tdd_required": false,
-      "reason": "Evidência histórica preservada em DMTE-238, cuja base original não equivale ao merge-base atual. Eventual dispensa histórica depende de aprovação explícita específica para DMTE-84, ainda pendente; não se declara RED retroativo."
+      "reason": "Evidência histórica preservada em DMTE-238, cuja base original não equivale ao merge-base atual. Dispensa histórica aprovada explicitamente pelo Alfredo e registrada em https://github.com/alfredo-maia/aponta/issues/94#issuecomment-6472599468; não se declara RED retroativo."
     },
     {
       "id": "AC-05",
@@ -69,7 +69,7 @@
         "PermissionGroupsPage > adds a user link via POST /permission-groups/:id/users/:userId"
       ],
       "tdd_required": false,
-      "reason": "Evidência histórica preservada em DMTE-238, cuja base original não equivale ao merge-base atual. Eventual dispensa histórica depende de aprovação explícita específica para DMTE-84, ainda pendente; não se declara RED retroativo."
+      "reason": "Evidência histórica preservada em DMTE-238, cuja base original não equivale ao merge-base atual. Dispensa histórica aprovada explicitamente pelo Alfredo e registrada em https://github.com/alfredo-maia/aponta/issues/94#issuecomment-6472599468; não se declara RED retroativo."
     },
     {
       "id": "AC-06",
@@ -108,7 +108,7 @@
         "apps/api/src/technical-groups/technical-groups.service.spec.ts"
       ],
       "tdd_required": false,
-      "reason": "Implementação legada anterior ao coletor; critérios funcionais continuam obrigatórios. Ausência de RED histórico depende de aprovação explícita específica ainda pendente."
+      "reason": "Implementação legada anterior ao coletor; critérios funcionais continuam obrigatórios. Dispensa da exigência histórica aprovada explicitamente e registrada em https://github.com/alfredo-maia/aponta/issues/94#issuecomment-6472599468."
     },
     {
       "id": "AC-10",
@@ -119,7 +119,7 @@
         "apps/api/src/tickets/tickets.controller.spec.ts"
       ],
       "tdd_required": false,
-      "reason": "Implementação legada anterior ao coletor; critérios funcionais continuam obrigatórios. Ausência de RED histórico depende de aprovação explícita específica ainda pendente."
+      "reason": "Implementação legada anterior ao coletor; critérios funcionais continuam obrigatórios. Dispensa da exigência histórica aprovada explicitamente e registrada em https://github.com/alfredo-maia/aponta/issues/94#issuecomment-6472599468."
     },
     {
       "id": "AC-11",
@@ -129,7 +129,7 @@
         "apps/api/src/users/users.controller.spec.ts"
       ],
       "tdd_required": false,
-      "reason": "Implementação legada anterior ao coletor; critérios funcionais continuam obrigatórios. Ausência de RED histórico depende de aprovação explícita específica ainda pendente."
+      "reason": "Implementação legada anterior ao coletor; critérios funcionais continuam obrigatórios. Dispensa da exigência histórica aprovada explicitamente e registrada em https://github.com/alfredo-maia/aponta/issues/94#issuecomment-6472599468."
     },
     {
       "id": "AC-12",
@@ -270,7 +270,7 @@
     "exception": ".delivery/exceptions/DMTE-84.json",
     "red": ".delivery/evidence/DMTE-84/integration-red.json",
     "green": ".delivery/evidence/DMTE-84/integration-green.json",
-    "reason": "Evidência histórica original preservada, sem recaptura retroativa. A exceção DMTE-84 permanece pendente; a correção atual AC-12 possui evidência real própria."
+    "reason": "Evidências históricas originais preservadas, sem recaptura retroativa. Exceção específica DMTE-84 aprovada explicitamente pelo Alfredo nesta sessão e registrada em https://github.com/alfredo-maia/aponta/issues/94#issuecomment-6472599468. A correção atual AC-12 possui RED/GREEN real próprio; critérios funcionais, segurança e QA continuam obrigatórios."
   },
   "design_system": {
     "applicable": true,

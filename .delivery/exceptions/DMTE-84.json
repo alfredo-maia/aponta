@@ -17,15 +17,15 @@
     "AC-10",
     "AC-11"
   ],
-  "reason": "Entrega completa Tarefas 1 a 5. A base antiga 92b1d6a era interna à branch, diferente do merge-base real. Preservar RED/GREEN originais em DMTE-238/DMTE-250 e o histórico de QA; não reescrever bases/hashes para fingir TDD retroativo. Aprovação específica para dispensar a exigência histórica no snapshot ainda pendente. AC-12 e alterações posteriores exigem RED/GREEN real; critérios funcionais, segurança, CI e QA permanecem obrigatórios.",
+  "reason": "Entrega completa Tarefas 1 a 5. A base antiga 92b1d6a era interna à branch, diferente do merge-base real. Preservar RED/GREEN originais em DMTE-238/DMTE-250 e o histórico de QA; não reescrever bases/hashes para fingir TDD retroativo. Aprovação específica para dispensar apenas a exigência histórica no snapshot concedida pelo Alfredo nesta sessão e registrada em https://github.com/alfredo-maia/aponta/issues/94#issuecomment-6472599468. AC-12 e alterações posteriores exigem RED/GREEN real; critérios funcionais, segurança, CI e QA permanecem obrigatórios.",
   "historical_evidence": [
     ".delivery/evidence/DMTE-238/red.json",
     ".delivery/evidence/DMTE-238/green.json",
     ".delivery/evidence/DMTE-250/e2e-green.json"
   ],
   "approval": {
-    "status": "pending",
-    "approved_by": null,
-    "source": null
+    "status": "approved",
+    "approved_by": "Alfredo (alfredo-maia)",
+    "source": "https://github.com/alfredo-maia/aponta/issues/94#issuecomment-6472599468"
   }
 }
