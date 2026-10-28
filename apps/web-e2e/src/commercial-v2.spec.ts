@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { PrismaClient, Role } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { createHmac, randomUUID } from 'node:crypto';
+import { linkFixtureUserToDefaultPermissionGroup } from './support/permission-groups';
 
 test('commercial modalities, immutable costs, mandatory gate and stoppable timers (real Postgres)', async ({ request }) => {
   test.setTimeout(150000);
@@ -38,6 +39,11 @@ test('commercial modalities, immutable costs, mandatory gate and stoppable timer
       { id: id.master, role: Role.CLIENT_MASTER, organizationId: id.org },
       { id: id.requester, role: Role.CLIENT, organizationId: id.org },
     ].map(user => ({ ...user, name: `Comercial ${user.role}`, email: `${user.id}@e2e.invalid`, password: 'unused-jwt-fixture' })) });
+    for (const [userId, role] of [
+      [id.agent, Role.AGENT], [id.master, Role.CLIENT_MASTER], [id.requester, Role.CLIENT],
+    ] as const) {
+      await linkFixtureUserToDefaultPermissionGroup(db, userId, role);
+    }
     await db.serviceDesk.create({ data: { id: id.desk, name: `Comercial ${id.desk}`, agents: { connect: { id: id.agent } }, organizations: { connect: { id: id.org } } } });
     await db.ticket.create({ data: { id: id.ticket, protocol: `E2E-${id.ticket}`, title: 'Modalidades reais', description: 'Validação comercial local', requesterId: id.requester, commercialOrganizationId: id.org, serviceDeskId: id.desk } });
 

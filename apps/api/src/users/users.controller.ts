@@ -1,36 +1,56 @@
-import { Controller, Get, Patch, Param, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body, Query, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@prisma/client';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserQueryDto } from './dto/user-query.dto';
+import { UpdateUserActiveDto } from './dto/update-user-active.dto';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 interface AuthenticatedRequest {
   user: CurrentUserPayload;
 }
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @Roles(Role.ADMIN)
-  async findAll() {
-    return this.usersService.findAll();
+  @RequirePermission('MANAGE_USERS')
+  async findAll(@Query() query: UserQueryDto) {
+    return this.usersService.findAll(query);
   }
 
+  // Agent-assignment dropdown: any user who can work tickets needs to see
+  // who tickets can be assigned to, so this rides VIEW_AND_OPEN_TICKETS
+  // rather than MANAGE_USERS (which would wrongly require admin-grade
+  // access just to populate an assignee picker).
   @Get('agents')
-  @Roles(Role.AGENT, Role.AGENT_MASTER, Role.ADMIN)
+  @RequirePermission('VIEW_AND_OPEN_TICKETS')
   async getAgents(@Req() req: AuthenticatedRequest) {
     return this.usersService.findAgents(req.user);
   }
 
+  @Get(':id')
+  @RequirePermission('MANAGE_USERS')
+  async findOne(@Param('id') id: string) {
+    return this.usersService.findOne(id);
+  }
+
   @Patch(':id')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_USERS')
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.updateAdminFields(id, updateUserDto);
+  }
+
+  @Patch(':id/active')
+  @RequirePermission('MANAGE_USERS')
+  async setActive(
+    @Param('id') id: string,
+    @Body() updateUserActiveDto: UpdateUserActiveDto,
+  ) {
+    return this.usersService.setActive(id, updateUserActiveDto.active);
   }
 }

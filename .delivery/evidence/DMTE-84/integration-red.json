@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-10-27T22:27:16.793504+00:00",
+  "finished_at": "2026-10-27T22:27:28.596233+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "test",
+    "api",
+    "--runInBand",
+    "--testPathPatterns=users.(controller|service).spec.ts",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "5934446026c6c292b4baf184e2140814e669a5b1",
+  "head_sha": "5934446026c6c292b4baf184e2140814e669a5b1",
+  "exit_code": 1,
+  "tests": {
+    "apps/api/src/users/users.controller.spec.ts": "e88f99fcedeec5dc914335e4fd1a9c1a9dec994060c9c70d13981f4766ef7816",
+    "apps/api/src/users/users.service.spec.ts": "dd38ea0d1ce01c619b9ff1fa865f0186366691c7d319d49ea510f2a94b5e7283"
+  },
+  "criteria": [
+    "AC-12"
+  ],
+  "source_hashes": {
+    "apps/api/src/users/users.controller.spec.ts": "e88f99fcedeec5dc914335e4fd1a9c1a9dec994060c9c70d13981f4766ef7816",
+    "apps/api/src/users/users.controller.ts": "703e32210d911720bbcc88ef689e31eba4abe97d96858513e6d66dac5d6401df",
+    "apps/api/src/users/users.service.ts": "a50e451ce0a96012727141b6b5826583332a1c099c46eb19398ec8d9fff1ed8d"
+  },
+  "log": ".delivery/evidence/DMTE-84/integration-red.log",
+  "log_sha256": "0d8dd7924cdd4bdd3d5e19f16fbaee137de230e576900097b5ccca29e1d0ff6a"
+}

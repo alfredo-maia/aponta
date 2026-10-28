@@ -5,9 +5,10 @@ import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { Role, TicketStatus } from '@prisma/client';
 import { TicketsController } from './tickets.controller';
 import { TicketsService } from './tickets.service';
-import { ROLES_KEY } from '../auth/decorators/roles.decorator';
-import { RolesGuard } from '../auth/guards/roles.guard';
+import { PERMISSIONS_KEY } from '../auth/decorators/require-permission.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { JwtOrTokenAuthGuard } from '../auth/guards/jwt-or-token-auth.guard';
+import { PermissionsService } from '../permissions/permissions.service';
 
 const mockTicketsService = {
   create: jest.fn(),
@@ -29,7 +30,10 @@ describe('TicketsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TicketsController],
-      providers: [{ provide: TicketsService, useValue: mockTicketsService }],
+      providers: [
+        { provide: TicketsService, useValue: mockTicketsService },
+        { provide: PermissionsService, useValue: { hasPermission: jest.fn() } },
+      ],
     }).compile();
 
     controller = module.get<TicketsController>(TicketsController);
@@ -88,113 +92,113 @@ describe('TicketsController', () => {
     });
   });
 
-  describe('@Roles metadata declarations', () => {
-    it('does not restrict create to any role (all authenticated roles can create)', () => {
+  describe('@RequirePermission metadata declarations', () => {
+    it('does not restrict create to any permission (all authenticated roles can create)', () => {
       expect(
-        Reflect.getMetadata(ROLES_KEY, controller.create),
+        Reflect.getMetadata(PERMISSIONS_KEY, controller.create),
       ).toBeUndefined();
     });
 
-    it('does not restrict findAll/findOne to any role (service filters instead)', () => {
+    it('does not restrict findAll/findOne to any permission (service filters instead)', () => {
       expect(
-        Reflect.getMetadata(ROLES_KEY, controller.findAll),
+        Reflect.getMetadata(PERMISSIONS_KEY, controller.findAll),
       ).toBeUndefined();
       expect(
-        Reflect.getMetadata(ROLES_KEY, controller.findOne),
+        Reflect.getMetadata(PERMISSIONS_KEY, controller.findOne),
       ).toBeUndefined();
     });
 
-    it('requires AGENT or ADMIN on update', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.update)).toEqual([
-        Role.AGENT,
-        Role.ADMIN,
+    it('requires EDIT_TICKETS on update', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.update)).toEqual([
+        'EDIT_TICKETS',
       ]);
     });
 
-    it('requires AGENT or ADMIN on assign', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.assign)).toEqual([
-        Role.AGENT,
-        Role.ADMIN,
+    it('requires EDIT_TICKETS on assign', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.assign)).toEqual([
+        'EDIT_TICKETS',
       ]);
     });
 
-    it('requires AGENT or ADMIN on changeStatus', () => {
+    it('requires EDIT_TICKETS on changeStatus', () => {
       expect(
-        Reflect.getMetadata(ROLES_KEY, controller.changeStatus),
-      ).toEqual([Role.AGENT, Role.ADMIN]);
+        Reflect.getMetadata(PERMISSIONS_KEY, controller.changeStatus),
+      ).toEqual(['EDIT_TICKETS']);
     });
 
-    it('requires AGENT or ADMIN on changeStage', () => {
+    it('requires EDIT_TICKETS on changeStage', () => {
       expect(
-        Reflect.getMetadata(ROLES_KEY, controller.changeStage),
-      ).toEqual([Role.AGENT, Role.ADMIN]);
+        Reflect.getMetadata(PERMISSIONS_KEY, controller.changeStage),
+      ).toEqual(['EDIT_TICKETS']);
     });
   });
 
-  describe('RolesGuard behavior against the declared metadata', () => {
+  describe('PermissionsGuard behavior against the declared metadata', () => {
     let reflector: Reflector;
-    let guard: RolesGuard;
+    let mockPermissionsService: { hasPermission: jest.Mock };
+    let guard: PermissionsGuard;
 
     beforeEach(() => {
       reflector = new Reflector();
-      guard = new RolesGuard(reflector);
+      mockPermissionsService = { hasPermission: jest.fn() };
+      guard = new PermissionsGuard(reflector, mockPermissionsService as any);
     });
 
     function contextFor(
-       
+
       handler: (...args: any[]) => unknown,
-      role?: Role,
+      user?: { id: string; role: Role },
     ): ExecutionContext {
       return {
         switchToHttp: () => ({
-          getRequest: () => ({ user: role ? { role } : undefined }),
+          getRequest: () => ({ user }),
         }),
         getHandler: () => handler,
         getClass: () => TicketsController,
       } as unknown as ExecutionContext;
     }
 
-    it('blocks CLIENT from update/assign/changeStatus', () => {
-      expect(
-        guard.canActivate(contextFor(controller.update, Role.CLIENT)),
-      ).toBe(false);
-      expect(
-        guard.canActivate(contextFor(controller.assign, Role.CLIENT)),
-      ).toBe(false);
-      expect(
-        guard.canActivate(contextFor(controller.changeStatus, Role.CLIENT)),
-      ).toBe(false);
+    it('blocks CLIENT without EDIT_TICKETS from update/assign/changeStatus', async () => {
+      mockPermissionsService.hasPermission.mockResolvedValue(false);
+      const client = { id: 'c-1', role: Role.CLIENT };
+      await expect(guard.canActivate(contextFor(controller.update, client))).resolves.toBe(false);
+      await expect(guard.canActivate(contextFor(controller.assign, client))).resolves.toBe(false);
+      await expect(
+        guard.canActivate(contextFor(controller.changeStatus, client)),
+      ).resolves.toBe(false);
     });
 
-    it('allows AGENT and ADMIN on update/assign/changeStatus', () => {
-      for (const role of [Role.AGENT, Role.ADMIN]) {
-        expect(
-          guard.canActivate(contextFor(controller.update, role)),
-        ).toBe(true);
-        expect(
-          guard.canActivate(contextFor(controller.assign, role)),
-        ).toBe(true);
-        expect(
-          guard.canActivate(contextFor(controller.changeStatus, role)),
-        ).toBe(true);
-      }
+    it('allows ADMIN on update/assign/changeStatus without checking PermissionsService', async () => {
+      const admin = { id: 'admin-1', role: Role.ADMIN };
+      await expect(guard.canActivate(contextFor(controller.update, admin))).resolves.toBe(true);
+      await expect(guard.canActivate(contextFor(controller.assign, admin))).resolves.toBe(true);
+      await expect(
+        guard.canActivate(contextFor(controller.changeStatus, admin)),
+      ).resolves.toBe(true);
+      expect(mockPermissionsService.hasPermission).not.toHaveBeenCalled();
     });
 
-    it('allows any authenticated role on create/findAll/findOne', () => {
-      expect(
-        guard.canActivate(contextFor(controller.create, Role.CLIENT)),
-      ).toBe(true);
-      expect(
-        guard.canActivate(contextFor(controller.findAll, Role.CLIENT)),
-      ).toBe(true);
-      expect(
-        guard.canActivate(contextFor(controller.findOne, Role.CLIENT)),
-      ).toBe(true);
+    it('allows AGENT holding EDIT_TICKETS on update/assign/changeStatus', async () => {
+      mockPermissionsService.hasPermission.mockResolvedValue(true);
+      const agent = { id: 'a-1', role: Role.AGENT };
+      await expect(guard.canActivate(contextFor(controller.update, agent))).resolves.toBe(true);
+      await expect(guard.canActivate(contextFor(controller.assign, agent))).resolves.toBe(true);
+      await expect(
+        guard.canActivate(contextFor(controller.changeStatus, agent)),
+      ).resolves.toBe(true);
+    });
+
+    it('allows any authenticated user on create/findAll/findOne', async () => {
+      const client = { id: 'c-1', role: Role.CLIENT };
+      await expect(guard.canActivate(contextFor(controller.create, client))).resolves.toBe(true);
+      await expect(guard.canActivate(contextFor(controller.findAll, client))).resolves.toBe(true);
+      await expect(guard.canActivate(contextFor(controller.findOne, client))).resolves.toBe(true);
+      expect(mockPermissionsService.hasPermission).not.toHaveBeenCalled();
     });
   });
 
   describe('@UseGuards registration', () => {
-     
+
     function methodGuards(handler: (...args: any[]) => unknown): any[] {
       return Reflect.getMetadata(GUARDS_METADATA, handler) ?? [];
     }
@@ -205,16 +209,16 @@ describe('TicketsController', () => {
       ).toContain(JwtOrTokenAuthGuard);
     });
 
-    it('registers RolesGuard on update/assign/changeStatus handlers', () => {
-      expect(methodGuards(controller.update)).toContain(RolesGuard);
-      expect(methodGuards(controller.assign)).toContain(RolesGuard);
-      expect(methodGuards(controller.changeStatus)).toContain(RolesGuard);
+    it('registers PermissionsGuard on update/assign/changeStatus handlers', () => {
+      expect(methodGuards(controller.update)).toContain(PermissionsGuard);
+      expect(methodGuards(controller.assign)).toContain(PermissionsGuard);
+      expect(methodGuards(controller.changeStatus)).toContain(PermissionsGuard);
     });
 
-    it('does not register RolesGuard on create/findAll/findOne handlers', () => {
-      expect(methodGuards(controller.create)).not.toContain(RolesGuard);
-      expect(methodGuards(controller.findAll)).not.toContain(RolesGuard);
-      expect(methodGuards(controller.findOne)).not.toContain(RolesGuard);
+    it('does not register PermissionsGuard on create/findAll/findOne handlers', () => {
+      expect(methodGuards(controller.create)).not.toContain(PermissionsGuard);
+      expect(methodGuards(controller.findAll)).not.toContain(PermissionsGuard);
+      expect(methodGuards(controller.findOne)).not.toContain(PermissionsGuard);
     });
   });
 
@@ -268,10 +272,10 @@ describe('TicketsController', () => {
       );
     });
 
-    it('requires AGENT or ADMIN', () => {
+    it('requires EDIT_TICKETS', () => {
       expect(
-        Reflect.getMetadata(ROLES_KEY, controller.changeServiceDesk),
-      ).toEqual([Role.AGENT, Role.ADMIN]);
+        Reflect.getMetadata(PERMISSIONS_KEY, controller.changeServiceDesk),
+      ).toEqual(['EDIT_TICKETS']);
     });
   });
 
@@ -284,9 +288,9 @@ describe('TicketsController', () => {
       expect(mockTicketsService.findAudits).toHaveBeenCalledWith('t1');
     });
 
-    it('is not restricted to any role (service/guard handles visibility upstream via findOne)', () => {
+    it('is not restricted to any permission (service/guard handles visibility upstream via findOne)', () => {
       expect(
-        Reflect.getMetadata(ROLES_KEY, controller.findAudits),
+        Reflect.getMetadata(PERMISSIONS_KEY, controller.findAudits),
       ).toBeUndefined();
     });
   });
@@ -304,11 +308,9 @@ describe('TicketsController', () => {
       });
     });
 
-    it('requires AGENT, AGENT_MASTER or ADMIN', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.cancel)).toEqual([
-        Role.AGENT,
-        Role.AGENT_MASTER,
-        Role.ADMIN,
+    it('requires EDIT_TICKETS', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.cancel)).toEqual([
+        'EDIT_TICKETS',
       ]);
     });
   });
@@ -327,11 +329,9 @@ describe('TicketsController', () => {
       );
     });
 
-    it('requires AGENT, AGENT_MASTER or ADMIN', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.addSlaHours)).toEqual([
-        Role.AGENT,
-        Role.AGENT_MASTER,
-        Role.ADMIN,
+    it('requires ADD_SLA_TIME', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.addSlaHours)).toEqual([
+        'ADD_SLA_TIME',
       ]);
     });
   });

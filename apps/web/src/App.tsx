@@ -20,6 +20,9 @@ import { VaultAuditPage } from './pages/VaultAuditPage';
 import { ContractsPage } from './pages/ContractsPage';
 import { DocsPage } from './pages/DocsPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { UsersPage } from './pages/UsersPage';
+import { TechnicalGroupsPage } from './pages/TechnicalGroupsPage';
+import { PermissionGroupsPage } from './pages/PermissionGroupsPage';
 import { SchedulePage } from './pages/SchedulePage';
 
 /**
@@ -56,6 +59,9 @@ export function App() {
               <Route path="/my-account" element={<MyAccountPage />} />
               <Route path="/docs" element={<DocsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/settings/users" element={<UsersPage />} />
+              <Route path="/settings/technical-groups" element={<TechnicalGroupsPage />} />
+              <Route path="/settings/permission-groups" element={<PermissionGroupsPage />} />
               <Route path="/schedule" element={<SchedulePage />} />
             </Route>
           </Route>

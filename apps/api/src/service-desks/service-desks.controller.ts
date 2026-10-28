@@ -14,9 +14,8 @@ import { CreateServiceDeskDto } from './dto/create-service-desk.dto';
 import { UpdateServiceDeskDto } from './dto/update-service-desk.dto';
 import { UpdateBusinessHoursDto } from './dto/update-business-hours.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@prisma/client';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUser, CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 import { TicketStagesService } from './ticket-stages.service';
 import {
@@ -34,8 +33,8 @@ export class ServiceDesksController {
   ) {}
 
   @Post()
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_SERVICE_DESKS')
   create(@Body() createServiceDeskDto: CreateServiceDeskDto, @CurrentUser() user: CurrentUserPayload) {
     return this.serviceDesksService.create(createServiceDeskDto, user.id);
   }
@@ -46,8 +45,8 @@ export class ServiceDesksController {
   }
 
   @Get('holidays/national/:year')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN, Role.AGENT_MASTER)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_SERVICE_DESKS')
   importNationalHolidays(@Param('year') year: string) {
     return this.serviceDesksService.importNationalHolidays(Number(year));
   }
@@ -58,8 +57,8 @@ export class ServiceDesksController {
   }
 
   @Patch(':id')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_SERVICE_DESKS')
   update(
     @Param('id') id: string,
     @Body() updateServiceDeskDto: UpdateServiceDeskDto,
@@ -69,8 +68,8 @@ export class ServiceDesksController {
   }
 
   @Delete(':id')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_SERVICE_DESKS')
   remove(@Param('id') id: string) {
     return this.serviceDesksService.remove(id);
   }
@@ -86,22 +85,22 @@ export class ServiceDesksController {
   }
 
   @Post(':id/stages')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_SERVICE_DESKS')
   createStage(@Param('id') id: string, @Body() dto: CreateTicketStageDto) {
     return this.ticketStagesService.create(id, dto.name);
   }
 
   @Patch(':id/stages/reorder')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_SERVICE_DESKS')
   reorderStages(@Param('id') id: string, @Body() dto: ReorderTicketStagesDto) {
     return this.ticketStagesService.reorder(id, dto.ids);
   }
 
   @Patch(':id/stages/:stageId')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_SERVICE_DESKS')
   updateStage(
     @Param('id') id: string,
     @Param('stageId') stageId: string,
@@ -111,15 +110,15 @@ export class ServiceDesksController {
   }
 
   @Delete(':id/stages/:stageId')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_SERVICE_DESKS')
   removeStage(@Param('id') id: string, @Param('stageId') stageId: string) {
     return this.ticketStagesService.remove(id, stageId);
   }
 
   @Put(':id/business-hours')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN, Role.AGENT_MASTER)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_SERVICE_DESKS')
   updateBusinessHours(
     @Param('id') id: string,
     @Body() dto: UpdateBusinessHoursDto,

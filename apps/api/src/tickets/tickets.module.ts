@@ -9,9 +9,10 @@ import { PublicCsatService } from './public-csat.service';
 import { AttachmentsController } from './attachments.controller';
 import { AttachmentsService } from './attachments.service';
 import { PrismaModule } from '../prisma/prisma.module';
+import { PermissionsModule } from '../permissions/permissions.module';
 
 @Module({
-  imports: [PrismaModule, EventEmitterModule.forRoot()],
+  imports: [PrismaModule, PermissionsModule, EventEmitterModule.forRoot()],
   controllers: [
     TicketsController,
     CsatController,

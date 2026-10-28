@@ -10,6 +10,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { LocalStrategy } from './local.strategy';
 import { UsersService } from '../users/users.service';
+import { PermissionsService } from '../permissions/permissions.service';
 
 /**
  * Real HTTP-level integration test proving the auth rate limit is actually
@@ -26,6 +27,9 @@ describe('Auth rate limiting (integration)', () => {
       findByEmail: jest.fn().mockResolvedValue(null),
       create: jest.fn(),
     };
+    const permissionsService = {
+      getEffectivePermissions: jest.fn().mockResolvedValue(new Set()),
+    };
 
     const moduleRef = await Test.createTestingModule({
       imports: [
@@ -40,6 +44,7 @@ describe('Auth rate limiting (integration)', () => {
         AuthService,
         LocalStrategy,
         { provide: UsersService, useValue: usersService },
+        { provide: PermissionsService, useValue: permissionsService },
         { provide: APP_GUARD, useClass: ThrottlerGuard },
       ],
     }).compile();

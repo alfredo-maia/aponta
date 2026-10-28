@@ -25,8 +25,20 @@
 import { PrismaClient, Role, AttendanceType } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import * as bcrypt from 'bcryptjs';
+import {
+  DEFAULT_PERMISSION_GROUPS,
+  ROLE_GROUP_NAME,
+} from '../src/permission-groups/default-permission-groups';
 
 const SALT_ROUNDS = 10;
+
+// DMTE-84/126/128 (grupos de permissão padrão por Role) e DMTE-133
+// (retrabalho: `UsersService.create` passou a precisar do mesmo
+// mapeamento, então ele mora em `src/permission-groups/
+// default-permission-groups.ts` agora) — re-exportado aqui para que
+// `seed.spec.ts` continue importando `DEFAULT_PERMISSION_GROUPS` de
+// `./seed` sem mudanças.
+export { DEFAULT_PERMISSION_GROUPS };
 
 const SEED_AGENT = {
   name: 'Seed Agent',
@@ -125,6 +137,42 @@ async function main() {
       `Assigned ${user.email} as agent of: ${serviceDesk.name}, ${secondaryServiceDesk.name}`,
     );
 
+    // DMTE-84 (Tarefa 1): seed one default PermissionGroup per Role and link
+    // each seeded user to the group matching their own role, so the new
+    // Configurações > Usuários > Grupos de permissões screen has real data
+    // from the very first run instead of an empty list.
+    const roleToGroup = new Map<Role, { id: string }>();
+    for (const role of Object.values(Role)) {
+      const name = ROLE_GROUP_NAME[role];
+      let group = await prisma.permissionGroup.findFirst({ where: { name } });
+      if (!group) {
+        group = await prisma.permissionGroup.create({
+          data: {
+            name,
+            description: DEFAULT_PERMISSION_GROUPS[role].description,
+            permissions: DEFAULT_PERMISSION_GROUPS[role].permissions,
+          },
+        });
+        console.log(`Created permission group: ${group.name}`);
+      } else {
+        console.log(`Permission group already exists: ${group.name}`);
+      }
+      roleToGroup.set(role, group);
+    }
+
+    for (const seededUser of [user, admin]) {
+      const group = roleToGroup.get(seededUser.role);
+      if (!group) continue;
+      await prisma.permissionGroupUser.upsert({
+        where: {
+          permissionGroupId_userId: { permissionGroupId: group.id, userId: seededUser.id },
+        },
+        update: {},
+        create: { permissionGroupId: group.id, userId: seededUser.id },
+      });
+    }
+    console.log('Linked seeded users to their default permission group');
+
     // Seed sample ticket and worklogs if needed (paridade com critério DMTE-12)
     let sampleTicket = await prisma.ticket.findFirst({
       where: { serviceDeskId: serviceDesk.id },
@@ -178,7 +226,13 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error('Seed failed:', error);
-  process.exit(1);
-});
+// Guarded so `seed.spec.ts` can import DEFAULT_PERMISSION_GROUPS without
+// triggering a real Postgres connection attempt; `ts-node prisma/seed.ts`
+// (the only real invocation path, via the `prisma-seed` Nx target) sets
+// require.main to this file, so production execution is unaffected.
+if (require.main === module) {
+  main().catch((error) => {
+    console.error('Seed failed:', error);
+    process.exit(1);
+  });
+}

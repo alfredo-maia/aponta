@@ -1,9 +1,8 @@
 import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, Query } from '@nestjs/common';
-import { Role } from '@prisma/client';
 import { ArticlesService } from './articles.service';
 import { OptionalJwtOrTokenAuthGuard } from '../auth/guards/optional-jwt-or-token-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUser, CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -31,8 +30,8 @@ export class ArticlesController {
   }
 
   @Post()
-  @UseGuards(RolesGuard)
-  @Roles(Role.AGENT, Role.AGENT_MASTER, Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_KNOWLEDGE_BASE')
   create(
     @Body() dto: CreateArticleDto,
     @CurrentUser() user: CurrentUserPayload,
@@ -41,8 +40,8 @@ export class ArticlesController {
   }
 
   @Patch(':id')
-  @UseGuards(RolesGuard)
-  @Roles(Role.AGENT, Role.AGENT_MASTER, Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_KNOWLEDGE_BASE')
   update(
     @Param('id') id: string,
     @Body() dto: UpdateArticleDto,
@@ -52,8 +51,8 @@ export class ArticlesController {
   }
 
   @Delete(':id')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_KNOWLEDGE_BASE')
   remove(
     @Param('id') id: string,
     @CurrentUser() user: CurrentUserPayload,

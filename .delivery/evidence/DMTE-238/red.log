@@ -1,0 +1,2278 @@
+
+ NX   Running target test for 2 projects:
+
+- api
+- web
+
+
+
+> nx run api:test
+
+> jest --passWithNoTests=true
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m api [39m[27m[0m [2msrc/auth/[22m[1mauth.controller.spec.ts[22m
+[1m[31m  [1m● [22m[1mAuthController › getProfile › returns the safe user record plus effective permissions for a non-admin[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m"user-1"[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 129 |[39m[22m
+[2m     [90m 130 |[39m       expect(usersService[33m.[39mfindById)[33m.[39mtoHaveBeenCalledWith(mockSafeUser[33m.[39mid)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 131 |[39m       expect(permissionsService[33m.[39mgetEffectivePermissions)[33m.[39mtoHaveBeenCalledWith(mockSafeUser[33m.[39mid)[33m;[39m[22m
+[2m     [90m     |[39m                                                          [31m[1m^[22m[2m[39m[22m
+[2m     [90m 132 |[39m       expect(result)[33m.[39mtoEqual({[22m
+[2m     [90m 133 |[39m         [33m...[39mmockSafeUser[33m,[39m[22m
+[2m     [90m 134 |[39m         isAdmin[33m:[39m [36mfalse[39m[33m,[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/auth/auth.controller.spec.ts[39m[0m[2m:131:58)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mAuthController › getProfile › marks ADMIN as isAdmin without requiring any PermissionGroup link[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 2[39m
+    [31m+ Received  + 0[39m
+
+    [2m  Object {[22m
+    [2m    "email": "jane@example.com",[22m
+    [2m    "id": "admin-1",[22m
+    [32m-   "isAdmin": true,[39m
+    [2m    "name": "Jane Doe",[22m
+    [32m-   "permissions": Array [],[39m
+    [2m    "role": "ADMIN",[22m
+    [2m  }[22m
+
+[2m    [0m [90m 145 |[39m[22m
+[2m     [90m 146 |[39m       expect(permissionsService[33m.[39mgetEffectivePermissions)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 147 |[39m       expect(result)[33m.[39mtoEqual({ [33m...[39madminUser[33m,[39m isAdmin[33m:[39m [36mtrue[39m[33m,[39m permissions[33m:[39m [] })[33m;[39m[22m
+[2m     [90m     |[39m                      [31m[1m^[22m[2m[39m[22m
+[2m     [90m 148 |[39m     })[33m;[39m[22m
+[2m     [90m 149 |[39m   })[33m;[39m[22m
+[2m     [90m 150 |[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/auth/auth.controller.spec.ts[39m[0m[2m:147:22)[22m[2m[22m
+
+
+[1mSummary of all failing tests[22m
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [2msrc/auth/[22m[1mauth.controller.spec.ts[22m
+[1m[31m  [1m● [22m[1mAuthController › getProfile › returns the safe user record plus effective permissions for a non-admin[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m"user-1"[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 129 |[39m[22m
+[2m     [90m 130 |[39m       expect(usersService[33m.[39mfindById)[33m.[39mtoHaveBeenCalledWith(mockSafeUser[33m.[39mid)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 131 |[39m       expect(permissionsService[33m.[39mgetEffectivePermissions)[33m.[39mtoHaveBeenCalledWith(mockSafeUser[33m.[39mid)[33m;[39m[22m
+[2m     [90m     |[39m                                                          [31m[1m^[22m[2m[39m[22m
+[2m     [90m 132 |[39m       expect(result)[33m.[39mtoEqual({[22m
+[2m     [90m 133 |[39m         [33m...[39mmockSafeUser[33m,[39m[22m
+[2m     [90m 134 |[39m         isAdmin[33m:[39m [36mfalse[39m[33m,[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/auth/auth.controller.spec.ts[39m[0m[2m:131:58)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mAuthController › getProfile › marks ADMIN as isAdmin without requiring any PermissionGroup link[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 2[39m
+    [31m+ Received  + 0[39m
+
+    [2m  Object {[22m
+    [2m    "email": "jane@example.com",[22m
+    [2m    "id": "admin-1",[22m
+    [32m-   "isAdmin": true,[39m
+    [2m    "name": "Jane Doe",[22m
+    [32m-   "permissions": Array [],[39m
+    [2m    "role": "ADMIN",[22m
+    [2m  }[22m
+
+[2m    [0m [90m 145 |[39m[22m
+[2m     [90m 146 |[39m       expect(permissionsService[33m.[39mgetEffectivePermissions)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 147 |[39m       expect(result)[33m.[39mtoEqual({ [33m...[39madminUser[33m,[39m isAdmin[33m:[39m [36mtrue[39m[33m,[39m permissions[33m:[39m [] })[33m;[39m[22m
+[2m     [90m     |[39m                      [31m[1m^[22m[2m[39m[22m
+[2m     [90m 148 |[39m     })[33m;[39m[22m
+[2m     [90m 149 |[39m   })[33m;[39m[22m
+[2m     [90m 150 |[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/auth/auth.controller.spec.ts[39m[0m[2m:147:22)[22m[2m[22m
+
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, [1m[32m78 passed[39m[22m, 79 total
+[1mTests:       [22m[1m[31m2 failed[39m[22m, [1m[32m1046 passed[39m[22m, 1048 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        [1m[33m30.614 s[39m[22m
+[2mRan all test suites[22m[2m.[22m
+Warning: command "jest --passWithNoTests=true" exited with non-zero status code
+> nx run web:test
+
+> vitest
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-238-9bb316bd0b01/workdir/aponta/apps/web
+
+ ❯ |web| src/pages/ServiceDesksPage.test.tsx (12 tests | 1 failed) 17037ms
+     ✓ should list existing service desks for an ADMIN user  734ms
+     ✓ should show the Sankhya-standard entity toolbar with Incluir, Recarregar, and column config  495ms
+     ✓ should enable Excluir and Duplicar once a row is selected, and call the delete endpoint on confirmation  1038ms
+     ✓ should open the create form only after clicking Incluir, and create a new service desk  857ms
+     ✓ should not submit when the name field is empty 297ms
+     ✓ should show an access-denied message for a non-ADMIN user 18ms
+     ✓ shows Portuguese labels for ticket sections instead of database keys 275ms
+     × should link a service desk to a client and save its SLA overrides 5284ms
+     ✓ shows the Sankhya-standard filter drawer with search, status and dynamic filter fields  1751ms
+     ✓ filters the grid by search text and status (Sankhya filter drawer)  2932ms
+     ✓ filters dynamically by any column using the rule builder (Sankhya Filtros parity)  2158ms
+     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  1171ms
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > defaults a new article to "Público" and hides the Compartilhar button
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > shows the Compartilhar button once "Privado" is selected, and opens the sharing dialog
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > shows the new-article form to an AGENT and creates a PUBLIC article inside the open folder
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > selects an agent group and a client in the share dialog, and sends them (plus auto-share) in the create payload
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/components/tickets/TicketWorklogs.test.tsx (55 tests) 24018ms
+     ✓ renders worklogs list and summary header correctly  732ms
+     ✓ renders empty state when no worklogs exist  547ms
+     ✓ uses the DS EzComboBox (Storybook) for every worklog selector  429ms
+     ✓ allows filling the form and submitting a new worklog  1717ms
+     ✓ allows choosing attendance type and a custom time range, sending them on submit  3747ms
+     ✓ blocks submission when the end time is not after the start time  3584ms
+     ✓ quick chip buttons update the end time and the computed duration  1651ms
+     ✓ sends valuationType MANUAL with the entered value  1895ms
+     ✓ blocks submission when valuationType is MANUAL without a value  800ms
+     ✓ sends nextStageId when a next stage is chosen  1168ms
+     ✓ does not send nextStageId when "Não alterar" stays selected  1044ms
+     ✓ sends sendAsReply when the checkbox is checked  758ms
+     ✓ submits with the final next stage when "Salvar e fechar ticket" is clicked  356ms
+     ✓ saves worklog draft in localStorage and restores it automatically  611ms
+     ✓ keeps filled fields after closing the modal with X and reopening  480ms
+     ✓ blocks every valuation mode when no commercial contract is eligible  371ms
+     ✓ requires a bonus reason and records its eligible contract without quota consumption  368ms
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > allows an AGENT to update an existing article, pre-populating the access type and sharing lists
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/OrganizationsPage.test.tsx (30 tests) 26188ms
+     ✓ shows the list view by default with a mode toggle (Tiflux/Sankhya-parity, issue #57)  1869ms
+     ✓ switches to the full-page form via Ações > Cadastrar manualmente and validates it  801ms
+     ✓ switches between Grid Mode and Form Mode via the toolbar toggle  576ms
+     ✓ creates a new organization with rich fields  5489ms
+     ✓ looks up a CNPJ and autofills legal name / trade name  2261ms
+     ✓ locks CNPJ and Razão Social after a Receita lookup, standardizing form-mode editability (Sankhya parity)  2021ms
+     ✓ toggles CPF/CNPJ fields based on document type (Tiflux-parity, issue #56)  990ms
+     ✓ opens the full-page detail with the Tiflux-parity 3-column panel  899ms
+     ✓ shows the "Cliente ativo" toggle and inactivates the organization  815ms
+     ✓ defaults to the Usuários tab, lists only CLIENT/CLIENT_MASTER users and allows linking  729ms
+     ✓ updates organization name and legal name on blur in Usuários tab  1085ms
+     ✓ toggles visibility and quarterly billing from the detail header  378ms
+     ✓ adds a new contact from the Usuários tab  335ms
+     ✓ saves serviceType/healthStatus from the Usuários tab (Perfil do Cliente, issue #56)  382ms
+     ✓ manages Mesas (N:N) and Grupo de Atendentes in the Relacionamentos tab (Tiflux-parity, issue #57)  493ms
+     ✓ renders billing preferences and updates quarterly billing in Faturamento tab (issue #58)  1159ms
+     ✓ supports inline editing of cells and Cadastrar por CNPJ via toolbar actions (Sankhya parity)  749ms
+     ✓ filters the grid by search text, status, and document type (Sankhya filter drawer)  752ms
+     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  801ms
+     ✓ edits the optional grid columns (IE, IM, Pasta, Perfil, Saúde) once made visible via screen config  1199ms
+     ✓ filters dynamically by any column using the rule builder (Sankhya Filtros parity)  613ms
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > loads the edit form with EzRichText pre-filled with the existing article content
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/KnowledgePage.test.tsx (22 tests) 7033ms
+     ✓ defaults a new article to "Público" and hides the Compartilhar button  427ms
+     ✓ shows the Compartilhar button once "Privado" is selected, and opens the sharing dialog  596ms
+     ✓ shows the new-article form to an AGENT and creates a PUBLIC article inside the open folder  1436ms
+     ✓ selects an agent group and a client in the share dialog, and sends them (plus auto-share) in the create payload  1653ms
+     ✓ allows an AGENT to update an existing article, pre-populating the access type and sharing lists  913ms
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > renders all core fields
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > shows the submit error banner when submitError is set
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > disables submit buttons while isSubmitting is true
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > disables the Cliente and Solicitante fields for CLIENT role users
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > keeps the Cliente and Solicitante fields enabled for ADMIN/AGENT role users
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > locks title, service desk and priority when a catalogOverride is supplied
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > toggles the schedule date field on and off via the "Agendar Ticket" button
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > shows a validation error and blocks submit when title/description/service desk are empty
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits with saveAndNew: true when "Salvar e criar novo" is clicked
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits with saveAndNew: true when "Salvar e criar novo" is clicked
+An update to EzRichText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to Controller inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits without saveAndNew when the primary "Abrir Ticket" button is clicked
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits without saveAndNew when the primary "Abrir Ticket" button is clicked
+An update to EzRichText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to Controller inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > attaches a file via EzUpload and removes it again via the file item remove button
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/ContractsPage.test.tsx (22 tests) 6286ms
+     ✓ lets admins create with explicit excess rate and minute allowance  425ms
+     ✓ opens a contract's detail as a full page (no dialog) and returns to the list via the back button  346ms
+     ✓ lets an ADMIN select a contract and delete it via the toolbar  377ms
+     ✓ shows the backend conflict message when deleting a contract with worklogs fails  370ms
+     ✓ filters contracts by name or company on the client side via the filter drawer  830ms
+     ✓ filters contracts by status (Ativo/Inativo) via the filter drawer  384ms
+     ✓ filters dynamically by modality using the rule builder (Sankhya Filtros parity)  419ms
+     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  899ms
+     ✓ edits via the update command without turning zero into missing money  441ms
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > filters available requesters down to the selected organization once Cliente is chosen
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/VaultPage.test.tsx (21 tests) 4646ms
+     ✓ creates a folder via "Nova pasta" and edits a selected folder's name  740ms
+     ✓ creates a credential via "Nova senha" and edits one without touching blank username/password  888ms
+     ✓ does not save a new credential with a blank/whitespace-only name, nor without a password  501ms
+     ✓ closes folder and credential modals via "Cancelar" without calling the API  370ms
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > lets the user search and attach a parent ticket
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > hides inactive, closed and internal desks from the Mesa options
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > warns and blocks submit when the desk requires catalog or attachments
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > warns and blocks submit when the desk requires catalog or attachments
+An update to EzRichText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to Controller inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > lets the user add followers via the multi-select
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/components/tickets/TicketForm.test.tsx (16 tests) 4418ms
+     ✓ renders all core fields  402ms
+     ✓ disables submit buttons while isSubmitting is true  491ms
+     ✓ toggles the schedule date field on and off via the "Agendar Ticket" button  452ms
+     ✓ submits with saveAndNew: true when "Salvar e criar novo" is clicked  412ms
+     ✓ submits without saveAndNew when the primary "Abrir Ticket" button is clicked  442ms
+     ✓ warns and blocks submit when the desk requires catalog or attachments  328ms
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders a header cell for each column and a row for each data entry
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should render ticket form with new DS components
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should populate the service desk dropdown from the API
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders the EzFilterBar above the grid when filters is provided
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders a footer row with the sum of numeric columns when footerAggregations is provided
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > does not render a footer row when footerAggregations is not provided
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > keeps the footer row empty for a column id that does not exist in the data
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > sums the full dataset (not just the current page) when footerAggregations and pageSize are both set
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders a left-pinned column before the other columns, marked with data-pinned="left"
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders a right-pinned column after the other columns, marked with data-pinned="right"
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > keeps the original column order when pinnedColumns is not provided
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should not submit when required fields are empty
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > gives a 2nd left-pinned column a cumulative offset so it does not overlap the 1st
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > ignores a pinned column id that does not exist in the data without crashing
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid grouping > renders one collapsed group header row per distinct value when groupBy is set
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid grouping > does not render group rows when groupBy is omitted
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid grouping > ignores a groupBy column id that does not exist in the data without crashing
+[Table] Column with id 'doesNotExist' does not exist.
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid grouping > shows a fallback label instead of the literal string "undefined" when the grouping value is missing
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should submit the form and navigate to the new ticket detail page
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid visual tokens (Sankhya ERP parity) > applies compact row density by default (~25px line height with py-1 on cells and py-1.5 on headers)
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid visual tokens (Sankhya ERP parity) > applies comfortable density (py-3) when density="comfortable" is passed
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid visual tokens (Sankhya ERP parity) > applies hover:bg-grid-row-hover to body rows
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid visual tokens (Sankhya ERP parity) > adds border-r border-gray-100 vertical grade between header columns except on the last column
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid rich pagination and horizontal scrollbar (Sankhya parity) > renders persistent horizontal scrollbar when alwaysShowHorizontalScrollbar is enabled
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid rich pagination and horizontal scrollbar (Sankhya parity) > does not render horizontal scrollbar when showHorizontalScrollbar is false
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows the service catalog when the API returns categories, and lets the user pick an item
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows the service catalog when the API returns categories, and lets the user pick an item
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user open a blank ticket from the catalog via "não está catalogado"
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user open a blank ticket from the catalog via "não está catalogado"
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/components/tickets/TicketKanban.test.tsx (27 tests) 2766ms
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user go back from the form to the catalog view
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Excel-style column filters and status bar counters > does not render column filter buttons when enableColumnFilters is false
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Excel-style column filters and status bar counters > does not render status bar when showStatusBar is false
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user go back from the form to the catalog view
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > renders zebra striping and vertical dividers on body cells
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows a submit error message and does not navigate when the API call fails
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > renders sequential row numbers when showRowNumbers is true
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > respects initialColumnVisibility prop to hide specified columns on mount
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > supports custom columnOrder and drag-and-drop reordering (Sankhya AG Grid parity)
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > renders a resize handle for each resizable column, never for special columns (Sankhya AG Grid parity)
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > hides the resize handle when enableColumnResize is false
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > resizes a column by dragging its resize handle (mousedown + mousemove + mouseup)
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > supports controlled columnSizing and onColumnSizingChange when dragging the resize handle
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/components/ds/EzEntityGrid.test.tsx (51 tests) 11534ms
+     ✓ renders a header cell for each column and a row for each data entry  343ms
+     ✓ clears column filter restoring all rows  626ms
+     ✓ searches values within filter popover and uses select all  885ms
+     ✓ does not render column filter buttons when enableColumnFilters is false  444ms
+     ✓ renders Sankhya sort indicators (green border for asc, red for desc)  916ms
+     ✓ opens column header menu and sorts via menu action  634ms
+     ✓ provides "Todos" and "Filtrados" tabs in the Excel filter popover  457ms
+     ✓ renders AG Grid corner menu and toggles density  314ms
+     ✓ opens Column Configurator modal and toggles column visibility  687ms
+     ✓ renders sequential row numbers when showRowNumbers is true  442ms
+     ✓ respects initialColumnVisibility prop to hide specified columns on mount  751ms
+     ✓ hides column directly via "Ocultar esta Coluna" in column menu  337ms
+     ✓ resizes a column by dragging its resize handle (mousedown + mousemove + mouseup)  468ms
+     ✓ supports controlled columnSizing and onColumnSizingChange when dragging the resize handle  326ms
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > patches the parent ticket and uploads attachments after creating the ticket
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/CreateTicketPage.test.tsx (10 tests) 12762ms
+     ✓ should render ticket form with new DS components  440ms
+     ✓ should populate the service desk dropdown from the API  547ms
+     ✓ should not submit when required fields are empty  666ms
+     ✓ should submit the form and navigate to the new ticket detail page  1015ms
+     ✓ shows the service catalog when the API returns categories, and lets the user pick an item  402ms
+     ✓ lets the user open a blank ticket from the catalog via "não está catalogado"  816ms
+     ✓ lets the user go back from the form to the catalog view  2329ms
+     ✓ shows a submit error message and does not navigate when the API call fails  2797ms
+     ✓ forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit  2108ms
+     ✓ patches the parent ticket and uploads attachments after creating the ticket  1623ms
+stderr | src/pages/MyAccountPage.test.tsx > MyAccountPage > renders tabs for Minha Conta and Segurança, defaulting to Minha Conta
+An update to ProfileTab inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/pages/TicketsPage.test.tsx (21 tests) 10323ms
+     ✓ should render ticket list  922ms
+     ✓ should show empty state when no tickets  486ms
+     ✓ should refetch tickets with query params when filters change  471ms
+     ✓ defaults non-CLIENT users to the Kanban view and lets them switch to List  528ms
+     ✓ resets back to page 1 when filters change while on a later page  305ms
+     ✓ renders pagination controls in List view and navigates between pages  548ms
+     ✓ disables the "Anterior" button on page 1 and "Próxima" on the last page  653ms
+     ✓ does not render pagination controls when there is only a single page  692ms
+     ✓ navigates to the previous page when "Anterior" is clicked  334ms
+     ✓ groups the Grade view by status (Estágio) by default, TiFlux parity, with per-group counters  340ms
+     ✓ switches between Grid Mode and Form Mode with tabs in Sankhya toolbar  694ms
+     ✓ opens and closes filter drawer via toolbar filter button  1684ms
+     ✓ seeds the "overdue" and "unassigned" boolean filters from the URL too  456ms
+     ✓ reflects a filter change made via the UI back into the URL (bookmarkable/shareable)  488ms
+     ✓ opens screen configuration modal via toolbar gear button  704ms
+ ✓ |web| src/pages/MyAccountPage.test.tsx (9 tests) 6362ms
+     ✓ fetches the current profile via GET /auth/me and prefills name and email  543ms
+     ✓ renders tabs for Minha Conta and Segurança, defaulting to Minha Conta  347ms
+       ✓ submits updated name and email via PATCH /auth/me  660ms
+       ✓ shows an error when the email is already in use (409)  441ms
+       ✓ submits the change password request and shows a success message  2257ms
+       ✓ shows an error message when the current password is wrong (401)  1365ms
+       ✓ creates a token, shows the plaintext value once, then lists it as metadata-only  404ms
+ ✓ |web| src/pages/TicketDetailPage.test.tsx (23 tests) 11219ms
+     ✓ should render ticket details with status, priority and SLA deadlines  479ms
+     ✓ sets the browser tab title to "#<protocolo> - <título>" (TiFlux parity) and restores it on unmount  429ms
+     ✓ shows SLA status badges when the backend reports responseSlaStatus/resolveSlaStatus  785ms
+     ✓ should render the comment timeline with an internal-note indicator only on internal comments  859ms
+     ✓ should show the comment form and post a new comment  473ms
+     ✓ should show the isInternal checkbox for admins  400ms
+     ✓ starts a TiFlux-style pré-apontamento from the header play on any tab  2912ms
+       ✓ shows the assignment dropdown to agents and allows assigning a ticket  556ms
+       ✓ shows the "Histórico" section with the audit trail to agents  561ms
+       ✓ shows an empty-state message when there is no audit history yet  355ms
+       ✓ refetches the audit trail after an assignment succeeds  628ms
+       ✓ switches between tabs and shows respective tab panels for agents  863ms
+       ✓ Apontamentos tab activates tab-panel-apontamentos when clicked  505ms
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > renders the label and a contenteditable surface tagged with testId
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > renders the formatting toolbar (bold, italic, underline, lists, link, image)
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > toggles preview mode via the toolbar eye button
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > renders a custom preview when renderPreview is provided
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > shows the error message when hasError is set
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > disables all toolbar buttons when disabled
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > toggles bold/italic/underline/list formatting without throwing when clicked
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > prompts for a URL and inserts a link when "Inserir Link" is clicked
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > removes the link when the URL prompt is answered with an empty string
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > does nothing when the link prompt is cancelled (returns null)
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > prompts for a URL and inserts an image when "Inserir Imagem (URL)" is clicked
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > skips inserting an image when the prompt is cancelled
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/DashboardPage.test.tsx (16 tests) 2708ms
+     ✓ shows the "Modo TV" control and a working "Ações" menu with Novo Ticket  467ms
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > disables toolbar buttons (not just typing) while in preview mode
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > renders without a label and without a testId when they are omitted
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > enables Portuguese spellcheck on the contenteditable surface
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > toggles strikethrough and blockquote without throwing
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > enables undo after a change and disables redo until an undo happens
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > toggles highlight without emitting a style attribute (mark-only HTML)
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > applies and removes a text color from the color palette dropdown
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > applies each text alignment option
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > inserts a table and shows row/column controls while inside it
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > toggles source-code mode and applies edited raw HTML back to the editor
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzSimpleCrud.test.tsx > EzSimpleCrud > renders the grid by default with the IN_MEMORY data
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > disables the new formatting buttons while in preview mode
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/components/ds/EzRichText.test.tsx (25 tests) 8981ms
+     ✓ renders the label and a contenteditable surface tagged with testId  313ms
+     ✓ toggles preview mode via the toolbar eye button  561ms
+     ✓ toggles bold/italic/underline/list formatting without throwing when clicked  378ms
+     ✓ disables toolbar buttons (not just typing) while in preview mode  447ms
+     ✓ toggles strikethrough and blockquote without throwing  678ms
+     ✓ toggles highlight without emitting a style attribute (mark-only HTML)  539ms
+     ✓ applies each text alignment option  605ms
+     ✓ inserts a table and shows row/column controls while inside it  604ms
+     ✓ toggles source-code mode and applies edited raw HTML back to the editor  2274ms
+ ✓ |web| src/pages/SchedulePage.test.tsx (11 tests) 6505ms
+     ✓ renders the header and navigation controls  1128ms
+     ✓ renders appointments list on the current week  618ms
+     ✓ opens create modal when clicking "Novo Agendamento"  860ms
+     ✓ filters appointments when changing type filter  456ms
+     ✓ switches to Dia view and shows a single-day grid  906ms
+     ✓ switches to Mês view and shows the month grid with appointment chips  728ms
+     ✓ switches to Lista view and shows a chronological list of appointments  685ms
+     ✓ shows an empty state in Lista view when there are no appointments  366ms
+     ✓ navigates to the previous and next week, and back to today  574ms
+ ✓ |web| src/components/ds/EzSimpleCrud.test.tsx (8 tests) 3774ms
+     ✓ renders the grid by default with the IN_MEMORY data  589ms
+     ✓ clicking INSERT shows an empty form  454ms
+     ✓ clicking a grid row shows the form filled with that item  393ms
+     ✓ SAVE in IN_MEMORY mode updates the dataset and returns to the grid  1065ms
+     ✓ CANCEL returns to the grid without changing the dataset  510ms
+     ✓ SERVER mode SAVE calls onSave and adds the returned item to the grid  578ms
+ ✓ |web| src/components/layout/Sidebar.test.tsx (15 tests) 2376ms
+     ✓ renders Chats as a disabled "Em breve" item that does not navigate (Issue #45 not shipped yet)  478ms
+     ✓ navigates to /tickets/new when "Novo Ticket" is clicked  336ms
+ ✓ |web| src/components/BusinessHoursEditor.test.tsx (9 tests) 2638ms
+     ✓ adds a new window and saves the full config via PUT  1223ms
+     ✓ adds a holiday and includes it in the save payload  413ms
+ ✓ |web| src/pages/RegisterPage.test.tsx (4 tests) 1357ms
+     ✓ should register and log in the user on success (happy path)  506ms
+     ✓ should show a generic/conflict error when registration itself fails (409)  341ms
+     ✓ should show a distinguishing message and a path to /login when register succeeds but auto-login fails  314ms
+ ✓ |web| src/components/contracts/CommercialReport.test.tsx (17 tests) 2641ms
+     ✓ rejects an hourly cost with more than two decimal places  331ms
+     ✓ saves a valid hourly cost rate and resets the form on success  343ms
+     ✓ shows an error message when saving the hourly cost rate fails  481ms
+ ✓ |web| src/components/schedule/AppointmentModal.test.tsx (8 tests) 2380ms
+     ✓ renders edit mode with existing appointment and allows delete  775ms
+     ✓ opens the ticket search modal with Cliente/Mesa filters and links the selected ticket  439ms
+ ✓ |web| src/components/ds/EzDataExporter.test.tsx (9 tests) 961ms
+ ❯ |web| src/pages/PermissionGroupsPage.test.tsx (4 tests | 4 failed) 4222ms
+     × lists permission groups from GET /permission-groups 1161ms
+     × renders the permission matrix grouped by category from the catalog 1016ms
+     × "Selecionar todos" checks every permission in that category only, and Save persists the result 1023ms
+     × adds a user link via POST /permission-groups/:id/users/:userId 1012ms
+ ✓ |web| src/components/ds/EzNumberInput.test.tsx (5 tests) 307ms
+ ✓ |web| src/pages/LoginPage.test.tsx (4 tests) 1862ms
+     ✓ should call login on submit and store the token  721ms
+     ✓ should show an error message on invalid credentials  639ms
+ ✓ |web| src/components/ds/EzSimpleFormConfig.test.tsx (8 tests) 1227ms
+     ✓ renders the list of available fields with the correct visible state  367ms
+     ✓ allows creating and assigning a new tab to a field  359ms
+ ❯ |web| src/pages/TechnicalGroupsPage.test.tsx (6 tests | 6 failed) 6297ms
+     × lists technical groups from GET /technical-groups 1065ms
+     × opens a group detail with Informações, Equipe and Acessos tabs 1011ms
+     × adds a member on the Equipe tab via POST /technical-groups/:id/members/:userId 1041ms
+     × removes a member on the Equipe tab via DELETE /technical-groups/:id/members/:userId 1097ms
+     × adds an organization access on the Acessos tab via POST .../organizations/:id 1066ms
+     × adds a service desk access on the Acessos tab via POST .../service-desks/:id 1013ms
+ ✓ |web| src/components/contracts/CommercialTicketContext.test.tsx (6 tests) 831ms
+     ✓ lets an admin pick an organization and regularizes the ticket  361ms
+ ✓ |web| src/hooks/useActivityTimer.test.ts (11 tests) 955ms
+ ✓ |web| src/components/MesaStagesEditor.test.tsx (2 tests) 1028ms
+     ✓ lists stages and creates a new one  543ms
+     ✓ edits name and allowed transitions  481ms
+ ✓ |web| src/components/tickets/TicketAttachments.test.tsx (7 tests) 1039ms
+ ✓ |web| src/components/tickets/TicketChecklist.test.tsx (6 tests) 1810ms
+     ✓ shows the empty state with a button to create the first checklist  503ms
+     ✓ adds a new pending item via the inline form  909ms
+ ✓ |web| src/components/knowledge/KnowledgeFoldersGrid.test.tsx (6 tests) 2674ms
+     ✓ allows a canAuthor user to create a new folder  1929ms
+ ✓ |web| src/components/ServiceDeskEditor.test.tsx (7 tests) 5320ms
+     ✓ shows the read-only summary with the agent count by default  638ms
+     ✓ enters edit mode and lists every agent with checkboxes pre-checked for assigned ones  1500ms
+     ✓ shows an empty-agents message when the system has no agents at all  386ms
+     ✓ toggles an agent checkbox and cancels without saving  1475ms
+     ✓ saves the selected agent ids via PATCH and returns to read-only mode  451ms
+     ✓ unchecking an already-assigned agent removes it from the saved list  573ms
+ ✓ |web| src/pages/DocsPage.test.tsx (5 tests) 2590ms
+     ✓ renders the header and the "Visão geral" section by default  808ms
+     ✓ renders every documented module section (tickets, relatórios, cofre, contratos, conhecimento)  523ms
+     ✓ highlights the clicked sidebar nav item and scrolls to the matching section  928ms
+ ✓ |web| src/components/tickets/TicketCsat.test.tsx (7 tests) 965ms
+     ✓ submits a star rating and optional comment via PATCH  517ms
+ ✓ |web| src/components/ds/EzListItem.test.tsx (4 tests) 218ms
+ ✓ |web| src/components/ds/EzPrintSelector.test.tsx (7 tests) 1530ms
+     ✓ renders every option as a selectable radio item  620ms
+     ✓ calls onPrint with remember=true when the "usar sempre esta seleção" checkbox is checked  355ms
+ ✓ |web| src/components/contracts/CommercialContract.test.tsx (4 tests) 1428ms
+     ✓ approves a monthly contract with explicit zero allowance and zero fee  839ms
+ ✓ |web| src/components/ds/EzFilterBar.test.tsx (6 tests) 914ms
+ ✓ |web| src/components/ds/EzTaskbar.test.tsx (7 tests) 471ms
+ ✓ |web| src/components/tickets/TicketFormMode.test.tsx (4 tests) 904ms
+     ✓ allows editing title, status, priority, and saving  615ms
+ ✓ |web| src/pages/VaultAuditPage.test.tsx (4 tests) 1325ms
+     ✓ queries the audit log with the selected filters once "Exibir" is clicked  661ms
+ ✓ |web| src/components/knowledge/KnowledgeArticleAttachments.test.tsx (8 tests) 700ms
+ ✓ |web| src/components/ds/EzChip.test.tsx (5 tests) 169ms
+ ✓ |web| src/components/ds/EzMultiSelect.test.tsx (9 tests) 734ms
+ ✓ |web| src/components/ds/EzEntityForm.test.tsx (10 tests) 922ms
+     ✓ renders a field for each type declared in the schema  394ms
+ ❯ |web| src/pages/UsersPage.test.tsx (4 tests | 4 failed) 4173ms
+     × lists users paginated from GET /users with name, groups and status columns 1054ms
+     × searches by typing in the search box, sending q to GET /users 1032ms
+     × opens the user detail and toggles Usuário ativo via PATCH /users/:id/active 1049ms
+     × renders Perfil and Segurança tabs in the detail view 1032ms
+ ✓ |web| src/components/ds/EzFilterDrawer.test.tsx (5 tests) 659ms
+     ✓ supports saving, applying, and deleting saved filters (Sankhya parity)  383ms
+ ✓ |web| src/components/contracts/ContractForm.test.tsx (3 tests) 519ms
+     ✓ preserves exact stored dates during an unrelated edit and sends minutes without legacy fractional hours  337ms
+ ✓ |web| src/components/ds/EzSearch.test.tsx (8 tests) 462ms
+ ✓ |web| src/pages/PublicCsatPage.test.tsx (5 tests) 1156ms
+     ✓ submits the chosen score+comment only when Confirmar is clicked  743ms
+ ✓ |web| src/components/tickets/TicketParent.test.tsx (5 tests) 1503ms
+     ✓ shows the "not linked" prompt for an unlinked, childless ticket (ADMIN)  607ms
+     ✓ shows the parent ticket card and allows unlinking when ticket is a child  338ms
+     ✓ switches to edit mode and submits a parent protocol to link  417ms
+ ✓ |web| src/components/ds/EzPopoverPlus.test.tsx (4 tests) 227ms
+ ✓ |web| src/components/tickets/TicketFilters.test.tsx (6 tests) 678ms
+       ✓ renders the four quick-filter toggles, all inactive when no flag is set  316ms
+ ✓ |web| src/components/ds/EzDoubleList.test.tsx (8 tests) 688ms
+ ✓ |web| src/components/ds/EzEntityToolbar.test.tsx (4 tests) 534ms
+ ✓ |web| src/components/ds/EzEntityList.test.tsx (5 tests) 631ms
+ ❯ |web| src/pages/SettingsPage.test.tsx (7 tests | 3 failed) 3354ms
+     ✓ always shows Minha conta inside the Usuários submenu, regardless of permissions 176ms
+     × shows Usuários and Grupos de atendentes only for a user with MANAGE_USERS 1026ms
+     × shows Grupos de permissões only for a user with MANAGE_PERMISSION_GROUPS 1034ms
+     × shows every Usuários submenu item for an ADMIN even with no PermissionGroup linked 1036ms
+     ✓ does not show Usuários/Grupos links for a user without MANAGE_USERS or MANAGE_PERMISSION_GROUPS 45ms
+     ✓ should render a link to Mesa only for ADMIN 22ms
+     ✓ should not render the Mesa link for a non-ADMIN user 11ms
+ ✓ |web| src/components/ds/EzActionsButton.test.tsx (4 tests) 416ms
+ ✓ |web| src/components/ds/EzTagInput.test.tsx (4 tests) 301ms
+ ✓ |web| src/components/ds/EzAdvancedSearch.test.tsx (9 tests) 495ms
+ ✓ |web| src/components/ds/EzTextEdit.test.tsx (4 tests) 595ms
+ ✓ |web| src/App.test.tsx (2 tests) 347ms
+ ✓ |web| src/components/schedule/CompromissoDetailModal.test.tsx (4 tests) 301ms
+ ✓ |web| src/components/ds/EzEntityScreenConfigModal.test.tsx (4 tests) 426ms
+ ✓ |web| src/components/layout/AppLayout.test.tsx (3 tests) 367ms
+ ✓ |web| src/components/ds/EzPagination.test.tsx (6 tests) 758ms
+ ✓ |web| src/components/layout/UserMenu.test.tsx (3 tests) 410ms
+ ✓ |web| src/components/ds/EzCollapsibleBox.test.tsx (4 tests) 333ms
+ ✓ |web| src/components/ds/EzTree.test.tsx (4 tests) 213ms
+ ✓ |web| src/components/ds/EzSplitButton.test.tsx (4 tests) 266ms
+ ✓ |web| src/components/ds/EzDropdown.test.tsx (8 tests) 419ms
+ ✓ |web| src/pages/ReportsPage.test.tsx (5 tests) 480ms
+ ✓ |web| src/components/ds/EzDateInput.test.tsx (8 tests) 416ms
+ ✓ |web| src/components/ds/EzPopover.test.tsx (6 tests) 477ms
+ ✓ |web| src/components/MesaFlagEditor.test.tsx (2 tests) 365ms
+stderr | src/components/ds/EzLayoutFormConfig.test.tsx > EzLayoutFormConfig > calls onChange with the correct value when clicking the other option
+An update to EzLayoutFormConfig inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzLayoutFormConfig.test.tsx > EzLayoutFormConfig > calls onChange with CASCADE when clicking it while SIDE_BY_SIDE is selected
+An update to EzLayoutFormConfig inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/components/ds/EzLayoutFormConfig.test.tsx (6 tests) 416ms
+ ✓ |web| src/components/ds/EzTileMedium.test.tsx (10 tests) 203ms
+ ✓ |web| src/components/ds/EzCalendar.test.tsx (4 tests) 277ms
+ ✓ |web| src/components/ds/EzClassicComboBox.test.tsx (4 tests) 252ms
+ ✓ |web| src/components/ds/EzAlertList.test.tsx (4 tests) 265ms
+ ✓ |web| src/components/ds/EzMultiSelectionList.test.tsx (4 tests) 217ms
+ ✓ |web| src/components/ds/EzClassicTextArea.test.tsx (5 tests) 255ms
+ ✓ |web| src/components/ds/EzUpload.test.tsx (6 tests) 188ms
+ ✓ |web| src/components/ds/EzComboBox.test.tsx (7 tests) 235ms
+ ✓ |web| src/components/ds/EzSidebar.test.tsx (10 tests) 353ms
+ ✓ |web| src/components/ds/EzClassicInput.test.tsx (5 tests) 184ms
+ ✓ |web| src/components/ds/EzTabs.test.tsx (4 tests) 173ms
+ ✓ |web| src/components/ds/EzModal.test.tsx (7 tests) 212ms
+ ✓ |web| src/components/ds/EzSearchPlus.test.tsx (4 tests) 234ms
+ ✓ |web| src/components/ds/EzAttachmentList.test.tsx (8 tests) 214ms
+ ✓ |web| src/components/ds/EzTextArea.test.tsx (5 tests) 422ms
+ ✓ |web| src/components/ds/EzToast.test.tsx (6 tests) 413ms
+ ✓ |web| src/components/ds/EzRadioButton.test.tsx (5 tests) 422ms
+ ✓ |web| src/components/ds/EzCheck.test.tsx (6 tests) 1218ms
+     ✓ fires onChange event when clicked  608ms
+ ✓ |web| src/components/ds/EzTile.test.tsx (4 tests) 204ms
+ ✓ |web| src/components/ds/EzPopup.test.tsx (4 tests) 276ms
+ ✓ |web| src/components/ds/EzModalContainer.test.tsx (4 tests) 179ms
+ ✓ |web| src/components/ds/EzSimpleBar.test.tsx (7 tests) 294ms
+ ✓ |web| src/components/ds/EzPageLayout.test.tsx (5 tests) 507ms
+ ✓ |web| src/components/ds/EzBreadcrumb.test.tsx (5 tests) 188ms
+ ✓ |web| src/components/ds/EzGuideNavigator.test.tsx (3 tests) 202ms
+ ✓ |web| src/components/tickets/RichContentView.test.tsx (9 tests) 167ms
+ ✓ |web| src/components/ds/EzFilterInput.test.tsx (3 tests) 97ms
+ ✓ |web| src/components/ds/EzList.test.tsx (5 tests) 191ms
+ ✓ |web| src/components/ds/EzAlert.test.tsx (6 tests) 243ms
+ ✓ |web| src/components/ds/EzFileItem.test.tsx (3 tests) 98ms
+ ✓ |web| src/components/tickets/TicketList.test.tsx (4 tests) 239ms
+ ❯ |web| src/hooks/usePermissions.test.tsx (2 tests | 2 failed) 2102ms
+     × returns false for a key the user does not hold, then true once the effective permissions load 1077ms
+     × grants every permission key to an ADMIN even with an empty permissions list 1019ms
+ ✓ |web| src/components/ds/EzSplitPanel.test.tsx (4 tests) 209ms
+ ✓ |web| src/components/tickets/TicketCard.test.tsx (4 tests) 298ms
+ ✓ |web| src/components/ds/EzSortableList.test.tsx (3 tests) 231ms
+ ✓ |web| src/components/ds/EzChart.test.tsx (4 tests) 163ms
+stderr | src/components/ds/EzGrid.test.tsx > EzGridWrapper > observes container resize via ResizeObserver
+An update to EzGridWrapper inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to EzGridWrapper inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/components/ds/EzGrid.test.tsx (9 tests) 198ms
+ ✓ |web| src/components/ds/EzEmptyCard.test.tsx (3 tests) 126ms
+ ✓ |web| src/components/ds/EzScrim.test.tsx (4 tests) 193ms
+ ✓ |web| src/hooks/useAppointments.test.tsx (4 tests) 120ms
+ ✓ |web| src/hooks/usePreAppointments.test.ts (7 tests) 126ms
+ ✓ |web| src/components/ds/EzCardItem.test.tsx (6 tests) 115ms
+ ✓ |web| src/components/tickets/TicketComments.test.tsx (1 test) 126ms
+ ✓ |web| src/components/ds/EzAvatar.test.tsx (5 tests) 99ms
+ ✓ |web| src/components/ds/EzTimeInput.test.tsx (3 tests) 85ms
+ ✓ |web| src/components/ds/EzDialog.test.tsx (3 tests) 88ms
+ ✓ |web| src/components/ds/EzTextInput.test.tsx (5 tests) 126ms
+ ✓ |web| src/components/ds/EzSpinner.test.tsx (4 tests) 78ms
+ ✓ |web| src/components/ds/EzTag.test.tsx (4 tests) 76ms
+ ✓ |web| src/components/ds/EzFilter.test.tsx (3 tests) 179ms
+ ✓ |web| src/components/ds/EzDateTimeInput.test.tsx (3 tests) 84ms
+ ✓ |web| src/components/ds/EzButton.test.tsx (5 tests) 74ms
+ ✓ |web| src/components/ds/EzForm.test.tsx (3 tests) 71ms
+ ✓ |web| src/components/ds/EzSkeleton.test.tsx (5 tests) 74ms
+ ✓ |web| src/components/ds/EzIcon.test.tsx (4 tests) 73ms
+ ✓ |web| src/components/tickets/SlaBadge.test.tsx (5 tests) 95ms
+ ✓ |web| src/components/ds/EzProgressBar.test.tsx (6 tests) 84ms
+ ✓ |web| src/components/ds/EzScroller.test.tsx (4 tests) 56ms
+ ✓ |web| src/components/ds/EzGridView.test.tsx (3 tests) 65ms
+ ✓ |web| src/components/ds/EzFormView.test.tsx (3 tests) 82ms
+ ✓ |web| src/components/ds/EzBadge.test.tsx (3 tests) 78ms
+ ✓ |web| src/components/ds/EzTooltip.test.tsx (4 tests) 92ms
+ ✓ |web| src/lib/billingTime.test.ts (3 tests) 36ms
+ ✓ |web| src/hooks/useUserScreenConfig.test.ts (6 tests) 81ms
+ ✓ |web| src/components/ds/EzUnderface.test.tsx (3 tests) 78ms
+ ✓ |web| src/lib/preparePastedImage.test.ts (7 tests) 15ms
+ ✓ |web| src/lib/brasiliaTime.test.ts (6 tests) 44ms
+ ✓ |web| src/stores/authStore.test.ts (8 tests) 10ms
+ ✓ |web| src/lib/mesaLabels.test.ts (1 test) 4ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 20 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/hooks/usePermissions.test.tsx > useHasPermission > returns false for a key the user does not hold, then true once the effective permissions load
+AssertionError: expected false to be true // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/hooks/usePermissions.test.tsx:43:54
+     41|
+     42|     const { result: managesUsers } = renderWithQuery(() => useHasPermi…
+     43|     await waitFor(() => expect(managesUsers.current).toBe(true));
+       |                                                      ^
+     44|   });
+     45|
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/20]⎯
+
+ FAIL  |web| src/hooks/usePermissions.test.tsx > useHasPermission > grants every permission key to an ADMIN even with an empty permissions list
+AssertionError: expected false to be true // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/hooks/usePermissions.test.tsx:52:48
+     50|
+     51|     const { result } = renderWithQuery(() => useHasPermission('MANAGE_…
+     52|     await waitFor(() => expect(result.current).toBe(true));
+       |                                                ^
+     53|   });
+     54| });
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/20]⎯
+
+ FAIL  |web| src/pages/PermissionGroupsPage.test.tsx > PermissionGroupsPage > lists permission groups from GET /permission-groups
+TestingLibraryElementError: Unable to find an element with the text: Atendente Padrão. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de permissões[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de permissões[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/PermissionGroupsPage.test.tsx:66:25
+     64|   it('lists permission groups from GET /permission-groups', async () =…
+     65|     renderPage();
+     66|     expect(await screen.findByText('Atendente Padrão')).toBeInTheDocum…
+       |                         ^
+     67|   });
+     68|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/20]⎯
+
+ FAIL  |web| src/pages/PermissionGroupsPage.test.tsx > PermissionGroupsPage > renders the permission matrix grouped by category from the catalog
+TestingLibraryElementError: Unable to find an element with the text: Atendente Padrão. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de permissões[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de permissões[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/PermissionGroupsPage.test.tsx:71:40
+     69|   it('renders the permission matrix grouped by category from the catal…
+     70|     renderPage();
+     71|     await userEvent.click(await screen.findByText('Atendente Padrão'));
+       |                                        ^
+     72|     await userEvent.click(await screen.findByRole('tab', { name: /perm…
+     73|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/20]⎯
+
+ FAIL  |web| src/pages/PermissionGroupsPage.test.tsx > PermissionGroupsPage > "Selecionar todos" checks every permission in that category only, and Save persists the result
+TestingLibraryElementError: Unable to find an element with the text: Atendente Padrão. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de permissões[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de permissões[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/PermissionGroupsPage.test.tsx:83:40
+     81|   it('"Selecionar todos" checks every permission in that category only…
+     82|     renderPage();
+     83|     await userEvent.click(await screen.findByText('Atendente Padrão'));
+       |                                        ^
+     84|     await userEvent.click(await screen.findByRole('tab', { name: /perm…
+     85|     await screen.findByText('Visualizar e abrir tickets');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/20]⎯
+
+ FAIL  |web| src/pages/PermissionGroupsPage.test.tsx > PermissionGroupsPage > adds a user link via POST /permission-groups/:id/users/:userId
+TestingLibraryElementError: Unable to find an element with the text: Atendente Padrão. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de permissões[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de permissões[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/PermissionGroupsPage.test.tsx:105:40
+    103|   it('adds a user link via POST /permission-groups/:id/users/:userId',…
+    104|     renderPage();
+    105|     await userEvent.click(await screen.findByText('Atendente Padrão'));
+       |                                        ^
+    106|     await userEvent.click(screen.getByRole('tab', { name: /vínculos/i …
+    107|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/20]⎯
+
+ FAIL  |web| src/pages/ServiceDesksPage.test.tsx > ServiceDesksPage > should link a service desk to a client and save its SLA overrides
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/pages/ServiceDesksPage.test.tsx:212:3
+    210|   });
+    211|
+    212|   it('should link a service desk to a client and save its SLA override…
+       |   ^
+    213|     loginAs('ADMIN');
+    214|     const user = userEvent.setup();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/20]⎯
+
+ FAIL  |web| src/pages/SettingsPage.test.tsx > SettingsPage > shows Usuários and Grupos de atendentes only for a user with MANAGE_USERS
+TestingLibraryElementError: Unable to find role="link" and name `/^usuários$/i`
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-6"[39m
+    [36m>[39m
+      [36m<h1[39m
+        [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+      [36m>[39m
+        [0mConfigurações[0m
+      [36m</h1>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-col w-full bg-white rounded-[16px] border border-gray-100 transition-all max-w-md divide-y divide-gray-100 p-0"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"flex items-center justify-between gap-3 px-4 py-3 text-[14px] text-gray-900 transition-colors hover:bg-gray-90"[39m
+          [33mdata-discover[39m=[32m"true"[39m
+          [33mhref[39m=[32m"/my-account"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-user h-4 w-4 text-gray-500"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"[39m
+              [36m/>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"7"[39m
+                [33mr[39m=[32m"4"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mMinha Conta[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-right h-4 w-4 text-gray-400"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m9 18 6-6-6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</a>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-6"[39m
+    [36m>[39m
+      [36m<h1[39m
+        [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+      [36m>[39m
+        [0mConfigurações[0m
+      [36m</h1>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-col w-full bg-white rounded-[16px] border border-gray-100 transition-all max-w-md divide-y divide-gray-100 p-0"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"flex items-center justify-between gap-3 px-4 py-3 text-[14px] text-gray-900 transition-colors hover:bg-gray-90"[39m
+          [33mdata-discover[39m=[32m"true"[39m
+          [33mhref[39m=[32m"/my-account"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-user h-4 w-4 text-gray-500"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"[39m
+              [36m/>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"7"[39m
+                [33mr[39m=[32m"4"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mMinha Conta[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-right h-4 w-4 text-gray-400"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m9 18 6-6-6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</a>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/SettingsPage.test.tsx:63:25
+     61|     renderSettingsPage();
+     62|
+     63|     expect(await screen.findByRole('link', { name: /^usuários$/i })).t…
+       |                         ^
+     64|       'href',
+     65|       '/settings/users',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/20]⎯
+
+ FAIL  |web| src/pages/SettingsPage.test.tsx > SettingsPage > shows Grupos de permissões only for a user with MANAGE_PERMISSION_GROUPS
+TestingLibraryElementError: Unable to find role="link" and name `/grupos de permissões/i`
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-6"[39m
+    [36m>[39m
+      [36m<h1[39m
+        [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+      [36m>[39m
+        [0mConfigurações[0m
+      [36m</h1>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-col w-full bg-white rounded-[16px] border border-gray-100 transition-all max-w-md divide-y divide-gray-100 p-0"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"flex items-center justify-between gap-3 px-4 py-3 text-[14px] text-gray-900 transition-colors hover:bg-gray-90"[39m
+          [33mdata-discover[39m=[32m"true"[39m
+          [33mhref[39m=[32m"/my-account"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-user h-4 w-4 text-gray-500"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"[39m
+              [36m/>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"7"[39m
+                [33mr[39m=[32m"4"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mMinha Conta[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-right h-4 w-4 text-gray-400"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m9 18 6-6-6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</a>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-6"[39m
+    [36m>[39m
+      [36m<h1[39m
+        [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+      [36m>[39m
+        [0mConfigurações[0m
+      [36m</h1>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-col w-full bg-white rounded-[16px] border border-gray-100 transition-all max-w-md divide-y divide-gray-100 p-0"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"flex items-center justify-between gap-3 px-4 py-3 text-[14px] text-gray-900 transition-colors hover:bg-gray-90"[39m
+          [33mdata-discover[39m=[32m"true"[39m
+          [33mhref[39m=[32m"/my-account"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-user h-4 w-4 text-gray-500"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"[39m
+              [36m/>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"7"[39m
+                [33mr[39m=[32m"4"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mMinha Conta[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-right h-4 w-4 text-gray-400"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m9 18 6-6-6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</a>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/SettingsPage.test.tsx:84:20
+     82|
+     83|     expect(
+     84|       await screen.findByRole('link', { name: /grupos de permissões/i …
+       |                    ^
+     85|     ).toHaveAttribute('href', '/settings/permission-groups');
+     86|     expect(screen.queryByRole('link', { name: /^usuários$/i })).not.to…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/20]⎯
+
+ FAIL  |web| src/pages/SettingsPage.test.tsx > SettingsPage > shows every Usuários submenu item for an ADMIN even with no PermissionGroup linked
+TestingLibraryElementError: Unable to find role="link" and name `/^usuários$/i`
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-6"[39m
+    [36m>[39m
+      [36m<h1[39m
+        [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+      [36m>[39m
+        [0mConfigurações[0m
+      [36m</h1>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-col w-full bg-white rounded-[16px] border border-gray-100 transition-all max-w-md divide-y divide-gray-100 p-0"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"flex items-center justify-between gap-3 px-4 py-3 text-[14px] text-gray-900 transition-colors hover:bg-gray-90"[39m
+          [33mdata-discover[39m=[32m"true"[39m
+          [33mhref[39m=[32m"/my-account"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-user h-4 w-4 text-gray-500"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"[39m
+              [36m/>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"7"[39m
+                [33mr[39m=[32m"4"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mMinha Conta[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-right h-4 w-4 text-gray-400"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m9 18 6-6-6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</a>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"flex items-center justify-between gap-3 px-4 py-3 text-[14px] text-gray-900 transition-colors hover:bg-gray-90"[39m
+          [33mdata-discover[39m=[32m"true"[39m
+          [33mhref[39m=[32m"/service-desks"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-box h-4 w-4 text-gray-500"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"m3.3 7 8.7 5 8.7-5"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M12 22V12"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mMesa[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-right h-4 w-4 text-gray-400"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m9 18 6-6-6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</a>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-6"[39m
+    [36m>[39m
+      [36m<h1[39m
+        [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+      [36m>[39m
+        [0mConfigurações[0m
+      [36m</h1>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-col w-full bg-white rounded-[16px] border border-gray-100 transition-all max-w-md divide-y divide-gray-100 p-0"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"flex items-center justify-between gap-3 px-4 py-3 text-[14px] text-gray-900 transition-colors hover:bg-gray-90"[39m
+          [33mdata-discover[39m=[32m"true"[39m
+          [33mhref[39m=[32m"/my-account"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-user h-4 w-4 text-gray-500"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"[39m
+              [36m/>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"7"[39m
+                [33mr[39m=[32m"4"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mMinha Conta[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-right h-4 w-4 text-gray-400"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m9 18 6-6-6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</a>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"flex items-center justify-between gap-3 px-4 py-3 text-[14px] text-gray-900 transition-colors hover:bg-gray-90"[39m
+          [33mdata-discover[39m=[32m"true"[39m
+          [33mhref[39m=[32m"/service-desks"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-box h-4 w-4 text-gray-500"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"m3.3 7 8.7 5 8.7-5"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M12 22V12"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mMesa[0m
+          [36m</span>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-chevron-right h-4 w-4 text-gray-400"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m9 18 6-6-6-6"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</a>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/SettingsPage.test.tsx:98:25
+     96|     renderSettingsPage();
+     97|
+     98|     expect(await screen.findByRole('link', { name: /^usuários$/i })).t…
+       |                         ^
+     99|     expect(screen.getByRole('link', { name: /grupos de atendentes/i })…
+    100|     expect(screen.getByRole('link', { name: /grupos de permissões/i })…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/20]⎯
+
+ FAIL  |web| src/pages/TechnicalGroupsPage.test.tsx > TechnicalGroupsPage > lists technical groups from GET /technical-groups
+TestingLibraryElementError: Unable to find an element with the text: Suporte N1. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de atendentes[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de atendentes[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/TechnicalGroupsPage.test.tsx:76:25
+     74|   it('lists technical groups from GET /technical-groups', async () => {
+     75|     renderPage();
+     76|     expect(await screen.findByText('Suporte N1')).toBeInTheDocument();
+       |                         ^
+     77|   });
+     78|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/20]⎯
+
+ FAIL  |web| src/pages/TechnicalGroupsPage.test.tsx > TechnicalGroupsPage > opens a group detail with Informações, Equipe and Acessos tabs
+TestingLibraryElementError: Unable to find an element with the text: Suporte N1. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de atendentes[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de atendentes[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/TechnicalGroupsPage.test.tsx:81:40
+     79|   it('opens a group detail with Informações, Equipe and Acessos tabs',…
+     80|     renderPage();
+     81|     await userEvent.click(await screen.findByText('Suporte N1'));
+       |                                        ^
+     82|
+     83|     const tabs = await screen.findByRole('tablist');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/20]⎯
+
+ FAIL  |web| src/pages/TechnicalGroupsPage.test.tsx > TechnicalGroupsPage > adds a member on the Equipe tab via POST /technical-groups/:id/members/:userId
+TestingLibraryElementError: Unable to find an element with the text: Suporte N1. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de atendentes[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de atendentes[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/TechnicalGroupsPage.test.tsx:91:40
+     89|   it('adds a member on the Equipe tab via POST /technical-groups/:id/m…
+     90|     renderPage();
+     91|     await userEvent.click(await screen.findByText('Suporte N1'));
+       |                                        ^
+     92|     await userEvent.click(screen.getByRole('tab', { name: /equipe/i })…
+     93|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/20]⎯
+
+ FAIL  |web| src/pages/TechnicalGroupsPage.test.tsx > TechnicalGroupsPage > removes a member on the Equipe tab via DELETE /technical-groups/:id/members/:userId
+TestingLibraryElementError: Unable to find an element with the text: Suporte N1. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de atendentes[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de atendentes[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/TechnicalGroupsPage.test.tsx:104:40
+    102|   it('removes a member on the Equipe tab via DELETE /technical-groups/…
+    103|     renderPage();
+    104|     await userEvent.click(await screen.findByText('Suporte N1'));
+       |                                        ^
+    105|     await userEvent.click(screen.getByRole('tab', { name: /equipe/i })…
+    106|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/20]⎯
+
+ FAIL  |web| src/pages/TechnicalGroupsPage.test.tsx > TechnicalGroupsPage > adds an organization access on the Acessos tab via POST .../organizations/:id
+TestingLibraryElementError: Unable to find an element with the text: Suporte N1. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de atendentes[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de atendentes[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/TechnicalGroupsPage.test.tsx:117:40
+    115|   it('adds an organization access on the Acessos tab via POST .../orga…
+    116|     renderPage();
+    117|     await userEvent.click(await screen.findByText('Suporte N1'));
+       |                                        ^
+    118|     await userEvent.click(screen.getByRole('tab', { name: /acessos/i }…
+    119|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/20]⎯
+
+ FAIL  |web| src/pages/TechnicalGroupsPage.test.tsx > TechnicalGroupsPage > adds a service desk access on the Acessos tab via POST .../service-desks/:id
+TestingLibraryElementError: Unable to find an element with the text: Suporte N1. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de atendentes[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mGrupos de atendentes[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/TechnicalGroupsPage.test.tsx:131:40
+    129|   it('adds a service desk access on the Acessos tab via POST .../servi…
+    130|     renderPage();
+    131|     await userEvent.click(await screen.findByText('Suporte N1'));
+       |                                        ^
+    132|     await userEvent.click(screen.getByRole('tab', { name: /acessos/i }…
+    133|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/20]⎯
+
+ FAIL  |web| src/pages/UsersPage.test.tsx > UsersPage > lists users paginated from GET /users with name, groups and status columns
+TestingLibraryElementError: Unable to find an element with the text: Ana Silva. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mUsuários[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mUsuários[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/UsersPage.test.tsx:68:25
+     66|     renderUsersPage();
+     67|
+     68|     expect(await screen.findByText('Ana Silva')).toBeInTheDocument();
+       |                         ^
+     69|     expect(screen.getByText('Bruno Costa')).toBeInTheDocument();
+     70|     expect(screen.getByText('Suporte N1')).toBeInTheDocument();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/20]⎯
+
+ FAIL  |web| src/pages/UsersPage.test.tsx > UsersPage > searches by typing in the search box, sending q to GET /users
+TestingLibraryElementError: Unable to find an element with the text: Ana Silva. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mUsuários[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mUsuários[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/UsersPage.test.tsx:82:18
+     80|   it('searches by typing in the search box, sending q to GET /users', …
+     81|     renderUsersPage();
+     82|     await screen.findByText('Ana Silva');
+       |                  ^
+     83|
+     84|     await userEvent.type(screen.getByPlaceholderText(/buscar usuário/i…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/20]⎯
+
+ FAIL  |web| src/pages/UsersPage.test.tsx > UsersPage > opens the user detail and toggles Usuário ativo via PATCH /users/:id/active
+TestingLibraryElementError: Unable to find an element with the text: Ana Silva. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mUsuários[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mUsuários[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/UsersPage.test.tsx:100:40
+     98|
+     99|     renderUsersPage();
+    100|     await userEvent.click(await screen.findByText('Ana Silva'));
+       |                                        ^
+    101|
+    102|     const activeToggle = await screen.findByRole('checkbox', { name: /…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/20]⎯
+
+ FAIL  |web| src/pages/UsersPage.test.tsx > UsersPage > renders Perfil and Segurança tabs in the detail view
+TestingLibraryElementError: Unable to find an element with the text: Ana Silva. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mUsuários[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mUsuários[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/UsersPage.test.tsx:114:40
+    112|   it('renders Perfil and Segurança tabs in the detail view', async () …
+    113|     renderUsersPage();
+    114|     await userEvent.click(await screen.findByText('Ana Silva'));
+       |                                        ^
+    115|
+    116|     const tabs = await screen.findByRole('tablist');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/20]⎯
+
+
+ Test Files  6 failed | 142 passed (148)
+      Tests  20 failed | 1053 passed (1073)
+   Start at  18:59:10
+   Duration  204.36s (transform 23.01s, setup 22.81s, import 135.52s, tests 256.29s, environment 136.84s)
+
+Warning: command "vitest" exited with non-zero status code
+
+
+ NX   Running target test for 2 projects failed
+
+Failed tasks:
+
+- api:test
+- web:test
+

@@ -8,9 +8,8 @@ import { CreateOrganizationContactDto } from './dto/create-organization-contact.
 import { CreateAgentGroupDto } from './dto/create-agent-group.dto';
 import { UpdateAgentGroupDto } from './dto/update-agent-group.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@prisma/client';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUser, CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 @Controller('organizations')
@@ -22,15 +21,15 @@ export class OrganizationsController {
   ) {}
 
   @Get('cnpj-lookup')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_CLIENTS_AND_RESOURCE_GROUPS')
   lookupCnpj(@Query('cnpj') cnpj: string) {
     return this.cnpjLookupService.lookup(cnpj);
   }
 
   @Post()
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_CLIENTS_AND_RESOURCE_GROUPS')
   create(@Body() createOrganizationDto: CreateOrganizationDto) {
     return this.organizationsService.create(createOrganizationDto);
   }
@@ -47,71 +46,71 @@ export class OrganizationsController {
   }
 
   @Patch(':id')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_CLIENTS_AND_RESOURCE_GROUPS')
   update(@Param('id') id: string, @Body() updateOrganizationDto: UpdateOrganizationDto) {
     return this.organizationsService.update(id, updateOrganizationDto);
   }
 
   @Delete(':id')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_CLIENTS_AND_RESOURCE_GROUPS')
   remove(@Param('id') id: string) {
     return this.organizationsService.remove(id);
   }
 
   @Post(':id/addresses')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_CLIENTS_AND_RESOURCE_GROUPS')
   addAddress(@Param('id') id: string, @Body() dto: CreateOrganizationAddressDto) {
     return this.organizationsService.addAddress(id, dto);
   }
 
   @Delete(':id/addresses/:addressId')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_CLIENTS_AND_RESOURCE_GROUPS')
   removeAddress(@Param('id') id: string, @Param('addressId') addressId: string) {
     return this.organizationsService.removeAddress(id, addressId);
   }
 
   @Post(':id/contacts')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_CLIENTS_AND_RESOURCE_GROUPS')
   addContact(@Param('id') id: string, @Body() dto: CreateOrganizationContactDto) {
     return this.organizationsService.addContact(id, dto);
   }
 
   @Delete(':id/contacts/:contactId')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_CLIENTS_AND_RESOURCE_GROUPS')
   removeContact(@Param('id') id: string, @Param('contactId') contactId: string) {
     return this.organizationsService.removeContact(id, contactId);
   }
 
   @Post(':id/service-desks/:deskId')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_CLIENTS_AND_RESOURCE_GROUPS')
   linkServiceDesk(@Param('id') id: string, @Param('deskId') deskId: string, @CurrentUser() user: CurrentUserPayload) {
     return this.organizationsService.linkServiceDesk(id, deskId, user.id);
   }
 
   @Delete(':id/service-desks/:deskId')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_CLIENTS_AND_RESOURCE_GROUPS')
   unlinkServiceDesk(@Param('id') id: string, @Param('deskId') deskId: string, @CurrentUser() user: CurrentUserPayload) {
     return this.organizationsService.unlinkServiceDesk(id, deskId, user.id);
   }
 
   @Post(':id/agent-groups')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_CLIENTS_AND_RESOURCE_GROUPS')
   createAgentGroup(@Param('id') id: string, @Body() dto: CreateAgentGroupDto) {
     return this.organizationsService.createAgentGroup(id, dto);
   }
 
   @Patch(':id/agent-groups/:agentGroupId')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_CLIENTS_AND_RESOURCE_GROUPS')
   updateAgentGroup(
     @Param('id') id: string,
     @Param('agentGroupId') agentGroupId: string,
@@ -121,8 +120,8 @@ export class OrganizationsController {
   }
 
   @Delete(':id/agent-groups/:agentGroupId')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_CLIENTS_AND_RESOURCE_GROUPS')
   removeAgentGroup(@Param('id') id: string, @Param('agentGroupId') agentGroupId: string) {
     return this.organizationsService.removeAgentGroup(id, agentGroupId);
   }

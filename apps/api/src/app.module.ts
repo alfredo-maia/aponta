@@ -28,6 +28,8 @@ import { ApiTokensModule } from './api-tokens/api-tokens.module';
 import { HealthModule } from './health/health.module';
 import { WorklogsModule } from './worklogs/worklogs.module';
 import { AgendaModule } from './agenda/agenda.module';
+import { PermissionGroupsModule } from './permission-groups/permission-groups.module';
+import { TechnicalGroupsModule } from './technical-groups/technical-groups.module';
 import { LoggerModule } from 'nestjs-pino';
 
 @Module({
@@ -95,6 +97,8 @@ import { LoggerModule } from 'nestjs-pino';
     HealthModule,
     WorklogsModule,
     AgendaModule,
+    PermissionGroupsModule,
+    TechnicalGroupsModule,
   ],
   controllers: [AppController],
   providers: [

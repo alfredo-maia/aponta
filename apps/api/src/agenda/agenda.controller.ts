@@ -10,10 +10,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
 import { JwtOrTokenAuthGuard } from '../auth/guards/jwt-or-token-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUser, CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 import { AgendaService } from './agenda.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
@@ -23,33 +22,33 @@ import { QueryAppointmentDto } from './dto/query-appointment.dto';
 @ApiTags('Agenda')
 @ApiBearerAuth()
 @Controller('appointments')
-@UseGuards(JwtOrTokenAuthGuard, RolesGuard)
+@UseGuards(JwtOrTokenAuthGuard, PermissionsGuard)
 export class AgendaController {
   constructor(private readonly agendaService: AgendaService) {}
 
   @Get()
-  @Roles(Role.ADMIN, Role.AGENT_MASTER, Role.AGENT, Role.CLIENT_MASTER)
+  @RequirePermission('VIEW_ALL_SCHEDULES')
   @ApiOperation({ summary: 'Listar compromissos com escopo de permissão e filtros' })
   findAll(@Query() query: QueryAppointmentDto, @CurrentUser() user: CurrentUserPayload) {
     return this.agendaService.findAll(query, user);
   }
 
   @Get(':id')
-  @Roles(Role.ADMIN, Role.AGENT_MASTER, Role.AGENT, Role.CLIENT_MASTER)
+  @RequirePermission('VIEW_ALL_SCHEDULES')
   @ApiOperation({ summary: 'Obter detalhes de um compromisso' })
   findOne(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
     return this.agendaService.findOne(id, user);
   }
 
   @Post()
-  @Roles(Role.ADMIN, Role.AGENT_MASTER, Role.AGENT, Role.CLIENT_MASTER)
+  @RequirePermission('CREATE_TICKET_SCHEDULING')
   @ApiOperation({ summary: 'Criar um novo compromisso ou alocação temporal' })
   create(@Body() dto: CreateAppointmentDto, @CurrentUser() user: CurrentUserPayload) {
     return this.agendaService.create(dto, user);
   }
 
   @Patch(':id')
-  @Roles(Role.ADMIN, Role.AGENT_MASTER, Role.AGENT)
+  @RequirePermission('CREATE_TICKET_SCHEDULING')
   @ApiOperation({ summary: 'Atualizar um compromisso existente' })
   update(
     @Param('id') id: string,
@@ -60,7 +59,7 @@ export class AgendaController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN, Role.AGENT_MASTER, Role.AGENT)
+  @RequirePermission('CREATE_TICKET_SCHEDULING')
   @ApiOperation({ summary: 'Remover um compromisso' })
   remove(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
     return this.agendaService.remove(id, user);

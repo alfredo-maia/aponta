@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { UsersService, SafeUser } from '../users/users.service';
@@ -22,6 +22,12 @@ export class AuthService {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return null;
+    }
+
+    if (!user.active) {
+      throw new ForbiddenException(
+        'Usuário inativo. Contate o administrador do sistema.',
+      );
     }
 
     return this.usersService.toSafeUser(user);

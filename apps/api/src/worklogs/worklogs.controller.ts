@@ -10,7 +10,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { Role } from '@prisma/client';
 import { WorklogsService } from './worklogs.service';
 import { CreateWorklogDto } from './dto/create-worklog.dto';
 import { CreatePreAppointmentDto } from './dto/create-pre-appointment.dto';
@@ -18,8 +17,8 @@ import { StopPreAppointmentDto } from './dto/stop-pre-appointment.dto';
 import { WorklogContractQueryDto } from './dto/worklog-contract-query.dto';
 import { WorklogContextDto } from './dto/worklog-context.dto';
 import { JwtOrTokenAuthGuard } from '../auth/guards/jwt-or-token-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -30,13 +29,13 @@ interface AuthenticatedRequest {
 @ApiTags('Worklogs')
 @ApiBearerAuth()
 @Controller('tickets')
-@UseGuards(JwtOrTokenAuthGuard, RolesGuard)
-@Roles(Role.AGENT, Role.AGENT_MASTER, Role.ADMIN)
+@UseGuards(JwtOrTokenAuthGuard, PermissionsGuard)
+@RequirePermission('CREATE_EDIT_WORKLOGS')
 export class WorklogsController {
   constructor(private readonly worklogsService: WorklogsService) {}
 
   @Patch(':ticketId/worklog-context')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_BILLING')
   @ApiOperation({ summary: 'Regularizar empresa comercial antes do primeiro apontamento' })
   setCommercialOrganization(@Param('ticketId') ticketId: string, @Body() dto: WorklogContextDto, @Req() req: AuthenticatedRequest) {
     return this.worklogsService.setCommercialOrganization(ticketId, dto.organizationId, req.user);
@@ -69,7 +68,7 @@ export class WorklogsController {
   }
 
   @Get(':ticketId/worklog-audit')
-  @Roles(Role.ADMIN)
+  @RequirePermission('VIEW_TICKET_VALUES')
   @ApiOperation({ summary: 'Auditoria de apontamentos e estornos, preservando memória financeira' })
   auditByTicket(@Param('ticketId') ticketId: string, @Req() req: AuthenticatedRequest) {
     return this.worklogsService.auditByTicket(ticketId, req.user);

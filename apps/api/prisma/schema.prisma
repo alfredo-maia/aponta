@@ -113,6 +113,9 @@ model Organization {
   /// foi explicitamente compartilhado (ACL de compartilhamento do painel de
   /// Conhecimentos).
   articlesSharedWith Article[] @relation("ArticleOrganization")
+  /// Tiflux-parity (DMTE-84): aba "Acessos" de um Grupo de atendentes lista
+  /// os clientes vinculados.
+  technicalGroupLinks TechnicalGroupOrganization[]
   createdAt DateTime @default(now())
 }
 
@@ -159,12 +162,23 @@ model User {
   extension String?
   password String
   role     Role    @default(AGENT)
+  /// Tiflux-parity (DMTE-84, Tarefa 3): toggle "Usuário ativo" no perfil —
+  /// inativo não consegue autenticar, mas histórico/auditoria continua legível.
+  active   Boolean @default(true)
 
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id])
 
   serviceDesks ServiceDesk[] @relation("AgentServiceDesks")
   agentGroups  AgentGroup[]  @relation("AgentGroupMembers")
+
+  /// Tiflux-parity (DMTE-84): "Grupo de atendente" no perfil do usuário é uma
+  /// combobox de seleção única — diferente do AgentGroup acima (que é
+  /// escopado por Organization/cliente), este é um time global de atendentes
+  /// usado para roteamento/relatórios, como no Tiflux real.
+  technicalGroupId String?
+  technicalGroup   TechnicalGroup? @relation(fields: [technicalGroupId], references: [id])
+  permissionGroupLinks PermissionGroupUser[]
 
   requestedTickets Ticket[]  @relation("RequesterTickets")
   assignedTickets  Ticket[]  @relation("AgentTickets")
@@ -260,6 +274,9 @@ model ServiceDesk {
 
   createdAt           DateTime             @default(now())
   serviceCatalogItems ServiceCatalogItem[]
+  /// Tiflux-parity (DMTE-84): aba "Acessos" de um Grupo de atendentes lista
+  /// as mesas de serviço vinculadas.
+  technicalGroupLinks TechnicalGroupServiceDesk[]
 }
 
 model ServiceDeskPriority {
@@ -871,5 +888,101 @@ model Appointment {
   @@index([userId])
   @@index([organizationId])
   @@index([startTime, endTime])
+}
+
+/// Tiflux-parity (DMTE-84, Tarefa 1 — modelo de dados): "Grupo de permissões"
+/// em Configurações > Usuários. `permissions` é a lista plana de chaves do
+/// catálogo em permission-groups/permission-catalog.ts (uma entrada por
+/// checkbox marcado na matriz do Tiflux) — escolhido em vez de ~80 colunas
+/// booleanas para não precisar de uma migration a cada permissão nova.
+/// Um usuário pode pertencer a um PermissionGroup diretamente
+/// (PermissionGroupUser) e/ou indiretamente via o TechnicalGroup ao qual
+/// está vinculado (PermissionGroupTechnicalGroup) — replica a tela real do
+/// Tiflux, que lista os dois tipos de membro separadamente.
+model PermissionGroup {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  permissions String[] @default([])
+
+  userMembers         PermissionGroupUser[]
+  technicalGroupLinks PermissionGroupTechnicalGroup[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Tiflux-parity (DMTE-84): "Grupo de atendentes", time global de atendentes
+/// usado para roteamento/relatórios. Diferente do `AgentGroup` já existente
+/// no schema (esse é escopado por Organization/cliente — "equipe dedicada a
+/// um cliente"); este é independente de cliente, como no Tiflux real.
+model TechnicalGroup {
+  id                       String  @id @default(uuid())
+  name                     String
+  description              String?
+  /// "Enviar email de apontamentos diário" na aba Informações do Tiflux.
+  dailyWorklogEmailEnabled Boolean @default(false)
+  /// "Ativar agenda" na aba Informações do Tiflux.
+  scheduleEnabled          Boolean @default(true)
+
+  /// Aba "Equipe": membros do grupo. Seleção única no perfil do usuário
+  /// (User.technicalGroupId), por isso é uma relação 1:N simples aqui.
+  members User[]
+
+  permissionGroupLinks PermissionGroupTechnicalGroup[]
+  organizationLinks    TechnicalGroupOrganization[]
+  serviceDeskLinks     TechnicalGroupServiceDesk[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Join table explícita (em vez do m:n implícito do Prisma) para não depender
+/// da convenção de nomeação/ordem alfabética de colunas A/B das tabelas
+/// `_Foo` geradas automaticamente — já documentada como pitfall neste
+/// projeto para o `_AgentServiceDesks` existente — e porque este ambiente
+/// não tem Postgres local para gerar a migration via `prisma migrate dev`.
+model PermissionGroupUser {
+  permissionGroupId String
+  permissionGroup   PermissionGroup @relation(fields: [permissionGroupId], references: [id], onDelete: Cascade)
+  userId            String
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+
+  @@id([permissionGroupId, userId])
+  @@index([userId])
+}
+
+model PermissionGroupTechnicalGroup {
+  permissionGroupId String
+  permissionGroup   PermissionGroup @relation(fields: [permissionGroupId], references: [id], onDelete: Cascade)
+  technicalGroupId  String
+  technicalGroup    TechnicalGroup  @relation(fields: [technicalGroupId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+
+  @@id([permissionGroupId, technicalGroupId])
+  @@index([technicalGroupId])
+}
+
+model TechnicalGroupOrganization {
+  technicalGroupId String
+  technicalGroup   TechnicalGroup @relation(fields: [technicalGroupId], references: [id], onDelete: Cascade)
+  organizationId   String
+  organization     Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt        DateTime @default(now())
+
+  @@id([technicalGroupId, organizationId])
+  @@index([organizationId])
+}
+
+model TechnicalGroupServiceDesk {
+  technicalGroupId String
+  technicalGroup   TechnicalGroup @relation(fields: [technicalGroupId], references: [id], onDelete: Cascade)
+  serviceDeskId    String
+  serviceDesk      ServiceDesk    @relation(fields: [serviceDeskId], references: [id], onDelete: Cascade)
+  createdAt        DateTime @default(now())
+
+  @@id([technicalGroupId, serviceDeskId])
+  @@index([serviceDeskId])
 }
 

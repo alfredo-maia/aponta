@@ -9,11 +9,13 @@ import { JwtStrategy } from './jwt.strategy';
 import { ApiTokenStrategy } from './api-token.strategy';
 import { UsersModule } from '../users/users.module';
 import { PrismaModule } from '../prisma/prisma.module';
+import { PermissionsModule } from '../permissions/permissions.module';
 
 @Module({
   imports: [
     UsersModule,
     PrismaModule,
+    PermissionsModule,
     PassportModule,
     ConfigModule,
     JwtModule.registerAsync({

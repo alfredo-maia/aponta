@@ -3,21 +3,20 @@ import { ContractsService } from './contracts.service';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { JwtOrTokenAuthGuard } from '../auth/guards/jwt-or-token-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUser, CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
-import { Role } from '@prisma/client';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Contracts')
 @ApiBearerAuth()
 @Controller('contracts')
-@UseGuards(JwtOrTokenAuthGuard, RolesGuard)
+@UseGuards(JwtOrTokenAuthGuard, PermissionsGuard)
 export class ContractsController {
   constructor(private readonly contractsService: ContractsService) {}
 
   @Get()
-  @Roles(Role.ADMIN, Role.AGENT_MASTER, Role.AGENT, Role.CLIENT_MASTER)
+  @RequirePermission('VIEW_CONTRACTS_ADMIN', 'VIEW_CONTRACTS_CLIENT')
   @ApiOperation({ summary: 'Lists contracts according to role mask' })
   @ApiQuery({ name: 'search', required: false, type: String })
   findAll(@CurrentUser() user: CurrentUserPayload, @Query('search') search?: string) {
@@ -25,33 +24,33 @@ export class ContractsController {
   }
 
   @Get('preflight')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_CONTRACTS')
   preflight(@CurrentUser() user: CurrentUserPayload) {
     return this.contractsService.preflight(user);
   }
 
   @Get(':id')
-  @Roles(Role.ADMIN, Role.AGENT_MASTER, Role.AGENT, Role.CLIENT_MASTER)
+  @RequirePermission('VIEW_CONTRACTS_ADMIN', 'VIEW_CONTRACTS_CLIENT')
   @ApiOperation({ summary: 'Detalha contrato conforme organização e permissão financeira' })
   findOne(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
     return this.contractsService.findOne(id, user);
   }
 
   @Post(':id/update')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_CONTRACTS')
   @ApiOperation({ summary: 'Atualiza dados, vigência e ativação do contrato' })
   updateCommand(@Param('id') id: string, @Body() dto: UpdateContractDto, @CurrentUser() user: CurrentUserPayload) {
     return this.contractsService.update(id, dto, user);
   }
 
   @Post()
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_CONTRACTS')
   create(@Body() createContractDto: CreateContractDto, @CurrentUser() user: CurrentUserPayload) {
     return this.contractsService.create(createContractDto, user);
   }
 
   @Patch(':id')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_CONTRACTS')
   update(
     @Param('id') id: string,
     @Body() updateContractDto: UpdateContractDto,
@@ -61,7 +60,7 @@ export class ContractsController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_CONTRACTS')
   remove(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
     return this.contractsService.remove(id, user);
   }

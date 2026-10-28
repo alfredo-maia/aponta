@@ -1,3 +1,4 @@
+import { ForbiddenException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as bcrypt from 'bcryptjs';
 import { AuthService } from './auth.service';
@@ -17,7 +18,7 @@ describe('AuthService', () => {
     name: 'Jane Doe',
     email: 'jane@example.com',
     password: '',
-    role: Role.AGENT, phone: null, extension: null,
+    role: Role.AGENT, phone: null, extension: null, active: true,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -64,6 +65,7 @@ describe('AuthService', () => {
         phone: null,
         extension: null,
         role: mockUser.role,
+        active: true,
         organizationId: mockUser.organizationId,
         createdAt: mockUser.createdAt,
         updatedAt: mockUser.updatedAt,
@@ -95,6 +97,17 @@ describe('AuthService', () => {
 
       expect(result).toBeNull();
     });
+
+    it('should throw ForbiddenException with a clear message when the user is inactive', async () => {
+      usersService.findByEmail.mockResolvedValue({ ...mockUser, active: false });
+
+      await expect(
+        authService.validateUser('jane@example.com', 'correct-password'),
+      ).rejects.toThrow(ForbiddenException);
+      await expect(
+        authService.validateUser('jane@example.com', 'correct-password'),
+      ).rejects.toThrow('Usuário inativo');
+    });
   });
 
   describe('login', () => {
@@ -107,6 +120,8 @@ describe('AuthService', () => {
         extension: null,
         role: mockUser.role,
         organizationId: mockUser.organizationId,
+        technicalGroupId: null,
+        active: true,
         createdAt: mockUser.createdAt,
         updatedAt: mockUser.updatedAt,
       };

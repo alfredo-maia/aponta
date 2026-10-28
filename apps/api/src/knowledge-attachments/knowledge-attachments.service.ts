@@ -16,12 +16,12 @@ interface CreateKnowledgeAttachmentInput {
 /**
  * Mirrors tickets/attachments.service.ts, adapted for Article instead of
  * Ticket. Unlike the ticket version, `remove` has no owner-vs-privileged
- * split: KnowledgeAttachmentsController only ever lets AGENT/AGENT_MASTER/
- * ADMIN reach these routes (RolesGuard, see the controller), so by the
- * time a request gets here the caller is already a privileged knowledge
- * base editor, not necessarily the original uploader - an AGENT_MASTER
- * cleaning up a colleague's stale attachment is a normal, allowed case,
- * not a permission edge case to special-case. See
+ * split: KnowledgeAttachmentsController only ever lets a caller holding
+ * MANAGE_KNOWLEDGE_BASE reach these routes (PermissionsGuard, see the
+ * controller), so by the time a request gets here the caller is already a
+ * privileged knowledge base editor, not necessarily the original uploader -
+ * an AGENT_MASTER cleaning up a colleague's stale attachment is a normal,
+ * allowed case, not a permission edge case to special-case. See
  * knowledge-attachments.service.spec.ts for the test covering exactly
  * this: an AGENT who did not upload the file is still allowed to remove
  * it, because the guard already decided who gets this far.

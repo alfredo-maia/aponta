@@ -1,0 +1,19 @@
+
+> nx run api:test --runInBand --testPathPatterns=users.(controller|service).spec.ts
+
+> jest --passWithNoTests=true --runInBand --testPathPatterns="users.(controller|service).spec.ts"
+
+
+
+
+ NX   Successfully ran target test for project api
+
+
+(node:4144068) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1mTest Suites: [22m[1m[32m2 passed[39m[22m, 2 total
+[1mTests:       [22m[1m[32m29 passed[39m[22m, 29 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        4.069 s
+[2mRan all test suites[22m[2m matching [22musers.(controller|service).spec.ts[2m.[22m

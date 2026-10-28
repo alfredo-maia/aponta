@@ -3,7 +3,8 @@ import { Reflector } from '@nestjs/core';
 import { AppointmentType, Role } from '@prisma/client';
 import { AgendaController } from './agenda.controller';
 import { AgendaService } from './agenda.service';
-import { ROLES_KEY } from '../auth/decorators/roles.decorator';
+import { PERMISSIONS_KEY } from '../auth/decorators/require-permission.decorator';
+import { PermissionsService } from '../permissions/permissions.service';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 const mockAgendaService = {
@@ -24,6 +25,7 @@ describe('AgendaController', () => {
       controllers: [AgendaController],
       providers: [
         { provide: AgendaService, useValue: mockAgendaService },
+        { provide: PermissionsService, useValue: { hasPermission: jest.fn() } },
         Reflector,
       ],
     }).compile();
@@ -36,47 +38,34 @@ describe('AgendaController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('@Roles metadata', () => {
-    it('allows ADMIN, AGENT_MASTER, AGENT, CLIENT_MASTER on findAll', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.findAll)).toEqual([
-        Role.ADMIN,
-        Role.AGENT_MASTER,
-        Role.AGENT,
-        Role.CLIENT_MASTER,
+  describe('@RequirePermission metadata', () => {
+    it('requires VIEW_ALL_SCHEDULES on findAll', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.findAll)).toEqual([
+        'VIEW_ALL_SCHEDULES',
       ]);
     });
 
-    it('allows ADMIN, AGENT_MASTER, AGENT, CLIENT_MASTER on findOne', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.findOne)).toEqual([
-        Role.ADMIN,
-        Role.AGENT_MASTER,
-        Role.AGENT,
-        Role.CLIENT_MASTER,
+    it('requires VIEW_ALL_SCHEDULES on findOne', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.findOne)).toEqual([
+        'VIEW_ALL_SCHEDULES',
       ]);
     });
 
-    it('allows ADMIN, AGENT_MASTER, AGENT, CLIENT_MASTER on create', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.create)).toEqual([
-        Role.ADMIN,
-        Role.AGENT_MASTER,
-        Role.AGENT,
-        Role.CLIENT_MASTER,
+    it('requires CREATE_TICKET_SCHEDULING on create', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.create)).toEqual([
+        'CREATE_TICKET_SCHEDULING',
       ]);
     });
 
-    it('allows only ADMIN, AGENT_MASTER, AGENT on update', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.update)).toEqual([
-        Role.ADMIN,
-        Role.AGENT_MASTER,
-        Role.AGENT,
+    it('requires CREATE_TICKET_SCHEDULING on update', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.update)).toEqual([
+        'CREATE_TICKET_SCHEDULING',
       ]);
     });
 
-    it('allows only ADMIN, AGENT_MASTER, AGENT on remove', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.remove)).toEqual([
-        Role.ADMIN,
-        Role.AGENT_MASTER,
-        Role.AGENT,
+    it('requires CREATE_TICKET_SCHEDULING on remove', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.remove)).toEqual([
+        'CREATE_TICKET_SCHEDULING',
       ]);
     });
   });

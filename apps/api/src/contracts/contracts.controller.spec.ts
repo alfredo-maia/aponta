@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ContractsController } from './contracts.controller';
 import { ContractsService } from './contracts.service';
+import { PermissionsService } from '../permissions/permissions.service';
 
 const mockContractsService = {
   findAll: jest.fn(),
@@ -16,7 +17,10 @@ describe('ContractsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ContractsController],
-      providers: [{ provide: ContractsService, useValue: mockContractsService }],
+      providers: [
+        { provide: ContractsService, useValue: mockContractsService },
+        { provide: PermissionsService, useValue: { hasPermission: jest.fn() } },
+      ],
     }).compile();
 
     controller = module.get<ContractsController>(ContractsController);

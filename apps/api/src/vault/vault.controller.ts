@@ -10,9 +10,8 @@ import { AuditQueryDto } from './dto/audit-query.dto';
 import { RevealCredentialDto } from './dto/reveal-credential.dto';
 import { CurrentUser, CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 import { JwtOrTokenAuthGuard } from '../auth/guards/jwt-or-token-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@prisma/client';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 
 interface AuthenticatedRequest extends Request {
@@ -22,7 +21,7 @@ interface AuthenticatedRequest extends Request {
 @ApiTags('Vault')
 @ApiBearerAuth()
 @Controller('vault')
-@UseGuards(JwtOrTokenAuthGuard, RolesGuard)
+@UseGuards(JwtOrTokenAuthGuard, PermissionsGuard)
 export class VaultController {
   constructor(private readonly vaultService: VaultService) {}
 
@@ -31,21 +30,21 @@ export class VaultController {
   // ---------------------------------------------------------------------
 
   @Get('folders')
-  @Roles(Role.ADMIN, Role.AGENT_MASTER, Role.AGENT)
+  @RequirePermission('VIEW_PASSWORD_VAULT')
   @ApiOperation({ summary: 'List credential folders (vault folder tree) with credential counts' })
   findFolders(@CurrentUser() user: CurrentUserPayload) {
     return this.vaultService.findFolders(user);
   }
 
   @Post('folders')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_PASSWORD_VAULT')
   @ApiOperation({ summary: 'Create a new credential folder' })
   createFolder(@Body() dto: CreateFolderDto, @CurrentUser() user: CurrentUserPayload, @Req() req: AuthenticatedRequest) {
     return this.vaultService.createFolder(dto, user, req.ip);
   }
 
   @Patch('folders/:id')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_PASSWORD_VAULT')
   @ApiOperation({ summary: 'Rename a credential folder' })
   updateFolder(
     @Param('id') id: string,
@@ -57,7 +56,7 @@ export class VaultController {
   }
 
   @Delete('folders/:id')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_PASSWORD_VAULT')
   @ApiOperation({ summary: 'Delete a credential folder (refused while it still has credentials)' })
   removeFolder(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload, @Req() req: AuthenticatedRequest) {
     return this.vaultService.removeFolder(id, user, req.ip);
@@ -68,14 +67,14 @@ export class VaultController {
   // ---------------------------------------------------------------------
 
   @Get('credentials')
-  @Roles(Role.ADMIN, Role.AGENT_MASTER, Role.AGENT)
+  @RequirePermission('VIEW_PASSWORD_VAULT')
   @ApiOperation({ summary: 'List credentials (paginated, searchable); never returns raw password/username' })
   findCredentials(@Query() query: CredentialQueryDto, @CurrentUser() user: CurrentUserPayload) {
     return this.vaultService.findCredentials(query, user);
   }
 
   @Post('credentials')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_PASSWORD_VAULT')
   @ApiOperation({ summary: 'Create a new credential' })
   createCredential(
     @Body() dto: CreateCredentialDto,
@@ -86,7 +85,7 @@ export class VaultController {
   }
 
   @Patch('credentials/:id')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_PASSWORD_VAULT')
   @ApiOperation({ summary: 'Update a credential' })
   updateCredential(
     @Param('id') id: string,
@@ -98,14 +97,14 @@ export class VaultController {
   }
 
   @Delete('credentials/:id')
-  @Roles(Role.ADMIN)
+  @RequirePermission('MANAGE_PASSWORD_VAULT')
   @ApiOperation({ summary: 'Delete a credential' })
   removeCredential(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload, @Req() req: AuthenticatedRequest) {
     return this.vaultService.removeCredential(id, user, req.ip);
   }
 
   @Post('credentials/:id/reveal')
-  @Roles(Role.ADMIN, Role.AGENT_MASTER, Role.AGENT)
+  @RequirePermission('VIEW_PASSWORD_VAULT')
   @ApiOperation({ summary: 'Reveal or copy a credential field (username/password); always audited' })
   reveal(
     @Param('id') id: string,
@@ -121,7 +120,7 @@ export class VaultController {
   // ---------------------------------------------------------------------
 
   @Get('audit')
-  @Roles(Role.ADMIN)
+  @RequirePermission('VIEW_PASSWORD_VAULT_AUDIT')
   @ApiOperation({ summary: 'List vault audit trail entries (ADMIN only)' })
   findAudit(@Query() query: AuditQueryDto, @CurrentUser() user: CurrentUserPayload) {
     return this.vaultService.findAudit(query, user);

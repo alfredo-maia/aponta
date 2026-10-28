@@ -15,6 +15,7 @@ import { JwtStrategy } from '../auth/jwt.strategy';
 import { ApiTokenStrategy } from '../auth/api-token.strategy';
 import { UsersService } from '../users/users.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { PermissionsService } from '../permissions/permissions.service';
 
 /**
  * Real HTTP-level integration test proving the multer pipeline on
@@ -87,6 +88,10 @@ describe('KnowledgeAttachmentsController multer pipeline (real HTTP)', () => {
         { provide: ArticlesService, useValue: articlesService },
         { provide: KnowledgeAttachmentsService, useValue: knowledgeAttachmentsService },
         { provide: PrismaService, useValue: { apiToken: { findFirst: jest.fn().mockResolvedValue(null) } } },
+        // This suite proves multer behavior, not RBAC — give the AGENT
+        // caller MANAGE_KNOWLEDGE_BASE unconditionally so uploads/removals
+        // reach the handler under test instead of being 403'd upstream.
+        { provide: PermissionsService, useValue: { hasPermission: jest.fn().mockResolvedValue(true) } },
       ],
     }).compile();
 

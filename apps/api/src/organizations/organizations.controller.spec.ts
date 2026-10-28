@@ -4,7 +4,8 @@ import { Role } from '@prisma/client';
 import { OrganizationsController } from './organizations.controller';
 import { OrganizationsService } from './organizations.service';
 import { CnpjLookupService } from './cnpj-lookup.service';
-import { ROLES_KEY } from '../auth/decorators/roles.decorator';
+import { PERMISSIONS_KEY } from '../auth/decorators/require-permission.decorator';
+import { PermissionsService } from '../permissions/permissions.service';
 
 const mockOrganizationsService = {
   create: jest.fn(),
@@ -36,6 +37,7 @@ describe('OrganizationsController', () => {
       providers: [
         { provide: OrganizationsService, useValue: mockOrganizationsService },
         { provide: CnpjLookupService, useValue: mockCnpjLookupService },
+        { provide: PermissionsService, useValue: { hasPermission: jest.fn() } },
         Reflector,
       ],
     }).compile();
@@ -48,22 +50,22 @@ describe('OrganizationsController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('@Roles metadata', () => {
+  describe('@RequirePermission metadata', () => {
     it.each([['create'], ['update'], ['remove'], ['lookupCnpj'], ['addAddress'], ['removeAddress'], ['addContact'], ['removeContact'], ['linkServiceDesk'], ['unlinkServiceDesk'], ['createAgentGroup'], ['updateAgentGroup'], ['removeAgentGroup']])(
-      'requires ADMIN on %s',
+      'requires MANAGE_CLIENTS_AND_RESOURCE_GROUPS on %s',
       (methodName) => {
-        expect(Reflect.getMetadata(ROLES_KEY, (controller as any)[methodName])).toEqual([
-          Role.ADMIN,
+        expect(Reflect.getMetadata(PERMISSIONS_KEY, (controller as any)[methodName])).toEqual([
+          'MANAGE_CLIENTS_AND_RESOURCE_GROUPS',
         ]);
       },
     );
 
-    it('findAll has NO role restriction (any authenticated user)', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.findAll)).toBeUndefined();
+    it('findAll has NO permission restriction (any authenticated user)', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.findAll)).toBeUndefined();
     });
 
-    it('findOne has NO role restriction (any authenticated user)', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.findOne)).toBeUndefined();
+    it('findOne has NO permission restriction (any authenticated user)', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.findOne)).toBeUndefined();
     });
   });
 

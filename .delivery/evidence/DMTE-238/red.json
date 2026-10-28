@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-10-26T18:58:59.088483+00:00",
+  "finished_at": "2026-10-26T19:02:35.347268+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run-many",
+    "-t",
+    "test",
+    "--projects=api,web",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "92b1d6a5b6369930b187442d4f6cc8ff3162bad7",
+  "head_sha": "92b1d6a5b6369930b187442d4f6cc8ff3162bad7",
+  "exit_code": 1,
+  "tests": {
+    "apps/api/src/auth/auth.controller.spec.ts": "508d9b35779508383ce546dbdb4766e983cee57ff23f66a1809e168d7385c50b",
+    "apps/web/src/hooks/usePermissions.test.tsx": "119076f028f1368d6cf5f2692518c1c358db46b9251fe2ef00745b25712e85bb",
+    "apps/web/src/pages/SettingsPage.test.tsx": "f2e0012a8b8f6827aed8b6d79bc255d02a244a8d62e9fc8526e1438b8446e138",
+    "apps/web/src/pages/UsersPage.test.tsx": "a2e214c70f9abd0dc78ed7561221d76778e54ac75cc90f42eeb44141e42cbd69",
+    "apps/web/src/pages/TechnicalGroupsPage.test.tsx": "0bd1c4d59995fee2fa72dc99847f798d2c098622e7ae09ef4a57ebb03703328e",
+    "apps/web/src/pages/PermissionGroupsPage.test.tsx": "78a3187dc9f87d18b9892392a8780217f2a4247af3219eb25b0decbb7ff29918"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "source_hashes": {
+    "apps/api/src/auth/auth.controller.spec.ts": "508d9b35779508383ce546dbdb4766e983cee57ff23f66a1809e168d7385c50b",
+    "apps/web/src/App.tsx": "18d7cbd9f732e0e91761a320aa4dd92eae21c79d0e2639c8aa65ceac0636f3f3",
+    "apps/web/src/hooks/usePermissions.test.tsx": "119076f028f1368d6cf5f2692518c1c358db46b9251fe2ef00745b25712e85bb",
+    "apps/web/src/hooks/usePermissions.ts": "4a6293af0adb9f9fae59300a24df33eaa7d56b4a8f70cc4c33ad21e315194c65",
+    "apps/web/src/pages/PermissionGroupsPage.test.tsx": "78a3187dc9f87d18b9892392a8780217f2a4247af3219eb25b0decbb7ff29918",
+    "apps/web/src/pages/PermissionGroupsPage.tsx": "5e24e16e6f067e8217bdbe4314b429307a04a5fe5a53aea683359f743bed6a8f",
+    "apps/web/src/pages/SettingsPage.test.tsx": "f2e0012a8b8f6827aed8b6d79bc255d02a244a8d62e9fc8526e1438b8446e138",
+    "apps/web/src/pages/TechnicalGroupsPage.test.tsx": "0bd1c4d59995fee2fa72dc99847f798d2c098622e7ae09ef4a57ebb03703328e",
+    "apps/web/src/pages/TechnicalGroupsPage.tsx": "ebf5da3d3611eca58a007401c03e571bd64b3523f588d8235873de53bcfbf275",
+    "apps/web/src/pages/UsersPage.test.tsx": "a2e214c70f9abd0dc78ed7561221d76778e54ac75cc90f42eeb44141e42cbd69",
+    "apps/web/src/pages/UsersPage.tsx": "b43a2680cadd61613500ee3152e7ceee84198317ab921a75398a7283bc38d612"
+  },
+  "log": ".delivery/evidence/DMTE-238/red.log",
+  "log_sha256": "219acbc57140a4e221233b81e0215812f886cf2235d7562a8459d6f6952cb7f5"
+}

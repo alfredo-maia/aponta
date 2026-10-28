@@ -1,18 +1,17 @@
-import { 
-  Controller, Get, Post, Patch, Delete, Param, Body, UseGuards 
+import {
+  Controller, Get, Post, Patch, Delete, Param, Body, UseGuards
 } from '@nestjs/common';
-import { Role } from '@prisma/client';
 import { ChecklistsService } from './checklists.service';
 import { CreateChecklistDto } from './dto/create-checklist.dto';
 import { AddChecklistItemDto } from './dto/add-checklist-item.dto';
 import { UpdateChecklistItemDto } from './dto/update-checklist-item.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 
 @Controller('tickets/:ticketId/checklists')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.AGENT, Role.AGENT_MASTER, Role.ADMIN)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+@RequirePermission('MANAGE_CHECKLISTS')
 export class ChecklistsController {
   constructor(private readonly checklistsService: ChecklistsService) {}
 

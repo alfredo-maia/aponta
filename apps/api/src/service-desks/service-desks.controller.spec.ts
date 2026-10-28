@@ -6,9 +6,10 @@ import { Role } from '@prisma/client';
 import { ServiceDesksController } from './service-desks.controller';
 import { ServiceDesksService } from './service-desks.service';
 import { TicketStagesService } from './ticket-stages.service';
-import { ROLES_KEY } from '../auth/decorators/roles.decorator';
-import { RolesGuard } from '../auth/guards/roles.guard';
+import { PERMISSIONS_KEY } from '../auth/decorators/require-permission.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PermissionsService } from '../permissions/permissions.service';
 
 const mockTicketStagesService = {
   list: jest.fn(),
@@ -38,6 +39,7 @@ describe('ServiceDesksController', () => {
       providers: [
         { provide: ServiceDesksService, useValue: mockServiceDesksService },
         { provide: TicketStagesService, useValue: mockTicketStagesService },
+        { provide: PermissionsService, useValue: { hasPermission: jest.fn() } },
       ],
     }).compile();
 
@@ -49,192 +51,163 @@ describe('ServiceDesksController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('@Roles metadata declarations', () => {
-    it('requires ADMIN on create', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.create)).toEqual([
-        Role.ADMIN,
+  describe('@RequirePermission metadata declarations', () => {
+    it('requires MANAGE_SERVICE_DESKS on create', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.create)).toEqual([
+        'MANAGE_SERVICE_DESKS',
       ]);
     });
 
-    it('requires ADMIN on update', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.update)).toEqual([
-        Role.ADMIN,
+    it('requires MANAGE_SERVICE_DESKS on update', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.update)).toEqual([
+        'MANAGE_SERVICE_DESKS',
       ]);
     });
 
-    it('requires ADMIN on remove', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.remove)).toEqual([
-        Role.ADMIN,
+    it('requires MANAGE_SERVICE_DESKS on remove', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.remove)).toEqual([
+        'MANAGE_SERVICE_DESKS',
       ]);
     });
 
-    it('requires ADMIN or AGENT_MASTER on updateBusinessHours', () => {
+    it('requires MANAGE_SERVICE_DESKS on updateBusinessHours', () => {
       expect(
-        Reflect.getMetadata(ROLES_KEY, controller.updateBusinessHours),
-      ).toEqual([Role.ADMIN, Role.AGENT_MASTER]);
+        Reflect.getMetadata(PERMISSIONS_KEY, controller.updateBusinessHours),
+      ).toEqual(['MANAGE_SERVICE_DESKS']);
     });
 
-    it('does not restrict getBusinessHours to any role', () => {
+    it('does not restrict getBusinessHours to any permission', () => {
       expect(
-        Reflect.getMetadata(ROLES_KEY, controller.getBusinessHours),
+        Reflect.getMetadata(PERMISSIONS_KEY, controller.getBusinessHours),
       ).toBeUndefined();
     });
 
-    it('requires ADMIN or AGENT_MASTER on importNationalHolidays', () => {
+    it('requires MANAGE_SERVICE_DESKS on importNationalHolidays', () => {
       expect(
-        Reflect.getMetadata(ROLES_KEY, controller.importNationalHolidays),
-      ).toEqual([Role.ADMIN, Role.AGENT_MASTER]);
+        Reflect.getMetadata(PERMISSIONS_KEY, controller.importNationalHolidays),
+      ).toEqual(['MANAGE_SERVICE_DESKS']);
     });
 
-    it('requires ADMIN on stage mutations', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.createStage)).toEqual([
-        Role.ADMIN,
+    it('requires MANAGE_SERVICE_DESKS on stage mutations', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.createStage)).toEqual([
+        'MANAGE_SERVICE_DESKS',
       ]);
-      expect(Reflect.getMetadata(ROLES_KEY, controller.updateStage)).toEqual([
-        Role.ADMIN,
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.updateStage)).toEqual([
+        'MANAGE_SERVICE_DESKS',
       ]);
-      expect(Reflect.getMetadata(ROLES_KEY, controller.reorderStages)).toEqual([
-        Role.ADMIN,
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.reorderStages)).toEqual([
+        'MANAGE_SERVICE_DESKS',
       ]);
-      expect(Reflect.getMetadata(ROLES_KEY, controller.removeStage)).toEqual([
-        Role.ADMIN,
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.removeStage)).toEqual([
+        'MANAGE_SERVICE_DESKS',
       ]);
     });
 
-    it('does not restrict listStages to any role', () => {
+    it('does not restrict listStages to any permission', () => {
       expect(
-        Reflect.getMetadata(ROLES_KEY, controller.listStages),
+        Reflect.getMetadata(PERMISSIONS_KEY, controller.listStages),
       ).toBeUndefined();
     });
 
-    it('does not restrict findAll to any role', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.findAll)).toBeUndefined();
+    it('does not restrict findAll to any permission', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.findAll)).toBeUndefined();
     });
 
-    it('does not restrict findOne to any role', () => {
-      expect(Reflect.getMetadata(ROLES_KEY, controller.findOne)).toBeUndefined();
+    it('does not restrict findOne to any permission', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.findOne)).toBeUndefined();
     });
   });
 
-  describe('RolesGuard behavior against the declared metadata', () => {
+  describe('PermissionsGuard behavior against the declared metadata', () => {
     let reflector: Reflector;
-    let guard: RolesGuard;
+    let mockPermissionsService: { hasPermission: jest.Mock };
+    let guard: PermissionsGuard;
 
     beforeEach(() => {
       reflector = new Reflector();
-      guard = new RolesGuard(reflector);
+      mockPermissionsService = { hasPermission: jest.fn() };
+      guard = new PermissionsGuard(reflector, mockPermissionsService as any);
     });
 
     function contextFor(
-       
+
       handler: (...args: any[]) => unknown,
-      role?: Role,
+      user?: { id: string; role: Role },
     ): ExecutionContext {
       return {
         switchToHttp: () => ({
-          getRequest: () => ({ user: role ? { role } : undefined }),
+          getRequest: () => ({ user }),
         }),
         getHandler: () => handler,
         getClass: () => ServiceDesksController,
       } as unknown as ExecutionContext;
     }
 
-    it('blocks CLIENT on create', () => {
-      expect(
-        guard.canActivate(contextFor(controller.create, Role.CLIENT)),
-      ).toBe(false);
+    it('blocks CLIENT without MANAGE_SERVICE_DESKS on create', async () => {
+      mockPermissionsService.hasPermission.mockResolvedValue(false);
+      await expect(
+        guard.canActivate(contextFor(controller.create, { id: 'c-1', role: Role.CLIENT })),
+      ).resolves.toBe(false);
     });
 
-    it('blocks AGENT on update', () => {
-      expect(
-        guard.canActivate(contextFor(controller.update, Role.AGENT)),
-      ).toBe(false);
+    it('blocks AGENT without MANAGE_SERVICE_DESKS on update', async () => {
+      mockPermissionsService.hasPermission.mockResolvedValue(false);
+      await expect(
+        guard.canActivate(contextFor(controller.update, { id: 'a-1', role: Role.AGENT })),
+      ).resolves.toBe(false);
     });
 
-    it('blocks unauthenticated (no user) on remove', () => {
-      expect(guard.canActivate(contextFor(controller.remove))).toBe(false);
+    it('blocks unauthenticated (no user) on remove', async () => {
+      await expect(guard.canActivate(contextFor(controller.remove))).resolves.toBe(false);
     });
 
-    it('allows ADMIN on create/update/remove', () => {
-      expect(
-        guard.canActivate(contextFor(controller.create, Role.ADMIN)),
-      ).toBe(true);
-      expect(
-        guard.canActivate(contextFor(controller.update, Role.ADMIN)),
-      ).toBe(true);
-      expect(
-        guard.canActivate(contextFor(controller.remove, Role.ADMIN)),
-      ).toBe(true);
+    it('allows ADMIN on create/update/remove without checking PermissionsService', async () => {
+      const admin = { id: 'admin-1', role: Role.ADMIN };
+      await expect(guard.canActivate(contextFor(controller.create, admin))).resolves.toBe(true);
+      await expect(guard.canActivate(contextFor(controller.update, admin))).resolves.toBe(true);
+      await expect(guard.canActivate(contextFor(controller.remove, admin))).resolves.toBe(true);
+      expect(mockPermissionsService.hasPermission).not.toHaveBeenCalled();
     });
 
-    it('allows ADMIN and AGENT_MASTER on updateBusinessHours, blocks AGENT/CLIENT', () => {
-      expect(
+    it('allows AGENT_MASTER holding MANAGE_SERVICE_DESKS on updateBusinessHours, blocks one without it', async () => {
+      mockPermissionsService.hasPermission.mockResolvedValueOnce(true);
+      await expect(
         guard.canActivate(
-          contextFor(controller.updateBusinessHours, Role.ADMIN),
+          contextFor(controller.updateBusinessHours, { id: 'm-1', role: Role.AGENT_MASTER }),
         ),
-      ).toBe(true);
-      expect(
+      ).resolves.toBe(true);
+
+      mockPermissionsService.hasPermission.mockResolvedValueOnce(false);
+      await expect(
         guard.canActivate(
-          contextFor(controller.updateBusinessHours, Role.AGENT_MASTER),
+          contextFor(controller.updateBusinessHours, { id: 'a-1', role: Role.AGENT }),
         ),
-      ).toBe(true);
-      expect(
-        guard.canActivate(
-          contextFor(controller.updateBusinessHours, Role.AGENT),
-        ),
-      ).toBe(false);
-      expect(
-        guard.canActivate(
-          contextFor(controller.updateBusinessHours, Role.CLIENT),
-        ),
-      ).toBe(false);
+      ).resolves.toBe(false);
     });
 
-    it('allows ADMIN and AGENT_MASTER on importNationalHolidays, blocks AGENT/CLIENT', () => {
-      expect(
-        guard.canActivate(
-          contextFor(controller.importNationalHolidays, Role.ADMIN),
-        ),
-      ).toBe(true);
-      expect(
-        guard.canActivate(
-          contextFor(controller.importNationalHolidays, Role.AGENT_MASTER),
-        ),
-      ).toBe(true);
-      expect(
-        guard.canActivate(
-          contextFor(controller.importNationalHolidays, Role.AGENT),
-        ),
-      ).toBe(false);
-      expect(
-        guard.canActivate(
-          contextFor(controller.importNationalHolidays, Role.CLIENT),
-        ),
-      ).toBe(false);
-    });
-
-    it('allows any authenticated role on findAll/findOne (no @Roles metadata)', () => {
-      expect(
-        guard.canActivate(contextFor(controller.findAll, Role.CLIENT)),
-      ).toBe(true);
-      expect(
-        guard.canActivate(contextFor(controller.findOne, Role.AGENT)),
-      ).toBe(true);
+    it('allows any authenticated user on findAll/findOne (no @RequirePermission metadata)', async () => {
+      await expect(
+        guard.canActivate(contextFor(controller.findAll, { id: 'c-1', role: Role.CLIENT })),
+      ).resolves.toBe(true);
+      await expect(
+        guard.canActivate(contextFor(controller.findOne, { id: 'a-1', role: Role.AGENT })),
+      ).resolves.toBe(true);
+      expect(mockPermissionsService.hasPermission).not.toHaveBeenCalled();
     });
   });
 
   describe('@UseGuards registration (catches decorator removal/reordering)', () => {
     // These assertions read NestJS's own GUARDS_METADATA (set by @UseGuards)
-    // rather than instantiating RolesGuard by hand. Unlike the
-    // "RolesGuard behavior against the declared metadata" suite above -
+    // rather than instantiating PermissionsGuard by hand. Unlike the
+    // "PermissionsGuard behavior against the declared metadata" suite above -
     // which manually builds an ExecutionContext and never asks whether
-    // NestJS would actually apply RolesGuard to the route - these tests
-    // fail if @UseGuards(RolesGuard) is deleted or reordered on a handler,
-    // even though @Roles(...) metadata is untouched.
+    // NestJS would actually apply PermissionsGuard to the route - these tests
+    // fail if @UseGuards(PermissionsGuard) is deleted or reordered on a
+    // handler, even though @RequirePermission(...) metadata is untouched.
     function methodGuards(
-       
+
       handler: (...args: any[]) => unknown,
-       
+
     ): any[] {
       return Reflect.getMetadata(GUARDS_METADATA, handler) ?? [];
     }
@@ -245,33 +218,33 @@ describe('ServiceDesksController', () => {
       ).toContain(JwtAuthGuard);
     });
 
-    it('registers RolesGuard on the create handler', () => {
-      expect(methodGuards(controller.create)).toContain(RolesGuard);
+    it('registers PermissionsGuard on the create handler', () => {
+      expect(methodGuards(controller.create)).toContain(PermissionsGuard);
     });
 
-    it('registers RolesGuard on the update handler', () => {
-      expect(methodGuards(controller.update)).toContain(RolesGuard);
+    it('registers PermissionsGuard on the update handler', () => {
+      expect(methodGuards(controller.update)).toContain(PermissionsGuard);
     });
 
-    it('registers RolesGuard on the remove handler', () => {
-      expect(methodGuards(controller.remove)).toContain(RolesGuard);
+    it('registers PermissionsGuard on the remove handler', () => {
+      expect(methodGuards(controller.remove)).toContain(PermissionsGuard);
     });
 
-    it('registers RolesGuard on the updateBusinessHours handler', () => {
+    it('registers PermissionsGuard on the updateBusinessHours handler', () => {
       expect(methodGuards(controller.updateBusinessHours)).toContain(
-        RolesGuard,
+        PermissionsGuard,
       );
     });
 
-    it('does not register RolesGuard on getBusinessHours (no method-level @UseGuards)', () => {
+    it('does not register PermissionsGuard on getBusinessHours (no method-level @UseGuards)', () => {
       expect(methodGuards(controller.getBusinessHours)).not.toContain(
-        RolesGuard,
+        PermissionsGuard,
       );
     });
 
-    it('does not register RolesGuard on findAll/findOne (no method-level @UseGuards)', () => {
-      expect(methodGuards(controller.findAll)).not.toContain(RolesGuard);
-      expect(methodGuards(controller.findOne)).not.toContain(RolesGuard);
+    it('does not register PermissionsGuard on findAll/findOne (no method-level @UseGuards)', () => {
+      expect(methodGuards(controller.findAll)).not.toContain(PermissionsGuard);
+      expect(methodGuards(controller.findOne)).not.toContain(PermissionsGuard);
     });
   });
 
