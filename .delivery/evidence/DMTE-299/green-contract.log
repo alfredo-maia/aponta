@@ -7,6 +7,6 @@ test_missing_script_in_inline_code_is_reported (test_engineering_skills.SkillBun
 test_pinned_reference_cannot_silently_change (test_engineering_skills.SkillBundleTest.test_pinned_reference_cannot_silently_change) ... ok
 
 ----------------------------------------------------------------------
-Ran 7 tests in 0.061s
+Ran 7 tests in 0.072s
 
 OK

@@ -9,6 +9,8 @@ O squad `9892f209-3612-411f-a5e1-708cee418bfc` é coordenado por `aponta_tech_le
 
 Leia esta skill uma vez por execução. Registre seu nome no comentário de resultado. Leia apenas as skills específicas do seu papel e escopo. Os conteúdos históricos permanecem em `/home/hermes/multica/auditoria-aponta-2026-10-25/legado/`; consulte uma seção relevante quando faltar uma decisão do projeto, sem carregar a coleção inteira.
 
+No runtime Claude deste squad, procure as skills vinculadas em `.claude/skills` relativo ao cwd real da tarefa; use Skill pelo nome ou leia esse arquivo local. Se o diretório/nome esperado não existir, confira o catálogo do Multica e a alocação da tarefa e registre dependência ausente como bloqueio. Não substitua essa conferência por `find /`, busca em outros projetos ou loop de procura no filesystem.
+
 ## Passagem
 
 - Política aprovada v4: uma issue GitHub principal e um pai Multica por entrega, registrados em `.delivery/registry.json`. Épicos são agrupadores, sem execução automática. Sub-issues técnicas herdam o vínculo e o ciclo do pai. Não duplicar issues nem confundir números dos dois sistemas.

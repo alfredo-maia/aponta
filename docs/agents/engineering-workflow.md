@@ -31,6 +31,8 @@ Multica mantém estado, atribuição e evidência da fase. ai-memory guarda/recu
 
 O Multica entrega as skills vinculadas e seus supporting files ao runtime Claude. Os três métodos adaptados são descobertos automaticamente e não dependem de slash commands manuais ou de skills ausentes. Os originais com disable-model-invocation continuam preservados; não presumir que vincular o original o torne invocável pelo modelo. Deltas de método estão nas adaptações, não no upstream.
 
+Nos agentes Claude deste squad, o primeiro caminho é `.claude/skills` relativo ao cwd da tarefa. Usar a ferramenta Skill ou leitura local do bundle; nome ausente exige conferir catálogo/alocação e bloquear de forma explícita. Varrer `/` ou diretórios de outros projetos não é estratégia de descoberta de dependências.
+
 `python3 scripts/check_engineering_skills.py` verifica referências/scripts dos métodos reutilizáveis e hashes de origem declarados em SOURCE.json. Perfis `aponta-*` podem apontar a ferramentas do repositório e são conferidos com o contrato do checkout e a implantação do Multica; não são classificados como bundles genéricos autossuficientes por esse comando. O check de entrega executa o verificador e seus testes de regressão. Conferir o banco continua necessário para demonstrar que os mesmos arquivos foram publicados no Multica.
 
 Este arquivo não concede autorização de merge/CD/deploy. `pr` complementa o template de PR mantendo Aponta-Delivery e Refs. `retro` é uma operação solicitada de revisão de fontes, não alteração automática da governança; writing-for-agents é sua referência de manutenção.
