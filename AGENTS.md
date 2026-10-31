@@ -25,3 +25,7 @@ Default canonical labels (`needs-triage`, `needs-info`, `ready-for-agent`, `read
 ### Domain docs
 
 Single-context: one `GLOSSARY.md` + `docs/adr/` at the repo root, created lazily. See `docs/agents/domain.md`.
+
+### Engineering methods and project profile
+
+For requirements alignment, specification, role boundaries, visual validation and context transfer between Multica agents, read `docs/agents/engineering-workflow.md`. Reusable methods (`engineering-alignment`, `engineering-triage`, `engineering-specification`) use the Aponta profile (`aponta-sdd`); produce one canonical SPEC and preserve confirmed human decisions. An unresolved product choice blocks the dependent action; reuse already explicit approvals. Original Matt skills are retained as upstream references, not competing specification authorities.

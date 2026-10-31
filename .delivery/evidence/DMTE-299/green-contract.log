@@ -1,0 +1,12 @@
+test_cli_cannot_report_success_when_no_bundle_was_found (test_engineering_skills.SkillBundleTest.test_cli_cannot_report_success_when_no_bundle_was_found) ... ok
+test_existing_file_outside_bundle_is_not_a_bundled_reference (test_engineering_skills.SkillBundleTest.test_existing_file_outside_bundle_is_not_a_bundled_reference) ... ok
+test_existing_reference_and_anchor_are_valid (test_engineering_skills.SkillBundleTest.test_existing_reference_and_anchor_are_valid) ... ok
+test_fenced_examples_do_not_require_illustrative_files (test_engineering_skills.SkillBundleTest.test_fenced_examples_do_not_require_illustrative_files) ... ok
+test_missing_reference_is_reported (test_engineering_skills.SkillBundleTest.test_missing_reference_is_reported) ... ok
+test_missing_script_in_inline_code_is_reported (test_engineering_skills.SkillBundleTest.test_missing_script_in_inline_code_is_reported) ... ok
+test_pinned_reference_cannot_silently_change (test_engineering_skills.SkillBundleTest.test_pinned_reference_cannot_silently_change) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.061s
+
+OK

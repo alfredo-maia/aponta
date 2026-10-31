@@ -1,0 +1,24 @@
+{
+  "repository": "https://github.com/mattpocock/skills",
+  "revision": "5ae481693d13b37d4d2c2c92d0b66d299c93e695",
+  "license": "MIT",
+  "mode": "unmodified upstream snapshot; invocation policy preserved",
+  "adaptations": [],
+  "files": [
+    {
+      "upstream_path": "skills/engineering/pr/CREDITS.md",
+      "local_path": "CREDITS.md",
+      "sha256": "a7a087127665d7298a72280ef6e19c41ad8404523712a788c8dc3ab414bc2497"
+    },
+    {
+      "upstream_path": "skills/engineering/pr/SKILL.md",
+      "local_path": "SKILL.md",
+      "sha256": "ab63f1cf78647389edcd386c9427c5dfca27ed2836930c24773ffee834c19bcd"
+    },
+    {
+      "upstream_path": "skills/engineering/pr/agents/openai.yaml",
+      "local_path": "agents/openai.yaml",
+      "sha256": "2295b586624db4ef546f3fd4695492f039d941a46d8a1593a702ce3ca511b8ad"
+    }
+  ]
+}
