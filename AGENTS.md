@@ -11,3 +11,17 @@ These rules apply to agents working in this repository. See `docs/delivery/WORKF
 - Validate the delivery manifest and run relevant tests before requesting review. QA reproduces relevant checks independently, examines RBAC and tenant boundaries, and approves the exact SHA. Functional approval cannot override a failed mandatory process gate.
 - CI verifies the PR contract. Do not close the product issue at merge; use `Refs`, then record verified delivery separately. Merged, deployed and accepted are different facts.
 - Never log credentials or use real customer data in fixtures. Record bounded summaries and artifact links rather than repeatedly loading full logs.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in this repo's GitHub Issues (`alfredo-maia/aponta`), via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default canonical labels (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), unchanged from the skill defaults. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `GLOSSARY.md` + `docs/adr/` at the repo root, created lazily. See `docs/agents/domain.md`.
