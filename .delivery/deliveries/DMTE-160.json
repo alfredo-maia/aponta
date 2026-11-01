@@ -1,0 +1,119 @@
+{
+  "version": 1,
+  "delivery": "DMTE-160",
+  "repository": "alfredo-maia/aponta",
+  "github_issue": 60,
+  "multica_id": "01a17492-3f3a-7589-b153-2078f6eafb30",
+  "cycle": "2026-10-26/2026-11-08",
+  "tier": 2,
+  "base_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "Com enableRowReorder, cada linha exibe alça; sem a prop, nenhuma coluna/alça aparece e o comportamento atual é idêntico.",
+      "tests": [
+        "EzEntityGrid row reorder (DMTE-160/185) > AC-01: shows a drag handle per data row only when enableRowReorder is set, with no other change in behavior"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "Arrastar a linha A sobre a linha B e soltar chama onRowReorder uma vez com rowId/fromIndex/toIndex/orderedIds corretos; data não é mutado.",
+      "tests": [
+        "EzEntityGrid row reorder (DMTE-160/185) > AC-02/AC-03: dragging a handle onto another row calls onRowReorder once with absolute indices (data not mutated); dropping on itself does not"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "Soltar sobre si mesma ou fora de uma linha válida não chama o callback.",
+      "tests": [
+        "EzEntityGrid row reorder (DMTE-160/185) > AC-02/AC-03: dragging a handle onto another row calls onRowReorder once with absolute indices (data not mutated); dropping on itself does not"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "Teclado: alça focada + Enter/Espaço pega; ArrowUp/Down move o destino (limites 0 e último sem estourar); Enter/Espaço confirma e dispara onRowReorder; Esc cancela sem callback.",
+      "tests": [
+        "EzEntityGrid row reorder (DMTE-160/185) > AC-04/AC-05: keyboard pick/move/confirm reorders and announces positions in pt-BR; Escape cancels without a callback"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "A live region (role=status, aria-live=polite) anuncia pegar, nova posição, soltar e cancelar, em pt-BR.",
+      "tests": [
+        "EzEntityGrid row reorder (DMTE-160/185) > AC-04/AC-05: keyboard pick/move/confirm reorders and announces positions in pt-BR; Escape cancels without a callback"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "description": "Com ordenação, filtro de coluna ou agrupamento ativos, a alça fica aria-disabled, com explicação textual, e não dispara callback; ao limpar, volta a funcionar.",
+      "tests": [
+        "EzEntityGrid row reorder (DMTE-160/185) > AC-06: disables the handle (aria-disabled, no callback) while a column filter is active, and re-enables once cleared"
+      ]
+    },
+    {
+      "id": "AC-07",
+      "description": "Com paginação, os índices do callback são absolutos em data (página 2 inclusa) e a reordenação ocorre só dentro da página atual.",
+      "tests": [
+        "EzEntityGrid row reorder (DMTE-160/185) > AC-07: with pagination, callback indices are absolute in `data` (covers page 2), reordering only within that page"
+      ]
+    },
+    {
+      "id": "AC-08",
+      "description": "Linhas de grupo não são arrastáveis nem destino; __rowDrag__ não é reordenável como coluna nem aparece no configurador/menu da grade.",
+      "tests": [
+        "EzEntityGrid row reorder (DMTE-160/185) > AC-08: the drag column is excluded from the column configurator and the corner-menu column list"
+      ],
+      "tdd_required": false,
+      "reason": "RED coberto neste conjunto não é discriminante isoladamente para este AC: a exclusão de '__rowDrag__' do configurador/menu já é vacuamente verdadeira na baseline (a coluna simplesmente não existe sem enableRowReorder), então o teste já passava antes da implementação. A garantia real (coluna técnica presente mas excluída dos filtros do configurador/corner-menu, e linhas de grupo sem célula de alça por renderizarem num ramo de JSX separado sem iteração de colunas) foi confirmada no GREEN e por revisão de código dos pontos de exclusão (EzEntityGrid.tsx, filtros de '__rowNumber__'/'select'/'__rowDrag__' em handleDragOver/handleDrop de coluna, isSpecialCol, canFilter, menu da coluna, columnsList do corner-menu e do configurador)."
+    },
+    {
+      "id": "AC-09",
+      "description": "Após reordenar com getRowId estável, seleção e linha focada acompanham a mesma linha (mesmo id) após o consumidor reordenar data.",
+      "tests": [
+        "EzEntityGrid row reorder (DMTE-160/185) > AC-09: selection and the focused row keep following the same row id after the consumer reorders `data`"
+      ]
+    },
+    {
+      "id": "AC-10",
+      "description": "Story com estado controlado demonstra ponteiro, teclado e estado desabilitado; web:build-storybook gera a entrada no index.json.",
+      "tests": [
+        "pnpm exec nx run web:build-storybook --skip-nx-cache",
+        "ds-ezentitygrid--reordenar-linhas",
+        "ds-ezentitygrid--reordenar-linhas-desabilitado-com-ordenacao"
+      ],
+      "tdd_required": false,
+      "reason": "Artefato de story/build, não comportamento isolado testável por RED/GREEN (mesmo padrão do AC-07 em DMTE-84.json). Evidência: `pnpm exec nx run web:build-storybook --skip-nx-cache` concluiu com sucesso e as duas stories novas (`ds-ezentitygrid--reordenar-linhas` e `ds-ezentitygrid--reordenar-linhas-desabilitado-com-ordenacao`) aparecem em `apps/web/storybook-static/index.json` (420 entradas totais). Build não prova interação/a11y automatizada; o estado desabilitado da story exige interação manual no canvas (clicar um cabeçalho de coluna), documentado no JSDoc da story."
+    }
+  ],
+  "spec": "docs/superpowers/specs/2026-11-01-ezentitygrid-row-reorder.md",
+  "changed_files": [
+    ".delivery/deliveries/DMTE-160.json",
+    ".delivery/evidence/DMTE-160/green.json",
+    ".delivery/evidence/DMTE-160/green.log",
+    ".delivery/evidence/DMTE-160/red.json",
+    ".delivery/evidence/DMTE-160/red.log",
+    ".delivery/registry.json",
+    "apps/web/src/components/ds/EzEntityGrid.stories.tsx",
+    "apps/web/src/components/ds/EzEntityGrid.test.tsx",
+    "apps/web/src/components/ds/EzEntityGrid.tsx",
+    "docs/superpowers/specs/2026-11-01-ezentitygrid-row-reorder.md"
+  ],
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-160/red.json",
+    "green": ".delivery/evidence/DMTE-160/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzEntityGrid",
+      "EzGrid",
+      "EzTaskbar",
+      "EzFilterBar"
+    ],
+    "stories": [
+      "apps/web/src/components/ds/EzEntityGrid.stories.tsx"
+    ],
+    "exception": "Nenhum componente novo de DS: a alça de arraste reutiliza o ícone GripVertical (lucide-react) já usado em EzSortableList/EzSplitPanel e os tokens brand-* já aplicados ao indicador de drop de colunas do próprio EzEntityGrid. Sem novo token."
+  }
+}

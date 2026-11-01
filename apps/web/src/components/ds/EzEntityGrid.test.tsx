@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
@@ -857,6 +858,239 @@ describe('EzEntityGrid Sankhya JS AG Grid parity features', () => {
     fireEvent.mouseUp(document, { clientX: 30 });
 
     expect(onColumnSizingChange).toHaveBeenCalledWith({ id: 330 });
+  });
+});
+
+describe('EzEntityGrid row reorder (DMTE-160/185)', () => {
+  function makeDataTransfer() {
+    const store = new Map<string, string>();
+    return {
+      setData: (type: string, value: string) => store.set(type, value),
+      getData: (type: string) => store.get(type) ?? '',
+      effectAllowed: '',
+      dropEffect: '',
+    } as unknown as DataTransfer;
+  }
+
+  it('AC-01: shows a drag handle per data row only when enableRowReorder is set, with no other change in behavior', () => {
+    const { unmount } = render(<EzEntityGrid columns={columns} data={data} />);
+    expect(screen.queryByTestId('ez-grid-row-drag-handle-0')).not.toBeInTheDocument();
+    expect(screen.getByText('Impressora não liga')).toBeInTheDocument();
+    unmount();
+
+    render(
+      <EzEntityGrid columns={columns} data={data} enableRowReorder getRowId={(row) => row.id} />
+    );
+    expect(screen.getByTestId('ez-grid-row-drag-handle-1')).toBeInTheDocument();
+    expect(screen.getByTestId('ez-grid-row-drag-handle-2')).toBeInTheDocument();
+    expect(screen.getByTestId('ez-grid-row-drag-handle-3')).toBeInTheDocument();
+  });
+
+  it('AC-02/AC-03: dragging a handle onto another row calls onRowReorder once with absolute indices (data not mutated); dropping on itself does not', () => {
+    const onRowReorder = vi.fn();
+    render(
+      <EzEntityGrid
+        columns={columns}
+        data={data}
+        enableRowReorder
+        getRowId={(row) => row.id}
+        onRowReorder={onRowReorder}
+      />
+    );
+
+    const handle1 = screen.getByTestId('ez-grid-row-drag-handle-1');
+    const rows = screen.getAllByRole('row').slice(1);
+    const dt = makeDataTransfer();
+
+    fireEvent.dragStart(handle1, { dataTransfer: dt });
+    fireEvent.dragOver(rows[2], { dataTransfer: dt });
+    fireEvent.drop(rows[2], { dataTransfer: dt });
+
+    expect(onRowReorder).toHaveBeenCalledTimes(1);
+    expect(onRowReorder).toHaveBeenCalledWith({
+      rowId: '1',
+      fromIndex: 0,
+      toIndex: 2,
+      orderedIds: ['2', '3', '1'],
+    });
+    expect(data[0].id).toBe('1'); // D3: grid is controlled, `data` itself is never mutated
+
+    onRowReorder.mockClear();
+    fireEvent.dragStart(handle1, { dataTransfer: dt });
+    fireEvent.dragOver(rows[0], { dataTransfer: dt });
+    fireEvent.drop(rows[0], { dataTransfer: dt });
+    expect(onRowReorder).not.toHaveBeenCalled();
+  });
+
+  it('AC-04/AC-05: keyboard pick/move/confirm reorders and announces positions in pt-BR; Escape cancels without a callback', async () => {
+    const user = userEvent.setup();
+    const onRowReorder = vi.fn();
+    render(
+      <EzEntityGrid
+        columns={columns}
+        data={data}
+        enableRowReorder
+        getRowId={(row) => row.id}
+        onRowReorder={onRowReorder}
+      />
+    );
+
+    const handle1 = screen.getByTestId('ez-grid-row-drag-handle-1');
+    handle1.focus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('status')).toHaveTextContent(/posição 1 de 3/i);
+
+    await user.keyboard('{ArrowDown}');
+    expect(screen.getByRole('status')).toHaveTextContent(/posição:? 2 de 3/i);
+
+    await user.keyboard('{ArrowDown}');
+    expect(screen.getByRole('status')).toHaveTextContent(/posição:? 3 de 3/i);
+
+    await user.keyboard('{ArrowDown}'); // clamps at the last row, no overflow
+    expect(screen.getByRole('status')).toHaveTextContent(/posição:? 3 de 3/i);
+
+    await user.keyboard(' ');
+    expect(onRowReorder).toHaveBeenCalledTimes(1);
+    expect(onRowReorder).toHaveBeenCalledWith({
+      rowId: '1',
+      fromIndex: 0,
+      toIndex: 2,
+      orderedIds: ['2', '3', '1'],
+    });
+    expect(screen.getByRole('status')).toHaveTextContent(/movida para a posição 3/i);
+
+    onRowReorder.mockClear();
+    await user.keyboard('{Enter}');
+    await user.keyboard('{Escape}');
+    expect(onRowReorder).not.toHaveBeenCalled();
+    expect(screen.getByRole('status')).toHaveTextContent(/cancelada/i);
+  });
+
+  it('AC-06: disables the handle (aria-disabled, no callback) while a column filter is active, and re-enables once cleared', async () => {
+    const user = userEvent.setup();
+    const onRowReorder = vi.fn();
+    render(
+      <EzEntityGrid
+        columns={columns}
+        data={data}
+        enableRowReorder
+        getRowId={(row) => row.id}
+        onRowReorder={onRowReorder}
+      />
+    );
+
+    const handle1 = screen.getByTestId('ez-grid-row-drag-handle-1');
+    expect(handle1).not.toHaveAttribute('aria-disabled');
+
+    await user.click(screen.getByTestId('ez-grid-column-filter-priority'));
+    // Uncheck "Baixa" only — ticket "1" (priority "Alta") stays visible, filter still active
+    await user.click(screen.getByTestId('ez-grid-column-filter-item-Baixa'));
+    await user.click(screen.getByTestId('ez-grid-column-filter-apply'));
+
+    expect(handle1).toHaveAttribute('aria-disabled', 'true');
+    const dt = makeDataTransfer();
+    fireEvent.dragStart(handle1, { dataTransfer: dt });
+    expect(onRowReorder).not.toHaveBeenCalled();
+
+    await user.click(screen.getByTestId('ez-grid-column-filter-priority'));
+    await user.click(screen.getByTestId('ez-grid-column-filter-clear'));
+
+    expect(screen.getByTestId('ez-grid-row-drag-handle-1')).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('AC-07: with pagination, callback indices are absolute in `data` (covers page 2), reordering only within that page', async () => {
+    const user = userEvent.setup();
+    const onRowReorder = vi.fn();
+    const pagedData: Ticket[] = [
+      { id: '1', title: 'Um', priority: 'Alta', createdAt: '2024-01-01', amount: 1 },
+      { id: '2', title: 'Dois', priority: 'Alta', createdAt: '2024-01-01', amount: 1 },
+      { id: '3', title: 'Três', priority: 'Alta', createdAt: '2024-01-01', amount: 1 },
+      { id: '4', title: 'Quatro', priority: 'Alta', createdAt: '2024-01-01', amount: 1 },
+    ];
+    render(
+      <EzEntityGrid
+        columns={columns}
+        data={pagedData}
+        pageSize={2}
+        enableRowReorder
+        getRowId={(row) => row.id}
+        onRowReorder={onRowReorder}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: /próxima página/i }));
+    expect(screen.getByText('Três')).toBeInTheDocument();
+
+    const handle3 = screen.getByTestId('ez-grid-row-drag-handle-3');
+    const pageRows = screen.getAllByRole('row').slice(1);
+    const dt = makeDataTransfer();
+    fireEvent.dragStart(handle3, { dataTransfer: dt });
+    fireEvent.dragOver(pageRows[1], { dataTransfer: dt });
+    fireEvent.drop(pageRows[1], { dataTransfer: dt });
+
+    expect(onRowReorder).toHaveBeenCalledTimes(1);
+    expect(onRowReorder).toHaveBeenCalledWith({
+      rowId: '3',
+      fromIndex: 2,
+      toIndex: 3,
+      orderedIds: ['1', '2', '4', '3'],
+    });
+  });
+
+  it('AC-08: the drag column is excluded from the column configurator and the corner-menu column list', async () => {
+    const user = userEvent.setup();
+    render(
+      <EzEntityGrid columns={columns} data={data} enableRowReorder getRowId={(row) => row.id} />
+    );
+
+    await user.click(screen.getByTestId('ez-grid-corner-menu-button'));
+    await user.click(screen.getByTestId('ez-grid-corner-configure-columns'));
+    const configModal = screen.getByTestId('ez-grid-column-config-modal');
+    expect(
+      within(configModal).queryByTestId('ez-grid-config-toggle-__rowDrag__')
+    ).not.toBeInTheDocument();
+  });
+
+  it('AC-09: selection and the focused row keep following the same row id after the consumer reorders `data`', async () => {
+    const user = userEvent.setup();
+    const onSelectionChange = vi.fn();
+
+    function Controlled() {
+      const [rows, setRows] = useState(data);
+      return (
+        <EzEntityGrid
+          columns={columns}
+          data={rows}
+          enableRowReorder
+          getRowId={(row) => row.id}
+          selectable
+          onSelectionChange={onSelectionChange}
+          onRowReorder={({ orderedIds }) => {
+            const byId = new Map(data.map((r) => [r.id, r]));
+            setRows(orderedIds.map((id) => byId.get(id)!));
+          }}
+        />
+      );
+    }
+    render(<Controlled />);
+
+    const checkboxes = screen.getAllByRole('checkbox');
+    await user.click(checkboxes[1]); // selects ticket "1" (first data row)
+    expect(onSelectionChange).toHaveBeenCalledWith([data[0]]);
+
+    const rowsBefore = screen.getAllByRole('row').slice(1);
+    await user.click(rowsBefore[0]); // focuses the same row
+
+    const handle1 = screen.getByTestId('ez-grid-row-drag-handle-1');
+    const dt = makeDataTransfer();
+    fireEvent.dragStart(handle1, { dataTransfer: dt });
+    fireEvent.dragOver(rowsBefore[2], { dataTransfer: dt });
+    fireEvent.drop(rowsBefore[2], { dataTransfer: dt });
+
+    // ticket "1" moved to the last position; selection and focus must still point at it
+    const lastRow = screen.getAllByRole('row').slice(1).at(-1)!;
+    expect(within(lastRow).getByRole('checkbox')).toBeChecked();
+    expect(lastRow).toHaveClass('outline-1', 'outline-brand-500');
   });
 });
 

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-01T20:37:45.483474+00:00",
+  "finished_at": "2026-11-01T20:37:56.929566+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run",
+    "web:test-ci--src/components/ds/EzEntityGrid.test.tsx",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "head_sha": "6f8b9cd30b719132d7a461415b63084707610e36",
+  "exit_code": 0,
+  "tests": {
+    "apps/web/src/components/ds/EzEntityGrid.test.tsx": "886ef31b19c736d437b9f90f2202cc2ee6cd84e323cc6ebee440e88863cd3355"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07",
+    "AC-08",
+    "AC-09"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/ds/EzEntityGrid.stories.tsx": "101c98efaa005617ffdce086795a8243ae9bf94326607d20bd967f95c9cd58f1",
+    "apps/web/src/components/ds/EzEntityGrid.test.tsx": "886ef31b19c736d437b9f90f2202cc2ee6cd84e323cc6ebee440e88863cd3355",
+    "apps/web/src/components/ds/EzEntityGrid.tsx": "99dd5d842aeeb9ecaee5e846f2f100eefb148f529fd4c936308dc0636df3290e"
+  },
+  "log": ".delivery/evidence/DMTE-160/green.log",
+  "log_sha256": "ce1337f5f32720174eedc0212fca9fab49596296c626e48521b60ad08208ab37"
+}

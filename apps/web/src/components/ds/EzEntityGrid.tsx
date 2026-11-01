@@ -40,6 +40,7 @@ import {
   Eye,
   EyeOff,
   Filter,
+  GripVertical,
   MoreVertical,
   Pin,
   PinOff,
@@ -204,6 +205,30 @@ export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'childre
    * Callback fired when column sizing changes via drag resize.
    */
   onColumnSizingChange?: (sizing: Record<string, number>) => void;
+  /**
+   * Enables an opt-in drag-handle column to reorder rows by pointer or keyboard
+   * (Sankhya `ag-row-drag` parity). Automatically disabled while sorting, a column
+   * filter, or grouping is active, since the row order would no longer match `data`.
+   * @default false
+   */
+  enableRowReorder?: boolean;
+  /**
+   * Resolves a stable id for each `data` row (passed through to `@tanstack/react-table`'s
+   * `getRowId`). Required for `enableRowReorder` so selection and keyboard focus keep
+   * following the same row after the consumer reorders `data`; defaults to the row index.
+   */
+  getRowId?: (row: T, index: number) => string;
+  /**
+   * Called once per confirmed row move (pointer drop or keyboard confirm) with the absolute
+   * `fromIndex`/`toIndex` in `data` and the resulting `orderedIds`. The grid is controlled —
+   * it never mutates `data` itself; the consumer applies the new order.
+   */
+  onRowReorder?: (event: {
+    rowId: string;
+    fromIndex: number;
+    toIndex: number;
+    orderedIds: string[];
+  }) => void;
 };
 
 const inArrayFilter: FilterFn<any> = (row, columnId, filterValue: unknown) => {
@@ -1176,6 +1201,9 @@ function EzEntityGridInner<T>(
     enableColumnResize = true,
     columnSizing,
     onColumnSizingChange,
+    enableRowReorder = false,
+    getRowId,
+    onRowReorder,
     className,
     ...props
   }: EzEntityGridProps<T>,
@@ -1273,8 +1301,191 @@ function EzEntityGridInner<T>(
   );
   const [expanded, setExpanded] = useState<ExpandedState>({});
 
+  // Row reorder (opt-in drag handle, Sankhya `ag-row-drag` parity) — only valid while the
+  // visible order matches `data` (no sorting, column filter, or grouping active).
+  const rowReorderActive = enableRowReorder && sorting.length === 0 && columnFilters.length === 0 && grouping.length === 0;
+  const [draggedRowIndex, setDraggedRowIndex] = useState<number | null>(null);
+  const [dragOverRowIndex, setDragOverRowIndex] = useState<number | null>(null);
+  const [pickedRowIndex, setPickedRowIndex] = useState<number | null>(null);
+  const [keyboardTargetIndex, setKeyboardTargetIndex] = useState<number | null>(null);
+  const [rowReorderAnnouncement, setRowReorderAnnouncement] = useState('');
+
+  useEffect(() => {
+    if (!rowReorderActive && pickedRowIndex !== null) {
+      setPickedRowIndex(null);
+      setKeyboardTargetIndex(null);
+    }
+  }, [rowReorderActive, pickedRowIndex]);
+
+  const resolveRowId = useCallback(
+    (item: T, index: number): string => (getRowId ? getRowId(item, index) : String(index)),
+    [getRowId]
+  );
+
+  const commitRowReorder = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      if (fromIndex === toIndex) return;
+      const ids = data.map((item, index) => resolveRowId(item, index));
+      const movedId = ids[fromIndex];
+      if (movedId === undefined) return;
+      const orderedIds = [...ids];
+      orderedIds.splice(fromIndex, 1);
+      orderedIds.splice(toIndex, 0, movedId);
+      onRowReorder?.({ rowId: movedId, fromIndex, toIndex, orderedIds });
+    },
+    [data, resolveRowId, onRowReorder]
+  );
+
+  const handleRowDragStart = (e: React.DragEvent, rowIndex: number) => {
+    if (!rowReorderActive) return;
+    setDraggedRowIndex(rowIndex);
+    e.dataTransfer.setData('text/plain', String(rowIndex));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleRowDragOver = (e: React.DragEvent, rowIndex: number) => {
+    if (!rowReorderActive) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverRowIndex !== rowIndex) setDragOverRowIndex(rowIndex);
+  };
+
+  const handleRowDrop = (e: React.DragEvent, targetRowIndex: number) => {
+    if (!rowReorderActive) return;
+    e.preventDefault();
+    setDragOverRowIndex(null);
+    const sourceRowIndex = draggedRowIndex;
+    setDraggedRowIndex(null);
+    if (sourceRowIndex === null || sourceRowIndex === targetRowIndex) return;
+    commitRowReorder(sourceRowIndex, targetRowIndex);
+  };
+
+  const handleRowDragEnd = () => {
+    setDraggedRowIndex(null);
+    setDragOverRowIndex(null);
+  };
+
+  // Keyboard reordering: Enter/Space picks up the focused handle, ArrowUp/Down moves the
+  // target within the current page, Enter/Space again confirms, Escape cancels (D5).
+  const handleRowDragHandleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, rowAbsoluteIndex: number) => {
+    if (!rowReorderActive) return;
+    const pageStart = pagination.pageIndex * pagination.pageSize;
+    const pageEnd = Math.min(pageStart + pagination.pageSize, data.length);
+    const totalInPage = Math.max(pageEnd - pageStart, 1);
+    const clamp = (i: number) => Math.min(Math.max(i, pageStart), pageEnd - 1);
+
+    if (pickedRowIndex === null) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        e.stopPropagation();
+        setPickedRowIndex(rowAbsoluteIndex);
+        setKeyboardTargetIndex(rowAbsoluteIndex);
+        setRowReorderAnnouncement(
+          `Linha pega para mover, posição ${rowAbsoluteIndex - pageStart + 1} de ${totalInPage}.`
+        );
+      }
+      return;
+    }
+
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      e.stopPropagation();
+      setKeyboardTargetIndex((prev) => {
+        const current = prev ?? pickedRowIndex;
+        const next = clamp(e.key === 'ArrowUp' ? current - 1 : current + 1);
+        setRowReorderAnnouncement(`Nova posição: ${next - pageStart + 1} de ${totalInPage}.`);
+        return next;
+      });
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      e.stopPropagation();
+      const from = pickedRowIndex;
+      const to = keyboardTargetIndex ?? pickedRowIndex;
+      setPickedRowIndex(null);
+      setKeyboardTargetIndex(null);
+      if (from !== to) {
+        setRowReorderAnnouncement(`Linha movida para a posição ${to - pageStart + 1}.`);
+        commitRowReorder(from, to);
+      } else {
+        setRowReorderAnnouncement('Reordenação cancelada.');
+      }
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      setPickedRowIndex(null);
+      setKeyboardTargetIndex(null);
+      setRowReorderAnnouncement('Reordenação cancelada.');
+    }
+  };
+
+  const rowReorderMeta = enableRowReorder
+    ? {
+        active: rowReorderActive,
+        pickedRowIndex,
+        onHandleDragStart: handleRowDragStart,
+        onHandleKeyDown: handleRowDragHandleKeyDown,
+      }
+    : undefined;
+
   const resolvedColumns = useMemo<ColumnDef<T>[]>(() => {
     const leadingCols: ColumnDef<T>[] = [];
+    if (enableRowReorder) {
+      leadingCols.push({
+        id: '__rowDrag__',
+        enableSorting: false,
+        enableResizing: false,
+        enableColumnFilter: false,
+        size: 32,
+        minSize: 32,
+        maxSize: 32,
+        header: () => null,
+        cell: ({ row, table }) => {
+          if (row.getIsGrouped()) return null;
+          const meta = (
+            table.options.meta as
+              | {
+                  rowReorder?: {
+                    active: boolean;
+                    pickedRowIndex: number | null;
+                    onHandleDragStart: (e: React.DragEvent<HTMLButtonElement>, rowIndex: number) => void;
+                    onHandleKeyDown: (e: React.KeyboardEvent<HTMLButtonElement>, rowIndex: number) => void;
+                  };
+                }
+              | undefined
+          )?.rowReorder;
+          if (!meta) return null;
+          const absoluteIndex = row.index;
+          const isPicked = meta.pickedRowIndex === absoluteIndex;
+          const disabledReason =
+            'reordenação indisponível com ordenação, filtro ou agrupamento ativos';
+          const label = meta.active
+            ? `Mover linha ${absoluteIndex + 1}`
+            : `Mover linha ${absoluteIndex + 1} — ${disabledReason}`;
+          return (
+            <button
+              type="button"
+              draggable={meta.active}
+              onDragStart={meta.active ? (e) => meta.onHandleDragStart(e, absoluteIndex) : undefined}
+              onKeyDown={(e) => meta.onHandleKeyDown(e, absoluteIndex)}
+              aria-label={label}
+              aria-disabled={!meta.active || undefined}
+              aria-pressed={isPicked}
+              title={meta.active ? undefined : `Mover linha — ${disabledReason}`}
+              data-testid={`ez-grid-row-drag-handle-${row.id}`}
+              className={cn(
+                'inline-flex items-center justify-center w-6 h-6 rounded text-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200',
+                meta.active
+                  ? 'cursor-grab active:cursor-grabbing hover:text-gray-700 hover:bg-gray-100'
+                  : 'cursor-not-allowed opacity-50',
+                isPicked && 'text-brand-600 bg-brand-50'
+              )}
+            >
+              <GripVertical className="w-3.5 h-3.5" aria-hidden="true" />
+            </button>
+          );
+        },
+      });
+    }
     if (showRowNumbers) {
       leadingCols.push({
         id: '__rowNumber__',
@@ -1325,11 +1536,13 @@ function EzEntityGridInner<T>(
       });
     }
     return [...leadingCols, ...columns];
-  }, [columns, selectable, showRowNumbers, rowNumberLabel]);
+  }, [columns, selectable, showRowNumbers, rowNumberLabel, enableRowReorder]);
 
   const table = useReactTable<T>({
     data,
     columns: resolvedColumns,
+    getRowId: getRowId ? (row, index) => getRowId(row, index) : undefined,
+    meta: { rowReorder: rowReorderMeta },
     state: {
       sorting,
       rowSelection,
@@ -1380,6 +1593,25 @@ function EzEntityGridInner<T>(
     paginateExpandedRows: false,
   });
 
+  // AC-09: focus follows the same row by id (page-relative index) across `data` reorders
+  // the consumer applies in response to `onRowReorder`.
+  const focusedRowIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!enableRowReorder || focusedRowIndex === null) return;
+    const currentRow = table.getRowModel().rows[focusedRowIndex];
+    focusedRowIdRef.current = currentRow ? currentRow.id : null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusedRowIndex]);
+  useEffect(() => {
+    if (!enableRowReorder || focusedRowIdRef.current === null) return;
+    const rows = table.getRowModel().rows;
+    const idx = rows.findIndex((r) => r.id === focusedRowIdRef.current);
+    if (idx !== -1 && idx !== focusedRowIndex) {
+      setFocusedRowIndex(idx);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
+
   const handleDragStart = (e: React.DragEvent, colId: string) => {
     setDraggedColId(colId);
     e.dataTransfer.setData('text/plain', colId);
@@ -1387,7 +1619,12 @@ function EzEntityGridInner<T>(
   };
 
   const handleDragOver = (e: React.DragEvent, colId: string) => {
-    if (enableColumnReorder && colId !== '__rowNumber__' && colId !== 'select') {
+    if (
+      enableColumnReorder &&
+      colId !== '__rowNumber__' &&
+      colId !== 'select' &&
+      colId !== '__rowDrag__'
+    ) {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
       if (dragOverColId !== colId) {
@@ -1402,7 +1639,12 @@ function EzEntityGridInner<T>(
     const sourceColId = e.dataTransfer.getData('text/plain') || draggedColId;
     setDraggedColId(null);
     if (!sourceColId || sourceColId === targetColId) return;
-    if (targetColId === '__rowNumber__' || targetColId === 'select') return;
+    if (
+      targetColId === '__rowNumber__' ||
+      targetColId === 'select' ||
+      targetColId === '__rowDrag__'
+    )
+      return;
 
     const currentOrder = table.getAllLeafColumns().map((c) => c.id);
     const sourceIndex = currentOrder.indexOf(sourceColId);
@@ -1544,7 +1786,7 @@ function EzEntityGridInner<T>(
 
     const stats: NumericStatistic[] = [];
     for (const col of table.getVisibleLeafColumns()) {
-      if (col.id === 'select') continue;
+      if (col.id === 'select' || col.id === '__rowDrag__') continue;
       const values = rows
         .map((r) => r.getValue(col.id))
         .filter((v): v is number => typeof v === 'number' && !isNaN(v));
@@ -1671,6 +1913,11 @@ function EzEntityGridInner<T>(
 
   return (
     <div ref={ref} className={cn('flex flex-col gap-3 w-full', className)} {...props}>
+      {enableRowReorder && (
+        <span role="status" aria-live="polite" className="sr-only">
+          {rowReorderAnnouncement}
+        </span>
+      )}
       {showFilterBar && (
         <EzFilterBar
           filters={filters ?? []}
@@ -1728,9 +1975,13 @@ function EzEntityGridInner<T>(
                 const canFilter =
                   enableColumnFilters &&
                   header.column.id !== 'select' &&
+                  header.column.id !== '__rowDrag__' &&
                   header.column.getCanFilter();
                 const isFiltered = header.column.getIsFiltered();
-                const isSpecialCol = header.column.id === '__rowNumber__' || header.column.id === 'select';
+                const isSpecialCol =
+                  header.column.id === '__rowNumber__' ||
+                  header.column.id === 'select' ||
+                  header.column.id === '__rowDrag__';
                 const isDraggable = enableColumnReorder && !isSpecialCol;
                 const canResizeColumn =
                   enableColumnResize && !isSpecialCol && header.column.getCanResize();
@@ -1827,7 +2078,9 @@ function EzEntityGridInner<T>(
                           </button>
                         )}
 
-                        {enableColumnMenu && header.column.id !== 'select' && (
+                        {enableColumnMenu &&
+                          header.column.id !== 'select' &&
+                          header.column.id !== '__rowDrag__' && (
                           <button
                             ref={(el) => {
                               if (el) columnMenuButtonRefs.current.set(header.column.id, el);
@@ -1924,12 +2177,26 @@ function EzEntityGridInner<T>(
               const isSelected = row.getIsSelected();
               const isFocused = focusedRowIndex === rowIndex;
               const isEven = rowIndex % 2 === 1;
+              const isRowDragOver = enableRowReorder && dragOverRowIndex === row.index;
+              const isRowDragged = enableRowReorder && draggedRowIndex === row.index;
+              const isKeyboardTarget =
+                enableRowReorder && pickedRowIndex !== null && keyboardTargetIndex === row.index;
 
               return (
                 <tr
                   key={row.id}
                   data-selected={isSelected || undefined}
+                  data-row-drag-over={isRowDragOver ? 'true' : undefined}
+                  data-row-dragged={isRowDragged ? 'true' : undefined}
                   onClick={() => setFocusedRowIndex(rowIndex)}
+                  onDragOver={enableRowReorder ? (e) => handleRowDragOver(e, row.index) : undefined}
+                  onDrop={enableRowReorder ? (e) => handleRowDrop(e, row.index) : undefined}
+                  onDragEnd={enableRowReorder ? handleRowDragEnd : undefined}
+                  onDragLeave={
+                    enableRowReorder
+                      ? () => setDragOverRowIndex((prev) => (prev === row.index ? null : prev))
+                      : undefined
+                  }
                   className={cn(
                     'border-t border-gray-200 group transition-colors',
                     isSelected
@@ -1937,7 +2204,10 @@ function EzEntityGridInner<T>(
                       : zebraStriping && isEven
                         ? 'bg-gray-50/60 hover:bg-grid-row-hover'
                         : 'bg-white hover:bg-grid-row-hover',
-                    isFocused && 'outline-1 outline-brand-500 outline-offset-[-1px]'
+                    isFocused && 'outline-1 outline-brand-500 outline-offset-[-1px]',
+                    isRowDragged && 'opacity-40',
+                    (isRowDragOver || isKeyboardTarget) &&
+                      'outline-2 outline-brand-600 outline-offset-[-1px]'
                   )}
                 >
                   {[
@@ -2150,7 +2420,7 @@ function EzEntityGridInner<T>(
           onOpenStatistics={() => setIsStatisticsModalOpen(true)}
           columnsList={table
             .getAllLeafColumns()
-            .filter((c) => c.id !== 'select' && c.id !== '__rowNumber__')
+            .filter((c) => c.id !== 'select' && c.id !== '__rowNumber__' && c.id !== '__rowDrag__')
             .map((c) => ({
               id: c.id,
               label: typeof c.columnDef.header === 'string' ? c.columnDef.header : c.id,
@@ -2173,7 +2443,7 @@ function EzEntityGridInner<T>(
         <EzGridColumnConfigModal
           columns={table
             .getAllLeafColumns()
-            .filter((c) => c.id !== 'select' && c.id !== '__rowNumber__')
+            .filter((c) => c.id !== 'select' && c.id !== '__rowNumber__' && c.id !== '__rowDrag__')
             .map((c) => ({
               id: c.id,
               label: typeof c.columnDef.header === 'string' ? c.columnDef.header : c.id,

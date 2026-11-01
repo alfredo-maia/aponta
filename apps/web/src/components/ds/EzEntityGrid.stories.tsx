@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ColumnDef } from '@tanstack/react-table';
 import { EzEntityGrid } from './EzEntityGrid';
@@ -359,6 +360,50 @@ export const CadastroDeParceirosSankhya: Story = {
       taskbarButtons={['INSERT', 'CLONE', 'REMOVE', 'DIVIDER', 'CONFIGURATOR']}
     />
   ),
+};
+
+/**
+ * Reordenar linhas por arrastar (DMTE-160/185, `enableRowReorder`). Estado controlado:
+ * a tela aplica a nova ordem recebida em `onRowReorder` — o grid nunca muta `data`.
+ * Mostra ponteiro (alça `GripVertical`) e teclado (alça focada, Enter/Espaço pega,
+ * ↑/↓ move, Enter/Espaço confirma, Esc cancela) — espelha o `ag-row-drag` do Sankhya.
+ */
+export const ReordenarLinhas: Story = {
+  render: () => {
+    function ControlledRowReorder() {
+      const [rows, setRows] = useState(tickets);
+      return (
+        <EzEntityGrid
+          columns={columns}
+          data={rows}
+          enableRowReorder
+          getRowId={(row) => row.id}
+          onRowReorder={({ orderedIds }) => {
+            const byId = new Map(tickets.map((t) => [t.id, t]));
+            setRows(orderedIds.map((id) => byId.get(id)!));
+          }}
+        />
+      );
+    }
+    return <ControlledRowReorder />;
+  },
+};
+
+/**
+ * Mesma grade com `enableRowReorder`: clique em um cabeçalho de coluna (ex.: "Título")
+ * para ordenar e observar a alça ficar `aria-disabled` com explicação textual — a
+ * ordenação/filtro/agrupamento tira a visão da ordem de `data`, então a alça se
+ * desabilita até a condição ser limpa (D6). O estado inicial (sem ordenação) permanece
+ * habilitado; não há prop externa de sorting — a desabilitação é demonstrada por
+ * interação manual no canvas, não por automação de interação/a11y.
+ */
+export const ReordenarLinhasDesabilitadoComOrdenacao: Story = {
+  args: {
+    columns,
+    data: tickets,
+    enableRowReorder: true,
+    getRowId: (row: Ticket) => row.id,
+  },
 };
 
 

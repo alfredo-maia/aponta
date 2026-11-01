@@ -203,11 +203,11 @@
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-160",
       "kind": "delivery",
       "tier": 2,
-      "state": "Planejada",
-      "cycle": null,
+      "state": "Em revisão",
+      "cycle": "2026-10-26/2026-11-08",
       "epic": null,
       "title": "EzEntityGrid: concluir arrastar linhas para reordenar",
-      "note": "DMTE-16 encerrou seis capacidades anteriores. Este pai canônico representa apenas o gap remanescente de arrastar linhas, preservando DMTE-16 como histórico."
+      "note": "DMTE-16 encerrou seis capacidades anteriores. Este pai canônico representa apenas o gap remanescente de arrastar linhas, preservando DMTE-16 como histórico. Developer (DMTE-185) entregou enableRowReorder (ponteiro+teclado+a11y) com TDD real; aguardando QA."
     },
     "DMTE-90": {
       "delivery": "DMTE-90",
