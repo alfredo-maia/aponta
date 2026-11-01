@@ -129,3 +129,12 @@ Referência visual/fluxo (UI): não há referência TiFlux do portal público no
 - Risco: qualquer link antigo `/uploads/...` guardado em conteúdo de artigo quebra; buscar referências no conteúdo antes de bloquear o estático.
 
 Fatias revisadas: **S4.0** (D-09, AC-15..17) → S4.1 → S4.2 → S4.3 → S4.4 → S4.5. AC-06 passa a depender de S4.0. Pergunta 3 resolvida; perguntas 1 e 2 resolvidas; resta apenas confirmar D-08.
+
+#### Simplificação de D-09 (01/11/2026, resposta do Alfredo: sistema não publicado)
+
+- Pasta dos anexos de conhecimento **fora de `uploads/`**: `uploads-private/knowledge` (caminho configurável por variável de ambiente, padrão este), nunca sob o diretório servido por `useStaticAssets`.
+- `docker-compose.yml`: novo volume nomeado (ex.: `aponta_uploads_private` montado em `/app/uploads-private`), para os arquivos sobreviverem à recriação do container.
+- Como não há produção publicada, **não há migração em produção**: removem-se o script e o fallback de leitura do caminho antigo, e o AC-17 deixa de existir. Anexos de conhecimento antigos de ambientes de desenvolvimento podem ser recriados ou movidos à mão; o `fileUrl` passa a guardar só o nome do arquivo e o download usa a rota autenticada.
+- Fica valendo AC-15 e AC-16 (upload novo não responde em `/uploads/<nome>`). Acrescenta-se AC-18: o diretório privado é criado se não existir e o download rejeita nome com `..` ou separador de caminho (path traversal).
+- Continua válido: checar links `/uploads/...` dentro do conteúdo de artigos de desenvolvimento; anexos de tickets seguem fora do escopo.
+- Um deploy futuro cria o volume novo sem etapa de dados; o deploy continua sob o usuário.
