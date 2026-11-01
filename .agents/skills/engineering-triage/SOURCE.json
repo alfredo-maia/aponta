@@ -1,0 +1,28 @@
+{
+  "repository": "https://github.com/mattpocock/skills",
+  "revision": "5ae481693d13b37d4d2c2c92d0b66d299c93e695",
+  "license": "MIT",
+  "mode": "derived-method; immutable upstream references; unchanged original workspace skills retained",
+  "adaptations": [
+    "Investigation belongs to specialist",
+    "No automatic labels/closing/implementation",
+    "Interview dependency resolved by engineering-alignment"
+  ],
+  "files": [
+    {
+      "upstream_path": "skills/engineering/triage/SKILL.md",
+      "local_path": "references/triage.md",
+      "sha256": "917b0baf74be583e74f110857ed45df2766617f75c00baf61fd136d7af515edf"
+    },
+    {
+      "upstream_path": "skills/engineering/triage/AGENT-BRIEF.md",
+      "local_path": "references/AGENT-BRIEF.md",
+      "sha256": "7f5f87fed3033df1b06e083c480f3e847b1fbb0647746b8a4c6a50f9f26ef44f"
+    },
+    {
+      "upstream_path": "skills/engineering/triage/OUT-OF-SCOPE.md",
+      "local_path": "references/OUT-OF-SCOPE.md",
+      "sha256": "1fbf9b432130c6380aa65813b55553cfda150309b27c595e183f8e335b8a190d"
+    }
+  ]
+}

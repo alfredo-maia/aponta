@@ -1,0 +1,23 @@
+{
+  "repository": "https://github.com/mattpocock/skills",
+  "revision": "5ae481693d13b37d4d2c2c92d0b66d299c93e695",
+  "license": "MIT",
+  "mode": "derived-method; immutable upstream references; unchanged original workspace skills retained",
+  "adaptations": [
+    "Single canonical SPEC selected by project profile",
+    "Proportional stories and numbered ACs with applicable quality/security matrix",
+    "Publication and stage promotion belong to project coordinator, no implicit tracker writes"
+  ],
+  "files": [
+    {
+      "upstream_path": "skills/engineering/to-spec/SKILL.md",
+      "local_path": "references/to-spec.md",
+      "sha256": "43ad9cf318e5e7d3d1fa360253a37021796dc87a0c2e595ad262661a10f85088"
+    },
+    {
+      "upstream_path": "skills/engineering/to-tickets/SKILL.md",
+      "local_path": "references/to-tickets.md",
+      "sha256": "56ec23c5b2782785d4e65bff9e315b6d3aeb4ef977c174a219e99489fada1995"
+    }
+  ]
+}
