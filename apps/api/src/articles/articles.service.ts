@@ -12,6 +12,7 @@ import { UpdateArticleDto } from './dto/update-article.dto';
 import { ArticleQueryDto, ArticleSort } from './dto/article-query.dto';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 import { sanitizeArticleContent } from './sanitize-article-content';
+import { getPrivateKnowledgeUploadsDir } from '../knowledge-attachments/private-uploads';
 
 /**
  * Knowledge Base (FAQ) articles.
@@ -262,7 +263,7 @@ export class ArticlesService {
     // article deletion that already succeeded.
     await Promise.all(
       article.attachments.map((attachment) =>
-        unlink(join(process.cwd(), 'uploads', attachment.filename)).catch(
+        unlink(join(getPrivateKnowledgeUploadsDir(), attachment.filename)).catch(
           () => undefined,
         ),
       ),

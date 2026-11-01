@@ -23,6 +23,7 @@ import { ArticlesModule } from './articles/articles.module';
 import { KnowledgeFoldersModule } from './knowledge-folders/knowledge-folders.module';
 import { KnowledgeAttachmentsModule } from './knowledge-attachments/knowledge-attachments.module';
 import { KnowledgeCatalogModule } from './knowledge-catalog/knowledge-catalog.module';
+import { KnowledgePublicModule } from './knowledge-public/knowledge-public.module';
 import { SchedulingModule } from "./scheduling/scheduling.module";
 import { ApiTokensModule } from './api-tokens/api-tokens.module';
 import { HealthModule } from './health/health.module';
@@ -92,6 +93,7 @@ import { LoggerModule } from 'nestjs-pino';
     KnowledgeFoldersModule,
     KnowledgeAttachmentsModule,
     KnowledgeCatalogModule,
+    KnowledgePublicModule,
     SchedulingModule,
     ApiTokensModule,
     HealthModule,

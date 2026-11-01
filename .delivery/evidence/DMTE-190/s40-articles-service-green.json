@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-01T22:50:11.911837+00:00",
+  "finished_at": "2026-11-01T22:50:23.205782+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "test",
+    "api",
+    "--testPathPatterns=articles.service.spec"
+  ],
+  "base_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "head_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "exit_code": 0,
+  "tests": {
+    "apps/api/src/articles/articles.service.spec.ts": "4b6d2e0bbf3d0bb3c1c1ab840ae1ab3f2bf399d21f69789dd8b4a7ae57026987"
+  },
+  "criteria": [
+    "AC-15",
+    "AC-16"
+  ],
+  "source_hashes": {
+    "apps/api/src/articles/articles.service.spec.ts": "4b6d2e0bbf3d0bb3c1c1ab840ae1ab3f2bf399d21f69789dd8b4a7ae57026987",
+    "apps/api/src/articles/articles.service.ts": "ccdaeefe6c5f99f298e29af4c4e8c204a240ebbdd482c0a2c9d9427878c20572",
+    "apps/api/src/knowledge-attachments/knowledge-attachments.service.spec.ts": "72af47c94a564e602d83721a90634a68605458d0f9c9fcb36a503170052bdd72",
+    "apps/api/src/knowledge-attachments/knowledge-attachments.service.ts": "75bf7d9282dcf5b88482cee6e1ff07f5b773687f052a5bdcba32a6e0e5573506",
+    "apps/api/src/knowledge-attachments/private-uploads.spec.ts": "804d1ac4c1c410a5c42237eed21241f8273e39372e22d336213c6e58156cee9f",
+    "apps/api/src/knowledge-attachments/private-uploads.ts": "aae0bed89d82a7f39f276c02bac75387d540268c41c1863f21b55309464232e0"
+  },
+  "log": ".delivery/evidence/DMTE-190/s40-articles-service-green.log",
+  "log_sha256": "e643fad1dc40cfaa21f9407112e2f7836f2d8d3e23d6101da02a727ba8c62ead"
+}

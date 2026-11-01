@@ -59,6 +59,10 @@ apps/**/.env.*
 
 
 storybook-static
+
+# Local-dev knowledge attachment storage (D-09/S4.0); never served
+# statically, and never checked in.
+/uploads-private/
 # Python delivery-tool cache is local; redacted evidence logs are versioned.
 **/__pycache__/
 *.pyc

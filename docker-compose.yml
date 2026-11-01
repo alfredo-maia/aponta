@@ -79,10 +79,12 @@ services:
       SMTP_USER: ${SMTP_USER}
       SMTP_PASS: ${SMTP_PASS}
       SMTP_FROM: ${SMTP_FROM}
+      KNOWLEDGE_PRIVATE_UPLOADS_DIR: /app/uploads-private/knowledge
     ports:
       - '127.0.0.1:${API_PORT:-3001}:3001'
     volumes:
       - aponta_uploads:/app/uploads
+      - aponta_uploads_private:/app/uploads-private
     depends_on:
       postgres:
         condition: service_healthy
@@ -157,3 +159,4 @@ services:
 volumes:
   aponta_postgres_data:
   aponta_uploads:
+  aponta_uploads_private:

@@ -7,7 +7,6 @@ export interface KnowledgeAttachment {
   id: string;
   originalName: string;
   mimeType: string;
-  fileUrl: string;
   createdAt: string;
 }
 
@@ -81,6 +80,26 @@ export function KnowledgeArticleAttachments({
     uploadMutation.mutate(selectedFile);
   };
 
+  // D-09/S4.0: attachments no longer live under the statically-served
+  // ./uploads — a PRIVATE article's file is only reachable through this
+  // visibility-checked route, which needs the caller's Bearer token (sent
+  // automatically by `api`, see lib/api.ts). A plain <a href> can't carry
+  // that header, so the file is fetched as a blob and "clicked" locally.
+  const handleDownload = async (attachment: KnowledgeAttachment) => {
+    const res = await api.get(
+      `/articles/${articleId}/attachments/${attachment.id}/download`,
+      { responseType: 'blob' },
+    );
+    const url = URL.createObjectURL(res.data);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = attachment.originalName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <section className="space-y-3 rounded-lg border border-gray-200 bg-white p-4 mt-3">
       <h3 className="text-sm font-semibold text-gray-900">
@@ -98,15 +117,14 @@ export function KnowledgeArticleAttachments({
               key={attachment.id}
               className="flex items-center justify-between gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm"
             >
-              <a
-                href={attachment.fileUrl}
-                target="_blank"
-                rel="noreferrer"
+              <button
+                type="button"
+                onClick={() => void handleDownload(attachment)}
                 className="flex min-w-0 items-center gap-2 truncate text-brand-600 hover:underline"
               >
                 <span aria-hidden="true">{formatIcon(attachment.mimeType)}</span>
                 <span className="truncate">{attachment.originalName}</span>
-              </a>
+              </button>
               {canManage && (
                 <EzButton
                   type="button"

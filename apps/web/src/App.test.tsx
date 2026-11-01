@@ -45,4 +45,20 @@ describe('App', () => {
       await screen.findByRole('heading', { name: 'Tickets' }),
     ).toBeInTheDocument();
   });
+
+  it('renders the public /r/knowledge portal without redirecting to login, even with no session (AC-07)', async () => {
+    vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url === '/public/knowledge/folders') return Promise.resolve({ data: [] });
+      if (url === '/public/knowledge/articles') return Promise.resolve({ data: [] });
+      return Promise.reject(new Error(`Unexpected GET ${url}`));
+    });
+    window.history.pushState({}, '', '/r/knowledge');
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole('heading', { name: /base de conhecimento/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /entrar/i })).not.toBeInTheDocument();
+  });
 });

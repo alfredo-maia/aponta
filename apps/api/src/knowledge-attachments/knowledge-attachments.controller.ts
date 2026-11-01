@@ -1,9 +1,11 @@
 import {
   Controller,
   Post,
+  Get,
   Delete,
   Param,
   Req,
+  Res,
   UseGuards,
   UseInterceptors,
   UploadedFile,
@@ -13,13 +15,19 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { randomUUID } from 'crypto';
+import { join } from 'path';
+import type { Response } from 'express';
 import { resolveSafeUploadExtension } from '../common/safe-upload-extension';
 import { ArticlesService } from '../articles/articles.service';
 import { KnowledgeAttachmentsService } from './knowledge-attachments.service';
 import { OptionalJwtOrTokenAuthGuard } from '../auth/guards/optional-jwt-or-token-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { RequirePermission } from '../auth/decorators/require-permission.decorator';
-import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
+import { CurrentUser, CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
+import {
+  ensurePrivateKnowledgeUploadsDir,
+  getPrivateKnowledgeUploadsDir,
+} from './private-uploads';
 
 interface AuthenticatedRequest {
   user: CurrentUserPayload;
@@ -63,7 +71,12 @@ export class KnowledgeAttachmentsController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './uploads',
+        // Private dir, outside `./uploads` (served statically at /uploads
+        // by main.ts) — D-09/S4.0. A PRIVATE article's attachment must
+        // never be reachable by a bare URL; only the `download` route
+        // below, which re-checks visibility, can serve it.
+        destination: (_req, _file, cb) =>
+          cb(null, ensurePrivateKnowledgeUploadsDir()),
         // Extension is derived ONLY from the already-allowlisted MIME
         // type, never from the client-supplied `originalname` — see
         // safe-upload-extension.ts for why that matters.
@@ -107,8 +120,40 @@ export class KnowledgeAttachmentsController {
       filename: file.filename,
       originalName: file.originalname,
       mimeType: file.mimetype,
-      fileUrl: `/uploads/${file.filename}`,
+      // No longer a URL (D-09/S4.0): the private dir isn't served
+      // statically, so this stores just the on-disk filename; downloads
+      // always go through the `download` route below.
+      fileUrl: file.filename,
     });
+  }
+
+  /**
+   * D-09/S4.0: the only way to fetch a knowledge attachment's bytes.
+   * ArticlesService.findOne() applies the exact same visibility rule (and
+   * uniform 404) as the rest of the knowledge base — PUBLIC opens to
+   * anyone, PRIVATE only to author/ACL/ADMIN — so this route never needs
+   * its own copy of that logic, and a PRIVATE article's attachment is
+   * never reachable without passing it.
+   */
+  @Get(':attachmentId/download')
+  async download(
+    @Param('articleId') articleId: string,
+    @Param('attachmentId') attachmentId: string,
+    @CurrentUser() user: CurrentUserPayload | undefined,
+    @Res() res: Response,
+  ) {
+    await this.articlesService.findOne(articleId, user);
+
+    const attachment = await this.knowledgeAttachmentsService.findForDownload(
+      attachmentId,
+      articleId,
+    );
+
+    res.download(
+      join(getPrivateKnowledgeUploadsDir(), attachment.filename),
+      attachment.originalName,
+      { headers: { 'Content-Type': attachment.mimeType } },
+    );
   }
 
   @Delete(':attachmentId')

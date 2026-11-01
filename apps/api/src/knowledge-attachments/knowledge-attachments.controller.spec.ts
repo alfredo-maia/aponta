@@ -5,8 +5,9 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import request from 'supertest';
-import { readdir, rm, unlink } from 'fs/promises';
+import { mkdir, readdir, rm, unlink, writeFile } from 'fs/promises';
 import { join } from 'path';
+import { NotFoundException } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { KnowledgeAttachmentsController } from './knowledge-attachments.controller';
 import { KnowledgeAttachmentsService } from './knowledge-attachments.service';
@@ -16,6 +17,7 @@ import { ApiTokenStrategy } from '../auth/api-token.strategy';
 import { UsersService } from '../users/users.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { PermissionsService } from '../permissions/permissions.service';
+import { getPrivateKnowledgeUploadsDir } from './private-uploads';
 
 /**
  * Real HTTP-level integration test proving the multer pipeline on
@@ -33,7 +35,9 @@ describe('KnowledgeAttachmentsController multer pipeline (real HTTP)', () => {
   let app: INestApplication;
   let jwt: JwtService;
   const uploadsDir = join(process.cwd(), 'uploads');
+  const privateUploadsDir = getPrivateKnowledgeUploadsDir();
   let uploadsDirPreexisted = true;
+  let privateUploadsDirPreexisted = true;
 
   const agentUser = {
     id: 'agent-1',
@@ -50,11 +54,13 @@ describe('KnowledgeAttachmentsController multer pipeline (real HTTP)', () => {
 
   const articlesService = {
     findById: jest.fn().mockResolvedValue({ id: 'article-1' }),
+    findOne: jest.fn().mockResolvedValue({ id: 'article-1' }),
   };
 
   const knowledgeAttachmentsService = {
     create: jest.fn().mockImplementation((input: any) => Promise.resolve({ id: 'att-1', ...input })),
     remove: jest.fn().mockResolvedValue({ success: true }),
+    findForDownload: jest.fn(),
   };
 
   function signFor(user: { id: string; email: string }) {
@@ -72,6 +78,11 @@ describe('KnowledgeAttachmentsController multer pipeline (real HTTP)', () => {
       await readdir(uploadsDir);
     } catch {
       uploadsDirPreexisted = false;
+    }
+    try {
+      await readdir(privateUploadsDir);
+    } catch {
+      privateUploadsDirPreexisted = false;
     }
 
     const moduleRef = await Test.createTestingModule({
@@ -119,6 +130,22 @@ describe('KnowledgeAttachmentsController multer pipeline (real HTTP)', () => {
         // nothing to clean up
       }
     }
+
+    // Same cleanup, for the private knowledge uploads dir (D-09/S4.0) —
+    // real uploads/downloads in this suite now go here instead of
+    // ./uploads.
+    if (!privateUploadsDirPreexisted) {
+      await rm(privateUploadsDir, { recursive: true, force: true });
+    } else {
+      try {
+        const leftover = await readdir(privateUploadsDir);
+        await Promise.all(
+          leftover.map((f) => unlink(join(privateUploadsDir, f)).catch(() => undefined)),
+        );
+      } catch {
+        // nothing to clean up
+      }
+    }
   });
 
   afterEach(() => {
@@ -127,6 +154,7 @@ describe('KnowledgeAttachmentsController multer pipeline (real HTTP)', () => {
       Promise.resolve({ id: 'att-1', ...input }),
     );
     articlesService.findById.mockResolvedValue({ id: 'article-1' });
+    articlesService.findOne.mockResolvedValue({ id: 'article-1' });
   });
 
   it('accepts a small, allowed file and persists it through the real multer pipeline', async () => {
@@ -147,6 +175,25 @@ describe('KnowledgeAttachmentsController multer pipeline (real HTTP)', () => {
         mimeType: 'text/plain',
       }),
     );
+  });
+
+  it('writes the uploaded file under the private knowledge uploads dir, never under ./uploads (AC-16)', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/articles/article-1/attachments')
+      .set('Authorization', `Bearer ${signFor(agentUser)}`)
+      .attach('file', Buffer.from('plain text content'), {
+        filename: 'notes.txt',
+        contentType: 'text/plain',
+      });
+
+    expect(res.status).toBe(201);
+    const createCall = knowledgeAttachmentsService.create.mock.calls[0][0];
+
+    await expect(readdir(join(privateUploadsDir))).resolves.toContain(createCall.filename);
+    const legacyUploadsFiles = await readdir(uploadsDir).catch(() => [] as string[]);
+    expect(legacyUploadsFiles).not.toContain(createCall.filename);
+    // fileUrl now stores a bare filename, never a reachable /uploads/... URL.
+    expect(createCall.fileUrl).toBe(createCall.filename);
   });
 
   it('pins the on-disk extension to the validated MIME type, never to a spoofed originalname (regression: stored-XSS via mismatched extension)', async () => {
@@ -236,5 +283,75 @@ describe('KnowledgeAttachmentsController multer pipeline (real HTTP)', () => {
 
     expect(res.status).toBe(403);
     expect(knowledgeAttachmentsService.remove).not.toHaveBeenCalled();
+  });
+
+  /**
+   * Download route (D-09/S4.0, AC-15/AC-18): the real security contract is
+   * that article visibility — never the presence/absence of a credential —
+   * decides whether the file is served. ArticlesService.findOne already
+   * throws a uniform NotFoundException for "doesn't exist" and "exists but
+   * PRIVATE and caller can't see it"; this controller must propagate that
+   * 404 identically, and only stream the real file once that check passes.
+   */
+  describe('download (D-09/S4.0)', () => {
+    beforeEach(async () => {
+      await mkdir(privateUploadsDir, { recursive: true });
+      await writeFile(join(privateUploadsDir, 'stored-uuid.txt'), 'conteudo do anexo');
+    });
+
+    afterEach(async () => {
+      await unlink(join(privateUploadsDir, 'stored-uuid.txt')).catch(() => undefined);
+    });
+
+    it('streams the file anonymously when the article is visible (PUBLIC) to the caller', async () => {
+      articlesService.findOne.mockResolvedValue({ id: 'article-1' });
+      knowledgeAttachmentsService.findForDownload.mockResolvedValue({
+        id: 'att-1',
+        articleId: 'article-1',
+        filename: 'stored-uuid.txt',
+        originalName: 'relatorio.txt',
+        mimeType: 'text/plain',
+      });
+
+      const res = await request(app.getHttpServer()).get(
+        '/articles/article-1/attachments/att-1/download',
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.text).toBe('conteudo do anexo');
+      // OptionalJwtOrTokenAuthGuard resolves an anonymous caller's
+      // request.user to `false` (passport's "no credential" convention),
+      // not `undefined` — same value ArticlesController already gets for
+      // every anonymous GET /articles/:id.
+      expect(articlesService.findOne).toHaveBeenCalledWith('article-1', false);
+    });
+
+    it('returns 404 — never the file — when the article is PRIVATE and not visible to the caller, with or without a JWT', async () => {
+      articlesService.findOne.mockRejectedValue(new NotFoundException('Article with ID article-1 not found'));
+
+      const anonRes = await request(app.getHttpServer()).get(
+        '/articles/article-1/attachments/att-1/download',
+      );
+      const otherAgentRes = await request(app.getHttpServer())
+        .get('/articles/article-1/attachments/att-1/download')
+        .set('Authorization', `Bearer ${signFor(agentUser)}`);
+
+      expect(anonRes.status).toBe(404);
+      expect(otherAgentRes.status).toBe(404);
+      expect(knowledgeAttachmentsService.findForDownload).not.toHaveBeenCalled();
+    });
+
+    it('returns 404 when the attachment does not belong to the (visible) article', async () => {
+      articlesService.findOne.mockResolvedValue({ id: 'article-1' });
+      knowledgeAttachmentsService.findForDownload.mockRejectedValue(
+        new NotFoundException('Anexo não encontrado'),
+      );
+
+      const res = await request(app.getHttpServer()).get(
+        '/articles/article-1/attachments/att-1/download',
+      );
+
+      expect(res.status).toBe(404);
+    });
   });
 });

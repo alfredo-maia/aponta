@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-01T23:15:57.826662+00:00",
+  "finished_at": "2026-11-01T23:16:15.490364+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "test",
+    "web",
+    "--",
+    "--run",
+    "PublicKnowledge"
+  ],
+  "base_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "head_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "exit_code": 0,
+  "tests": {
+    "apps/web/src/pages/PublicKnowledgePage.test.tsx": "196e93de62277204a43307a0bb488bd59fe0dbd9793860ef0e6108e11476e38f"
+  },
+  "criteria": [
+    "AC-07",
+    "AC-08"
+  ],
+  "source_hashes": {
+    ".env.example": "e72b6c538b9ee38dd127e524e2b3916b8917bcc4772f02edf6edd5e7cdca73e9",
+    ".gitignore": "99e45de0377f3ba80d9844a7ad2c31fe2d3b1c67810d728585a38b5026907715",
+    "apps/api/src/app.module.ts": "1d96fccb1a5fa7b76e7b442060939de070f557a2766a1f9072dc4ead198355fd",
+    "apps/api/src/articles/articles.service.spec.ts": "4b6d2e0bbf3d0bb3c1c1ab840ae1ab3f2bf399d21f69789dd8b4a7ae57026987",
+    "apps/api/src/articles/articles.service.ts": "ccdaeefe6c5f99f298e29af4c4e8c204a240ebbdd482c0a2c9d9427878c20572",
+    "apps/api/src/knowledge-attachments/knowledge-attachments.controller.spec.ts": "247b952bb4617c5374005d9d16dba019af4013876769e11607f25913530fa63c",
+    "apps/api/src/knowledge-attachments/knowledge-attachments.controller.ts": "f76d12994d6fcb16daec763c656eba7d961bed3f750314030bd5c86a1cd0bad4",
+    "apps/api/src/knowledge-attachments/knowledge-attachments.service.spec.ts": "72af47c94a564e602d83721a90634a68605458d0f9c9fcb36a503170052bdd72",
+    "apps/api/src/knowledge-attachments/knowledge-attachments.service.ts": "75bf7d9282dcf5b88482cee6e1ff07f5b773687f052a5bdcba32a6e0e5573506",
+    "apps/api/src/knowledge-attachments/private-uploads.spec.ts": "804d1ac4c1c410a5c42237eed21241f8273e39372e22d336213c6e58156cee9f",
+    "apps/api/src/knowledge-attachments/private-uploads.ts": "aae0bed89d82a7f39f276c02bac75387d540268c41c1863f21b55309464232e0",
+    "apps/api/src/knowledge-public/dto/public-article-query.dto.ts": "d77129095b0673203d2dd0f7c2e34417b06933752c4ff0a2d8a9e2c91dfbba8d",
+    "apps/api/src/knowledge-public/knowledge-public.controller.integration.spec.ts": "529b9dbb1525386eadb98a3aabde7364a7e25f9932e8fae3d43a67aad6c67bd5",
+    "apps/api/src/knowledge-public/knowledge-public.controller.ts": "2fe810752103f8c0913664f9e21eb80e6219525867c9b1625ac7f966534a613b",
+    "apps/api/src/knowledge-public/knowledge-public.module.ts": "f0ce402a87e6cb5160571428643004fce77fcc0645bc0f840bad61c90eb945c5",
+    "apps/api/src/knowledge-public/knowledge-public.service.spec.ts": "e2c6309c9ed39a9bbb30fa696a63a96d7b3edc9507725c00a7f906cd2223d4bc",
+    "apps/api/src/knowledge-public/knowledge-public.service.ts": "b40854ca41cbcac621085d2f96719af29397776d32f35826e099a41600fdbb56",
+    "apps/web/src/components/knowledge/KnowledgeArticleAttachments.test.tsx": "c2ee7f9a266cf02dbf5023636a1c76eacf6ab3f02e3752d84c7f87545ac28ac6",
+    "apps/web/src/components/knowledge/KnowledgeArticleAttachments.tsx": "d5b6bc20236fa199608d3102f788ecce0b4e0313430780595e8bf6659295ac72",
+    "apps/web/src/pages/KnowledgePage.test.tsx": "3303eb6f190c72a1aeb0ebb46697eb6219242d7ec836dc5ced8f4db2b1db5bf1",
+    "apps/web/src/pages/PublicKnowledgeArticlePage.test.tsx": "4287705d8b9f4bcb32424793ac6ae5dda2c0d828cbae1c363e6ac44afda3bd60",
+    "apps/web/src/pages/PublicKnowledgeArticlePage.tsx": "c9298cb7482908bd5711071b4209aa04c53795d8ae0127f9eb4d54152f78ad8a",
+    "apps/web/src/pages/PublicKnowledgePage.test.tsx": "196e93de62277204a43307a0bb488bd59fe0dbd9793860ef0e6108e11476e38f",
+    "apps/web/src/pages/PublicKnowledgePage.tsx": "6123c485614a39073a8c6656ecfdd101a7e2ce8a48057f077ab5225b55493d0f",
+    "docker-compose.yml": "45af32b07aeed25c14667a33be47778f285ae174732290e40633099d41a41e2a"
+  },
+  "log": ".delivery/evidence/DMTE-190/s42-web-pages-green.log",
+  "log_sha256": "3eb4d1698cf60b67fd5984b069959d9f4fc1374cf2b42a1b883c31ee211e8f69"
+}

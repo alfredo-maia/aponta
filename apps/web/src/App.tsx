@@ -15,6 +15,8 @@ import { TicketDetailPage } from './pages/TicketDetailPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { KnowledgePage } from './pages/KnowledgePage';
 import { PublicCsatPage } from './pages/PublicCsatPage';
+import { PublicKnowledgePage } from './pages/PublicKnowledgePage';
+import { PublicKnowledgeArticlePage } from './pages/PublicKnowledgeArticlePage';
 import { VaultPage } from './pages/VaultPage';
 import { VaultAuditPage } from './pages/VaultAuditPage';
 import { ContractsPage } from './pages/ContractsPage';
@@ -42,6 +44,8 @@ export function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/avaliar/:token" element={<PublicCsatPage />} />
+          <Route path="/r/knowledge" element={<PublicKnowledgePage />} />
+          <Route path="/r/knowledge/:articleId" element={<PublicKnowledgeArticlePage />} />
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route path="/" element={<TicketsPage />} />

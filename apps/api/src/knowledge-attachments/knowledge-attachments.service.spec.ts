@@ -77,5 +77,65 @@ describe('KnowledgeAttachmentsService', () => {
 
       expect(result).toEqual({ success: true });
     });
+
+    it('unlinks from the private knowledge uploads dir, never from ./uploads (D-09/S4.0)', async () => {
+      mockPrisma.knowledgeAttachment.findUnique.mockResolvedValue({
+        id: 'att-1',
+        filename: 'uuid.png',
+        uploaderId: 'agent-1',
+      });
+      mockPrisma.knowledgeAttachment.delete.mockResolvedValue({ id: 'att-1' });
+      const { unlink } = jest.requireMock('fs/promises');
+      unlink.mockResolvedValueOnce(undefined);
+
+      await service.remove('att-1', { id: 'agent-1', role: Role.AGENT });
+
+      const unlinkedPath = unlink.mock.calls[unlink.mock.calls.length - 1][0] as string;
+      expect(unlinkedPath).toContain('uploads-private');
+      expect(unlinkedPath).not.toMatch(/(^|\/)uploads\/uuid\.png$/);
+    });
+  });
+
+  describe('findForDownload (D-09/S4.0)', () => {
+    it('throws NotFoundException when the attachment does not exist', async () => {
+      mockPrisma.knowledgeAttachment.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.findForDownload('missing', 'article-1'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws NotFoundException when the attachment belongs to a different article (anti-enumeration)', async () => {
+      mockPrisma.knowledgeAttachment.findUnique.mockResolvedValue({
+        id: 'att-1',
+        articleId: 'other-article',
+        filename: 'uuid.png',
+      });
+
+      await expect(
+        service.findForDownload('att-1', 'article-1'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws NotFoundException when the stored filename is unsafe (AC-18, defense in depth)', async () => {
+      mockPrisma.knowledgeAttachment.findUnique.mockResolvedValue({
+        id: 'att-1',
+        articleId: 'article-1',
+        filename: '../../etc/passwd',
+      });
+
+      await expect(
+        service.findForDownload('att-1', 'article-1'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('returns the attachment when it exists, belongs to the article and has a safe filename', async () => {
+      const attachment = { id: 'att-1', articleId: 'article-1', filename: 'uuid.png' };
+      mockPrisma.knowledgeAttachment.findUnique.mockResolvedValue(attachment);
+
+      const result = await service.findForDownload('att-1', 'article-1');
+
+      expect(result).toEqual(attachment);
+    });
   });
 });

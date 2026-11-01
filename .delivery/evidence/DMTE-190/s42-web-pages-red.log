@@ -1,0 +1,328 @@
+
+> nx run web:test --run PublicKnowledge
+
+> vitest --run PublicKnowledge
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-190-91709edfebef/workdir/aponta/apps/web
+
+ ❯ |web| src/pages/PublicKnowledgeArticlePage.test.tsx (4 tests | 4 failed) 3101ms
+     × shows a loading state while fetching 63ms
+     × renders the sanitized content as real DOM nodes, plus its attachments as authenticated download links 1014ms
+     × shows a uniform "não encontrado" message for a 404 (PRIVATE or nonexistent — portal can't tell, by design) 1009ms
+     × shows a generic error state for a non-404 failure 1005ms
+ ❯ |web| src/pages/PublicKnowledgePage.test.tsx (5 tests | 5 failed) 4084ms
+     × shows a loading state while fetching 46ms
+     × lists PUBLIC articles grouped by folder, each linking to /r/knowledge/:id 1008ms
+     × shows an empty state when there are no public articles 1005ms
+     × shows an error state when the API call fails 1009ms
+     × never links to the internal /knowledge panel (AC-08: no path back for anonymous visitors) 1010ms
+
+ Test Files  2 failed (2)
+      Tests  9 failed (9)
+   Start at  20:13:02
+   Duration  5.64s (transform 163ms, setup 228ms, import 692ms, tests 7.19s, environment 1.28s)
+
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/pages/PublicKnowledgeArticlePage.test.tsx > PublicKnowledgeArticlePage (AC-07, AC-08) > shows a loading state while fetching
+TestingLibraryElementError: Unable to find an element with the text: /carregando/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mstub[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/PublicKnowledgeArticlePage.test.tsx:37:19
+     35|     renderPage();
+     36|
+     37|     expect(screen.getByText(/carregando/i)).toBeInTheDocument();
+       |                   ^
+     38|   });
+     39|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |web| src/pages/PublicKnowledgeArticlePage.test.tsx > PublicKnowledgeArticlePage (AC-07, AC-08) > renders the sanitized content as real DOM nodes, plus its attachments as authenticated download links
+TestingLibraryElementError: Unable to find an element with the text: Como abrir um chamado. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mstub[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div>[39m
+        [0mstub[0m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ Proxy.waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/pages/PublicKnowledgeArticlePage.test.tsx:55:11
+     53|     renderPage();
+     54|
+     55|     await waitFor(() =>
+       |           ^
+     56|       expect(screen.getByText('Como abrir um chamado')).toBeInTheDocum…
+     57|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |web| src/pages/PublicKnowledgeArticlePage.test.tsx > PublicKnowledgeArticlePage (AC-07, AC-08) > shows a uniform "não encontrado" message for a 404 (PRIVATE or nonexistent — portal can't tell, by design)
+TestingLibraryElementError: Unable to find an element with the text: /não encontrado/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mstub[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div>[39m
+        [0mstub[0m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ Proxy.waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/pages/PublicKnowledgeArticlePage.test.tsx:76:11
+     74|     renderPage();
+     75|
+     76|     await waitFor(() => expect(screen.getByText(/não encontrado/i)).to…
+       |           ^
+     77|   });
+     78|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  |web| src/pages/PublicKnowledgeArticlePage.test.tsx > PublicKnowledgeArticlePage (AC-07, AC-08) > shows a generic error state for a non-404 failure
+TestingLibraryElementError: Unable to find an element with the text: /não foi possível carregar/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mstub[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div>[39m
+        [0mstub[0m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ Proxy.waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/pages/PublicKnowledgeArticlePage.test.tsx:84:11
+     82|     renderPage();
+     83|
+     84|     await waitFor(() =>
+       |           ^
+     85|       expect(screen.getByText(/não foi possível carregar/i)).toBeInThe…
+     86|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  |web| src/pages/PublicKnowledgePage.test.tsx > PublicKnowledgePage (AC-07, AC-08) > shows a loading state while fetching
+TestingLibraryElementError: Unable to find an element with the text: /carregando/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mstub[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/PublicKnowledgePage.test.tsx:37:19
+     35|     renderPage();
+     36|
+     37|     expect(screen.getByText(/carregando/i)).toBeInTheDocument();
+       |                   ^
+     38|   });
+     39|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  |web| src/pages/PublicKnowledgePage.test.tsx > PublicKnowledgePage (AC-07, AC-08) > lists PUBLIC articles grouped by folder, each linking to /r/knowledge/:id
+TestingLibraryElementError: Unable to find an element with the text: Suporte. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mstub[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div>[39m
+        [0mstub[0m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ Proxy.waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/pages/PublicKnowledgePage.test.tsx:62:11
+     60|     renderPage();
+     61|
+     62|     await waitFor(() => expect(screen.getByText('Suporte')).toBeInTheD…
+       |           ^
+     63|     const link = screen.getByRole('link', { name: /como abrir um chama…
+     64|     expect(link).toHaveAttribute('href', '/r/knowledge/a-1');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  |web| src/pages/PublicKnowledgePage.test.tsx > PublicKnowledgePage (AC-07, AC-08) > shows an empty state when there are no public articles
+TestingLibraryElementError: Unable to find an element with the text: /nenhum conte(ú|u)do publicado/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mstub[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div>[39m
+        [0mstub[0m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ Proxy.waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/pages/PublicKnowledgePage.test.tsx:72:11
+     70|     renderPage();
+     71|
+     72|     await waitFor(() => expect(screen.getByText(/nenhum conte(ú|u)do p…
+       |           ^
+     73|   });
+     74|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  |web| src/pages/PublicKnowledgePage.test.tsx > PublicKnowledgePage (AC-07, AC-08) > shows an error state when the API call fails
+TestingLibraryElementError: Unable to find an element with the text: /não foi possível carregar/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mstub[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div>[39m
+        [0mstub[0m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ Proxy.waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/pages/PublicKnowledgePage.test.tsx:80:11
+     78|     renderPage();
+     79|
+     80|     await waitFor(() =>
+       |           ^
+     81|       expect(screen.getByText(/não foi possível carregar/i)).toBeInThe…
+     82|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  |web| src/pages/PublicKnowledgePage.test.tsx > PublicKnowledgePage (AC-07, AC-08) > never links to the internal /knowledge panel (AC-08: no path back for anonymous visitors)
+TestingLibraryElementError: Unable to find an element with the text: /nenhum conte(ú|u)do publicado/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [0mstub[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div>[39m
+        [0mstub[0m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ Proxy.waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/pages/PublicKnowledgePage.test.tsx:90:11
+     88|     const { container } = renderPage();
+     89|
+     90|     await waitFor(() => expect(screen.getByText(/nenhum conte(ú|u)do p…
+       |           ^
+     91|     expect(container.querySelector('a[href="/knowledge"]')).toBeNull();
+     92|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+Warning: command "vitest --run PublicKnowledge" exited with non-zero status code

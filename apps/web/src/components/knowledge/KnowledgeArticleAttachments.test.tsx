@@ -10,6 +10,7 @@ import {
 
 vi.mock('../../lib/api', () => ({
   api: {
+    get: vi.fn(),
     post: vi.fn(),
     delete: vi.fn(),
   },
@@ -20,7 +21,6 @@ const attachments: KnowledgeAttachment[] = [
     id: 'att-1',
     originalName: 'manual.pdf',
     mimeType: 'application/pdf',
-    fileUrl: '/uploads/manual.pdf',
     createdAt: '2026-01-10T10:00:00.000Z',
   },
 ];
@@ -45,6 +45,8 @@ describe('KnowledgeArticleAttachments', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     window.confirm = vi.fn(() => true);
+    global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+    global.URL.revokeObjectURL = vi.fn();
   });
 
   it('shows the attachment count in the section title', () => {
@@ -58,10 +60,19 @@ describe('KnowledgeArticleAttachments', () => {
     expect(screen.getByText(/nenhum anexo/i)).toBeInTheDocument();
   });
 
-  it('lists attachments with a download link for everyone, regardless of canManage', () => {
+  it('downloads an attachment through the authenticated route for everyone, regardless of canManage (D-09/S4.0: the old /uploads link is gone)', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: new Blob(['conteudo']) });
+    const user = userEvent.setup();
     renderComponent({ canManage: false });
-    const link = screen.getByRole('link', { name: /manual\.pdf/i });
-    expect(link).toHaveAttribute('href', '/uploads/manual.pdf');
+
+    await user.click(screen.getByRole('button', { name: /manual\.pdf/i }));
+
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith(
+        '/articles/article-1/attachments/att-1/download',
+        { responseType: 'blob' },
+      );
+    });
   });
 
   it('does not show upload or remove controls when canManage is false', () => {

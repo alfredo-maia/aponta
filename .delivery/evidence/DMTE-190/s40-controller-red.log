@@ -1,0 +1,81 @@
+
+> nx run api:test --testPathPatterns=knowledge-attachments.controller
+
+> jest --passWithNoTests=true --testPathPatterns=knowledge-attachments.controller
+
+
+
+
+ NX   Running target test for project api failed
+
+Failed tasks:
+
+- api:test
+
+Hint: run the command with --verbose for more details.
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m api [39m[27m[0m [2msrc/knowledge-attachments/[22m[1mknowledge-attachments.controller.spec.ts[22m ([0m[1m[41m12.079 s[49m[22m[0m)
+[1m[31m  [1m● [22m[1mKnowledgeAttachmentsController multer pipeline (real HTTP) › writes the uploaded file under the private knowledge uploads dir, never under ./uploads (AC-16)[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mresolves[2m.[22mtoContain[2m()[22m
+
+    Received promise rejected instead of resolved
+    Rejected to value: [31m[Error: ENOENT: no such file or directory, scandir '/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-190-91709edfebef/workdir/aponta/apps/api/uploads-private/knowledge'][39m
+
+[2m    [0m [90m 190 |[39m     [36mconst[39m createCall [33m=[39m knowledgeAttachmentsService[33m.[39mcreate[33m.[39mmock[33m.[39mcalls[[35m0[39m][[35m0[39m][33m;[39m[22m
+[2m     [90m 191 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 192 |[39m     [36mawait[39m expect(readdir(join(privateUploadsDir)))[33m.[39mresolves[33m.[39mtoContain(createCall[33m.[39mfilename)[33m;[39m[22m
+[2m     [90m     |[39m           [31m[1m^[22m[2m[39m[22m
+[2m     [90m 193 |[39m     [36mconst[39m legacyUploadsFiles [33m=[39m [36mawait[39m readdir(uploadsDir)[33m.[39m[36mcatch[39m(() [33m=>[39m [] [36mas[39m string[])[33m;[39m[22m
+[2m     [90m 194 |[39m     expect(legacyUploadsFiles)[33m.[39mnot[33m.[39mtoContain(createCall[33m.[39mfilename)[33m;[39m[22m
+[2m     [90m 195 |[39m     [90m// fileUrl now stores a bare filename, never a reachable /uploads/... URL.[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/knowledge-attachments/knowledge-attachments.controller.spec.ts[39m[0m[2m:192:11)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mKnowledgeAttachmentsController multer pipeline (real HTTP) › rejects a file over 25MB with a 413-class error before it reaches the service[39m[22m
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+[2m      [2mat _getError ([22m[2m../../node_modules/.pnpm/jest-circus@30.5.2_babel-plugin-macros@3.1.0_supports-color@7.2.0/node_modules/jest-circus/build/jestAdapterInit.js[2m:1985:12)[22m[2m[22m
+[2m          at Array.map (<anonymous>)[22m
+
+    Cause:
+        thrown: "Exceeded timeout of 5000 ms for a test.
+        Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+    [2m    [0m [90m 219 |[39m   })[33m;[39m[22m
+    [2m     [90m 220 |[39m[22m
+    [2m    [31m[1m>[22m[2m[39m[90m 221 |[39m   it([32m'rejects a file over 25MB with a 413-class error before it reaches the service'[39m[33m,[39m [36masync[39m () [33m=>[39m {[22m
+    [2m     [90m     |[39m   [31m[1m^[22m[2m[39m[22m
+    [2m     [90m 222 |[39m     [36mconst[39m oversized [33m=[39m [33mBuffer[39m[33m.[39malloc([35m25[39m [33m*[39m [35m1024[39m [33m*[39m [35m1024[39m [33m+[39m [35m1[39m[33m,[39m [32m'a'[39m)[33m;[39m[22m
+    [2m     [90m 223 |[39m[22m
+    [2m     [90m 224 |[39m     [36mconst[39m res [33m=[39m [36mawait[39m request(app[33m.[39mgetHttpServer())[0m[22m
+
+    [2m      [2mat [22m[2m[0m[36msrc/knowledge-attachments/knowledge-attachments.controller.spec.ts[39m[0m[2m:221:3[22m[2m[22m
+    [2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/knowledge-attachments/knowledge-attachments.controller.spec.ts[39m[0m[2m:34:1)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mKnowledgeAttachmentsController multer pipeline (real HTTP) › download (D-09/S4.0) › streams the file anonymously when the article is visible (PUBLIC) to the caller[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m200[39m
+    Received: [31m404[39m
+
+[2m    [0m [90m 318 |[39m       )[33m;[39m[22m
+[2m     [90m 319 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 320 |[39m       expect(res[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m[22m
+[2m     [90m     |[39m                          [31m[1m^[22m[2m[39m[22m
+[2m     [90m 321 |[39m       expect(res[33m.[39mtext)[33m.[39mtoBe([32m'conteudo do anexo'[39m)[33m;[39m[22m
+[2m     [90m 322 |[39m       expect(articlesService[33m.[39mfindOne)[33m.[39mtoHaveBeenCalledWith([32m'article-1'[39m[33m,[39m undefined)[33m;[39m[22m
+[2m     [90m 323 |[39m     })[33m;[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/knowledge-attachments/knowledge-attachments.controller.spec.ts[39m[0m[2m:320:26)[22m[2m[22m
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, 1 total
+[1mTests:       [22m[1m[31m3 failed[39m[22m, [1m[32m9 passed[39m[22m, 12 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        [1m[33m13.209 s[39m[22m
+[2mRan all test suites[22m[2m matching [22mknowledge-attachments.controller[2m.[22m
+Warning: command "jest --passWithNoTests=true --testPathPatterns=knowledge-attachments.controller" exited with non-zero status code

@@ -2,6 +2,10 @@ import { ForbiddenException } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { ArticleVisibility, Role } from '@prisma/client';
 
+jest.mock('fs/promises', () => ({
+  unlink: jest.fn().mockResolvedValue(undefined),
+}));
+
 describe('ArticlesService', () => {
   let service: ArticlesService;
   let mockPrisma: any;
@@ -392,11 +396,37 @@ describe('ArticlesService', () => {
         include: { attachments: { select: { filename: true } } },
       });
       expect(mockPrisma.article.delete).toHaveBeenCalledWith({ where: { id: 'xxx' } });
-      // Files don't actually exist on disk in this unit test — unlink()
-      // rejecting is swallowed on purpose (see the comment in the service);
-      // the real assertion here is that delete() still resolves cleanly
-      // and doesn't throw just because the (missing) files couldn't be
-      // removed.
+    });
+
+    it('unlinks attachment files from the private knowledge uploads dir, never from ./uploads (D-09/S4.0)', async () => {
+      mockPrisma.article.findUnique.mockResolvedValue({
+        id: 'xxx',
+        authorId: 'agent-1',
+        attachments: [{ filename: 'a.txt' }],
+      });
+      mockPrisma.article.delete = jest.fn().mockResolvedValue({ id: 'xxx' });
+      const { unlink } = jest.requireMock('fs/promises');
+
+      await service.remove('xxx', { id: 'agent-1', role: Role.AGENT });
+
+      const unlinkedPath = unlink.mock.calls[0][0] as string;
+      expect(unlinkedPath).toContain('uploads-private');
+      expect(unlinkedPath).not.toMatch(/(^|\/)uploads\/a\.txt$/);
+    });
+
+    it('still resolves cleanly when unlink fails for a missing file', async () => {
+      mockPrisma.article.findUnique.mockResolvedValue({
+        id: 'xxx',
+        authorId: 'agent-1',
+        attachments: [{ filename: 'a.txt' }, { filename: 'b.pdf' }],
+      });
+      mockPrisma.article.delete = jest.fn().mockResolvedValue({ id: 'xxx' });
+      const { unlink } = jest.requireMock('fs/promises');
+      unlink.mockRejectedValueOnce(new Error('ENOENT'));
+
+      await expect(
+        service.remove('xxx', { id: 'agent-1', role: Role.AGENT }),
+      ).resolves.toEqual({ id: 'xxx' });
     });
   });
 

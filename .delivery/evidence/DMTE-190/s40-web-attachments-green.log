@@ -1,0 +1,28 @@
+
+> nx run web:test --run KnowledgeArticleAttachments
+
+> vitest --run KnowledgeArticleAttachments
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-190-91709edfebef/workdir/aponta/apps/web
+
+ ✓ |web| src/components/knowledge/KnowledgeArticleAttachments.test.tsx (8 tests) 890ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  19:58:28
+   Duration  7.46s (transform 3.62s, setup 394ms, import 4.91s, tests 890ms, environment 778ms)
+
+
+
+
+ NX   Successfully ran target test for project web
+
+
+Error: Not implemented: navigation (except hash changes)
+    at module.exports (/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-190-91709edfebef/workdir/aponta/node_modules/.pnpm/jsdom@22.1.0_supports-color@7.2.0/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at navigateFetch (/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-190-91709edfebef/workdir/aponta/node_modules/.pnpm/jsdom@22.1.0_supports-color@7.2.0/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+    at exports.navigate (/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-190-91709edfebef/workdir/aponta/node_modules/.pnpm/jsdom@22.1.0_supports-color@7.2.0/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+    at Timeout._onTimeout (/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-190-91709edfebef/workdir/aponta/node_modules/.pnpm/jsdom@22.1.0_supports-color@7.2.0/node_modules/jsdom/lib/jsdom/living/nodes/HTMLHyperlinkElementUtils-impl.js:81:7)
+    at listOnTimeout (node:internal/timers:685:17)
+    at processTimers (node:internal/timers:618:7) [90mundefined[39m

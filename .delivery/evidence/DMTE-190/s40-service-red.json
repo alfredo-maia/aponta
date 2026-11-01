@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-01T22:48:15.988699+00:00",
+  "finished_at": "2026-11-01T22:48:22.654728+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "test",
+    "api",
+    "--testPathPatterns=knowledge-attachments.service"
+  ],
+  "base_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "head_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "exit_code": 1,
+  "tests": {
+    "apps/api/src/knowledge-attachments/knowledge-attachments.service.spec.ts": "72af47c94a564e602d83721a90634a68605458d0f9c9fcb36a503170052bdd72"
+  },
+  "criteria": [
+    "AC-15",
+    "AC-16",
+    "AC-18"
+  ],
+  "source_hashes": {
+    "apps/api/src/knowledge-attachments/knowledge-attachments.service.spec.ts": "72af47c94a564e602d83721a90634a68605458d0f9c9fcb36a503170052bdd72",
+    "apps/api/src/knowledge-attachments/knowledge-attachments.service.ts": "3a2b0207b8e076539a17b0d6bce2431dc370284312a6bc37b8e0de367f7cae05",
+    "apps/api/src/knowledge-attachments/private-uploads.spec.ts": "804d1ac4c1c410a5c42237eed21241f8273e39372e22d336213c6e58156cee9f",
+    "apps/api/src/knowledge-attachments/private-uploads.ts": "aae0bed89d82a7f39f276c02bac75387d540268c41c1863f21b55309464232e0"
+  },
+  "log": ".delivery/evidence/DMTE-190/s40-service-red.log",
+  "log_sha256": "0a828cacb72dae8ba29b086c4e038072ae5e3a3071aa4c286f06f7e28f718d44"
+}

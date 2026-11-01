@@ -572,10 +572,9 @@ describe('KnowledgePage', () => {
 
     expect(screen.getByText('Anexos (1)')).toBeInTheDocument();
     expect(screen.getByText('Anexos (0)')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /manual\.pdf/i })).toHaveAttribute(
-      'href',
-      '/uploads/manual.pdf',
-    );
+    // D-09/S4.0: no more /uploads link — download goes through the
+    // authenticated route (see KnowledgeArticleAttachments.test.tsx).
+    expect(screen.getByRole('button', { name: /manual\.pdf/i })).toBeInTheDocument();
   });
 
   it('only shows attachment upload controls to users who can author articles', async () => {

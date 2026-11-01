@@ -1,0 +1,197 @@
+{
+  "version": 1,
+  "delivery": "DMTE-90",
+  "repository": "alfredo-maia/aponta",
+  "github_issue": 102,
+  "multica_id": "01a153ef-a152-77d5-982e-ab2ff57678c4",
+  "cycle": null,
+  "tier": 3,
+  "base_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "criteria": [
+    {
+      "id": "AC-15",
+      "description": "S4.0: download de anexo de conhecimento por rota autenticada respeita visibilidade do artigo (PUBLIC abre sem login; PRIVATE só autor/ACL/ADMIN; 404 uniforme nos demais casos)",
+      "tests": [
+        "KnowledgeAttachmentsController multer pipeline (real HTTP) > download (D-09/S4.0) > streams the file anonymously when the article is visible (PUBLIC) to the caller",
+        "KnowledgeAttachmentsController multer pipeline (real HTTP) > download (D-09/S4.0) > returns 404 — never the file — when the article is PRIVATE and not visible to the caller, with or without a JWT",
+        "KnowledgeAttachmentsController multer pipeline (real HTTP) > download (D-09/S4.0) > returns 404 when the attachment does not belong to the (visible) article",
+        "KnowledgeAttachmentsService > findForDownload (D-09/S4.0) > throws NotFoundException when the attachment does not exist",
+        "KnowledgeAttachmentsService > findForDownload (D-09/S4.0) > throws NotFoundException when the attachment belongs to a different article (anti-enumeration)",
+        "KnowledgeAttachmentsService > findForDownload (D-09/S4.0) > returns the attachment when it exists, belongs to the article and has a safe filename"
+      ],
+      "tdd_required": false,
+      "reason": "RED/GREEN comportamental próprio e real, capturado via scripts/aponta_delivery.py record em .delivery/evidence/DMTE-190/s40-service-{red,green}.json e s40-controller-{red,green}.json (fatia S4.0, anterior à implementação desta fatia). Não consolidado no par único deste manifest (schema de evidência aceita só um par) — os dois testes mandatórios do briefing (nunca PRIVATE / 404 uniforme) ficam rastreados no AC-01/AC-02 abaixo."
+    },
+    {
+      "id": "AC-16",
+      "description": "S4.0: novo upload de anexo de conhecimento grava em uploads-private/knowledge, fora de uploads/ estático; não fica acessível por /uploads/<nome>",
+      "tests": [
+        "KnowledgeAttachmentsController multer pipeline (real HTTP) > writes the uploaded file under the private knowledge uploads dir, never under ./uploads (AC-16)",
+        "KnowledgeAttachmentsService > remove > unlinks from the private knowledge uploads dir, never from ./uploads (D-09/S4.0)",
+        "ArticlesService > remove limitations > unlinks attachment files from the private knowledge uploads dir, never from ./uploads (D-09/S4.0)",
+        "private-uploads > getPrivateKnowledgeUploadsDir > defaults to uploads-private/knowledge outside process.cwd(), never under ./uploads",
+        "private-uploads > getPrivateKnowledgeUploadsDir > honors KNOWLEDGE_PRIVATE_UPLOADS_DIR when set",
+        "private-uploads > ensurePrivateKnowledgeUploadsDir > creates the directory recursively when it does not exist yet"
+      ],
+      "tdd_required": false,
+      "reason": "RED/GREEN real na fatia S4.0, em .delivery/evidence/DMTE-190/s40-service-{red,green}.json, s40-controller-{red,green}.json e s40-articles-service-{red,green}.json. Não consolidado no par único deste manifest pelo mesmo motivo do AC-15."
+    },
+    {
+      "id": "AC-18",
+      "description": "S4.0 (simplificação 01/11/2026): diretório privado é criado se não existir; download rejeita nome de arquivo com '..' ou separador de caminho (path traversal), como defesa em profundidade",
+      "tests": [
+        "private-uploads > isSafeStoredFilename > rejects path traversal via \"..\"",
+        "private-uploads > isSafeStoredFilename > rejects a filename containing a path separator",
+        "KnowledgeAttachmentsService > findForDownload (D-09/S4.0) > throws NotFoundException when the stored filename is unsafe (AC-18, defense in depth)"
+      ],
+      "tdd_required": false,
+      "reason": "RED/GREEN real na fatia S4.0 (isSafeStoredFilename adicionado em private-uploads.ts sem teste prévio isolado desta função específica antes do RED de knowledge-attachments.service.spec.ts; a unidade isSafeStoredFilename tem cobertura direta em private-uploads.spec.ts, GREEN desde a criação, ver s40-service-green.json). Critério funcional continua obrigatório; não consolidado no par único deste manifest."
+    },
+    {
+      "id": "AC-01",
+      "description": "S4.1: GET public/knowledge/articles sem Authorization lista só visibility=PUBLIC, ordenados por pasta/título; PRIVATE nunca aparece",
+      "tests": [
+        "PublicKnowledgeService (S4.1) > findAllArticles (AC-01, AC-03, AC-04) > only ever queries visibility=PUBLIC, fixed, never taking a visibility param from the caller",
+        "PublicKnowledgeService (S4.1) > findAllArticles (AC-01, AC-03, AC-04) > never returns a PRIVATE article, even if one is present in the dataset returned by Prisma (defense in depth)",
+        "PublicKnowledgeService (S4.1) > findAllArticles (AC-01, AC-03, AC-04) > filters by folderId when provided"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "S4.1: GET public/knowledge/articles/:id de artigo PRIVATE responde 404 idêntico ao de ID inexistente, mesmo com JWT de ADMIN (endpoint ignora credenciais)",
+      "tests": [
+        "PublicKnowledgeService (S4.1) > findOneArticle (AC-02 — uniform 404) > throws NotFoundException for a PRIVATE article id — the query itself never matches it",
+        "PublicKnowledgeService (S4.1) > findOneArticle (AC-02 — uniform 404) > throws the exact same NotFoundException for a nonexistent id (anti-enumeration)",
+        "PublicKnowledgeController (real HTTP) > AC-02: uniform 404, credentials ignored > returns the identical 404 for a nonexistent article whether or not an ADMIN JWT is presented",
+        "PublicKnowledgeController (real HTTP) > AC-02: uniform 404, credentials ignored > returns 200 for a PUBLIC article regardless of an unrelated Authorization header"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "S4.1: parâmetros de query tentando mudar o filtro (visibility, isPublic, where) são rejeitados pelo ValidationPipe (whitelist/forbidNonWhitelisted)",
+      "tests": [
+        "PublicKnowledgeController (real HTTP) > AC-03: query injection > rejects an unknown query param (e.g. visibility=PRIVATE) with 400, before it reaches the service",
+        "PublicKnowledgeController (real HTTP) > AC-03: query injection > rejects an isPublic/where override attempt the same way",
+        "PublicKnowledgeController (real HTTP) > AC-03: query injection > still accepts the one whitelisted filter, folderId"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "S4.1: DTO de saída por allowlist — nunca expõe author/authorId/ACLs/serviceCatalogItems/autoShareWithNewOrganizations/createdAt",
+      "tests": [
+        "PublicKnowledgeService (S4.1) > findAllArticles (AC-01, AC-03, AC-04) > allowlists the output DTO (AC-04): never exposes author/authorId/ACL/catalog/autoShare/createdAt"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "S4.1: GET public/knowledge/folders lista só pastas com ao menos um artigo PUBLIC, contagem calculada só sobre PUBLIC",
+      "tests": [
+        "PublicKnowledgeService (S4.1) > findAllFolders (AC-05) > only returns folders that have at least one PUBLIC article",
+        "PublicKnowledgeService (S4.1) > findAllFolders (AC-05) > counts only PUBLIC articles per folder, not the total"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "description": "S4.1/S4.0: anexos no portal público nunca expõem fileUrl/filename interno; download de anexo PRIVATE segue a rota autenticada (depende de S4.0)",
+      "tests": [
+        "PublicKnowledgeService (S4.1) > findAllArticles (AC-01, AC-03, AC-04) > allowlists the output DTO (AC-04): never exposes author/authorId/ACL/catalog/autoShare/createdAt",
+        "KnowledgeAttachmentsController multer pipeline (real HTTP) > download (D-09/S4.0) > returns 404 — never the file — when the article is PRIVATE and not visible to the caller, with or without a JWT"
+      ],
+      "tdd_required": false,
+      "reason": "Composição dos AC-04 (S4.1, par rastreado) e AC-15 (S4.0, RED/GREEN real em s40-*). Não há comportamento isolado adicional além dos dois já cobertos."
+    },
+    {
+      "id": "AC-07",
+      "description": "S4.2: rota web /r/knowledge (lista agrupada por pasta) e /r/knowledge/:articleId (leitura) existem fora do ProtectedRoute/AppLayout, com estados de carregamento, vazio, erro e não encontrado em pt-BR",
+      "tests": [
+        "App > renders the public /r/knowledge portal without redirecting to login, even with no session (AC-07)",
+        "PublicKnowledgePage (AC-07, AC-08) > shows a loading state while fetching",
+        "PublicKnowledgePage (AC-07, AC-08) > lists PUBLIC articles grouped by folder, each linking to /r/knowledge/:id",
+        "PublicKnowledgePage (AC-07, AC-08) > shows an empty state when there are no public articles",
+        "PublicKnowledgePage (AC-07, AC-08) > shows an error state when the API call fails",
+        "PublicKnowledgeArticlePage (AC-07, AC-08) > shows a loading state while fetching",
+        "PublicKnowledgeArticlePage (AC-07, AC-08) > renders the sanitized content as real DOM nodes, plus its attachments as authenticated download links",
+        "PublicKnowledgeArticlePage (AC-07, AC-08) > shows a uniform \"não encontrado\" message for a 404 (PRIVATE or nonexistent — portal can't tell, by design)",
+        "PublicKnowledgeArticlePage (AC-07, AC-08) > shows a generic error state for a non-404 failure"
+      ],
+      "tdd_required": false,
+      "reason": "RED/GREEN real na fatia S4.2, em .delivery/evidence/DMTE-190/s42-web-pages-{red,green}.json (stub neutro → implementação, Vitest). Não consolidado no par único deste manifest (schema de evidência aceita só um par por entrega)."
+    },
+    {
+      "id": "AC-08",
+      "description": "S4.2: conteúdo HTML renderizado de forma sanitizada; nenhum link para /knowledge interno é exibido para anônimo",
+      "tests": [
+        "PublicKnowledgePage (AC-07, AC-08) > never links to the internal /knowledge panel (AC-08: no path back for anonymous visitors)",
+        "PublicKnowledgeArticlePage (AC-07, AC-08) > renders the sanitized content as real DOM nodes, plus its attachments as authenticated download links"
+      ],
+      "tdd_required": false,
+      "reason": "Mesmo par real de RED/GREEN do AC-07 (s42-web-pages-{red,green}.json); a sanitização em si é garantida na escrita (sanitize-article-content.ts, já com TDD próprio histórico) — este AC cobre a ausência de link de volta ao /knowledge interno, testada no mesmo arquivo."
+    },
+    {
+      "id": "AC-09",
+      "description": "S4.1/S4.3: endpoint público tem throttle próprio e não herda guard de auth; rota autenticada /articles continua inalterada (regressão)",
+      "tests": [
+        "PublicKnowledgeController (real HTTP) > AC-09: throttle is actually enforced, not just declared > blocks with 429 once the handler-level @Throttle limit (60/min) is exceeded",
+        "nx test api (full suite, 82 files / 1102 tests, including ArticlesController/ArticlesService unmodified) — 0 failures"
+      ],
+      "tdd_required": false,
+      "reason": "A parte comportamental nova (throttle real) tem RED/GREEN próprio; a regressão de /articles é execução integral da suíte existente, não comportamento novo desta entrega."
+    },
+    {
+      "id": "AC-14",
+      "description": "Gates: nx test api, nx test web, tsc e eslint limpos nos projetos afetados",
+      "tests": [
+        "pnpm exec nx test api (82 suites / 1102 testes, 0 falhas)",
+        "pnpm exec nx test web (155 suites / 1127 testes, 0 falhas)",
+        "pnpm exec nx run api:typecheck (0 erros)",
+        "pnpm exec nx run web:typecheck (0 erros)",
+        "pnpm exec nx run api:lint (0 erros, 6 warnings pré-existentes)",
+        "pnpm exec nx run web:lint (0 erros, 27 warnings pré-existentes)"
+      ],
+      "tdd_required": false,
+      "reason": "Gate de execução de suíte completa, não um comportamento novo isolado — cada comportamento novo já tem seu próprio RED/GREEN nos critérios acima."
+    }
+  ],
+  "spec": "docs/superpowers/specs/2026-11-01-knowledge-public-portal.md",
+  "changed_files": [
+    ".env.example",
+    ".gitignore",
+    "apps/api/src/app.module.ts",
+    "apps/api/src/articles/articles.service.ts",
+    "apps/api/src/articles/articles.service.spec.ts",
+    "apps/api/src/knowledge-attachments/knowledge-attachments.controller.ts",
+    "apps/api/src/knowledge-attachments/knowledge-attachments.controller.spec.ts",
+    "apps/api/src/knowledge-attachments/knowledge-attachments.service.ts",
+    "apps/api/src/knowledge-attachments/knowledge-attachments.service.spec.ts",
+    "apps/api/src/knowledge-attachments/private-uploads.ts",
+    "apps/api/src/knowledge-attachments/private-uploads.spec.ts",
+    "apps/api/src/knowledge-public/knowledge-public.controller.ts",
+    "apps/api/src/knowledge-public/knowledge-public.controller.integration.spec.ts",
+    "apps/api/src/knowledge-public/knowledge-public.service.ts",
+    "apps/api/src/knowledge-public/knowledge-public.service.spec.ts",
+    "apps/api/src/knowledge-public/knowledge-public.module.ts",
+    "apps/api/src/knowledge-public/dto/public-article-query.dto.ts",
+    "apps/web/src/App.tsx",
+    "apps/web/src/App.test.tsx",
+    "apps/web/src/components/knowledge/KnowledgeArticleAttachments.tsx",
+    "apps/web/src/components/knowledge/KnowledgeArticleAttachments.test.tsx",
+    "apps/web/src/pages/KnowledgePage.test.tsx",
+    "apps/web/src/pages/PublicKnowledgePage.tsx",
+    "apps/web/src/pages/PublicKnowledgePage.test.tsx",
+    "apps/web/src/pages/PublicKnowledgeArticlePage.tsx",
+    "apps/web/src/pages/PublicKnowledgeArticlePage.test.tsx",
+    "docker-compose.yml",
+    "docs/superpowers/specs/2026-11-01-knowledge-public-portal.md"
+  ],
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-190/s41-service-red.json",
+    "green": ".delivery/evidence/DMTE-190/s41-service-green.json",
+    "reason": "RED/GREEN comportamental próprio capturado por fatia via scripts/aponta_delivery.py record, um arquivo por fatia em .delivery/evidence/DMTE-190/ (s40-*, s41-*, s42-*). Este par é o dos dois testes mandatórios do briefing (nunca retorna PRIVATE / 404 uniforme). Os demais pares RED/GREEN da entrega estão listados no comentário final da atividade, não todos citados aqui por espaço."
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": ["EzSpinner", "EzEmptyCard"],
+    "exception": "Nenhum componente novo em components/ds nesta entrega — só composição de componentes já existentes nas duas páginas públicas novas (PublicKnowledgePage, PublicKnowledgeArticlePage) e no botão de download em KnowledgeArticleAttachments; por isso não há stories novas a declarar."
+  }
+}

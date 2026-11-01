@@ -1,0 +1,16 @@
+
+> nx run api:test --testPathPatterns=knowledge-attachments.controller
+
+> jest --passWithNoTests=true --testPathPatterns=knowledge-attachments.controller
+
+
+
+
+ NX   Successfully ran target test for project api
+
+
+[1mTest Suites: [22m[1m[32m1 passed[39m[22m, 1 total
+[1mTests:       [22m[1m[32m12 passed[39m[22m, 12 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        4.099 s, estimated 9 s
+[2mRan all test suites[22m[2m matching [22mknowledge-attachments.controller[2m.[22m

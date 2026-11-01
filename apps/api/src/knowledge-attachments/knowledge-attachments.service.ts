@@ -3,6 +3,10 @@ import { unlink } from 'fs/promises';
 import { join } from 'path';
 import { PrismaService } from '../prisma/prisma.service';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
+import {
+  getPrivateKnowledgeUploadsDir,
+  isSafeStoredFilename,
+} from './private-uploads';
 
 interface CreateKnowledgeAttachmentInput {
   articleId: string;
@@ -45,11 +49,35 @@ export class KnowledgeAttachmentsService {
     await this.prisma.knowledgeAttachment.delete({ where: { id: attachmentId } });
 
     try {
-      await unlink(join(process.cwd(), 'uploads', attachment.filename));
+      await unlink(join(getPrivateKnowledgeUploadsDir(), attachment.filename));
     } catch {
       // file might already be gone from disk; ignore
     }
 
     return { success: true };
+  }
+
+  /**
+   * Looked up by the download route (D-09/S4.0) after ArticlesService
+   * already confirmed the caller can see the parent article. Scoping by
+   * both attachmentId AND articleId, plus rejecting an unsafe stored
+   * filename (AC-18, defense in depth), keeps the same uniform 404 whether
+   * the attachment doesn't exist, belongs to a different article, or (in
+   * theory) has a corrupted path — never leaking which case it was.
+   */
+  async findForDownload(attachmentId: string, articleId: string) {
+    const attachment = await this.prisma.knowledgeAttachment.findUnique({
+      where: { id: attachmentId },
+    });
+
+    if (
+      !attachment ||
+      attachment.articleId !== articleId ||
+      !isSafeStoredFilename(attachment.filename)
+    ) {
+      throw new NotFoundException('Anexo não encontrado');
+    }
+
+    return attachment;
   }
 }

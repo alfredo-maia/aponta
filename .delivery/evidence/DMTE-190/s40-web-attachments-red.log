@@ -1,0 +1,134 @@
+
+> nx run web:test --run KnowledgeArticleAttachments
+
+> vitest --run KnowledgeArticleAttachments
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-190-91709edfebef/workdir/aponta/apps/web
+
+ ❯ |web| src/components/knowledge/KnowledgeArticleAttachments.test.tsx (8 tests | 1 failed) 874ms
+     ✓ shows the attachment count in the section title 82ms
+     ✓ shows zero in the title and an empty message when there are no attachments 10ms
+     × downloads an attachment through the authenticated route for everyone, regardless of canManage (D-09/S4.0: the old /uploads link is gone) 151ms
+     ✓ does not show upload or remove controls when canManage is false 22ms
+     ✓ shows upload and remove controls when canManage is true 208ms
+     ✓ uploads a file and invalidates the articles query on success 150ms
+     ✓ shows an error mentioning the 25MB limit when upload fails 143ms
+     ✓ deletes an attachment and invalidates the articles query on success 99ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  19:57:37
+   Duration  11.13s (transform 6.57s, setup 547ms, import 8.70s, tests 874ms, environment 692ms)
+
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/components/knowledge/KnowledgeArticleAttachments.test.tsx > KnowledgeArticleAttachments > downloads an attachment through the authenticated route for everyone, regardless of canManage (D-09/S4.0: the old /uploads link is gone)
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/manual\.pdf/i`
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Anexos (1)":
+  [36m<h3[39m
+    [33mclass[39m=[32m"text-sm font-semibold text-gray-900"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  list:
+
+  Name "":
+  [36m<ul[39m
+    [33mclass[39m=[32m"space-y-2"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  [36m<li[39m
+    [33mclass[39m=[32m"flex items-center justify-between gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  link:
+
+  Name "manual.pdf":
+  [36m<a[39m
+    [33mclass[39m=[32m"flex min-w-0 items-center gap-2 truncate text-brand-600 hover:underline"[39m
+    [33mhref[39m=[32m"/uploads/manual.pdf"[39m
+    [33mrel[39m=[32m"noreferrer"[39m
+    [33mtarget[39m=[32m"_blank"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33mclass[39m=[32m"space-y-3 rounded-lg border border-gray-200 bg-white p-4 mt-3"[39m
+    [36m>[39m
+      [36m<h3[39m
+        [33mclass[39m=[32m"text-sm font-semibold text-gray-900"[39m
+      [36m>[39m
+        [0mAnexos ([0m
+        [0m1[0m
+        [0m)[0m
+      [36m</h3>[39m
+      [36m<ul[39m
+        [33mclass[39m=[32m"space-y-2"[39m
+      [36m>[39m
+        [36m<li[39m
+          [33mclass[39m=[32m"flex items-center justify-between gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm"[39m
+        [36m>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m"flex min-w-0 items-center gap-2 truncate text-brand-600 hover:underline"[39m
+            [33mhref[39m=[32m"/uploads/manual.pdf"[39m
+            [33mrel[39m=[32m"noreferrer"[39m
+            [33mtarget[39m=[32m"_blank"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33maria-hidden[39m=[32m"true"[39m
+            [36m>[39m
+              [0m📄[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"truncate"[39m
+            [36m>[39m
+              [0mmanual.pdf[0m
+            [36m</span>[39m
+          [36m</a>[39m
+        [36m</li>[39m
+      [36m</ul>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/knowledge/KnowledgeArticleAttachments.test.tsx:69:29
+     67|     renderComponent({ canManage: false });
+     68|
+     69|     await user.click(screen.getByRole('button', { name: /manual\.pdf/i…
+       |                             ^
+     70|
+     71|     await waitFor(() => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+Warning: command "vitest --run KnowledgeArticleAttachments" exited with non-zero status code
