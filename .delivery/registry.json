@@ -278,6 +278,20 @@
       "epic": 46,
       "title": "Assinatura, GitHub e Troubleshooting — definir fluxos e i...",
       "note": "Escopo/integrações ainda precisam de decisão do usuário; não iniciar implementação."
+    },
+    "DMTE-299": {
+      "delivery": "DMTE-299",
+      "repository": "alfredo-maia/aponta",
+      "github_issue": 110,
+      "multica_id": "01a1928c-58f1-7c5c-8387-be6799222a6b",
+      "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-299",
+      "kind": "delivery",
+      "tier": 2,
+      "state": "Em revisão",
+      "cycle": "2026-10-26/2026-11-08",
+      "epic": null,
+      "title": "Composição de métodos de engenharia e alinhamento verificável",
+      "note": "Configuração administrativa; sem produto/deploy. Ensaios sintéticos em DMTE-293. PR #109 reutilizado; aceite humano pendente."
     }
   }
 }

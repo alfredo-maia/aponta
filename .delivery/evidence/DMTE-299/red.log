@@ -1,0 +1,43 @@
+test_existing_file_outside_bundle_is_not_a_bundled_reference (test_engineering_skills.SkillBundleTest.test_existing_file_outside_bundle_is_not_a_bundled_reference) ... FAIL
+test_existing_reference_and_anchor_are_valid (test_engineering_skills.SkillBundleTest.test_existing_reference_and_anchor_are_valid) ... ok
+test_fenced_examples_do_not_require_illustrative_files (test_engineering_skills.SkillBundleTest.test_fenced_examples_do_not_require_illustrative_files) ... ok
+test_missing_reference_is_reported (test_engineering_skills.SkillBundleTest.test_missing_reference_is_reported) ... FAIL
+test_missing_script_in_inline_code_is_reported (test_engineering_skills.SkillBundleTest.test_missing_script_in_inline_code_is_reported) ... FAIL
+test_pinned_reference_cannot_silently_change (test_engineering_skills.SkillBundleTest.test_pinned_reference_cannot_silently_change) ... FAIL
+
+======================================================================
+FAIL: test_existing_file_outside_bundle_is_not_a_bundled_reference (test_engineering_skills.SkillBundleTest.test_existing_file_outside_bundle_is_not_a_bundled_reference)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/implantacao-matt-2026-10-31/checkout/scripts/test_engineering_skills.py", line 45, in test_existing_file_outside_bundle_is_not_a_bundled_reference
+    self.assertTrue(any('escape' in e.lower() for e in validate_bundle(self.root)))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_missing_reference_is_reported (test_engineering_skills.SkillBundleTest.test_missing_reference_is_reported)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/implantacao-matt-2026-10-31/checkout/scripts/test_engineering_skills.py", line 22, in test_missing_reference_is_reported
+    self.assertTrue(any('references/contract.md' in e for e in validate_bundle(self.root)))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_missing_script_in_inline_code_is_reported (test_engineering_skills.SkillBundleTest.test_missing_script_in_inline_code_is_reported)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/implantacao-matt-2026-10-31/checkout/scripts/test_engineering_skills.py", line 26, in test_missing_script_in_inline_code_is_reported
+    self.assertTrue(any('scripts/reproduce.sh' in e for e in validate_bundle(self.root)))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_pinned_reference_cannot_silently_change (test_engineering_skills.SkillBundleTest.test_pinned_reference_cannot_silently_change)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/implantacao-matt-2026-10-31/checkout/scripts/test_engineering_skills.py", line 40, in test_pinned_reference_cannot_silently_change
+    self.assertTrue(any('hash' in e.lower() for e in validate_bundle(self.root)))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.009s
+
+FAILED (failures=4)
