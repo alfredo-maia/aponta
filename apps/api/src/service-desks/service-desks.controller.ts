@@ -6,6 +6,7 @@ import {
   Patch,
   Put,
   Param,
+  Query,
   Delete,
   UseGuards,
 } from '@nestjs/common';
@@ -23,6 +24,11 @@ import {
   ReorderTicketStagesDto,
   UpdateTicketStageDto,
 } from './dto/ticket-stage.dto';
+import { ServiceDeskCatalogService } from './service-desk-catalog.service';
+import {
+  CreateServiceDeskCatalogItemDto,
+  UpdateServiceDeskCatalogItemDto,
+} from './dto/service-desk-catalog-item.dto';
 
 @Controller('service-desks')
 @UseGuards(JwtAuthGuard)
@@ -30,6 +36,7 @@ export class ServiceDesksController {
   constructor(
     private readonly serviceDesksService: ServiceDesksService,
     private readonly ticketStagesService: TicketStagesService,
+    private readonly catalogService: ServiceDeskCatalogService,
   ) {}
 
   @Post()
@@ -124,5 +131,65 @@ export class ServiceDesksController {
     @Body() dto: UpdateBusinessHoursDto,
   ) {
     return this.serviceDesksService.updateBusinessHours(id, dto);
+  }
+
+  @Get(':id/categories')
+  listCategories(@Param('id') id: string, @Query('active') active?: string) {
+    return this.catalogService.list('category', id, active === 'true');
+  }
+
+  @Post(':id/categories')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_SERVICE_DESKS')
+  createCategory(@Param('id') id: string, @Body() dto: CreateServiceDeskCatalogItemDto) {
+    return this.catalogService.create('category', id, dto.name);
+  }
+
+  @Patch(':id/categories/:itemId')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_SERVICE_DESKS')
+  updateCategory(
+    @Param('id') id: string,
+    @Param('itemId') itemId: string,
+    @Body() dto: UpdateServiceDeskCatalogItemDto,
+  ) {
+    return this.catalogService.update('category', id, itemId, dto);
+  }
+
+  @Delete(':id/categories/:itemId')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_SERVICE_DESKS')
+  removeCategory(@Param('id') id: string, @Param('itemId') itemId: string) {
+    return this.catalogService.remove('category', id, itemId);
+  }
+
+  @Get(':id/service-types')
+  listServiceTypes(@Param('id') id: string, @Query('active') active?: string) {
+    return this.catalogService.list('serviceType', id, active === 'true');
+  }
+
+  @Post(':id/service-types')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_SERVICE_DESKS')
+  createServiceType(@Param('id') id: string, @Body() dto: CreateServiceDeskCatalogItemDto) {
+    return this.catalogService.create('serviceType', id, dto.name);
+  }
+
+  @Patch(':id/service-types/:itemId')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_SERVICE_DESKS')
+  updateServiceType(
+    @Param('id') id: string,
+    @Param('itemId') itemId: string,
+    @Body() dto: UpdateServiceDeskCatalogItemDto,
+  ) {
+    return this.catalogService.update('serviceType', id, itemId, dto);
+  }
+
+  @Delete(':id/service-types/:itemId')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('MANAGE_SERVICE_DESKS')
+  removeServiceType(@Param('id') id: string, @Param('itemId') itemId: string) {
+    return this.catalogService.remove('serviceType', id, itemId);
   }
 }

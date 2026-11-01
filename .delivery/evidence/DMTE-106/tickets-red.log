@@ -1,0 +1,245 @@
+
+> nx run api:test tickets.service.spec.ts
+
+> jest --passWithNoTests=true tickets.service.spec.ts
+
+
+
+
+ NX   Running target test for project api failed
+
+Failed tasks:
+
+- api:test
+
+Hint: run the command with --verbose for more details.
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m api [39m[27m[0m [2msrc/tickets/[22m[1mtickets.service.spec.ts[22m
+[1m[31m  [1m● [22m[1mTicketsService › findOne › selects category/serviceType id+name+active in the query (DMTE-106, AC-03/AC-04)[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    Expected: [32m{"select": {"active": true, "id": true, "name": true}}[39m
+    Received: [31mundefined[39m
+
+[2m    [0m [90m 1219 |[39m[22m
+[2m     [90m 1220 |[39m       [36mconst[39m callArgs [33m=[39m mockPrismaService[33m.[39mticket[33m.[39mfindUnique[33m.[39mmock[33m.[39mcalls[[35m0[39m][[35m0[39m][33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1221 |[39m       expect(callArgs[33m.[39minclude[33m.[39mcategory)[33m.[39mtoEqual({[22m
+[2m     [90m      |[39m                                         [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1222 |[39m         select[33m:[39m { id[33m:[39m [36mtrue[39m[33m,[39m name[33m:[39m [36mtrue[39m[33m,[39m active[33m:[39m [36mtrue[39m }[33m,[39m[22m
+[2m     [90m 1223 |[39m       })[33m;[39m[22m
+[2m     [90m 1224 |[39m       expect(callArgs[33m.[39minclude[33m.[39mserviceType)[33m.[39mtoEqual({[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/tickets/tickets.service.spec.ts[39m[0m[2m:1221:41)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mTicketsService › update › categoryId / serviceTypeId (DMTE-106, AC-03) › sets categoryId when the item exists, belongs to the desk and is active[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m{"where": {"id": "cat-1", "serviceDeskId": "desk-1"}}[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 1293 |[39m         [36mawait[39m service[33m.[39mupdate([32m't1'[39m[33m,[39m { categoryId[33m:[39m [32m'cat-1'[39m }[33m,[39m actingUser)[33m;[39m[22m
+[2m     [90m 1294 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1295 |[39m         expect(mockPrismaService[33m.[39mserviceDeskCategory[33m.[39mfindFirst)[33m.[39mtoHaveBeenCalledWith({[22m
+[2m     [90m      |[39m                                                                 [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1296 |[39m           where[33m:[39m { id[33m:[39m [32m'cat-1'[39m[33m,[39m serviceDeskId[33m:[39m [32m'desk-1'[39m }[33m,[39m[22m
+[2m     [90m 1297 |[39m         })[33m;[39m[22m
+[2m     [90m 1298 |[39m         expect(mockPrismaService[33m.[39mticket[33m.[39mupdate)[33m.[39mtoHaveBeenCalledWith({[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/tickets/tickets.service.spec.ts[39m[0m[2m:1295:65)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mTicketsService › update › categoryId / serviceTypeId (DMTE-106, AC-03) › clears categoryId when dto.categoryId is null, without validating a non-existent item[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    [32m- Expected[39m
+    [31m+ Received[39m
+
+    [2m  Object {[22m
+    [32m-   "data": Object {[39m
+    [32m-     "categoryId": null,[39m
+    [32m-   },[39m
+    [31m+   "data": Object {},[39m
+    [2m    "where": Object {[22m
+    [2m      "id": "t1",[22m
+    [2m    },[22m
+    [2m  }[22m,
+
+    Number of calls: [31m1[39m
+
+[2m    [0m [90m 1312 |[39m[22m
+[2m     [90m 1313 |[39m         expect(mockPrismaService[33m.[39mserviceDeskCategory[33m.[39mfindFirst)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1314 |[39m         expect(mockPrismaService[33m.[39mticket[33m.[39mupdate)[33m.[39mtoHaveBeenCalledWith({[22m
+[2m     [90m      |[39m                                                 [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1315 |[39m           where[33m:[39m { id[33m:[39m [32m't1'[39m }[33m,[39m[22m
+[2m     [90m 1316 |[39m           data[33m:[39m { categoryId[33m:[39m [36mnull[39m }[33m,[39m[22m
+[2m     [90m 1317 |[39m         })[33m;[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/tickets/tickets.service.spec.ts[39m[0m[2m:1314:49)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mTicketsService › update › categoryId / serviceTypeId (DMTE-106, AC-03) › throws BadRequestException when categoryId belongs to another desk[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mrejects[2m.[22mtoThrow[2m()[22m
+
+    Received promise resolved instead of rejected
+    Resolved to value: [31mundefined[39m
+
+[2m    [0m [90m 1322 |[39m         mockPrismaService[33m.[39mserviceDeskCategory[33m.[39mfindFirst[33m.[39mmockResolvedValue([36mnull[39m)[33m;[39m[22m
+[2m     [90m 1323 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1324 |[39m         [36mawait[39m expect([22m
+[2m     [90m      |[39m               [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1325 |[39m           service[33m.[39mupdate([32m't1'[39m[33m,[39m { categoryId[33m:[39m [32m'other-desk-cat'[39m }[33m,[39m actingUser)[33m,[39m[22m
+[2m     [90m 1326 |[39m         )[33m.[39mrejects[33m.[39mtoThrow([33mBadRequestException[39m)[33m;[39m[22m
+[2m     [90m 1327 |[39m         expect(mockPrismaService[33m.[39mticket[33m.[39mupdate)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/tickets/tickets.service.spec.ts[39m[0m[2m:1324:15)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mTicketsService › update › categoryId / serviceTypeId (DMTE-106, AC-03) › throws BadRequestException when categoryId is inactive and different from the current value[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mrejects[2m.[22mtoThrow[2m()[22m
+
+    Received promise resolved instead of rejected
+    Resolved to value: [31mundefined[39m
+
+[2m    [0m [90m 1336 |[39m         })[33m;[39m[22m
+[2m     [90m 1337 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1338 |[39m         [36mawait[39m expect([22m
+[2m     [90m      |[39m               [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1339 |[39m           service[33m.[39mupdate([32m't1'[39m[33m,[39m { categoryId[33m:[39m [32m'cat-1'[39m }[33m,[39m actingUser)[33m,[39m[22m
+[2m     [90m 1340 |[39m         )[33m.[39mrejects[33m.[39mtoThrow([33mBadRequestException[39m)[33m;[39m[22m
+[2m     [90m 1341 |[39m         expect(mockPrismaService[33m.[39mticket[33m.[39mupdate)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/tickets/tickets.service.spec.ts[39m[0m[2m:1338:15)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mTicketsService › update › categoryId / serviceTypeId (DMTE-106, AC-03) › sets serviceTypeId when the item exists, belongs to the desk and is active[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m{"where": {"id": "type-1", "serviceDeskId": "desk-1"}}[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 1369 |[39m         [36mawait[39m service[33m.[39mupdate([32m't1'[39m[33m,[39m { serviceTypeId[33m:[39m [32m'type-1'[39m }[33m,[39m actingUser)[33m;[39m[22m
+[2m     [90m 1370 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1371 |[39m         expect(mockPrismaService[33m.[39mserviceDeskServiceType[33m.[39mfindFirst)[33m.[39mtoHaveBeenCalledWith({[22m
+[2m     [90m      |[39m                                                                    [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1372 |[39m           where[33m:[39m { id[33m:[39m [32m'type-1'[39m[33m,[39m serviceDeskId[33m:[39m [32m'desk-1'[39m }[33m,[39m[22m
+[2m     [90m 1373 |[39m         })[33m;[39m[22m
+[2m     [90m 1374 |[39m         expect(mockPrismaService[33m.[39mticket[33m.[39mupdate)[33m.[39mtoHaveBeenCalledWith({[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/tickets/tickets.service.spec.ts[39m[0m[2m:1371:68)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mTicketsService › update › categoryId / serviceTypeId (DMTE-106, AC-03) › throws BadRequestException when serviceTypeId is inactive and different from the current value[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mrejects[2m.[22mtoThrow[2m()[22m
+
+    Received promise resolved instead of rejected
+    Resolved to value: [31mundefined[39m
+
+[2m    [0m [90m 1386 |[39m         })[33m;[39m[22m
+[2m     [90m 1387 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1388 |[39m         [36mawait[39m expect([22m
+[2m     [90m      |[39m               [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1389 |[39m           service[33m.[39mupdate([32m't1'[39m[33m,[39m { serviceTypeId[33m:[39m [32m'type-1'[39m }[33m,[39m actingUser)[33m,[39m[22m
+[2m     [90m 1390 |[39m         )[33m.[39mrejects[33m.[39mtoThrow([33mBadRequestException[39m)[33m;[39m[22m
+[2m     [90m 1391 |[39m         expect(mockPrismaService[33m.[39mticket[33m.[39mupdate)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/tickets/tickets.service.spec.ts[39m[0m[2m:1388:15)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mTicketsService › audit trail › records a CATEGORY_CHANGED audit row when categoryId changes (DMTE-106, AC-03)[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m{"data": {"action": "CATEGORY_CHANGED", "newVal": "cat-1", "prevVal": "", "ticketId": "t1", "userId": "user-1"}}[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 1705 |[39m       [36mawait[39m service[33m.[39mupdate([32m't1'[39m[33m,[39m { categoryId[33m:[39m [32m'cat-1'[39m }[33m,[39m actingUser)[33m;[39m[22m
+[2m     [90m 1706 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1707 |[39m       expect(mockPrismaService[33m.[39mticketAudit[33m.[39mcreate)[33m.[39mtoHaveBeenCalledWith({[22m
+[2m     [90m      |[39m                                                    [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1708 |[39m         data[33m:[39m {[22m
+[2m     [90m 1709 |[39m           action[33m:[39m [32m'CATEGORY_CHANGED'[39m[33m,[39m[22m
+[2m     [90m 1710 |[39m           prevVal[33m:[39m [32m''[39m[33m,[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/tickets/tickets.service.spec.ts[39m[0m[2m:1707:52)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mTicketsService › audit trail › records a SERVICE_TYPE_CHANGED audit row when serviceTypeId changes (DMTE-106, AC-03)[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m{"data": {"action": "SERVICE_TYPE_CHANGED", "newVal": "", "prevVal": "type-old", "ticketId": "t1", "userId": "user-1"}}[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 1728 |[39m       [36mawait[39m service[33m.[39mupdate([32m't1'[39m[33m,[39m { serviceTypeId[33m:[39m [36mnull[39m }[33m,[39m actingUser)[33m;[39m[22m
+[2m     [90m 1729 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1730 |[39m       expect(mockPrismaService[33m.[39mticketAudit[33m.[39mcreate)[33m.[39mtoHaveBeenCalledWith({[22m
+[2m     [90m      |[39m                                                    [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1731 |[39m         data[33m:[39m {[22m
+[2m     [90m 1732 |[39m           action[33m:[39m [32m'SERVICE_TYPE_CHANGED'[39m[33m,[39m[22m
+[2m     [90m 1733 |[39m           prevVal[33m:[39m [32m'type-old'[39m[33m,[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/tickets/tickets.service.spec.ts[39m[0m[2m:1730:52)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mTicketsService › changeServiceDesk › moves the ticket to a different service desk and records an audit row[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    [32m- Expected[39m
+    [31m+ Received[39m
+
+    [33m@@ -1,10 +1,8 @@[39m
+    [2m  Object {[22m
+    [2m    "data": Object {[22m
+    [32m-     "categoryId": null,[39m
+    [2m      "serviceDeskId": "desk-2",[22m
+    [32m-     "serviceTypeId": null,[39m
+    [2m      "stageId": "stage-initial",[22m
+    [2m    },[22m
+    [2m    "where": Object {[22m
+    [2m      "id": "t1",[22m
+    [2m    },[22m,
+
+    Number of calls: [31m1[39m
+
+[2m    [0m [90m 1820 |[39m       )[33m;[39m[22m
+[2m     [90m 1821 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1822 |[39m       expect(mockPrismaService[33m.[39mticket[33m.[39mupdate)[33m.[39mtoHaveBeenCalledWith({[22m
+[2m     [90m      |[39m                                               [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1823 |[39m         where[33m:[39m { id[33m:[39m [32m't1'[39m }[33m,[39m[22m
+[2m     [90m 1824 |[39m         data[33m:[39m {[22m
+[2m     [90m 1825 |[39m           serviceDeskId[33m:[39m [32m'desk-2'[39m[33m,[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/tickets/tickets.service.spec.ts[39m[0m[2m:1822:47)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mTicketsService › changeServiceDesk › zeroes categoryId/serviceTypeId when the desk changes (DMTE-106, AC-05)[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32mObjectContaining {"data": ObjectContaining {"categoryId": null, "serviceTypeId": null}}[39m
+    Received: [31m{"data": {"serviceDeskId": "desk-2", "stageId": "stage-initial"}, "where": {"id": "t1"}}[39m
+
+    Number of calls: [31m1[39m
+
+[2m    [0m [90m 1861 |[39m       [36mawait[39m service[33m.[39mchangeServiceDesk([32m't1'[39m[33m,[39m [32m'desk-2'[39m[33m,[39m actingUser)[33m;[39m[22m
+[2m     [90m 1862 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1863 |[39m       expect(mockPrismaService[33m.[39mticket[33m.[39mupdate)[33m.[39mtoHaveBeenCalledWith([22m
+[2m     [90m      |[39m                                               [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1864 |[39m         expect[33m.[39mobjectContaining({[22m
+[2m     [90m 1865 |[39m           data[33m:[39m expect[33m.[39mobjectContaining({ categoryId[33m:[39m [36mnull[39m[33m,[39m serviceTypeId[33m:[39m [36mnull[39m })[33m,[39m[22m
+[2m     [90m 1866 |[39m         })[33m,[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/tickets/tickets.service.spec.ts[39m[0m[2m:1863:47)[22m[2m[22m
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, 1 total
+[1mTests:       [22m[1m[31m11 failed[39m[22m, [1m[32m86 passed[39m[22m, 97 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        1.711 s, estimated 2 s
+[2mRan all test suites[22m[2m matching [22mtickets.service.spec.ts[2m.[22m
+Warning: command "jest --passWithNoTests=true tickets.service.spec.ts" exited with non-zero status code

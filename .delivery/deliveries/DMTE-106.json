@@ -1,0 +1,127 @@
+{
+  "version": 1,
+  "delivery": "DMTE-106",
+  "repository": "alfredo-maia/aponta",
+  "github_issue": 105,
+  "multica_id": "01a15f63-6b3f-7938-837e-dc644f3f65cc",
+  "cycle": null,
+  "tier": 2,
+  "base_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "CRUD de categorias por mesa sob MANAGE_SERVICE_DESKS: nome vazio→400, duplicado (case-insensitive)→409, item de outra mesa→404, excluir em uso→409",
+      "tests": [
+        "ServiceDeskCatalogService > list (AC-01/AC-02) > lists items of the desk ordered by sortOrder then name",
+        "ServiceDeskCatalogService > create (AC-01/AC-02) > creates a category with the trimmed name",
+        "ServiceDeskCatalogService > create (AC-01/AC-02) > rejects an empty name with 400",
+        "ServiceDeskCatalogService > create (AC-01/AC-02) > rejects a duplicate name in the same desk (case-insensitive) with 409",
+        "ServiceDeskCatalogService > create (AC-01/AC-02) > translates a racing unique-constraint violation from the DB into 409",
+        "ServiceDeskCatalogService > update (AC-01/AC-02) > renames, (in)activates and reorders an item",
+        "ServiceDeskCatalogService > update (AC-01/AC-02) > rejects renaming to a name already used by another item in the desk with 409",
+        "ServiceDeskCatalogService > remove (AC-01/AC-02) > deletes an item that is not referenced by any ticket",
+        "ServiceDeskCatalogService > remove (AC-01/AC-02) > rejects deleting an item still referenced by tickets with 409",
+        "ServiceDeskCatalogService > remove (AC-01/AC-02) > throws NotFoundException for an item belonging to another desk",
+        "ServiceDesksController > Categorias e Tipos de atendimento (DMTE-106, AC-01/AC-02) > requires MANAGE_SERVICE_DESKS on category/service-type mutations",
+        "ServiceDesksController > Categorias e Tipos de atendimento (DMTE-106, AC-01/AC-02) > createCategory/updateCategory/removeCategory delegate to the catalog service with kind=category"
+      ],
+      "tdd_required": false,
+      "reason": "RED/GREEN reais e próprios, capturados fora do par único validado pelo manifesto (limite de um par `tdd.red`/`tdd.green` por entrega — ver `tdd` abaixo, que cobre AC-04): .delivery/evidence/DMTE-106/catalog-{red,green}.json (service-desk-catalog.service.spec.ts) e catalog-controller-{red,green}.json (service-desks.controller.spec.ts), mesmo padrão RED comportamental (stub neutro) → GREEN. Não fabricado retroativamente."
+    },
+    {
+      "id": "AC-02",
+      "description": "Idem AC-01 para tipos de atendimento (mesmo serviço parametrizado por kind)",
+      "tests": [
+        "ServiceDeskCatalogService > remove (AC-01/AC-02) > checks ticket references by the serviceTypeId field for kind=serviceType",
+        "ServiceDesksController > Categorias e Tipos de atendimento (DMTE-106, AC-01/AC-02) > listServiceTypes/createServiceType/updateServiceType/removeServiceType delegate with kind=serviceType"
+      ],
+      "tdd_required": false,
+      "reason": "Mesma evidência real de AC-01 (serviço e controller únicos, parametrizados por kind) — ver reason de AC-01."
+    },
+    {
+      "id": "AC-03",
+      "description": "PATCH /tickets/:id grava/limpa categoryId/serviceTypeId; item de outra mesa ou inativo (diferente do atual)→400; gera auditoria CATEGORY_CHANGED/SERVICE_TYPE_CHANGED; GET /tickets/:id inclui category/serviceType {id,name,active}",
+      "tests": [
+        "TicketsService > update > categoryId / serviceTypeId (DMTE-106, AC-03) > sets categoryId when the item exists, belongs to the desk and is active",
+        "TicketsService > update > categoryId / serviceTypeId (DMTE-106, AC-03) > clears categoryId when dto.categoryId is null, without validating a non-existent item",
+        "TicketsService > update > categoryId / serviceTypeId (DMTE-106, AC-03) > throws BadRequestException when categoryId belongs to another desk",
+        "TicketsService > update > categoryId / serviceTypeId (DMTE-106, AC-03) > throws BadRequestException when categoryId is inactive and different from the current value",
+        "TicketsService > update > categoryId / serviceTypeId (DMTE-106, AC-03) > allows re-submitting the same (already inactive) categoryId without validating it",
+        "TicketsService > update > categoryId / serviceTypeId (DMTE-106, AC-03) > sets serviceTypeId when the item exists, belongs to the desk and is active",
+        "TicketsService > update > categoryId / serviceTypeId (DMTE-106, AC-03) > throws BadRequestException when serviceTypeId is inactive and different from the current value",
+        "TicketsService > audit trail > records a CATEGORY_CHANGED audit row when categoryId changes (DMTE-106, AC-03)",
+        "TicketsService > audit trail > records a SERVICE_TYPE_CHANGED audit row when serviceTypeId changes (DMTE-106, AC-03)",
+        "TicketsService > findOne > selects category/serviceType id+name+active in the query (DMTE-106, AC-03/AC-04)"
+      ],
+      "tdd_required": false,
+      "reason": "RED/GREEN reais e próprios, fora do par único validado (que cobre AC-04): .delivery/evidence/DMTE-106/tickets-{red,green}.json (tickets.service.spec.ts, mesmo arquivo para update/audit trail/findOne/changeServiceDesk). Mesmo padrão: stub neutro (DTO sem campos, service ignorando categoryId/serviceTypeId) falhando nas asserções, depois implementação real. Não fabricado retroativamente."
+    },
+    {
+      "id": "AC-04",
+      "description": "Abas Categoria/Tipo de Atendimento do ticket leem category/serviceType reais, editam via select (DS EzComboBox), sem texto fixo; estados vazio/erro/inativo/somente leitura",
+      "tests": [
+        "TicketDetailPage > Categoria e Tipo de Atendimento (DMTE-106, AC-04) > shows a select with the active categories of the mesa and saves on change",
+        "TicketDetailPage > Categoria e Tipo de Atendimento (DMTE-106, AC-04) > shows a select with the active service types and saves on change",
+        "TicketDetailPage > Categoria e Tipo de Atendimento (DMTE-106, AC-04) > labels the ticket's current category as \"(inativo)\" when it is no longer active",
+        "TicketDetailPage > Categoria e Tipo de Atendimento (DMTE-106, AC-04) > shows the empty state when the mesa has no active categories",
+        "TicketDetailPage > Categoria e Tipo de Atendimento (DMTE-106, AC-04) > is read-only without EDIT_TICKETS, showing just the current value as text",
+        "MesaCatalogEditor > lists items, marking inactive ones, and creates a new one",
+        "MesaCatalogEditor > shows the empty state when the desk has no items",
+        "MesaCatalogEditor > shows the 409 message from the API when deleting an item in use",
+        "ServiceDesksPage > shows the Categorias and Tipos de atendimento tabs with the mesa catalog editor (DMTE-106, AC-01/AC-02)"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "Trocar a mesa do ticket (changeServiceDesk) zera categoryId e serviceTypeId, preservando a auditoria SERVICE_DESK_CHANGED já existente",
+      "tests": [
+        "TicketsService > changeServiceDesk > moves the ticket to a different service desk and records an audit row",
+        "TicketsService > changeServiceDesk > zeroes categoryId/serviceTypeId when the desk changes (DMTE-106, AC-05)"
+      ],
+      "tdd_required": false,
+      "reason": "RED/GREEN reais e próprios, fora do par único validado (que cobre AC-04): .delivery/evidence/DMTE-106/tickets-{red,green}.json — ver reason de AC-03 (mesmo arquivo/comando)."
+    },
+    {
+      "id": "AC-06",
+      "description": "Migração aditiva (CREATE TABLE + ADD COLUMN nullable + índices, sem backfill); tickets existentes continuam abrindo com vínculo null; seções desligadas continuam ocultando a aba (comportamento preexistente, não alterado)",
+      "tests": [
+        "TicketsService > findOne > selects category/serviceType id+name+active in the query (DMTE-106, AC-03/AC-04)",
+        "TicketDetailPage > hides ticket sections disabled on the mesa"
+      ],
+      "tdd_required": false,
+      "reason": "Migração (apps/api/prisma/migrations/20261101211153_add_service_desk_category_and_service_type) aplicada e verificada com `prisma migrate dev` real contra banco isolado `aponta_dmte205` (Postgres do host, porta 15432, fora de produção) nesta sessão — CREATE TABLE/ADD COLUMN/índices conferidos no SQL gerado, sem comando destrutivo. Não é um RED/GREEN comportamental Jest/Vitest próprio: o comportamento de vínculo null e de seção oculta já é coberto pelos testes de AC-03 (tickets-{red,green}.json) e por um teste preexistente inalterado (TicketDetailPage), sem regressão."
+    }
+  ],
+  "spec": "docs/superpowers/specs/2026-11-01-ticket-category-service-type.md",
+  "changed_files": [
+    "apps/api/prisma/schema.prisma",
+    "apps/api/prisma/migrations/20261101211153_add_service_desk_category_and_service_type/migration.sql",
+    "apps/api/src/service-desks/dto/service-desk-catalog-item.dto.ts",
+    "apps/api/src/service-desks/service-desk-catalog.service.ts",
+    "apps/api/src/service-desks/service-desk-catalog.service.spec.ts",
+    "apps/api/src/service-desks/service-desks.controller.ts",
+    "apps/api/src/service-desks/service-desks.controller.spec.ts",
+    "apps/api/src/service-desks/service-desks.module.ts",
+    "apps/api/src/tickets/dto/update-ticket.dto.ts",
+    "apps/api/src/tickets/tickets.service.ts",
+    "apps/api/src/tickets/tickets.service.spec.ts",
+    "apps/web/src/components/MesaCatalogEditor.tsx",
+    "apps/web/src/components/MesaCatalogEditor.test.tsx",
+    "apps/web/src/hooks/useTickets.ts",
+    "apps/web/src/pages/ServiceDesksPage.tsx",
+    "apps/web/src/pages/ServiceDesksPage.test.tsx",
+    "apps/web/src/pages/TicketDetailPage.tsx",
+    "apps/web/src/pages/TicketDetailPage.test.tsx",
+    "docs/superpowers/specs/2026-11-01-ticket-category-service-type.md"
+  ],
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-106/ticket-detail-page-red.json",
+    "green": ".delivery/evidence/DMTE-106/ticket-detail-page-green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": ["EzButton", "EzTextInput", "EzAlert", "EzComboBox", "EzTabs"],
+    "exception": "MesaCatalogEditor segue o padrão de MesaStagesEditor (componente de página em apps/web/src/components/, não em components/ds/), composto só de EzButton/EzTextInput/EzAlert; sem alteração em components/ds/, por isso sem stories novas a declarar."
+  }
+}

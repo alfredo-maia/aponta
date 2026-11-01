@@ -41,6 +41,8 @@ describe('TicketsService', () => {
     comment: { create: jest.Mock };
     ticketStage: { findFirst: jest.Mock };
     ticketStageTransition: { findUnique: jest.Mock };
+    serviceDeskCategory: { findFirst: jest.Mock };
+    serviceDeskServiceType: { findFirst: jest.Mock };
     $transaction: jest.Mock;
   };
 
@@ -123,6 +125,12 @@ describe('TicketsService', () => {
       },
       ticketStageTransition: {
         findUnique: jest.fn().mockResolvedValue({ id: 'tr-1' }),
+      },
+      serviceDeskCategory: {
+        findFirst: jest.fn().mockResolvedValue(null),
+      },
+      serviceDeskServiceType: {
+        findFirst: jest.fn().mockResolvedValue(null),
       },
       user: {
         findUnique: jest.fn().mockResolvedValue({
@@ -1200,6 +1208,23 @@ describe('TicketsService', () => {
       expect(result.responseSlaStatus).toBeNull();
       expect(result.resolveSlaStatus).toBeNull();
     });
+
+    it('selects category/serviceType id+name+active in the query (DMTE-106, AC-03/AC-04)', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        requesterId: 'admin-1',
+      });
+
+      await service.findOne('t1', { id: 'admin-1', role: Role.ADMIN });
+
+      const callArgs = mockPrismaService.ticket.findUnique.mock.calls[0][0];
+      expect(callArgs.include.category).toEqual({
+        select: { id: true, name: true, active: true },
+      });
+      expect(callArgs.include.serviceType).toEqual({
+        select: { id: true, name: true, active: true },
+      });
+    });
   });
 
   describe('update', () => {
@@ -1253,6 +1278,118 @@ describe('TicketsService', () => {
       await expect(
         service.update('missing', { title: 'x' }, actingUser),
       ).rejects.toThrow(NotFoundException);
+    });
+
+    describe('categoryId / serviceTypeId (DMTE-106, AC-03)', () => {
+      it('sets categoryId when the item exists, belongs to the desk and is active', async () => {
+        mockPrismaService.ticket.findUnique.mockResolvedValue(existingTicket);
+        mockPrismaService.serviceDeskCategory.findFirst.mockResolvedValue({
+          id: 'cat-1',
+          serviceDeskId: 'desk-1',
+          active: true,
+        });
+        mockPrismaService.ticket.update.mockResolvedValue({});
+
+        await service.update('t1', { categoryId: 'cat-1' }, actingUser);
+
+        expect(mockPrismaService.serviceDeskCategory.findFirst).toHaveBeenCalledWith({
+          where: { id: 'cat-1', serviceDeskId: 'desk-1' },
+        });
+        expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
+          where: { id: 't1' },
+          data: { categoryId: 'cat-1' },
+        });
+      });
+
+      it('clears categoryId when dto.categoryId is null, without validating a non-existent item', async () => {
+        mockPrismaService.ticket.findUnique.mockResolvedValue({
+          ...existingTicket,
+          categoryId: 'cat-1',
+        });
+        mockPrismaService.ticket.update.mockResolvedValue({});
+
+        await service.update('t1', { categoryId: null }, actingUser);
+
+        expect(mockPrismaService.serviceDeskCategory.findFirst).not.toHaveBeenCalled();
+        expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
+          where: { id: 't1' },
+          data: { categoryId: null },
+        });
+      });
+
+      it('throws BadRequestException when categoryId belongs to another desk', async () => {
+        mockPrismaService.ticket.findUnique.mockResolvedValue(existingTicket);
+        mockPrismaService.serviceDeskCategory.findFirst.mockResolvedValue(null);
+
+        await expect(
+          service.update('t1', { categoryId: 'other-desk-cat' }, actingUser),
+        ).rejects.toThrow(BadRequestException);
+        expect(mockPrismaService.ticket.update).not.toHaveBeenCalled();
+      });
+
+      it('throws BadRequestException when categoryId is inactive and different from the current value', async () => {
+        mockPrismaService.ticket.findUnique.mockResolvedValue(existingTicket);
+        mockPrismaService.serviceDeskCategory.findFirst.mockResolvedValue({
+          id: 'cat-1',
+          serviceDeskId: 'desk-1',
+          active: false,
+        });
+
+        await expect(
+          service.update('t1', { categoryId: 'cat-1' }, actingUser),
+        ).rejects.toThrow(BadRequestException);
+        expect(mockPrismaService.ticket.update).not.toHaveBeenCalled();
+      });
+
+      it('allows re-submitting the same (already inactive) categoryId without validating it', async () => {
+        mockPrismaService.ticket.findUnique.mockResolvedValue({
+          ...existingTicket,
+          categoryId: 'cat-1',
+        });
+        mockPrismaService.ticket.update.mockResolvedValue({});
+
+        await service.update('t1', { categoryId: 'cat-1' }, actingUser);
+
+        expect(mockPrismaService.serviceDeskCategory.findFirst).not.toHaveBeenCalled();
+        expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
+          where: { id: 't1' },
+          data: {},
+        });
+      });
+
+      it('sets serviceTypeId when the item exists, belongs to the desk and is active', async () => {
+        mockPrismaService.ticket.findUnique.mockResolvedValue(existingTicket);
+        mockPrismaService.serviceDeskServiceType.findFirst.mockResolvedValue({
+          id: 'type-1',
+          serviceDeskId: 'desk-1',
+          active: true,
+        });
+        mockPrismaService.ticket.update.mockResolvedValue({});
+
+        await service.update('t1', { serviceTypeId: 'type-1' }, actingUser);
+
+        expect(mockPrismaService.serviceDeskServiceType.findFirst).toHaveBeenCalledWith({
+          where: { id: 'type-1', serviceDeskId: 'desk-1' },
+        });
+        expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
+          where: { id: 't1' },
+          data: { serviceTypeId: 'type-1' },
+        });
+      });
+
+      it('throws BadRequestException when serviceTypeId is inactive and different from the current value', async () => {
+        mockPrismaService.ticket.findUnique.mockResolvedValue(existingTicket);
+        mockPrismaService.serviceDeskServiceType.findFirst.mockResolvedValue({
+          id: 'type-1',
+          serviceDeskId: 'desk-1',
+          active: false,
+        });
+
+        await expect(
+          service.update('t1', { serviceTypeId: 'type-1' }, actingUser),
+        ).rejects.toThrow(BadRequestException);
+        expect(mockPrismaService.ticket.update).not.toHaveBeenCalled();
+      });
     });
   });
 
@@ -1550,6 +1687,57 @@ describe('TicketsService', () => {
       expect(mockPrismaService.ticketAudit.create).not.toHaveBeenCalled();
     });
 
+    it('records a CATEGORY_CHANGED audit row when categoryId changes (DMTE-106, AC-03)', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        priority: TicketPriority.MEDIUM,
+        createdAt: new Date('2026-01-01T00:00:00.000Z'),
+        serviceDeskId: 'desk-1',
+        categoryId: null,
+      });
+      mockPrismaService.serviceDeskCategory.findFirst.mockResolvedValue({
+        id: 'cat-1',
+        serviceDeskId: 'desk-1',
+        active: true,
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({});
+
+      await service.update('t1', { categoryId: 'cat-1' }, actingUser);
+
+      expect(mockPrismaService.ticketAudit.create).toHaveBeenCalledWith({
+        data: {
+          action: 'CATEGORY_CHANGED',
+          prevVal: '',
+          newVal: 'cat-1',
+          ticketId: 't1',
+          userId: actingUser.id,
+        },
+      });
+    });
+
+    it('records a SERVICE_TYPE_CHANGED audit row when serviceTypeId changes (DMTE-106, AC-03)', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        priority: TicketPriority.MEDIUM,
+        createdAt: new Date('2026-01-01T00:00:00.000Z'),
+        serviceDeskId: 'desk-1',
+        serviceTypeId: 'type-old',
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({});
+
+      await service.update('t1', { serviceTypeId: null }, actingUser);
+
+      expect(mockPrismaService.ticketAudit.create).toHaveBeenCalledWith({
+        data: {
+          action: 'SERVICE_TYPE_CHANGED',
+          prevVal: 'type-old',
+          newVal: '',
+          ticketId: 't1',
+          userId: actingUser.id,
+        },
+      });
+    });
+
     it('records a TicketAudit row when an agent is (re)assigned', async () => {
       mockPrismaService.ticket.findUnique.mockResolvedValue({
         id: 't1',
@@ -1633,7 +1821,12 @@ describe('TicketsService', () => {
 
       expect(mockPrismaService.ticket.update).toHaveBeenCalledWith({
         where: { id: 't1' },
-        data: { serviceDeskId: 'desk-2', stageId: 'stage-initial' },
+        data: {
+          serviceDeskId: 'desk-2',
+          stageId: 'stage-initial',
+          categoryId: null,
+          serviceTypeId: null,
+        },
       });
       expect(mockPrismaService.ticketAudit.create).toHaveBeenCalledWith({
         data: {
@@ -1645,6 +1838,33 @@ describe('TicketsService', () => {
         },
       });
       expect(result.serviceDeskId).toBe('desk-2');
+    });
+
+    it('zeroes categoryId/serviceTypeId when the desk changes (DMTE-106, AC-05)', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        serviceDeskId: 'desk-1',
+        categoryId: 'cat-1',
+        serviceTypeId: 'type-1',
+      });
+      mockPrismaService.serviceDesk.findUnique.mockResolvedValue({
+        id: 'desk-2',
+        name: 'Financeiro',
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({
+        id: 't1',
+        serviceDeskId: 'desk-2',
+        categoryId: null,
+        serviceTypeId: null,
+      });
+
+      await service.changeServiceDesk('t1', 'desk-2', actingUser);
+
+      expect(mockPrismaService.ticket.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ categoryId: null, serviceTypeId: null }),
+        }),
+      );
     });
 
     it('throws NotFoundException when the ticket does not exist', async () => {

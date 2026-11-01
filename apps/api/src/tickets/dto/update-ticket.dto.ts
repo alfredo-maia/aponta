@@ -1,4 +1,10 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  ValidateIf,
+} from 'class-validator';
 import { TicketPriority } from '@prisma/client';
 
 /**
@@ -20,4 +26,20 @@ export class UpdateTicketDto {
   @IsOptional()
   @IsEnum(TicketPriority)
   priority?: TicketPriority;
+
+  /**
+   * DMTE-106: `null` clears the vínculo ("Não definido"); the global
+   * ValidationPipe's whitelist/forbidNonWhitelisted would otherwise strip or
+   * reject an explicit null, so `@ValidateIf` only runs `@IsString` when a
+   * value is actually present.
+   */
+  @ValidateIf((_, value) => value !== null)
+  @IsOptional()
+  @IsString()
+  categoryId?: string | null;
+
+  @ValidateIf((_, value) => value !== null)
+  @IsOptional()
+  @IsString()
+  serviceTypeId?: string | null;
 }

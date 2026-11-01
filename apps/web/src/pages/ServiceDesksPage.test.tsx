@@ -56,6 +56,16 @@ function mockApiGet() {
         ],
       });
     }
+    if (String(url).includes('/categories')) {
+      return Promise.resolve({
+        data: [{ id: 'cat-1', name: 'Hardware', active: true, sortOrder: 0 }],
+      });
+    }
+    if (String(url).includes('/service-types')) {
+      return Promise.resolve({
+        data: [{ id: 'type-1', name: 'Remoto', active: true, sortOrder: 0 }],
+      });
+    }
     return Promise.reject(new Error(`Unexpected GET ${url}`));
   });
 }
@@ -207,6 +217,22 @@ describe('ServiceDesksPage', () => {
     expect(screen.getByLabelText('Apontamentos')).toBeInTheDocument();
     expect(screen.queryByText('GENERAL_INFO')).not.toBeInTheDocument();
     expect(screen.queryByText('WORKLOGS')).not.toBeInTheDocument();
+  });
+
+  it('shows the Categorias and Tipos de atendimento tabs with the mesa catalog editor (DMTE-106, AC-01/AC-02)', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Suporte N1');
+    await user.click(screen.getByText('Suporte N1'));
+
+    await user.click(await screen.findByRole('tab', { name: 'Categorias' }));
+    expect(await screen.findByText('Hardware')).toBeInTheDocument();
+    expect(api.get).toHaveBeenCalledWith('/service-desks/sd-1/categories');
+
+    await user.click(await screen.findByRole('tab', { name: 'Tipos de atendimento' }));
+    expect(await screen.findByText('Remoto')).toBeInTheDocument();
+    expect(api.get).toHaveBeenCalledWith('/service-desks/sd-1/service-types');
   });
 
   it('should link a service desk to a client and save its SLA overrides', async () => {

@@ -220,6 +220,8 @@ model ServiceDesk {
   priorities     ServiceDeskPriority[]
   ticketSections ServiceDeskTicketSection[]
   stages         TicketStage[]
+  categories     ServiceDeskCategory[]
+  serviceTypes   ServiceDeskServiceType[]
 
   /// Per-desk SLA targets (hours), overriding the global defaults in
   /// tickets.service.ts's SLA_HOURS when set. Each pair is nullable
@@ -302,6 +304,39 @@ model ServiceDeskTicketSection {
   sortOrder     Int                   @default(0)
 
   @@unique([serviceDeskId, key])
+  @@index([serviceDeskId])
+}
+
+/// DMTE-106: catálogo de categorias por mesa (não global — ver SPEC
+/// docs/superpowers/specs/2026-11-01-ticket-category-service-type.md).
+/// Vínculo opcional e nullable no Ticket, sem backfill.
+model ServiceDeskCategory {
+  id            String      @id @default(uuid())
+  serviceDeskId String
+  serviceDesk   ServiceDesk @relation(fields: [serviceDeskId], references: [id], onDelete: Cascade)
+  name          String
+  active        Boolean     @default(true)
+  sortOrder     Int         @default(0)
+  createdAt     DateTime    @default(now())
+  tickets       Ticket[]
+
+  @@unique([serviceDeskId, name])
+  @@index([serviceDeskId])
+}
+
+/// DMTE-106: catálogo de tipos de atendimento por mesa (mesmo padrão de
+/// ServiceDeskCategory).
+model ServiceDeskServiceType {
+  id            String      @id @default(uuid())
+  serviceDeskId String
+  serviceDesk   ServiceDesk @relation(fields: [serviceDeskId], references: [id], onDelete: Cascade)
+  name          String
+  active        Boolean     @default(true)
+  sortOrder     Int         @default(0)
+  createdAt     DateTime    @default(now())
+  tickets       Ticket[]
+
+  @@unique([serviceDeskId, name])
   @@index([serviceDeskId])
 }
 
@@ -388,6 +423,15 @@ model Ticket {
   stageId String?
   stage   TicketStage? @relation(fields: [stageId], references: [id])
 
+  /// DMTE-106: vínculo opcional por mesa, aditivo e sem backfill — tickets
+  /// existentes ficam com `null` ("Não definido"). onDelete Restrict: um
+  /// item em uso não pode ser excluído (ver ServiceDeskCatalogService).
+  categoryId String?
+  category   ServiceDeskCategory? @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  serviceTypeId String?
+  serviceType   ServiceDeskServiceType? @relation(fields: [serviceTypeId], references: [id], onDelete: Restrict)
+
   responseDeadline DateTime?
   resolveDeadline  DateTime?
   closedAt         DateTime?
@@ -416,6 +460,8 @@ model Ticket {
   @@index([serviceDeskId, status])
   @@index([requesterId])
   @@index([stageId])
+  @@index([categoryId])
+  @@index([serviceTypeId])
 }
 
 model TicketStage {

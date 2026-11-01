@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-01T21:21:46.725620+00:00",
+  "finished_at": "2026-11-01T21:21:48.559598+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "test",
+    "web",
+    "--",
+    "MesaCatalogEditor.test.tsx"
+  ],
+  "base_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "head_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "exit_code": 0,
+  "tests": {
+    "apps/web/src/components/MesaCatalogEditor.test.tsx": "fcc7fa166b8fc6863cd4771440e786fce6a06818eb5a4135531dd36c694e92e5"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02"
+  ],
+  "source_hashes": {
+    "apps/api/prisma/migrations/20261101211153_add_service_desk_category_and_service_type/migration.sql": "1812bf9292f867727baedfccfc853214aa71c0e5999162d36701f88d8a84064a",
+    "apps/api/prisma/schema.prisma": "fe3d632389d270fdea4d1a80af80f8a27f48f13199ec1b6047d5ab7ac63005fc",
+    "apps/api/src/service-desks/dto/service-desk-catalog-item.dto.ts": "7116ed9987768efecf4dc87a2dee6d26dd9b82a879d8da9a9aabac56f713c86f",
+    "apps/api/src/service-desks/service-desk-catalog.service.spec.ts": "c8342dfe9480a14c5ddc268a323c9ff67b8741751f0e15f2175e6b3d3087445b",
+    "apps/api/src/service-desks/service-desk-catalog.service.ts": "ea572797c4630000cdf7f755ec7680846d6711eb1ea85b4669c8ac575f93b34c",
+    "apps/api/src/service-desks/service-desks.controller.spec.ts": "e7c372f4144703bb2c7ddcebfd0f34f1ad510345db37f78b7123f275bac37333",
+    "apps/api/src/service-desks/service-desks.controller.ts": "3e381677bdd8dd91b704a260ad247a47dd378cb0d8a0e560ceb27f1ff8d29431",
+    "apps/api/src/service-desks/service-desks.module.ts": "75ab0d130ce3b8c7fb93ab4198636bdb38db6769c52e7cedcbce813db5870189",
+    "apps/api/src/tickets/dto/update-ticket.dto.ts": "a817eae530ca7a3a0b3e5330b7b3a3a1c8a739e0c5fdfc352da5341e33f76180",
+    "apps/api/src/tickets/tickets.service.spec.ts": "af3078aa135abf367f1e12badec81583ed81659556c480db8ae29c8c3bf31ae4",
+    "apps/api/src/tickets/tickets.service.ts": "36cca29e99487c49addc094fad7c0568b6430084018537f1106a56fc8d70a81c",
+    "apps/web/src/components/MesaCatalogEditor.test.tsx": "fcc7fa166b8fc6863cd4771440e786fce6a06818eb5a4135531dd36c694e92e5",
+    "apps/web/src/components/MesaCatalogEditor.tsx": "e90b9daeacd10da547451b85f3006cd77f3b6e4681c65c9d45a1978a46aafda8",
+    "apps/web/src/hooks/useTickets.ts": "b1183365473d6af96fd9ba1909ba5c7f066fc353d772ca7e4db6cc11cba04124"
+  },
+  "log": ".delivery/evidence/DMTE-106/mesa-catalog-editor-green.log",
+  "log_sha256": "dcb6180ad49125b8b5ec91db6f67b7c30ebf846e09546301cee322a437d4863c"
+}

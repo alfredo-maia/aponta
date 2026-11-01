@@ -1,0 +1,180 @@
+
+> nx run web:test MesaCatalogEditor.test.tsx
+
+> vitest MesaCatalogEditor.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-205-97c4b2a26dd5/workdir/aponta/apps/web
+
+ ❯ |web| src/components/MesaCatalogEditor.test.tsx (6 tests | 6 failed) 6183ms
+     × lists items, marking inactive ones, and creates a new one 1026ms
+     × shows the empty state when the desk has no items 1005ms
+     × renames an item 1014ms
+     × toggles active/inactive 1039ms
+     × deletes an item 1081ms
+     × shows the 409 message from the API when deleting an item in use 1010ms
+
+ Test Files  1 failed (1)
+      Tests  6 failed (6)
+   Start at  18:20:56
+   Duration  7.28s (transform 118ms, setup 124ms, import 308ms, tests 6.18s, environment 485ms)
+
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/components/MesaCatalogEditor.test.tsx > MesaCatalogEditor > lists items, marking inactive ones, and creates a new one
+TestingLibraryElementError: Unable to find an element with the text: Hardware. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/components/MesaCatalogEditor.test.tsx:46:25
+     44|     renderEditor();
+     45|
+     46|     expect(await screen.findByText('Hardware')).toBeInTheDocument();
+       |                         ^
+     47|     expect(screen.getByText(/Rede/)).toBeInTheDocument();
+     48|     expect(screen.getByText(/\(inativo\)/)).toBeInTheDocument();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |web| src/components/MesaCatalogEditor.test.tsx > MesaCatalogEditor > shows the empty state when the desk has no items
+TestingLibraryElementError: Unable to find an element with the text: /Nenhuma categoria cadastrada nesta mesa/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/components/MesaCatalogEditor.test.tsx:65:20
+     63|
+     64|     expect(
+     65|       await screen.findByText(/Nenhuma categoria cadastrada nesta mesa…
+       |                    ^
+     66|     ).toBeInTheDocument();
+     67|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |web| src/components/MesaCatalogEditor.test.tsx > MesaCatalogEditor > renames an item
+TestingLibraryElementError: Unable to find an element with the text: Hardware. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/components/MesaCatalogEditor.test.tsx:72:18
+     70|     const user = userEvent.setup();
+     71|     renderEditor();
+     72|     await screen.findByText('Hardware');
+       |                  ^
+     73|
+     74|     await user.click(screen.getAllByRole('button', { name: 'Editar' })…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |web| src/components/MesaCatalogEditor.test.tsx > MesaCatalogEditor > toggles active/inactive
+TestingLibraryElementError: Unable to find an element with the text: Hardware. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/components/MesaCatalogEditor.test.tsx:90:18
+     88|     const user = userEvent.setup();
+     89|     renderEditor();
+     90|     await screen.findByText('Hardware');
+       |                  ^
+     91|
+     92|     await user.click(screen.getAllByRole('button', { name: 'Inativar' …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |web| src/components/MesaCatalogEditor.test.tsx > MesaCatalogEditor > deletes an item
+TestingLibraryElementError: Unable to find an element with the text: Hardware. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/components/MesaCatalogEditor.test.tsx:104:18
+    102|     const user = userEvent.setup();
+    103|     renderEditor();
+    104|     await screen.findByText('Hardware');
+       |                  ^
+    105|
+    106|     await user.click(screen.getAllByRole('button', { name: 'Excluir' }…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |web| src/components/MesaCatalogEditor.test.tsx > MesaCatalogEditor > shows the 409 message from the API when deleting an item in use
+TestingLibraryElementError: Unable to find an element with the text: Hardware. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/components/MesaCatalogEditor.test.tsx:119:18
+    117|     });
+    118|     renderEditor();
+    119|     await screen.findByText('Hardware');
+       |                  ^
+    120|
+    121|     await user.click(screen.getAllByRole('button', { name: 'Excluir' }…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+Warning: command "vitest MesaCatalogEditor.test.tsx" exited with non-zero status code

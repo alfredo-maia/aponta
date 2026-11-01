@@ -773,6 +773,8 @@ export class TicketsService {
             },
           },
         },
+        category: { select: { id: true, name: true, active: true } },
+        serviceType: { select: { id: true, name: true, active: true } },
       },
     });
 
@@ -861,12 +863,41 @@ export class TicketsService {
     }
     await this.assertListedMutation(existing.serviceDeskId, currentUser);
 
-    const data: Prisma.TicketUpdateInput = {};
+    const data: Prisma.TicketUncheckedUpdateInput = {};
     if (dto.title !== undefined) {
       data.title = dto.title;
     }
     if (dto.description !== undefined) {
       data.description = dto.description;
+    }
+    const categoryChanged =
+      dto.categoryId !== undefined && dto.categoryId !== existing.categoryId;
+    if (categoryChanged) {
+      const categoryId = dto.categoryId as string | null;
+      if (categoryId !== null) {
+        await this.assertCatalogItemActiveInDesk(
+          'serviceDeskCategory',
+          existing.serviceDeskId,
+          categoryId,
+          'Categoria',
+        );
+      }
+      data.categoryId = categoryId;
+    }
+    const serviceTypeChanged =
+      dto.serviceTypeId !== undefined &&
+      dto.serviceTypeId !== existing.serviceTypeId;
+    if (serviceTypeChanged) {
+      const serviceTypeId = dto.serviceTypeId as string | null;
+      if (serviceTypeId !== null) {
+        await this.assertCatalogItemActiveInDesk(
+          'serviceDeskServiceType',
+          existing.serviceDeskId,
+          serviceTypeId,
+          'Tipo de atendimento',
+        );
+      }
+      data.serviceTypeId = serviceTypeId;
     }
     const priorityChanged =
       dto.priority !== undefined && dto.priority !== existing.priority;
@@ -917,8 +948,55 @@ export class TicketsService {
         },
       });
     }
+    if (categoryChanged) {
+      await this.prisma.ticketAudit.create({
+        data: {
+          action: 'CATEGORY_CHANGED',
+          prevVal: existing.categoryId ?? '',
+          newVal: dto.categoryId ?? '',
+          ticketId: id,
+          userId: currentUser.id,
+        },
+      });
+    }
+    if (serviceTypeChanged) {
+      await this.prisma.ticketAudit.create({
+        data: {
+          action: 'SERVICE_TYPE_CHANGED',
+          prevVal: existing.serviceTypeId ?? '',
+          newVal: dto.serviceTypeId ?? '',
+          ticketId: id,
+          userId: currentUser.id,
+        },
+      });
+    }
 
     return ticket;
+  }
+
+  /**
+   * DMTE-106: an item set on a ticket must exist, belong to the ticket's own
+   * mesa and be active — checked only when SETTING a different value than
+   * the one already on the ticket, so an item that went inactive after
+   * being selected stays visible/selectable as "current" (SPEC AC-03).
+   */
+  private async assertCatalogItemActiveInDesk(
+    model: 'serviceDeskCategory' | 'serviceDeskServiceType',
+    serviceDeskId: string,
+    itemId: string,
+    label: string,
+  ): Promise<void> {
+    const item = await (
+      this.prisma[model] as unknown as {
+        findFirst: (args: unknown) => Promise<{ active: boolean } | null>;
+      }
+    ).findFirst({ where: { id: itemId, serviceDeskId } });
+    if (!item) {
+      throw new BadRequestException(`${label} não pertence à mesa do ticket`);
+    }
+    if (!item.active) {
+      throw new BadRequestException(`${label} inativa não pode ser selecionada`);
+    }
   }
 
   async assign(
@@ -1334,7 +1412,14 @@ export class TicketsService {
 
     const ticket = await this.prisma.ticket.update({
       where: { id },
-      data: { serviceDeskId, stageId: initialStage?.id ?? null },
+      data: {
+        serviceDeskId,
+        stageId: initialStage?.id ?? null,
+        // DMTE-106: a categoria/tipo de atendimento são catálogos por mesa
+        // (AC-05) — um vínculo da mesa anterior não tem sentido na nova.
+        categoryId: null,
+        serviceTypeId: null,
+      },
     });
 
     await this.prisma.ticketAudit.create({

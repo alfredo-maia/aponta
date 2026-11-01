@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-01T21:05:32.641147+00:00",
+  "finished_at": "2026-11-01T21:05:37.527655+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "test",
+    "api",
+    "--",
+    "service-desk-catalog.service.spec.ts"
+  ],
+  "base_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "head_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "exit_code": 1,
+  "tests": {
+    "apps/api/src/service-desks/service-desk-catalog.service.spec.ts": "c8342dfe9480a14c5ddc268a323c9ff67b8741751f0e15f2175e6b3d3087445b"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02"
+  ],
+  "source_hashes": {
+    "apps/api/prisma/schema.prisma": "fe3d632389d270fdea4d1a80af80f8a27f48f13199ec1b6047d5ab7ac63005fc",
+    "apps/api/src/service-desks/dto/service-desk-catalog-item.dto.ts": "7116ed9987768efecf4dc87a2dee6d26dd9b82a879d8da9a9aabac56f713c86f",
+    "apps/api/src/service-desks/service-desk-catalog.service.spec.ts": "c8342dfe9480a14c5ddc268a323c9ff67b8741751f0e15f2175e6b3d3087445b",
+    "apps/api/src/service-desks/service-desk-catalog.service.ts": "aceff06a146ff145d79f2b9b9aace7b68a8bb87bac3704eefad5371932c6d706"
+  },
+  "log": ".delivery/evidence/DMTE-106/catalog-red.log",
+  "log_sha256": "a76a623214e2a28880e1115811e859ca76649bd6c2287a1ae756b60a17e337e6"
+}

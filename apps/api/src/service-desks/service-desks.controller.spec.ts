@@ -6,6 +6,7 @@ import { Role } from '@prisma/client';
 import { ServiceDesksController } from './service-desks.controller';
 import { ServiceDesksService } from './service-desks.service';
 import { TicketStagesService } from './ticket-stages.service';
+import { ServiceDeskCatalogService } from './service-desk-catalog.service';
 import { PERMISSIONS_KEY } from '../auth/decorators/require-permission.decorator';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -16,6 +17,13 @@ const mockTicketStagesService = {
   create: jest.fn(),
   update: jest.fn(),
   reorder: jest.fn(),
+  remove: jest.fn(),
+};
+
+const mockCatalogService = {
+  list: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
   remove: jest.fn(),
 };
 
@@ -39,6 +47,7 @@ describe('ServiceDesksController', () => {
       providers: [
         { provide: ServiceDesksService, useValue: mockServiceDesksService },
         { provide: TicketStagesService, useValue: mockTicketStagesService },
+        { provide: ServiceDeskCatalogService, useValue: mockCatalogService },
         { provide: PermissionsService, useValue: { hasPermission: jest.fn() } },
       ],
     }).compile();
@@ -337,6 +346,138 @@ describe('ServiceDesksController', () => {
         mockServiceDesksService.importNationalHolidays,
       ).toHaveBeenCalledWith(2026);
       expect(result).toEqual(expected);
+    });
+  });
+
+  describe('Categorias e Tipos de atendimento (DMTE-106, AC-01/AC-02)', () => {
+    it('requires MANAGE_SERVICE_DESKS on category/service-type mutations', () => {
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.createCategory)).toEqual([
+        'MANAGE_SERVICE_DESKS',
+      ]);
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.updateCategory)).toEqual([
+        'MANAGE_SERVICE_DESKS',
+      ]);
+      expect(Reflect.getMetadata(PERMISSIONS_KEY, controller.removeCategory)).toEqual([
+        'MANAGE_SERVICE_DESKS',
+      ]);
+      expect(
+        Reflect.getMetadata(PERMISSIONS_KEY, controller.createServiceType),
+      ).toEqual(['MANAGE_SERVICE_DESKS']);
+      expect(
+        Reflect.getMetadata(PERMISSIONS_KEY, controller.updateServiceType),
+      ).toEqual(['MANAGE_SERVICE_DESKS']);
+      expect(
+        Reflect.getMetadata(PERMISSIONS_KEY, controller.removeServiceType),
+      ).toEqual(['MANAGE_SERVICE_DESKS']);
+    });
+
+    it('does not restrict listCategories/listServiceTypes to any permission', () => {
+      expect(
+        Reflect.getMetadata(PERMISSIONS_KEY, controller.listCategories),
+      ).toBeUndefined();
+      expect(
+        Reflect.getMetadata(PERMISSIONS_KEY, controller.listServiceTypes),
+      ).toBeUndefined();
+    });
+
+    it('registers PermissionsGuard on the category/service-type mutation handlers', () => {
+      const guards = (handler: (...args: any[]) => unknown) =>
+        Reflect.getMetadata(GUARDS_METADATA, handler) ?? [];
+      expect(guards(controller.createCategory)).toContain(PermissionsGuard);
+      expect(guards(controller.updateCategory)).toContain(PermissionsGuard);
+      expect(guards(controller.removeCategory)).toContain(PermissionsGuard);
+      expect(guards(controller.createServiceType)).toContain(PermissionsGuard);
+      expect(guards(controller.updateServiceType)).toContain(PermissionsGuard);
+      expect(guards(controller.removeServiceType)).toContain(PermissionsGuard);
+    });
+
+    it('listCategories delegates to the catalog service with kind=category and the active filter', async () => {
+      const expected = [{ id: 'c1', name: 'Hardware', active: true, sortOrder: 0 }];
+      mockCatalogService.list.mockResolvedValue(expected);
+
+      const result = await controller.listCategories('desk-1', 'true');
+
+      expect(mockCatalogService.list).toHaveBeenCalledWith('category', 'desk-1', true);
+      expect(result).toEqual(expected);
+    });
+
+    it('listCategories defaults the active filter to false when omitted', async () => {
+      mockCatalogService.list.mockResolvedValue([]);
+
+      await controller.listCategories('desk-1', undefined);
+
+      expect(mockCatalogService.list).toHaveBeenCalledWith('category', 'desk-1', false);
+    });
+
+    it('createCategory delegates to the catalog service with kind=category', async () => {
+      const dto = { name: 'Hardware' };
+      const expected = { id: 'c1', name: 'Hardware', active: true, sortOrder: 0 };
+      mockCatalogService.create.mockResolvedValue(expected);
+
+      const result = await controller.createCategory('desk-1', dto);
+
+      expect(mockCatalogService.create).toHaveBeenCalledWith(
+        'category',
+        'desk-1',
+        dto.name,
+      );
+      expect(result).toEqual(expected);
+    });
+
+    it('updateCategory delegates to the catalog service with kind=category', async () => {
+      const dto = { active: false };
+      const expected = { id: 'c1', name: 'Hardware', active: false, sortOrder: 0 };
+      mockCatalogService.update.mockResolvedValue(expected);
+
+      const result = await controller.updateCategory('desk-1', 'c1', dto);
+
+      expect(mockCatalogService.update).toHaveBeenCalledWith(
+        'category',
+        'desk-1',
+        'c1',
+        dto,
+      );
+      expect(result).toEqual(expected);
+    });
+
+    it('removeCategory delegates to the catalog service with kind=category', async () => {
+      mockCatalogService.remove.mockResolvedValue({ id: 'c1' });
+
+      const result = await controller.removeCategory('desk-1', 'c1');
+
+      expect(mockCatalogService.remove).toHaveBeenCalledWith(
+        'category',
+        'desk-1',
+        'c1',
+      );
+      expect(result).toEqual({ id: 'c1' });
+    });
+
+    it('listServiceTypes/createServiceType/updateServiceType/removeServiceType delegate with kind=serviceType', async () => {
+      mockCatalogService.list.mockResolvedValue([]);
+      mockCatalogService.create.mockResolvedValue({ id: 't1' });
+      mockCatalogService.update.mockResolvedValue({ id: 't1' });
+      mockCatalogService.remove.mockResolvedValue({ id: 't1' });
+
+      await controller.listServiceTypes('desk-1', undefined);
+      await controller.createServiceType('desk-1', { name: 'Remoto' });
+      await controller.updateServiceType('desk-1', 't1', { active: false });
+      await controller.removeServiceType('desk-1', 't1');
+
+      expect(mockCatalogService.list).toHaveBeenCalledWith('serviceType', 'desk-1', false);
+      expect(mockCatalogService.create).toHaveBeenCalledWith(
+        'serviceType',
+        'desk-1',
+        'Remoto',
+      );
+      expect(mockCatalogService.update).toHaveBeenCalledWith('serviceType', 'desk-1', 't1', {
+        active: false,
+      });
+      expect(mockCatalogService.remove).toHaveBeenCalledWith(
+        'serviceType',
+        'desk-1',
+        't1',
+      );
     });
   });
 });

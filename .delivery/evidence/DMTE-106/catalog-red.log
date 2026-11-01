@@ -1,0 +1,329 @@
+
+> nx run api:test service-desk-catalog.service.spec.ts
+
+> jest --passWithNoTests=true service-desk-catalog.service.spec.ts
+
+
+
+
+ NX   Running target test for project api failed
+
+Failed tasks:
+
+- api:test
+
+Hint: run the command with --verbose for more details.
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m api [39m[27m[0m [2msrc/service-desks/[22m[1mservice-desk-catalog.service.spec.ts[22m
+[1m[31m  [1m● [22m[1mServiceDeskCatalogService › list (AC-01/AC-02) › lists items of the desk ordered by sortOrder then name[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m{"orderBy": [{"sortOrder": "asc"}, {"name": "asc"}], "where": {"serviceDeskId": "desk-1"}}[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 60 |[39m       [36mconst[39m result [33m=[39m [36mawait[39m service[33m.[39mlist([32m'category'[39m[33m,[39m [32m'desk-1'[39m[33m,[39m [36mfalse[39m)[33m;[39m[22m
+[2m     [90m 61 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 62 |[39m       expect(mockPrisma[33m.[39mserviceDeskCategory[33m.[39mfindMany)[33m.[39mtoHaveBeenCalledWith({[22m
+[2m     [90m    |[39m                                                       [31m[1m^[22m[2m[39m[22m
+[2m     [90m 63 |[39m         where[33m:[39m { serviceDeskId[33m:[39m [32m'desk-1'[39m }[33m,[39m[22m
+[2m     [90m 64 |[39m         orderBy[33m:[39m [{ sortOrder[33m:[39m [32m'asc'[39m }[33m,[39m { name[33m:[39m [32m'asc'[39m }][33m,[39m[22m
+[2m     [90m 65 |[39m       })[33m;[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desk-catalog.service.spec.ts[39m[0m[2m:62:55)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDeskCatalogService › list (AC-01/AC-02) › filters to active=true items only when activeOnly is requested[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m{"orderBy": [{"sortOrder": "asc"}, {"name": "asc"}], "where": {"active": true, "serviceDeskId": "desk-1"}}[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 74 |[39m       [36mawait[39m service[33m.[39mlist([32m'serviceType'[39m[33m,[39m [32m'desk-1'[39m[33m,[39m [36mtrue[39m)[33m;[39m[22m
+[2m     [90m 75 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 76 |[39m       expect(mockPrisma[33m.[39mserviceDeskServiceType[33m.[39mfindMany)[33m.[39mtoHaveBeenCalledWith({[22m
+[2m     [90m    |[39m                                                          [31m[1m^[22m[2m[39m[22m
+[2m     [90m 77 |[39m         where[33m:[39m { serviceDeskId[33m:[39m [32m'desk-1'[39m[33m,[39m active[33m:[39m [36mtrue[39m }[33m,[39m[22m
+[2m     [90m 78 |[39m         orderBy[33m:[39m [{ sortOrder[33m:[39m [32m'asc'[39m }[33m,[39m { name[33m:[39m [32m'asc'[39m }][33m,[39m[22m
+[2m     [90m 79 |[39m       })[33m;[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desk-catalog.service.spec.ts[39m[0m[2m:76:58)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDeskCatalogService › list (AC-01/AC-02) › throws NotFoundException when the desk does not exist[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mrejects[2m.[22mtoThrow[2m()[22m
+
+    Received promise resolved instead of rejected
+    Resolved to value: [31m[][39m
+
+[2m    [0m [90m 83 |[39m       mockPrisma[33m.[39mserviceDesk[33m.[39mfindUnique[33m.[39mmockResolvedValue([36mnull[39m)[33m;[39m[22m
+[2m     [90m 84 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 85 |[39m       [36mawait[39m expect(service[33m.[39mlist([32m'category'[39m[33m,[39m [32m'missing'[39m[33m,[39m [36mfalse[39m))[33m.[39mrejects[33m.[39mtoThrow([22m
+[2m     [90m    |[39m             [31m[1m^[22m[2m[39m[22m
+[2m     [90m 86 |[39m         [33mNotFoundException[39m[33m,[39m[22m
+[2m     [90m 87 |[39m       )[33m;[39m[22m
+[2m     [90m 88 |[39m     })[33m;[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desk-catalog.service.spec.ts[39m[0m[2m:85:13)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDeskCatalogService › create (AC-01/AC-02) › creates a category with the trimmed name[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m{"data": {"name": "Hardware", "serviceDeskId": "desk-1"}}[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 101 |[39m       [36mconst[39m result [33m=[39m [36mawait[39m service[33m.[39mcreate([32m'category'[39m[33m,[39m [32m'desk-1'[39m[33m,[39m [32m'  Hardware  '[39m)[33m;[39m[22m
+[2m     [90m 102 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 103 |[39m       expect(mockPrisma[33m.[39mserviceDeskCategory[33m.[39mcreate)[33m.[39mtoHaveBeenCalledWith({[22m
+[2m     [90m     |[39m                                                     [31m[1m^[22m[2m[39m[22m
+[2m     [90m 104 |[39m         data[33m:[39m { serviceDeskId[33m:[39m [32m'desk-1'[39m[33m,[39m name[33m:[39m [32m'Hardware'[39m }[33m,[39m[22m
+[2m     [90m 105 |[39m       })[33m;[39m[22m
+[2m     [90m 106 |[39m       expect(result)[33m.[39mtoEqual({[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desk-catalog.service.spec.ts[39m[0m[2m:103:53)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDeskCatalogService › create (AC-01/AC-02) › rejects an empty name with 400[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mrejects[2m.[22mtoThrow[2m()[22m
+
+    Received promise resolved instead of rejected
+    Resolved to value: [31mundefined[39m
+
+[2m    [0m [90m 113 |[39m[22m
+[2m     [90m 114 |[39m     it([32m'rejects an empty name with 400'[39m[33m,[39m [36masync[39m () [33m=>[39m {[22m
+[2m    [31m[1m>[22m[2m[39m[90m 115 |[39m       [36mawait[39m expect(service[33m.[39mcreate([32m'category'[39m[33m,[39m [32m'desk-1'[39m[33m,[39m [32m'   '[39m))[33m.[39mrejects[33m.[39mtoThrow([22m
+[2m     [90m     |[39m             [31m[1m^[22m[2m[39m[22m
+[2m     [90m 116 |[39m         [33mBadRequestException[39m[33m,[39m[22m
+[2m     [90m 117 |[39m       )[33m;[39m[22m
+[2m     [90m 118 |[39m       expect(mockPrisma[33m.[39mserviceDeskCategory[33m.[39mcreate)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desk-catalog.service.spec.ts[39m[0m[2m:115:13)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDeskCatalogService › create (AC-01/AC-02) › rejects a duplicate name in the same desk (case-insensitive) with 409[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mrejects[2m.[22mtoThrow[2m()[22m
+
+    Received promise resolved instead of rejected
+    Resolved to value: [31mundefined[39m
+
+[2m    [0m [90m 124 |[39m       ])[33m;[39m[22m
+[2m     [90m 125 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 126 |[39m       [36mawait[39m expect([22m
+[2m     [90m     |[39m             [31m[1m^[22m[2m[39m[22m
+[2m     [90m 127 |[39m         service[33m.[39mcreate([32m'category'[39m[33m,[39m [32m'desk-1'[39m[33m,[39m [32m'Hardware'[39m)[33m,[39m[22m
+[2m     [90m 128 |[39m       )[33m.[39mrejects[33m.[39mtoThrow([33mConflictException[39m)[33m;[39m[22m
+[2m     [90m 129 |[39m       expect(mockPrisma[33m.[39mserviceDeskCategory[33m.[39mcreate)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desk-catalog.service.spec.ts[39m[0m[2m:126:13)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDeskCatalogService › create (AC-01/AC-02) › translates a racing unique-constraint violation from the DB into 409[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mrejects[2m.[22mtoThrow[2m()[22m
+
+    Received promise resolved instead of rejected
+    Resolved to value: [31mundefined[39m
+
+[2m    [0m [90m 134 |[39m       mockPrisma[33m.[39mserviceDeskCategory[33m.[39mcreate[33m.[39mmockRejectedValue(uniqueViolation())[33m;[39m[22m
+[2m     [90m 135 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 136 |[39m       [36mawait[39m expect([22m
+[2m     [90m     |[39m             [31m[1m^[22m[2m[39m[22m
+[2m     [90m 137 |[39m         service[33m.[39mcreate([32m'category'[39m[33m,[39m [32m'desk-1'[39m[33m,[39m [32m'Hardware'[39m)[33m,[39m[22m
+[2m     [90m 138 |[39m       )[33m.[39mrejects[33m.[39mtoThrow([33mConflictException[39m)[33m;[39m[22m
+[2m     [90m 139 |[39m     })[33m;[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desk-catalog.service.spec.ts[39m[0m[2m:136:13)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDeskCatalogService › create (AC-01/AC-02) › throws NotFoundException when the desk does not exist[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mrejects[2m.[22mtoThrow[2m()[22m
+
+    Received promise resolved instead of rejected
+    Resolved to value: [31mundefined[39m
+
+[2m    [0m [90m 142 |[39m       mockPrisma[33m.[39mserviceDesk[33m.[39mfindUnique[33m.[39mmockResolvedValue([36mnull[39m)[33m;[39m[22m
+[2m     [90m 143 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 144 |[39m       [36mawait[39m expect([22m
+[2m     [90m     |[39m             [31m[1m^[22m[2m[39m[22m
+[2m     [90m 145 |[39m         service[33m.[39mcreate([32m'serviceType'[39m[33m,[39m [32m'missing'[39m[33m,[39m [32m'Remoto'[39m)[33m,[39m[22m
+[2m     [90m 146 |[39m       )[33m.[39mrejects[33m.[39mtoThrow([33mNotFoundException[39m)[33m;[39m[22m
+[2m     [90m 147 |[39m     })[33m;[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desk-catalog.service.spec.ts[39m[0m[2m:144:13)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDeskCatalogService › update (AC-01/AC-02) › renames, (in)activates and reorders an item[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m{"data": {"active": false, "name": "Hardware e Rede", "sortOrder": 2}, "where": {"id": "c1"}}[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 173 |[39m       })[33m;[39m[22m
+[2m     [90m 174 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 175 |[39m       expect(mockPrisma[33m.[39mserviceDeskCategory[33m.[39mupdate)[33m.[39mtoHaveBeenCalledWith({[22m
+[2m     [90m     |[39m                                                     [31m[1m^[22m[2m[39m[22m
+[2m     [90m 176 |[39m         where[33m:[39m { id[33m:[39m [32m'c1'[39m }[33m,[39m[22m
+[2m     [90m 177 |[39m         data[33m:[39m { name[33m:[39m [32m'Hardware e Rede'[39m[33m,[39m active[33m:[39m [36mfalse[39m[33m,[39m sortOrder[33m:[39m [35m2[39m }[33m,[39m[22m
+[2m     [90m 178 |[39m       })[33m;[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desk-catalog.service.spec.ts[39m[0m[2m:175:53)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDeskCatalogService › update (AC-01/AC-02) › rejects clearing the name to empty with 400[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mrejects[2m.[22mtoThrow[2m()[22m
+
+    Received promise resolved instead of rejected
+    Resolved to value: [31mundefined[39m
+
+[2m    [0m [90m 182 |[39m       mockPrisma[33m.[39mserviceDeskCategory[33m.[39mfindFirst[33m.[39mmockResolvedValue(existingItem)[33m;[39m[22m
+[2m     [90m 183 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 184 |[39m       [36mawait[39m expect([22m
+[2m     [90m     |[39m             [31m[1m^[22m[2m[39m[22m
+[2m     [90m 185 |[39m         service[33m.[39mupdate([32m'category'[39m[33m,[39m [32m'desk-1'[39m[33m,[39m [32m'c1'[39m[33m,[39m { name[33m:[39m [32m'   '[39m })[33m,[39m[22m
+[2m     [90m 186 |[39m       )[33m.[39mrejects[33m.[39mtoThrow([33mBadRequestException[39m)[33m;[39m[22m
+[2m     [90m 187 |[39m       expect(mockPrisma[33m.[39mserviceDeskCategory[33m.[39mupdate)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desk-catalog.service.spec.ts[39m[0m[2m:184:13)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDeskCatalogService › update (AC-01/AC-02) › rejects renaming to a name already used by another item in the desk with 409[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mrejects[2m.[22mtoThrow[2m()[22m
+
+    Received promise resolved instead of rejected
+    Resolved to value: [31mundefined[39m
+
+[2m    [0m [90m 194 |[39m       ])[33m;[39m[22m
+[2m     [90m 195 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 196 |[39m       [36mawait[39m expect([22m
+[2m     [90m     |[39m             [31m[1m^[22m[2m[39m[22m
+[2m     [90m 197 |[39m         service[33m.[39mupdate([32m'category'[39m[33m,[39m [32m'desk-1'[39m[33m,[39m [32m'c1'[39m[33m,[39m { name[33m:[39m [32m'Software'[39m })[33m,[39m[22m
+[2m     [90m 198 |[39m       )[33m.[39mrejects[33m.[39mtoThrow([33mConflictException[39m)[33m;[39m[22m
+[2m     [90m 199 |[39m     })[33m;[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desk-catalog.service.spec.ts[39m[0m[2m:196:13)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDeskCatalogService › update (AC-01/AC-02) › throws NotFoundException for an item belonging to another desk[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mrejects[2m.[22mtoThrow[2m()[22m
+
+    Received promise resolved instead of rejected
+    Resolved to value: [31mundefined[39m
+
+[2m    [0m [90m 202 |[39m       mockPrisma[33m.[39mserviceDeskCategory[33m.[39mfindFirst[33m.[39mmockResolvedValue([36mnull[39m)[33m;[39m[22m
+[2m     [90m 203 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 204 |[39m       [36mawait[39m expect([22m
+[2m     [90m     |[39m             [31m[1m^[22m[2m[39m[22m
+[2m     [90m 205 |[39m         service[33m.[39mupdate([32m'category'[39m[33m,[39m [32m'desk-1'[39m[33m,[39m [32m'other-desk-item'[39m[33m,[39m { active[33m:[39m [36mfalse[39m })[33m,[39m[22m
+[2m     [90m 206 |[39m       )[33m.[39mrejects[33m.[39mtoThrow([33mNotFoundException[39m)[33m;[39m[22m
+[2m     [90m 207 |[39m     })[33m;[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desk-catalog.service.spec.ts[39m[0m[2m:204:13)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDeskCatalogService › remove (AC-01/AC-02) › deletes an item that is not referenced by any ticket[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m{"where": {"id": "c1"}}[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 223 |[39m       [36mconst[39m result [33m=[39m [36mawait[39m service[33m.[39mremove([32m'category'[39m[33m,[39m [32m'desk-1'[39m[33m,[39m [32m'c1'[39m)[33m;[39m[22m
+[2m     [90m 224 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 225 |[39m       expect(mockPrisma[33m.[39mserviceDeskCategory[33m.[39m[36mdelete[39m)[33m.[39mtoHaveBeenCalledWith({[22m
+[2m     [90m     |[39m                                                     [31m[1m^[22m[2m[39m[22m
+[2m     [90m 226 |[39m         where[33m:[39m { id[33m:[39m [32m'c1'[39m }[33m,[39m[22m
+[2m     [90m 227 |[39m       })[33m;[39m[22m
+[2m     [90m 228 |[39m       expect(result)[33m.[39mtoEqual({ id[33m:[39m [32m'c1'[39m })[33m;[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desk-catalog.service.spec.ts[39m[0m[2m:225:53)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDeskCatalogService › remove (AC-01/AC-02) › rejects deleting an item still referenced by tickets with 409[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mrejects[2m.[22mtoThrow[2m()[22m
+
+    Received promise resolved instead of rejected
+    Resolved to value: [31mundefined[39m
+
+[2m    [0m [90m 233 |[39m       mockPrisma[33m.[39mticket[33m.[39mcount[33m.[39mmockResolvedValue([35m3[39m)[33m;[39m[22m
+[2m     [90m 234 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 235 |[39m       [36mawait[39m expect(service[33m.[39mremove([32m'category'[39m[33m,[39m [32m'desk-1'[39m[33m,[39m [32m'c1'[39m))[33m.[39mrejects[33m.[39mtoThrow([22m
+[2m     [90m     |[39m             [31m[1m^[22m[2m[39m[22m
+[2m     [90m 236 |[39m         [33mConflictException[39m[33m,[39m[22m
+[2m     [90m 237 |[39m       )[33m;[39m[22m
+[2m     [90m 238 |[39m       expect(mockPrisma[33m.[39mserviceDeskCategory[33m.[39m[36mdelete[39m)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desk-catalog.service.spec.ts[39m[0m[2m:235:13)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDeskCatalogService › remove (AC-01/AC-02) › checks ticket references by the categoryId field for kind=category[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m{"where": {"categoryId": "c1"}}[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 245 |[39m       [36mawait[39m service[33m.[39mremove([32m'category'[39m[33m,[39m [32m'desk-1'[39m[33m,[39m [32m'c1'[39m)[33m;[39m[22m
+[2m     [90m 246 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 247 |[39m       expect(mockPrisma[33m.[39mticket[33m.[39mcount)[33m.[39mtoHaveBeenCalledWith({[22m
+[2m     [90m     |[39m                                       [31m[1m^[22m[2m[39m[22m
+[2m     [90m 248 |[39m         where[33m:[39m { categoryId[33m:[39m [32m'c1'[39m }[33m,[39m[22m
+[2m     [90m 249 |[39m       })[33m;[39m[22m
+[2m     [90m 250 |[39m     })[33m;[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desk-catalog.service.spec.ts[39m[0m[2m:247:39)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDeskCatalogService › remove (AC-01/AC-02) › checks ticket references by the serviceTypeId field for kind=serviceType[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m{"where": {"serviceTypeId": "t1"}}[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 259 |[39m       [36mawait[39m service[33m.[39mremove([32m'serviceType'[39m[33m,[39m [32m'desk-1'[39m[33m,[39m [32m't1'[39m)[33m;[39m[22m
+[2m     [90m 260 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 261 |[39m       expect(mockPrisma[33m.[39mticket[33m.[39mcount)[33m.[39mtoHaveBeenCalledWith({[22m
+[2m     [90m     |[39m                                       [31m[1m^[22m[2m[39m[22m
+[2m     [90m 262 |[39m         where[33m:[39m { serviceTypeId[33m:[39m [32m't1'[39m }[33m,[39m[22m
+[2m     [90m 263 |[39m       })[33m;[39m[22m
+[2m     [90m 264 |[39m     })[33m;[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desk-catalog.service.spec.ts[39m[0m[2m:261:39)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDeskCatalogService › remove (AC-01/AC-02) › throws NotFoundException for an item belonging to another desk[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mrejects[2m.[22mtoThrow[2m()[22m
+
+    Received promise resolved instead of rejected
+    Resolved to value: [31mundefined[39m
+
+[2m    [0m [90m 267 |[39m       mockPrisma[33m.[39mserviceDeskCategory[33m.[39mfindFirst[33m.[39mmockResolvedValue([36mnull[39m)[33m;[39m[22m
+[2m     [90m 268 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 269 |[39m       [36mawait[39m expect([22m
+[2m     [90m     |[39m             [31m[1m^[22m[2m[39m[22m
+[2m     [90m 270 |[39m         service[33m.[39mremove([32m'category'[39m[33m,[39m [32m'desk-1'[39m[33m,[39m [32m'other-desk-item'[39m)[33m,[39m[22m
+[2m     [90m 271 |[39m       )[33m.[39mrejects[33m.[39mtoThrow([33mNotFoundException[39m)[33m;[39m[22m
+[2m     [90m 272 |[39m     })[33m;[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desk-catalog.service.spec.ts[39m[0m[2m:269:13)[22m[2m[22m
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, 1 total
+[1mTests:       [22m[1m[31m17 failed[39m[22m, 17 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        1.038 s
+[2mRan all test suites[22m[2m matching [22mservice-desk-catalog.service.spec.ts[2m.[22m
+Warning: command "jest --passWithNoTests=true service-desk-catalog.service.spec.ts" exited with non-zero status code

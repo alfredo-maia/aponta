@@ -79,6 +79,10 @@ export interface Ticket {
     isFinal: boolean;
     position: number;
   }[];
+  categoryId?: string | null;
+  category?: { id: string; name: string; active: boolean } | null;
+  serviceTypeId?: string | null;
+  serviceType?: { id: string; name: string; active: boolean } | null;
   createdAt: string;
   updatedAt: string;
 }

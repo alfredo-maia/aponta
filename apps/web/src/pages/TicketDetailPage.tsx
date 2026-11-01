@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, PlayCircle, Square } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CommentForm } from '../components/tickets/CommentForm';
 import { TicketComments } from '../components/tickets/TicketComments';
 import { TicketDetail } from '../components/tickets/TicketDetail';
@@ -13,13 +14,118 @@ import {
 import { useActivityTimer } from '../hooks/useActivityTimer';
 import { useTicket } from '../hooks/useTicket';
 import { Ticket } from '../hooks/useTickets';
+import { useHasPermission } from '../hooks/usePermissions';
 import { useAuthStore } from '../stores/authStore';
-import { EzSpinner, EzAlert, EzTabs, EzTabItem } from '../components/ds';
+import { api } from '../lib/api';
+import { EzSpinner, EzAlert, EzTabs, EzTabItem, EzComboBox } from '../components/ds';
 
 function isTicketSectionEnabled(ticket: Ticket, key: string): boolean {
   const sections = ticket.serviceDesk?.ticketSections;
   if (!sections || sections.length === 0) return true;
   return sections.some((section) => section.key === key && section.enabled);
+}
+
+function extractErrorMessage(error: unknown, fallback: string): string {
+  const message = (
+    error as { response?: { data?: { message?: string | string[] } } }
+  )?.response?.data?.message;
+  return Array.isArray(message) ? message.join('. ') : message || fallback;
+}
+
+/**
+ * DMTE-106: campo real de Categoria/Tipo de Atendimento do ticket,
+ * substituindo o texto fixo ("Remoto"/"Atendimento Remoto"). Sem
+ * EDIT_TICKETS o campo é somente leitura (SPEC AC-04).
+ */
+function TicketCatalogField({
+  ticket,
+  field,
+  resource,
+  label,
+}: {
+  ticket: Ticket;
+  field: 'category' | 'serviceType';
+  resource: 'categories' | 'service-types';
+  label: string;
+}) {
+  const queryClient = useQueryClient();
+  const canEdit = useHasPermission('EDIT_TICKETS');
+  const current = field === 'category' ? ticket.category : ticket.serviceType;
+  const idField = field === 'category' ? 'categoryId' : 'serviceTypeId';
+  const [error, setError] = useState('');
+
+  const { data: items, isLoading } = useQuery({
+    queryKey: ['service-desk-catalog', resource, ticket.serviceDeskId, 'active'],
+    enabled: canEdit,
+    queryFn: async () => {
+      const { data } = await api.get<{ id: string; name: string; active: boolean }[]>(
+        `/service-desks/${ticket.serviceDeskId}/${resource}`,
+        { params: { active: true } },
+      );
+      return data;
+    },
+  });
+
+  const mutation = useMutation({
+    mutationFn: async (value: string) => {
+      await api.patch(`/tickets/${ticket.id}`, { [idField]: value || null });
+    },
+    onSuccess: () => {
+      setError('');
+      void queryClient.invalidateQueries({ queryKey: ['tickets', ticket.id] });
+    },
+    onError: (err: unknown) => setError(extractErrorMessage(err, 'Não foi possível salvar.')),
+  });
+
+  if (!canEdit) {
+    return (
+      <div>
+        <span className="text-[12px] font-medium text-gray-500 uppercase tracking-wider block">
+          {label}
+        </span>
+        <span className="text-[14px] text-gray-900 mt-1 block font-medium">
+          {current ? current.name : 'Não definido'}
+          {current && !current.active ? ' (inativo)' : ''}
+        </span>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return <p className="text-sm text-gray-500">Carregando…</p>;
+  }
+
+  const options = items ?? [];
+  const currentIsListed = current ? options.some((item) => item.id === current.id) : true;
+
+  return (
+    <div className="space-y-1.5">
+      <EzComboBox
+        id={`ticket-${field}-select`}
+        label={label}
+        value={current?.id ?? ''}
+        onChange={(event) => mutation.mutate(event.target.value)}
+      >
+        <option value="">Não definido</option>
+        {current && !currentIsListed && (
+          <option value={current.id}>
+            {current.name} (inativo)
+          </option>
+        )}
+        {options.map((item) => (
+          <option key={item.id} value={item.id}>
+            {item.name}
+          </option>
+        ))}
+      </EzComboBox>
+      {options.length === 0 && (
+        <p className="text-sm text-gray-500">
+          Nenhuma {label.toLowerCase()} cadastrada nesta mesa
+        </p>
+      )}
+      {error && <p className="text-sm text-red-700">{error}</p>}
+    </div>
+  );
 }
 
 export function TicketDetailPage() {
@@ -204,14 +310,12 @@ export function TicketDetailPage() {
                 Categoria
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-                <div>
-                  <span className="text-[12px] font-medium text-gray-500 uppercase tracking-wider block">
-                    Tipo de Atendimento
-                  </span>
-                  <span className="text-[14px] text-gray-900 mt-1 block font-medium">
-                    Remoto
-                  </span>
-                </div>
+                <TicketCatalogField
+                  ticket={ticket}
+                  field="category"
+                  resource="categories"
+                  label="Categoria"
+                />
                 <div>
                   <span className="text-[12px] font-medium text-gray-500 uppercase tracking-wider block">
                     Previsão de Entrega
@@ -247,14 +351,13 @@ export function TicketDetailPage() {
               <h3 className="text-[16px] font-semibold text-gray-900 border-b border-gray-100 pb-3">
                 Tipo de Atendimento
               </h3>
-              <div className="p-4 rounded-[8px] bg-gray-50 border border-gray-200">
-                <span className="text-[14px] text-gray-900 font-medium">
-                  Atendimento Remoto
-                </span>
-                <p className="text-[13px] text-gray-500 mt-1">
-                  Chamado executado remotamente através do portal de Helpdesk DM
-                  Tecnologia.
-                </p>
+              <div className="max-w-xs pt-2">
+                <TicketCatalogField
+                  ticket={ticket}
+                  field="serviceType"
+                  resource="service-types"
+                  label="Tipo de Atendimento"
+                />
               </div>
             </div>
           )}

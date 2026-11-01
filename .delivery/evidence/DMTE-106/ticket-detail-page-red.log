@@ -1,0 +1,1578 @@
+
+> nx run web:test TicketDetailPage.test.tsx
+
+> vitest TicketDetailPage.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-205-97c4b2a26dd5/workdir/aponta/apps/web
+
+ ❯ |web| src/pages/TicketDetailPage.test.tsx (28 tests | 5 failed) 9049ms
+     ✓ should render ticket details with status, priority and SLA deadlines 222ms
+     ✓ sets the browser tab title to "#<protocolo> - <título>" (TiFlux parity) and restores it on unmount 71ms
+     ✓ shows SLA status badges when the backend reports responseSlaStatus/resolveSlaStatus 88ms
+     ✓ should render the comment timeline with an internal-note indicator only on internal comments 205ms
+     ✓ should show the comment form and post a new comment  333ms
+     ✓ should show the isInternal checkbox for agents 95ms
+     ✓ should show the isInternal checkbox for admins 114ms
+     ✓ should hide the isInternal checkbox for clients 20ms
+     ✓ should show the worklogs section for agents and admins 79ms
+     ✓ should hide the worklogs section for clients 23ms
+     ✓ starts a TiFlux-style pré-apontamento from the header play on any tab 288ms
+       × shows a select with the active categories of the mesa and saves on change 1208ms
+       × shows a select with the active service types and saves on change 1200ms
+       × labels the ticket's current category as "(inativo)" when it is no longer active 1226ms
+       × shows the empty state when the mesa has no active categories 1190ms
+       × is read-only without EDIT_TICKETS, showing just the current value as text 1134ms
+       ✓ hides the assignment dropdown from clients 21ms
+       ✓ shows the assignment dropdown to agents and allows assigning a ticket 110ms
+       ✓ shows an error message (not a silent revert) when the backend rejects an invalid status transition 159ms
+       ✓ hides the "Histórico" section from clients 38ms
+       ✓ shows the "Histórico" section with the audit trail to agents 204ms
+       ✓ shows an empty-state message when there is no audit history yet 92ms
+       ✓ refetches the audit trail after an assignment succeeds 275ms
+       ✓ switches between tabs and shows respective tab panels for agents  301ms
+       ✓ Apontamentos tab activates tab-panel-apontamentos when clicked 172ms
+       ✓ hides ticket sections disabled on the mesa 37ms
+       ✓ hides non-client tabs from clients 38ms
+       ✓ shows a "Voltar" link that navigates back to the ticket list 99ms
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 23 passed (28)
+   Start at  18:39:41
+   Duration  12.53s (transform 1.80s, setup 101ms, import 2.70s, tests 9.05s, environment 444ms)
+
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/pages/TicketDetailPage.test.tsx > TicketDetailPage > Categoria e Tipo de Atendimento (DMTE-106, AC-04) > shows a select with the active categories of the mesa and saves on change
+TestingLibraryElementError: Unable to find a label with the text of: Categoria
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900"[39m
+        [33mdata-discover[39m=[32m"true"[39m
+        [33mhref[39m=[32m"/"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"lucide lucide-arrow-left h-4 w-4"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<path[39m
+            [33md[39m=[32m"m12 19-7-7 7-7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M19 12H5"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [0m Voltar[0m
+      [36m</a>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-mono text-[15px] font-bold text-gray-800"[39m
+            [36m>[39m
+              [0m#[0m
+              [0mAP-000001[0m
+              [0m - [0m
+              [0mPrinter not working[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2"[39m
+              [33mdata-testid[39m=[32m"ticket-header-timer"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center w-9 h-9 rounded-full text-[#00B5A5] hover:bg-teal-50 border border-transparent hover:border-teal-200 cursor-pointer"[39m
+                [33mdata-testid[39m=[32m"ticket-header-play-btn"[39m
+                [33mtitle[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-circle-play lucide-play-circle w-7 h-7"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"10"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"px-6 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center overflow-x-auto no-scrollbar border-b border-gray-200"[39m
+            [33mrole[39m=[32m"tablist"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mInformações gerais[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"true"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-brand-600"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mCategoria[0m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-t-sm"[39m
+              [36m/>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mTipo de Atendimento[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mApontamentos[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mComunicação[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32...
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900"[39m
+        [33mdata-discover[39m=[32m"true"[39m
+        [33mhref[39m=[32m"/"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"lucide lucide-arrow-left h-4 w-4"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<path[39m
+            [33md[39m=[32m"m12 19-7-7 7-7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M19 12H5"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [0m Voltar[0m
+      [36m</a>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-mono text-[15px] font-bold text-gray-800"[39m
+            [36m>[39m
+              [0m#[0m
+              [0mAP-000001[0m
+              [0m - [0m
+              [0mPrinter not working[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2"[39m
+              [33mdata-testid[39m=[32m"ticket-header-timer"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center w-9 h-9 rounded-full text-[#00B5A5] hover:bg-teal-50 border border-transparent hover:border-teal-200 cursor-pointer"[39m
+                [33mdata-testid[39m=[32m"ticket-header-play-btn"[39m
+                [33mtitle[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-circle-play lucide-play-circle w-7 h-7"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"10"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"px-6 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center overflow-x-auto no-scrollbar border-b border-gray-200"[39m
+            [33mrole[39m=[32m"tablist"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mInformações gerais[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"true"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-brand-600"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mCategoria[0m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-t-sm"[39m
+              [36m/>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mTipo de Atendimento[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mApontamentos[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mComunicação[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32...
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/TicketDetailPage.test.tsx:409:35
+    407|
+    408|       await user.click(await screen.findByRole('tab', { name: 'Categor…
+    409|       const select = await screen.findByLabelText('Categoria');
+       |                                   ^
+    410|       expect(select).toHaveValue('');
+    411|       expect(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |web| src/pages/TicketDetailPage.test.tsx > TicketDetailPage > Categoria e Tipo de Atendimento (DMTE-106, AC-04) > shows a select with the active service types and saves on change
+TestingLibraryElementError: Unable to find a label with the text of: Tipo de Atendimento
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900"[39m
+        [33mdata-discover[39m=[32m"true"[39m
+        [33mhref[39m=[32m"/"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"lucide lucide-arrow-left h-4 w-4"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<path[39m
+            [33md[39m=[32m"m12 19-7-7 7-7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M19 12H5"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [0m Voltar[0m
+      [36m</a>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-mono text-[15px] font-bold text-gray-800"[39m
+            [36m>[39m
+              [0m#[0m
+              [0mAP-000001[0m
+              [0m - [0m
+              [0mPrinter not working[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2"[39m
+              [33mdata-testid[39m=[32m"ticket-header-timer"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center w-9 h-9 rounded-full text-[#00B5A5] hover:bg-teal-50 border border-transparent hover:border-teal-200 cursor-pointer"[39m
+                [33mdata-testid[39m=[32m"ticket-header-play-btn"[39m
+                [33mtitle[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-circle-play lucide-play-circle w-7 h-7"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"10"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"px-6 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center overflow-x-auto no-scrollbar border-b border-gray-200"[39m
+            [33mrole[39m=[32m"tablist"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mInformações gerais[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mCategoria[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"true"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-brand-600"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mTipo de Atendimento[0m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-t-sm"[39m
+              [36m/>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mApontamentos[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mComunicação[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32...
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900"[39m
+        [33mdata-discover[39m=[32m"true"[39m
+        [33mhref[39m=[32m"/"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"lucide lucide-arrow-left h-4 w-4"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<path[39m
+            [33md[39m=[32m"m12 19-7-7 7-7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M19 12H5"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [0m Voltar[0m
+      [36m</a>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-mono text-[15px] font-bold text-gray-800"[39m
+            [36m>[39m
+              [0m#[0m
+              [0mAP-000001[0m
+              [0m - [0m
+              [0mPrinter not working[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2"[39m
+              [33mdata-testid[39m=[32m"ticket-header-timer"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center w-9 h-9 rounded-full text-[#00B5A5] hover:bg-teal-50 border border-transparent hover:border-teal-200 cursor-pointer"[39m
+                [33mdata-testid[39m=[32m"ticket-header-play-btn"[39m
+                [33mtitle[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-circle-play lucide-play-circle w-7 h-7"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"10"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"px-6 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center overflow-x-auto no-scrollbar border-b border-gray-200"[39m
+            [33mrole[39m=[32m"tablist"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mInformações gerais[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mCategoria[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"true"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-brand-600"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mTipo de Atendimento[0m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-t-sm"[39m
+              [36m/>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mApontamentos[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mComunicação[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32...
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/TicketDetailPage.test.tsx:428:35
+    426|
+    427|       await user.click(await screen.findByRole('tab', { name: 'Tipo de…
+    428|       const select = await screen.findByLabelText('Tipo de Atendimento…
+       |                                   ^
+    429|
+    430|       await user.selectOptions(select, 'type-1');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |web| src/pages/TicketDetailPage.test.tsx > TicketDetailPage > Categoria e Tipo de Atendimento (DMTE-106, AC-04) > labels the ticket's current category as "(inativo)" when it is no longer active
+TestingLibraryElementError: Unable to find a label with the text of: Categoria
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900"[39m
+        [33mdata-discover[39m=[32m"true"[39m
+        [33mhref[39m=[32m"/"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"lucide lucide-arrow-left h-4 w-4"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<path[39m
+            [33md[39m=[32m"m12 19-7-7 7-7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M19 12H5"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [0m Voltar[0m
+      [36m</a>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-mono text-[15px] font-bold text-gray-800"[39m
+            [36m>[39m
+              [0m#[0m
+              [0mAP-000001[0m
+              [0m - [0m
+              [0mPrinter not working[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2"[39m
+              [33mdata-testid[39m=[32m"ticket-header-timer"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center w-9 h-9 rounded-full text-[#00B5A5] hover:bg-teal-50 border border-transparent hover:border-teal-200 cursor-pointer"[39m
+                [33mdata-testid[39m=[32m"ticket-header-play-btn"[39m
+                [33mtitle[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-circle-play lucide-play-circle w-7 h-7"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"10"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"px-6 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center overflow-x-auto no-scrollbar border-b border-gray-200"[39m
+            [33mrole[39m=[32m"tablist"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mInformações gerais[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"true"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-brand-600"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mCategoria[0m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-t-sm"[39m
+              [36m/>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mTipo de Atendimento[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mApontamentos[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mComunicação[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32...
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900"[39m
+        [33mdata-discover[39m=[32m"true"[39m
+        [33mhref[39m=[32m"/"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"lucide lucide-arrow-left h-4 w-4"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<path[39m
+            [33md[39m=[32m"m12 19-7-7 7-7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M19 12H5"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [0m Voltar[0m
+      [36m</a>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-mono text-[15px] font-bold text-gray-800"[39m
+            [36m>[39m
+              [0m#[0m
+              [0mAP-000001[0m
+              [0m - [0m
+              [0mPrinter not working[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2"[39m
+              [33mdata-testid[39m=[32m"ticket-header-timer"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center w-9 h-9 rounded-full text-[#00B5A5] hover:bg-teal-50 border border-transparent hover:border-teal-200 cursor-pointer"[39m
+                [33mdata-testid[39m=[32m"ticket-header-play-btn"[39m
+                [33mtitle[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-circle-play lucide-play-circle w-7 h-7"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"10"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"px-6 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center overflow-x-auto no-scrollbar border-b border-gray-200"[39m
+            [33mrole[39m=[32m"tablist"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mInformações gerais[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"true"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-brand-600"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mCategoria[0m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-t-sm"[39m
+              [36m/>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mTipo de Atendimento[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mApontamentos[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mComunicação[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32...
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/TicketDetailPage.test.tsx:445:35
+    443|
+    444|       await user.click(await screen.findByRole('tab', { name: 'Categor…
+    445|       const select = await screen.findByLabelText('Categoria');
+       |                                   ^
+    446|
+    447|       expect(select).toHaveValue('cat-old');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |web| src/pages/TicketDetailPage.test.tsx > TicketDetailPage > Categoria e Tipo de Atendimento (DMTE-106, AC-04) > shows the empty state when the mesa has no active categories
+TestingLibraryElementError: Unable to find an element with the text: /Nenhuma categoria cadastrada nesta mesa/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900"[39m
+        [33mdata-discover[39m=[32m"true"[39m
+        [33mhref[39m=[32m"/"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"lucide lucide-arrow-left h-4 w-4"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<path[39m
+            [33md[39m=[32m"m12 19-7-7 7-7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M19 12H5"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [0m Voltar[0m
+      [36m</a>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-mono text-[15px] font-bold text-gray-800"[39m
+            [36m>[39m
+              [0m#[0m
+              [0mAP-000001[0m
+              [0m - [0m
+              [0mPrinter not working[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2"[39m
+              [33mdata-testid[39m=[32m"ticket-header-timer"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center w-9 h-9 rounded-full text-[#00B5A5] hover:bg-teal-50 border border-transparent hover:border-teal-200 cursor-pointer"[39m
+                [33mdata-testid[39m=[32m"ticket-header-play-btn"[39m
+                [33mtitle[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-circle-play lucide-play-circle w-7 h-7"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"10"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"px-6 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center overflow-x-auto no-scrollbar border-b border-gray-200"[39m
+            [33mrole[39m=[32m"tablist"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mInformações gerais[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"true"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-brand-600"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mCategoria[0m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-t-sm"[39m
+              [36m/>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mTipo de Atendimento[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mApontamentos[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mComunicação[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32...
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900"[39m
+        [33mdata-discover[39m=[32m"true"[39m
+        [33mhref[39m=[32m"/"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"lucide lucide-arrow-left h-4 w-4"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<path[39m
+            [33md[39m=[32m"m12 19-7-7 7-7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M19 12H5"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [0m Voltar[0m
+      [36m</a>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-mono text-[15px] font-bold text-gray-800"[39m
+            [36m>[39m
+              [0m#[0m
+              [0mAP-000001[0m
+              [0m - [0m
+              [0mPrinter not working[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2"[39m
+              [33mdata-testid[39m=[32m"ticket-header-timer"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center w-9 h-9 rounded-full text-[#00B5A5] hover:bg-teal-50 border border-transparent hover:border-teal-200 cursor-pointer"[39m
+                [33mdata-testid[39m=[32m"ticket-header-play-btn"[39m
+                [33mtitle[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-circle-play lucide-play-circle w-7 h-7"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"10"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"px-6 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center overflow-x-auto no-scrollbar border-b border-gray-200"[39m
+            [33mrole[39m=[32m"tablist"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mInformações gerais[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"true"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-brand-600"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mCategoria[0m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-t-sm"[39m
+              [36m/>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mTipo de Atendimento[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mApontamentos[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mComunicação[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32...
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/TicketDetailPage.test.tsx:460:22
+    458|
+    459|       expect(
+    460|         await screen.findByText(/Nenhuma categoria cadastrada nesta me…
+       |                      ^
+    461|       ).toBeInTheDocument();
+    462|       categories.push({ id: 'cat-1', name: 'Hardware', active: true, s…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |web| src/pages/TicketDetailPage.test.tsx > TicketDetailPage > Categoria e Tipo de Atendimento (DMTE-106, AC-04) > is read-only without EDIT_TICKETS, showing just the current value as text
+TestingLibraryElementError: Unable to find an element with the text: Hardware. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900"[39m
+        [33mdata-discover[39m=[32m"true"[39m
+        [33mhref[39m=[32m"/"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"lucide lucide-arrow-left h-4 w-4"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<path[39m
+            [33md[39m=[32m"m12 19-7-7 7-7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M19 12H5"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [0m Voltar[0m
+      [36m</a>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-mono text-[15px] font-bold text-gray-800"[39m
+            [36m>[39m
+              [0m#[0m
+              [0mAP-000001[0m
+              [0m - [0m
+              [0mPrinter not working[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2"[39m
+              [33mdata-testid[39m=[32m"ticket-header-timer"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center w-9 h-9 rounded-full text-[#00B5A5] hover:bg-teal-50 border border-transparent hover:border-teal-200 cursor-pointer"[39m
+                [33mdata-testid[39m=[32m"ticket-header-play-btn"[39m
+                [33mtitle[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-circle-play lucide-play-circle w-7 h-7"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"10"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"px-6 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center overflow-x-auto no-scrollbar border-b border-gray-200"[39m
+            [33mrole[39m=[32m"tablist"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mInformações gerais[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"true"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-brand-600"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mCategoria[0m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-t-sm"[39m
+              [36m/>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mTipo de Atendimento[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mApontamentos[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mComunicação[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32...
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900"[39m
+        [33mdata-discover[39m=[32m"true"[39m
+        [33mhref[39m=[32m"/"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"lucide lucide-arrow-left h-4 w-4"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<path[39m
+            [33md[39m=[32m"m12 19-7-7 7-7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M19 12H5"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [0m Voltar[0m
+      [36m</a>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-mono text-[15px] font-bold text-gray-800"[39m
+            [36m>[39m
+              [0m#[0m
+              [0mAP-000001[0m
+              [0m - [0m
+              [0mPrinter not working[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2"[39m
+              [33mdata-testid[39m=[32m"ticket-header-timer"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center w-9 h-9 rounded-full text-[#00B5A5] hover:bg-teal-50 border border-transparent hover:border-teal-200 cursor-pointer"[39m
+                [33mdata-testid[39m=[32m"ticket-header-play-btn"[39m
+                [33mtitle[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-circle-play lucide-play-circle w-7 h-7"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"10"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"px-6 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center overflow-x-auto no-scrollbar border-b border-gray-200"[39m
+            [33mrole[39m=[32m"tablist"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mInformações gerais[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"true"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-brand-600"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mCategoria[0m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-t-sm"[39m
+              [36m/>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mTipo de Atendimento[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mApontamentos[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mComunicação[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32...
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/TicketDetailPage.test.tsx:486:27
+    484|       await user.click(await screen.findByRole('tab', { name: 'Categor…
+    485|
+    486|       expect(await screen.findByText('Hardware')).toBeInTheDocument();
+       |                           ^
+    487|       expect(screen.queryByLabelText('Categoria')).not.toBeInTheDocume…
+    488|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+Warning: command "vitest TicketDetailPage.test.tsx" exited with non-zero status code

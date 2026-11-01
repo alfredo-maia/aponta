@@ -33,6 +33,10 @@ const ticket: {
   serviceDesk?: {
     ticketSections: { key: string; enabled: boolean; sortOrder: number }[];
   };
+  categoryId?: string;
+  category?: { id: string; name: string; active: boolean };
+  serviceTypeId?: string;
+  serviceType?: { id: string; name: string; active: boolean };
 } = {
   id: 't-1',
   protocol: 'AP-000001',
@@ -69,6 +73,9 @@ const comments = [
     createdAt: '2026-09-28T12:00:00.000Z',
   },
 ];
+
+const categories = [{ id: 'cat-1', name: 'Hardware', active: true, sortOrder: 0 }];
+const serviceTypes = [{ id: 'type-1', name: 'Remoto', active: true, sortOrder: 0 }];
 
 const preAppointments: Array<{
   id: string;
@@ -109,12 +116,27 @@ function mockApi() {
     if (url === '/tickets/t-1/pre-appointments') {
       return Promise.resolve({ data: [...preAppointments] });
     }
+    if (url === '/auth/me') {
+      return Promise.resolve({
+        data: { id: 'u-1', isAdmin: false, permissions: ['EDIT_TICKETS'] },
+      });
+    }
+    if (url === '/service-desks/sd-1/categories') {
+      return Promise.resolve({ data: [...categories] });
+    }
+    if (url === '/service-desks/sd-1/service-types') {
+      return Promise.resolve({ data: [...serviceTypes] });
+    }
     return Promise.reject(new Error(`Unexpected GET ${url}`));
   });
   vi.mocked(api.patch).mockImplementation((url: string, body: unknown) => {
     if (url === '/tickets/t-1/assign') {
       const { agentId } = body as { agentId: string };
       ticket.agentId = agentId;
+      return Promise.resolve({ data: ticket });
+    }
+    if (url === '/tickets/t-1') {
+      Object.assign(ticket, body);
       return Promise.resolve({ data: ticket });
     }
     const preMatch = url.match(/^\/tickets\/t-1\/pre-appointments\/(.+)$/);
@@ -198,6 +220,10 @@ describe('TicketDetailPage', () => {
     vi.clearAllMocks();
     comments.length = 2;
     preAppointments.length = 0;
+    ticket.categoryId = undefined;
+    ticket.category = undefined;
+    ticket.serviceTypeId = undefined;
+    ticket.serviceType = undefined;
     mockApi();
     setRole('CLIENT');
   });
@@ -371,6 +397,95 @@ describe('TicketDetailPage', () => {
       expect(screen.getByTestId('ticket-header-play-btn')).toBeInTheDocument();
     });
     expect(screen.getByTestId('worklog-pre-end')).not.toHaveTextContent('--');
+  });
+
+  describe('Categoria e Tipo de Atendimento (DMTE-106, AC-04)', () => {
+    it('shows a select with the active categories of the mesa and saves on change', async () => {
+      setRole('AGENT');
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(await screen.findByRole('tab', { name: 'Categoria' }));
+      const select = await screen.findByLabelText('Categoria');
+      expect(select).toHaveValue('');
+      expect(
+        within(screen.getByTestId('tab-panel-categoria')).queryByText('Remoto'),
+      ).not.toBeInTheDocument();
+
+      await user.selectOptions(select, 'cat-1');
+
+      await waitFor(() => {
+        expect(api.patch).toHaveBeenCalledWith('/tickets/t-1', { categoryId: 'cat-1' });
+      });
+    });
+
+    it('shows a select with the active service types and saves on change', async () => {
+      setRole('AGENT');
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(await screen.findByRole('tab', { name: 'Tipo de Atendimento' }));
+      const select = await screen.findByLabelText('Tipo de Atendimento');
+
+      await user.selectOptions(select, 'type-1');
+
+      await waitFor(() => {
+        expect(api.patch).toHaveBeenCalledWith('/tickets/t-1', { serviceTypeId: 'type-1' });
+      });
+    });
+
+    it('labels the ticket\'s current category as "(inativo)" when it is no longer active', async () => {
+      ticket.categoryId = 'cat-old';
+      ticket.category = { id: 'cat-old', name: 'Descontinuada', active: false };
+      setRole('AGENT');
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(await screen.findByRole('tab', { name: 'Categoria' }));
+      const select = await screen.findByLabelText('Categoria');
+
+      expect(select).toHaveValue('cat-old');
+      expect(screen.getByText('Descontinuada (inativo)')).toBeInTheDocument();
+    });
+
+    it('shows the empty state when the mesa has no active categories', async () => {
+      categories.length = 0;
+      setRole('AGENT');
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(await screen.findByRole('tab', { name: 'Categoria' }));
+
+      expect(
+        await screen.findByText(/Nenhuma categoria cadastrada nesta mesa/i),
+      ).toBeInTheDocument();
+      categories.push({ id: 'cat-1', name: 'Hardware', active: true, sortOrder: 0 });
+    });
+
+    it('is read-only without EDIT_TICKETS, showing just the current value as text', async () => {
+      ticket.categoryId = 'cat-1';
+      ticket.category = { id: 'cat-1', name: 'Hardware', active: true };
+      vi.mocked(api.get).mockImplementation((url: string) => {
+        if (url === '/auth/me') {
+          return Promise.resolve({ data: { id: 'u-1', isAdmin: false, permissions: [] } });
+        }
+        if (url === '/tickets/t-1') return Promise.resolve({ data: ticket });
+        if (url === '/tickets/t-1/comments') return Promise.resolve({ data: [...comments] });
+        if (url === '/users/agents') return Promise.resolve({ data: mockAgents });
+        if (url === '/tickets/t-1/audits') return Promise.resolve({ data: [] });
+        if (url === '/tickets/t-1/worklogs') return Promise.resolve({ data: [] });
+        if (url === '/tickets/t-1/pre-appointments') return Promise.resolve({ data: [] });
+        return Promise.reject(new Error(`Unexpected GET ${url}`));
+      });
+      setRole('AGENT');
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(await screen.findByRole('tab', { name: 'Categoria' }));
+
+      expect(await screen.findByText('Hardware')).toBeInTheDocument();
+      expect(screen.queryByLabelText('Categoria')).not.toBeInTheDocument();
+    });
   });
 
   describe('Agent assignment', () => {

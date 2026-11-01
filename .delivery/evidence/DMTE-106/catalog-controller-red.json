@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-01T21:09:01.073287+00:00",
+  "finished_at": "2026-11-01T21:09:06.757164+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "test",
+    "api",
+    "--",
+    "service-desks.controller.spec.ts"
+  ],
+  "base_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "head_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "exit_code": 1,
+  "tests": {
+    "apps/api/src/service-desks/service-desks.controller.spec.ts": "e7c372f4144703bb2c7ddcebfd0f34f1ad510345db37f78b7123f275bac37333"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02"
+  ],
+  "source_hashes": {
+    "apps/api/prisma/schema.prisma": "fe3d632389d270fdea4d1a80af80f8a27f48f13199ec1b6047d5ab7ac63005fc",
+    "apps/api/src/service-desks/dto/service-desk-catalog-item.dto.ts": "7116ed9987768efecf4dc87a2dee6d26dd9b82a879d8da9a9aabac56f713c86f",
+    "apps/api/src/service-desks/service-desk-catalog.service.spec.ts": "c8342dfe9480a14c5ddc268a323c9ff67b8741751f0e15f2175e6b3d3087445b",
+    "apps/api/src/service-desks/service-desk-catalog.service.ts": "5be3b417c27a096fb7084e9d7bcf72a063c37cc34f44c37827b173f62e13501c",
+    "apps/api/src/service-desks/service-desks.controller.spec.ts": "e7c372f4144703bb2c7ddcebfd0f34f1ad510345db37f78b7123f275bac37333",
+    "apps/api/src/service-desks/service-desks.controller.ts": "785c672fba47ad5248469d04a81a875d3482679d3e7173c4a85b85adfb26f0f4",
+    "apps/api/src/service-desks/service-desks.module.ts": "75ab0d130ce3b8c7fb93ab4198636bdb38db6769c52e7cedcbce813db5870189"
+  },
+  "log": ".delivery/evidence/DMTE-106/catalog-controller-red.log",
+  "log_sha256": "7751836e9274ffc71f167de1c0c93434c4c77967543e9c6a2908645947110bbd"
+}

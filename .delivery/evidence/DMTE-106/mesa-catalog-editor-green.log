@@ -1,0 +1,22 @@
+
+> nx run web:test MesaCatalogEditor.test.tsx  [existing outputs match the cache, left as is]
+
+> vitest MesaCatalogEditor.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-205-97c4b2a26dd5/workdir/aponta/apps/web
+
+ ✓ |web| src/components/MesaCatalogEditor.test.tsx (6 tests) 661ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  18:21:33
+   Duration  3.79s (transform 1.23s, setup 107ms, import 1.82s, tests 661ms, environment 418ms)
+
+
+
+
+ NX   Successfully ran target test for project web
+
+Nx read the output from the cache instead of running the command for 1 out of 1 tasks.
+

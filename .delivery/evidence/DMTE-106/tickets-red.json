@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-01T21:13:49.110979+00:00",
+  "finished_at": "2026-11-01T21:13:52.966972+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "test",
+    "api",
+    "--",
+    "tickets.service.spec.ts"
+  ],
+  "base_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "head_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "exit_code": 1,
+  "tests": {
+    "apps/api/src/tickets/tickets.service.spec.ts": "af3078aa135abf367f1e12badec81583ed81659556c480db8ae29c8c3bf31ae4"
+  },
+  "criteria": [
+    "AC-03",
+    "AC-05",
+    "AC-06"
+  ],
+  "source_hashes": {
+    "apps/api/prisma/migrations/20261101211153_add_service_desk_category_and_service_type/migration.sql": "1812bf9292f867727baedfccfc853214aa71c0e5999162d36701f88d8a84064a",
+    "apps/api/prisma/schema.prisma": "fe3d632389d270fdea4d1a80af80f8a27f48f13199ec1b6047d5ab7ac63005fc",
+    "apps/api/src/service-desks/dto/service-desk-catalog-item.dto.ts": "7116ed9987768efecf4dc87a2dee6d26dd9b82a879d8da9a9aabac56f713c86f",
+    "apps/api/src/service-desks/service-desk-catalog.service.spec.ts": "c8342dfe9480a14c5ddc268a323c9ff67b8741751f0e15f2175e6b3d3087445b",
+    "apps/api/src/service-desks/service-desk-catalog.service.ts": "5be3b417c27a096fb7084e9d7bcf72a063c37cc34f44c37827b173f62e13501c",
+    "apps/api/src/service-desks/service-desks.controller.spec.ts": "e7c372f4144703bb2c7ddcebfd0f34f1ad510345db37f78b7123f275bac37333",
+    "apps/api/src/service-desks/service-desks.controller.ts": "3e381677bdd8dd91b704a260ad247a47dd378cb0d8a0e560ceb27f1ff8d29431",
+    "apps/api/src/service-desks/service-desks.module.ts": "75ab0d130ce3b8c7fb93ab4198636bdb38db6769c52e7cedcbce813db5870189",
+    "apps/api/src/tickets/dto/update-ticket.dto.ts": "a817eae530ca7a3a0b3e5330b7b3a3a1c8a739e0c5fdfc352da5341e33f76180",
+    "apps/api/src/tickets/tickets.service.spec.ts": "af3078aa135abf367f1e12badec81583ed81659556c480db8ae29c8c3bf31ae4"
+  },
+  "log": ".delivery/evidence/DMTE-106/tickets-red.log",
+  "log_sha256": "e50fce0fabceea0ba43190340d2107af6b5359493970458ea518c38283462887"
+}

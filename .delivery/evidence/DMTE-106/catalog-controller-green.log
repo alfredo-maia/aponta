@@ -1,0 +1,17 @@
+
+> nx run api:test service-desks.controller.spec.ts  [existing outputs match the cache, left as is]
+
+> jest --passWithNoTests=true service-desks.controller.spec.ts
+
+[1mTest Suites: [22m[1m[32m1 passed[39m[22m, 1 total
+[1mTests:       [22m[1m[32m41 passed[39m[22m, 41 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        1.472 s, estimated 2 s
+[2mRan all test suites[22m[2m matching [22mservice-desks.controller.spec.ts[2m.[22m
+
+
+
+ NX   Successfully ran target test for project api
+
+Nx read the output from the cache instead of running the command for 1 out of 1 tasks.
+

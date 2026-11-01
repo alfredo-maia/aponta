@@ -1,0 +1,165 @@
+
+> nx run api:test service-desks.controller.spec.ts
+
+> jest --passWithNoTests=true service-desks.controller.spec.ts
+
+
+
+
+ NX   Running target test for project api failed
+
+Failed tasks:
+
+- api:test
+
+Hint: run the command with --verbose for more details.
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m api [39m[27m[0m [2msrc/service-desks/[22m[1mservice-desks.controller.spec.ts[22m
+[1m[31m  [1m● [22m[1mServiceDesksController › Categorias e Tipos de atendimento (DMTE-106, AC-01/AC-02) › requires MANAGE_SERVICE_DESKS on category/service-type mutations[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    Expected: [32m["MANAGE_SERVICE_DESKS"][39m
+    Received: [31mundefined[39m
+
+[2m    [0m [90m 352 |[39m   describe([32m'Categorias e Tipos de atendimento (DMTE-106, AC-01/AC-02)'[39m[33m,[39m () [33m=>[39m {[22m
+[2m     [90m 353 |[39m     it([32m'requires MANAGE_SERVICE_DESKS on category/service-type mutations'[39m[33m,[39m () [33m=>[39m {[22m
+[2m    [31m[1m>[22m[2m[39m[90m 354 |[39m       expect([33mReflect[39m[33m.[39mgetMetadata([33mPERMISSIONS_KEY[39m[33m,[39m controller[33m.[39mcreateCategory))[33m.[39mtoEqual([[22m
+[2m     [90m     |[39m                                                                               [31m[1m^[22m[2m[39m[22m
+[2m     [90m 355 |[39m         [32m'MANAGE_SERVICE_DESKS'[39m[33m,[39m[22m
+[2m     [90m 356 |[39m       ])[33m;[39m[22m
+[2m     [90m 357 |[39m       expect([33mReflect[39m[33m.[39mgetMetadata([33mPERMISSIONS_KEY[39m[33m,[39m controller[33m.[39mupdateCategory))[33m.[39mtoEqual([[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desks.controller.spec.ts[39m[0m[2m:354:79)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDesksController › Categorias e Tipos de atendimento (DMTE-106, AC-01/AC-02) › registers PermissionsGuard on the category/service-type mutation handlers[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected value: [32m[Function PermissionsGuard][39m
+    Received array: [31m[][39m
+
+[2m    [0m [90m 384 |[39m       [36mconst[39m guards [33m=[39m (handler[33m:[39m ([33m...[39margs[33m:[39m any[]) [33m=>[39m unknown) [33m=>[39m[22m
+[2m     [90m 385 |[39m         [33mReflect[39m[33m.[39mgetMetadata([33mGUARDS_METADATA[39m[33m,[39m handler) [33m?[39m[33m?[39m [][33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 386 |[39m       expect(guards(controller[33m.[39mcreateCategory))[33m.[39mtoContain([33mPermissionsGuard[39m)[33m;[39m[22m
+[2m     [90m     |[39m                                                 [31m[1m^[22m[2m[39m[22m
+[2m     [90m 387 |[39m       expect(guards(controller[33m.[39mupdateCategory))[33m.[39mtoContain([33mPermissionsGuard[39m)[33m;[39m[22m
+[2m     [90m 388 |[39m       expect(guards(controller[33m.[39mremoveCategory))[33m.[39mtoContain([33mPermissionsGuard[39m)[33m;[39m[22m
+[2m     [90m 389 |[39m       expect(guards(controller[33m.[39mcreateServiceType))[33m.[39mtoContain([33mPermissionsGuard[39m)[33m;[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desks.controller.spec.ts[39m[0m[2m:386:49)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDesksController › Categorias e Tipos de atendimento (DMTE-106, AC-01/AC-02) › listCategories delegates to the catalog service with kind=category and the active filter[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m"category"[39m, [32m"desk-1"[39m, [32mtrue[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 398 |[39m       [36mconst[39m result [33m=[39m [36mawait[39m controller[33m.[39mlistCategories([32m'desk-1'[39m[33m,[39m [32m'true'[39m)[33m;[39m[22m
+[2m     [90m 399 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 400 |[39m       expect(mockCatalogService[33m.[39mlist)[33m.[39mtoHaveBeenCalledWith([32m'category'[39m[33m,[39m [32m'desk-1'[39m[33m,[39m [36mtrue[39m)[33m;[39m[22m
+[2m     [90m     |[39m                                       [31m[1m^[22m[2m[39m[22m
+[2m     [90m 401 |[39m       expect(result)[33m.[39mtoEqual(expected)[33m;[39m[22m
+[2m     [90m 402 |[39m     })[33m;[39m[22m
+[2m     [90m 403 |[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desks.controller.spec.ts[39m[0m[2m:400:39)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDesksController › Categorias e Tipos de atendimento (DMTE-106, AC-01/AC-02) › listCategories defaults the active filter to false when omitted[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m"category"[39m, [32m"desk-1"[39m, [32mfalse[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 407 |[39m       [36mawait[39m controller[33m.[39mlistCategories([32m'desk-1'[39m[33m,[39m undefined)[33m;[39m[22m
+[2m     [90m 408 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 409 |[39m       expect(mockCatalogService[33m.[39mlist)[33m.[39mtoHaveBeenCalledWith([32m'category'[39m[33m,[39m [32m'desk-1'[39m[33m,[39m [36mfalse[39m)[33m;[39m[22m
+[2m     [90m     |[39m                                       [31m[1m^[22m[2m[39m[22m
+[2m     [90m 410 |[39m     })[33m;[39m[22m
+[2m     [90m 411 |[39m[22m
+[2m     [90m 412 |[39m     it([32m'createCategory delegates to the catalog service with kind=category'[39m[33m,[39m [36masync[39m () [33m=>[39m {[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desks.controller.spec.ts[39m[0m[2m:409:39)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDesksController › Categorias e Tipos de atendimento (DMTE-106, AC-01/AC-02) › createCategory delegates to the catalog service with kind=category[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m"category"[39m, [32m"desk-1"[39m, [32m"Hardware"[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 417 |[39m       [36mconst[39m result [33m=[39m [36mawait[39m controller[33m.[39mcreateCategory([32m'desk-1'[39m[33m,[39m dto)[33m;[39m[22m
+[2m     [90m 418 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 419 |[39m       expect(mockCatalogService[33m.[39mcreate)[33m.[39mtoHaveBeenCalledWith([22m
+[2m     [90m     |[39m                                         [31m[1m^[22m[2m[39m[22m
+[2m     [90m 420 |[39m         [32m'category'[39m[33m,[39m[22m
+[2m     [90m 421 |[39m         [32m'desk-1'[39m[33m,[39m[22m
+[2m     [90m 422 |[39m         dto[33m.[39mname[33m,[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desks.controller.spec.ts[39m[0m[2m:419:41)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDesksController › Categorias e Tipos de atendimento (DMTE-106, AC-01/AC-02) › updateCategory delegates to the catalog service with kind=category[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m"category"[39m, [32m"desk-1"[39m, [32m"c1"[39m, [32m{"active": false}[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 432 |[39m       [36mconst[39m result [33m=[39m [36mawait[39m controller[33m.[39mupdateCategory([32m'desk-1'[39m[33m,[39m [32m'c1'[39m[33m,[39m dto)[33m;[39m[22m
+[2m     [90m 433 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 434 |[39m       expect(mockCatalogService[33m.[39mupdate)[33m.[39mtoHaveBeenCalledWith([22m
+[2m     [90m     |[39m                                         [31m[1m^[22m[2m[39m[22m
+[2m     [90m 435 |[39m         [32m'category'[39m[33m,[39m[22m
+[2m     [90m 436 |[39m         [32m'desk-1'[39m[33m,[39m[22m
+[2m     [90m 437 |[39m         [32m'c1'[39m[33m,[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desks.controller.spec.ts[39m[0m[2m:434:41)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDesksController › Categorias e Tipos de atendimento (DMTE-106, AC-01/AC-02) › removeCategory delegates to the catalog service with kind=category[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m"category"[39m, [32m"desk-1"[39m, [32m"c1"[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 446 |[39m       [36mconst[39m result [33m=[39m [36mawait[39m controller[33m.[39mremoveCategory([32m'desk-1'[39m[33m,[39m [32m'c1'[39m)[33m;[39m[22m
+[2m     [90m 447 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 448 |[39m       expect(mockCatalogService[33m.[39mremove)[33m.[39mtoHaveBeenCalledWith([22m
+[2m     [90m     |[39m                                         [31m[1m^[22m[2m[39m[22m
+[2m     [90m 449 |[39m         [32m'category'[39m[33m,[39m[22m
+[2m     [90m 450 |[39m         [32m'desk-1'[39m[33m,[39m[22m
+[2m     [90m 451 |[39m         [32m'c1'[39m[33m,[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desks.controller.spec.ts[39m[0m[2m:448:41)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mServiceDesksController › Categorias e Tipos de atendimento (DMTE-106, AC-01/AC-02) › listServiceTypes/createServiceType/updateServiceType/removeServiceType delegate with kind=serviceType[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m"serviceType"[39m, [32m"desk-1"[39m, [32mfalse[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 465 |[39m       [36mawait[39m controller[33m.[39mremoveServiceType([32m'desk-1'[39m[33m,[39m [32m't1'[39m)[33m;[39m[22m
+[2m     [90m 466 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 467 |[39m       expect(mockCatalogService[33m.[39mlist)[33m.[39mtoHaveBeenCalledWith([32m'serviceType'[39m[33m,[39m [32m'desk-1'[39m[33m,[39m [36mfalse[39m)[33m;[39m[22m
+[2m     [90m     |[39m                                       [31m[1m^[22m[2m[39m[22m
+[2m     [90m 468 |[39m       expect(mockCatalogService[33m.[39mcreate)[33m.[39mtoHaveBeenCalledWith([22m
+[2m     [90m 469 |[39m         [32m'serviceType'[39m[33m,[39m[22m
+[2m     [90m 470 |[39m         [32m'desk-1'[39m[33m,[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/service-desks/service-desks.controller.spec.ts[39m[0m[2m:467:39)[22m[2m[22m
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, 1 total
+[1mTests:       [22m[1m[31m8 failed[39m[22m, [1m[32m33 passed[39m[22m, 41 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        1.449 s, estimated 2 s
+[2mRan all test suites[22m[2m matching [22mservice-desks.controller.spec.ts[2m.[22m
+Warning: command "jest --passWithNoTests=true service-desks.controller.spec.ts" exited with non-zero status code

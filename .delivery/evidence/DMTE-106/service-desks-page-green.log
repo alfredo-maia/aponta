@@ -1,0 +1,27 @@
+
+> nx run web:test ServiceDesksPage.test.tsx  [existing outputs match the cache, left as is]
+
+> vitest ServiceDesksPage.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-205-97c4b2a26dd5/workdir/aponta/apps/web
+
+ ✓ |web| src/pages/ServiceDesksPage.test.tsx (13 tests) 3669ms
+     ✓ should open the create form only after clicking Incluir, and create a new service desk  360ms
+     ✓ should link a service desk to a client and save its SLA overrides  565ms
+     ✓ filters the grid by search text and status (Sankhya filter drawer)  436ms
+     ✓ filters dynamically by any column using the rule builder (Sankhya Filtros parity)  474ms
+     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  464ms
+
+ Test Files  1 passed (1)
+      Tests  13 passed (13)
+   Start at  18:23:45
+   Duration  6.66s (transform 1.53s, setup 157ms, import 2.18s, tests 3.67s, environment 474ms)
+
+
+
+
+ NX   Successfully ran target test for project web
+
+Nx read the output from the cache instead of running the command for 1 out of 1 tasks.
+
