@@ -108,3 +108,24 @@ Referência visual/fluxo (UI): não há referência TiFlux do portal público no
 
 - Perguntas 1 e 2 (Alfredo), só para S4.4–S4.5.
 - Confirmar na S4.1: entropia do nome de arquivo dos uploads e necessidade de re-sanitizar conteúdo legado na leitura pública.
+
+### Atualização 01/11/2026 — decisões do Alfredo (comentário no DMTE-189)
+
+- D-06 **aprovada**: `KnowledgeSettings` singleton, `ratingEnabled` desligado por padrão.
+- D-07 **ajustada**: cada pessoa pode votar quantas vezes quiser (sem dedupe, por decisão de produto, não só limitação). Throttle permanece como proteção contra abuso automatizado.
+- D-08 (contador só no portal público): sem resposta explícita; segue como proposta, S4.4 pode usar este default.
+- Anexos privados em `/uploads`: **entram nesta entrega** (nova fatia S4.0, antes de S4.1).
+
+#### D-09 — Download autenticado de anexos de conhecimento (S4.0)
+
+- Evidência: `main.ts:37` serve `./uploads` em `/uploads` sem auth; o `KnowledgeAttachmentsController` grava nesse mesmo diretório com nome `randomUUID()` (não adivinhável, mas qualquer link vazado dá acesso permanente a anexo de artigo `PRIVATE`).
+- Proposta: novos anexos de conhecimento gravam em diretório fora do servido estático (ex.: `./uploads-private/knowledge`); `fileUrl` deixa de ser URL estática e o download passa por `GET articles/:articleId/attachments/:attachmentId/download`, que aplica a visibilidade do artigo (`PUBLIC` aberto; `PRIVATE` só autor/ACL/ADMIN; caso contrário 404 uniforme). O portal usa a mesma rota para anexos `PUBLIC`.
+- Anexos já existentes: precisam ser movidos do diretório estático e ter o caminho atualizado. É migração de dados + arquivos; script idempotente e revisado, executado **pelo usuário** em produção (fora de CD/deploy do agente). Até a migração rodar, manter fallback de leitura do caminho antigo pela rota autenticada, e bloquear o estático para os nomes de knowledge assim que o script concluir.
+- Fora de escopo: anexos de tickets (`attachments.controller.ts`) usam o mesmo `/uploads`; risco semelhante, registrado para decisão futura.
+- AC-15 Anônimo e usuário sem acesso recebem 404 ao baixar anexo de artigo `PRIVATE` pela rota; usuário com acesso (autor, ACL, ADMIN) recebe o arquivo; anexo de `PUBLIC` baixa sem login.
+- AC-16 Upload novo não fica acessível por `/uploads/<nome>`.
+- AC-17 O script de migração é idempotente, não apaga arquivo antes de confirmar a cópia e tem teste com diretório temporário.
+- Verificação: testes do controller de anexos (`knowledge-attachments.controller.spec.ts`), teste do script, `nx test api`; web: `KnowledgeArticleAttachments` passa a usar a rota de download (`KnowledgeArticleAttachments.test.tsx`).
+- Risco: qualquer link antigo `/uploads/...` guardado em conteúdo de artigo quebra; buscar referências no conteúdo antes de bloquear o estático.
+
+Fatias revisadas: **S4.0** (D-09, AC-15..17) → S4.1 → S4.2 → S4.3 → S4.4 → S4.5. AC-06 passa a depender de S4.0. Pergunta 3 resolvida; perguntas 1 e 2 resolvidas; resta apenas confirmar D-08.
