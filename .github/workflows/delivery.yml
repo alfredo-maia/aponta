@@ -27,6 +27,10 @@ jobs:
           node-version: '24'
       - name: Test the verifier
         run: python3 -m unittest discover -s scripts -p test_aponta_delivery.py -v
+      - name: Verify reusable engineering skill bundles
+        run: |
+          python3 -m unittest discover -s scripts -p test_engineering_skills.py -v
+          python3 scripts/check_engineering_skills.py
       - name: Verify identity, SPEC, TDD and design system
         run: python3 scripts/aponta_delivery.py check --event "$GITHUB_EVENT_PATH"
       - name: Build affected Storybook

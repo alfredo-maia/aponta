@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-10-31T15:21:26.287384+00:00",
+  "finished_at": "2026-10-31T15:21:26.389969+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_engineering_skills.py",
+    "-v"
+  ],
+  "base_sha": "b1767a309828431f2cd6e48827c6bdb939f90acf",
+  "head_sha": "b1767a309828431f2cd6e48827c6bdb939f90acf",
+  "exit_code": 1,
+  "tests": {
+    "scripts/test_engineering_skills.py": "5d9326cbb939714a3947d91e3fdb81026a4acaeeab43d903d432773d56470a2a"
+  },
+  "criteria": [
+    "AC-02"
+  ],
+  "source_hashes": {
+    ".agents/skills/aponta-flow/SKILL.md": "09709ab76312e3ce6e3624372152e1b512319155ce2087241909d2b1aafc5701",
+    ".agents/skills/aponta-review/SKILL.md": "8a1e26faa18db046fbf78d3d8e6c31184121f8996d2b4ba2af736663b3135be1",
+    ".agents/skills/aponta-sdd/SKILL.md": "eb8e0fd9cdb64fb0aba5ecc279b8a0fcb53f278ff9fbf7f6efa3f85634591e6a",
+    ".agents/skills/engineering-alignment/LICENSE": "0e7ac423bf2c6e223b7c5b156f8cf72da49d748e56a1641402c31f22ad07dbb5",
+    ".agents/skills/engineering-alignment/SKILL.md": "83627f7950e4d2037cecf63a82e2933e9281b0f096d41dc901aaf6b6cbb9b72c",
+    ".agents/skills/engineering-alignment/SOURCE.json": "c6512bb09648cdb7a3c815e766046ed5e5d01c7ad8c3b7afda08f883ff6cbc64",
+    ".agents/skills/engineering-alignment/references/ADR-FORMAT.md": "944c92aa790e8fbdc9199640b170979abb8a34ba8d0fe18c2a01a63bce140ca0",
+    ".agents/skills/engineering-alignment/references/GLOSSARY-FORMAT.md": "21dcc40cdec8e151a829b98ab1517c1867bc444e3665134a98c6983411996801",
+    ".agents/skills/engineering-alignment/references/domain-modeling.md": "7b925d7b1e341a2eeae33ad68a8a8c0ab889a38ddd22a7598e4c240e5a7556a3",
+    ".agents/skills/engineering-alignment/references/grilling.md": "a146842ed93ca43d833550fa9adf02e58cb63c83fea9d4b4522995b82242d4e2",
+    ".agents/skills/engineering-specification/LICENSE": "0e7ac423bf2c6e223b7c5b156f8cf72da49d748e56a1641402c31f22ad07dbb5",
+    ".agents/skills/engineering-specification/SKILL.md": "f4c70a33c50a9fb9c3370db2aebb0c1d871764731f66cc527b3f0610585fe74d",
+    ".agents/skills/engineering-specification/SOURCE.json": "46264f60ef68f808594dc15d72eab7518404894e63f25479ff00f3ff8e33812a",
+    ".agents/skills/engineering-specification/references/to-spec.md": "43ad9cf318e5e7d3d1fa360253a37021796dc87a0c2e595ad262661a10f85088",
+    ".agents/skills/engineering-specification/references/to-tickets.md": "56ec23c5b2782785d4e65bff9e315b6d3aeb4ef977c174a219e99489fada1995",
+    ".agents/skills/engineering-triage/LICENSE": "0e7ac423bf2c6e223b7c5b156f8cf72da49d748e56a1641402c31f22ad07dbb5",
+    ".agents/skills/engineering-triage/SKILL.md": "5c8a33fc40ead965e81691ccf3fa684839cd5e7602e5f74eaac55b21e3ec0706",
+    ".agents/skills/engineering-triage/SOURCE.json": "fb8a419acf2a86012dc71c357e4e561138f47a2a3f26efb0a34fd188194f9794",
+    ".agents/skills/engineering-triage/references/AGENT-BRIEF.md": "7f5f87fed3033df1b06e083c480f3e847b1fbb0647746b8a4c6a50f9f26ef44f",
+    ".agents/skills/engineering-triage/references/OUT-OF-SCOPE.md": "1fbf9b432130c6380aa65813b55553cfda150309b27c595e183f8e335b8a190d",
+    ".agents/skills/engineering-triage/references/triage.md": "917b0baf74be583e74f110857ed45df2766617f75c00baf61fd136d7af515edf",
+    ".agents/skills/pr/CREDITS.md": "a7a087127665d7298a72280ef6e19c41ad8404523712a788c8dc3ab414bc2497",
+    ".agents/skills/pr/SKILL.md": "ab63f1cf78647389edcd386c9427c5dfca27ed2836930c24773ffee834c19bcd",
+    ".agents/skills/pr/agents/openai.yaml": "2295b586624db4ef546f3fd4695492f039d941a46d8a1593a702ce3ca511b8ad",
+    ".agents/skills/retro/SKILL.md": "33fbc28568e3146f20fd908b12998bc0ab30aa4f4c87288199a40793efa94696",
+    ".agents/skills/retro/agents/openai.yaml": "cb6fb9d7e6b4be5975f41f6def1dd00a1255bad5d9b02696b124c924a8b8745c",
+    ".agents/skills/writing-for-agents/SKILL-MECHANICS.md": "c768e6307c7c10728c401c213f2c4ba71c542127eeb7ad2956aabd15a0fa0059",
+    ".agents/skills/writing-for-agents/SKILL.md": "551adca942227b44192edba88acd4e8db911f0121ce58ad16944ccf6a896a74a",
+    ".agents/skills/writing-for-agents/agents/openai.yaml": "eacb24b2a618cfb81dacb0416f4fdd75ddf3a8060f8ddb99aae1b1e301907e4b",
+    "scripts/check_engineering_skills.py": "18950057580864c4008ea5f947dd6e401043fcb03179248a8d70df2c4eb574df",
+    "scripts/test_engineering_skills.py": "5d9326cbb939714a3947d91e3fdb81026a4acaeeab43d903d432773d56470a2a"
+  },
+  "log": ".delivery/evidence/DMTE-299/red.log",
+  "log_sha256": "29daad4329813888d39da85f0d9468aba95987ad3780c4db02ddbb03c149f26a"
+}
