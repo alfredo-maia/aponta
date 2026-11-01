@@ -67,19 +67,23 @@
         "TicketDetailPage > Categoria e Tipo de Atendimento (DMTE-106, AC-04) > is read-only without EDIT_TICKETS, showing just the current value as text",
         "MesaCatalogEditor > lists items, marking inactive ones, and creates a new one",
         "MesaCatalogEditor > shows the empty state when the desk has no items",
+        "MesaCatalogEditor > asks for confirmation and deletes an item when confirmed (DMTE-106, correção 1)",
+        "MesaCatalogEditor > does not delete the item when the confirmation is declined (DMTE-106, correção 1)",
         "MesaCatalogEditor > shows the 409 message from the API when deleting an item in use",
-        "ServiceDesksPage > shows the Categorias and Tipos de atendimento tabs with the mesa catalog editor (DMTE-106, AC-01/AC-02)"
+        "ServiceDesksPage > shows the Categorias and Tipos de atendimento tabs with the mesa catalog editor (DMTE-106, AC-01/AC-02)",
+        "TicketDetailPage > Categoria e Tipo de Atendimento (DMTE-106, correção 1) > shows the empty state with correct gender agreement when the mesa has no active service types"
       ]
     },
     {
       "id": "AC-05",
-      "description": "Trocar a mesa do ticket (changeServiceDesk) zera categoryId e serviceTypeId, preservando a auditoria SERVICE_DESK_CHANGED já existente",
+      "description": "Trocar a mesa do ticket (changeServiceDesk) zera categoryId e serviceTypeId, preservando a auditoria SERVICE_DESK_CHANGED já existente; os valores anteriores ficam citados em auditoria própria (CATEGORY_CHANGED/SERVICE_TYPE_CHANGED), conforme a seção Contratos do SPEC",
       "tests": [
         "TicketsService > changeServiceDesk > moves the ticket to a different service desk and records an audit row",
-        "TicketsService > changeServiceDesk > zeroes categoryId/serviceTypeId when the desk changes (DMTE-106, AC-05)"
+        "TicketsService > changeServiceDesk > zeroes categoryId/serviceTypeId when the desk changes (DMTE-106, AC-05)",
+        "TicketsService > changeServiceDesk > does not create CATEGORY_CHANGED/SERVICE_TYPE_CHANGED audits when the ticket had none set (DMTE-106, AC-05)"
       ],
       "tdd_required": false,
-      "reason": "RED/GREEN reais e próprios, fora do par único validado (que cobre AC-04): .delivery/evidence/DMTE-106/tickets-{red,green}.json — ver reason de AC-03 (mesmo arquivo/comando)."
+      "reason": "RED/GREEN reais e próprios, fora do par único validado (que cobre AC-04): .delivery/evidence/DMTE-106/tickets-{red,green}.json (SHA original) e .delivery/evidence/DMTE-106/tickets-correcao1-{red,green}.json (correção 1, rodada 2: cobre a lacuna de auditoria apontada pelo QA — RED comportamental com a asserção de CATEGORY_CHANGED/SERVICE_TYPE_CHANGED falhando contra a implementação anterior, GREEN após a correção). Não fabricado retroativamente."
     },
     {
       "id": "AC-06",
@@ -116,8 +120,8 @@
   ],
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-106/ticket-detail-page-red.json",
-    "green": ".delivery/evidence/DMTE-106/ticket-detail-page-green.json"
+    "red": ".delivery/evidence/DMTE-106/ticket-detail-page-correcao1-red.json",
+    "green": ".delivery/evidence/DMTE-106/ticket-detail-page-correcao1-green.json"
   },
   "design_system": {
     "applicable": true,

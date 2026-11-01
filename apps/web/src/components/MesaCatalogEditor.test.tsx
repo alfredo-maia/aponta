@@ -98,20 +98,38 @@ describe('MesaCatalogEditor', () => {
     });
   });
 
-  it('deletes an item', async () => {
+  it('asks for confirmation and deletes an item when confirmed (DMTE-106, correção 1)', async () => {
     const user = userEvent.setup();
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    renderEditor();
+    await screen.findByText('Hardware');
+
+    await user.click(screen.getAllByRole('button', { name: 'Excluir' })[0]);
+
+    expect(confirmSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Hardware'),
+    );
+    await waitFor(() => {
+      expect(api.delete).toHaveBeenCalledWith('/service-desks/sd-1/categories/c1');
+    });
+  });
+
+  it('does not delete the item when the confirmation is declined (DMTE-106, correção 1)', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
     renderEditor();
     await screen.findByText('Hardware');
 
     await user.click(screen.getAllByRole('button', { name: 'Excluir' })[0]);
 
     await waitFor(() => {
-      expect(api.delete).toHaveBeenCalledWith('/service-desks/sd-1/categories/c1');
+      expect(api.delete).not.toHaveBeenCalled();
     });
   });
 
   it('shows the 409 message from the API when deleting an item in use', async () => {
     const user = userEvent.setup();
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
     vi.mocked(api.delete).mockRejectedValue({
       response: { status: 409, data: { message: 'Em uso por 3 ticket(s); inative em vez de excluir' } },
     });

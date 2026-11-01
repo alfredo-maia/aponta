@@ -1,0 +1,23 @@
+
+> nx run web:test --no-file-parallelism MesaCatalogEditor.test.tsx TicketDetailPage.test.tsx
+
+> vitest --no-file-parallelism MesaCatalogEditor.test.tsx TicketDetailPage.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-319-cf2f844e790d/workdir/aponta/apps/web
+
+ ✓ |web| src/pages/TicketDetailPage.test.tsx (29 tests) 3135ms
+ ✓ |web| src/components/MesaCatalogEditor.test.tsx (7 tests) 810ms
+     ✓ lists items, marking inactive ones, and creates a new one  338ms
+
+ Test Files  2 passed (2)
+      Tests  36 passed (36)
+   Start at  19:24:21
+   Duration  10.45s (transform 3.81s, setup 169ms, import 5.12s, tests 3.95s, environment 862ms)
+
+
+
+
+ NX   Successfully ran target test for project web
+
+

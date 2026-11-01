@@ -1432,6 +1432,32 @@ export class TicketsService {
       },
     });
 
+    // DMTE-106 (correção 1, AC-05): o SPEC exige que os valores anteriores
+    // de categoria/tipo de atendimento fiquem citados em auditoria própria
+    // ao serem zerados pela troca de mesa — sem isso o histórico se perdia.
+    if (existing.categoryId) {
+      await this.prisma.ticketAudit.create({
+        data: {
+          action: 'CATEGORY_CHANGED',
+          prevVal: existing.categoryId,
+          newVal: '',
+          ticketId: id,
+          userId: currentUser.id,
+        },
+      });
+    }
+    if (existing.serviceTypeId) {
+      await this.prisma.ticketAudit.create({
+        data: {
+          action: 'SERVICE_TYPE_CHANGED',
+          prevVal: existing.serviceTypeId,
+          newVal: '',
+          ticketId: id,
+          userId: currentUser.id,
+        },
+      });
+    }
+
     return ticket;
   }
 

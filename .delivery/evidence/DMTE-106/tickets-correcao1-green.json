@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-01T22:24:49.821598+00:00",
+  "finished_at": "2026-11-01T22:24:57.785069+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "test",
+    "api",
+    "--skip-nx-cache",
+    "--",
+    "tickets.service.spec.ts"
+  ],
+  "base_sha": "06464dba943661f599e550578b82cdeb575e3be3",
+  "head_sha": "a5ad619927b8b6af5488c6a60e31f885b9311ca3",
+  "exit_code": 0,
+  "tests": {
+    "apps/api/src/tickets/tickets.service.spec.ts": "2313d3377b9a8cef306fc674e064e690556b16cda333cdc04f5dbce5359c4524"
+  },
+  "criteria": [
+    "AC-05"
+  ],
+  "source_hashes": {
+    "apps/api/prisma/migrations/20261101211153_add_service_desk_category_and_service_type/migration.sql": "1812bf9292f867727baedfccfc853214aa71c0e5999162d36701f88d8a84064a",
+    "apps/api/prisma/schema.prisma": "fe3d632389d270fdea4d1a80af80f8a27f48f13199ec1b6047d5ab7ac63005fc",
+    "apps/api/src/service-desks/dto/service-desk-catalog-item.dto.ts": "7116ed9987768efecf4dc87a2dee6d26dd9b82a879d8da9a9aabac56f713c86f",
+    "apps/api/src/service-desks/service-desk-catalog.service.spec.ts": "c8342dfe9480a14c5ddc268a323c9ff67b8741751f0e15f2175e6b3d3087445b",
+    "apps/api/src/service-desks/service-desk-catalog.service.ts": "ea572797c4630000cdf7f755ec7680846d6711eb1ea85b4669c8ac575f93b34c",
+    "apps/api/src/service-desks/service-desks.controller.spec.ts": "e7c372f4144703bb2c7ddcebfd0f34f1ad510345db37f78b7123f275bac37333",
+    "apps/api/src/service-desks/service-desks.controller.ts": "3e381677bdd8dd91b704a260ad247a47dd378cb0d8a0e560ceb27f1ff8d29431",
+    "apps/api/src/service-desks/service-desks.module.ts": "75ab0d130ce3b8c7fb93ab4198636bdb38db6769c52e7cedcbce813db5870189",
+    "apps/api/src/tickets/dto/update-ticket.dto.ts": "a817eae530ca7a3a0b3e5330b7b3a3a1c8a739e0c5fdfc352da5341e33f76180",
+    "apps/api/src/tickets/tickets.service.spec.ts": "2313d3377b9a8cef306fc674e064e690556b16cda333cdc04f5dbce5359c4524",
+    "apps/api/src/tickets/tickets.service.ts": "cc036f5dba8b7abb55a40b9a7b0b0318ca38e50564655fb6b14403c656c02fc0",
+    "apps/web/src/components/MesaCatalogEditor.test.tsx": "8469d6597dfc86b59246c59aac3fb6ed3db28d76d887fa7cae652eb7fc72881d",
+    "apps/web/src/components/MesaCatalogEditor.tsx": "76f4c550c22c594f0e666707a3fae6a731efe9c1f32c5733355b217719ff2c20",
+    "apps/web/src/hooks/useTickets.ts": "b1183365473d6af96fd9ba1909ba5c7f066fc353d772ca7e4db6cc11cba04124",
+    "apps/web/src/pages/ServiceDesksPage.test.tsx": "b9cf1d60e33080a2fb978996be96d599c5c3fa663efd2f816e563ff65d4827ab",
+    "apps/web/src/pages/ServiceDesksPage.tsx": "81ee74bfdb8bd2a36b2decaa3821e7150f8222f19a654ecbc3710544b632a50b",
+    "apps/web/src/pages/TicketDetailPage.test.tsx": "7c7d90995d1cbb2ac0aad0ea5e513c5d2f913de6e034551f61bb933ea9b8286b",
+    "apps/web/src/pages/TicketDetailPage.tsx": "4d235fccd90c234cd667b903199f211db4f5d2cf8cc397007f06c0d5d11823e6"
+  },
+  "log": ".delivery/evidence/DMTE-106/tickets-correcao1-green.log",
+  "log_sha256": "fa1d1a443ed3eaa3440ff87c206d12302744bc3ca40559ec4fc3d3addc510745"
+}

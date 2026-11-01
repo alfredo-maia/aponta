@@ -1865,6 +1865,52 @@ describe('TicketsService', () => {
           data: expect.objectContaining({ categoryId: null, serviceTypeId: null }),
         }),
       );
+      expect(mockPrismaService.ticketAudit.create).toHaveBeenCalledWith({
+        data: {
+          action: 'CATEGORY_CHANGED',
+          prevVal: 'cat-1',
+          newVal: '',
+          ticketId: 't1',
+          userId: actingUser.id,
+        },
+      });
+      expect(mockPrismaService.ticketAudit.create).toHaveBeenCalledWith({
+        data: {
+          action: 'SERVICE_TYPE_CHANGED',
+          prevVal: 'type-1',
+          newVal: '',
+          ticketId: 't1',
+          userId: actingUser.id,
+        },
+      });
+    });
+
+    it('does not create CATEGORY_CHANGED/SERVICE_TYPE_CHANGED audits when the ticket had none set (DMTE-106, AC-05)', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        serviceDeskId: 'desk-1',
+        categoryId: null,
+        serviceTypeId: null,
+      });
+      mockPrismaService.serviceDesk.findUnique.mockResolvedValue({
+        id: 'desk-2',
+        name: 'Financeiro',
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({
+        id: 't1',
+        serviceDeskId: 'desk-2',
+        categoryId: null,
+        serviceTypeId: null,
+      });
+
+      await service.changeServiceDesk('t1', 'desk-2', actingUser);
+
+      expect(mockPrismaService.ticketAudit.create).not.toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ action: 'CATEGORY_CHANGED' }) }),
+      );
+      expect(mockPrismaService.ticketAudit.create).not.toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ action: 'SERVICE_TYPE_CHANGED' }) }),
+      );
     });
 
     it('throws NotFoundException when the ticket does not exist', async () => {

@@ -150,7 +150,11 @@ export function MesaCatalogEditor({ deskId, resource, itemLabel }: MesaCatalogEd
                   type="button"
                   size="small"
                   variant="secondary"
-                  onClick={() => deleteMutation.mutate(item.id)}
+                  onClick={() => {
+                    if (window.confirm(`Deseja excluir "${item.name}"?`)) {
+                      deleteMutation.mutate(item.id);
+                    }
+                  }}
                 >
                   Excluir
                 </EzButton>

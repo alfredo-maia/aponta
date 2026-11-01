@@ -1,0 +1,584 @@
+
+> nx run web:test --no-file-parallelism MesaCatalogEditor.test.tsx TicketDetailPage.test.tsx
+
+> vitest --no-file-parallelism MesaCatalogEditor.test.tsx TicketDetailPage.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-319-cf2f844e790d/workdir/aponta/apps/web
+
+ ❯ |web| src/pages/TicketDetailPage.test.tsx (29 tests | 1 failed) 4136ms
+     ✓ should render ticket details with status, priority and SLA deadlines 188ms
+     ✓ sets the browser tab title to "#<protocolo> - <título>" (TiFlux parity) and restores it on unmount 45ms
+     ✓ shows SLA status badges when the backend reports responseSlaStatus/resolveSlaStatus 33ms
+     ✓ should render the comment timeline with an internal-note indicator only on internal comments 157ms
+     ✓ should show the comment form and post a new comment  353ms
+     ✓ should show the isInternal checkbox for agents 100ms
+     ✓ should show the isInternal checkbox for admins 115ms
+     ✓ should hide the isInternal checkbox for clients 27ms
+     ✓ should show the worklogs section for agents and admins 76ms
+     ✓ should hide the worklogs section for clients 29ms
+     ✓ starts a TiFlux-style pré-apontamento from the header play on any tab 240ms
+       ✓ shows a select with the active categories of the mesa and saves on change 174ms
+       ✓ shows a select with the active service types and saves on change 158ms
+       ✓ labels the ticket's current category as "(inativo)" when it is no longer active 132ms
+       ✓ shows the empty state when the mesa has no active categories 111ms
+       × shows the empty state with correct gender agreement when the mesa has no active service types (DMTE-106, correção 1) 1076ms
+       ✓ is read-only without EDIT_TICKETS, showing just the current value as text 109ms
+       ✓ hides the assignment dropdown from clients 20ms
+       ✓ shows the assignment dropdown to agents and allows assigning a ticket 102ms
+       ✓ shows an error message (not a silent revert) when the backend rejects an invalid status transition 79ms
+       ✓ hides the "Histórico" section from clients 23ms
+       ✓ shows the "Histórico" section with the audit trail to agents 95ms
+       ✓ shows an empty-state message when there is no audit history yet 80ms
+       ✓ refetches the audit trail after an assignment succeeds 139ms
+       ✓ switches between tabs and shows respective tab panels for agents 209ms
+       ✓ Apontamentos tab activates tab-panel-apontamentos when clicked 86ms
+       ✓ hides ticket sections disabled on the mesa 35ms
+       ✓ hides non-client tabs from clients 28ms
+       ✓ shows a "Voltar" link that navigates back to the ticket list 111ms
+ ❯ |web| src/components/MesaCatalogEditor.test.tsx (7 tests | 2 failed) 1621ms
+     ✓ lists items, marking inactive ones, and creates a new one 249ms
+     ✓ shows the empty state when the desk has no items 12ms
+     ✓ renames an item 191ms
+     ✓ toggles active/inactive 40ms
+     × asks for confirmation and deletes an item when confirmed (DMTE-106, correção 1) 48ms
+     × does not delete the item when the confirmation is declined (DMTE-106, correção 1) 1037ms
+     ✓ shows the 409 message from the API when deleting an item in use 41ms
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 33 passed (36)
+   Start at  19:23:28
+   Duration  12.95s (transform 3.85s, setup 150ms, import 5.14s, tests 5.76s, environment 820ms)
+
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/components/MesaCatalogEditor.test.tsx > MesaCatalogEditor > asks for confirmation and deletes an item when confirmed (DMTE-106, correção 1)
+AssertionError: expected "bound " to be called with arguments: [ StringContaining "Hardware" ]
+
+Number of calls: 0
+
+ ❯ src/components/MesaCatalogEditor.test.tsx:109:24
+    107|     await user.click(screen.getAllByRole('button', { name: 'Excluir' }…
+    108|
+    109|     expect(confirmSpy).toHaveBeenCalledWith(
+       |                        ^
+    110|       expect.stringContaining('Hardware'),
+    111|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |web| src/components/MesaCatalogEditor.test.tsx > MesaCatalogEditor > does not delete the item when the confirmation is declined (DMTE-106, correção 1)
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      "/service-desks/sd-1/categories/c1",
+    ]
+
+
+Number of calls: 1
+
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-5"[39m
+      [36m>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"space-y-2"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"flex items-center justify-between gap-3 rounded-[10px] border border-gray-200 bg-white px-4 py-3 text-sm"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-medium text-gray-900"[39m
+            [36m>[39m
+              [0mHardware[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex shrink-0 gap-2"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-transparent text-brand-600 border border-gray-200 hover:bg-gray-80 hover:border-gray-90 disabled:bg-gray-80 disabled:border-gray-200 disabled:text-gray-400 h-[32px] text-xs px-4"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"font-medium"[39m
+                  [36m>[39m
+                    [0mEditar[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+              [36m</button>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-transparent text-brand-600 border border-gray-200 hover:bg-gray-80 hover:border-gray-90 disabled:bg-gray-80 disabled:border-gray-200 disabled:text-gray-400 h-[32px] text-xs px-4"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"font-medium"[39m
+                  [36m>[39m
+                    [0mInativar[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+              [36m</button>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-transparent text-brand-600 border border-gray-200 hover:bg-gray-80 hover:border-gray-90 disabled:bg-gray-80 disabled:border-gray-200 disabled:text-gray-400 h-[32px] text-xs px-4"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"font-medium"[39m
+                  [36m>[39m
+                    [0mExcluir[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+              [36m</button>[39m
+            [36m</span>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"flex items-center justify-between gap-3 rounded-[10px] border border-gray-200 bg-white px-4 py-3 text-sm"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-medium text-gray-900"[39m
+            [36m>[39m
+              [0mRede[0m
+              [0m (inativo)[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex shrink-0 gap-2"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-transparent text-brand-600 border border-gray-200 hover:bg-gray-80 hover:border-gray-90 disabled:bg-gray-80 disabled:border-gray-200 disabled:text-gray-400 h-[32px] text-xs px-4"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"font-medium"[39m
+                  [36m>[39m
+                    [0mEditar[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+              [36m</button>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-transparent text-brand-600 border border-gray-200 hover:bg-gray-80 hover:border-gray-90 disabled:bg-gray-80 disabled:border-gray-200 disabled:text-gray-400 h-[32px] text-xs px-4"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"font-medium"[39m
+                  [36m>[39m
+                    [0mAtivar[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+              [36m</button>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-transparent text-brand-600 border border-gray-200 hover:bg-gray-80 hover:border-gray-90 disabled:bg-gray-80 disabled:border-gray-200 disabled:text-gray-400 h-[32px] text-xs px-4"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"font-medium"[39m
+                  [36m>[39m
+                    [0mExcluir[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+              [36m</button>[39m
+            [36m</span>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<form[39m
+          [33mclass[39m=[32m"flex items-end gap-2"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex-1"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex flex-col w-full gap-1.5"[39m
+            [36m>[39m
+              [36m<label[39m
+                [33mclass[39m=[32m"text-[14px] font-medium leading-none mb-0.5 select-none text-gray-900"[39m
+                [33mfor[39m=[32m"mesa-new-catalog-item-categories"[39m
+              [36m>[39m
+                [0mNova categoria[0m
+              [36m</label>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"relative flex items-center w-full overflow-hidden transition-colors border rounded-[12px] bg-white group focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300 h-[42px]"[39m
+              [36m>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"flex-1 w-full bg-transparent border-none outline-none text-[14px] text-gray-900 placeholder:text-gray-400 h-full pl-4 pr-4"[39m
+                  [33mid[39m=[32m"mesa-new-catalog-item-categories"[39m
+                  [33mtype[39m=[32m"text"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-brand-500 text-gray-70 border border-brand-500 hover:bg-brand-700 hover:border-brand-700 disabled:bg-gray-400 disabled:border-gray-400 disabled:text-gray-70 h-[32px] text-xs px-4"[39m
+            [33mtype[39m=[32m"submit"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"font-normal"[39m
+              [36m>[39m
+                [0m+ [0m
+                [0mcategoria[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</button>[39m
+        [36m</form>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ src/components/MesaCatalogEditor.test.tsx:126:30
+    124|
+    125|     await waitFor(() => {
+    126|       expect(api.delete).not.toHaveBeenCalled();
+       |                              ^
+    127|     });
+    128|   });
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |web| src/pages/TicketDetailPage.test.tsx > TicketDetailPage > Categoria e Tipo de Atendimento (DMTE-106, AC-04) > shows the empty state with correct gender agreement when the mesa has no active service types (DMTE-106, correção 1)
+TestingLibraryElementError: Unable to find an element with the text: /Nenhum tipo de atendimento cadastrado nesta mesa/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900"[39m
+        [33mdata-discover[39m=[32m"true"[39m
+        [33mhref[39m=[32m"/"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"lucide lucide-arrow-left h-4 w-4"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<path[39m
+            [33md[39m=[32m"m12 19-7-7 7-7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M19 12H5"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [0m Voltar[0m
+      [36m</a>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-mono text-[15px] font-bold text-gray-800"[39m
+            [36m>[39m
+              [0m#[0m
+              [0mAP-000001[0m
+              [0m - [0m
+              [0mPrinter not working[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2"[39m
+              [33mdata-testid[39m=[32m"ticket-header-timer"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center w-9 h-9 rounded-full text-[#00B5A5] hover:bg-teal-50 border border-transparent hover:border-teal-200 cursor-pointer"[39m
+                [33mdata-testid[39m=[32m"ticket-header-play-btn"[39m
+                [33mtitle[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-circle-play lucide-play-circle w-7 h-7"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"10"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"px-6 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center overflow-x-auto no-scrollbar border-b border-gray-200"[39m
+            [33mrole[39m=[32m"tablist"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mInformações gerais[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mCategoria[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"true"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-brand-600"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mTipo de Atendimento[0m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-t-sm"[39m
+              [36m/>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mApontamentos[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mComunicação[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32...
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900"[39m
+        [33mdata-discover[39m=[32m"true"[39m
+        [33mhref[39m=[32m"/"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"lucide lucide-arrow-left h-4 w-4"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<path[39m
+            [33md[39m=[32m"m12 19-7-7 7-7"[39m
+          [36m/>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M19 12H5"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+        [0m Voltar[0m
+      [36m</a>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-mono text-[15px] font-bold text-gray-800"[39m
+            [36m>[39m
+              [0m#[0m
+              [0mAP-000001[0m
+              [0m - [0m
+              [0mPrinter not working[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2"[39m
+              [33mdata-testid[39m=[32m"ticket-header-timer"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center w-9 h-9 rounded-full text-[#00B5A5] hover:bg-teal-50 border border-transparent hover:border-teal-200 cursor-pointer"[39m
+                [33mdata-testid[39m=[32m"ticket-header-play-btn"[39m
+                [33mtitle[39m=[32m"Iniciar pré-apontamento"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-circle-play lucide-play-circle w-7 h-7"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"10"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"px-6 border-b border-gray-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center overflow-x-auto no-scrollbar border-b border-gray-200"[39m
+            [33mrole[39m=[32m"tablist"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mInformações gerais[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mCategoria[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"true"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-brand-600"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mTipo de Atendimento[0m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-t-sm"[39m
+              [36m/>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mApontamentos[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32m"relative px-4 py-3 text-[14px] font-medium transition-colors whitespace-nowrap outline-none focus-visible:bg-gray-80 text-gray-500 hover:text-gray-900"[39m
+              [33mrole[39m=[32m"tab"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mComunicação[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-selected[39m=[32m"false"[39m
+              [33mclass[39m=[32...
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/TicketDetailPage.test.tsx:474:22
+    472|
+    473|       expect(
+    474|         await screen.findByText(/Nenhum tipo de atendimento cadastrado…
+       |                      ^
+    475|       ).toBeInTheDocument();
+    476|       serviceTypes.push({ id: 'type-1', name: 'Remoto', active: true, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+Warning: command "vitest --no-file-parallelism MesaCatalogEditor.test.tsx TicketDetailPage.test.tsx" exited with non-zero status code

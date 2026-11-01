@@ -462,6 +462,20 @@ describe('TicketDetailPage', () => {
       categories.push({ id: 'cat-1', name: 'Hardware', active: true, sortOrder: 0 });
     });
 
+    it('shows the empty state with correct gender agreement when the mesa has no active service types (DMTE-106, correção 1)', async () => {
+      serviceTypes.length = 0;
+      setRole('AGENT');
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(await screen.findByRole('tab', { name: 'Tipo de Atendimento' }));
+
+      expect(
+        await screen.findByText(/Nenhum tipo de atendimento cadastrado nesta mesa/i),
+      ).toBeInTheDocument();
+      serviceTypes.push({ id: 'type-1', name: 'Remoto', active: true, sortOrder: 0 });
+    });
+
     it('is read-only without EDIT_TICKETS, showing just the current value as text', async () => {
       ticket.categoryId = 'cat-1';
       ticket.category = { id: 'cat-1', name: 'Hardware', active: true };

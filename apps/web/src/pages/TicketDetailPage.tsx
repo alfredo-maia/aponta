@@ -120,7 +120,9 @@ function TicketCatalogField({
       </EzComboBox>
       {options.length === 0 && (
         <p className="text-sm text-gray-500">
-          Nenhuma {label.toLowerCase()} cadastrada nesta mesa
+          {field === 'category'
+            ? 'Nenhuma categoria cadastrada nesta mesa'
+            : 'Nenhum tipo de atendimento cadastrado nesta mesa'}
         </p>
       )}
       {error && <p className="text-sm text-red-700">{error}</p>}
