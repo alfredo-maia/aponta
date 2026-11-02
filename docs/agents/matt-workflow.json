@@ -535,13 +535,6 @@
     }
   },
   "roles": {
-    "aponta_qa_reviewer": [
-      "code-review",
-      "tdd",
-      "codebase-design",
-      "handoff",
-      "wait-what"
-    ],
     "aponta_deploy_delivery": [
       "wizard",
       "handoff",
@@ -592,6 +585,13 @@
       "research",
       "retro",
       "writing-for-agents",
+      "handoff",
+      "wait-what"
+    ],
+    "dev_qa_reviewer": [
+      "code-review",
+      "tdd",
+      "codebase-design",
       "handoff",
       "wait-what"
     ]
