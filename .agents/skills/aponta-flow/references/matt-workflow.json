@@ -535,11 +535,6 @@
     }
   },
   "roles": {
-    "aponta_deploy_delivery": [
-      "wizard",
-      "handoff",
-      "wait-what"
-    ],
     "dev_triagem": [
       "triage",
       "grilling",
@@ -592,6 +587,11 @@
       "code-review",
       "tdd",
       "codebase-design",
+      "handoff",
+      "wait-what"
+    ],
+    "dev_delivery": [
+      "wizard",
       "handoff",
       "wait-what"
     ]

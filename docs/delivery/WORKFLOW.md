@@ -38,6 +38,8 @@ O coletor usa argv sem shell, redige valores sensíveis conhecidos do ambiente e
 
 Essas evidências são verificáveis, mas não assinadas por uma autoridade independente: podem ser falsificadas por quem controla os arquivos. QA, testes CI e revisão do código continuam necessários. O collector não comprova, sozinho, intenção ou ordem histórica infalível.
 
+QA confere a ordem no histórico da execução do Developer no Multica (`multica issue run-messages`): o teste novo falhou por asserção antes da implementação. RED obtido removendo, quebrando ou revertendo código pronto é evidência fabricada e reprova a conformidade de TDD, mesmo com o verificador aceitando.
+
 Mudança sem comportamento admite TDD não aplicável com justificativa. Legados sem RED histórico ficam explicitamente pendentes de revisão de conformidade; não se inventa RED retroativo. Issues de execução antigas podem permanecer bloqueadas até nova evidência ou decisão explícita sobre a exceção.
 
 ## Design system e segurança
@@ -47,6 +49,16 @@ Architect identifica componentes existentes; Developer reutiliza DS/tokens; QA v
 CI constrói Storybook quando DS/configuração é afetada. Build não é teste de interação nem auditoria a11y. O runner de interação/a11y ainda precisa ser configurado e executado para que essas modalidades sejam declaradas aprovadas.
 
 No código alterado, QA verifica autorização no backend, isolamento entre tenants e validação de entradas, além dos critérios funcionais. Testes usam dados sintéticos e banco de teste.
+
+## Independent QA
+
+`Independent QA` é check obrigatório da main. Só o verificador atribuível do host o publica:
+
+```sh
+python3 /home/hermes/multica/implantacao-fluxo-2026-10-25/publicar_qa.py --delivery DMTE-N --sha SHA40 --qa-issue UUID_DA_ATIVIDADE_QA --registry <checkout>/.delivery/registry.json
+```
+
+Ele exige que a atividade QA seja a mais recente do QA sob o pai canônico, esteja `done` e tenha um comentário do agente QA com uma única linha `RESULTADO=APROVADO` e o SHA40. Por isso, QA encerra APROVADO e REJEITADO com `done` e mantém BLOQUEADO em `blocked`. Delivery executa o verificador depois de conferir que QA, PR e CI se referem ao mesmo SHA, antes de registrar a espera pelo merge. Nunca criar status manual. Commit novo exige novo QA e nova publicação.
 
 ## Entrega e situação real
 
