@@ -1,0 +1,22 @@
+{
+  "source": "https://github.com/mattpocock/skills",
+  "revision": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+  "mode": "upstream-unmodified",
+  "files": [
+    {
+      "upstream_path": "skills/engineering/improve-codebase-architecture/HTML-REPORT.md",
+      "local_path": "HTML-REPORT.md",
+      "sha256": "581e8bb5a521e46bbda8ca7e19b15948bed882187108092ebb90c62513b77528"
+    },
+    {
+      "upstream_path": "skills/engineering/improve-codebase-architecture/SKILL.md",
+      "local_path": "SKILL.md",
+      "sha256": "35b03a3db61e0f5aa333ea59b54963e45a3d2ace6649b2ef4f9576603e2582a6"
+    },
+    {
+      "upstream_path": "skills/engineering/improve-codebase-architecture/agents/openai.yaml",
+      "local_path": "agents/openai.yaml",
+      "sha256": "c8cb20f68ebf0edb4e497bc11ae5fcaa196004e661cd189015b04f4109ced7f1"
+    }
+  ]
+}

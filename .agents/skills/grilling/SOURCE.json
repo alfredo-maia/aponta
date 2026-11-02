@@ -1,0 +1,17 @@
+{
+  "source": "https://github.com/mattpocock/skills",
+  "revision": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+  "mode": "upstream-unmodified",
+  "files": [
+    {
+      "upstream_path": "skills/productivity/grilling/SKILL.md",
+      "local_path": "SKILL.md",
+      "sha256": "a146842ed93ca43d833550fa9adf02e58cb63c83fea9d4b4522995b82242d4e2"
+    },
+    {
+      "upstream_path": "skills/productivity/grilling/agents/openai.yaml",
+      "local_path": "agents/openai.yaml",
+      "sha256": "1411d7df7d99b7e621a1ff8283c8133cc2464be63d064e52d8ce169c6800ee9b"
+    }
+  ]
+}

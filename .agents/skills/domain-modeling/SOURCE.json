@@ -1,0 +1,27 @@
+{
+  "source": "https://github.com/mattpocock/skills",
+  "revision": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+  "mode": "upstream-unmodified",
+  "files": [
+    {
+      "upstream_path": "skills/engineering/domain-modeling/ADR-FORMAT.md",
+      "local_path": "ADR-FORMAT.md",
+      "sha256": "944c92aa790e8fbdc9199640b170979abb8a34ba8d0fe18c2a01a63bce140ca0"
+    },
+    {
+      "upstream_path": "skills/engineering/domain-modeling/GLOSSARY-FORMAT.md",
+      "local_path": "GLOSSARY-FORMAT.md",
+      "sha256": "21dcc40cdec8e151a829b98ab1517c1867bc444e3665134a98c6983411996801"
+    },
+    {
+      "upstream_path": "skills/engineering/domain-modeling/SKILL.md",
+      "local_path": "SKILL.md",
+      "sha256": "7b925d7b1e341a2eeae33ad68a8a8c0ab889a38ddd22a7598e4c240e5a7556a3"
+    },
+    {
+      "upstream_path": "skills/engineering/domain-modeling/agents/openai.yaml",
+      "local_path": "agents/openai.yaml",
+      "sha256": "f6bf2aa996c6e6f53fdd0708e18a0d16a56aed8322cca59fedbe3c0d2c75f06b"
+    }
+  ]
+}

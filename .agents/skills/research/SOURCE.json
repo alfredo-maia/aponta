@@ -1,0 +1,17 @@
+{
+  "source": "https://github.com/mattpocock/skills",
+  "revision": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+  "mode": "upstream-unmodified",
+  "files": [
+    {
+      "upstream_path": "skills/engineering/research/SKILL.md",
+      "local_path": "SKILL.md",
+      "sha256": "1f629e18ab899412683bc6a1c4efb4339999e27c2fdac328f26ee10a8c031d33"
+    },
+    {
+      "upstream_path": "skills/engineering/research/agents/openai.yaml",
+      "local_path": "agents/openai.yaml",
+      "sha256": "9b4c470d63221c1f68f22df70b83e2f12401b317babe0d1b7b5f24a974474d0d"
+    }
+  ]
+}
