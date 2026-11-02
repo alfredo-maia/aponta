@@ -1,0 +1,33 @@
+{
+  "repository": "https://github.com/mattpocock/skills",
+  "revision": "5ae481693d13b37d4d2c2c92d0b66d299c93e695",
+  "license": "MIT",
+  "mode": "derived-method; immutable upstream references; unchanged original workspace skills retained",
+  "adaptations": [
+    "Automatic discovery; portable tools and no mandatory subagents",
+    "Record authorized decisions and testable scenarios across agents; unresolved decisions block dependent action",
+    "Existing explicit decisions are reused; no simulated user approval"
+  ],
+  "files": [
+    {
+      "upstream_path": "skills/productivity/grilling/SKILL.md",
+      "local_path": "references/grilling.md",
+      "sha256": "a146842ed93ca43d833550fa9adf02e58cb63c83fea9d4b4522995b82242d4e2"
+    },
+    {
+      "upstream_path": "skills/engineering/domain-modeling/SKILL.md",
+      "local_path": "references/domain-modeling.md",
+      "sha256": "7b925d7b1e341a2eeae33ad68a8a8c0ab889a38ddd22a7598e4c240e5a7556a3"
+    },
+    {
+      "upstream_path": "skills/engineering/domain-modeling/ADR-FORMAT.md",
+      "local_path": "references/ADR-FORMAT.md",
+      "sha256": "944c92aa790e8fbdc9199640b170979abb8a34ba8d0fe18c2a01a63bce140ca0"
+    },
+    {
+      "upstream_path": "skills/engineering/domain-modeling/GLOSSARY-FORMAT.md",
+      "local_path": "references/GLOSSARY-FORMAT.md",
+      "sha256": "21dcc40cdec8e151a829b98ab1517c1867bc444e3665134a98c6983411996801"
+    }
+  ]
+}

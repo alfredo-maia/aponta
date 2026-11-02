@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "delivery": "DMTE-106",
+  "repository": "alfredo-maia/aponta",
+  "github_issue": 105,
+  "multica_id": "01a15f63-6b3f-7938-837e-dc644f3f65cc",
+  "cycle": null,
+  "tier": 2,
+  "base_sha": "94e88179b6fc0a8a8c7c9f3d2c7310179d9d5911",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "Gerenciar categorias por mesa com autorização, validação, isolamento e exclusão protegida.",
+      "tests": ["service-desk-catalog.service.spec.ts", "service-desks.controller.spec.ts"]
+    },
+    {
+      "id": "AC-02",
+      "description": "Gerenciar tipos de atendimento por mesa com autorização, validação, isolamento e exclusão protegida.",
+      "tests": ["service-desk-catalog.service.spec.ts", "service-desks.controller.spec.ts"]
+    },
+    {
+      "id": "AC-03",
+      "description": "Vincular ou limpar categoria e tipo no ticket com validação de mesa, permissão e auditoria.",
+      "tests": ["tickets.service.spec.ts", "tickets.controller.spec.ts"]
+    },
+    {
+      "id": "AC-04",
+      "description": "Exibir e editar categoria e tipo no detalhe do ticket com estados vazio, erro, inativo e somente leitura.",
+      "tests": ["TicketDetailPage test (RTL)", "MesaCatalogEditor.test.tsx"]
+    },
+    {
+      "id": "AC-05",
+      "description": "Limpar os vínculos de categoria e tipo quando a mesa do ticket mudar.",
+      "tests": ["tickets.service.spec.ts (changeServiceDesk)"]
+    },
+    {
+      "id": "AC-06",
+      "description": "Manter tickets existentes sem vínculo e respeitar seções desligadas após a migração aditiva.",
+      "tests": ["migração em banco isolado", "teste do detalhe do ticket"]
+    }
+  ],
+  "spec": "docs/superpowers/specs/2026-11-01-ticket-category-service-type.md",
+  "changed_files": [
+    "docs/superpowers/specs/2026-11-01-ticket-category-service-type.md"
+  ],
+  "tdd": {
+    "mode": "not-applicable",
+    "reason": "Etapa Architect: esta alteração registra somente a SPEC, sem comportamento de produto. TDD é obrigatório para a implementação subsequente da DMTE-106."
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "A etapa alterou somente documentação de SPEC; a implementação de UI ainda não foi realizada."
+  }
+}
