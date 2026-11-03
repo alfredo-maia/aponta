@@ -17,7 +17,7 @@ Na revisão de entrega, use um resultado geral inequívoco: `RESULTADO=APROVADO`
 
 Entregue um resultado conclusivo `APROVADO`/`REJEITADO`, ou `BLOQUEADO` quando não for possível avaliar, SHA exato quando conhecido, critérios e verificações, achados com severidade, arquivo/localização e reprodução. Achado Important ou superior impede aprovação. Não implemente a correção no papel de QA nem autoaprove mudanças feitas por você.
 
-Conclua rodadas APROVADO/REJEITADO com comentário e `done`, inclusive na rejeição; BLOQUEADO permanece `blocked`; o líder encaminha uma nova sub-issue ao Developer e depois uma nova revisão. Falta de contexto necessário ou indisponibilidade de ambiente é BLOQUEADO: manter a própria etapa blocked, publicar causa/pergunta/responsável no filho e um aviso mínimo com link no pai conforme aponta-flow. Não marcar done para forçar a barreira nem inventar reprovação de código. Após complemento suficiente, o líder reativa a mesma fase sem nova rodada de correção por simples espera. Após duas rodadas rejeitadas para a mesma causa ou dois erros idênticos de infraestrutura, peça avaliação do líder em vez de repetir indefinidamente.
+Publique o resultado como resposta no fio da menção, no pai, sem alterar o status do pai; na rejeição, o líder faz uma nova menção ao Developer e depois uma nova revisão. Falta de contexto necessário ou indisponibilidade de ambiente é BLOQUEADO, com causa, pergunta e responsável no mesmo fio. Não invente reprovação de código. Após complemento suficiente, o líder reativa a mesma fase sem nova rodada de correção por simples espera. Após duas rodadas rejeitadas para a mesma causa ou dois erros idênticos de infraestrutura, peça avaliação do líder em vez de repetir indefinidamente.
 
 
 ## Expectativa e UI

@@ -4,15 +4,15 @@
 
 Ciclos quinzenais com objetivo de produto, execução em Kanban e práticas XP. O primeiro ciclo é 26/10/2026–08/11/2026. Sprint não é uma única issue: agrupa entregas pequenas, priorizadas pelo responsável humano. Entregar quando pronto; revisar objetivo e impedimentos semanalmente e resultados ao final do ciclo.
 
-GitHub registra produto; Multica registra execução. Uma entrega tem uma issue GitHub principal e um pai Multica canônico. Épicos agrupam entregas; não são executados como uma única tarefa longa. Filhos operacionais de Triagem/Architect/Developer/QA/Delivery não geram issues GitHub por fase. Tickets de implementação produzidos por to-tickets são sub-issues GitHub da SPEC e herdam a identidade da entrega, conforme docs/agents/issue-tracker.md.
+GitHub registra produto; Multica registra execução. Uma entrega tem uma issue GitHub principal e um pai Multica canônico. Épicos agrupam entregas; não são executados como uma única tarefa longa. As etapas de Triagem/Architect/Developer/QA/Delivery são delegadas por menção no pai Multica canônico e não geram issues GitHub nem issues Multica por fase. Tickets de implementação produzidos por to-tickets são sub-issues GitHub da SPEC e herdam a identidade da entrega, conforme docs/agents/issue-tracker.md.
 
 O registro `.delivery/registry.json` é a identidade versionada, não uma automação bidirecional de status. A implantação verifica os vínculos reais pelos serviços autenticados; CI verifica a estrutura sem credenciais Multica. Cada PR declara exatamente `Aponta-Delivery: DMTE-N` e `Refs alfredo-maia/aponta#N`.
 
 ## Esteira
 
-Reserve Triagem1, Architect2, Developer3, QA4 e Delivery5 em backlog antes de ativar Triagem. Bug pequeno Tier 1 com critérios confirmados pode cancelar Architect sem executá-lo. Funcionalidade nova/grande refatoração executa grill-with-docs → to-spec → to-tickets no Architect, independentemente do Tier. Em rejeição QA4, reserve Dev5/QA6, mova Delivery ainda não iniciado para7, só então ative Dev5. Stages iniciados/concluídos são preservados. O limite nativo de retomadas não deve ser aumentado ou desativado para contornar uma esteira incorreta.
+O líder delega cada etapa por menção no pai canônico, uma por vez, na ordem Triagem → Architect → Developer → QA → Delivery, com o briefing no comentário. O responsável responde no fio da menção e não altera o status do pai; só o líder muda esse status, e o pai vai para revisão depois que o Delivery verificou a entrega. Bug pequeno Tier 1 com critérios confirmados pode dispensar o Architect, com o motivo registrado no pai. Funcionalidade nova/grande refatoração executa grill-with-docs → to-spec → to-tickets no Architect, independentemente do Tier. Rejeição do QA gera uma nova menção ao Developer para a correção e, depois, uma nova menção ao QA para o novo SHA. Issue filha só é usada quando há trabalho em paralelo que não cabe num único fio. O limite nativo de retomadas não deve ser aumentado ou desativado para contornar uma esteira incorreta.
 
-Dois erros iguais de ambiente ou duas rejeições pela mesma causa exigem diagnóstico, não repetição automática. Futuras etapas ficam em backlog. Só uma entrega é liberada para implementação/revisão por vez; implement-spec pode coordenar até dois tickets liberados dentro dessa mesma entrega, em worktrees/branches novos e exclusivos, com um único coordenador e integração. Aumentar o número de entregas concorrentes exige isolamento e medições.
+Dois erros iguais de ambiente ou duas rejeições pela mesma causa exigem diagnóstico, não repetição automática. Etapas futuras não são despachadas antes da hora. Só uma entrega é liberada para implementação/revisão por vez; implement-spec pode coordenar até dois tickets liberados dentro dessa mesma entrega, em worktrees/branches novos e exclusivos, com um único coordenador e integração. Aumentar o número de entregas concorrentes exige isolamento e medições.
 
 ## Branch, evidências e revisão
 
@@ -55,10 +55,10 @@ No código alterado, QA verifica autorização no backend, isolamento entre tena
 `Independent QA` é check obrigatório da main. Só o verificador atribuível do host o publica:
 
 ```sh
-python3 /home/hermes/multica/implantacao-fluxo-2026-10-25/publicar_qa.py --delivery DMTE-N --sha SHA40 --qa-issue UUID_DA_ATIVIDADE_QA --registry <checkout>/.delivery/registry.json
+python3 scripts/publicar_qa.py --delivery DMTE-N --sha SHA40
 ```
 
-Ele exige que a atividade QA seja a mais recente do QA sob o pai canônico, esteja `done` e tenha um comentário do agente QA com uma única linha `RESULTADO=APROVADO` e o SHA40. Por isso, QA encerra APROVADO e REJEITADO com `done` e mantém BLOQUEADO em `blocked`. Delivery executa o verificador depois de conferir que QA, PR e CI se referem ao mesmo SHA, antes de registrar a espera pelo merge. Nunca criar status manual. Commit novo exige novo QA e nova publicação.
+Ele lê o pai canônico do `.delivery/registry.json` e procura, entre os comentários do agente QA no pai, o mais recente que cita o SHA40. Esse comentário precisa vir de uma execução concluída do próprio QA sobre o pai e ter uma única linha `RESULTADO=APROVADO`. Um resultado mais novo para o mesmo SHA, como uma rejeição, invalida a aprovação anterior. Status de issue não entra na conta. `--qa-issue UUID` mantém o modo anterior, para entregas antigas cujo QA rodou numa issue filha `done`. Delivery executa o verificador depois de conferir que QA, PR e CI se referem ao mesmo SHA, antes de registrar a espera pelo merge. Nunca criar status manual. Commit novo exige novo QA e nova publicação.
 
 ## Entrega e situação real
 
@@ -91,4 +91,4 @@ GREEN invalidam os hashes. Não capture um RED retroativo para o código legado.
 
 ## Métodos Matt originais
 
-Ver docs/agents/engineering-workflow.md para métodos/papéis e docs/agents/matt-workflow.json para origem e dependências. to-spec é a autoridade do template da SPEC; aponta-sdd acrescenta critérios do projeto na mesma SPEC. tdd é a autoridade do método; aponta-tdd registra evidências, com refatoração na revisão. As reservas Multica são fases de execução, distintas dos tickets GitHub. O tracker não fecha trabalho automaticamente por PR; pr mantém o template original e os campos Aponta-Delivery/Refs.
+Ver docs/agents/engineering-workflow.md para métodos/papéis e docs/agents/matt-workflow.json para origem e dependências. to-spec é a autoridade do template da SPEC; aponta-sdd acrescenta critérios do projeto na mesma SPEC. tdd é a autoridade do método; aponta-tdd registra evidências, com refatoração na revisão. As etapas Multica, delegadas por menção no pai, são fases de execução distintas dos tickets GitHub. O tracker não fecha trabalho automaticamente por PR; pr mantém o template original e os campos Aponta-Delivery/Refs.
