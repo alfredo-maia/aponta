@@ -1,5 +1,5 @@
 import unittest
-from publicar_qa import assess, QA
+from publicar_qa import assess, build_query, QA
 
 
 class QaProofTests(unittest.TestCase):
@@ -23,8 +23,46 @@ class QaProofTests(unittest.TestCase):
     def test_new_rejection_invalidates_approval(self):
         with self.assertRaises(ValueError):assess([self.valid,{**self.valid,'content':'RESULTADO=REJEITADO\n'+self.sha}],self.sha)
 
+    def test_result_cited_in_prose_is_not_a_second_result(self):
+        cited = {**self.valid, 'content': 'RESULTADO=APROVADO SHA40='+self.sha+'\nO implementador registrou RESULTADO=APROVADO antes.'}
+        self.assertEqual(assess([cited], self.sha), cited)
+
+    def test_base_sha_mention_does_not_approve_it(self):
+        other = 'b' * 40
+        newer = {**self.valid, 'content': 'RESULTADO=APROVADO SHA40='+other+'\nBase: '+self.sha}
+        with self.assertRaises(ValueError):assess([newer], self.sha)
+
+    def test_approval_survives_a_later_review_of_another_sha(self):
+        other = 'b' * 40
+        later = {**self.valid, 'content': 'RESULTADO=APROVADO SHA40='+other+'\nBase: '+self.sha}
+        self.assertEqual(assess([self.valid, later], self.sha), self.valid)
+
     def test_ambiguous_result_cannot_approve(self):
         with self.assertRaises(ValueError):assess([{**self.valid,'content':self.valid['content']+'\nRESULTADO=REJEITADO'}],self.sha)
+
+
+class QaSourceTests(unittest.TestCase):
+    parent = '11111111-1111-1111-1111-111111111111'
+    child = '22222222-2222-2222-2222-222222222222'
+
+    def test_mention_mode_reads_qa_comments_on_the_parent(self):
+        query = build_query(self.parent)
+        self.assertIn(f"c.issue_id='{self.parent}'", query)
+        self.assertIn(f"t.issue_id='{self.parent}'", query)
+        self.assertIn(f"c.author_id='{QA}'", query)
+
+    def test_mention_mode_does_not_depend_on_issue_status(self):
+        self.assertNotIn('status=', build_query(self.parent).replace('t.status', ''))
+
+    def test_child_mode_keeps_the_done_qa_child_rule(self):
+        query = build_query(self.parent, self.child)
+        self.assertIn(f"i.id='{self.child}'", query)
+        self.assertIn(f"i.parent_issue_id='{self.parent}'", query)
+        self.assertIn("i.status='done'", query)
+
+    def test_identifiers_must_be_uuids(self):
+        with self.assertRaises(ValueError):build_query("x' OR '1'='1")
+        with self.assertRaises(ValueError):build_query(self.parent, 'not-a-uuid')
 
 
 if __name__=='__main__':unittest.main()
