@@ -302,10 +302,10 @@
       "kind": "delivery",
       "tier": 3,
       "state": "Planejada",
-      "cycle": null,
+      "cycle": "2026-10-26/2026-11-08",
       "epic": null,
       "title": "Tickets: refinar estética e proporção da aba Tickets",
-      "note": "Tier 3 provisório, confirmado pelo Architect ao abrir a SPEC. Issue GitHub #120 criada com autorização do Alfredo. Pendente: decidir se inicia no ciclo 01 (até 08/11/2026) ou no ciclo 02. SPEC não iniciada. Pedido novo: não usa DMTE-78/PR #91 nem a SPEC de 2026-10-23 como base."
+      "note": "Tier 3 provisório, confirmado pelo Architect ao abrir a SPEC. Issue GitHub #120 criada com autorização do Alfredo. Alfredo decidiu que todo o trabalho (SPEC e implementação) fica no ciclo 01; a implementação pode se estender além de 08/11/2026. Pedido novo: não usa DMTE-78/PR #91 nem a SPEC de 2026-10-23 como base."
     }
   }
 }
