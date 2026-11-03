@@ -238,7 +238,7 @@ export function TicketList({
   const renderRow = (ticket: Ticket) => (
     <tr
       key={ticket.id}
-      className="border-b border-gray-100 last:border-0 hover:bg-gray-50 cursor-pointer"
+      className="border-b border-gray-100 last:border-0 hover:bg-gray-80 cursor-pointer"
       onClick={() => openInTab(`/tickets/${ticket.id}`, `#${ticket.protocol} - ${ticket.title}`)}
     >
       {visibleColumns.map((col) => (
@@ -259,7 +259,7 @@ export function TicketList({
           id="ticket-list-group-by"
           value={config.groupBy || 'none'}
           onChange={(e) => setGroupBy(e.target.value)}
-          className="h-[34px] rounded-[8px] border border-gray-200 bg-white px-2 text-[13px] text-gray-900"
+          className="h-[32px] rounded-[8px] border border-gray-200 bg-white px-2 text-[13px] text-gray-900"
         >
           {GROUP_OPTIONS.map((opt) => (
             <option key={opt.id} value={opt.id}>
@@ -272,7 +272,7 @@ export function TicketList({
           <button
             type="button"
             onClick={() => setIsColumnMenuOpen((prev) => !prev)}
-            className="h-[34px] rounded-[8px] border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"
+            className="h-[32px] rounded-[8px] border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"
           >
             Exibir colunas
           </button>
@@ -304,7 +304,7 @@ export function TicketList({
       <div className="overflow-x-auto rounded-[10px] border border-gray-200 bg-white">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-gray-200 bg-gray-50">
+            <tr className="border-b border-gray-200 bg-gray-80">
               {visibleColumns.map((col) => (
                 <th key={col.id} className="px-3 py-2 text-[12px] font-semibold text-gray-600">
                   {col.sortField ? (

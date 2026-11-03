@@ -1,0 +1,31 @@
+/tmp/multica-task-2652167833/tmp1vf8dgma/apps/web/src/pages/TicketDetailPage.tsx: classe de paleta fora do DS: teal-50
+FALHA: paleta fora do DS ou hex literal na aba Tickets (AC-01, DMTE-427).
+OK: nenhum hex literal ou classe de paleta fora do DS na aba Tickets (AC-01, DMTE-427).
+OK: nenhum hex literal ou classe de paleta fora do DS na aba Tickets (AC-01, DMTE-427).
+test_main_fails_when_tickets_file_has_violation (test_check_tickets_palette.TicketsPaletteCheckMainTest.test_main_fails_when_tickets_file_has_violation) ... ok
+test_main_ignores_test_and_story_files (test_check_tickets_palette.TicketsPaletteCheckMainTest.test_main_ignores_test_and_story_files) ... ok
+test_main_passes_when_tickets_files_are_clean (test_check_tickets_palette.TicketsPaletteCheckMainTest.test_main_passes_when_tickets_files_are_clean) ... ok
+test_gray_degree_defined_by_ds_is_not_a_violation (test_check_tickets_palette.TicketsPaletteCheckTest.test_gray_degree_defined_by_ds_is_not_a_violation) ... ok
+test_gray_degree_outside_ds_scale_is_a_violation (test_check_tickets_palette.TicketsPaletteCheckTest.test_gray_degree_outside_ds_scale_is_a_violation) ... ok
+test_hex_literal_is_a_violation (test_check_tickets_palette.TicketsPaletteCheckTest.test_hex_literal_is_a_violation) ... ok
+test_off_ds_named_palette_class_is_a_violation (test_check_tickets_palette.TicketsPaletteCheckTest.test_off_ds_named_palette_class_is_a_violation) ... ok
+test_no_palette_violations_in_real_tickets_tab (test_check_tickets_palette.TicketsPaletteRealTreeTest.test_no_palette_violations_in_real_tickets_tab) ... FAIL
+
+======================================================================
+FAIL: test_no_palette_violations_in_real_tickets_tab (test_check_tickets_palette.TicketsPaletteRealTreeTest.test_no_palette_violations_in_real_tickets_tab)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-430-f82ef8bca08b/workdir/aponta/scripts/test_check_tickets_palette.py", line 66, in test_no_palette_violations_in_real_tickets_tab
+    self.assertEqual([], violations)
+AssertionError: Lists differ: [] != ['apps/web/src/components/tickets/TicketFo[5196 chars]-50']
+
+Second list contains 61 additional elements.
+First extra element 0:
+'apps/web/src/components/tickets/TicketFormMode.tsx: grau de gray fora do DS: gray-50'
+
+Diff is 5713 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.031s
+
+FAILED (failures=1)

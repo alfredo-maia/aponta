@@ -67,7 +67,7 @@ export function TicketFormMode({
       className={cn('flex flex-col bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs', className)}
     >
       {/* Form Subheader / Context Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-gray-200 bg-gray-50/70">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-gray-200 bg-gray-80/70">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -131,13 +131,13 @@ export function TicketFormMode({
                 type="text"
                 disabled
                 value={ticket.protocol}
-                className="w-full px-3 py-1.5 text-[13px] bg-gray-50 border border-gray-200 rounded-[6px] font-mono text-gray-600"
+                className="w-full px-3 py-1.5 text-[13px] bg-gray-80 border border-gray-200 rounded-[6px] font-mono text-gray-600"
               />
             </div>
 
             <div className="space-y-1">
               <label className="text-[12px] font-medium text-gray-700">Mesa</label>
-              <div className="flex items-center gap-2 px-3 py-1.5 text-[13px] bg-gray-50 border border-gray-200 rounded-[6px] text-gray-700">
+              <div className="flex items-center gap-2 px-3 py-1.5 text-[13px] bg-gray-80 border border-gray-200 rounded-[6px] text-gray-700">
                 <Building className="w-3.5 h-3.5 text-gray-400" />
                 <span className="font-mono">{ticket.serviceDeskId}</span>
               </div>
@@ -201,7 +201,7 @@ export function TicketFormMode({
 
         {activeTab === 'sla' && (
           <div className={cn(isSideBySide ? 'grid grid-cols-1 md:grid-cols-2 gap-5' : 'flex flex-col gap-4')}>
-            <div className="p-3.5 rounded-[8px] bg-gray-50 border border-gray-200 space-y-1">
+            <div className="p-3.5 rounded-[8px] bg-gray-80 border border-gray-200 space-y-1">
               <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block">Responsável</span>
               <div className="flex items-center gap-2 text-[13px] text-gray-900 font-medium">
                 <User className="w-4 h-4 text-gray-400" />
@@ -209,7 +209,7 @@ export function TicketFormMode({
               </div>
             </div>
 
-            <div className="p-3.5 rounded-[8px] bg-gray-50 border border-gray-200 space-y-1">
+            <div className="p-3.5 rounded-[8px] bg-gray-80 border border-gray-200 space-y-1">
               <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block">Solicitante</span>
               <div className="flex items-center gap-2 text-[13px] text-gray-900 font-medium">
                 <User className="w-4 h-4 text-gray-400" />
@@ -217,7 +217,7 @@ export function TicketFormMode({
               </div>
             </div>
 
-            <div className="p-3.5 rounded-[8px] bg-gray-50 border border-gray-200 space-y-1">
+            <div className="p-3.5 rounded-[8px] bg-gray-80 border border-gray-200 space-y-1">
               <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block">Prazo SLA de Resposta</span>
               <div className="flex items-center gap-2 text-[13px] text-gray-800">
                 <Clock className="w-4 h-4 text-gray-400" />
@@ -225,7 +225,7 @@ export function TicketFormMode({
               </div>
             </div>
 
-            <div className="p-3.5 rounded-[8px] bg-gray-50 border border-gray-200 space-y-1">
+            <div className="p-3.5 rounded-[8px] bg-gray-80 border border-gray-200 space-y-1">
               <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block">Prazo SLA de Resolução</span>
               <div className="flex items-center gap-2 text-[13px] text-gray-800">
                 <Clock className="w-4 h-4 text-gray-400" />
@@ -233,12 +233,12 @@ export function TicketFormMode({
               </div>
             </div>
 
-            <div className="p-3.5 rounded-[8px] bg-gray-50 border border-gray-200 space-y-1">
+            <div className="p-3.5 rounded-[8px] bg-gray-80 border border-gray-200 space-y-1">
               <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block">Data de Abertura</span>
               <div className="text-[13px] text-gray-700">{formatDate(ticket.createdAt)}</div>
             </div>
 
-            <div className="p-3.5 rounded-[8px] bg-gray-50 border border-gray-200 space-y-1">
+            <div className="p-3.5 rounded-[8px] bg-gray-80 border border-gray-200 space-y-1">
               <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block">Última Atualização</span>
               <div className="text-[13px] text-gray-700">{formatDate(ticket.updatedAt)}</div>
             </div>

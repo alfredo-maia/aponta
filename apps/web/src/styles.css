@@ -104,6 +104,23 @@
   /* Grid tokens (Sankhya DS parity) */
   --color-grid-row-hover: #e4eaf1;
 
+  /* Escala de proporção (D6, ADR 0001, DMTE-427 fatia 1).
+     Valores fechados com medidas reais já renderizadas pelo DS (não os
+     36px/8px hipotéticos da SPEC v2, que eram placeholder sem medição):
+     EzButton/EzTextInput/EzSearch/EzComboBox/EzDateInput já usam 42px como
+     altura "medium" e 32px como "small/slim"; EzCardItem já usa 16px de
+     raio para cartões, e os controles da toolbar da aba Tickets (Mesa,
+     Ordenar, Configurações, busca) já convergem em 10px. Esta fatia fixa
+     esses valores medidos como os tokens oficiais, em vez de inventar uma
+     escala nova; a aplicação em cartões/chips/badges de outras telas da
+     aba Tickets fica para as fatias 2–6, que tocam cada superfície. */
+  --control-height-md: 42px;
+  --control-height-compact: 32px;
+  --radius-control: 10px;
+  --radius-card: 16px;
+  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.06), 0 1px 3px 0 rgb(0 0 0 / 0.08);
+  --shadow-popover: 0 4px 24px rgb(0 0 0 / 0.12);
+
   /* Animations for Aponta DS */
   --animate-ripple: ripple 0.6s linear;
 

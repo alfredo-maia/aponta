@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-03T22:36:15.466314+00:00",
+  "finished_at": "2026-11-03T22:36:15.596803+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_check_tickets_proportion.py",
+    "-v"
+  ],
+  "base_sha": "29693a2cfd8fc063c29f26267dfc4c3043a5916b",
+  "head_sha": "29693a2cfd8fc063c29f26267dfc4c3043a5916b",
+  "exit_code": 0,
+  "tests": {
+    "scripts/test_check_tickets_proportion.py": "a983eea84ff95d9efbccadc324fb8e9f0e4892c7b536bfac28ac9f9861c8c4a2"
+  },
+  "criteria": [
+    "AC-02"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/ds/EzDesignTokens.stories.tsx": "31b431eb5bcb9f55c8ca17bb26b824e734b7f2b3b2a43a7cfe3d3ccba61881f4",
+    "apps/web/src/components/ds/EzDesignTokens.test.tsx": "ec3cffc13be1fcfb7b3f71949eec8424700afbae5e4aeac8825fa739e8bc3f6d",
+    "apps/web/src/components/ds/EzDesignTokens.tsx": "d86dc1c9b142c2842691bdf0b7efca33279546b46df6a1f8c7376564e7a1319b",
+    "apps/web/src/components/tickets/TicketFormMode.tsx": "714b8a96f3f9a2a21d647ccd3a1c77b3aeb77cb239ae0ff89601e6e34d41c60c",
+    "apps/web/src/components/tickets/TicketKanban.tsx": "212811a124775a652ba7e599c0ec5a71a0ada527e133d84318e2099d23a535f4",
+    "apps/web/src/components/tickets/TicketList.tsx": "467b3d6ad7d522d41394e68bb0464909547550bcb3e223087ffaea4c07f3d491",
+    "apps/web/src/components/tickets/TicketWorklogs.tsx": "839a3f247d833894c77f709b490d1e3eed5fa9ce7cf390e4b52bb9051cd1f5a1",
+    "apps/web/src/components/tickets/TicketsHeader.tsx": "0ed446845e4e5f1a8e9832b715286e201a1adeb3dc3691897311be3cb6a233e7",
+    "apps/web/src/pages/TicketDetailPage.tsx": "0b5712da1852da1341486782fc69ffe9a411df9888b08e7a0b53434465595061",
+    "apps/web/src/styles.css": "2a6d590d036d044cfa6ec0d557a4ee1c9d2b170d8aaf3597c3803433dd80170a",
+    "scripts/check_tickets_palette.py": "5b404d3d65d929be8355da6ea5ca246e868834e90fd2936ead9f72a6e69cbfca",
+    "scripts/check_tickets_proportion.py": "6762fb7fde7a3751aaad6c204536ed5a2e71bed487a5924c00aaa62f54195f71",
+    "scripts/test_check_tickets_palette.py": "6e28408f87e9ddc42815c012e3f4a0346ef511c34f39aa901f04c11c12a8ccea",
+    "scripts/test_check_tickets_proportion.py": "a983eea84ff95d9efbccadc324fb8e9f0e4892c7b536bfac28ac9f9861c8c4a2"
+  },
+  "log": ".delivery/evidence/DMTE-430-ac02/green.log",
+  "log_sha256": "c04347f5b8ee1e9eae5b977f18167bfe347b7d1fc22b5b19064abed4103f5a21"
+}

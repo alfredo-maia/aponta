@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-03T22:14:57.342559+00:00",
+  "finished_at": "2026-11-03T22:14:57.457430+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_check_tickets_palette.py",
+    "-v"
+  ],
+  "base_sha": "29693a2cfd8fc063c29f26267dfc4c3043a5916b",
+  "head_sha": "29693a2cfd8fc063c29f26267dfc4c3043a5916b",
+  "exit_code": 1,
+  "tests": {
+    "scripts/test_check_tickets_palette.py": "6e28408f87e9ddc42815c012e3f4a0346ef511c34f39aa901f04c11c12a8ccea"
+  },
+  "criteria": [
+    "AC-01"
+  ],
+  "source_hashes": {
+    "scripts/check_tickets_palette.py": "5b404d3d65d929be8355da6ea5ca246e868834e90fd2936ead9f72a6e69cbfca",
+    "scripts/test_check_tickets_palette.py": "6e28408f87e9ddc42815c012e3f4a0346ef511c34f39aa901f04c11c12a8ccea"
+  },
+  "log": ".delivery/evidence/DMTE-430/red.log",
+  "log_sha256": "74de1a91093b9b11da66a5047c154cd0b6be497a53613c04ca2660f9c39d5918"
+}
