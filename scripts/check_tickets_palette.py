@@ -3,12 +3,7 @@ import re
 import sys
 from pathlib import Path
 
-TICKETS_GLOBS = [
-    'apps/web/src/pages/Ticket*.tsx',
-    'apps/web/src/pages/CreateTicketPage.tsx',
-    'apps/web/src/components/tickets/*.tsx',
-]
-EXCLUDE_SUFFIXES = ('.test.tsx', '.stories.tsx')
+from tickets_scope import find_tickets_files
 
 HEX_RE = re.compile(r'#[0-9A-Fa-f]{3,8}\b')
 NAMED_OFF_DS_RE = re.compile(r'\b(?:teal|emerald|rose)-[0-9]+\b')
@@ -26,16 +21,6 @@ def find_violations(text: str) -> list[str]:
         if match.group(1) not in DS_GRAY_DEGREES:
             violations.append(f'grau de gray fora do DS: {match.group(0)}')
     return violations
-
-
-def find_tickets_files(root: Path) -> list[Path]:
-    files: set[Path] = set()
-    for pattern in TICKETS_GLOBS:
-        for path in root.glob(pattern):
-            if path.name.endswith(EXCLUDE_SUFFIXES):
-                continue
-            files.add(path)
-    return sorted(files)
 
 
 def main(argv: list[str]) -> int:

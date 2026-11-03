@@ -72,7 +72,8 @@
     "scripts/check_tickets_palette.py",
     "scripts/check_tickets_proportion.py",
     "scripts/test_check_tickets_palette.py",
-    "scripts/test_check_tickets_proportion.py"
+    "scripts/test_check_tickets_proportion.py",
+    "scripts/tickets_scope.py"
   ],
   "tdd": {
     "mode": "required",

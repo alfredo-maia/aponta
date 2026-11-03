@@ -88,13 +88,13 @@ export function TicketsHeader({
             placeholder="Buscar…"
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
-            className="h-[42px] w-56 rounded-[10px] border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"
+            className="h-[42px] w-56 rounded-control border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"
           />
         </div>
         <button
           type="button"
           onClick={onOpenAdvancedSearch}
-          className="h-[42px] shrink-0 rounded-[10px] border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"
+          className="h-[42px] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"
         >
           Busca avançada
         </button>

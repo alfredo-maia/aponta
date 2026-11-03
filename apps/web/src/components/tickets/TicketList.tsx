@@ -277,7 +277,7 @@ export function TicketList({
             Exibir colunas
           </button>
           {isColumnMenuOpen && (
-            <div className="absolute z-10 mt-1 w-56 rounded-[10px] border border-gray-200 bg-white p-2 shadow-md">
+            <div className="absolute z-10 mt-1 w-56 rounded-control border border-gray-200 bg-white p-2 shadow-popover">
               {COLUMNS.map((col) => (
                 <label key={col.id} className="flex items-center gap-2 px-1 py-1 text-[13px]">
                   <input

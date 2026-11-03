@@ -487,7 +487,7 @@ export function TicketKanban({
         data-testid="kanban-mesa-select"
         value={selectedDeskId}
         onChange={(e) => setSelectedDeskId(e.target.value)}
-        className="h-[42px] w-full rounded-[10px] border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-900 hover:border-gray-300 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"
+        className="h-[42px] w-full rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-900 hover:border-gray-300 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"
       >
         <option value="">Mesa: Todas</option>
         {serviceDesks.map((desk) => (
@@ -526,13 +526,13 @@ export function TicketKanban({
       <button
         type="button"
         onClick={() => setIsSortMenuOpen((prev) => !prev)}
-        className="flex h-[42px] items-center gap-1.5 rounded-[10px] border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"
+        className="flex h-[42px] items-center gap-1.5 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"
       >
         <ArrowUpDown className="h-3.5 w-3.5" />
         Ordenar
       </button>
       {isSortMenuOpen && (
-        <div className="absolute z-20 mt-1 w-64 rounded-[10px] border border-gray-200 bg-white p-2 shadow-md">
+        <div className="absolute z-20 mt-1 w-64 rounded-control border border-gray-200 bg-white p-2 shadow-popover">
           <p className="px-1 pb-1 text-[12px] font-semibold text-gray-500">
             Ordenar os cards por
           </p>
@@ -566,13 +566,13 @@ export function TicketKanban({
       <button
         type="button"
         onClick={() => setIsConfigMenuOpen((prev) => !prev)}
-        className="flex h-[42px] items-center gap-1.5 rounded-[10px] border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"
+        className="flex h-[42px] items-center gap-1.5 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"
       >
         <SlidersHorizontal className="h-3.5 w-3.5" />
         Configurações
       </button>
       {isConfigMenuOpen && (
-        <div className="absolute z-20 mt-1 w-64 rounded-[10px] border border-gray-200 bg-white p-2 shadow-md">
+        <div className="absolute z-20 mt-1 w-64 rounded-control border border-gray-200 bg-white p-2 shadow-popover">
           <label htmlFor="kanban-group-by" className="px-1 text-[12px] font-semibold text-gray-500">
             Agrupar por
           </label>

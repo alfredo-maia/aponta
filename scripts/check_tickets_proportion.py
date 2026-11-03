@@ -3,27 +3,12 @@ import re
 import sys
 from pathlib import Path
 
-TICKETS_GLOBS = [
-    'apps/web/src/pages/Ticket*.tsx',
-    'apps/web/src/pages/CreateTicketPage.tsx',
-    'apps/web/src/components/tickets/*.tsx',
-]
-EXCLUDE_SUFFIXES = ('.test.tsx', '.stories.tsx')
+from tickets_scope import find_tickets_files
 
 # D6 (ADR 0001, DMTE-427 fatia 1): única escala de altura de controle.
 CONTROL_HEIGHT_RANGE = (24, 48)
 ALLOWED_CONTROL_HEIGHTS = {32, 42}
 HEIGHT_RE = re.compile(r'\bh-\[(\d+)px\]')
-
-
-def find_tickets_files(root: Path) -> list[Path]:
-    files: set[Path] = set()
-    for pattern in TICKETS_GLOBS:
-        for path in root.glob(pattern):
-            if path.name.endswith(EXCLUDE_SUFFIXES):
-                continue
-            files.add(path)
-    return sorted(files)
 
 
 def find_violations(text: str) -> list[str]:

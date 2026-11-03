@@ -93,10 +93,14 @@ hipotéticos (36px/8px) da SPEC v2 — a SPEC marcava esses números como
 - **Raio e sombra** (`--radius-control: 10px`, `--radius-card: 16px`,
   `--shadow-card`, `--shadow-popover`, também em `styles.css`, geram as
   utilities `rounded-control`, `rounded-card`, `shadow-card`,
-  `shadow-popover`): documentados e aplicados nesta fatia à toolbar da aba
-  Tickets. Migrar cartões, chips e badges de outras superfícies da aba para
-  esses tokens é trabalho das fatias 2–6 (cada uma já toca essas superfícies
-  com seus próprios ACs); não foi replicado às cegas aqui sem captura de tela
-  para comparar.
+  `shadow-popover`): documentados nesta fatia, com `rounded-control` e
+  `shadow-popover` já aplicados aos controles e popovers da toolbar que
+  tiveram a altura normalizada (Mesa, Ordenar, Configurações e seus menus no
+  Kanban; busca e Busca avançada no cabeçalho; Exibir colunas na Lista).
+  `rounded-card` e `shadow-card` ficam definidos, documentados na story e sem
+  consumidor em código de produto ainda — aplicá-los a cartões do Kanban,
+  chips e badges de outras superfícies da aba é trabalho das fatias 2–6 (cada
+  uma já toca essas superfícies com seus próprios ACs); não foi replicado às
+  cegas aqui sem captura de tela para comparar.
 - Story de documentação: `apps/web/src/components/ds/EzDesignTokens.stories.tsx`
   (`DS/Tokens de proporção (D6)`).
