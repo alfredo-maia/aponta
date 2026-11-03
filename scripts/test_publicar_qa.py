@@ -1,5 +1,5 @@
 import unittest
-from publicar_qa import assess, build_query, QA
+from publicar_qa import assess, build_query, QA, RAPIDO_QA
 
 
 class QaProofTests(unittest.TestCase):
@@ -10,6 +10,25 @@ class QaProofTests(unittest.TestCase):
 
     def test_completed_qa_for_exact_sha(self):
         self.assertEqual(assess([self.valid],self.sha),self.valid)
+
+    def test_squad_rapido_qa_can_approve(self):
+        rapido = {**self.valid, 'author_id': RAPIDO_QA, 'task_agent': RAPIDO_QA}
+        self.assertEqual(assess([rapido], self.sha), rapido)
+
+    def test_qa_publishing_from_its_own_running_task_can_approve(self):
+        running = {**self.valid, 'author_id': RAPIDO_QA, 'task_agent': RAPIDO_QA, 'task_status': 'running'}
+        self.assertEqual(assess([running], self.sha, current=('task', RAPIDO_QA)), running)
+
+    def test_running_task_of_another_run_cannot_approve(self):
+        running = {**self.valid, 'author_id': RAPIDO_QA, 'task_agent': RAPIDO_QA, 'task_status': 'running'}
+        with self.assertRaises(ValueError):assess([running], self.sha, current=('other-task', RAPIDO_QA))
+
+    def test_running_task_published_by_another_agent_cannot_approve(self):
+        running = {**self.valid, 'author_id': RAPIDO_QA, 'task_agent': RAPIDO_QA, 'task_status': 'running'}
+        with self.assertRaises(ValueError):assess([running], self.sha, current=('task', 'some-developer'))
+
+    def test_comment_from_another_agents_task_cannot_approve(self):
+        with self.assertRaises(ValueError):assess([{**self.valid, 'author_id': RAPIDO_QA, 'task_agent': QA}], self.sha)
 
     def test_human_comment_cannot_approve(self):
         with self.assertRaises(ValueError):assess([{**self.valid,'author_type':'member'}],self.sha)
@@ -49,7 +68,8 @@ class QaSourceTests(unittest.TestCase):
         query = build_query(self.parent)
         self.assertIn(f"c.issue_id='{self.parent}'", query)
         self.assertIn(f"t.issue_id='{self.parent}'", query)
-        self.assertIn(f"c.author_id='{QA}'", query)
+        self.assertIn(QA, query)
+        self.assertIn(RAPIDO_QA, query)
 
     def test_mention_mode_does_not_depend_on_issue_status(self):
         self.assertNotIn('status=', build_query(self.parent).replace('t.status', ''))
