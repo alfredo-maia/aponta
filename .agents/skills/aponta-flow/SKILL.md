@@ -11,6 +11,8 @@ Leia [references/engineering-workflow.md](references/engineering-workflow.md) an
 
 Squad 9892f209-3612-411f-a5e1-708cee418bfc; líder dev_tech_lead. Delegue cada etapa por menção no pai canônico, uma por vez: Triagem → Architect → Developer → QA → Delivery. Entrada já planejada não ganha nova triagem; registre no pai a etapa dispensada e o motivo. Funcionalidade nova/grande refatoração exige planejamento completo no Architect. Só o líder promove fases elegíveis e confere fontes/artefatos antes da implementação.
 
+Ciclo é automático: ao iniciar a entrega, registre no `.delivery/registry.json` o valor de `python3 scripts/aponta_delivery.py cycle`, sem perguntar ao humano e sem bloquear etapa por isso. A entrega mantém o ciclo de início se terminar no seguinte. Mudança no registro segue a branch e o PR da própria entrega.
+
 No resultado do especialista registre RESULTADO=APROVADO|REJEITADO|BLOQUEADO, TIER, RODADA, SKILLS_LIDAS, método de carregamento/invocação, fontes/decisões, SPEC/tickets, base/SHA, comandos e evidências, pendências e próximo responsável. Leitura não prova invocação por Skill; teste não executado é declarado. Uma única linha RESULTADO por comentário. BLOQUEADO identifica pergunta, responsável e evento de retomada. O especialista responde no fio da menção e não altera o status do pai.
 
 O resultado completo fica na resposta do especialista no fio, sem aviso extra nem nova menção ao líder: a resposta já o acorda. O líder lê o fio inteiro, usa o último resultado do responsável e deduplica etapa+rodada+resultado; status não equivale a aprovação. Mantenha no pai a tabela Próximos passos com links e responsáveis em texto.
