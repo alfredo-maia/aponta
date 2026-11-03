@@ -145,11 +145,11 @@ Funcionalidades novas do TiFlux (abas de estado de tickets, Autorizações, play
 
 - Fontes: fechamento da Triagem (`01a1a365-2ff5-740a-9ebf-c7b7d2fb80ce`), issue #120, `.delivery/registry.json` (commit `999d1cc`), prints TiFlux `01a1a301-fb2c-71a3-82de-4cdfe94d8972` (Lista) e `01a1a302-3b96-7196-a97d-11b213c3a8a5` (Kanban). O benchmark no TiFlux é só leitura.
 - Glossário/ADR: o repositório não tem `GLOSSARY.md` nem `docs/adr/`. Nenhum termo novo foi resolvido com o humano ainda; nada foi criado. A decisão de DS (I1–I5) pode virar ADR se Alfredo confirmar a unificação de paleta (difícil de reverter, surpreendente sem contexto, com alternativas reais).
-- Decomposição: ver "Fatias (rascunho)". Não foram criadas issues; o coordenador as cria no Multica depois de revisar esta SPEC.
+- Decomposição: ver "Fatias". Os tickets #122 a #128 são sub-issues da #120.
 
-## Fatias (rascunho)
+## Fatias
 
-Execução em série (WIP 1). Fatias técnicas são filhas Multica do DMTE-427, sem issue GitHub nova (AGENTS.md). Cada fatia é verificável sozinha e cabe numa janela de contexto. Status de cada ticket ao publicar: `ready-for-agent`, conforme o `to-tickets` original. Identificadores reais só existem depois que o coordenador criar as filhas; até lá as dependências usam o número da fatia.
+Execução em série (WIP 1). Cada fatia é um ticket GitHub, sub-issue da #120, publicado com `ready-for-agent` e "Blocked by" no corpo: fatia 1 = #122, 2 = #123, 3 = #124, 4 = #125, 5 = #126, 6 = #127, 7 = #128. Não há issue Multica por fatia: a etapa Developer recebe o ticket por menção no pai DMTE-427. A fatia 1 já estava em andamento como DMTE-430, criada antes desta correção. Cada fatia é verificável sozinha e cabe numa janela de contexto.
 
 | # | Fatia | Bloqueada por | Entrega | ACs |
 |---|---|---|---|---|
