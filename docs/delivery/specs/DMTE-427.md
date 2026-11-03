@@ -1,15 +1,30 @@
 # DMTE-427: refinar estética e proporção da aba Tickets
 
-Versão: v1 (rascunho para confirmação). Issue GitHub #120. Tier 3. Ciclo 01 (26/10–08/11/2026); a implementação pode passar de 08/11.
+Versão: v2 (decisões confirmadas e fatias em rascunho). Substitui a v1 (`f3de538`). Issue GitHub #120. Tier 3. Ciclo 01 (26/10–08/11/2026); a implementação pode passar de 08/11.
 Pedido novo e independente: não usa DMTE-78, PR #91 nem a SPEC de 2026-10-23 como base.
 
 Legenda de procedência: **[Código]** observado no checkout `999d1cc`; **[Humano]** decisão confirmada pelo Alfredo; **[Proposta]** recomendação do Architect, ainda sem confirmação.
+
+### Decisões confirmadas na rodada de alinhamento (v2)
+
+O Alfredo respondeu "Vamos lá, aprovado" à SPEC v1 (comentário `01a1a36e-d331-7855-8a45-b698c5bc60ec`). O coordenador leu isso como aceite das recomendações Q1 a Q7 e da divisão em sete fatias (comentário `01a1a36f-2048-7ee7-b5a8-3fc38dffa4ba`), com abertura para o Alfredo corrigir. O "aprovado" não repetiu cada item; a leitura por item é do coordenador. Abaixo, toda decisão marcada [Proposta] na v1 que cai numa dessas respostas passa a [Humano], com esta fonte.
+
+- Q1: o Alfredo não enviou print do Aponta. O benchmark usa só os prints do TiFlux. **Limitação registrada:** o estado atual do Aponta vem da leitura do código, sem renderização nem comparação ponto a ponto; os achados do "Estado atual" são hipóteses até a primeira captura do Developer (fatia 1).
+- Q2: só visual; abas de estado do TiFlux e play no cartão fora.
+- Q3: identidade verde do Aponta mantida; sidebar e barra de abas internas fora.
+- Q4: paleta única `brand-*`. ADR `docs/adr/0001-paleta-unica-brand-na-aba-tickets.md`.
+- Q5: 1440, 1280, 1024 e 768px; abaixo de 768px fora.
+- Q6: aceite visual do Alfredo por capturas comparadas ao TiFlux, sem diff automático.
+- Q7: testes pela `TicketsPage` com dados simulados, mais stories e testes do DS, mais o aceite visual.
+- Fatias: as sete abaixo, sem juntar 5 e 6.
+
+As demais decisões D/I (valores de escala D6, forma do chip D8, detalhes de I1–I5) seguem [Proposta] dentro desse aceite geral e são fechadas pelo Developer na fatia 1 com medidas reais, sem exigir nova decisão do Alfredo, salvo conflito.
 
 ## Problem Statement
 
 Alfredo, que usa o TiFlux como referência, vê a aba Tickets do Aponta diferente do TiFlux "em alguns pontos", sem elegância estética e com desproporção no layout. O pedido original dizia também que o layout não está responsivo e que as cores estão ruins. O escopo é toda a aba Tickets [Humano].
 
-Limitação do benchmark: só há dois prints, e são do TiFlux (Lista e Kanban). Não existe print do Aponta ao lado. O estado atual do Aponta abaixo vem da leitura do código, não de renderização. Cada ponto precisa ser confirmado visualmente (ver Q1).
+Limitação do benchmark: só há dois prints, e são do TiFlux (Lista e Kanban). Não existe print do Aponta ao lado. O estado atual do Aponta abaixo vem da leitura do código, não de renderização. Cada ponto precisa ser confirmado visualmente (Q1: o Alfredo não enviou print do Aponta).
 
 ### Estado atual do Aponta [Código]
 
@@ -115,7 +130,7 @@ Evidência RED/GREEN (WORKFLOW) aplica-se a AC-01/02/03/05/06/09; ACs puramente 
 ## Riscos
 
 - R1 Mudar tokens/`EzTag`/`EzAvatar` afeta outras telas. Mitigação: cada mudança de DS lista consumidores e roda toda a suíte web; mudanças amplas ficam em fatia própria.
-- R2 Subjetividade do "elegante". Mitigação: aceite humano ponto a ponto por capturas; sem print do Aponta, o diagnóstico vem do código e pode errar o alvo (Q1).
+- R2 Subjetividade do "elegante". Mitigação: aceite humano ponto a ponto por capturas; sem print do Aponta, o diagnóstico vem do código e pode errar o alvo (Q1, sem print: limitação confirmada).
 - R3 Prazo: Tier 3 com WIP 1 e fim do ciclo em 08/11. A implementação completa deve passar da data (Alfredo já aceitou). Priorizar as fatias por impacto (Kanban primeiro).
 - R4 O tempo restante de SLA pode não vir da API. Se faltar, o chip fica só com ícone e estado, sem mudar contrato.
 - R5 Sem baseline visual automática e sem runner a11y configurado: não declarar a11y ou regressão visual aprovadas por ferramenta.
@@ -130,4 +145,24 @@ Funcionalidades novas do TiFlux (abas de estado de tickets, Autorizações, play
 
 - Fontes: fechamento da Triagem (`01a1a365-2ff5-740a-9ebf-c7b7d2fb80ce`), issue #120, `.delivery/registry.json` (commit `999d1cc`), prints TiFlux `01a1a301-fb2c-71a3-82de-4cdfe94d8972` (Lista) e `01a1a302-3b96-7196-a97d-11b213c3a8a5` (Kanban). O benchmark no TiFlux é só leitura.
 - Glossário/ADR: o repositório não tem `GLOSSARY.md` nem `docs/adr/`. Nenhum termo novo foi resolvido com o humano ainda; nada foi criado. A decisão de DS (I1–I5) pode virar ADR se Alfredo confirmar a unificação de paleta (difícil de reverter, surpreendente sem contexto, com alternativas reais).
-- Decomposição proposta: ver comentário do fio (aguarda aprovação de Alfredo antes de publicar).
+- Decomposição: ver "Fatias (rascunho)". Não foram criadas issues; o coordenador as cria no Multica depois de revisar esta SPEC.
+
+## Fatias (rascunho)
+
+Execução em série (WIP 1). Fatias técnicas são filhas Multica do DMTE-427, sem issue GitHub nova (AGENTS.md). Cada fatia é verificável sozinha e cabe numa janela de contexto. Status de cada ticket ao publicar: `ready-for-agent`, conforme o `to-tickets` original. Identificadores reais só existem depois que o coordenador criar as filhas; até lá as dependências usam o número da fatia.
+
+| # | Fatia | Bloqueada por | Entrega | ACs |
+|---|---|---|---|---|
+| 1 | Fundação visual | nenhuma | `@theme` normalizado (paleta única, escala de altura, raio e sombra), checagem estática no CI (hex e paletas fora do DS na aba), stories base, atualização do doc de paridade DS, primeira captura do estado atual do Aponta | AC-01, AC-02, AC-15 (parcial), AC-16 |
+| 2 | Kanban | 1 | Toolbar única, colunas ~290px, cartão, chip de SLA com ícone e tempo (novo componente de DS), menu do cartão, estados | AC-04, AC-05, AC-06, AC-07, AC-08, AC-13 (Kanban), AC-15 (chip) |
+| 3 | Cabeçalho e alternador | 1 | Cabeçalho com controle segmentado Lista/Kanban (novo componente ou `EzTabs`, após verificar), busca e Busca avançada alinhadas | AC-03, AC-15 (segmentado) |
+| 4 | Lista e visão CLIENT | 1, 3 | Tabela, agrupamento com ícone e `aria-expanded`, filtros ativos e redefinir (se já suportados), paginação, visão CLIENT | AC-09, AC-10, AC-11, AC-13 (Lista) |
+| 5 | Busca avançada e Criar ticket | 1 | Telas com grade, campos e botões do DS | AC-12 (parte) |
+| 6 | Detalhe do ticket | 1 | Cabeçalho, abas e blocos (comentários, apontamentos, anexos, checklist) sem cores próprias | AC-12 (parte) |
+| 7 | Responsividade e aceite visual | 2, 3, 4, 5, 6 | Ajustes finais em 1440/1280/1024/768px, estados e capturas de todas as superfícies para o aceite do Alfredo | AC-07 (todas as larguras), AC-14 |
+
+Ordem sugerida: 1, 2, 3, 4, 5, 6, 7 (Kanban primeiro depois da fundação por ser a tela do print de referência). 5 e 6 não têm dependência entre si e permanecem separadas. A fatia 3 precede a 4 porque a Lista usa o alternador e a barra do cabeçalho. Por WIP 1 nada roda em paralelo, mesmo onde o grafo permitiria.
+
+Para cada fatia o Developer: fixa a base SHA, captura RED e GREEN dos ACs com teste, mantém o manifesto `.delivery/deliveries/DMTE-427.json`, e abre PR curta com `Aponta-Delivery: DMTE-427` e `Refs alfredo-maia/aponta#120`. QA independente reproduz os checks no SHA. O aceite visual (AC-14) é humano e fecha na fatia 7.
+
+Riscos de ordem: a fatia 1 muda tokens e pode afetar outras telas (R1); por isso ela roda a suíte web inteira. Se o ciclo 01 apertar, 1 e 2 entregam o maior ganho visual.
