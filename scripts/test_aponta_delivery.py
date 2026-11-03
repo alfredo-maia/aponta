@@ -91,6 +91,33 @@ class DeliveryTests(unittest.TestCase):
         entry = {**self.manifest, 'kind': 'delivery', 'cycle': None}
         self.assertTrue(delivery.validate_binding(self.manifest, entry))
 
+    def test_cycle_is_computed_from_the_fortnight_anchor(self):
+        day = delivery.dt.date
+        self.assertEqual(delivery.cycle_for(day(2026, 10, 26)), '2026-10-26/2026-11-08')
+        self.assertEqual(delivery.cycle_for(day(2026, 11, 3)), '2026-10-26/2026-11-08')
+        self.assertEqual(delivery.cycle_for(day(2026, 11, 8)), '2026-10-26/2026-11-08')
+        self.assertEqual(delivery.cycle_for(day(2026, 11, 9)), '2026-11-09/2026-11-22')
+        self.assertEqual(delivery.cycle_for(day(2027, 1, 4)), '2027-01-04/2027-01-17')
+
+    def test_registry_accepts_aligned_or_absent_cycle(self):
+        entries = {'DMTE-159': self.manifest,
+                   'DMTE-160': {**self.manifest, 'delivery': 'DMTE-160', 'github_issue': 93,
+                                'multica_id': '01a17485-8de1-7e6d-950a-1e295fef3360', 'cycle': None},
+                   'DMTE-161': {**self.manifest, 'delivery': 'DMTE-161', 'github_issue': 94,
+                                'multica_id': '01a17485-8de1-7e6d-950a-1e295fef3361', 'cycle': '2026-11-09/2026-11-22'}}
+        self.assertEqual(delivery.validate_registry({'version': 1, 'deliveries': entries}), [])
+
+    def test_registry_rejects_cycle_outside_the_automatic_cadence(self):
+        for bad in ['2026-11-01/2026-11-14', '2026-11-09/2026-11-23', 'ciclo 02', 3]:
+            entry = {**self.manifest, 'cycle': bad}
+            self.assertTrue(delivery.validate_registry({'version': 1, 'deliveries': {'DMTE-159': entry}}), bad)
+
+    def test_cycle_command_prints_the_cycle_for_a_date(self):
+        script = Path(delivery.__file__)
+        out = subprocess.run([sys.executable, str(script), 'cycle', '--date', '2026-11-09'],
+                             capture_output=True, text=True)
+        self.assertEqual((out.returncode, out.stdout.strip()), (0, '2026-11-09/2026-11-22'))
+
     def test_manifest_canonical_binding_passes(self):
         self.assertEqual(delivery.validate_binding(self.manifest, {**self.manifest, 'kind': 'delivery'}), [])
 
