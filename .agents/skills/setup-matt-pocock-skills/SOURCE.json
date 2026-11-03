@@ -1,0 +1,42 @@
+{
+  "source": "https://github.com/mattpocock/skills",
+  "revision": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+  "mode": "upstream-unmodified",
+  "files": [
+    {
+      "upstream_path": "skills/engineering/setup-matt-pocock-skills/SKILL.md",
+      "local_path": "SKILL.md",
+      "sha256": "b01e05bfe8c323171275c6ceec78b12f1bd4c62dfd26c2cfe8be806d3883f1ed"
+    },
+    {
+      "upstream_path": "skills/engineering/setup-matt-pocock-skills/agents/openai.yaml",
+      "local_path": "agents/openai.yaml",
+      "sha256": "9527de0110541c45712319025155aeab8dc7d77c6ed6e5e83271bab1851ab939"
+    },
+    {
+      "upstream_path": "skills/engineering/setup-matt-pocock-skills/domain.md",
+      "local_path": "domain.md",
+      "sha256": "593a7042218689f1d24df89df14eaf0a20e19e0d0a7d479a01947ac78f0784b9"
+    },
+    {
+      "upstream_path": "skills/engineering/setup-matt-pocock-skills/issue-tracker-github.md",
+      "local_path": "issue-tracker-github.md",
+      "sha256": "6fdb3e9b00b7b0b115ecac3b1c00e3790f637f190abf598815368722c0a94692"
+    },
+    {
+      "upstream_path": "skills/engineering/setup-matt-pocock-skills/issue-tracker-gitlab.md",
+      "local_path": "issue-tracker-gitlab.md",
+      "sha256": "947602d33a80f98f939fb990995b8f95a3459b114b919c4221d08bd75d7cffe0"
+    },
+    {
+      "upstream_path": "skills/engineering/setup-matt-pocock-skills/issue-tracker-local.md",
+      "local_path": "issue-tracker-local.md",
+      "sha256": "7dcda20a2eb4bdc89b95d1143423c0691309921cadae3132e6424f371030506e"
+    },
+    {
+      "upstream_path": "skills/engineering/setup-matt-pocock-skills/triage-labels.md",
+      "local_path": "triage-labels.md",
+      "sha256": "ae512af838c78b8750471c42cd2b20fa32319553e61d84c9a23d171b40ce14aa"
+    }
+  ]
+}

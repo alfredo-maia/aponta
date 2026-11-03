@@ -1,0 +1,22 @@
+{
+  "source": "https://github.com/mattpocock/skills",
+  "revision": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+  "mode": "upstream-unmodified",
+  "files": [
+    {
+      "upstream_path": "skills/engineering/diagnosing-bugs/SKILL.md",
+      "local_path": "SKILL.md",
+      "sha256": "849198df88cdb65fd0d97236604c1fca7ff2f22d2f705f9724a800d0266b118d"
+    },
+    {
+      "upstream_path": "skills/engineering/diagnosing-bugs/agents/openai.yaml",
+      "local_path": "agents/openai.yaml",
+      "sha256": "3e430dbe4334a87597488c060cb3dc3786bb00c9182877d6f5ec41f62490e90b"
+    },
+    {
+      "upstream_path": "skills/engineering/diagnosing-bugs/scripts/hitl-loop.template.sh",
+      "local_path": "scripts/hitl-loop.template.sh",
+      "sha256": "35103539fc36873eea36074769ad454f9379d6fc8b2dc0e26ce987fd3bfe5503"
+    }
+  ]
+}

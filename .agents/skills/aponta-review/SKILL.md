@@ -17,9 +17,13 @@ Na revisão de entrega, use um resultado geral inequívoco: `RESULTADO=APROVADO`
 
 Entregue um resultado conclusivo `APROVADO`/`REJEITADO`, ou `BLOQUEADO` quando não for possível avaliar, SHA exato quando conhecido, critérios e verificações, achados com severidade, arquivo/localização e reprodução. Achado Important ou superior impede aprovação. Não implemente a correção no papel de QA nem autoaprove mudanças feitas por você.
 
-Conclua rodadas APROVADO/REJEITADO com comentário e `done`, inclusive na rejeição; BLOQUEADO permanece `blocked`; o líder encaminha uma nova sub-issue ao Developer e depois uma nova revisão. Falta de contexto necessário ou indisponibilidade de ambiente é BLOQUEADO: manter a própria etapa blocked, notificar individualmente o líder na issue pai com menção estruturada válida, causa/pergunta/responsável e referência do filho. Não marcar done para forçar a barreira nem inventar reprovação de código. Após complemento suficiente, o líder reativa a mesma fase sem nova rodada de correção por simples espera. Após duas rodadas rejeitadas para a mesma causa ou dois erros idênticos de infraestrutura, peça avaliação do líder em vez de repetir indefinidamente.
+Publique o resultado como resposta no fio da menção, no pai, sem alterar o status do pai; na rejeição, o líder faz uma nova menção ao Developer e depois uma nova revisão. Falta de contexto necessário ou indisponibilidade de ambiente é BLOQUEADO, com causa, pergunta e responsável no mesmo fio. Não invente reprovação de código. Após complemento suficiente, o líder reativa a mesma fase sem nova rodada de correção por simples espera. Após duas rodadas rejeitadas para a mesma causa ou dois erros idênticos de infraestrutura, peça avaliação do líder em vez de repetir indefinidamente.
 
 
 ## Expectativa e UI
 
 Leia as fontes de alinhamento e a referência visual/fluxo confirmadas, não apenas o SPEC resumido. Se o SPEC divergir de uma decisão humana vigente, registre achado de escopo/entendimento e devolva ao líder; não aprovar por aderir ao documento errado. Decisão essencial ausente impede avaliação da intenção e deve ser declarada como bloqueio. Para UI, conferir estados/perfis/responsividade pertinentes e DS/Storybook; distinguir teste comportamental, comparação visual a baseline aprovada e aceite humano. Não fabricar baseline nem atribuir aceite ao usuário por screenshot ou build verde.
+
+## Método de revisão
+
+code-review original define os eixos Standards e Spec, mantidos separados. Este perfil acrescenta reprodução independente e os gates do Aponta, sem redefinir aqueles eixos. A revisão interna do Developer não substitui QA do SHA final; QA não modifica código. Leia aponta-flow para o contrato de métodos e passagem vigente.
