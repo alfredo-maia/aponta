@@ -2,7 +2,9 @@
 
 ## Cadência e identidade
 
-Ciclos quinzenais com objetivo de produto, execução em Kanban e práticas XP. O primeiro ciclo é 26/10/2026–08/11/2026. Sprint não é uma única issue: agrupa entregas pequenas, priorizadas pelo responsável humano. Entregar quando pronto; revisar objetivo e impedimentos semanalmente e resultados ao final do ciclo.
+Ciclos quinzenais automáticos, execução em Kanban e práticas XP. Os ciclos são janelas de 14 dias contadas a partir de 26/10/2026 (26/10–08/11, 09/11–22/11 e assim por diante), sem cadastro manual: `python3 scripts/aponta_delivery.py cycle [--date AAAA-MM-DD]` devolve o id `início/fim`, e o verificador rejeita no registro qualquer ciclo fora dessa cadência. Sprint não é uma única issue: agrupa entregas pequenas, priorizadas pelo responsável humano. Entregar quando pronto; revisar objetivo e impedimentos semanalmente e resultados ao final do ciclo.
+
+O ciclo é rótulo de planejamento, não prazo nem portão. Quem coordena registra o ciclo vigente quando a entrega entra na esteira, sem perguntar ao humano, e a entrega mantém esse ciclo se terminar no seguinte. Entrada ainda não iniciada fica com `cycle: null`. Nenhuma etapa espera decisão de ciclo; adiar ou priorizar uma entrega é decisão humana sobre a fila, não sobre o ciclo. O WIP de uma entrega em implementação/revisão conta até o merge; entrega mergeada aguardando aceite não ocupa a vaga.
 
 GitHub registra produto; Multica registra execução. Uma entrega tem uma issue GitHub principal e um pai Multica canônico. Épicos agrupam entregas; não são executados como uma única tarefa longa. As etapas de Triagem/Architect/Developer/QA/Delivery são delegadas por menção no pai Multica canônico e não geram issues GitHub nem issues Multica por fase. Tickets de implementação produzidos por to-tickets são sub-issues GitHub da SPEC e herdam a identidade da entrega, conforme docs/agents/issue-tracker.md.
 

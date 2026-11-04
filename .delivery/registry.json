@@ -21,11 +21,11 @@
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-159",
       "kind": "delivery",
       "tier": 2,
-      "state": "Em revisão",
+      "state": "Mergeada",
       "cycle": "2026-10-26/2026-11-08",
       "epic": null,
       "title": "Governança de entrega e qualidade",
-      "note": ""
+      "note": "PR #108 mergeado em 26/10/2026. Aceite humano não registrado."
     },
     "DMTE-78": {
       "delivery": "DMTE-78",
@@ -35,11 +35,11 @@
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-78",
       "kind": "delivery",
       "tier": 3,
-      "state": "Bloqueada",
+      "state": "Mergeada",
       "cycle": "2026-10-26/2026-11-08",
       "epic": null,
       "title": "Painel de Tickets: revisão geral e validação do PR #91",
-      "note": "PR #91 aberto; E2E falhou e QA independente pendente. Preservar branch e commits. Sem RED histórico inventado."
+      "note": "PR #91 mergeado em 27/10/2026 e issue #93 fechada. Aceite humano não registrado. Novo pedido sobre a aba Tickets é DMTE-427, independente desta entrega."
     },
     "DMTE-84": {
       "delivery": "DMTE-84",
@@ -49,11 +49,11 @@
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-84",
       "kind": "delivery",
       "tier": 3,
-      "state": "Em revisão",
+      "state": "Mergeada",
       "cycle": "2026-10-26/2026-11-08",
       "epic": 81,
       "title": "Configurações: Usuários, grupos e permissões",
-      "note": "Tarefa 3 (APIs) aprovada no QA (DMTE-141). Tarefa 4 (frontend: submenu Usuários, telas de Usuários/Grupos de atendentes/Grupos de permissões) entregue nesta SHA, aguardando QA (DMTE-239). Branch agent/aponta-tech-lead/359731a6b4c2 (PR #107), SHA b283cc6f3b1f8422e4db7d1f5c0dbc8107e6019b. Falta Tarefa 5 (E2E + revisão final)."
+      "note": "PR #107 mergeado em 28/10/2026. Tarefa 5 (E2E + revisão final) não foi feita; em 03/11/2026 Alfredo deixou esta entrega no passado e ela não conta para o WIP (DMTE-427). Aceite humano não registrado."
     },
     "DMTE-46": {
       "delivery": "DMTE-46",
@@ -287,11 +287,25 @@
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-299",
       "kind": "delivery",
       "tier": 2,
-      "state": "Em revisão",
+      "state": "Mergeada",
       "cycle": "2026-10-26/2026-11-08",
       "epic": null,
       "title": "Composição de métodos de engenharia e alinhamento verificável",
-      "note": "Configuração administrativa; sem produto/deploy. Ensaios sintéticos em DMTE-293. PR #109 reutilizado; aceite humano pendente."
+      "note": "Configuração administrativa; sem produto/deploy. Ensaios sintéticos em DMTE-293. PR #109 mergeado em 01/11/2026. Aceite humano não registrado."
+    },
+    "DMTE-427": {
+      "delivery": "DMTE-427",
+      "repository": "alfredo-maia/aponta",
+      "github_issue": 120,
+      "multica_id": "01a1a2ef-0513-7170-8abc-490e1d79dbfa",
+      "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-427",
+      "kind": "delivery",
+      "tier": 3,
+      "state": "Planejada",
+      "cycle": "2026-10-26/2026-11-08",
+      "epic": null,
+      "title": "Tickets: refinar estética e proporção da aba Tickets",
+      "note": "Tier 3 provisório, confirmado pelo Architect ao abrir a SPEC. Issue GitHub #120 criada com autorização do Alfredo. Alfredo decidiu que todo o trabalho (SPEC e implementação) fica no ciclo 01; a implementação pode se estender além de 08/11/2026. Pedido novo: não usa DMTE-78/PR #91 nem a SPEC de 2026-10-23 como base."
     }
   }
 }
