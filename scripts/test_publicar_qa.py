@@ -1,5 +1,5 @@
 import unittest
-from publicar_qa import assess, build_query, QA, RAPIDO_QA
+from publicar_qa import assess, build_query, QA, RAPIDO_QA, ULTRA_QA
 
 
 class QaProofTests(unittest.TestCase):
@@ -29,6 +29,14 @@ class QaProofTests(unittest.TestCase):
 
     def test_comment_from_another_agents_task_cannot_approve(self):
         with self.assertRaises(ValueError):assess([{**self.valid, 'author_id': RAPIDO_QA, 'task_agent': QA}], self.sha)
+
+    def test_squad_ultra_qa_can_approve_from_its_own_run(self):
+        running = {**self.valid, 'author_id': ULTRA_QA, 'task_agent': ULTRA_QA, 'task_status': 'running'}
+        self.assertEqual(assess([running], self.sha, current=('task', ULTRA_QA)), running)
+
+    def test_squad_ultra_leader_cannot_approve(self):
+        leader = '0427564a-c9cc-494e-8ea1-592a98588251'
+        with self.assertRaises(ValueError):assess([{**self.valid, 'author_id': leader, 'task_agent': leader}], self.sha)
 
     def test_human_comment_cannot_approve(self):
         with self.assertRaises(ValueError):assess([{**self.valid,'author_type':'member'}],self.sha)
@@ -70,6 +78,7 @@ class QaSourceTests(unittest.TestCase):
         self.assertIn(f"t.issue_id='{self.parent}'", query)
         self.assertIn(QA, query)
         self.assertIn(RAPIDO_QA, query)
+        self.assertIn(ULTRA_QA, query)
 
     def test_mention_mode_does_not_depend_on_issue_status(self):
         self.assertNotIn('status=', build_query(self.parent).replace('t.status', ''))
