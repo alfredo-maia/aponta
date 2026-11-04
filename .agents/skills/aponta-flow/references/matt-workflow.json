@@ -639,6 +639,42 @@
       "handoff",
       "wait-what",
       "wizard"
+    ],
+    "ultra_rapido": [
+      "ask-matt",
+      "setup-matt-pocock-skills",
+      "retro",
+      "writing-for-agents",
+      "handoff",
+      "wait-what",
+      "triage",
+      "grilling",
+      "domain-modeling",
+      "grill-with-docs",
+      "grill-me",
+      "to-spec",
+      "to-tickets",
+      "wayfinder",
+      "research",
+      "prototype",
+      "improve-codebase-architecture",
+      "codebase-design",
+      "to-questionnaire",
+      "teach",
+      "implement",
+      "implement-spec",
+      "tdd",
+      "code-review",
+      "pr",
+      "diagnosing-bugs",
+      "wizard"
+    ],
+    "ultra_qa": [
+      "code-review",
+      "tdd",
+      "codebase-design",
+      "handoff",
+      "wait-what"
     ]
   },
   "retired_assignments": [
