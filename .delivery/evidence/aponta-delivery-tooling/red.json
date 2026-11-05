@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-05T19:31:00.761792+00:00",
+  "finished_at": "2026-11-05T19:31:02.297353+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_aponta_delivery.py",
+    "-v"
+  ],
+  "base_sha": "893666d0b109db8ac39b2f1c3536f915a7464276",
+  "head_sha": "f7ff34dc744573b85900d863a15478a580558997",
+  "exit_code": 1,
+  "tests": {
+    "scripts/test_aponta_delivery.py": "383dd096754fea1edc6b5d8230eb53ff779d09dabeb678c978bf89f2e739cc8b"
+  },
+  "criteria": [
+    "TOOLING-SOURCE-HASHES-SCOPE",
+    "TOOLING-REGISTRY-DUP-KEY"
+  ],
+  "source_hashes": {
+    "scripts/aponta_delivery.py": "466fb2fa1155747674bac9e5b3280de9cc184cf971db825033edf4f3d1527d7f",
+    "scripts/test_aponta_delivery.py": "383dd096754fea1edc6b5d8230eb53ff779d09dabeb678c978bf89f2e739cc8b"
+  },
+  "log": ".delivery/evidence/aponta-delivery-tooling/red.log",
+  "log_sha256": "56d4f93f94ccd0b847ddc8e616a559a9ad69c3c31ec40e40c60d7793d696026b"
+}

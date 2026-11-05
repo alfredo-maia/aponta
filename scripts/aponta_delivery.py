@@ -24,8 +24,17 @@ def git(root: Path, *args: str) -> str:
     return subprocess.run(['git', '-C', str(root), *args], capture_output=True, text=True, check=True).stdout.strip()
 
 
+def reject_duplicate_keys(pairs: list[tuple[str, object]]) -> dict:
+    seen = set()
+    for key, _ in pairs:
+        if key in seen:
+            raise ValueError('Duplicate JSON key: ' + key)
+        seen.add(key)
+    return dict(pairs)
+
+
 def load_strict_json(path: Path):
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(), object_pairs_hook=reject_duplicate_keys)
 
 
 def redact(text: str) -> str:
@@ -41,7 +50,8 @@ def source_hashes(root: Path, base: str, scope: set[str] | None = None) -> dict[
     return {name: sha((root / name).read_bytes()) for name in sorted(set(changed))
             if not name.startswith(('.delivery/', 'docs/', '.github/'))
             and name != 'AGENTS.md' and '__pycache__' not in Path(name).parts
-            and not name.endswith('.pyc') and (root / name).is_file()}
+            and not name.endswith('.pyc') and (root / name).is_file()
+            and (scope is None or name in scope)}
 
 
 def capture(root: Path, destination: Path, phase: str, base: str,
@@ -198,7 +208,10 @@ def validate_evidence(root: Path, tdd: dict, criteria: set[str], base: str,
             if phase == 'green':
                 if value.get('exit_code') != 0:
                     errors.append('GREEN did not pass.')
-                if value.get('source_hashes') != sources:
+                recorded = value.get('source_hashes') or {}
+                if scope is not None:
+                    recorded = {name: digest for name, digest in recorded.items() if name in scope}
+                if recorded != sources:
                     errors.append('GREEN source hashes differ from the reviewed sources.')
             start, finish = (dt.datetime.fromisoformat(value[x]) for x in ['started_at', 'finished_at'])
             if start.tzinfo is None or finish.tzinfo is None or finish < start:
@@ -306,7 +319,8 @@ def validate_manifest(root: Path, manifest: dict, *, check_evidence: bool = True
         if not isinstance(base, str) or not re.fullmatch(r'[0-9a-f]{40}', base):
             errors.append('Evidence needs a full base SHA.')
         else:
-            errors += validate_evidence(root, tdd, tdd_ids, base, source_hashes(root, base))
+            scope = set(changes)
+            errors += validate_evidence(root, tdd, tdd_ids, base, source_hashes(root, base, scope=scope), scope=scope)
     ui = [p for p in changes if p.startswith('apps/web/src/') and p.endswith('.tsx') and not re.search(r'\.(test|spec|stories)\.', p)]
     ds = manifest.get('design_system') or {}
     if ui:
