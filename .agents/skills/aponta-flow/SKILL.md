@@ -9,7 +9,9 @@ Leia [references/engineering-workflow.md](references/engineering-workflow.md) an
 
 ## Orquestração Multica
 
-Squad 9892f209-3612-411f-a5e1-708cee418bfc; líder dev_tech_lead. Delegue cada etapa por menção no pai canônico, uma por vez: Triagem → Architect → Developer → QA → Delivery. Entrada já planejada não ganha nova triagem; registre no pai a etapa dispensada e o motivo. Funcionalidade nova/grande refatoração exige planejamento completo no Architect. Só o líder promove fases elegíveis e confere fontes/artefatos antes da implementação.
+Squad Dev Aponta 9892f209-3612-411f-a5e1-708cee418bfc, líder dev_tech_lead; Squad Rápido 07ed3021-160a-46aa-a52c-eeca3b20b849, líder rapido_tech_lead, que acumula Triagem e Architect, com rapido_dev como Developer e rapido_qa acumulando QA e Delivery; Squad Ultra Rápido 56e14177-9bb3-4547-af91-419edd3df4db, líder ultra_rapido, que acumula Triagem, Architect, Developer e Delivery, com ultra_qa só na revisão independente (ver docs/delivery/WORKFLOW.md). Delegue cada etapa por menção no pai canônico, uma por vez: Triagem → Architect → Developer → QA → Delivery. Entrada já planejada não ganha nova triagem; registre no pai a etapa dispensada e o motivo. Funcionalidade nova/grande refatoração exige planejamento completo no Architect. Só o líder promove fases elegíveis e confere fontes/artefatos antes da implementação.
+
+Ciclo é automático: ao iniciar a entrega, registre no `.delivery/registry.json` o valor de `python3 scripts/aponta_delivery.py cycle`, sem perguntar ao humano e sem bloquear etapa por isso. A entrega mantém o ciclo de início se terminar no seguinte. Mudança no registro segue a branch e o PR da própria entrega.
 
 No resultado do especialista registre RESULTADO=APROVADO|REJEITADO|BLOQUEADO, TIER, RODADA, SKILLS_LIDAS, método de carregamento/invocação, fontes/decisões, SPEC/tickets, base/SHA, comandos e evidências, pendências e próximo responsável. Leitura não prova invocação por Skill; teste não executado é declarado. Uma única linha RESULTADO por comentário. BLOQUEADO identifica pergunta, responsável e evento de retomada. O especialista responde no fio da menção e não altera o status do pai.
 

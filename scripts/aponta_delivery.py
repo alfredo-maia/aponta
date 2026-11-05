@@ -100,6 +100,34 @@ def test_command(command: list[str]) -> bool:
     return False
 
 
+CYCLE_ANCHOR = dt.date(2026, 10, 26)
+CYCLE_DAYS = 14
+
+
+def cycle_for(day: dt.date) -> str:
+    """Return the automatic fortnightly cycle id (start/end, inclusive) containing day."""
+    start = CYCLE_ANCHOR + dt.timedelta(days=(day - CYCLE_ANCHOR).days // CYCLE_DAYS * CYCLE_DAYS)
+    return f'{start.isoformat()}/{(start + dt.timedelta(days=CYCLE_DAYS - 1)).isoformat()}'
+
+
+def today_sao_paulo() -> dt.date:
+    from zoneinfo import ZoneInfo
+    return dt.datetime.now(ZoneInfo('America/Sao_Paulo')).date()
+
+
+def cycle_errors(value) -> list[str]:
+    """A cycle is null (not scheduled) or exactly one automatic fortnight id."""
+    if value is None:
+        return []
+    try:
+        start = dt.date.fromisoformat(str(value).split('/')[0])
+    except ValueError:
+        return ['cycle must be null or an automatic cycle id (YYYY-MM-DD/YYYY-MM-DD).']
+    if value != cycle_for(start) or start < CYCLE_ANCHOR:
+        return ['cycle must be null or an automatic cycle id (YYYY-MM-DD/YYYY-MM-DD).']
+    return []
+
+
 def identity_errors(value: dict) -> list[str]:
     errors = []
     if not re.fullmatch(r'DMTE-\d+', str(value.get('delivery', ''))):
@@ -126,6 +154,7 @@ def validate_registry(registry: dict) -> list[str]:
             errors.append('Registry entry is not an object: ' + key)
             continue
         errors += [key + ': ' + e for e in identity_errors(entry)]
+        errors += [key + ': ' + e for e in cycle_errors(entry.get('cycle'))]
         if key != entry.get('delivery'):
             errors.append('Registry key differs from delivery identity: ' + key)
         gh = (entry.get('repository'), entry.get('github_issue'))
@@ -354,6 +383,8 @@ def main() -> int:
     check.add_argument('--manifest', type=Path)
     check.add_argument('--event', type=Path)
     check.add_argument('--registry', type=Path, default=Path('.delivery/registry.json'))
+    cycle = sub.add_parser('cycle', help='print the automatic cycle id for a date (default: today, America/Sao_Paulo)')
+    cycle.add_argument('--date', type=dt.date.fromisoformat)
     locked = sub.add_parser('with-lock')
     locked.add_argument('--path', type=Path, default=Path.home() / '.local/state/aponta/writer.lock')
     locked.add_argument('command', nargs=argparse.REMAINDER)
@@ -365,6 +396,9 @@ def main() -> int:
         print(json.dumps({'phase': value['phase'], 'exit_code': value['exit_code'], 'evidence': str(args.out)}))
         valid = behavioral_red((root / value['log']).read_text(), value['exit_code']) if args.phase == 'red' else value['exit_code'] == 0
         return 0 if valid else 1
+    if args.action == 'cycle':
+        print(cycle_for(args.date or today_sao_paulo()))
+        return 0
     if args.action == 'with-lock':
         command = args.command[1:] if args.command[:1] == ['--'] else args.command
         if not command:
