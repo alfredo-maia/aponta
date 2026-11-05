@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-05T19:31:37.827322+00:00",
+  "finished_at": "2026-11-05T19:31:38.386685+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_aponta_delivery.py",
+    "-v"
+  ],
+  "base_sha": "893666d0b109db8ac39b2f1c3536f915a7464276",
+  "head_sha": "757f2dd75426c113bfa49bdddfe7b2f255ec19b3",
+  "exit_code": 0,
+  "tests": {
+    "scripts/test_aponta_delivery.py": "383dd096754fea1edc6b5d8230eb53ff779d09dabeb678c978bf89f2e739cc8b"
+  },
+  "criteria": [
+    "TOOLING-SOURCE-HASHES-SCOPE",
+    "TOOLING-REGISTRY-DUP-KEY"
+  ],
+  "source_hashes": {
+    "scripts/aponta_delivery.py": "8b612862762d03fbeaf0734fdc28a89e72786d8737c235c6a856e16e6f5ba191",
+    "scripts/test_aponta_delivery.py": "383dd096754fea1edc6b5d8230eb53ff779d09dabeb678c978bf89f2e739cc8b"
+  },
+  "log": ".delivery/evidence/aponta-delivery-tooling/green.log",
+  "log_sha256": "86eacd0d66c194bf01546aa36ad6bcdaa5a26d747cf0c85d4a5cc6e37906a4db"
+}
