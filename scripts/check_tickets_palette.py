@@ -27,6 +27,9 @@ DS_FAMILY_DEGREES = {
 # DS_FAMILY_DEGREES e aparece aqui é bloqueado, sem precisar nomear cada
 # classe usada hoje no código (cobre teal/emerald/rose e também amber/blue
 # e qualquer outra família que apareça depois).
+# shortcut: lista fixa do vocabulário padrão do Tailwind v4; se o Tailwind
+# adicionar uma família nova de cor, ela passaria batido até alguém
+# atualizar este conjunto. Atualizar quando a versão do Tailwind mudar.
 OTHER_TAILWIND_COLOR_FAMILIES = {
     'slate', 'zinc', 'neutral', 'stone', 'orange', 'amber', 'lime', 'emerald',
     'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia',

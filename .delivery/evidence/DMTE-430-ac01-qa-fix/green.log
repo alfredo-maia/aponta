@@ -1,4 +1,4 @@
-/tmp/multica-task-3199404885/tmpsg108jb8/apps/web/src/pages/TicketDetailPage.tsx: classe de paleta fora do DS: teal-50
+/tmp/multica-task-3199404885/tmp440hagr7/apps/web/src/pages/TicketDetailPage.tsx: classe de paleta fora do DS: teal-50
 FALHA: paleta fora do DS ou hex literal na aba Tickets (AC-01, DMTE-427).
 OK: nenhum hex literal ou classe de paleta fora do DS na aba Tickets (AC-01, DMTE-427).
 OK: nenhum hex literal ou classe de paleta fora do DS na aba Tickets (AC-01, DMTE-427).
@@ -19,6 +19,6 @@ test_semantic_degree_outside_ds_scale_is_a_violation (test_check_tickets_palette
 test_no_palette_violations_in_real_tickets_tab (test_check_tickets_palette.TicketsPaletteRealTreeTest.test_no_palette_violations_in_real_tickets_tab) ... ok
 
 ----------------------------------------------------------------------
-Ran 15 tests in 0.020s
+Ran 15 tests in 0.027s
 
 OK
