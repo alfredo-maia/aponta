@@ -208,6 +208,10 @@ def validate_evidence(root: Path, tdd: dict, criteria: set[str], base: str,
             if phase == 'green':
                 if value.get('exit_code') != 0:
                     errors.append('GREEN did not pass.')
+                # `sources` is already scope-filtered by the caller; filter the
+                # recorded evidence the same way so a routine main merge that
+                # brings in another delivery's files (outside `scope`) can't
+                # invalidate GREEN for files this delivery never touched.
                 recorded = value.get('source_hashes') or {}
                 if scope is not None:
                     recorded = {name: digest for name, digest in recorded.items() if name in scope}
