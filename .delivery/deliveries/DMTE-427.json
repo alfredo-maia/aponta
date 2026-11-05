@@ -52,6 +52,8 @@
     ".delivery/evidence/DMTE-430-ac01-qa-fix/green.log",
     ".delivery/evidence/DMTE-430-ac01-qa-fix/red.json",
     ".delivery/evidence/DMTE-430-ac01-qa-fix/red.log",
+    ".delivery/evidence/DMTE-430-ac02/green-post-merge-d09d859.json",
+    ".delivery/evidence/DMTE-430-ac02/green-post-merge-d09d859.log",
     ".delivery/evidence/DMTE-430-ac02/green.json",
     ".delivery/evidence/DMTE-430-ac02/green.log",
     ".delivery/evidence/DMTE-430-ac02/red.json",
@@ -86,7 +88,7 @@
   "tdd": {
     "mode": "required",
     "red": ".delivery/evidence/DMTE-430-ac02/red.json",
-    "green": ".delivery/evidence/DMTE-430-ac02/green.json"
+    "green": ".delivery/evidence/DMTE-430-ac02/green-post-merge-d09d859.json"
   },
   "design_system": {
     "applicable": true,
