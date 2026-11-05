@@ -1,8 +1,8 @@
 {
   "version": 1,
   "phase": "green",
-  "started_at": "2026-11-05T22:15:21.748164+00:00",
-  "finished_at": "2026-11-05T22:15:21.831713+00:00",
+  "started_at": "2026-11-05T22:22:03.596154+00:00",
+  "finished_at": "2026-11-05T22:22:03.725147+00:00",
   "command": [
     "python3",
     "-m",
@@ -15,7 +15,7 @@
     "-v"
   ],
   "base_sha": "29693a2cfd8fc063c29f26267dfc4c3043a5916b",
-  "head_sha": "6db1a9b57594e2a462b8bb0bf2f4cf5defcafbe9",
+  "head_sha": "e29e4ac700d0090b3eb3e58c0804c4e39923e0e2",
   "exit_code": 0,
   "tests": {
     "scripts/test_check_tickets_proportion.py": "a995b1512287ad00d43aab00be5a763f3908719c817542f766ad49e310011b67"
@@ -38,12 +38,12 @@
     "apps/web/src/pages/TicketDetailPage.tsx": "0b5712da1852da1341486782fc69ffe9a411df9888b08e7a0b53434465595061",
     "apps/web/src/styles.css": "2a6d590d036d044cfa6ec0d557a4ee1c9d2b170d8aaf3597c3803433dd80170a",
     "scripts/check_tickets_palette.py": "7846a068b30866c9a8934abfc9b227da3f684899a54d3076776ebb98aea422f7",
-    "scripts/check_tickets_proportion.py": "eafd717a09496c2735a1161efe36e53c04d2536d67efb2f96e43dcdb69e3b932",
+    "scripts/check_tickets_proportion.py": "c705a482de20e106442371ce1e0c736b50ad180e8fff52bde60fea0b83e31e95",
     "scripts/test_check_tickets_palette.py": "37e74487ec5a954988b0873f3c97fd239cb625435e3b80350b20b142ee715b73",
     "scripts/test_check_tickets_proportion.py": "a995b1512287ad00d43aab00be5a763f3908719c817542f766ad49e310011b67",
     "scripts/test_tickets_scope.py": "e96a70b98729163add62cd286def6c8c6e0556d1ff7fec808de88c1de93271cd",
     "scripts/tickets_scope.py": "a76b538552e00cef90ebd48934f4d6808b5e70137d8a49f0412fffdfdab4d0a8"
   },
   "log": ".delivery/evidence/DMTE-430-ac02-r2/green.log",
-  "log_sha256": "6c7a1fcd45cb18b2250b576980f1b8a95cfa2f54a0a2bb960a89582e4584550c"
+  "log_sha256": "24e98cc3b2874834280bb81c464cb10058dd1da0d1d59320d495c427b75953fb"
 }
