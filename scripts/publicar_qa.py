@@ -13,9 +13,9 @@ import uuid
 
 ROOT = Path(__file__).resolve().parent.parent
 STATE = Path.home() / '.local' / 'state' / 'aponta-qa'
-QA = '3501c5bf-c0eb-497b-9840-32ae3e9d9076'  # dev_qa_reviewer (Squad Dev Aponta)
-RAPIDO_QA = 'a75c9214-2636-4c5d-8dbb-64a8927ff542'  # rapido_qa (Squad Rápido)
-ULTRA_QA = '6cea4f83-0bf4-4652-a5fe-db283601ec53'  # ultra_qa (Squad Ultra Rápido)
+QA = '3501c5bf-c0eb-497b-9840-32ae3e9d9076'  # dev_qa (Squad Dev Aponta)
+RAPIDO_QA = 'a75c9214-2636-4c5d-8dbb-64a8927ff542'  # dev_rapido_qa (Squad Rápido)
+ULTRA_QA = '6cea4f83-0bf4-4652-a5fe-db283601ec53'  # dev_ultra_qa (Squad Ultra Rápido)
 QA_AGENTS = (QA, RAPIDO_QA, ULTRA_QA)
 
 
