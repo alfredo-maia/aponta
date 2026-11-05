@@ -756,7 +756,7 @@ export function TicketWorklogs({
                       type="button"
                       data-testid="worklog-timer-pause-btn"
                       onClick={handlePauseTimer}
-                      className="inline-flex items-center px-1.5 py-0.5 text-[11px] font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded cursor-pointer"
+                      className="inline-flex items-center px-1.5 py-0.5 text-[11px] font-medium text-yellow-700 bg-yellow-100 hover:bg-yellow-200 border border-yellow-300 rounded cursor-pointer"
                       title="Pausar cronômetro"
                     >
                       <Pause className="w-3 h-3 fill-current" />
@@ -803,7 +803,7 @@ export function TicketWorklogs({
                     <span className="text-gray-400">|</span>
                     <span className="text-gray-600">
                       Não faturável:{' '}
-                      <strong className="text-amber-700">
+                      <strong className="text-yellow-700">
                         {formatWorklogMinutes(nonBillableMinutes)}
                       </strong>
                     </span>
@@ -1332,7 +1332,7 @@ export function TicketWorklogs({
                                   type="button"
                                   data-testid="worklog-pre-pause-btn"
                                   onClick={handlePauseTimer}
-                                  className="p-1 text-amber-600 hover:bg-amber-50 rounded cursor-pointer"
+                                  className="p-1 text-yellow-600 hover:bg-yellow-100 rounded cursor-pointer"
                                   title="Pausar"
                                 >
                                   <Pause className="w-3.5 h-3.5 fill-current" />
@@ -1353,7 +1353,7 @@ export function TicketWorklogs({
                               type="button"
                               data-testid="worklog-pre-delete-btn"
                               onClick={() => void handleCancelTimer(item.id)}
-                              className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded cursor-pointer"
+                              className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-100 rounded cursor-pointer"
                               title="Remover pré-apontamento"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -1646,7 +1646,7 @@ export function TicketWorklogs({
                                 data-testid={`worklog-delete-button-${wl.id}`}
                                 onClick={() => handleDelete(wl.id)}
                                 disabled={deleteMutation.isPending}
-                                className="p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-red-50 transition-colors shrink-0 cursor-pointer"
+                                className="p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-red-100 transition-colors shrink-0 cursor-pointer"
                                 title="Excluir apontamento"
                               >
                                 <Trash2 className="w-4 h-4" />

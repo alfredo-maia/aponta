@@ -27,6 +27,41 @@ class TicketsPaletteCheckTest(unittest.TestCase):
         text = "<div className=\"bg-gray-100 border-gray-700\" />"
         self.assertEqual([], find_violations(text))
 
+    def test_amber_is_a_violation_even_though_not_named_in_the_adr(self):
+        text = "<p className=\"text-amber-700\">aviso</p>"
+        self.assertTrue(any('amber-700' in v for v in find_violations(text)))
+
+    def test_blue_is_a_violation_even_though_not_named_in_the_adr(self):
+        text = "<div className=\"bg-blue-50 text-blue-900\" />"
+        violations = find_violations(text)
+        self.assertTrue(any('blue-50' in v for v in violations))
+        self.assertTrue(any('blue-900' in v for v in violations))
+
+    def test_any_other_tailwind_color_family_outside_the_ds_is_a_violation(self):
+        text = "<div className=\"bg-indigo-500 text-orange-300\" />"
+        violations = find_violations(text)
+        self.assertTrue(any('indigo-500' in v for v in violations))
+        self.assertTrue(any('orange-300' in v for v in violations))
+
+    def test_brand_degree_outside_ds_scale_is_a_violation(self):
+        text = "<div className=\"bg-brand-950\" />"
+        self.assertTrue(any('brand-950' in v for v in find_violations(text)))
+
+    def test_brand_degree_defined_by_ds_is_not_a_violation(self):
+        text = "<div className=\"bg-brand-600 text-brand-50\" />"
+        self.assertEqual([], find_violations(text))
+
+    def test_semantic_degree_outside_ds_scale_is_a_violation(self):
+        text = "<div className=\"bg-red-50 text-green-50 border-yellow-950\" />"
+        violations = find_violations(text)
+        self.assertTrue(any('red-50' in v for v in violations))
+        self.assertTrue(any('green-50' in v for v in violations))
+        self.assertTrue(any('yellow-950' in v for v in violations))
+
+    def test_semantic_degree_defined_by_ds_is_not_a_violation(self):
+        text = "<div className=\"bg-red-600 text-green-700 border-yellow-300\" />"
+        self.assertEqual([], find_violations(text))
+
 
 class TicketsPaletteCheckMainTest(unittest.TestCase):
     def setUp(self):

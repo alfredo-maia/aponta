@@ -1,0 +1,24 @@
+/tmp/multica-task-3199404885/tmpsg108jb8/apps/web/src/pages/TicketDetailPage.tsx: classe de paleta fora do DS: teal-50
+FALHA: paleta fora do DS ou hex literal na aba Tickets (AC-01, DMTE-427).
+OK: nenhum hex literal ou classe de paleta fora do DS na aba Tickets (AC-01, DMTE-427).
+OK: nenhum hex literal ou classe de paleta fora do DS na aba Tickets (AC-01, DMTE-427).
+test_main_fails_when_tickets_file_has_violation (test_check_tickets_palette.TicketsPaletteCheckMainTest.test_main_fails_when_tickets_file_has_violation) ... ok
+test_main_ignores_test_and_story_files (test_check_tickets_palette.TicketsPaletteCheckMainTest.test_main_ignores_test_and_story_files) ... ok
+test_main_passes_when_tickets_files_are_clean (test_check_tickets_palette.TicketsPaletteCheckMainTest.test_main_passes_when_tickets_files_are_clean) ... ok
+test_amber_is_a_violation_even_though_not_named_in_the_adr (test_check_tickets_palette.TicketsPaletteCheckTest.test_amber_is_a_violation_even_though_not_named_in_the_adr) ... ok
+test_any_other_tailwind_color_family_outside_the_ds_is_a_violation (test_check_tickets_palette.TicketsPaletteCheckTest.test_any_other_tailwind_color_family_outside_the_ds_is_a_violation) ... ok
+test_blue_is_a_violation_even_though_not_named_in_the_adr (test_check_tickets_palette.TicketsPaletteCheckTest.test_blue_is_a_violation_even_though_not_named_in_the_adr) ... ok
+test_brand_degree_defined_by_ds_is_not_a_violation (test_check_tickets_palette.TicketsPaletteCheckTest.test_brand_degree_defined_by_ds_is_not_a_violation) ... ok
+test_brand_degree_outside_ds_scale_is_a_violation (test_check_tickets_palette.TicketsPaletteCheckTest.test_brand_degree_outside_ds_scale_is_a_violation) ... ok
+test_gray_degree_defined_by_ds_is_not_a_violation (test_check_tickets_palette.TicketsPaletteCheckTest.test_gray_degree_defined_by_ds_is_not_a_violation) ... ok
+test_gray_degree_outside_ds_scale_is_a_violation (test_check_tickets_palette.TicketsPaletteCheckTest.test_gray_degree_outside_ds_scale_is_a_violation) ... ok
+test_hex_literal_is_a_violation (test_check_tickets_palette.TicketsPaletteCheckTest.test_hex_literal_is_a_violation) ... ok
+test_off_ds_named_palette_class_is_a_violation (test_check_tickets_palette.TicketsPaletteCheckTest.test_off_ds_named_palette_class_is_a_violation) ... ok
+test_semantic_degree_defined_by_ds_is_not_a_violation (test_check_tickets_palette.TicketsPaletteCheckTest.test_semantic_degree_defined_by_ds_is_not_a_violation) ... ok
+test_semantic_degree_outside_ds_scale_is_a_violation (test_check_tickets_palette.TicketsPaletteCheckTest.test_semantic_degree_outside_ds_scale_is_a_violation) ... ok
+test_no_palette_violations_in_real_tickets_tab (test_check_tickets_palette.TicketsPaletteRealTreeTest.test_no_palette_violations_in_real_tickets_tab) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.020s
+
+OK

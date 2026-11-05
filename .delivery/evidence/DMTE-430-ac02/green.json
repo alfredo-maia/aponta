@@ -1,8 +1,8 @@
 {
   "version": 1,
   "phase": "green",
-  "started_at": "2026-11-03T22:41:44.044490+00:00",
-  "finished_at": "2026-11-03T22:41:44.157965+00:00",
+  "started_at": "2026-11-05T01:55:21.511776+00:00",
+  "finished_at": "2026-11-05T01:55:21.776760+00:00",
   "command": [
     "python3",
     "-m",
@@ -15,7 +15,7 @@
     "-v"
   ],
   "base_sha": "29693a2cfd8fc063c29f26267dfc4c3043a5916b",
-  "head_sha": "9857fa4d304c677b70db2a2cc0309fa54720ff9c",
+  "head_sha": "30523e7c300aac495d0ed5dc01c8ac2f58599130",
   "exit_code": 0,
   "tests": {
     "scripts/test_check_tickets_proportion.py": "a983eea84ff95d9efbccadc324fb8e9f0e4892c7b536bfac28ac9f9861c8c4a2"
@@ -26,20 +26,24 @@
   "source_hashes": {
     "apps/web/src/components/ds/EzDesignTokens.stories.tsx": "31b431eb5bcb9f55c8ca17bb26b824e734b7f2b3b2a43a7cfe3d3ccba61881f4",
     "apps/web/src/components/ds/EzDesignTokens.test.tsx": "ec3cffc13be1fcfb7b3f71949eec8424700afbae5e4aeac8825fa739e8bc3f6d",
-    "apps/web/src/components/ds/EzDesignTokens.tsx": "d86dc1c9b142c2842691bdf0b7efca33279546b46df6a1f8c7376564e7a1319b",
+    "apps/web/src/components/ds/EzDesignTokens.tsx": "52df418ddea8777620c5a280326f9567639be0df69bfd25113ec3f5a721ae31a",
+    "apps/web/src/components/ds/index.ts": "677f5ff90d9ca05bc2811decfc2ee1e767ce0848b77256f5084721a7085fc70b",
+    "apps/web/src/components/tickets/TicketCsat.tsx": "d90bfd2e239264b23a02821ba950752c74e605cb23705e0408301cdfaa1ab2bc",
+    "apps/web/src/components/tickets/TicketForm.tsx": "63ba2fe58fea2a7f56a77436c5859241906b4aff58d977bb59526af2197b3eb7",
     "apps/web/src/components/tickets/TicketFormMode.tsx": "714b8a96f3f9a2a21d647ccd3a1c77b3aeb77cb239ae0ff89601e6e34d41c60c",
-    "apps/web/src/components/tickets/TicketKanban.tsx": "5ec350ebed0832ffcbd6ad66caac2c27320705dc4c52e2c75a44c5c335190f77",
-    "apps/web/src/components/tickets/TicketList.tsx": "fcc56a1b478ab026d59a40687c88dcd66cdfffeb5f411463680eac9403622ca8",
-    "apps/web/src/components/tickets/TicketWorklogs.tsx": "839a3f247d833894c77f709b490d1e3eed5fa9ce7cf390e4b52bb9051cd1f5a1",
-    "apps/web/src/components/tickets/TicketsHeader.tsx": "b5edccf2cdf27c78d71c9f12946b17095f51201c0fc3f41ecc8b04ccf4a75225",
+    "apps/web/src/components/tickets/TicketKanban.tsx": "4ba41e8e7280b3fc456f35b599f4e41286e3eca0410be0924d445e5ab9648354",
+    "apps/web/src/components/tickets/TicketList.tsx": "cbe069841bd6c543b387fadb88d20fce189ca9a4f27d3b90954888db46fefa6a",
+    "apps/web/src/components/tickets/TicketWorklogs.tsx": "6fc999309e1e27b061399806b1486f758022f52a36e6dad25b76eadcf05f6cff",
+    "apps/web/src/components/tickets/TicketsHeader.tsx": "6dab2aa3755f06058528a8e2bdf62e1353de2ac52210c477d56188a5d67abd5c",
     "apps/web/src/pages/TicketDetailPage.tsx": "0b5712da1852da1341486782fc69ffe9a411df9888b08e7a0b53434465595061",
     "apps/web/src/styles.css": "2a6d590d036d044cfa6ec0d557a4ee1c9d2b170d8aaf3597c3803433dd80170a",
-    "scripts/check_tickets_palette.py": "ac03644b9a61983fddae48494ac57f8b4835376f02c2391cbe534fc59a1fc448",
-    "scripts/check_tickets_proportion.py": "7d6c0a9b850f1387e2ba203ca3abb82bcb022402487c39e4183751f218dc6a42",
-    "scripts/test_check_tickets_palette.py": "6e28408f87e9ddc42815c012e3f4a0346ef511c34f39aa901f04c11c12a8ccea",
+    "scripts/check_tickets_palette.py": "4d969fc56c9f68d1574486933c8ecc9f4a07fbd29b96154c7ea7f723ded78c29",
+    "scripts/check_tickets_proportion.py": "7e05433454781a701b98da605ea21389a44703d5f01c32f126f8a66891cd071b",
+    "scripts/test_check_tickets_palette.py": "37e74487ec5a954988b0873f3c97fd239cb625435e3b80350b20b142ee715b73",
     "scripts/test_check_tickets_proportion.py": "a983eea84ff95d9efbccadc324fb8e9f0e4892c7b536bfac28ac9f9861c8c4a2",
-    "scripts/tickets_scope.py": "96ffb3ef41e3f79d80ddfde8d4908d51b9a3a4b72e68a5490f8fbc78aefed1de"
+    "scripts/test_tickets_scope.py": "e96a70b98729163add62cd286def6c8c6e0556d1ff7fec808de88c1de93271cd",
+    "scripts/tickets_scope.py": "a76b538552e00cef90ebd48934f4d6808b5e70137d8a49f0412fffdfdab4d0a8"
   },
   "log": ".delivery/evidence/DMTE-430-ac02/green.log",
-  "log_sha256": "c749c602e524fc6fda6db02f247a0635ee396dff5c4dd141cbf938c7a7e189d2"
+  "log_sha256": "e2fce9de0d91a7b0c209b7c4853d9906a622a5b3325d3b4a3f6778744f353bc1"
 }

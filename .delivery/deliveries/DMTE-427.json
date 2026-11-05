@@ -10,12 +10,12 @@
   "criteria": [
     {
       "id": "AC-01",
-      "description": "Paleta única: nenhum hex literal nem classe de paleta fora do DS (teal-*, emerald-*, rose-*, grau de gray fora da escala do DS) nos arquivos da aba Tickets.",
+      "description": "Paleta única: nenhum hex literal nem classe de paleta fora do DS (brand-*/gray-*/green-*/yellow-*/red-*/petroleum-*, nos graus que o DS define — regra geral, não lista fechada de nomes) nos arquivos da aba Tickets.",
       "tests": [
         "scripts/test_check_tickets_palette.py::TicketsPaletteRealTreeTest::test_no_palette_violations_in_real_tickets_tab"
       ],
       "tdd_required": false,
-      "reason": "RED/GREEN real capturado em par próprio antes do checker de AC-02 existir (python3 -m unittest discover -s scripts -p test_check_tickets_palette.py -v), preservado em .delivery/evidence/DMTE-430/{red,green}.json. O schema de manifesto só referencia um único par tdd.red/tdd.green por entrega; a evidência de AC-01 fica fora desse par por essa limitação, não por ausência de ciclo real. Checagem estática também roda em CI (scripts/check_tickets_palette.py, .github/workflows/ci.yml) a cada PR, então uma regressão futura é pega independentemente deste manifesto."
+      "reason": "Dois ciclos RED/GREEN reais e independentes, preservados fora do par oficial por limitação do schema (um único tdd.red/tdd.green por entrega): (1) .delivery/evidence/DMTE-430/{red,green}.json, capturado antes do checker de AC-02 existir, contra a lista inicial (teal/emerald/rose/gray fora de escala); (2) .delivery/evidence/DMTE-430-ac01-qa-fix/{red,green}.json, capturado depois da revisão independente apontar que a lista inicial deixava passar outras famílias fora do DS (blue-*/amber-*) — RED real com o checker generalizado contra a árvore ainda não corrigida (22 achados), GREEN depois de normalizar TicketCsat.tsx/TicketForm.tsx/TicketWorklogs.tsx/TicketKanban.tsx. Checagem estática roda em CI (scripts/check_tickets_palette.py, .github/workflows/ci.yml) a cada PR, então uma regressão futura é pega independentemente deste manifesto."
     },
     {
       "id": "AC-02",
@@ -48,6 +48,10 @@
     ".delivery/deliveries/DMTE-427.json",
     "docs/adr/0001-paleta-unica-brand-na-aba-tickets.md",
     "docs/delivery/specs/DMTE-427.md",
+    ".delivery/evidence/DMTE-430-ac01-qa-fix/green.json",
+    ".delivery/evidence/DMTE-430-ac01-qa-fix/green.log",
+    ".delivery/evidence/DMTE-430-ac01-qa-fix/red.json",
+    ".delivery/evidence/DMTE-430-ac01-qa-fix/red.log",
     ".delivery/evidence/DMTE-430-ac02/green.json",
     ".delivery/evidence/DMTE-430-ac02/green.log",
     ".delivery/evidence/DMTE-430-ac02/red.json",
@@ -61,6 +65,9 @@
     "apps/web/src/components/ds/EzDesignTokens.stories.tsx",
     "apps/web/src/components/ds/EzDesignTokens.test.tsx",
     "apps/web/src/components/ds/EzDesignTokens.tsx",
+    "apps/web/src/components/ds/index.ts",
+    "apps/web/src/components/tickets/TicketCsat.tsx",
+    "apps/web/src/components/tickets/TicketForm.tsx",
     "apps/web/src/components/tickets/TicketFormMode.tsx",
     "apps/web/src/components/tickets/TicketKanban.tsx",
     "apps/web/src/components/tickets/TicketList.tsx",
@@ -73,6 +80,7 @@
     "scripts/check_tickets_proportion.py",
     "scripts/test_check_tickets_palette.py",
     "scripts/test_check_tickets_proportion.py",
+    "scripts/test_tickets_scope.py",
     "scripts/tickets_scope.py"
   ],
   "tdd": {

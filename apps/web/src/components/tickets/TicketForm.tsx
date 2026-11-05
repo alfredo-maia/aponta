@@ -194,7 +194,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
           )}
         />
         {selectedDesk?.catalogRequiredOnOpen && !catalogOverride && (
-          <p className="text-sm text-amber-700 md:col-span-2">
+          <p className="text-sm text-yellow-700 md:col-span-2">
             Esta mesa exige um item do catálogo. Selecione o catálogo antes de abrir o ticket.
           </p>
         )}
@@ -345,7 +345,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
       )}
 
       {submitError && (
-        <div className="p-3 bg-red-50 text-red-700 rounded-[8px] text-[13px] font-medium border border-red-200">
+        <div className="p-3 bg-red-100 text-red-700 rounded-[8px] text-[13px] font-medium border border-red-200">
           {submitError}
         </div>
       )}

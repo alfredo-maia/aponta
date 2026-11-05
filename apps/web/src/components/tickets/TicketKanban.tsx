@@ -487,7 +487,7 @@ export function TicketKanban({
         data-testid="kanban-mesa-select"
         value={selectedDeskId}
         onChange={(e) => setSelectedDeskId(e.target.value)}
-        className="h-[42px] w-full rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-900 hover:border-gray-300 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"
+        className="h-[var(--control-height-md)] w-full rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-900 hover:border-gray-300 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"
       >
         <option value="">Mesa: Todas</option>
         {serviceDesks.map((desk) => (
@@ -526,7 +526,7 @@ export function TicketKanban({
       <button
         type="button"
         onClick={() => setIsSortMenuOpen((prev) => !prev)}
-        className="flex h-[42px] items-center gap-1.5 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"
+        className="flex h-[var(--control-height-md)] items-center gap-1.5 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"
       >
         <ArrowUpDown className="h-3.5 w-3.5" />
         Ordenar
@@ -550,7 +550,7 @@ export function TicketKanban({
           <button
             type="button"
             onClick={() => setSortField(null)}
-            className="mt-1 w-full rounded-[6px] px-2 py-1.5 text-left text-[13px] text-red-600 hover:bg-red-50"
+            className="mt-1 w-full rounded-[6px] px-2 py-1.5 text-left text-[13px] text-red-600 hover:bg-red-100"
           >
             Limpar ordenação
           </button>
@@ -566,7 +566,7 @@ export function TicketKanban({
       <button
         type="button"
         onClick={() => setIsConfigMenuOpen((prev) => !prev)}
-        className="flex h-[42px] items-center gap-1.5 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"
+        className="flex h-[var(--control-height-md)] items-center gap-1.5 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"
       >
         <SlidersHorizontal className="h-3.5 w-3.5" />
         Configurações
@@ -580,7 +580,7 @@ export function TicketKanban({
             id="kanban-group-by"
             value={groupBy}
             onChange={(e) => setGroupBy(e.target.value)}
-            className="mt-1 h-[32px] w-full rounded-[8px] border border-gray-200 bg-white px-2 text-[13px] text-gray-900"
+            className="mt-1 h-[var(--control-height-compact)] w-full rounded-[8px] border border-gray-200 bg-white px-2 text-[13px] text-gray-900"
           >
             <option value="stage">Estágio</option>
             <option value="status">Status</option>

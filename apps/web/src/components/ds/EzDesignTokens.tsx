@@ -8,7 +8,7 @@ export function EzDesignTokens() {
   const heights = [
     { token: '--control-height-md', value: '42px', label: 'Altura padrão de controle' },
     { token: '--control-height-compact', value: '32px', label: 'Altura compacta de controle' },
-  ];
+  ] as const;
   const radii = [
     { token: 'rounded-control (--radius-control)', value: '10px', label: 'Raio de controles da toolbar' },
     { token: 'rounded-card (--radius-card)', value: '16px', label: 'Raio de cartões' },
@@ -27,7 +27,7 @@ export function EzDesignTokens() {
             <li key={item.token} className="flex items-center gap-3">
               <div
                 className="flex items-center rounded-control border border-gray-200 bg-white px-3 text-[13px]"
-                style={{ height: item.value }}
+                style={{ height: `var(${item.token})` }}
               >
                 {item.label}
               </div>

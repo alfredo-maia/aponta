@@ -87,6 +87,7 @@ export * from './EzTaskbar';
 export * from './EzFilterBar';
 export * from './EzLayoutFormConfig';
 export * from './EzSimpleCrud';
+export * from './EzDesignTokens';
 // Nota: EzEmptyCard (já exportado via EzCardItem), EzFileItem (já exportado via
 // EzUpload) e EzListItem (já exportado via EzList) têm implementações
 // standalone equivalentes em EzEmptyCard.tsx/EzFileItem.tsx/EzListItem.tsx

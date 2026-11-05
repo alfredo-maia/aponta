@@ -259,7 +259,7 @@ export function TicketList({
           id="ticket-list-group-by"
           value={config.groupBy || 'none'}
           onChange={(e) => setGroupBy(e.target.value)}
-          className="h-[32px] rounded-[8px] border border-gray-200 bg-white px-2 text-[13px] text-gray-900"
+          className="h-[var(--control-height-compact)] rounded-[8px] border border-gray-200 bg-white px-2 text-[13px] text-gray-900"
         >
           {GROUP_OPTIONS.map((opt) => (
             <option key={opt.id} value={opt.id}>
@@ -272,7 +272,7 @@ export function TicketList({
           <button
             type="button"
             onClick={() => setIsColumnMenuOpen((prev) => !prev)}
-            className="h-[32px] rounded-[8px] border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"
+            className="h-[var(--control-height-compact)] rounded-[8px] border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"
           >
             Exibir colunas
           </button>

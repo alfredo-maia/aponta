@@ -3,7 +3,7 @@ import re
 import sys
 from pathlib import Path
 
-from tickets_scope import find_tickets_files
+from tickets_scope import find_tickets_files, run_check
 
 # D6 (ADR 0001, DMTE-427 fatia 1): única escala de altura de controle.
 CONTROL_HEIGHT_RANGE = (24, 48)
@@ -23,17 +23,12 @@ def find_violations(text: str) -> list[str]:
 
 def main(argv: list[str]) -> int:
     root = Path(argv[1]) if len(argv) > 1 else Path.cwd()
-    had_violation = False
-    for path in find_tickets_files(root):
-        text = path.read_text(encoding='utf-8')
-        for violation in find_violations(text):
-            had_violation = True
-            print(f'{path}: {violation}')
-    if had_violation:
-        print('FALHA: altura de controle ad hoc fora da escala D6 na aba Tickets (AC-02, DMTE-427).')
-        return 1
-    print('OK: alturas de controle seguem a escala D6 na aba Tickets (AC-02, DMTE-427).')
-    return 0
+    return run_check(
+        root,
+        find_violations,
+        ok_message='OK: alturas de controle seguem a escala D6 na aba Tickets (AC-02, DMTE-427).',
+        fail_message='FALHA: altura de controle ad hoc fora da escala D6 na aba Tickets (AC-02, DMTE-427).',
+    )
 
 
 if __name__ == '__main__':
