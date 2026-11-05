@@ -17,3 +17,23 @@ export default meta;
 type Story = StoryObj<typeof EzDesignTokens>;
 
 export const Escala: Story = {};
+
+export const SobFundoCinza: Story = {
+  decorators: [
+    (StoryFn) => (
+      <div className="bg-gray-50">
+        <StoryFn />
+      </div>
+    ),
+  ],
+};
+
+export const Compacta: Story = {
+  decorators: [
+    (StoryFn) => (
+      <div className="max-w-sm">
+        <StoryFn />
+      </div>
+    ),
+  ],
+};

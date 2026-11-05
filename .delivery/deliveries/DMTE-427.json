@@ -21,7 +21,8 @@
       "id": "AC-02",
       "description": "Tokens de proporção (D6): altura de controle, raio e sombra seguem a escala fechada nesta fatia; sem controles de 34px e 38px lado a lado na mesma barra.",
       "tests": [
-        "scripts/test_check_tickets_proportion.py::TicketsProportionRealTreeTest::test_no_ad_hoc_control_heights_in_real_tickets_tab"
+        "scripts/test_check_tickets_proportion.py::TicketsProportionRealTreeTest::test_no_ad_hoc_control_heights_in_real_tickets_tab",
+        "scripts/test_check_tickets_proportion.py::TicketsProportionCheckTest::test_arbitrary_radius_on_tokenized_control_is_a_violation"
       ]
     },
     {
@@ -31,7 +32,7 @@
         "apps/web/src/components/ds/EzDesignTokens.test.tsx"
       ],
       "tdd_required": false,
-      "reason": "Componente de documentação (EzDesignTokens) sem lógica condicional: 2/2 testes de presença de conteúdo verdes (pnpm exec nx run web:test -- EzDesignTokens) e build do Storybook verde (pnpm exec nx run web:build-storybook); não é um ciclo comportamental RED/GREEN autônomo. Cobertura completa de AC-15 (demais componentes/telas tocados nas fatias 2–6) fica para essas fatias."
+      "reason": "Componente de documentação (EzDesignTokens) sem lógica condicional: 3/3 testes e 3 stories de presença de conteúdo verdes (pnpm exec nx run web:test -- EzDesignTokens) e build do Storybook verde (pnpm exec nx run web:build-storybook); não é um ciclo comportamental RED/GREEN autônomo. Cobertura completa de AC-15 (demais componentes/telas tocados nas fatias 2–6) fica para essas fatias."
     },
     {
       "id": "AC-16",
@@ -46,12 +47,14 @@
   "spec": "docs/delivery/specs/DMTE-427.md",
   "changed_files": [
     ".delivery/deliveries/DMTE-427.json",
-    "docs/adr/0001-paleta-unica-brand-na-aba-tickets.md",
-    "docs/delivery/specs/DMTE-427.md",
     ".delivery/evidence/DMTE-430-ac01-qa-fix/green.json",
     ".delivery/evidence/DMTE-430-ac01-qa-fix/green.log",
     ".delivery/evidence/DMTE-430-ac01-qa-fix/red.json",
     ".delivery/evidence/DMTE-430-ac01-qa-fix/red.log",
+    ".delivery/evidence/DMTE-430-ac02-r2/green.json",
+    ".delivery/evidence/DMTE-430-ac02-r2/green.log",
+    ".delivery/evidence/DMTE-430-ac02-r2/red.json",
+    ".delivery/evidence/DMTE-430-ac02-r2/red.log",
     ".delivery/evidence/DMTE-430-ac02/green.json",
     ".delivery/evidence/DMTE-430-ac02/green.log",
     ".delivery/evidence/DMTE-430-ac02/red.json",
@@ -75,7 +78,9 @@
     "apps/web/src/components/tickets/TicketsHeader.tsx",
     "apps/web/src/pages/TicketDetailPage.tsx",
     "apps/web/src/styles.css",
+    "docs/adr/0001-paleta-unica-brand-na-aba-tickets.md",
     "docs/architecture/03-sankhya-ds-parity.md",
+    "docs/delivery/specs/DMTE-427.md",
     "scripts/check_tickets_palette.py",
     "scripts/check_tickets_proportion.py",
     "scripts/test_check_tickets_palette.py",
@@ -85,8 +90,8 @@
   ],
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-430-ac02/red.json",
-    "green": ".delivery/evidence/DMTE-430-ac02/green.json"
+    "red": ".delivery/evidence/DMTE-430-ac02-r2/red.json",
+    "green": ".delivery/evidence/DMTE-430-ac02-r2/green.json"
   },
   "design_system": {
     "applicable": true,

@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-05T22:15:21.748164+00:00",
+  "finished_at": "2026-11-05T22:15:21.831713+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_check_tickets_proportion.py",
+    "-v"
+  ],
+  "base_sha": "29693a2cfd8fc063c29f26267dfc4c3043a5916b",
+  "head_sha": "6db1a9b57594e2a462b8bb0bf2f4cf5defcafbe9",
+  "exit_code": 0,
+  "tests": {
+    "scripts/test_check_tickets_proportion.py": "a995b1512287ad00d43aab00be5a763f3908719c817542f766ad49e310011b67"
+  },
+  "criteria": [
+    "AC-02"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/ds/EzDesignTokens.stories.tsx": "468fd13ae5d82c25ac14a1041e3de13d56afe4dde4cd51f711dd5a2e97364e0d",
+    "apps/web/src/components/ds/EzDesignTokens.test.tsx": "ddfbdc38dd5b47ed8b289e7757843278f4d931d8df93f4c8250392f379beb4ed",
+    "apps/web/src/components/ds/EzDesignTokens.tsx": "52df418ddea8777620c5a280326f9567639be0df69bfd25113ec3f5a721ae31a",
+    "apps/web/src/components/ds/index.ts": "677f5ff90d9ca05bc2811decfc2ee1e767ce0848b77256f5084721a7085fc70b",
+    "apps/web/src/components/tickets/TicketCsat.tsx": "d90bfd2e239264b23a02821ba950752c74e605cb23705e0408301cdfaa1ab2bc",
+    "apps/web/src/components/tickets/TicketForm.tsx": "63ba2fe58fea2a7f56a77436c5859241906b4aff58d977bb59526af2197b3eb7",
+    "apps/web/src/components/tickets/TicketFormMode.tsx": "714b8a96f3f9a2a21d647ccd3a1c77b3aeb77cb239ae0ff89601e6e34d41c60c",
+    "apps/web/src/components/tickets/TicketKanban.tsx": "9638fab2ce6e7ab2e4e69d53518fbaa56b93e1d2c42bda68458e2b4a7b4431a0",
+    "apps/web/src/components/tickets/TicketList.tsx": "49c5818cb5adcd02f06e23e2998a64b97e7e3a58a7f53206e2d8c69fd019c3ad",
+    "apps/web/src/components/tickets/TicketWorklogs.tsx": "6fc999309e1e27b061399806b1486f758022f52a36e6dad25b76eadcf05f6cff",
+    "apps/web/src/components/tickets/TicketsHeader.tsx": "6dab2aa3755f06058528a8e2bdf62e1353de2ac52210c477d56188a5d67abd5c",
+    "apps/web/src/pages/TicketDetailPage.tsx": "0b5712da1852da1341486782fc69ffe9a411df9888b08e7a0b53434465595061",
+    "apps/web/src/styles.css": "2a6d590d036d044cfa6ec0d557a4ee1c9d2b170d8aaf3597c3803433dd80170a",
+    "scripts/check_tickets_palette.py": "7846a068b30866c9a8934abfc9b227da3f684899a54d3076776ebb98aea422f7",
+    "scripts/check_tickets_proportion.py": "eafd717a09496c2735a1161efe36e53c04d2536d67efb2f96e43dcdb69e3b932",
+    "scripts/test_check_tickets_palette.py": "37e74487ec5a954988b0873f3c97fd239cb625435e3b80350b20b142ee715b73",
+    "scripts/test_check_tickets_proportion.py": "a995b1512287ad00d43aab00be5a763f3908719c817542f766ad49e310011b67",
+    "scripts/test_tickets_scope.py": "e96a70b98729163add62cd286def6c8c6e0556d1ff7fec808de88c1de93271cd",
+    "scripts/tickets_scope.py": "a76b538552e00cef90ebd48934f4d6808b5e70137d8a49f0412fffdfdab4d0a8"
+  },
+  "log": ".delivery/evidence/DMTE-430-ac02-r2/green.log",
+  "log_sha256": "6c7a1fcd45cb18b2250b576980f1b8a95cfa2f54a0a2bb960a89582e4584550c"
+}
