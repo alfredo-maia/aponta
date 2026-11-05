@@ -48,6 +48,6 @@ test_duplicate_key_in_the_same_object_is_rejected (test_aponta_delivery.StrictJs
 test_registry_without_duplicates_loads_normally (test_aponta_delivery.StrictJsonLoadTests.test_registry_without_duplicates_loads_normally) ... ok
 
 ----------------------------------------------------------------------
-Ran 47 tests in 0.399s
+Ran 47 tests in 0.419s
 
 OK
