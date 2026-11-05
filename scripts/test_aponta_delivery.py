@@ -253,6 +253,16 @@ class DeliveryTests(unittest.TestCase):
         pair = self.evidence_pair()
         self.assertTrue(delivery.validate_evidence(self.root, pair, {'AC-01'}, 'abc', {'app.py': 'different'}))
 
+    def test_out_of_scope_key_in_recorded_source_hashes_is_ignored(self):
+        """A routine main merge adds files to the recorded source_hashes that the
+        delivery's own changed_files never declared; scoping the comparison must
+        not reject GREEN evidence just because those extra keys showed up."""
+        pair = self.evidence_pair()
+        self.change_evidence('green', source_hashes={'app.py': 'green', 'other_delivery_script.py': 'noise'})
+        self.assertEqual(
+            delivery.validate_evidence(self.root, pair, {'AC-01'}, 'abc', {'app.py': 'green'}, scope={'app.py'}),
+            [])
+
     def test_mismatched_command_rejected(self):
         pair = self.evidence_pair();self.change_evidence('green', command=['echo', 'OK'])
         self.assertTrue(delivery.validate_evidence(self.root, pair, {'AC-01'}, 'abc', {'app.py': 'green'}))
@@ -275,6 +285,79 @@ class DeliveryTests(unittest.TestCase):
         self.assertNotEqual(process.returncode, 0)
         with delivery.writer_lock(path):
             pass
+
+
+def git_repo(root):
+    subprocess.run(['git', '-C', str(root), 'init', '-q'], check=True)
+    subprocess.run(['git', '-C', str(root), 'config', 'user.email', 't@example.com'], check=True)
+    subprocess.run(['git', '-C', str(root), 'config', 'user.name', 't'], check=True)
+
+
+def git_commit(root, message, add_all=True):
+    if add_all:
+        subprocess.run(['git', '-C', str(root), 'add', '-A'], check=True)
+    subprocess.run(['git', '-C', str(root), 'commit', '-q', '-m', message], check=True)
+
+
+def git_head(root):
+    return subprocess.run(['git', '-C', str(root), 'rev-parse', 'HEAD'], capture_output=True, text=True, check=True).stdout.strip()
+
+
+class SourceHashesScopeTests(unittest.TestCase):
+    """A routine merge from main must not invalidate a delivery's GREEN evidence for
+    files the delivery never touched (the exact failure QA hit on DMTE-430 after
+    main brought in unrelated scripts via #121/#130/#131)."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        git_repo(self.root)
+        (self.root / 'feature.py').write_text('v1\n')
+        git_commit(self.root, 'base')
+        self.base = git_head(self.root)
+        subprocess.run(['git', '-C', str(self.root), 'checkout', '-q', '-b', 'feature'], check=True)
+        (self.root / 'feature.py').write_text('v2 reviewed by QA\n')
+        git_commit(self.root, 'feature work')
+
+    def merge_unrelated_delivery_from_main(self):
+        subprocess.run(['git', '-C', str(self.root), 'checkout', '-q', '-b', 'main-moved', self.base], check=True)
+        (self.root / 'other_delivery_script.py').write_text('unrelated to this delivery\n')
+        git_commit(self.root, 'other delivery merges into main')
+        subprocess.run(['git', '-C', str(self.root), 'checkout', '-q', 'feature'], check=True)
+        subprocess.run(['git', '-C', str(self.root), 'merge', '-q', '--no-edit', 'main-moved'], check=True)
+
+    def test_unrelated_merge_does_not_change_the_scoped_hash_of_a_reviewed_file(self):
+        before = delivery.source_hashes(self.root, self.base, scope={'feature.py'})
+        self.merge_unrelated_delivery_from_main()
+        after = delivery.source_hashes(self.root, self.base, scope={'feature.py'})
+        self.assertEqual(before, after)
+        self.assertNotIn('other_delivery_script.py', after)
+
+
+class StrictJsonLoadTests(unittest.TestCase):
+    """A duplicate top-level key in a registry entry (DMTE-427 appeared twice after
+    a merge, per QA) must not be silently collapsed to the last occurrence."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.path = Path(self.tmp.name) / 'registry.json'
+
+    def test_duplicate_key_in_the_same_object_is_rejected(self):
+        self.path.write_text(
+            '{"version": 1, "deliveries": {'
+            '"DMTE-427": {"state": "Em implementação"}, '
+            '"DMTE-427": {"state": "Planejada"}'
+            '}}'
+        )
+        with self.assertRaises(ValueError):
+            delivery.load_strict_json(self.path)
+
+    def test_registry_without_duplicates_loads_normally(self):
+        self.path.write_text('{"version": 1, "deliveries": {"DMTE-427": {"state": "Em implementação"}}}')
+        self.assertEqual(delivery.load_strict_json(self.path),
+                          {'version': 1, 'deliveries': {'DMTE-427': {'state': 'Em implementação'}}})
 
 
 if __name__ == '__main__':

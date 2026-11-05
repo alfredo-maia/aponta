@@ -24,6 +24,10 @@ def git(root: Path, *args: str) -> str:
     return subprocess.run(['git', '-C', str(root), *args], capture_output=True, text=True, check=True).stdout.strip()
 
 
+def load_strict_json(path: Path):
+    return json.loads(path.read_text())
+
+
 def redact(text: str) -> str:
     for key, value in os.environ.items():
         if len(value) >= 6 and re.search(r'token|secret|password|passwd|api_key|database_url', key, re.I):
@@ -31,7 +35,7 @@ def redact(text: str) -> str:
     return re.sub(r'(https?://)[^\s/@]+:[^\s/@]+@', r'\1[REDACTED]@', text)
 
 
-def source_hashes(root: Path, base: str) -> dict[str, str]:
+def source_hashes(root: Path, base: str, scope: set[str] | None = None) -> dict[str, str]:
     changed = git(root, 'diff', '--name-only', base).splitlines()
     changed += git(root, 'ls-files', '--others', '--exclude-standard').splitlines()
     return {name: sha((root / name).read_bytes()) for name in sorted(set(changed))
@@ -166,7 +170,7 @@ def validate_registry(registry: dict) -> list[str]:
 
 
 def validate_evidence(root: Path, tdd: dict, criteria: set[str], base: str,
-                      sources: dict[str, str]) -> list[str]:
+                      sources: dict[str, str], scope: set[str] | None = None) -> list[str]:
     errors, records = [], {}
     for phase in ['red', 'green']:
         try:
@@ -409,7 +413,7 @@ def main() -> int:
         except BlockingIOError:
             print('Another Aponta writer holds the lock.', file=sys.stderr)
             return 2
-    registry = json.loads((root / args.registry).read_text())
+    registry = load_strict_json(root / args.registry)
     errors = validate_registry(registry)
     event = json.loads(args.event.read_text()) if args.event else None
     if event:
