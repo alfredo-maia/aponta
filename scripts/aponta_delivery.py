@@ -165,6 +165,19 @@ def validate_registry(registry: dict) -> list[str]:
     return errors
 
 
+def base_moved_without_touching(root: Path, observed: str, base: str, touched: set[str]) -> bool:
+    """Evidence stays valid when main moved on (strict branch protection) without touching the delivery's files.
+
+    The recorded base must be an ancestor of the manifest base and no file the delivery
+    changes or tests may differ between the two, so the RED/GREEN still ran against the same code.
+    """
+    try:
+        git(root, 'merge-base', '--is-ancestor', observed, base)
+        return not touched & set(git(root, 'diff', '--name-only', observed, base).splitlines())
+    except subprocess.CalledProcessError:
+        return False
+
+
 def validate_evidence(root: Path, tdd: dict, criteria: set[str], base: str,
                       sources: dict[str, str]) -> list[str]:
     errors, records = [], {}
@@ -178,7 +191,9 @@ def validate_evidence(root: Path, tdd: dict, criteria: set[str], base: str,
                 errors.append('Evidence log hash differs: ' + phase)
             observed_base = value.get('base_sha')
             if observed_base != base:
-                if not isinstance(observed_base, str) or not re.fullmatch(r'[0-9a-f]{7,40}', observed_base) or git(root, 'rev-parse', '--verify', observed_base) != base:
+                if not isinstance(observed_base, str) or not re.fullmatch(r'[0-9a-f]{7,40}', observed_base) or (
+                        git(root, 'rev-parse', '--verify', observed_base) != base
+                        and not base_moved_without_touching(root, observed_base, base, set(sources) | set(value.get('tests', {})))):
                     errors.append('Evidence base SHA differs: ' + phase)
             if not test_command(value.get('command', [])):
                 errors.append('Unsupported evidence test command: ' + phase)
