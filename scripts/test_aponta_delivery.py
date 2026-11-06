@@ -319,6 +319,38 @@ class EvidenceBaseMovedTests(unittest.TestCase):
         new_base = self.commit('main changed a slice file')
         self.assertTrue(any('Evidence base SHA differs' in e for e in self.validate(new_base)))
 
+    def test_slice_file_renamed_on_main_is_rejected(self):
+        self.git('mv', 'app.py', 'renamed.py')
+        new_base = self.commit('main renamed a slice file')
+        self.assertTrue(any('Evidence base SHA differs' in e for e in self.validate(new_base)))
+
+    def test_slice_file_with_non_ascii_name_changed_on_main_is_rejected(self):
+        (self.root / 'ação.py').write_text('v1')
+        old = self.commit('add non ascii file')
+        for phase in ['red', 'green']:
+            self.set_base(phase, old)
+        (self.root / 'ação.py').write_text('v2')
+        new_base = self.commit('main changed it')
+        errors = delivery.validate_evidence(self.root, self.pair, {'AC-01'}, new_base, {'app.py': 'green', 'ação.py': 'x'})
+        self.assertTrue(any('Evidence base SHA differs' in e for e in errors))
+
+    def test_file_deleted_by_the_slice_but_changed_on_main_is_rejected(self):
+        (self.root / 'gone.py').write_text('v1')
+        old = self.commit('add file the slice will delete')
+        for phase in ['red', 'green']:
+            self.set_base(phase, old)
+        (self.root / 'gone.py').write_text('v2')
+        new_base = self.commit('main changed it')
+        (self.root / 'gone.py').unlink()  # the slice deletes it in the working tree
+        self.assertTrue(any('Evidence base SHA differs' in e for e in self.validate(new_base)))
+
+    def test_evidence_on_descendant_of_manifest_base_is_rejected(self):
+        (self.root / 'other.py').write_text('later')
+        later = self.commit('later commit')
+        for phase in ['red', 'green']:
+            self.set_base(phase, later)
+        self.assertTrue(any('Evidence base SHA differs' in e for e in self.validate(self.old_base)))
+
     def test_evidence_on_unrelated_base_is_rejected(self):
         self.git('checkout', '-q', '--orphan', 'other')
         (self.root / 'x.py').write_text('x')

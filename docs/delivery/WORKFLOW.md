@@ -40,7 +40,7 @@ python3 scripts/aponta_delivery.py record --phase green --base BASE_SHA --out .d
 python3 scripts/aponta_delivery.py check --manifest .delivery/deliveries/DMTE-N.json
 ```
 
-Com a proteção `strict` da `main`, o PR precisa conter a `main` atual, e a base da entrega anda. O RED/GREEN gravado numa base mais antiga continua válido quando essa base é ancestral do `base_sha` do manifest e nenhum arquivo alterado ou testado pela entrega mudou entre as duas bases. Se a `main` tocou um desses arquivos, o RED perde a validade e a entrega volta ao QA com evidência nova. Depois de atualizar a branch, regrave o GREEN contra o `base_sha` novo e atualize o manifest.
+Com a proteção `strict` da `main`, o PR precisa conter a `main` atual, e a base da entrega anda. O RED/GREEN gravado numa base mais antiga continua válido quando essa base é ancestral do `base_sha` do manifest e nenhum arquivo alterado ou testado pela entrega mudou entre as duas bases. Arquivos apagados ou renomeados pela entrega contam como alterados. Se a `main` tocou um desses arquivos, o RED perde a validade e a entrega volta ao QA com evidência nova. Depois de atualizar a branch, atualize o `base_sha` do manifest e regrave o GREEN: o hash de fontes do GREEN é medido contra o `base_sha`, então muda quando ele muda. O QA revisa o SHA novo.
 
 O coletor usa argv sem shell, redige valores sensíveis conhecidos do ambiente e registra horário, comando, exit code, hashes de testes/fontes/logs e ACs. O verificador rejeita erro de setup como RED, logs alterados, comando/testes divergentes, GREEN anterior ao RED e fontes alteradas depois do GREEN. Se testes/fontes mudarem, produza a evidência necessária novamente, sem reescrever o passado.
 

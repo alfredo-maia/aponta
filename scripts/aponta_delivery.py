@@ -165,15 +165,19 @@ def validate_registry(registry: dict) -> list[str]:
     return errors
 
 
-def base_moved_without_touching(root: Path, observed: str, base: str, touched: set[str]) -> bool:
+def base_moved_without_touching(root: Path, recorded: str, base: str, touched: set[str]) -> bool:
     """Evidence stays valid when main moved on (strict branch protection) without touching the delivery's files.
 
-    The recorded base must be an ancestor of the manifest base and no file the delivery
-    changes or tests may differ between the two, so the RED/GREEN still ran against the same code.
+    The recorded base must be an ancestor of the manifest base, and no file the delivery
+    changes, deletes or tests may differ between the two, so the RED/GREEN still ran against the same code.
     """
     try:
-        git(root, 'merge-base', '--is-ancestor', observed, base)
-        return not touched & set(git(root, 'diff', '--name-only', observed, base).splitlines())
+        git(root, 'merge-base', '--is-ancestor', recorded, base)
+        # shortcut: touched also takes every path the delivery changes vs base (renames split, deletions kept);
+        # a file only imported by the tests but untouched by the delivery is not tracked.
+        touched |= set(git(root, 'diff', '--no-renames', '--name-only', '-z', base).split('\0'))
+        moved = set(git(root, 'diff', '--no-renames', '--name-only', '-z', recorded, base).split('\0'))
+        return not (touched & moved) - {''}
     except subprocess.CalledProcessError:
         return False
 
