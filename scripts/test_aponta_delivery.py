@@ -351,6 +351,17 @@ class EvidenceBaseMovedTests(unittest.TestCase):
             self.set_base(phase, later)
         self.assertTrue(any('Evidence base SHA differs' in e for e in self.validate(self.old_base)))
 
+    def test_governance_file_changed_on_both_sides_does_not_invalidate_evidence(self):
+        (self.root / 'docs').mkdir(exist_ok=True)
+        (self.root / 'docs/note.md').write_text('v1')
+        old = self.commit('add doc')
+        for phase in ['red', 'green']:
+            self.set_base(phase, old)
+        (self.root / 'docs/note.md').write_text('main edit')
+        new_base = self.commit('main edited the doc')
+        (self.root / 'docs/note.md').write_text('slice edit')  # the slice edits it too, like registry.json
+        self.assertEqual(self.validate(new_base), [])
+
     def test_evidence_on_unrelated_base_is_rejected(self):
         self.git('checkout', '-q', '--orphan', 'other')
         (self.root / 'x.py').write_text('x')

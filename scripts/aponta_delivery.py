@@ -35,9 +35,13 @@ def source_hashes(root: Path, base: str) -> dict[str, str]:
     changed = git(root, 'diff', '--name-only', base).splitlines()
     changed += git(root, 'ls-files', '--others', '--exclude-standard').splitlines()
     return {name: sha((root / name).read_bytes()) for name in sorted(set(changed))
-            if not name.startswith(('.delivery/', 'docs/', '.github/'))
-            and name != 'AGENTS.md' and '__pycache__' not in Path(name).parts
-            and not name.endswith('.pyc') and (root / name).is_file()}
+            if is_source_path(name) and (root / name).is_file()}
+
+
+def is_source_path(name: str) -> bool:
+    """Governance, docs and build noise are not delivery sources."""
+    return (not name.startswith(('.delivery/', 'docs/', '.github/')) and name != 'AGENTS.md'
+            and '__pycache__' not in Path(name).parts and not name.endswith('.pyc'))
 
 
 def capture(root: Path, destination: Path, phase: str, base: str,
@@ -177,7 +181,7 @@ def base_moved_without_touching(root: Path, recorded: str, base: str, touched: s
         # a file only imported by the tests but untouched by the delivery is not tracked.
         touched |= set(git(root, 'diff', '--no-renames', '--name-only', '-z', base).split('\0'))
         moved = set(git(root, 'diff', '--no-renames', '--name-only', '-z', recorded, base).split('\0'))
-        return not (touched & moved) - {''}
+        return not {name for name in touched & moved if name and is_source_path(name)}
     except subprocess.CalledProcessError:
         return False
 
