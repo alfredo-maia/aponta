@@ -83,6 +83,50 @@ class AtualizarEntregaTests(unittest.TestCase):
             atualizar(self.root, 'DMTE-9', main_ref='main', verificar=False)
         self.assertEqual(self.feature_head, self.git('rev-parse', 'HEAD'))
 
+    def test_failing_green_after_the_merge_rolls_the_branch_back(self):
+        self.git('checkout', '-q', 'main')
+        (self.root / 'tests/test_ok.py').write_text(
+            'import unittest\n\nclass T(unittest.TestCase):\n    def test_ok(self):\n        self.assertTrue(False)\n')
+        self.commit('main breaks the test')
+        self.git('checkout', '-q', 'feat')
+        with self.assertRaises(AtualizacaoError):
+            atualizar(self.root, 'DMTE-9', main_ref='main', verificar=False)
+        self.assertEqual(self.feature_head, self.git('rev-parse', 'HEAD'))
+        self.assertEqual('', self.git('status', '--porcelain'))
+
+    def test_failing_delivery_check_after_the_merge_rolls_the_branch_back(self):
+        self.advance_main()
+        with self.assertRaises(AtualizacaoError):  # the fixture has no registry, so the real check fails
+            atualizar(self.root, 'DMTE-9', main_ref='main', verificar=True)
+        self.assertEqual(self.feature_head, self.git('rev-parse', 'HEAD'))
+        self.assertEqual('', self.git('status', '--porcelain'))
+
+    def test_fetches_origin_before_merging(self):
+        remote = self.root.parent / (self.root.name + '-remote.git')
+        self.addCleanup(lambda: subprocess.run(['rm', '-rf', str(remote)]))
+        subprocess.run(['git', 'init', '-q', '--bare', '-b', 'main', str(remote)], check=True)
+        self.git('remote', 'add', 'origin', str(remote))
+        self.git('push', '-q', 'origin', 'main')
+        self.git('fetch', '-q', 'origin')
+        other = self.root.parent / (self.root.name + '-other')
+        self.addCleanup(lambda: subprocess.run(['rm', '-rf', str(other)]))
+        subprocess.run(['git', 'clone', '-q', str(remote), str(other)], check=True)
+        (other / 'other.py').write_text('moved upstream\n')
+        subprocess.run(['git', '-C', str(other), 'add', '-A'], check=True)
+        subprocess.run(['git', '-C', str(other), 'commit', '-q', '-m', 'upstream'], check=True,
+                       env={**os.environ, **ENV})
+        subprocess.run(['git', '-C', str(other), 'push', '-q', 'origin', 'main'], check=True)
+        upstream = subprocess.run(['git', '-C', str(other), 'rev-parse', 'HEAD'], capture_output=True, text=True).stdout.strip()
+        result = atualizar(self.root, 'DMTE-9', main_ref='origin/main', verificar=False)
+        self.assertEqual((('atualizada', upstream)), (result['status'], self.manifest()['base_sha']))
+
+    def test_up_to_date_does_not_need_the_manifest_evidence(self):
+        (self.root / '.delivery/ev/green.json').unlink()
+        self.git('add', '-A'); self.git('commit', '-q', '-m', 'drop green')
+        head = self.git('rev-parse', 'HEAD')
+        self.assertEqual('atual', atualizar(self.root, 'DMTE-9', main_ref='main', verificar=False)['status'])
+        self.assertEqual(head, self.git('rev-parse', 'HEAD'))
+
     def test_refuses_to_run_on_main(self):
         self.git('checkout', '-q', 'main')
         with self.assertRaises(AtualizacaoError):
