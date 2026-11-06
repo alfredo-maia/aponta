@@ -5,6 +5,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import aponta_delivery as delivery
 from atualizar_entrega import AtualizacaoError, atualizar
@@ -23,6 +24,7 @@ class AtualizarEntregaTests(unittest.TestCase):
         (self.root / 'tests/test_ok.py').write_text(
             'import unittest\n\nclass T(unittest.TestCase):\n    def test_ok(self):\n        self.assertTrue(True)\n')
         (self.root / 'app.py').write_text('v1\n')
+        (self.root / '.gitignore').write_text('__pycache__/\n')
         (self.root / '.delivery/deliveries').mkdir(parents=True)
         self.base0 = self.commit('base')
         self.git('checkout', '-q', '-b', 'feat')
@@ -126,6 +128,31 @@ class AtualizarEntregaTests(unittest.TestCase):
         head = self.git('rev-parse', 'HEAD')
         self.assertEqual('atual', atualizar(self.root, 'DMTE-9', main_ref='main', verificar=False)['status'])
         self.assertEqual(head, self.git('rev-parse', 'HEAD'))
+
+    def test_rollback_keeps_an_edit_made_during_the_run_to_a_tracked_file(self):
+        self.advance_main()
+
+        def failing_capture(*args, **kwargs):  # someone edits a tracked file while the long test run is in progress
+            (self.root / 'app.py').write_text('edited by a human\n')
+            return {'exit_code': 1}
+
+        with patch.object(delivery, 'capture', side_effect=failing_capture):
+            with self.assertRaises(AtualizacaoError):
+                atualizar(self.root, 'DMTE-9', main_ref='main', verificar=False)
+        self.assertEqual('edited by a human\n', (self.root / 'app.py').read_text())
+        self.assertEqual(self.feature_head, self.git('rev-parse', 'HEAD'))
+
+    def test_rollback_refuses_to_overwrite_an_edit_that_conflicts_with_the_merge(self):
+        self.advance_main()  # the merge adds other.py
+
+        def failing_capture(*args, **kwargs):
+            (self.root / 'other.py').write_text('edited by a human\n')
+            return {'exit_code': 1}
+
+        with patch.object(delivery, 'capture', side_effect=failing_capture):
+            with self.assertRaises(AtualizacaoError):
+                atualizar(self.root, 'DMTE-9', main_ref='main', verificar=False)
+        self.assertEqual('edited by a human\n', (self.root / 'other.py').read_text())
 
     def test_refuses_to_run_on_main(self):
         self.git('checkout', '-q', 'main')

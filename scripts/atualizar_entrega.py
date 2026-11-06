@@ -26,10 +26,25 @@ def git(root: Path, *args: str) -> str:
     return delivery.git(root, *args)
 
 
-def desfazer(root: Path, head_antes: str) -> None:
-    """Volta ao HEAD de antes do merge. A árvore estava limpa na entrada, então o que sobra é do próprio script."""
-    subprocess.run(['git', '-C', str(root), 'reset', '--hard', head_antes], capture_output=True)
-    subprocess.run(['git', '-C', str(root), 'clean', '-fd', '--', '.delivery'], capture_output=True)
+def desfazer(root: Path, head_antes: str, escritos: dict) -> None:
+    """Desfaz o que o script fez sem tocar em edições de terceiros.
+
+    Restaura os bytes dos três arquivos que o próprio script escreve e volta o HEAD com
+    `reset --keep`, que se recusa a seguir se houver edição local em arquivo que o merge mudou.
+    Nunca usa `reset --hard` nem `clean`: a árvore pode ter sido editada durante a execução.
+    """
+    for caminho, conteudo in escritos.items():
+        if conteudo is None:
+            caminho.unlink(missing_ok=True)
+        else:
+            caminho.write_bytes(conteudo)
+    subprocess.run(['git', '-C', str(root), 'reset', '-q', '--', *[c.relative_to(root).as_posix() for c in escritos]],
+                   capture_output=True)  # unstage only what this script staged
+    voltou = subprocess.run(['git', '-C', str(root), 'reset', '--keep', head_antes], capture_output=True, text=True)
+    if voltou.returncode != 0:
+        raise AtualizacaoError('Could not restore the previous HEAD without overwriting local edits made during the run; '
+                               'the merge commit stays in place. Review `git status`, then run '
+                               f'`git reset --keep {head_antes}` yourself.\n' + voltou.stderr)
 
 
 def atualizar(root, delivery_id, main_ref='origin/main', verificar=True):
@@ -53,6 +68,8 @@ def atualizar(root, delivery_id, main_ref='origin/main', verificar=True):
     if merged.returncode != 0:
         subprocess.run(['git', '-C', str(root), 'merge', '--abort'], capture_output=True)
         raise AtualizacaoError('Merge with main has conflicts; resolve them by hand. Merge aborted.')
+    log_path = green_path.with_suffix('.log')
+    escritos = {p: (p.read_bytes() if p.exists() else None) for p in (manifest_path, green_path, log_path)}
     try:
         manifest['base_sha'] = main_sha
         manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + '\n')
@@ -66,11 +83,11 @@ def atualizar(root, delivery_id, main_ref='origin/main', verificar=True):
             if checked.returncode != 0:
                 raise AtualizacaoError('Delivery check failed after the update; the branch was restored to its previous HEAD:\n'
                                        + checked.stderr + checked.stdout)
-        paths = [manifest_path, green_path, green_path.with_suffix('.log')]
+        paths = [manifest_path, green_path, log_path]
         git(root, 'add', '--', *[p.relative_to(root).as_posix() for p in paths])
         git(root, 'commit', '-q', '-m', f'chore(delivery): atualiza {delivery_id} com a main (base_sha e GREEN)')
     except BaseException:
-        desfazer(root, head_antes)
+        desfazer(root, head_antes, escritos)
         raise
     return {'status': 'atualizada', 'base_sha': main_sha, 'head': git(root, 'rev-parse', 'HEAD')}
 
