@@ -580,7 +580,7 @@ export function TicketKanban({
             id="kanban-group-by"
             value={groupBy}
             onChange={(e) => setGroupBy(e.target.value)}
-            className="mt-1 h-[var(--control-height-compact)] w-full rounded-[8px] border border-gray-200 bg-white px-2 text-[13px] text-gray-900"
+            className="mt-1 h-[var(--control-height-compact)] w-full rounded-control border border-gray-200 bg-white px-2 text-[13px] text-gray-900"
           >
             <option value="stage">Estágio</option>
             <option value="status">Status</option>
