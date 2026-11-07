@@ -542,7 +542,7 @@
       "handoff",
       "wait-what"
     ],
-    "dev_tech_lead": [
+    "dev_lider": [
       "ask-matt",
       "setup-matt-pocock-skills",
       "retro",
@@ -550,7 +550,7 @@
       "handoff",
       "wait-what"
     ],
-    "dev_architect": [
+    "dev_arquiteto": [
       "grill-with-docs",
       "grill-me",
       "grilling",
@@ -568,7 +568,7 @@
       "wait-what",
       "teach"
     ],
-    "dev_developer": [
+    "dev_executor": [
       "implement",
       "implement-spec",
       "tdd",
@@ -583,19 +583,19 @@
       "handoff",
       "wait-what"
     ],
-    "dev_qa_reviewer": [
+    "dev_qa": [
       "code-review",
       "tdd",
       "codebase-design",
       "handoff",
       "wait-what"
     ],
-    "dev_delivery": [
+    "dev_entrega": [
       "wizard",
       "handoff",
       "wait-what"
     ],
-    "rapido_tech_lead": [
+    "dev_rapido_lider": [
       "ask-matt",
       "setup-matt-pocock-skills",
       "retro",
@@ -617,7 +617,7 @@
       "to-questionnaire",
       "teach"
     ],
-    "rapido_dev": [
+    "dev_rapido_executor": [
       "implement",
       "implement-spec",
       "tdd",
@@ -632,7 +632,7 @@
       "handoff",
       "wait-what"
     ],
-    "rapido_qa": [
+    "dev_rapido_qa": [
       "code-review",
       "tdd",
       "codebase-design",
@@ -640,7 +640,7 @@
       "wait-what",
       "wizard"
     ],
-    "ultra_rapido": [
+    "dev_ultra_lider": [
       "ask-matt",
       "setup-matt-pocock-skills",
       "retro",
@@ -669,7 +669,7 @@
       "diagnosing-bugs",
       "wizard"
     ],
-    "ultra_qa": [
+    "dev_ultra_qa": [
       "code-review",
       "tdd",
       "codebase-design",
