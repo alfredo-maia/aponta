@@ -625,7 +625,7 @@ export function TicketKanban({
           {statusColumns.map((col) => (
             <div
               key={col}
-              className="w-80 shrink-0 space-y-4 rounded-lg border border-gray-100 bg-gray-80 p-4"
+              className="w-[290px] shrink-0 space-y-4 rounded-lg border border-gray-100 bg-gray-80 p-4"
             >
               <h3 className="text-sm font-semibold text-gray-600">
                 {statusLabels[col]}
@@ -740,7 +740,7 @@ export function TicketKanban({
                         ref={provided.innerRef}
                         {...provided.droppableProps}
                         className={cn(
-                          'flex w-80 shrink-0 flex-col gap-3 rounded-lg border p-4 min-h-[500px] transition-colors',
+                          'flex w-[290px] shrink-0 flex-col gap-3 rounded-lg border p-4 min-h-[500px] transition-colors',
                           snapshot.isDraggingOver && !dropDisabled
                             ? 'border-brand-500 bg-brand-100/30 ring-1 ring-brand-200'
                             : 'border-gray-200 bg-gray-80',
@@ -848,7 +848,7 @@ export function TicketKanban({
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className={`flex w-80 shrink-0 flex-col gap-3 rounded-lg border p-4 min-h-[500px] transition-colors ${
+                      className={`flex w-[290px] shrink-0 flex-col gap-3 rounded-lg border p-4 min-h-[500px] transition-colors ${
                         snapshot.isDraggingOver
                           ? 'border-brand-500 bg-brand-100/30 ring-1 ring-brand-200'
                           : 'border-gray-200 bg-gray-80'
@@ -950,7 +950,7 @@ export function TicketKanban({
         {dynamicColumns.map((col) => (
           <div
             key={col.id}
-            className="flex w-80 shrink-0 flex-col gap-3 rounded-lg border border-gray-200 bg-gray-80 p-4 min-h-[500px]"
+            className="flex w-[290px] shrink-0 flex-col gap-3 rounded-lg border border-gray-200 bg-gray-80 p-4 min-h-[500px]"
           >
             <div className="flex items-center justify-between">
               <h3 className="flex-1 text-sm font-semibold text-gray-900">{col.label}</h3>

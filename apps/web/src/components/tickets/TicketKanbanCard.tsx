@@ -2,8 +2,7 @@ import type { MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { MoreVertical } from 'lucide-react';
 import type { Ticket } from '../../hooks/useTickets';
-import { SlaBadge } from './SlaBadge';
-import { EzAvatar, EzDropdown, EzTag } from '../ds';
+import { EzAvatar, EzDropdown, EzSlaChip, EzTag } from '../ds';
 import { useOpenInTab } from '../../contexts/TabsContext';
 import { statusLabels, priorityLabels, statusTagVariants, priorityTagVariants } from './TicketCard';
 
@@ -32,6 +31,16 @@ function formatCardDate(value: string | null | undefined): string | null {
   return new Date(value).toLocaleDateString('pt-BR');
 }
 
+/** Prazo efetivo: o gravado mais as pausas acumuladas e a pausa em curso, como em `getSlaStatus` (apps/api). */
+function effectiveDeadline(deadline: string | null, ticket: Ticket, now: Date): string | null {
+  if (!deadline) return null;
+  const pausedMs = (ticket.slaAccumulatedPauseTime || 0) * 60000;
+  const currentPauseMs = ticket.slaPausedAt
+    ? Math.max(0, now.getTime() - new Date(ticket.slaPausedAt).getTime())
+    : 0;
+  return new Date(new Date(deadline).getTime() + pausedMs + currentPauseMs).toISOString();
+}
+
 /**
  * Card do Kanban redesenhado (SPEC DMTE-137 D7): sem apontamento/play inline
  * — o menu só abre o ticket (nesta aba interna ou, por nome, "em nova aba
@@ -43,6 +52,7 @@ export function TicketKanbanCard({
   visibleFields,
 }: TicketKanbanCardProps) {
   const openInTab = useOpenInTab();
+  const now = new Date();
   const path = `/tickets/${ticket.id}`;
   const tabTitle = `#${ticket.protocol} - ${ticket.title}`;
   const showClient = visibleFields?.client !== false;
@@ -106,13 +116,6 @@ export function TicketKanbanCard({
           )}
         </div>
 
-        {hasSlaBadges && (
-          <div className="mt-2 flex flex-wrap gap-2">
-            <SlaBadge status={ticket.responseSlaStatus} label="Resposta" />
-            <SlaBadge status={ticket.resolveSlaStatus} label="Resolução" />
-          </div>
-        )}
-
         {(createdAtLabel || updatedAtLabel) && (
           <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-gray-400">
             {createdAtLabel && <span>Criado em {createdAtLabel}</span>}
@@ -120,15 +123,34 @@ export function TicketKanbanCard({
           </div>
         )}
 
-        <div className="mt-2 flex -space-x-2">
-          {showAgent && ticket.agent && (
-            <EzAvatar
-              name={ticket.agent.name}
-              size={24}
-              className="ring-2 ring-white"
-            />
-          )}
-        </div>
+        {(hasSlaBadges || (showAgent && ticket.agent)) && (
+          <div
+            data-testid="kanban-card-footer"
+            className="mt-2 flex items-center justify-between gap-2"
+          >
+            <div className="flex flex-wrap gap-1">
+              {hasSlaBadges && (
+                <>
+                  <EzSlaChip
+                    kind="response"
+                    status={ticket.responseSlaStatus}
+                    deadline={effectiveDeadline(ticket.responseDeadline, ticket, now)}
+                    now={now}
+                  />
+                  <EzSlaChip
+                    kind="resolve"
+                    status={ticket.resolveSlaStatus}
+                    deadline={effectiveDeadline(ticket.resolveDeadline, ticket, now)}
+                    now={now}
+                  />
+                </>
+              )}
+            </div>
+            {showAgent && ticket.agent && (
+              <EzAvatar name={ticket.agent.name} size={24} className="ring-2 ring-white" />
+            )}
+          </div>
+        )}
       </Link>
     </li>
   );

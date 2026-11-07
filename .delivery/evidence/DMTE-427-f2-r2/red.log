@@ -1,0 +1,79 @@
+
+> nx run web:test src/components/ds/EzSlaChip.test.tsx src/components/tickets/TicketKanbanCard.test.tsx
+
+> vitest src/components/ds/EzSlaChip.test.tsx src/components/tickets/TicketKanbanCard.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-430-31f270e18a18/workdir/aponta/apps/web
+
+ ✓ |web| src/components/ds/EzSlaChip.test.tsx (6 tests) 82ms
+ ❯ |web| src/components/tickets/TicketKanbanCard.test.tsx (16 tests | 2 failed) 412ms
+     ✓ is a single link for the whole card, with the protocol highlighted and an accessible label 92ms
+     ✓ truncates a long title with line-clamp-2 and keeps the full text in the title attribute 8ms
+     ✓ shows the requester's organization (truncated) and the Status tag 7ms
+     ✓ shows Prioridade as the tag instead of Status when tagField="priority" 8ms
+     ✓ shows a small avatar for the assigned agent, initials-based (no photo in the schema) 7ms
+     ✓ AC-06: shows compact SLA chips (icon + time) named by the full text, not the long pills 13ms
+       × soma as pausas acumuladas aos dois prazos 19ms
+       × congela o tempo enquanto o ticket está pausado (soma a pausa em curso) 11ms
+     ✓ AC-05: puts the SLA chips and the agent avatar in the same footer row 15ms
+     ✓ AC-05: leaves no empty avatar strip when there is no agent and no SLA 5ms
+     ✓ AC-05: keeps the footer when only the agent exists, with the avatar pushed to the right 11ms
+     ✓ has a menu with only "Abrir ticket" and "Abrir em nova aba interna" (no apontamento/play) 67ms
+     ✓ clicking the menu trigger does not also trigger the card link navigation 37ms
+     ✓ RODADA 2 ("Exibir campos", D6c): hides Cliente, Responsável and SLA when their field is turned off 7ms
+     ✓ RODADA 2 ("Exibir campos", D6c): shows "Data de criação"/"Data de última atualização" only when explicitly turned on 46ms
+     ✓ RODADA 2 ("Exibir campos", D6c): omits the date fields by default (back-compat with existing callers) 53ms
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 20 passed (22)
+   Start at  13:42:09
+   Duration  3.09s (transform 1.34s, setup 217ms, import 2.29s, tests 494ms, environment 940ms)
+
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/components/tickets/TicketKanbanCard.test.tsx > TicketKanbanCard (D7) > AC-06: tempo do chip segue a regra de pausa do backend (getSlaStatus) > soma as pausas acumuladas aos dois prazos
+Error: [2mexpect([22m[31mreceived[39m[2m).toBeInTheDocument()[22m
+
+[31mreceived[39m value must be an HTMLElement or an SVGElement.
+Received has type:  Null
+Received has value: [31mnull[39m
+ ❯ src/components/tickets/TicketKanbanCard.test.tsx:103:83
+    101|         slaAccumulatedPauseTime: 90,
+    102|       });
+    103|       expect(screen.queryByLabelText('Resposta: dentro do prazo, vence…
+       |                                                                                   ^
+    104|       expect(screen.queryByLabelText('Resolução: dentro do prazo, venc…
+    105|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |web| src/components/tickets/TicketKanbanCard.test.tsx > TicketKanbanCard (D7) > AC-06: tempo do chip segue a regra de pausa do backend (getSlaStatus) > congela o tempo enquanto o ticket está pausado (soma a pausa em curso)
+Error: [2mexpect([22m[31mreceived[39m[2m).toBeInTheDocument()[22m
+
+[31mreceived[39m value must be an HTMLElement or an SVGElement.
+Received has type:  Null
+Received has value: [31mnull[39m
+ ❯ src/components/tickets/TicketKanbanCard.test.tsx:117:84
+    115|         slaPausedAt: at(-2 * H),
+    116|       });
+    117|       expect(screen.queryByLabelText('Resolução: dentro do prazo, venc…
+       |                                                                                    ^
+    118|     });
+    119|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+Warning: command "vitest src/components/ds/EzSlaChip.test.tsx src/components/tickets/TicketKanbanCard.test.tsx" exited with non-zero status code
