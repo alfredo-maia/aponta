@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Ticket } from '../../hooks/useTickets';
 import { TicketKanbanCard } from './TicketKanbanCard';
 
@@ -81,6 +81,41 @@ describe('TicketKanbanCard (D7)', () => {
     expect(screen.getByLabelText(/^Resolução: vencido há/)).toBeInTheDocument();
     expect(screen.queryByText(/em risco/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/resposta:/i)).not.toBeInTheDocument();
+  });
+
+  describe('AC-06: tempo do chip segue a regra de pausa do backend (getSlaStatus)', () => {
+    const NOW = new Date('2026-01-10T12:00:00.000Z');
+    const at = (ms: number) => new Date(NOW.getTime() + ms).toISOString();
+    const H = 3600000;
+
+    afterEach(() => vi.useRealTimers());
+
+    it('soma as pausas acumuladas aos dois prazos', () => {
+      vi.useFakeTimers({ toFake: ['Date'], now: NOW });
+      renderCard({
+        ...baseTicket,
+        responseSlaStatus: 'ON_TRACK',
+        resolveSlaStatus: 'ON_TRACK',
+        responseDeadline: at(H),
+        resolveDeadline: at(5 * H),
+        slaAccumulatedPauseTime: 90,
+      });
+      expect(screen.queryByLabelText('Resposta: dentro do prazo, vence em 2h30')).toBeInTheDocument();
+      expect(screen.queryByLabelText('Resolução: dentro do prazo, vence em 6h30')).toBeInTheDocument();
+    });
+
+    it('congela o tempo enquanto o ticket está pausado (soma a pausa em curso)', () => {
+      vi.useFakeTimers({ toFake: ['Date'], now: NOW });
+      renderCard({
+        ...baseTicket,
+        status: 'PENDING_CUSTOMER',
+        responseSlaStatus: null,
+        resolveSlaStatus: 'ON_TRACK',
+        resolveDeadline: at(5 * H),
+        slaPausedAt: at(-2 * H),
+      });
+      expect(screen.queryByLabelText('Resolução: dentro do prazo, vence em 7h00')).toBeInTheDocument();
+    });
   });
 
   it('AC-05: puts the SLA chips and the agent avatar in the same footer row', () => {

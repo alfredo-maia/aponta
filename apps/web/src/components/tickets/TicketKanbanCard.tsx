@@ -31,11 +31,14 @@ function formatCardDate(value: string | null | undefined): string | null {
   return new Date(value).toLocaleDateString('pt-BR');
 }
 
-/** Prazo de resolução efetivo: o prazo gravado mais as pausas acumuladas (mesma regra do SlaProgress). */
-function resolveDeadlineWithPauses(ticket: Ticket): string | null {
-  if (!ticket.resolveDeadline) return null;
+/** Prazo efetivo: o gravado mais as pausas acumuladas e a pausa em curso, como em `getSlaStatus` (apps/api). */
+function effectiveDeadline(deadline: string | null, ticket: Ticket, now: Date): string | null {
+  if (!deadline) return null;
   const pausedMs = (ticket.slaAccumulatedPauseTime || 0) * 60000;
-  return new Date(new Date(ticket.resolveDeadline).getTime() + pausedMs).toISOString();
+  const currentPauseMs = ticket.slaPausedAt
+    ? Math.max(0, now.getTime() - new Date(ticket.slaPausedAt).getTime())
+    : 0;
+  return new Date(new Date(deadline).getTime() + pausedMs + currentPauseMs).toISOString();
 }
 
 /**
@@ -49,6 +52,7 @@ export function TicketKanbanCard({
   visibleFields,
 }: TicketKanbanCardProps) {
   const openInTab = useOpenInTab();
+  const now = new Date();
   const path = `/tickets/${ticket.id}`;
   const tabTitle = `#${ticket.protocol} - ${ticket.title}`;
   const showClient = visibleFields?.client !== false;
@@ -130,12 +134,14 @@ export function TicketKanbanCard({
                   <EzSlaChip
                     kind="response"
                     status={ticket.responseSlaStatus}
-                    deadline={ticket.responseDeadline}
+                    deadline={effectiveDeadline(ticket.responseDeadline, ticket, now)}
+                    now={now}
                   />
                   <EzSlaChip
                     kind="resolve"
                     status={ticket.resolveSlaStatus}
-                    deadline={resolveDeadlineWithPauses(ticket)}
+                    deadline={effectiveDeadline(ticket.resolveDeadline, ticket, now)}
+                    now={now}
                   />
                 </>
               )}

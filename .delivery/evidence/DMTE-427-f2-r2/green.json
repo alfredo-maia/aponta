@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-07T16:42:25.121893+00:00",
+  "finished_at": "2026-11-07T16:42:34.437996+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run",
+    "web:test",
+    "--skip-nx-cache",
+    "--",
+    "src/components/ds/EzSlaChip.test.tsx",
+    "src/components/tickets/TicketKanbanCard.test.tsx"
+  ],
+  "base_sha": "889d6ab8269c52d439e1b7bd4dc102316a6e18d2",
+  "head_sha": "87c63c37f09cda1e87399bf521046ba427d04b18",
+  "exit_code": 0,
+  "tests": {
+    "apps/web/src/components/ds/EzSlaChip.test.tsx": "f67d3aca54e517aa3be73e7c7bf77ecbb2d69d317a919dcb8bb3b397eafd9f9d",
+    "apps/web/src/components/tickets/TicketKanbanCard.test.tsx": "8d45f441e8005ce665df4d56f3135be8055e4f73a1835f57de9dad5fe7b41c07"
+  },
+  "criteria": [
+    "AC-05",
+    "AC-06"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/ds/EzSlaChip.stories.tsx": "b08aaed22aefbac70b5bce9a0ec159d4edb4c3b72272df14e579c5ee6cba625f",
+    "apps/web/src/components/ds/EzSlaChip.test.tsx": "f67d3aca54e517aa3be73e7c7bf77ecbb2d69d317a919dcb8bb3b397eafd9f9d",
+    "apps/web/src/components/ds/EzSlaChip.tsx": "3c058e533d43f3e55cd2b02ead7dd2ee1f11dc2781216c3ae324c8ef00d63674",
+    "apps/web/src/components/ds/index.ts": "61f5f6f05039abd84cce5abd75dcc547c0132c568b7d24ea57f3dcbb0adc87b2",
+    "apps/web/src/components/tickets/TicketKanban.test.tsx": "a4a8d559ade2910d8dde359bfa24970850304a334d3873ded9d9605ee9b55cd3",
+    "apps/web/src/components/tickets/TicketKanban.tsx": "13e29c792fc089b7052d61c6be243fa30ebfea06f8c6630b9ce6531624dc82e9",
+    "apps/web/src/components/tickets/TicketKanbanCard.test.tsx": "8d45f441e8005ce665df4d56f3135be8055e4f73a1835f57de9dad5fe7b41c07",
+    "apps/web/src/components/tickets/TicketKanbanCard.tsx": "2cd3d8702e781485efd6163128a95de0932958ce829d54bc44cc71688bd645db"
+  },
+  "log": ".delivery/evidence/DMTE-427-f2-r2/green.log",
+  "log_sha256": "a15a7510ab8ba9dd7de6c878f679463bd4f43dcead0e04398fd974251a9f6fcf"
+}

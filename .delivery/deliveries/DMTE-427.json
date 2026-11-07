@@ -113,12 +113,16 @@
     "apps/web/src/components/tickets/TicketKanban.tsx",
     "apps/web/src/components/tickets/TicketKanbanCard.test.tsx",
     "apps/web/src/components/tickets/TicketKanbanCard.tsx",
-    "docs/architecture/03-sankhya-ds-parity.md"
+    "docs/architecture/03-sankhya-ds-parity.md",
+    ".delivery/evidence/DMTE-427-f2-r2/red.json",
+    ".delivery/evidence/DMTE-427-f2-r2/red.log",
+    ".delivery/evidence/DMTE-427-f2-r2/green.json",
+    ".delivery/evidence/DMTE-427-f2-r2/green.log"
   ],
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-427-f2/red.json",
-    "green": ".delivery/evidence/DMTE-427-f2/green.json"
+    "red": ".delivery/evidence/DMTE-427-f2-r2/red.json",
+    "green": ".delivery/evidence/DMTE-427-f2-r2/green.json"
   },
   "design_system": {
     "applicable": true,

@@ -111,7 +111,7 @@ O cartão do Kanban mostrava o SLA como pílulas largas ("Resposta: Dentro do pr
 
 - Sem equivalente oficial no Sankhya: `EzTag` leva só texto e ícone fixo, sem cálculo de tempo. O chip é novo, não uma variante de `EzTag`, para não mexer em outras telas que usam `EzTag` (risco R1 da SPEC).
 - Cores: pares `green-800/green-100`, `yellow-800/yellow-100` e `red-800/red-100`, todos do DS. O teste do chip confere contraste mínimo AA (4.5:1) lendo os tokens de `styles.css`.
-- Dados: usa o estado já calculado pelo backend (`responseSlaStatus`/`resolveSlaStatus`) e os prazos que o ticket já tem. Sem prazo conhecido, mostra só ícone e estado. Para a resolução, o prazo inclui as pausas acumuladas, na mesma regra do `SlaProgress`. Sem mudança de API.
+- Dados: usa o estado já calculado pelo backend (`responseSlaStatus`/`resolveSlaStatus`) e os prazos que o ticket já tem. Sem prazo conhecido, mostra só ícone e estado. Nos dois prazos (resposta e resolução), o tempo soma as pausas acumuladas e a pausa em curso, na mesma regra de `getSlaStatus` (apps/api), para não contradizer o estado. Sem mudança de API.
 - `SlaBadge` continua no detalhe do ticket e passa a delegar ao chip quando o detalhe for tratado (fatia 5).
 - Story: `EzSlaChip.stories.tsx`. Testes: `EzSlaChip.test.tsx`.
 - Coluna do Kanban com 290px (antes 320px, `w-80`).

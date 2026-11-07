@@ -1,0 +1,22 @@
+
+> nx run web:test src/components/ds/EzSlaChip.test.tsx src/components/tickets/TicketKanbanCard.test.tsx
+
+> vitest src/components/ds/EzSlaChip.test.tsx src/components/tickets/TicketKanbanCard.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-430-31f270e18a18/workdir/aponta/apps/web
+
+ ✓ |web| src/components/ds/EzSlaChip.test.tsx (6 tests) 90ms
+ ✓ |web| src/components/tickets/TicketKanbanCard.test.tsx (16 tests) 304ms
+
+ Test Files  2 passed (2)
+      Tests  22 passed (22)
+   Start at  13:42:31
+   Duration  2.92s (transform 1.33s, setup 176ms, import 2.25s, tests 394ms, environment 958ms)
+
+
+
+
+ NX   Successfully ran target test for project web
+
+
