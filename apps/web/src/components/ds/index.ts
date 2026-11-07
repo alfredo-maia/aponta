@@ -94,3 +94,4 @@ export * from './EzDesignTokens';
 // (com testes próprios), mas não são re-exportadas aqui para não colidir com
 // as versões já conectadas às páginas reais (OrganizationsPage, TicketForm,
 // EzDoubleList). Consolidar em uma única implementação é um refactor futuro.
+export * from './EzSlaChip';

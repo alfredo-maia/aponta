@@ -6,7 +6,7 @@
   "multica_id": "01a1a2ef-0513-7170-8abc-490e1d79dbfa",
   "cycle": "2026-10-26/2026-11-08",
   "tier": 3,
-  "base_sha": "29693a2cfd8fc063c29f26267dfc4c3043a5916b",
+  "base_sha": "889d6ab8269c52d439e1b7bd4dc102316a6e18d2",
   "criteria": [
     {
       "id": "AC-01",
@@ -22,16 +22,19 @@
       "description": "Tokens de proporção (D6): altura de controle, raio e sombra seguem a escala fechada nesta fatia; sem controles de 34px e 38px lado a lado na mesma barra.",
       "tests": [
         "scripts/test_check_tickets_proportion.py::TicketsProportionRealTreeTest::test_no_ad_hoc_control_heights_in_real_tickets_tab"
-      ]
+      ],
+      "tdd_required": false,
+      "reason": "Fatia 1, já integrada na main (PR #133, squash 88211f7): o par RED/GREEN real de AC-02 está preservado em .delivery/evidence/DMTE-430-ac02/{red,green,green-post-merge-d09d859}.json. Nesta fatia o par oficial do manifesto passa a cobrir AC-05/AC-06 (schema com um único tdd.red/tdd.green por entrega); a checagem estática de AC-02 segue no CI a cada PR."
     },
     {
       "id": "AC-15",
-      "description": "Parcial: tokens de proporção documentados em story do DS, com teste do componente de documentação.",
+      "description": "Parcial (fatias 1 e 2): tokens de proporção documentados em story; chip de SLA (EzSlaChip) novo com story, teste (5 casos de comportamento + contraste AA) e entrada em docs/architecture/03-sankhya-ds-parity.md.",
       "tests": [
-        "apps/web/src/components/ds/EzDesignTokens.test.tsx"
+        "apps/web/src/components/ds/EzDesignTokens.test.tsx",
+        "apps/web/src/components/ds/EzSlaChip.test.tsx"
       ],
       "tdd_required": false,
-      "reason": "Componente de documentação (EzDesignTokens) sem lógica condicional: 2/2 testes de presença de conteúdo verdes (pnpm exec nx run web:test -- EzDesignTokens) e build do Storybook verde (pnpm exec nx run web:build-storybook); não é um ciclo comportamental RED/GREEN autônomo. Cobertura completa de AC-15 (demais componentes/telas tocados nas fatias 2–6) fica para essas fatias."
+      "reason": "EzDesignTokens é componente de documentação sem lógica condicional (2 testes de presença). O comportamento do EzSlaChip tem RED/GREEN próprio, coberto por AC-06 no par oficial. Demais componentes das fatias 3–6 ficam para essas fatias."
     },
     {
       "id": "AC-16",
@@ -41,63 +44,93 @@
       ],
       "tdd_required": false,
       "reason": "Verificado por inspeção do diff/changed_files desta entrega (git status/diff contra o base_sha): nenhum arquivo em apps/api foi alterado. Não é comportamento de produto a testar."
+    },
+    {
+      "id": "AC-04",
+      "description": "Toolbar do Kanban em uma única barra: Mesa, responsáveis, Ordenar e Configurações, nessa ordem. Buscar e Busca avançada ficam no cabeçalho da aba (fatia 3). Não existe controle de filtro além do filtro por responsável; criar um seria função nova (D2).",
+      "tests": [
+        "apps/web/src/components/tickets/TicketKanban.test.tsx"
+      ],
+      "tdd_required": false,
+      "reason": "Teste de caracterização: a toolbar do Kanban já era uma linha única com essa ordem (nenhum código mudou nela), então o teste passa sem mudança de produção e não há RED. Não é registrado RED retroativo. Aceite visual pela captura da fatia 7."
+    },
+    {
+      "id": "AC-05",
+      "description": "Cartão do Kanban: número, título (até 2 linhas, com title), tag de status, chips de SLA e avatar na mesma linha, sem faixa vazia quando não há responsável nem SLA.",
+      "tests": [
+        "apps/web/src/components/tickets/TicketKanbanCard.test.tsx"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "description": "Chips de SLA com ícone + tempo, cor semântica com contraste AA e texto completo em tooltip e no nome acessível.",
+      "tests": [
+        "apps/web/src/components/ds/EzSlaChip.test.tsx",
+        "apps/web/src/components/tickets/TicketKanbanCard.test.tsx"
+      ]
+    },
+    {
+      "id": "AC-07",
+      "description": "Colunas do Kanban com largura de 290px (antes 320px), cabeçalho com nome e contador, rolagem horizontal preservada.",
+      "tests": [
+        "apps/web/src/components/tickets/TicketKanban.test.tsx"
+      ],
+      "tdd_required": false,
+      "reason": "Largura é estilo sem comportamento observável em jsdom; a SPEC pede captura por largura (AC-07/AC-14), que é da fatia 7 com o aceite visual do Alfredo. O contador no cabeçalho já tinha teste e segue verde."
+    },
+    {
+      "id": "AC-08",
+      "description": "Menu do cartão e arrastar-e-soltar continuam como hoje; nenhuma regressão ao mover ticket entre estágios.",
+      "tests": [
+        "apps/web/src/components/tickets/TicketKanban.test.tsx",
+        "apps/web/src/components/tickets/TicketKanbanCard.test.tsx"
+      ],
+      "tdd_required": false,
+      "reason": "Sem mudança de comportamento: as suítes existentes do Kanban e do cartão (menu, arrastar, mover estágio) seguem verdes sem alteração nesses casos."
+    },
+    {
+      "id": "AC-13",
+      "description": "Estados de carregamento, vazio e erro do Kanban com o mesmo estilo e as mesmas mensagens.",
+      "tests": [
+        "apps/web/src/components/tickets/TicketKanban.test.tsx"
+      ],
+      "tdd_required": false,
+      "reason": "Sem mudança de comportamento nos estados; os testes existentes de carregamento, erro e coluna vazia seguem verdes. A parte da Lista é da fatia 4."
     }
   ],
   "spec": "docs/delivery/specs/DMTE-427.md",
   "changed_files": [
     ".delivery/deliveries/DMTE-427.json",
-    "docs/adr/0001-paleta-unica-brand-na-aba-tickets.md",
-    "docs/delivery/specs/DMTE-427.md",
-    ".delivery/evidence/DMTE-430-ac01-qa-fix/green.json",
-    ".delivery/evidence/DMTE-430-ac01-qa-fix/green.log",
-    ".delivery/evidence/DMTE-430-ac01-qa-fix/red.json",
-    ".delivery/evidence/DMTE-430-ac01-qa-fix/red.log",
-    ".delivery/evidence/DMTE-430-ac02/green-post-merge-d09d859.json",
-    ".delivery/evidence/DMTE-430-ac02/green-post-merge-d09d859.log",
-    ".delivery/evidence/DMTE-430-ac02/green.json",
-    ".delivery/evidence/DMTE-430-ac02/green.log",
-    ".delivery/evidence/DMTE-430-ac02/red.json",
-    ".delivery/evidence/DMTE-430-ac02/red.log",
-    ".delivery/evidence/DMTE-430/green.json",
-    ".delivery/evidence/DMTE-430/green.log",
-    ".delivery/evidence/DMTE-430/red.json",
-    ".delivery/evidence/DMTE-430/red.log",
-    ".delivery/registry.json",
-    ".github/workflows/ci.yml",
-    "apps/web/src/components/ds/EzDesignTokens.stories.tsx",
-    "apps/web/src/components/ds/EzDesignTokens.test.tsx",
-    "apps/web/src/components/ds/EzDesignTokens.tsx",
+    ".delivery/evidence/DMTE-427-f2/red.json",
+    ".delivery/evidence/DMTE-427-f2/red.log",
+    ".delivery/evidence/DMTE-427-f2/green.json",
+    ".delivery/evidence/DMTE-427-f2/green.log",
+    "apps/web/src/components/ds/EzSlaChip.stories.tsx",
+    "apps/web/src/components/ds/EzSlaChip.test.tsx",
+    "apps/web/src/components/ds/EzSlaChip.tsx",
     "apps/web/src/components/ds/index.ts",
-    "apps/web/src/components/tickets/TicketCsat.tsx",
-    "apps/web/src/components/tickets/TicketForm.tsx",
-    "apps/web/src/components/tickets/TicketFormMode.tsx",
+    "apps/web/src/components/tickets/TicketKanban.test.tsx",
     "apps/web/src/components/tickets/TicketKanban.tsx",
-    "apps/web/src/components/tickets/TicketList.tsx",
-    "apps/web/src/components/tickets/TicketWorklogs.tsx",
-    "apps/web/src/components/tickets/TicketsHeader.tsx",
-    "apps/web/src/pages/TicketDetailPage.tsx",
-    "apps/web/src/styles.css",
-    "docs/architecture/03-sankhya-ds-parity.md",
-    "scripts/check_tickets_palette.py",
-    "scripts/check_tickets_proportion.py",
-    "scripts/test_check_tickets_palette.py",
-    "scripts/test_check_tickets_proportion.py",
-    "scripts/test_tickets_scope.py",
-    "scripts/tickets_scope.py"
+    "apps/web/src/components/tickets/TicketKanbanCard.test.tsx",
+    "apps/web/src/components/tickets/TicketKanbanCard.tsx",
+    "docs/architecture/03-sankhya-ds-parity.md"
   ],
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-430-ac02/red.json",
-    "green": ".delivery/evidence/DMTE-430-ac02/green-post-merge-d09d859.json"
+    "red": ".delivery/evidence/DMTE-427-f2/red.json",
+    "green": ".delivery/evidence/DMTE-427-f2/green.json"
   },
   "design_system": {
     "applicable": true,
     "reused": [
       "EzSpinner",
       "EzAlert",
-      "EzTabs"
+      "EzTabs",
+      "EzTag",
+      "EzAvatar"
     ],
     "stories": [
+      "apps/web/src/components/ds/EzSlaChip.stories.tsx",
       "apps/web/src/components/ds/EzDesignTokens.stories.tsx"
     ],
     "exception": "Os arquivos da aba Tickets tocados nesta fatia (TicketsHeader/TicketKanban/TicketList/TicketWorklogs/TicketFormMode/TicketDetailPage) usam controles HTML nativos (select/button/input) estilizados com utilities Tailwind, não wrappers EzButton/EzTextInput — convenção já existente antes desta fatia, preservada para não mudar comportamento/testids fora do escopo (D2: só visual/layout). Os novos tokens de altura/raio/sombra (--control-height-md/compact, --radius-control, --radius-card, --shadow-card, --shadow-popover em apps/web/src/styles.css) reaproveitam os valores já medidos nos primitivos EzButton/EzTextInput/EzSearch/EzComboBox/EzDateInput/EzCardItem, documentados na nova story EzDesignTokens e em docs/architecture/03-sankhya-ds-parity.md; migrar esses arquivos para os wrappers EzButton/EzTextInput é trabalho de fatia própria, fora do recorte de DMTE-430."

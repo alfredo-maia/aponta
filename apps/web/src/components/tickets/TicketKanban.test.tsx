@@ -824,6 +824,25 @@ describe('TicketKanban', () => {
       { ...baseTicket, id: 't3', protocol: 'AP-2026-0003', title: 'C ticket', agentId: null },
     ];
 
+    it('AC-04: keeps Mesa, responsáveis, Ordenar and Configurações in one toolbar row, in that order', () => {
+      mockApiGet();
+      renderKanban({ tickets: ticketsWithAgents, isLoading: false, isError: false });
+
+      const controls = [
+        screen.getByTestId('kanban-mesa-select'),
+        screen.getByRole('group', { name: /filtrar por responsável/i }),
+        screen.getByRole('button', { name: /ordenar/i }),
+        screen.getByRole('button', { name: /configurações/i }),
+      ];
+      const row = controls[0].parentElement!.parentElement!;
+      controls.forEach((control) => expect(row).toContainElement(control));
+      controls.slice(1).forEach((control, index) => {
+        expect(
+          controls[index].compareDocumentPosition(control) & Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy();
+      });
+    });
+
     it('renders one avatar per distinct agent present in the tickets', () => {
       mockApiGet();
       renderKanban({ tickets: ticketsWithAgents, isLoading: false, isError: false });

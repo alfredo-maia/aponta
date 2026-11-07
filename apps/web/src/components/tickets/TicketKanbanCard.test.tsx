@@ -75,10 +75,31 @@ describe('TicketKanbanCard (D7)', () => {
     expect(screen.getByText('JP')).toBeInTheDocument();
   });
 
-  it('shows SLA badges when a status is present', () => {
+  it('AC-06: shows compact SLA chips (icon + time) named by the full text, not the long pills', () => {
     renderCard({ ...baseTicket, responseSlaStatus: 'AT_RISK', resolveSlaStatus: 'BREACHED' });
-    expect(screen.getByText(/em risco/i)).toBeInTheDocument();
-    expect(screen.getByText(/vencido/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Resposta: em risco/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Resolução: vencido há/)).toBeInTheDocument();
+    expect(screen.queryByText(/em risco/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/resposta:/i)).not.toBeInTheDocument();
+  });
+
+  it('AC-05: puts the SLA chips and the agent avatar in the same footer row', () => {
+    renderCard({ ...baseTicket, responseSlaStatus: 'ON_TRACK', resolveSlaStatus: 'ON_TRACK' });
+    const footer = screen.getByTestId('kanban-card-footer');
+    expect(footer).toContainElement(screen.getByLabelText(/^Resposta: dentro do prazo/));
+    expect(footer).toContainElement(screen.getByText('JP'));
+  });
+
+  it('AC-05: leaves no empty avatar strip when there is no agent and no SLA', () => {
+    renderCard({ ...baseTicket, agent: null, agentId: null });
+    expect(screen.queryByTestId('kanban-card-footer')).not.toBeInTheDocument();
+  });
+
+  it('AC-05: keeps the footer when only the agent exists, with the avatar pushed to the right', () => {
+    renderCard();
+    const footer = screen.getByTestId('kanban-card-footer');
+    expect(footer).toContainElement(screen.getByText('JP'));
+    expect(footer.className).toMatch(/justify-between/);
   });
 
   it('has a menu with only "Abrir ticket" and "Abrir em nova aba interna" (no apontamento/play)', async () => {
@@ -114,8 +135,8 @@ describe('TicketKanbanCard (D7)', () => {
     );
     expect(screen.queryByText('Acme Corporation')).not.toBeInTheDocument();
     expect(screen.queryByText('JP')).not.toBeInTheDocument();
-    expect(screen.queryByText(/em risco/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/vencido/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Resposta:/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Resolução:/)).not.toBeInTheDocument();
   });
 
   it('RODADA 2 ("Exibir campos", D6c): shows "Data de criação"/"Data de última atualização" only when explicitly turned on', () => {

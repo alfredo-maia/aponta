@@ -2,8 +2,7 @@ import type { MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { MoreVertical } from 'lucide-react';
 import type { Ticket } from '../../hooks/useTickets';
-import { SlaBadge } from './SlaBadge';
-import { EzAvatar, EzDropdown, EzTag } from '../ds';
+import { EzAvatar, EzDropdown, EzSlaChip, EzTag } from '../ds';
 import { useOpenInTab } from '../../contexts/TabsContext';
 import { statusLabels, priorityLabels, statusTagVariants, priorityTagVariants } from './TicketCard';
 
@@ -30,6 +29,13 @@ interface TicketKanbanCardProps {
 function formatCardDate(value: string | null | undefined): string | null {
   if (!value) return null;
   return new Date(value).toLocaleDateString('pt-BR');
+}
+
+/** Prazo de resolução efetivo: o prazo gravado mais as pausas acumuladas (mesma regra do SlaProgress). */
+function resolveDeadlineWithPauses(ticket: Ticket): string | null {
+  if (!ticket.resolveDeadline) return null;
+  const pausedMs = (ticket.slaAccumulatedPauseTime || 0) * 60000;
+  return new Date(new Date(ticket.resolveDeadline).getTime() + pausedMs).toISOString();
 }
 
 /**
@@ -106,13 +112,6 @@ export function TicketKanbanCard({
           )}
         </div>
 
-        {hasSlaBadges && (
-          <div className="mt-2 flex flex-wrap gap-2">
-            <SlaBadge status={ticket.responseSlaStatus} label="Resposta" />
-            <SlaBadge status={ticket.resolveSlaStatus} label="Resolução" />
-          </div>
-        )}
-
         {(createdAtLabel || updatedAtLabel) && (
           <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-gray-400">
             {createdAtLabel && <span>Criado em {createdAtLabel}</span>}
@@ -120,15 +119,32 @@ export function TicketKanbanCard({
           </div>
         )}
 
-        <div className="mt-2 flex -space-x-2">
-          {showAgent && ticket.agent && (
-            <EzAvatar
-              name={ticket.agent.name}
-              size={24}
-              className="ring-2 ring-white"
-            />
-          )}
-        </div>
+        {(hasSlaBadges || (showAgent && ticket.agent)) && (
+          <div
+            data-testid="kanban-card-footer"
+            className="mt-2 flex items-center justify-between gap-2"
+          >
+            <div className="flex flex-wrap gap-1">
+              {hasSlaBadges && (
+                <>
+                  <EzSlaChip
+                    kind="response"
+                    status={ticket.responseSlaStatus}
+                    deadline={ticket.responseDeadline}
+                  />
+                  <EzSlaChip
+                    kind="resolve"
+                    status={ticket.resolveSlaStatus}
+                    deadline={resolveDeadlineWithPauses(ticket)}
+                  />
+                </>
+              )}
+            </div>
+            {showAgent && ticket.agent && (
+              <EzAvatar name={ticket.agent.name} size={24} className="ring-2 ring-white" />
+            )}
+          </div>
+        )}
       </Link>
     </li>
   );

@@ -1,0 +1,577 @@
+
+> nx run web:test src/components/ds/EzSlaChip.test.tsx src/components/tickets/TicketKanbanCard.test.tsx
+
+> vitest src/components/ds/EzSlaChip.test.tsx src/components/tickets/TicketKanbanCard.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-430-31f270e18a18/workdir/aponta/apps/web
+
+ ❯ |web| src/components/ds/EzSlaChip.test.tsx (6 tests | 5 failed) 70ms
+     ✓ renders nothing when there is no SLA status 20ms
+     × shows the remaining time and a full accessible name/tooltip when on track 18ms
+     × shows a negative time for a breached deadline 6ms
+     × shows minutes when less than one hour is left 5ms
+     × keeps only icon and state when the deadline is unknown 6ms
+     × uses token pairs with at least AA contrast (4.5:1) for text over background 11ms
+ ❯ |web| src/components/tickets/TicketKanbanCard.test.tsx (14 tests | 3 failed) 350ms
+     ✓ is a single link for the whole card, with the protocol highlighted and an accessible label 116ms
+     ✓ truncates a long title with line-clamp-2 and keeps the full text in the title attribute 18ms
+     ✓ shows the requester's organization (truncated) and the Status tag 17ms
+     ✓ shows Prioridade as the tag instead of Status when tagField="priority" 16ms
+     ✓ shows a small avatar for the assigned agent, initials-based (no photo in the schema) 10ms
+     × AC-06: shows compact SLA chips (icon + time) named by the full text, not the long pills 30ms
+     × AC-05: puts the SLA chips and the agent avatar in the same footer row 11ms
+     ✓ AC-05: leaves no empty avatar strip when there is no agent and no SLA 6ms
+     × AC-05: keeps the footer when only the agent exists, with the avatar pushed to the right 6ms
+     ✓ has a menu with only "Abrir ticket" and "Abrir em nova aba interna" (no apontamento/play) 49ms
+     ✓ clicking the menu trigger does not also trigger the card link navigation 29ms
+     ✓ RODADA 2 ("Exibir campos", D6c): hides Cliente, Responsável and SLA when their field is turned off 6ms
+     ✓ RODADA 2 ("Exibir campos", D6c): shows "Data de criação"/"Data de última atualização" only when explicitly turned on 23ms
+     ✓ RODADA 2 ("Exibir campos", D6c): omits the date fields by default (back-compat with existing callers) 9ms
+
+ Test Files  2 failed (2)
+      Tests  8 failed | 12 passed (20)
+   Start at  13:28:11
+   Duration  3.56s (transform 1.69s, setup 224ms, import 2.50s, tests 420ms, environment 1.11s)
+
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/components/ds/EzSlaChip.test.tsx > EzSlaChip (AC-06) > shows the remaining time and a full accessible name/tooltip when on track
+TestingLibraryElementError: Unable to find a label with the text of: Resposta: dentro do prazo, vence em 17h18
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/ds/EzSlaChip.test.tsx:19:25
+     17|   it('shows the remaining time and a full accessible name/tooltip when…
+     18|     render(<EzSlaChip kind="response" status="ON_TRACK" deadline={at(1…
+     19|     const chip = screen.getByLabelText('Resposta: dentro do prazo, ven…
+       |                         ^
+     20|     expect(chip).toHaveTextContent('17h18');
+     21|     expect(chip).toHaveAttribute('title', 'Resposta: dentro do prazo, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  |web| src/components/ds/EzSlaChip.test.tsx > EzSlaChip (AC-06) > shows a negative time for a breached deadline
+TestingLibraryElementError: Unable to find a label with the text of: Resolução: vencido há 3d
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/ds/EzSlaChip.test.tsx:27:25
+     25|   it('shows a negative time for a breached deadline', () => {
+     26|     render(<EzSlaChip kind="resolve" status="BREACHED" deadline={at(-3…
+     27|     const chip = screen.getByLabelText('Resolução: vencido há 3d');
+       |                         ^
+     28|     expect(chip).toHaveTextContent('-3d');
+     29|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  |web| src/components/ds/EzSlaChip.test.tsx > EzSlaChip (AC-06) > shows minutes when less than one hour is left
+TestingLibraryElementError: Unable to find a label with the text of: Resposta: em risco, vence em 45min
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/ds/EzSlaChip.test.tsx:33:19
+     31|   it('shows minutes when less than one hour is left', () => {
+     32|     render(<EzSlaChip kind="response" status="AT_RISK" deadline={at(45…
+     33|     expect(screen.getByLabelText('Resposta: em risco, vence em 45min')…
+       |                   ^
+     34|   });
+     35|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  |web| src/components/ds/EzSlaChip.test.tsx > EzSlaChip (AC-06) > keeps only icon and state when the deadline is unknown
+TestingLibraryElementError: Unable to find a label with the text of: Resolução: dentro do prazo
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/ds/EzSlaChip.test.tsx:38:25
+     36|   it('keeps only icon and state when the deadline is unknown', () => {
+     37|     render(<EzSlaChip kind="resolve" status="ON_TRACK" now={NOW} />);
+     38|     const chip = screen.getByLabelText('Resolução: dentro do prazo');
+       |                         ^
+     39|     expect(chip.textContent).toBe('');
+     40|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  |web| src/components/ds/EzSlaChip.test.tsx > EzSlaChip (AC-06) > uses token pairs with at least AA contrast (4.5:1) for text over background
+AssertionError: expected [] to deeply equal [ 'AT_RISK', 'BREACHED', 'ON_TRACK' ]
+
+- Expected
++ Received
+
+- [
+-   "AT_RISK",
+-   "BREACHED",
+-   "ON_TRACK",
+- ]
++ []
+
+ ❯ src/components/ds/EzSlaChip.test.tsx:55:51
+     53|         .reduce((sum, c, i) => sum + c * [0.2126, 0.7152, 0.0722][i], …
+     54|     const statuses = ['ON_TRACK', 'AT_RISK', 'BREACHED'] as const;
+     55|     expect(Object.keys(slaChipTokenPairs).sort()).toEqual([...statuses…
+       |                                                   ^
+     56|     for (const status of statuses) {
+     57|       const [text, background] = slaChipTokenPairs[status];
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  |web| src/components/tickets/TicketKanbanCard.test.tsx > TicketKanbanCard (D7) > AC-06: shows compact SLA chips (icon + time) named by the full text, not the long pills
+TestingLibraryElementError: Unable to find a label with the text of: /^Resposta: em risco/
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<li[39m
+      [33mclass[39m=[32m"rounded-[8px] border border-gray-200 bg-white p-3 shadow-xs transition-shadow hover:shadow-sm"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33maria-label[39m=[32m"#AP-2026-0001 - Impressora do segundo andar não liga e o processo de devolução está travado desde ontem"[39m
+        [33mclass[39m=[32m"block rounded-[8px] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"[39m
+        [33mdata-discover[39m=[32m"true"[39m
+        [33mhref[39m=[32m"/tickets/t1"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex items-center justify-between gap-2"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"font-mono text-[12px] font-semibold text-brand-600"[39m
+          [36m>[39m
+            [0m#[0m
+            [0mAP-2026-0001[0m
+          [36m</span>[39m
+          [36m<span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"relative inline-block text-left"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Mais ações"[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200 rounded-[12px]"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-ellipsis-vertical lucide-more-vertical h-4 w-4 text-gray-400"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"1"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"5"[39m
+                    [33mr[39m=[32m"1"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"19"[39m
+                    [33mr[39m=[32m"1"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"mt-1 line-clamp-2 text-[13px] font-medium text-gray-900"[39m
+          [33mtitle[39m=[32m"Impressora do segundo andar não liga e o processo de devolução está travado desde ontem"[39m
+        [36m>[39m
+          [0mImpressora do segundo andar não liga e o processo de devolução está travado desde ontem[0m
+        [36m</p>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mt-2 flex items-center justify-between gap-2"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"truncate text-[12px] text-gray-500"[39m
+          [36m>[39m
+            [0mAcme Corporation[0m
+          [36m</span>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px] text-[12px] font-medium leading-none select-none transition-colors border bg-brand-100/50 text-brand-700 border-brand-200"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mAberto[0m
+            [36m</span>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mt-2 flex flex-wrap gap-2"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-semibold"[39m
+            [36m>[39m
+              [0mResposta[0m
+              [0m:[0m
+            [36m</span>[39m
+            [0m [0m
+            [0mEm risco[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-red-100 text-red-800"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-semibold"[39m
+            [36m>[39m
+              [0mResolução[0m
+              [0m:[0m
+            [36m</span>[39m
+            [0m [0m
+            [0mVencido[0m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mt-2 flex -space-x-2"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden font-medium select-none bg-gray-100 text-gray-700 border border-gray-200 uppercase rounded-full ring-2 ring-white"[39m
+            [33mstyle[39m=[32m"width: 24px; height: 24px; min-width: 24px; min-height: 24px; font-size: 10px;"[39m
+            [33mtitle[39m=[32m"João Pereira"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"absolute z-0"[39m
+            [36m>[39m
+              [0mJP[0m
+            [36m</span>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</a>[39m
+    [36m</li>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/tickets/TicketKanbanCard.test.tsx:80:19
+     78|   it('AC-06: shows compact SLA chips (icon + time) named by the full t…
+     79|     renderCard({ ...baseTicket, responseSlaStatus: 'AT_RISK', resolveS…
+     80|     expect(screen.getByLabelText(/^Resposta: em risco/)).toBeInTheDocu…
+       |                   ^
+     81|     expect(screen.getByLabelText(/^Resolução: vencido há/)).toBeInTheD…
+     82|     expect(screen.queryByText(/em risco/i)).not.toBeInTheDocument();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  |web| src/components/tickets/TicketKanbanCard.test.tsx > TicketKanbanCard (D7) > AC-05: puts the SLA chips and the agent avatar in the same footer row
+TestingLibraryElementError: Unable to find an element by: [data-testid="kanban-card-footer"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<li[39m
+      [33mclass[39m=[32m"rounded-[8px] border border-gray-200 bg-white p-3 shadow-xs transition-shadow hover:shadow-sm"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33maria-label[39m=[32m"#AP-2026-0001 - Impressora do segundo andar não liga e o processo de devolução está travado desde ontem"[39m
+        [33mclass[39m=[32m"block rounded-[8px] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"[39m
+        [33mdata-discover[39m=[32m"true"[39m
+        [33mhref[39m=[32m"/tickets/t1"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex items-center justify-between gap-2"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"font-mono text-[12px] font-semibold text-brand-600"[39m
+          [36m>[39m
+            [0m#[0m
+            [0mAP-2026-0001[0m
+          [36m</span>[39m
+          [36m<span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"relative inline-block text-left"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Mais ações"[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200 rounded-[12px]"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-ellipsis-vertical lucide-more-vertical h-4 w-4 text-gray-400"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"1"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"5"[39m
+                    [33mr[39m=[32m"1"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"19"[39m
+                    [33mr[39m=[32m"1"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"mt-1 line-clamp-2 text-[13px] font-medium text-gray-900"[39m
+          [33mtitle[39m=[32m"Impressora do segundo andar não liga e o processo de devolução está travado desde ontem"[39m
+        [36m>[39m
+          [0mImpressora do segundo andar não liga e o processo de devolução está travado desde ontem[0m
+        [36m</p>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mt-2 flex items-center justify-between gap-2"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"truncate text-[12px] text-gray-500"[39m
+          [36m>[39m
+            [0mAcme Corporation[0m
+          [36m</span>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px] text-[12px] font-medium leading-none select-none transition-colors border bg-brand-100/50 text-brand-700 border-brand-200"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mAberto[0m
+            [36m</span>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mt-2 flex flex-wrap gap-2"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-semibold"[39m
+            [36m>[39m
+              [0mResposta[0m
+              [0m:[0m
+            [36m</span>[39m
+            [0m [0m
+            [0mDentro do prazo[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"font-semibold"[39m
+            [36m>[39m
+              [0mResolução[0m
+              [0m:[0m
+            [36m</span>[39m
+            [0m [0m
+            [0mDentro do prazo[0m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mt-2 flex -space-x-2"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden font-medium select-none bg-gray-100 text-gray-700 border border-gray-200 uppercase rounded-full ring-2 ring-white"[39m
+            [33mstyle[39m=[32m"width: 24px; height: 24px; min-width: 24px; min-height: 24px; font-size: 10px;"[39m
+            [33mtitle[39m=[32m"João Pereira"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"absolute z-0"[39m
+            [36m>[39m
+              [0mJP[0m
+            [36m</span>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</a>[39m
+    [36m</li>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/tickets/TicketKanbanCard.test.tsx:88:27
+     86|   it('AC-05: puts the SLA chips and the agent avatar in the same foote…
+     87|     renderCard({ ...baseTicket, responseSlaStatus: 'ON_TRACK', resolve…
+     88|     const footer = screen.getByTestId('kanban-card-footer');
+       |                           ^
+     89|     expect(footer).toContainElement(screen.getByLabelText(/^Resposta: …
+     90|     expect(footer).toContainElement(screen.getByText('JP'));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  |web| src/components/tickets/TicketKanbanCard.test.tsx > TicketKanbanCard (D7) > AC-05: keeps the footer when only the agent exists, with the avatar pushed to the right
+TestingLibraryElementError: Unable to find an element by: [data-testid="kanban-card-footer"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<li[39m
+      [33mclass[39m=[32m"rounded-[8px] border border-gray-200 bg-white p-3 shadow-xs transition-shadow hover:shadow-sm"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33maria-label[39m=[32m"#AP-2026-0001 - Impressora do segundo andar não liga e o processo de devolução está travado desde ontem"[39m
+        [33mclass[39m=[32m"block rounded-[8px] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"[39m
+        [33mdata-discover[39m=[32m"true"[39m
+        [33mhref[39m=[32m"/tickets/t1"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex items-center justify-between gap-2"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"font-mono text-[12px] font-semibold text-brand-600"[39m
+          [36m>[39m
+            [0m#[0m
+            [0mAP-2026-0001[0m
+          [36m</span>[39m
+          [36m<span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"relative inline-block text-left"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Mais ações"[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200 rounded-[12px]"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-ellipsis-vertical lucide-more-vertical h-4 w-4 text-gray-400"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"1"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"5"[39m
+                    [33mr[39m=[32m"1"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"19"[39m
+                    [33mr[39m=[32m"1"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"mt-1 line-clamp-2 text-[13px] font-medium text-gray-900"[39m
+          [33mtitle[39m=[32m"Impressora do segundo andar não liga e o processo de devolução está travado desde ontem"[39m
+        [36m>[39m
+          [0mImpressora do segundo andar não liga e o processo de devolução está travado desde ontem[0m
+        [36m</p>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mt-2 flex items-center justify-between gap-2"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"truncate text-[12px] text-gray-500"[39m
+          [36m>[39m
+            [0mAcme Corporation[0m
+          [36m</span>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px] text-[12px] font-medium leading-none select-none transition-colors border bg-brand-100/50 text-brand-700 border-brand-200"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mAberto[0m
+            [36m</span>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mt-2 flex -space-x-2"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden font-medium select-none bg-gray-100 text-gray-700 border border-gray-200 uppercase rounded-full ring-2 ring-white"[39m
+            [33mstyle[39m=[32m"width: 24px; height: 24px; min-width: 24px; min-height: 24px; font-size: 10px;"[39m
+            [33mtitle[39m=[32m"João Pereira"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"absolute z-0"[39m
+            [36m>[39m
+              [0mJP[0m
+            [36m</span>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</a>[39m
+    [36m</li>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/tickets/TicketKanbanCard.test.tsx:100:27
+     98|   it('AC-05: keeps the footer when only the agent exists, with the ava…
+     99|     renderCard();
+    100|     const footer = screen.getByTestId('kanban-card-footer');
+       |                           ^
+    101|     expect(footer).toContainElement(screen.getByText('JP'));
+    102|     expect(footer.className).toMatch(/justify-between/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+Warning: command "vitest src/components/ds/EzSlaChip.test.tsx src/components/tickets/TicketKanbanCard.test.tsx" exited with non-zero status code
