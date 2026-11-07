@@ -1,8 +1,8 @@
 {
   "version": 1,
   "phase": "green",
-  "started_at": "2026-11-05T22:22:03.596154+00:00",
-  "finished_at": "2026-11-05T22:22:03.725147+00:00",
+  "started_at": "2026-11-07T15:59:29.162226+00:00",
+  "finished_at": "2026-11-07T15:59:29.295865+00:00",
   "command": [
     "python3",
     "-m",
@@ -14,8 +14,8 @@
     "test_check_tickets_proportion.py",
     "-v"
   ],
-  "base_sha": "29693a2cfd8fc063c29f26267dfc4c3043a5916b",
-  "head_sha": "e29e4ac700d0090b3eb3e58c0804c4e39923e0e2",
+  "base_sha": "ddf4d8ba1343f8a561dde09bdd6660e346c2a2c5",
+  "head_sha": "bfd442dfbc64dbf50600b6c6cba54d7ab55f27c5",
   "exit_code": 0,
   "tests": {
     "scripts/test_check_tickets_proportion.py": "a995b1512287ad00d43aab00be5a763f3908719c817542f766ad49e310011b67"
@@ -45,5 +45,5 @@
     "scripts/tickets_scope.py": "a76b538552e00cef90ebd48934f4d6808b5e70137d8a49f0412fffdfdab4d0a8"
   },
   "log": ".delivery/evidence/DMTE-430-ac02-r2/green.log",
-  "log_sha256": "24e98cc3b2874834280bb81c464cb10058dd1da0d1d59320d495c427b75953fb"
+  "log_sha256": "20626539c44b41d5c4303ca42b0b0492edda8c2471ec8d6deabd782c3cb53ce9"
 }
