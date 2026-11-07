@@ -150,7 +150,7 @@ export function TicketDetailPage() {
                     }}
                     title="Iniciar pré-apontamento"
                     aria-label="Iniciar pré-apontamento"
-                    className="inline-flex items-center justify-center w-9 h-9 rounded-full text-[#00B5A5] hover:bg-teal-50 border border-transparent hover:border-teal-200 cursor-pointer"
+                    className="inline-flex items-center justify-center w-9 h-9 rounded-full text-brand-600 hover:bg-brand-50 border border-transparent hover:border-brand-200 cursor-pointer"
                   >
                     <PlayCircle className="w-7 h-7" />
                   </button>
@@ -161,7 +161,7 @@ export function TicketDetailPage() {
                     onClick={activityTimer.handleStopTimer}
                     title="Parar pré-apontamento"
                     aria-label="Parar pré-apontamento"
-                    className="inline-flex items-center justify-center w-9 h-9 rounded-full text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 cursor-pointer"
+                    className="inline-flex items-center justify-center w-9 h-9 rounded-full text-red-600 hover:bg-red-100 border border-transparent hover:border-red-200 cursor-pointer"
                   >
                     <Square className="w-5 h-5 fill-current" />
                   </button>
@@ -247,7 +247,7 @@ export function TicketDetailPage() {
               <h3 className="text-[16px] font-semibold text-gray-900 border-b border-gray-100 pb-3">
                 Tipo de Atendimento
               </h3>
-              <div className="p-4 rounded-[8px] bg-gray-50 border border-gray-200">
+              <div className="p-4 rounded-[8px] bg-gray-80 border border-gray-200">
                 <span className="text-[14px] text-gray-900 font-medium">
                   Atendimento Remoto
                 </span>
@@ -282,7 +282,7 @@ export function TicketDetailPage() {
               data-testid="tab-panel-comunicacao"
             >
               <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-                <span className="px-3 py-1 text-[13px] font-medium bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200">
+                <span className="px-3 py-1 text-[13px] font-medium bg-brand-50 text-brand-700 rounded-full border border-brand-200">
                   Cliente
                 </span>
                 <span className="px-3 py-1 text-[13px] font-medium text-gray-600 hover:bg-gray-100 rounded-full cursor-pointer">
@@ -319,12 +319,12 @@ export function TicketDetailPage() {
                 </h3>
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-[#00B5A5] hover:bg-[#009E90] rounded-[6px]"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-[6px]"
                 >
                   + Compromisso
                 </button>
               </div>
-              <div className="p-8 text-center bg-gray-50/50 rounded-[8px] border border-dashed border-gray-200 text-gray-500 text-[13px]">
+              <div className="p-8 text-center bg-gray-80/50 rounded-[8px] border border-dashed border-gray-200 text-gray-500 text-[13px]">
                 Nenhum compromisso agendado para este chamado.
               </div>
             </div>
@@ -342,7 +342,7 @@ export function TicketDetailPage() {
                 </h3>
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-[#00B5A5] hover:bg-[#009E90] rounded-[6px]"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-[6px]"
                 >
                   + Valor extra
                 </button>
@@ -351,7 +351,7 @@ export function TicketDetailPage() {
                 <h4 className="text-[14px] font-medium text-gray-700">
                   Valores extras
                 </h4>
-                <div className="p-6 text-center bg-gray-50/50 rounded-[8px] border border-dashed border-gray-200 text-gray-500 text-[13px]">
+                <div className="p-6 text-center bg-gray-80/50 rounded-[8px] border border-dashed border-gray-200 text-gray-500 text-[13px]">
                   Nenhum valor extra cadastrado.
                 </div>
               </div>
@@ -370,12 +370,12 @@ export function TicketDetailPage() {
                 </h3>
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-[#00B5A5] hover:bg-[#009E90] rounded-[6px]"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-[6px]"
                 >
                   + Assinatura
                 </button>
               </div>
-              <div className="p-8 text-center bg-gray-50/50 rounded-[8px] border border-dashed border-gray-200 text-gray-500 text-[13px]">
+              <div className="p-8 text-center bg-gray-80/50 rounded-[8px] border border-dashed border-gray-200 text-gray-500 text-[13px]">
                 Nenhuma assinatura cadastrada.
               </div>
             </div>
@@ -394,19 +394,19 @@ export function TicketDetailPage() {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    className="px-3 py-1.5 text-[12px] font-medium text-gray-700 bg-white border border-gray-200 rounded-[6px] hover:bg-gray-50"
+                    className="px-3 py-1.5 text-[12px] font-medium text-gray-700 bg-white border border-gray-200 rounded-[6px] hover:bg-gray-80"
                   >
                     + Criar issue
                   </button>
                   <button
                     type="button"
-                    className="px-3 py-1.5 text-[12px] font-medium text-gray-700 bg-white border border-gray-200 rounded-[6px] hover:bg-gray-50"
+                    className="px-3 py-1.5 text-[12px] font-medium text-gray-700 bg-white border border-gray-200 rounded-[6px] hover:bg-gray-80"
                   >
                     + Associar issue
                   </button>
                 </div>
               </div>
-              <div className="p-8 text-center bg-gray-50/50 rounded-[8px] border border-dashed border-gray-200 text-gray-500 text-[13px]">
+              <div className="p-8 text-center bg-gray-80/50 rounded-[8px] border border-dashed border-gray-200 text-gray-500 text-[13px]">
                 Não há dados vinculados do GitHub.
               </div>
             </div>

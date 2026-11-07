@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "delivery": "DMTE-427",
+  "repository": "alfredo-maia/aponta",
+  "github_issue": 120,
+  "multica_id": "01a1a2ef-0513-7170-8abc-490e1d79dbfa",
+  "cycle": "2026-10-26/2026-11-08",
+  "tier": 3,
+  "base_sha": "ddf4d8ba1343f8a561dde09bdd6660e346c2a2c5",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "Paleta única: nenhum hex literal nem classe de paleta fora do DS (brand-*/gray-*/green-*/yellow-*/red-*/petroleum-*, nos graus que o DS define — regra geral, não lista fechada de nomes) nos arquivos da aba Tickets.",
+      "tests": [
+        "scripts/test_check_tickets_palette.py::TicketsPaletteRealTreeTest::test_no_palette_violations_in_real_tickets_tab"
+      ],
+      "tdd_required": false,
+      "reason": "Dois ciclos RED/GREEN reais e independentes, preservados fora do par oficial por limitação do schema (um único tdd.red/tdd.green por entrega): (1) .delivery/evidence/DMTE-430/{red,green}.json, capturado antes do checker de AC-02 existir, contra a lista inicial (teal/emerald/rose/gray fora de escala); (2) .delivery/evidence/DMTE-430-ac01-qa-fix/{red,green}.json, capturado depois da revisão independente apontar que a lista inicial deixava passar outras famílias fora do DS (blue-*/amber-*) — RED real com o checker generalizado contra a árvore ainda não corrigida (22 achados), GREEN depois de normalizar TicketCsat.tsx/TicketForm.tsx/TicketWorklogs.tsx/TicketKanban.tsx. Checagem estática roda em CI (scripts/check_tickets_palette.py, .github/workflows/ci.yml) a cada PR, então uma regressão futura é pega independentemente deste manifesto."
+    },
+    {
+      "id": "AC-02",
+      "description": "Tokens de proporção (D6): altura de controle, raio e sombra seguem a escala fechada nesta fatia; sem controles de 34px e 38px lado a lado na mesma barra.",
+      "tests": [
+        "scripts/test_check_tickets_proportion.py::TicketsProportionRealTreeTest::test_no_ad_hoc_control_heights_in_real_tickets_tab",
+        "scripts/test_check_tickets_proportion.py::TicketsProportionCheckTest::test_arbitrary_radius_on_tokenized_control_is_a_violation"
+      ]
+    },
+    {
+      "id": "AC-15",
+      "description": "Parcial: tokens de proporção documentados em story do DS, com teste do componente de documentação.",
+      "tests": [
+        "apps/web/src/components/ds/EzDesignTokens.test.tsx"
+      ],
+      "tdd_required": false,
+      "reason": "Componente de documentação (EzDesignTokens) sem lógica condicional: 3/3 testes e 3 stories de presença de conteúdo verdes (pnpm exec nx run web:test -- EzDesignTokens) e build do Storybook verde (pnpm exec nx run web:build-storybook); não é um ciclo comportamental RED/GREEN autônomo. Cobertura completa de AC-15 (demais componentes/telas tocados nas fatias 2–6) fica para essas fatias."
+    },
+    {
+      "id": "AC-16",
+      "description": "Sem mudança de API, banco, permissão ou dado: o diff não toca apps/api.",
+      "tests": [
+        "diff desta entrega (changed_files) não contém nenhum caminho apps/api/"
+      ],
+      "tdd_required": false,
+      "reason": "Verificado por inspeção do diff/changed_files desta entrega (git status/diff contra o base_sha): nenhum arquivo em apps/api foi alterado. Não é comportamento de produto a testar."
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-427.md",
+  "changed_files": [
+    ".delivery/deliveries/DMTE-427.json",
+    ".delivery/evidence/DMTE-430-ac01-qa-fix/green.json",
+    ".delivery/evidence/DMTE-430-ac01-qa-fix/green.log",
+    ".delivery/evidence/DMTE-430-ac01-qa-fix/red.json",
+    ".delivery/evidence/DMTE-430-ac01-qa-fix/red.log",
+    ".delivery/evidence/DMTE-430-ac02-r2/green.json",
+    ".delivery/evidence/DMTE-430-ac02-r2/green.log",
+    ".delivery/evidence/DMTE-430-ac02-r2/red.json",
+    ".delivery/evidence/DMTE-430-ac02-r2/red.log",
+    ".delivery/evidence/DMTE-430-ac02/green.json",
+    ".delivery/evidence/DMTE-430-ac02/green.log",
+    ".delivery/evidence/DMTE-430-ac02/red.json",
+    ".delivery/evidence/DMTE-430-ac02/red.log",
+    ".delivery/evidence/DMTE-430/green.json",
+    ".delivery/evidence/DMTE-430/green.log",
+    ".delivery/evidence/DMTE-430/red.json",
+    ".delivery/evidence/DMTE-430/red.log",
+    ".delivery/registry.json",
+    ".github/workflows/ci.yml",
+    "apps/web/src/components/ds/EzDesignTokens.stories.tsx",
+    "apps/web/src/components/ds/EzDesignTokens.test.tsx",
+    "apps/web/src/components/ds/EzDesignTokens.tsx",
+    "apps/web/src/components/ds/index.ts",
+    "apps/web/src/components/tickets/TicketCsat.tsx",
+    "apps/web/src/components/tickets/TicketForm.tsx",
+    "apps/web/src/components/tickets/TicketFormMode.tsx",
+    "apps/web/src/components/tickets/TicketKanban.tsx",
+    "apps/web/src/components/tickets/TicketList.tsx",
+    "apps/web/src/components/tickets/TicketWorklogs.tsx",
+    "apps/web/src/components/tickets/TicketsHeader.tsx",
+    "apps/web/src/pages/TicketDetailPage.tsx",
+    "apps/web/src/styles.css",
+    "docs/adr/0001-paleta-unica-brand-na-aba-tickets.md",
+    "docs/architecture/03-sankhya-ds-parity.md",
+    "docs/delivery/specs/DMTE-427.md",
+    "scripts/check_tickets_palette.py",
+    "scripts/check_tickets_proportion.py",
+    "scripts/test_check_tickets_palette.py",
+    "scripts/test_check_tickets_proportion.py",
+    "scripts/test_tickets_scope.py",
+    "scripts/tickets_scope.py"
+  ],
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-430-ac02-r2/red.json",
+    "green": ".delivery/evidence/DMTE-430-ac02-r2/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzSpinner",
+      "EzAlert",
+      "EzTabs"
+    ],
+    "stories": [
+      "apps/web/src/components/ds/EzDesignTokens.stories.tsx"
+    ],
+    "exception": "Os arquivos da aba Tickets tocados nesta fatia (TicketsHeader/TicketKanban/TicketList/TicketWorklogs/TicketFormMode/TicketDetailPage) usam controles HTML nativos (select/button/input) estilizados com utilities Tailwind, não wrappers EzButton/EzTextInput — convenção já existente antes desta fatia, preservada para não mudar comportamento/testids fora do escopo (D2: só visual/layout). Os novos tokens de altura/raio/sombra (--control-height-md/compact, --radius-control, --radius-card, --shadow-card, --shadow-popover em apps/web/src/styles.css) reaproveitam os valores já medidos nos primitivos EzButton/EzTextInput/EzSearch/EzComboBox/EzDateInput/EzCardItem, documentados na nova story EzDesignTokens e em docs/architecture/03-sankhya-ds-parity.md; migrar esses arquivos para os wrappers EzButton/EzTextInput é trabalho de fatia própria, fora do recorte de DMTE-430."
+  }
+}

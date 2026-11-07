@@ -41,6 +41,11 @@ jobs:
       - name: Generate Prisma Client
         run: pnpm exec nx run api:prisma-generate
 
+      - name: Tickets palette and proportion checks (AC-01/AC-02 DMTE-427)
+        run: |
+          python3 scripts/check_tickets_palette.py .
+          python3 scripts/check_tickets_proportion.py .
+
       - name: Lint
         run: pnpm exec nx run-many -t lint --projects=api,web,web-e2e
 

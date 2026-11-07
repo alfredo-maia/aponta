@@ -40,7 +40,7 @@ export function TicketCsat({ ticket }: TicketCsatProps) {
             key={star}
             type="button"
             className={`${
-              star <= currentScore ? 'text-blue-500' : 'text-gray-300'
+              star <= currentScore ? 'text-brand-600' : 'text-gray-300'
             } ${interactive ? 'hover:scale-110 transition-transform' : 'cursor-default'}`}
             onClick={() => {
               if (interactive) setScore(star);
@@ -62,12 +62,12 @@ export function TicketCsat({ ticket }: TicketCsatProps) {
   // Visualizacao da nota dada
   if (hasRated && !isEditing) {
     return (
-      <div className="mt-6 p-4 rounded-lg bg-blue-50 border border-blue-100 flex flex-col sm:flex-row sm:justify-between items-start sm:items-center">
+      <div className="mt-6 p-4 rounded-lg bg-brand-50 border border-brand-100 flex flex-col sm:flex-row sm:justify-between items-start sm:items-center">
         <div>
-          <h3 className="text-sm font-semibold text-blue-900 mb-1">Avaliação do Chamado</h3>
+          <h3 className="text-sm font-semibold text-brand-900 mb-1">Avaliação do Chamado</h3>
           {renderStars(ticket.csatScore as number, false)}
           {ticket.csatComment && (
-            <p className="text-sm text-blue-800 mt-2 italic">"{ticket.csatComment}"</p>
+            <p className="text-sm text-brand-800 mt-2 italic">"{ticket.csatComment}"</p>
           )}
         </div>
         {canRate && (
@@ -77,7 +77,7 @@ export function TicketCsat({ ticket }: TicketCsatProps) {
               setComment(ticket.csatComment || '');
               setIsEditing(true);
             }}
-            className="mt-4 sm:mt-0 text-sm px-3 py-1 bg-white border border-blue-200 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+            className="mt-4 sm:mt-0 text-sm px-3 py-1 bg-white border border-brand-200 text-brand-600 rounded hover:bg-brand-100 transition-colors"
           >
             Alterar Nota
           </button>
@@ -129,7 +129,7 @@ export function TicketCsat({ ticket }: TicketCsatProps) {
           <button
             type="submit"
             disabled={mutation.isPending}
-            className="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="px-4 py-2 bg-brand-600 text-white rounded text-sm hover:bg-brand-700 disabled:opacity-50 transition-colors"
           >
             {mutation.isPending ? 'Enviando...' : 'Enviar Avaliação'}
           </button>

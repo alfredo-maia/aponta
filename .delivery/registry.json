@@ -13,6 +13,20 @@
     }
   ],
   "deliveries": {
+    "DMTE-427": {
+      "delivery": "DMTE-427",
+      "repository": "alfredo-maia/aponta",
+      "github_issue": 120,
+      "multica_id": "01a1a2ef-0513-7170-8abc-490e1d79dbfa",
+      "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-427",
+      "kind": "delivery",
+      "tier": 3,
+      "state": "Em implementação",
+      "cycle": "2026-10-26/2026-11-08",
+      "epic": null,
+      "title": "Refinar layout da aba Tickets: ajustar disposição e cores",
+      "note": "SPEC v2 e ADR 0001 em plan/dmte-427 (SHA 26aaf08eb82781ab629eb4e08be6779f119429bb). Sete fatias técnicas em série (WIP 1), delegadas como filhas Multica do pai DMTE-427; sem issue GitHub por fatia. Fatia 1 (DMTE-430, fundação visual) em implementação."
+    },
     "DMTE-159": {
       "delivery": "DMTE-159",
       "repository": "alfredo-maia/aponta",

@@ -68,3 +68,39 @@ compartilhado seria abstração prematura com um único consumidor real. Decisã
 replicar esta convenção manualmente em cada tela que precisar dela até existir
 um **segundo** caso de uso real — nesse momento, extrair para o `EzEntityForm`
 (adicionando `readOnly` ao schema de campo) passa a valer a pena.
+
+## Paleta única e escala de proporção na aba Tickets (DMTE-427 fatia 1)
+
+ADR `docs/adr/0001-paleta-unica-brand-na-aba-tickets.md`. Decisão I1/D5/D6,
+fechada pelo Developer na fatia 1 com medidas reais, não com os valores
+hipotéticos (36px/8px) da SPEC v2 — a SPEC marcava esses números como
+`[Proposta]`, a serem fixados por quem implementasse com a renderização real.
+
+- **Paleta**: a aba Tickets (`apps/web/src/pages/Ticket*.tsx`,
+  `CreateTicketPage.tsx`, `apps/web/src/components/tickets/*.tsx`) usa somente
+  `brand-*` e as paletas semânticas do DS (`gray-*`, `green-*`, `yellow-*`,
+  `red-*`, `petroleum-*`). Sem hex literal, sem `teal-*`/`emerald-*`/`rose-*`,
+  sem grau de `gray` fora da escala do DS (`gray-50`, `gray-950` etc. — o DS
+  define apenas 70/80/90/100/200…900/1000). Verificado em CI por
+  `scripts/check_tickets_palette.py` (AC-01).
+- **Altura de controle** (`--control-height-md: 42px`,
+  `--control-height-compact: 32px`, em `apps/web/src/styles.css`): os mesmos
+  valores que `EzButton`/`EzTextInput`/`EzSearch`/`EzComboBox`/`EzDateInput`
+  já usam como tamanho "medium"/"small"/"slim" — nenhum valor novo. A
+  inconsistência real (`h-[34px]`/`h-[38px]` ad hoc na toolbar do Kanban, da
+  Lista e do cabeçalho) foi normalizada para esses dois. Verificado em CI por
+  `scripts/check_tickets_proportion.py` (AC-02).
+- **Raio e sombra** (`--radius-control: 10px`, `--radius-card: 16px`,
+  `--shadow-card`, `--shadow-popover`, também em `styles.css`, geram as
+  utilities `rounded-control`, `rounded-card`, `shadow-card`,
+  `shadow-popover`): documentados nesta fatia, com `rounded-control` e
+  `shadow-popover` já aplicados aos controles e popovers da toolbar que
+  tiveram a altura normalizada (Mesa, Ordenar, Configurações e seus menus no
+  Kanban; busca e Busca avançada no cabeçalho; Exibir colunas na Lista).
+  `rounded-card` e `shadow-card` ficam definidos, documentados na story e sem
+  consumidor em código de produto ainda — aplicá-los a cartões do Kanban,
+  chips e badges de outras superfícies da aba é trabalho das fatias 2–6 (cada
+  uma já toca essas superfícies com seus próprios ACs); não foi replicado às
+  cegas aqui sem captura de tela para comparar.
+- Story de documentação: `apps/web/src/components/ds/EzDesignTokens.stories.tsx`
+  (`DS/Tokens de proporção (D6)`).

@@ -713,7 +713,7 @@ export function TicketWorklogs({
 
           <div className="flex flex-wrap items-center gap-3">
             {/* Activity Timer Controls */}
-            <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-[6px] text-[13px]">
+            <div className="flex items-center gap-1.5 bg-gray-80 border border-gray-200 px-2.5 py-1 rounded-[6px] text-[13px]">
               <Clock className="w-3.5 h-3.5 text-gray-500" />
               <span
                 className="font-mono font-bold text-gray-800 min-w-[62px]"
@@ -733,7 +733,7 @@ export function TicketWorklogs({
                       },
                     );
                   }}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded cursor-pointer"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium text-green-700 bg-green-100 hover:bg-green-200 border border-green-300 rounded cursor-pointer"
                   title="Iniciar cronômetro desta atividade"
                 >
                   <Play className="w-3 h-3 fill-current" />
@@ -746,7 +746,7 @@ export function TicketWorklogs({
                       type="button"
                       data-testid="worklog-timer-resume-btn"
                       onClick={handleResumeTimer}
-                      className="inline-flex items-center px-1.5 py-0.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded cursor-pointer"
+                      className="inline-flex items-center px-1.5 py-0.5 text-[11px] font-medium text-green-700 bg-green-100 hover:bg-green-200 border border-green-300 rounded cursor-pointer"
                       title="Retomar cronômetro"
                     >
                       <Play className="w-3 h-3 fill-current" />
@@ -756,7 +756,7 @@ export function TicketWorklogs({
                       type="button"
                       data-testid="worklog-timer-pause-btn"
                       onClick={handlePauseTimer}
-                      className="inline-flex items-center px-1.5 py-0.5 text-[11px] font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded cursor-pointer"
+                      className="inline-flex items-center px-1.5 py-0.5 text-[11px] font-medium text-yellow-700 bg-yellow-100 hover:bg-yellow-200 border border-yellow-300 rounded cursor-pointer"
                       title="Pausar cronômetro"
                     >
                       <Pause className="w-3 h-3 fill-current" />
@@ -794,7 +794,7 @@ export function TicketWorklogs({
                 <span className="text-gray-400">|</span>
                 <span className="text-gray-600">
                   Faturável:{' '}
-                  <strong className="text-emerald-700">
+                  <strong className="text-green-700">
                     {formatWorklogMinutes(billableMinutes)}
                   </strong>
                 </span>
@@ -803,7 +803,7 @@ export function TicketWorklogs({
                     <span className="text-gray-400">|</span>
                     <span className="text-gray-600">
                       Não faturável:{' '}
-                      <strong className="text-amber-700">
+                      <strong className="text-yellow-700">
                         {formatWorklogMinutes(nonBillableMinutes)}
                       </strong>
                     </span>
@@ -1019,7 +1019,7 @@ export function TicketWorklogs({
                         }
                         disabled
                         onChange={(e) => setBillable(e.target.checked)}
-                        className="w-4 h-4 rounded border-gray-300 text-[#00B5A5] focus:ring-[#00B5A5]"
+                        className="w-4 h-4 rounded border-gray-300 text-brand-600 focus:ring-brand-600"
                       />
                       <span>Faturável ao cliente</span>
                     </label>
@@ -1085,7 +1085,7 @@ export function TicketWorklogs({
                       checked={!['GUARANTEE', 'BONUS'].includes(valuationType)}
                       disabled
                       onChange={(e) => setBillable(e.target.checked)}
-                      className="w-4 h-4 rounded border-gray-300 text-[#00B5A5] focus:ring-[#00B5A5]"
+                      className="w-4 h-4 rounded border-gray-300 text-brand-600 focus:ring-brand-600"
                     />
                     <span>Faturável ao cliente</span>
                   </label>
@@ -1179,7 +1179,7 @@ export function TicketWorklogs({
               />
               <div className="flex items-center justify-between text-[11px] text-gray-400">
                 <span className="text-gray-500 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
                   Corretor ortográfico ativo (pt-BR)
                 </span>
                 <span>
@@ -1212,7 +1212,7 @@ export function TicketWorklogs({
                   data-testid="worklog-send-as-reply-checkbox"
                   checked={sendAsReply}
                   onChange={(e) => setSendAsReply(e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300 text-[#00B5A5] focus:ring-[#00B5A5]"
+                  className="w-4 h-4 rounded border-gray-300 text-brand-600 focus:ring-brand-600"
                 />
                 <span>Enviar apontamento também como resposta</span>
               </label>
@@ -1262,7 +1262,7 @@ export function TicketWorklogs({
             <div className="overflow-x-auto border border-gray-200 rounded-[6px]">
               <table className="w-full text-left border-collapse text-[12px]">
                 <thead>
-                  <tr className="bg-gray-50/80 border-b border-gray-200 text-gray-500 text-[11px] font-medium">
+                  <tr className="bg-gray-80/80 border-b border-gray-200 text-gray-500 text-[11px] font-medium">
                     <th className="py-1.5 px-2">Atendente</th>
                     <th className="py-1.5 px-2">Data do pré-apontamento</th>
                     <th className="py-1.5 px-2">Início</th>
@@ -1322,7 +1322,7 @@ export function TicketWorklogs({
                                   type="button"
                                   data-testid="worklog-pre-resume-btn"
                                   onClick={handleResumeTimer}
-                                  className="p-1 text-emerald-600 hover:bg-emerald-50 rounded cursor-pointer"
+                                  className="p-1 text-green-600 hover:bg-green-100 rounded cursor-pointer"
                                   title="Retomar"
                                 >
                                   <Play className="w-3.5 h-3.5 fill-current" />
@@ -1332,7 +1332,7 @@ export function TicketWorklogs({
                                   type="button"
                                   data-testid="worklog-pre-pause-btn"
                                   onClick={handlePauseTimer}
-                                  className="p-1 text-amber-600 hover:bg-amber-50 rounded cursor-pointer"
+                                  className="p-1 text-yellow-600 hover:bg-yellow-100 rounded cursor-pointer"
                                   title="Pausar"
                                 >
                                   <Pause className="w-3.5 h-3.5 fill-current" />
@@ -1353,7 +1353,7 @@ export function TicketWorklogs({
                               type="button"
                               data-testid="worklog-pre-delete-btn"
                               onClick={() => void handleCancelTimer(item.id)}
-                              className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded cursor-pointer"
+                              className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-100 rounded cursor-pointer"
                               title="Remover pré-apontamento"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -1398,7 +1398,7 @@ export function TicketWorklogs({
                       'inline-flex items-center gap-1 px-2.5 py-1 text-[12px] font-medium rounded-[6px] border cursor-pointer',
                       filterAuthorId || filterAttendance
                         ? 'text-brand-700 bg-brand-50 border-brand-200'
-                        : 'text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border-gray-200',
+                        : 'text-gray-600 hover:text-gray-900 bg-gray-80 hover:bg-gray-100 border-gray-200',
                     )}
                     title="Filtrar histórico"
                   >
@@ -1457,7 +1457,7 @@ export function TicketWorklogs({
                 type="button"
                 data-testid="worklog-expand-all-btn"
                 onClick={toggleExpandAll}
-                className="inline-flex items-center gap-1 px-2.5 py-1 text-[12px] font-medium text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-[6px] border border-gray-200 cursor-pointer"
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-[12px] font-medium text-gray-600 hover:text-gray-900 bg-gray-80 hover:bg-gray-100 rounded-[6px] border border-gray-200 cursor-pointer"
               >
                 {allRowsExpanded ? (
                   <>
@@ -1488,7 +1488,7 @@ export function TicketWorklogs({
           )}
 
           {!isLoading && !isError && worklogs.length === 0 && (
-            <p className="text-[13px] text-gray-500 italic text-center py-6 bg-gray-50/50 rounded-[6px] border border-dashed border-gray-200">
+            <p className="text-[13px] text-gray-500 italic text-center py-6 bg-gray-80/50 rounded-[6px] border border-dashed border-gray-200">
               Nenhum apontamento de horas registrado neste chamado até o
               momento.
             </p>
@@ -1498,7 +1498,7 @@ export function TicketWorklogs({
             <div className="overflow-x-auto border border-gray-200 rounded-[8px]">
               <table className="w-full text-left border-collapse text-[13px]">
                 <thead>
-                  <tr className="bg-gray-50/80 border-b border-gray-200 text-gray-500 text-[12px] font-medium">
+                  <tr className="bg-gray-80/80 border-b border-gray-200 text-gray-500 text-[12px] font-medium">
                     <th className="py-2.5 px-3 w-8"></th>
                     <th className="py-2.5 px-3">Atendente</th>
                     <th className="py-2.5 px-3">
@@ -1556,7 +1556,7 @@ export function TicketWorklogs({
                       <Fragment key={wl.id}>
                         <tr
                           data-testid={`worklog-item-${wl.id}`}
-                          className="hover:bg-gray-50/60 transition-colors group"
+                          className="hover:bg-gray-80/60 transition-colors group"
                         >
                           <td className="py-3 px-3 text-center">
                             <button
@@ -1593,7 +1593,7 @@ export function TicketWorklogs({
                               <span className="text-gray-700">
                                 {formattedDate} {formattedRange}
                               </span>
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[11px] font-mono font-bold text-white bg-[#00B5A5]">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[11px] font-mono font-bold text-white bg-brand-600">
                                 {formatDurationBadge(wl.minutes)}
                               </span>
                             </div>
@@ -1646,7 +1646,7 @@ export function TicketWorklogs({
                                 data-testid={`worklog-delete-button-${wl.id}`}
                                 onClick={() => handleDelete(wl.id)}
                                 disabled={deleteMutation.isPending}
-                                className="p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-red-50 transition-colors shrink-0 cursor-pointer"
+                                className="p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-red-100 transition-colors shrink-0 cursor-pointer"
                                 title="Excluir apontamento"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -1657,7 +1657,7 @@ export function TicketWorklogs({
                         {isRowExpanded && (
                           <tr
                             data-testid={`worklog-detail-${wl.id}`}
-                            className="bg-gray-50/70"
+                            className="bg-gray-80/70"
                           >
                             <td colSpan={isAdmin ? 8 : 7} className="px-4 py-3">
                               <div className="text-[12px] bg-white p-3 rounded-[6px] border border-gray-200 text-gray-800">
@@ -1680,7 +1680,7 @@ export function TicketWorklogs({
                   })}
                 </tbody>
                 <tfoot>
-                  <tr className="bg-gray-50 border-t border-gray-200 text-[12px]">
+                  <tr className="bg-gray-80 border-t border-gray-200 text-[12px]">
                     <td
                       colSpan={isAdmin ? 6 : 7}
                       className="py-2.5 px-3 font-medium text-gray-600"
