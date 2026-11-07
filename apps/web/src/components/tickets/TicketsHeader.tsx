@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Search } from 'lucide-react';
-import { cn } from '../ds/utils';
+import { EzSegmented } from '../ds';
 
 export type TicketsViewMode = 'list' | 'kanban';
 
@@ -47,32 +47,15 @@ export function TicketsHeader({
       <div className="flex shrink-0 items-center gap-4">
         <h1 className="text-[20px] font-semibold text-gray-900">Tickets</h1>
         {!isClient && (
-          <div className="flex shrink-0 items-center justify-center rounded-[8px] border border-gray-200 bg-gray-90 p-1 text-sm">
-            <button
-              type="button"
-              className={cn(
-                'rounded-[6px] px-3 py-1 font-medium transition-colors cursor-pointer',
-                viewMode === 'list'
-                  ? 'bg-white text-brand-600 shadow-sm border border-gray-200'
-                  : 'text-gray-500 hover:text-gray-900 border border-transparent',
-              )}
-              onClick={() => onViewModeChange('list')}
-            >
-              Lista
-            </button>
-            <button
-              type="button"
-              className={cn(
-                'rounded-[6px] px-3 py-1 font-medium transition-colors cursor-pointer',
-                viewMode === 'kanban'
-                  ? 'bg-white text-brand-600 shadow-sm border border-gray-200'
-                  : 'text-gray-500 hover:text-gray-900 border border-transparent',
-              )}
-              onClick={() => onViewModeChange('kanban')}
-            >
-              Kanban
-            </button>
-          </div>
+          <EzSegmented
+            aria-label="Visualização"
+            value={viewMode}
+            onChange={onViewModeChange}
+            options={[
+              { value: 'list', label: 'Lista' },
+              { value: 'kanban', label: 'Kanban' },
+            ]}
+          />
         )}
       </div>
 

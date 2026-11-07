@@ -115,3 +115,12 @@ O cartão do Kanban mostrava o SLA como pílulas largas ("Resposta: Dentro do pr
 - `SlaBadge` continua no detalhe do ticket e passa a delegar ao chip quando o detalhe for tratado (fatia 5).
 - Story: `EzSlaChip.stories.tsx`. Testes: `EzSlaChip.test.tsx`.
 - Coluna do Kanban com 290px (antes 320px, `w-80`).
+
+## Controle segmentado Lista/Kanban (DMTE-427 fatia 3)
+
+O alternador Lista/Kanban do cabeçalho de Tickets era um par de botões com classes próprias, sem estado exposto a leitor de tela. A fatia 3 troca isso por `EzSegmented` (`apps/web/src/components/ds/EzSegmented.tsx`).
+
+- Verificado antes de criar (I2 da SPEC): `EzTabs` não cobre o caso. Ele expõe `role="tab"` e `aria-selected`, o que pressupõe painéis de aba, e o alternador troca a visão do mesmo conteúdo. As variantes `line` e `pills` também não têm o formato segmentado.
+- `EzSegmented` é um grupo nomeado (`role="group"` com `aria-label`) de botões com `aria-pressed`, altura do token `--control-height-md` (alinhado com Buscar e Busca avançada) e anel de foco visível. Opção pode ser desabilitada.
+- `EzTabs` não foi alterado. Os testes que buscavam os botões "Lista" e "Kanban" por papel `button` seguem valendo.
+- Story: `EzSegmented.stories.tsx`. Testes: `EzSegmented.test.tsx` (5 casos), `TicketsHeader.test.tsx` e `TicketsPage.test.tsx`.

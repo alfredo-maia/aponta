@@ -186,8 +186,11 @@ describe('TicketsPage', () => {
 
     expect(await screen.findByRole('heading', { name: 'Aberto' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Kanban' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Kanban' })).toHaveAttribute('aria-pressed', 'true');
 
     await user.click(screen.getByRole('button', { name: 'Lista' }));
+    expect(screen.getByRole('button', { name: 'Lista' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Kanban' })).toHaveAttribute('aria-pressed', 'false');
 
     // Switching to List view renders the ticket cards as a flat list
     // instead of Kanban columns; the Kanban-only "Aberto" column heading

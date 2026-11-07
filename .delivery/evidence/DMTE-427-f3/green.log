@@ -1,0 +1,28 @@
+
+> nx run web:test src/components/ds/EzSegmented.test.tsx src/components/tickets/TicketsHeader.test.tsx src/pages/TicketsPage.test.tsx
+
+> vitest src/components/ds/EzSegmented.test.tsx src/components/tickets/TicketsHeader.test.tsx src/pages/TicketsPage.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-430-31f270e18a18/workdir/aponta/apps/web
+
+ ✓ |web| src/components/ds/EzSegmented.test.tsx (5 tests) 351ms
+ ✓ |web| src/components/tickets/TicketsHeader.test.tsx (6 tests) 786ms
+     ✓ debounces typed search text before calling onSearchChange  481ms
+ ✓ |web| src/pages/TicketsPage.test.tsx (21 tests) 2304ms
+     ✓ reflects a search typed in the header back into the URL (bookmarkable/shareable)  610ms
+
+ Test Files  3 passed (3)
+      Tests  32 passed (32)
+   Start at  20:35:25
+   Duration  5.33s (transform 2.43s, setup 292ms, import 4.33s, tests 3.44s, environment 1.64s)
+
+
+
+
+ NX   Successfully ran target test for project web
+
+
+stderr | src/pages/TicketsPage.test.tsx > TicketsPage > navigates to /tickets/search when "Busca avançada" is clicked (AC3)
+No routes matched location "/tickets/search" 
+
