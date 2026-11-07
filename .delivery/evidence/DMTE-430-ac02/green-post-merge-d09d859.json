@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-05T19:05:50.882840+00:00",
+  "finished_at": "2026-11-05T19:05:50.970726+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_check_tickets_proportion.py",
+    "-v"
+  ],
+  "base_sha": "29693a2cfd8fc063c29f26267dfc4c3043a5916b",
+  "head_sha": "d09d85906bcea18dec3ea365ce677cda5531c659",
+  "exit_code": 0,
+  "tests": {
+    "scripts/test_check_tickets_proportion.py": "a983eea84ff95d9efbccadc324fb8e9f0e4892c7b536bfac28ac9f9861c8c4a2"
+  },
+  "criteria": [
+    "AC-02"
+  ],
+  "source_hashes": {
+    ".agents/skills/aponta-flow/SKILL.md": "dbc25f8a8ee44b9b950f7822d92f9e7580744ae95499f745078124879418f0d0",
+    ".agents/skills/aponta-flow/references/engineering-workflow.md": "61ba5cfd81040344334187e69f2beab0bde9ac17924c06b4bead713f49b119f3",
+    ".agents/skills/aponta-flow/references/issue-tracker.md": "62ba4f8d859135d4401fa15773e2732460a45fb5eef8400b55cc59c122820240",
+    ".agents/skills/aponta-flow/references/matt-workflow.json": "e0c896bde1b6cfb31d02748297dcb69307e611590f9ac3d339feb55411a885a2",
+    ".agents/skills/aponta-sdd/references/engineering-workflow.md": "61ba5cfd81040344334187e69f2beab0bde9ac17924c06b4bead713f49b119f3",
+    ".agents/skills/aponta-sdd/references/issue-tracker.md": "62ba4f8d859135d4401fa15773e2732460a45fb5eef8400b55cc59c122820240",
+    ".agents/skills/aponta-sdd/references/matt-workflow.json": "e0c896bde1b6cfb31d02748297dcb69307e611590f9ac3d339feb55411a885a2",
+    "apps/web/src/components/ds/EzDesignTokens.stories.tsx": "31b431eb5bcb9f55c8ca17bb26b824e734b7f2b3b2a43a7cfe3d3ccba61881f4",
+    "apps/web/src/components/ds/EzDesignTokens.test.tsx": "ec3cffc13be1fcfb7b3f71949eec8424700afbae5e4aeac8825fa739e8bc3f6d",
+    "apps/web/src/components/ds/EzDesignTokens.tsx": "52df418ddea8777620c5a280326f9567639be0df69bfd25113ec3f5a721ae31a",
+    "apps/web/src/components/ds/index.ts": "677f5ff90d9ca05bc2811decfc2ee1e767ce0848b77256f5084721a7085fc70b",
+    "apps/web/src/components/tickets/TicketCsat.tsx": "d90bfd2e239264b23a02821ba950752c74e605cb23705e0408301cdfaa1ab2bc",
+    "apps/web/src/components/tickets/TicketForm.tsx": "63ba2fe58fea2a7f56a77436c5859241906b4aff58d977bb59526af2197b3eb7",
+    "apps/web/src/components/tickets/TicketFormMode.tsx": "714b8a96f3f9a2a21d647ccd3a1c77b3aeb77cb239ae0ff89601e6e34d41c60c",
+    "apps/web/src/components/tickets/TicketKanban.tsx": "4ba41e8e7280b3fc456f35b599f4e41286e3eca0410be0924d445e5ab9648354",
+    "apps/web/src/components/tickets/TicketList.tsx": "cbe069841bd6c543b387fadb88d20fce189ca9a4f27d3b90954888db46fefa6a",
+    "apps/web/src/components/tickets/TicketWorklogs.tsx": "6fc999309e1e27b061399806b1486f758022f52a36e6dad25b76eadcf05f6cff",
+    "apps/web/src/components/tickets/TicketsHeader.tsx": "6dab2aa3755f06058528a8e2bdf62e1353de2ac52210c477d56188a5d67abd5c",
+    "apps/web/src/pages/TicketDetailPage.tsx": "0b5712da1852da1341486782fc69ffe9a411df9888b08e7a0b53434465595061",
+    "apps/web/src/styles.css": "2a6d590d036d044cfa6ec0d557a4ee1c9d2b170d8aaf3597c3803433dd80170a",
+    "scripts/aponta_delivery.py": "1d8ab69c208e67d0ca6fafd822344813b170e0099780bbac77a9afa680005b15",
+    "scripts/check_tickets_palette.py": "7846a068b30866c9a8934abfc9b227da3f684899a54d3076776ebb98aea422f7",
+    "scripts/check_tickets_proportion.py": "7e05433454781a701b98da605ea21389a44703d5f01c32f126f8a66891cd071b",
+    "scripts/publicar_qa.py": "beb3ae529f5858087ff30077495dccc763eab94821bd3ef35d6db2b723f28d36",
+    "scripts/test_aponta_delivery.py": "67f3afc805443becaa76b2e4bb3a17bf063c77f55669288ddbde99c97a541e93",
+    "scripts/test_check_tickets_palette.py": "37e74487ec5a954988b0873f3c97fd239cb625435e3b80350b20b142ee715b73",
+    "scripts/test_check_tickets_proportion.py": "a983eea84ff95d9efbccadc324fb8e9f0e4892c7b536bfac28ac9f9861c8c4a2",
+    "scripts/test_publicar_qa.py": "a2c9ce28b197ed9e2286bce7ae15b405d681ee605fbe8bae63d5c29a3f7251fe",
+    "scripts/test_tickets_scope.py": "e96a70b98729163add62cd286def6c8c6e0556d1ff7fec808de88c1de93271cd",
+    "scripts/tickets_scope.py": "a76b538552e00cef90ebd48934f4d6808b5e70137d8a49f0412fffdfdab4d0a8"
+  },
+  "log": ".delivery/evidence/DMTE-430-ac02/green-post-merge-d09d859.log",
+  "log_sha256": "44422b302b1c5ccebdcae63d2a4a65821e774ec58fb9859852e0d79d30632d77"
+}

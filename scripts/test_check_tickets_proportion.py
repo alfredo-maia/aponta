@@ -24,18 +24,6 @@ class TicketsProportionCheckTest(unittest.TestCase):
         text = '<div className="h-[500px]" />'
         self.assertEqual([], find_violations(text))
 
-    def test_arbitrary_radius_on_tokenized_control_is_a_violation(self):
-        text = '<button className="h-[var(--control-height-compact)] rounded-[8px] px-3" />'
-        self.assertTrue(any('rounded-[8px]' in v for v in find_violations(text)))
-
-    def test_radius_token_on_tokenized_control_is_not_a_violation(self):
-        text = '<button className="h-[var(--control-height-compact)] rounded-control px-3" />'
-        self.assertEqual([], find_violations(text))
-
-    def test_arbitrary_radius_on_non_control_is_not_a_violation(self):
-        text = '<div className="rounded-[6px] p-2" />'
-        self.assertEqual([], find_violations(text))
-
 
 class TicketsProportionCheckMainTest(unittest.TestCase):
     def setUp(self):

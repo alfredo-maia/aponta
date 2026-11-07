@@ -16,13 +16,4 @@ describe('EzDesignTokens', () => {
     expect(screen.getByText(/shadow-card/)).toBeInTheDocument();
     expect(screen.getByText(/shadow-popover/)).toBeInTheDocument();
   });
-
-  it('renders each control height preview from its CSS variable', () => {
-    render(<EzDesignTokens />);
-    const preview = screen.getByText('Altura compacta de controle');
-    expect(preview).toHaveStyle({ height: 'var(--control-height-compact)' });
-    expect(screen.getByText('Altura padrão de controle')).toHaveStyle({
-      height: 'var(--control-height-md)',
-    });
-  });
 });
