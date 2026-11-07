@@ -91,6 +91,33 @@ class DeliveryTests(unittest.TestCase):
         entry = {**self.manifest, 'kind': 'delivery', 'cycle': None}
         self.assertTrue(delivery.validate_binding(self.manifest, entry))
 
+    def test_cycle_is_computed_from_the_fortnight_anchor(self):
+        day = delivery.dt.date
+        self.assertEqual(delivery.cycle_for(day(2026, 10, 26)), '2026-10-26/2026-11-08')
+        self.assertEqual(delivery.cycle_for(day(2026, 11, 3)), '2026-10-26/2026-11-08')
+        self.assertEqual(delivery.cycle_for(day(2026, 11, 8)), '2026-10-26/2026-11-08')
+        self.assertEqual(delivery.cycle_for(day(2026, 11, 9)), '2026-11-09/2026-11-22')
+        self.assertEqual(delivery.cycle_for(day(2027, 1, 4)), '2027-01-04/2027-01-17')
+
+    def test_registry_accepts_aligned_or_absent_cycle(self):
+        entries = {'DMTE-159': self.manifest,
+                   'DMTE-160': {**self.manifest, 'delivery': 'DMTE-160', 'github_issue': 93,
+                                'multica_id': '01a17485-8de1-7e6d-950a-1e295fef3360', 'cycle': None},
+                   'DMTE-161': {**self.manifest, 'delivery': 'DMTE-161', 'github_issue': 94,
+                                'multica_id': '01a17485-8de1-7e6d-950a-1e295fef3361', 'cycle': '2026-11-09/2026-11-22'}}
+        self.assertEqual(delivery.validate_registry({'version': 1, 'deliveries': entries}), [])
+
+    def test_registry_rejects_cycle_outside_the_automatic_cadence(self):
+        for bad in ['2026-11-01/2026-11-14', '2026-11-09/2026-11-23', 'ciclo 02', 3]:
+            entry = {**self.manifest, 'cycle': bad}
+            self.assertTrue(delivery.validate_registry({'version': 1, 'deliveries': {'DMTE-159': entry}}), bad)
+
+    def test_cycle_command_prints_the_cycle_for_a_date(self):
+        script = Path(delivery.__file__)
+        out = subprocess.run([sys.executable, str(script), 'cycle', '--date', '2026-11-09'],
+                             capture_output=True, text=True)
+        self.assertEqual((out.returncode, out.stdout.strip()), (0, '2026-11-09/2026-11-22'))
+
     def test_manifest_canonical_binding_passes(self):
         self.assertEqual(delivery.validate_binding(self.manifest, {**self.manifest, 'kind': 'delivery'}), [])
 
@@ -248,6 +275,98 @@ class DeliveryTests(unittest.TestCase):
         self.assertNotEqual(process.returncode, 0)
         with delivery.writer_lock(path):
             pass
+
+
+class EvidenceBaseMovedTests(unittest.TestCase):
+    """RED/GREEN recorded on an older base stay valid after main moves (strict branch protection)."""
+    ENV = {'GIT_AUTHOR_NAME': 't', 'GIT_AUTHOR_EMAIL': 't@t', 'GIT_COMMITTER_NAME': 't', 'GIT_COMMITTER_EMAIL': 't@t'}
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.git('init', '-q')
+        (self.root / 'app.py').write_text('v1')
+        DeliveryTests.evidence_pair(self)  # writes test.py + red/green evidence
+        self.old_base = self.commit('old base')
+        self.pair = {'red': '.delivery/red.json', 'green': '.delivery/green.json'}
+        for phase in ['red', 'green']:
+            self.set_base(phase, self.old_base)
+
+    def git(self, *args):
+        return subprocess.run(['git', '-C', str(self.root), *args], check=True, capture_output=True, text=True,
+                              env={**os.environ, **self.ENV}).stdout.strip()
+
+    def commit(self, message):
+        self.git('add', '-A')
+        self.git('commit', '-q', '--allow-empty', '-m', message)
+        return self.git('rev-parse', 'HEAD')
+
+    def set_base(self, phase, base):
+        path = self.root / '.delivery' / (phase + '.json')
+        data = json.loads(path.read_text()); data['base_sha'] = base; path.write_text(json.dumps(data))
+
+    def validate(self, base):
+        return delivery.validate_evidence(self.root, self.pair, {'AC-01'}, base, {'app.py': 'green'})
+
+    def test_evidence_on_ancestor_base_is_accepted_when_slice_files_did_not_move(self):
+        (self.root / 'other.py').write_text('main moved')
+        new_base = self.commit('main moved elsewhere')
+        self.assertEqual(self.validate(new_base), [])
+
+    def test_evidence_on_ancestor_base_is_rejected_when_a_slice_file_moved(self):
+        (self.root / 'app.py').write_text('v2')
+        new_base = self.commit('main changed a slice file')
+        self.assertTrue(any('Evidence base SHA differs' in e for e in self.validate(new_base)))
+
+    def test_slice_file_renamed_on_main_is_rejected(self):
+        self.git('mv', 'app.py', 'renamed.py')
+        new_base = self.commit('main renamed a slice file')
+        self.assertTrue(any('Evidence base SHA differs' in e for e in self.validate(new_base)))
+
+    def test_slice_file_with_non_ascii_name_changed_on_main_is_rejected(self):
+        (self.root / 'ação.py').write_text('v1')
+        old = self.commit('add non ascii file')
+        for phase in ['red', 'green']:
+            self.set_base(phase, old)
+        (self.root / 'ação.py').write_text('v2')
+        new_base = self.commit('main changed it')
+        errors = delivery.validate_evidence(self.root, self.pair, {'AC-01'}, new_base, {'app.py': 'green', 'ação.py': 'x'})
+        self.assertTrue(any('Evidence base SHA differs' in e for e in errors))
+
+    def test_file_deleted_by_the_slice_but_changed_on_main_is_rejected(self):
+        (self.root / 'gone.py').write_text('v1')
+        old = self.commit('add file the slice will delete')
+        for phase in ['red', 'green']:
+            self.set_base(phase, old)
+        (self.root / 'gone.py').write_text('v2')
+        new_base = self.commit('main changed it')
+        (self.root / 'gone.py').unlink()  # the slice deletes it in the working tree
+        self.assertTrue(any('Evidence base SHA differs' in e for e in self.validate(new_base)))
+
+    def test_evidence_on_descendant_of_manifest_base_is_rejected(self):
+        (self.root / 'other.py').write_text('later')
+        later = self.commit('later commit')
+        for phase in ['red', 'green']:
+            self.set_base(phase, later)
+        self.assertTrue(any('Evidence base SHA differs' in e for e in self.validate(self.old_base)))
+
+    def test_governance_file_changed_on_both_sides_does_not_invalidate_evidence(self):
+        (self.root / 'docs').mkdir(exist_ok=True)
+        (self.root / 'docs/note.md').write_text('v1')
+        old = self.commit('add doc')
+        for phase in ['red', 'green']:
+            self.set_base(phase, old)
+        (self.root / 'docs/note.md').write_text('main edit')
+        new_base = self.commit('main edited the doc')
+        (self.root / 'docs/note.md').write_text('slice edit')  # the slice edits it too, like registry.json
+        self.assertEqual(self.validate(new_base), [])
+
+    def test_evidence_on_unrelated_base_is_rejected(self):
+        self.git('checkout', '-q', '--orphan', 'other')
+        (self.root / 'x.py').write_text('x')
+        other = self.commit('unrelated history')
+        self.assertTrue(any('Evidence base SHA differs' in e for e in self.validate(other)))
 
 
 if __name__ == '__main__':

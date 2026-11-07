@@ -32,7 +32,7 @@ Para prototype: Architect pode explorar uma pergunta em código descartável num
 
 UI UX Pro Max pesquisa padrões; Frontend Design propõe direção; Impeccable audita/refina; Web Design Guidelines revisa regras técnicas. Selecionar conforme escopo, usando DS/tokens/Storybook existentes. Validação comportamental, comparação com baseline aprovada e aceite visual humano são evidências distintas. Screenshot/build verde não substituem decisão humana. Nenhum perfil de piloto antigo impõe uma direção a demandas novas.
 
-Multica registra atividade/status/evidência. ai-memory recupera conhecimento em workspace=default/project=alfredo-maia-aponta quando esse escopo estiver confirmado. handoff original produz arquivo portátil em diretório temporário, com pointers às fontes e redação de segredos; não substitui memória nem cria atividade a cada stage. to-questionnaire prepara coleta assíncrona de respostas de terceiros. Passagem normal permanece resultado técnico no filho e um único aviso mínimo com link no pai. Fonte humana ausente bloqueia somente a ação dependente; silêncio nunca vale como aprovação.
+Multica registra atividade/status/evidência. ai-memory recupera conhecimento em workspace=default/project=alfredo-maia-aponta quando esse escopo estiver confirmado. handoff original produz arquivo portátil em diretório temporário, com pointers às fontes e redação de segredos; não substitui memória nem cria atividade a cada stage. to-questionnaire prepara coleta assíncrona de respostas de terceiros. Passagem normal é o resultado técnico na resposta do especialista no fio da menção, no pai, sem aviso extra. Fonte humana ausente bloqueia somente a ação dependente; silêncio nunca vale como aprovação.
 
 ## Limite da implantação
 
