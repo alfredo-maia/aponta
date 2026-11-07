@@ -9,6 +9,8 @@ from tickets_scope import find_tickets_files, run_check
 CONTROL_HEIGHT_RANGE = (24, 48)
 ALLOWED_CONTROL_HEIGHTS = {32, 42}
 HEIGHT_RE = re.compile(r'\bh-\[(\d+)px\]')
+TOKEN_HEIGHT_RE = re.compile(r'h-\[var\(--control-height-')
+RADIUS_RE = re.compile(r'\brounded-\[\d+px\]')
 
 
 def find_violations(text: str) -> list[str]:
@@ -18,6 +20,11 @@ def find_violations(text: str) -> list[str]:
         value = int(match.group(1))
         if low <= value <= high and value not in ALLOWED_CONTROL_HEIGHTS:
             violations.append(f'altura de controle fora da escala D6: {match.group(0)}')
+    # shortcut: só pega raio arbitrário na mesma linha do token de altura (className quebrado em várias linhas escapa) e não cobre raio fora de controles; ampliar nas fatias seguintes.
+    for line in text.splitlines():
+        if TOKEN_HEIGHT_RE.search(line):
+            for match in RADIUS_RE.finditer(line):
+                violations.append(f'raio de controle fora da escala D6 (use rounded-control): {match.group(0)}')
     return violations
 
 
