@@ -104,7 +104,7 @@
     },
     {
       "id": "AC-03",
-      "description": "Alternador Lista/Kanban usa o componente de DS (EzSegmented), com aria-pressed e foco visível, alinhado em altura com Buscar e Busca avançada. Teste na TicketsPage e no cabeçalho.",
+      "description": "Alternador Lista/Kanban usa o componente de DS (EzSegmented), com aria-pressed e foco visível, alinhado em altura com Buscar e Busca avançada. Teste na TicketsPage e no cabeçalho. Foco visível (classe focus-visible:ring) e alinhamento de altura (token --control-height-md) são verificados por inspeção do código e pela captura/aceite visual da fatia 7 (AC-07, AC-14): o jsdom não avalia CSS, então não há teste automático para esses dois pontos. 'Busca e Busca avançada alinhadas' já usavam o mesmo token; o cabeçalho de busca não foi alterado.",
       "tests": [
         "apps/web/src/components/ds/EzSegmented.test.tsx",
         "apps/web/src/components/tickets/TicketsHeader.test.tsx",

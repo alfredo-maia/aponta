@@ -6,16 +6,16 @@
 
  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-430-31f270e18a18/workdir/aponta/apps/web
 
- ✓ |web| src/components/ds/EzSegmented.test.tsx (5 tests) 351ms
- ✓ |web| src/components/tickets/TicketsHeader.test.tsx (6 tests) 786ms
-     ✓ debounces typed search text before calling onSearchChange  481ms
- ✓ |web| src/pages/TicketsPage.test.tsx (21 tests) 2304ms
-     ✓ reflects a search typed in the header back into the URL (bookmarkable/shareable)  610ms
+ ✓ |web| src/components/ds/EzSegmented.test.tsx (5 tests) 232ms
+ ✓ |web| src/components/tickets/TicketsHeader.test.tsx (6 tests) 825ms
+     ✓ debounces typed search text before calling onSearchChange  501ms
+ ✓ |web| src/pages/TicketsPage.test.tsx (21 tests) 2382ms
+     ✓ reflects a search typed in the header back into the URL (bookmarkable/shareable)  562ms
 
  Test Files  3 passed (3)
       Tests  32 passed (32)
-   Start at  20:35:25
-   Duration  5.33s (transform 2.43s, setup 292ms, import 4.33s, tests 3.44s, environment 1.64s)
+   Start at  20:36:31
+   Duration  5.40s (transform 2.58s, setup 250ms, import 4.31s, tests 3.44s, environment 1.60s)
 
 
 

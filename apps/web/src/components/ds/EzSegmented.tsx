@@ -46,7 +46,7 @@ export function EzSegmented<T extends string>({
             disabled={option.disabled}
             onClick={() => onChange(option.value)}
             className={cn(
-              'h-full rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500',
+              'h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500',
               selected
                 ? 'border-gray-200 bg-white text-brand-600 shadow-sm'
                 : 'border-transparent text-gray-500 hover:text-gray-900',
