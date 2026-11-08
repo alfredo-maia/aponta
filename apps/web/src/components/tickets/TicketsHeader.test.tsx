@@ -26,6 +26,15 @@ describe('TicketsHeader (D3)', () => {
     expect(screen.getByRole('button', { name: 'Busca avançada' })).toBeInTheDocument();
   });
 
+  it('AC-03: exposes the view switch as a named group with the current view pressed', () => {
+    renderHeader({ viewMode: 'kanban' });
+
+    const group = screen.getByRole('group', { name: /visualização/i });
+    expect(group).toContainElement(screen.getByRole('button', { name: 'Lista' }));
+    expect(screen.getByRole('button', { name: 'Kanban' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Lista' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
   it('hides the Lista/Kanban toggle for CLIENT (AC2)', () => {
     renderHeader({ isClient: true });
 

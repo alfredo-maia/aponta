@@ -1,0 +1,343 @@
+
+> nx run web:test src/components/ds/EzSegmented.test.tsx src/components/tickets/TicketsHeader.test.tsx src/pages/TicketsPage.test.tsx
+
+> vitest src/components/ds/EzSegmented.test.tsx src/components/tickets/TicketsHeader.test.tsx src/pages/TicketsPage.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-430-31f270e18a18/workdir/aponta/apps/web
+
+ ❯ |web| src/components/ds/EzSegmented.test.tsx (5 tests | 5 failed) 299ms
+     × renders the options as buttons inside a named group 217ms
+     × exposes the selected option with aria-pressed 21ms
+     × calls onChange with the option value on click 22ms
+     × does not call onChange for a disabled option 11ms
+     × is reachable by keyboard and activates with Enter 17ms
+ ❯ |web| src/components/tickets/TicketsHeader.test.tsx (6 tests | 1 failed) 1059ms
+     ✓ shows "Tickets" as the title, in that position, with Lista/Kanban, Buscar and Busca avançada (AC2) 257ms
+     × AC-03: exposes the view switch as a named group with the current view pressed 134ms
+     ✓ hides the Lista/Kanban toggle for CLIENT (AC2) 25ms
+     ✓ calls onViewModeChange when a toggle button is clicked 80ms
+     ✓ debounces typed search text before calling onSearchChange  521ms
+     ✓ calls onOpenAdvancedSearch when "Busca avançada" is clicked 35ms
+ ❯ |web| src/pages/TicketsPage.test.tsx (21 tests | 1 failed) 2576ms
+     ✓ should render ticket list 252ms
+     ✓ should show a loading state while tickets are being fetched 13ms
+     ✓ should show empty state when no tickets 163ms
+     ✓ should render a Kanban card per ticket with protocol, title and status tag (D7) 142ms
+     ✓ should show an error state when the tickets request fails 33ms
+     × defaults non-CLIENT users to the Kanban view and lets them switch to List 165ms
+     ✓ shows the "Tickets" title and hides the view toggle entirely for CLIENT users (AC2) 46ms
+     ✓ renders pagination controls in List view and navigates between pages 214ms
+     ✓ disables the "Anterior" button on page 1 and "Próxima" on the last page 108ms
+     ✓ does not render pagination controls when there is only a single page 78ms
+     ✓ navigates to the previous page when "Anterior" is clicked 166ms
+     ✓ never renders a Grade view button or grid testid (AC1: Grade mode removed) 70ms
+     ✓ never renders the old TicketFilters panel (AC5: migrated to Busca avançada, not duplicated) 71ms
+     ✓ seeds filters from the URL query string, e.g. a dashboard KPI link (?mine=true) 44ms
+     ✓ seeds the "overdue" and "unassigned" boolean filters from the URL too 42ms
+     ✓ RODADA 2: stays at "/" on initial load (no ?view=) and only writes ?view= once the user switches views 133ms
+     ✓ RODADA 2: stays at "/" on initial load even under React.StrictMode's double-invoked mount effect (reproduces the real e2e failure) 62ms
+     ✓ starts in the view mode named by an existing ?view= URL param 18ms
+     ✓ reflects a search typed in the header back into the URL (bookmarkable/shareable)  567ms
+     ✓ refetches with sortBy/sortDir when a List column header is clicked (D5) 83ms
+     ✓ navigates to /tickets/search when "Busca avançada" is clicked (AC3) 104ms
+
+ Test Files  3 failed (3)
+      Tests  7 failed | 25 passed (32)
+   Start at  20:29:13
+   Duration  6.88s (transform 2.40s, setup 458ms, import 4.42s, tests 3.93s, environment 2.25s)
+
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
+stderr | src/pages/TicketsPage.test.tsx > TicketsPage > navigates to /tickets/search when "Busca avançada" is clicked (AC3)
+No routes matched location "/tickets/search" 
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/components/tickets/TicketsHeader.test.tsx > TicketsHeader (D3) > AC-03: exposes the view switch as a named group with the current view pressed
+TestingLibraryElementError: Unable to find an accessible element with the role "group" and name `/visualização/i`
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Tickets":
+  [36m<h1[39m
+    [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Lista":
+  [36m<button[39m
+    [33mclass[39m=[32m"rounded-[6px] px-3 py-1 font-medium transition-colors cursor-pointer text-gray-500 hover:text-gray-900 border border-transparent"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Kanban":
+  [36m<button[39m
+    [33mclass[39m=[32m"rounded-[6px] px-3 py-1 font-medium transition-colors cursor-pointer bg-white text-brand-600 shadow-sm border border-gray-200"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Busca avançada":
+  [36m<button[39m
+    [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  searchbox:
+
+  Name "Buscar":
+  [36m<input[39m
+    [33mclass[39m=[32m"h-[var(--control-height-md)] w-56 rounded-control border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+    [33mid[39m=[32m"tickets-header-search"[39m
+    [33mplaceholder[39m=[32m"Buscar…"[39m
+    [33mtype[39m=[32m"search"[39m
+    [33mvalue[39m=[32m""[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex items-center justify-between gap-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex shrink-0 items-center gap-4"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+        [36m>[39m
+          [0mTickets[0m
+        [36m</h1>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex shrink-0 items-center justify-center rounded-[8px] border border-gray-200 bg-gray-90 p-1 text-sm"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"rounded-[6px] px-3 py-1 font-medium transition-colors cursor-pointer text-gray-500 hover:text-gray-900 border border-transparent"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mLista[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"rounded-[6px] px-3 py-1 font-medium transition-colors cursor-pointer bg-white text-brand-600 shadow-sm border border-gray-200"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mKanban[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-center gap-2"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"relative"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-search pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m21 21-4.34-4.34"[39m
+            [36m/>[39m
+            [36m<circle[39m
+              [33mcx[39m=[32m"11"[39m
+              [33mcy[39m=[32m"11"[39m
+              [33mr[39m=[32m"8"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"sr-only"[39m
+            [33mfor[39m=[32m"tickets-header-search"[39m
+          [36m>[39m
+            [0mBuscar[0m
+          [36m</label>[39m
+          [36m<input[39m
+            [33mclass[39m=[32m"h-[var(--control-height-md)] w-56 rounded-control border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+            [33mid[39m=[32m"tickets-header-search"[39m
+            [33mplaceholder[39m=[32m"Buscar…"[39m
+            [33mtype[39m=[32m"search"[39m
+            [33mvalue[39m=[32m""[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mBusca avançada[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/tickets/TicketsHeader.test.tsx:32:26
+     30|     renderHeader({ viewMode: 'kanban' });
+     31|
+     32|     const group = screen.getByRole('group', { name: /visualização/i });
+       |                          ^
+     33|     expect(group).toContainElement(screen.getByRole('button', { name: …
+     34|     expect(screen.getByRole('button', { name: 'Kanban' })).toHaveAttri…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  |web| src/components/ds/EzSegmented.test.tsx > EzSegmented (AC-03, AC-15) > renders the options as buttons inside a named group
+TestingLibraryElementError: Unable to find an accessible element with the role "group" and name "Visualização"
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/ds/EzSegmented.test.tsx:26:26
+     24|   it('renders the options as buttons inside a named group', () => {
+     25|     renderSegmented();
+     26|     const group = screen.getByRole('group', { name: 'Visualização' });
+       |                          ^
+     27|     expect(group).toContainElement(screen.getByRole('button', { name: …
+     28|     expect(group).toContainElement(screen.getByRole('button', { name: …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |web| src/components/ds/EzSegmented.test.tsx > EzSegmented (AC-03, AC-15) > exposes the selected option with aria-pressed
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Kanban"
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/ds/EzSegmented.test.tsx:33:19
+     31|   it('exposes the selected option with aria-pressed', () => {
+     32|     renderSegmented({ value: 'kanban' });
+     33|     expect(screen.getByRole('button', { name: 'Kanban' })).toHaveAttri…
+       |                   ^
+     34|     expect(screen.getByRole('button', { name: 'Lista' })).toHaveAttrib…
+     35|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |web| src/components/ds/EzSegmented.test.tsx > EzSegmented (AC-03, AC-15) > calls onChange with the option value on click
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Lista"
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/ds/EzSegmented.test.tsx:41:29
+     39|     const user = userEvent.setup();
+     40|     renderSegmented({ onChange });
+     41|     await user.click(screen.getByRole('button', { name: 'Lista' }));
+       |                             ^
+     42|     expect(onChange).toHaveBeenCalledWith('list');
+     43|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |web| src/components/ds/EzSegmented.test.tsx > EzSegmented (AC-03, AC-15) > does not call onChange for a disabled option
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Lista"
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/ds/EzSegmented.test.tsx:55:29
+     53|       ],
+     54|     });
+     55|     await user.click(screen.getByRole('button', { name: 'Lista' }));
+       |                             ^
+     56|     expect(onChange).not.toHaveBeenCalled();
+     57|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |web| src/components/ds/EzSegmented.test.tsx > EzSegmented (AC-03, AC-15) > is reachable by keyboard and activates with Enter
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Lista"
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/ds/EzSegmented.test.tsx:64:19
+     62|     renderSegmented({ onChange, value: 'kanban' });
+     63|     await user.tab();
+     64|     expect(screen.getByRole('button', { name: 'Lista' })).toHaveFocus(…
+       |                   ^
+     65|     await user.keyboard('{Enter}');
+     66|     expect(onChange).toHaveBeenCalledWith('list');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |web| src/pages/TicketsPage.test.tsx > TicketsPage > defaults non-CLIENT users to the Kanban view and lets them switch to List
+Error: [2mexpect([22m[31melement[39m[2m).toHaveAttribute([22m[32m[32m"aria-pressed"[32m[39m[2m, [22m[32m[32m"true"[32m[39m[2m) // element.getAttribute("aria-pressed") === "true"[22m
+
+Expected the element to have attribute:
+[32m  aria-pressed="true"[39m
+Received:
+[31m  null[39m
+ ❯ src/pages/TicketsPage.test.tsx:189:60
+    187|     expect(await screen.findByRole('heading', { name: 'Aberto' })).toB…
+    188|     expect(screen.getByRole('button', { name: 'Kanban' })).toBeInTheDo…
+    189|     expect(screen.getByRole('button', { name: 'Kanban' })).toHaveAttri…
+       |                                                            ^
+    190|
+    191|     await user.click(screen.getByRole('button', { name: 'Lista' }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+Warning: command "vitest src/components/ds/EzSegmented.test.tsx src/components/tickets/TicketsHeader.test.tsx src/pages/TicketsPage.test.tsx" exited with non-zero status code

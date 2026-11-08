@@ -6,7 +6,7 @@
   "multica_id": "01a1a2ef-0513-7170-8abc-490e1d79dbfa",
   "cycle": "2026-10-26/2026-11-08",
   "tier": 3,
-  "base_sha": "889d6ab8269c52d439e1b7bd4dc102316a6e18d2",
+  "base_sha": "faec29b8f821b2609ff333c69c6dc26927b918aa",
   "criteria": [
     {
       "id": "AC-01",
@@ -28,13 +28,14 @@
     },
     {
       "id": "AC-15",
-      "description": "Parcial (fatias 1 e 2): tokens de proporção documentados em story; chip de SLA (EzSlaChip) novo com story, teste (5 casos de comportamento + contraste AA) e entrada em docs/architecture/03-sankhya-ds-parity.md.",
+      "description": "Parcial (fatias 1 a 3): tokens documentados em story; EzSlaChip (fatia 2) e EzSegmented (fatia 3) novos, cada um com story, testes e entrada em docs/architecture/03-sankhya-ds-parity.md.",
       "tests": [
         "apps/web/src/components/ds/EzDesignTokens.test.tsx",
-        "apps/web/src/components/ds/EzSlaChip.test.tsx"
+        "apps/web/src/components/ds/EzSlaChip.test.tsx",
+        "apps/web/src/components/ds/EzSegmented.test.tsx"
       ],
       "tdd_required": false,
-      "reason": "EzDesignTokens é componente de documentação sem lógica condicional (2 testes de presença). O comportamento do EzSlaChip tem RED/GREEN próprio, coberto por AC-06 no par oficial. Demais componentes das fatias 3–6 ficam para essas fatias."
+      "reason": "EzDesignTokens é componente de documentação sem lógica condicional. O comportamento do EzSlaChip tem RED/GREEN próprio (fatia 2, AC-06) e o do EzSegmented tem RED/GREEN próprio nesta fatia (AC-03, par oficial). Demais componentes ficam para as fatias 4 a 6."
     },
     {
       "id": "AC-16",
@@ -59,7 +60,9 @@
       "description": "Cartão do Kanban: número, título (até 2 linhas, com title), tag de status, chips de SLA e avatar na mesma linha, sem faixa vazia quando não há responsável nem SLA.",
       "tests": [
         "apps/web/src/components/tickets/TicketKanbanCard.test.tsx"
-      ]
+      ],
+      "tdd_required": false,
+      "reason": "Fatia 2, já integrada na main (PR #138, faec29b): o par RED/GREEN real está preservado em .delivery/evidence/DMTE-427-f2-r2/{red,green}.json (e o ciclo inicial em DMTE-427-f2). Nesta fatia o par oficial do manifesto passa a cobrir AC-03 (schema com um único tdd.red/tdd.green por entrega)."
     },
     {
       "id": "AC-06",
@@ -67,7 +70,9 @@
       "tests": [
         "apps/web/src/components/ds/EzSlaChip.test.tsx",
         "apps/web/src/components/tickets/TicketKanbanCard.test.tsx"
-      ]
+      ],
+      "tdd_required": false,
+      "reason": "Fatia 2, já integrada na main (PR #138, faec29b): o par RED/GREEN real está preservado em .delivery/evidence/DMTE-427-f2-r2/{red,green}.json (e o ciclo inicial em DMTE-427-f2). Nesta fatia o par oficial do manifesto passa a cobrir AC-03 (schema com um único tdd.red/tdd.green por entrega)."
     },
     {
       "id": "AC-07",
@@ -96,33 +101,37 @@
       ],
       "tdd_required": false,
       "reason": "Sem mudança de comportamento nos estados; os testes existentes de carregamento, erro e coluna vazia seguem verdes. A parte da Lista é da fatia 4."
+    },
+    {
+      "id": "AC-03",
+      "description": "Alternador Lista/Kanban usa o componente de DS (EzSegmented), com aria-pressed e foco visível, alinhado em altura com Buscar e Busca avançada. Teste na TicketsPage e no cabeçalho. Foco visível (classe focus-visible:ring) e alinhamento de altura (token --control-height-md) são verificados por inspeção do código e pela captura/aceite visual da fatia 7 (AC-07, AC-14): o jsdom não avalia CSS, então não há teste automático para esses dois pontos. 'Busca e Busca avançada alinhadas' já usavam o mesmo token; o cabeçalho de busca não foi alterado.",
+      "tests": [
+        "apps/web/src/components/ds/EzSegmented.test.tsx",
+        "apps/web/src/components/tickets/TicketsHeader.test.tsx",
+        "apps/web/src/pages/TicketsPage.test.tsx"
+      ]
     }
   ],
   "spec": "docs/delivery/specs/DMTE-427.md",
   "changed_files": [
     ".delivery/deliveries/DMTE-427.json",
-    ".delivery/evidence/DMTE-427-f2/red.json",
-    ".delivery/evidence/DMTE-427-f2/red.log",
-    ".delivery/evidence/DMTE-427-f2/green.json",
-    ".delivery/evidence/DMTE-427-f2/green.log",
-    "apps/web/src/components/ds/EzSlaChip.stories.tsx",
-    "apps/web/src/components/ds/EzSlaChip.test.tsx",
-    "apps/web/src/components/ds/EzSlaChip.tsx",
+    ".delivery/evidence/DMTE-427-f3/red.json",
+    ".delivery/evidence/DMTE-427-f3/red.log",
+    ".delivery/evidence/DMTE-427-f3/green.json",
+    ".delivery/evidence/DMTE-427-f3/green.log",
+    "apps/web/src/components/ds/EzSegmented.stories.tsx",
+    "apps/web/src/components/ds/EzSegmented.test.tsx",
+    "apps/web/src/components/ds/EzSegmented.tsx",
     "apps/web/src/components/ds/index.ts",
-    "apps/web/src/components/tickets/TicketKanban.test.tsx",
-    "apps/web/src/components/tickets/TicketKanban.tsx",
-    "apps/web/src/components/tickets/TicketKanbanCard.test.tsx",
-    "apps/web/src/components/tickets/TicketKanbanCard.tsx",
-    "docs/architecture/03-sankhya-ds-parity.md",
-    ".delivery/evidence/DMTE-427-f2-r2/red.json",
-    ".delivery/evidence/DMTE-427-f2-r2/red.log",
-    ".delivery/evidence/DMTE-427-f2-r2/green.json",
-    ".delivery/evidence/DMTE-427-f2-r2/green.log"
+    "apps/web/src/components/tickets/TicketsHeader.test.tsx",
+    "apps/web/src/components/tickets/TicketsHeader.tsx",
+    "apps/web/src/pages/TicketsPage.test.tsx",
+    "docs/architecture/03-sankhya-ds-parity.md"
   ],
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-427-f2-r2/red.json",
-    "green": ".delivery/evidence/DMTE-427-f2-r2/green.json"
+    "red": ".delivery/evidence/DMTE-427-f3/red.json",
+    "green": ".delivery/evidence/DMTE-427-f3/green.json"
   },
   "design_system": {
     "applicable": true,
@@ -134,6 +143,7 @@
       "EzAvatar"
     ],
     "stories": [
+      "apps/web/src/components/ds/EzSegmented.stories.tsx",
       "apps/web/src/components/ds/EzSlaChip.stories.tsx",
       "apps/web/src/components/ds/EzDesignTokens.stories.tsx"
     ],

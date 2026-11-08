@@ -95,3 +95,4 @@ export * from './EzDesignTokens';
 // as versões já conectadas às páginas reais (OrganizationsPage, TicketForm,
 // EzDoubleList). Consolidar em uma única implementação é um refactor futuro.
 export * from './EzSlaChip';
+export * from './EzSegmented';
