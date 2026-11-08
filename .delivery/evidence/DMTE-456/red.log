@@ -86,6 +86,6 @@ Hint: run the command with --verbose for more details.
 [1mTest Suites: [22m[1m[31m1 failed[39m[22m, 1 total
 [1mTests:       [22m[1m[31m4 failed[39m[22m, [1m[32m2 passed[39m[22m, 6 total
 [1mSnapshots:   [22m0 total
-[1mTime:[22m        0.502 s, estimated 1 s
+[1mTime:[22m        0.659 s
 [2mRan all test suites[22m[2m matching [22mseed-catalog[2m.[22m
 Warning: command "jest --passWithNoTests=true --testPathPatterns=seed-catalog" exited with non-zero status code
