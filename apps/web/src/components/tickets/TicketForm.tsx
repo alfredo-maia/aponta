@@ -10,6 +10,7 @@ import { useAuthStore } from '../../stores/authStore';
 
 // DS Components
 import {
+  EzAlert,
   EzButton,
   EzTextInput,
   EzSearch,
@@ -153,7 +154,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
         onSubmit(data);
       })}
       noValidate
-      className="w-full space-y-6 bg-white p-6 md:p-8 rounded-[16px] border border-gray-100 shadow-[0_1px_8px_rgba(0,0,0,0.04)]"
+      className="w-full space-y-6 bg-white p-6 md:p-8 rounded-card border border-gray-100 shadow-card"
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-gray-100">
         <Controller
@@ -345,9 +346,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
       )}
 
       {submitError && (
-        <div className="p-3 bg-red-100 text-red-700 rounded-[8px] text-[13px] font-medium border border-red-200">
-          {submitError}
-        </div>
+        <EzAlert variant="error">{submitError}</EzAlert>
       )}
 
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
