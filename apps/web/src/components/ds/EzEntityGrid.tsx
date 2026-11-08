@@ -1701,7 +1701,7 @@ function EzEntityGridInner<T>(
             title="Opções da grade"
             data-testid="ez-grid-corner-menu-button"
             onClick={() => setIsCornerMenuOpen((prev) => !prev)}
-            className="absolute top-1.5 right-1.5 z-20 p-1 rounded-[6px] bg-white/90 hover:bg-white text-gray-500 hover:text-gray-900 border border-gray-200 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+            className="absolute top-1.5 right-1.5 z-20 p-1 [@media(pointer:coarse)]:p-2.5 rounded-[6px] bg-white/90 hover:bg-white text-gray-500 hover:text-gray-900 border border-gray-200 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
           </button>
@@ -2199,7 +2199,7 @@ function EzEntityGridInner<T>(
         const recordCountText = `${recordStart}-${recordEnd} de ${totalCount}`;
 
         return (
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+          <div className="flex flex-col items-stretch gap-3 pt-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <label
                 htmlFor="ez-entity-grid-page-size-select"
@@ -2239,7 +2239,7 @@ function EzEntityGridInner<T>(
                 disabled={!table.getCanPreviousPage()}
                 onClick={() => table.previousPage()}
                 className={cn(
-                  'inline-flex items-center justify-center h-[32px] w-[32px] rounded-[8px] text-gray-500 transition-colors',
+                  'inline-flex items-center justify-center h-11 w-11 sm:h-[32px] sm:w-[32px] rounded-[8px] text-gray-500 transition-colors',
                   'hover:bg-gray-80 hover:text-gray-900',
                   'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none'
                 )}
@@ -2253,7 +2253,7 @@ function EzEntityGridInner<T>(
                 disabled={!table.getCanNextPage()}
                 onClick={() => table.nextPage()}
                 className={cn(
-                  'inline-flex items-center justify-center h-[32px] w-[32px] rounded-[8px] text-gray-500 transition-colors',
+                  'inline-flex items-center justify-center h-11 w-11 sm:h-[32px] sm:w-[32px] rounded-[8px] text-gray-500 transition-colors',
                   'hover:bg-gray-80 hover:text-gray-900',
                   'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none'
                 )}
