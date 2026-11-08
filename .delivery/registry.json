@@ -320,6 +320,20 @@
       "epic": null,
       "title": "DS Grid: responsividade e toque no celular (390px) em todas as telas",
       "note": "Bug Tier 1 pedido pelo Alfredo; planejamento com SPEC dispensado. RED oficial gravado contra a base c9efc76 (código que ainda não tinha o comportamento); a primeira rodada de TDD foi feita antes do coletor existir para esta entrega (histórico nas run-messages do Multica)."
+    },
+    "DMTE-456": {
+      "delivery": "DMTE-456",
+      "repository": "alfredo-maia/aponta",
+      "github_issue": 147,
+      "multica_id": "01a1bc30-4b2a-7251-8509-7e21475a663f",
+      "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-456",
+      "kind": "delivery",
+      "tier": 1,
+      "state": "Em implementação",
+      "cycle": "2026-10-26/2026-11-08",
+      "epic": null,
+      "title": "Catálogo de atendimento: seed idempotente",
+      "note": "Tier 1 (dados + script). Execução em produção pelo usuário."
     }
   }
 }

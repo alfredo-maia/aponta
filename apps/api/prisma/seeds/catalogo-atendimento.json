@@ -1,0 +1,131 @@
+{
+  "source": "Derivado do histórico de chamados do TiFlux (export de 26/10/2026), sem exemplos de chamados.",
+  "items": [
+    {
+      "macro_category": "Fiscal e Notas Fiscais",
+      "item_title": "Nota Fiscal",
+      "item_description": "Problemas na emissão, exclusão, cancelamento ou manifesto de NF-e/NFS-e/NFC-e/CT-e; erros de rejeição SEFAZ; XML não localizado; divergência de NCM, volumes ou valores na nota. Inclua ao abrir: Número da nota (NUNOTA) e/ou número/série da nota fiscal; Empresa/filial envolvida; Mensagem de erro exata (print ou texto copiado, não resumido); O que já foi tentado (reemissão, exclusão manual, etc.); Se é caso urgente (nota já saiu da empresa, prazo fiscal apertado).",
+      "default_priority": "HIGH",
+      "icon": "🧾"
+    },
+    {
+      "macro_category": "Sistemas e Acessos",
+      "item_title": "Acessos, Usuários, Permissões e Segurança",
+      "item_description": "Liberar/revogar acesso de usuário, criar ou ajustar permissão de TOP (rotina), problemas de login, dupla autenticação, token de API expirado. Inclua ao abrir: Nome completo e login do usuário afetado; Número da TOP (rotina) ou nome da tela, quando souber; Tipo de acesso: liberar, bloquear, ajustar permissão; Empresa/filial do usuário; Motivo (admissão, desligamento, mudança de função).",
+      "default_priority": "HIGH",
+      "icon": "🔐"
+    },
+    {
+      "macro_category": "Sistemas e Acessos",
+      "item_title": "Erros de Sistema / Bugs / Travamentos / Lentidão",
+      "item_description": "Sistema travando, lentidão geral ou em tela específica, comportamento inesperado/erro sem causa óbvia. Inclua ao abrir: Tela/rotina onde ocorre; Horário(s) em que aconteceu; Mensagem de erro completa (print é ideal); Se afeta um usuário só ou vários; Passos para reproduzir o problema.",
+      "default_priority": "HIGH",
+      "icon": "🐞"
+    },
+    {
+      "macro_category": "Fiscal e Notas Fiscais",
+      "item_title": "Fiscal / Contábil / Tributário",
+      "item_description": "Apuração de impostos, ajustes de PIS/COFINS, GNRE, EFD Contribuições/ICMS-IPI, ISS, regime especial, CFOP. Inclua ao abrir: Competência/período de referência (mês/ano); Empresa/filial; Tipo de apuração ou registro do SPED envolvido (ex: Registro F120); Natureza de operação, se souber; Prazo legal envolvido (se houver vencimento de obrigação acessória).",
+      "default_priority": "HIGH",
+      "icon": "📑"
+    },
+    {
+      "macro_category": "Comercial e Vendas",
+      "item_title": "Vendas / Pedido de Venda / Faturamento / Portal B2B",
+      "item_description": "Erros ao faturar, condição comercial/negociação não aplicando, problemas no portal de vendas B2B (Zydon), devolução, bonificação. Inclua ao abrir: Número do pedido de venda; Cliente/parceiro envolvido; Comportamento esperado x comportamento atual; Se envolve o Portal B2B, informar o usuário/loja usada.",
+      "default_priority": "HIGH",
+      "icon": "🛒"
+    },
+    {
+      "macro_category": "Apoio Geral",
+      "item_title": "Ajustes / Configurações Gerais",
+      "item_description": "Pequenos ajustes de configuração que não se encaixam nas categorias específicas (parâmetro geral, correção pontual). Inclua ao abrir: Tela ou módulo afetado; O que precisa mudar e por quê; Se é um ajuste único ou recorrente.",
+      "default_priority": "MEDIUM",
+      "icon": "⚙️"
+    },
+    {
+      "macro_category": "Sistemas e Acessos",
+      "item_title": "Automação, Integração e APIs",
+      "item_description": "Falhas/ajustes em automações (SAB), integrações EDI, App Center/Sankhya Place, rateio automático de custos/despesas. Inclua ao abrir: Nome da automação/integração envolvida; Horário da última execução esperada x real; Log de erro, se disponível; Impacto (quantos registros/pedidos parados).",
+      "default_priority": "MEDIUM",
+      "icon": "🔌"
+    },
+    {
+      "macro_category": "Relatórios e Customizações",
+      "item_title": "Relatórios, Dashboards e Impressões",
+      "item_description": "Criação ou ajuste de relatório, dashboard (Gadget), problema de impressão ou layout de documento. Inclua ao abrir: Nome do relatório/dashboard existente (se for ajuste); Campos e filtros desejados (se for criação); Formato de saída esperado (tela, PDF, Excel); Para quem é o uso (área/cargo).",
+      "default_priority": "MEDIUM",
+      "icon": "📊"
+    },
+    {
+      "macro_category": "Relatórios e Customizações",
+      "item_title": "Customização / Parametrização",
+      "item_description": "Criar/alterar campo customizado, regra de negócio, layout de tela, flags e parâmetros de rotina. Inclua ao abrir: Tela/rotina (TOP) envolvida; Campo ou regra atual x desejada; Motivo da mudança (regra de negócio do cliente); Se afeta uma empresa ou todas.",
+      "default_priority": "MEDIUM",
+      "icon": "🛠️"
+    },
+    {
+      "macro_category": "Operações e Estoque",
+      "item_title": "Estoque / Inventário / Picking / Romaneio / PDV",
+      "item_description": "Divergência de estoque, inventário, processo de picking/romaneio, PDV (ponto de venda). Inclua ao abrir: Produto(s) e código(s) envolvidos; Filial/depósito; Saldo esperado x saldo no sistema; Data da última contagem/inventário, se souber.",
+      "default_priority": "MEDIUM",
+      "icon": "📦"
+    },
+    {
+      "macro_category": "Financeiro",
+      "item_title": "Financeiro",
+      "item_description": "Baixa de título, geração/remessa de boleto, conciliação bancária, DRE, cálculo de comissão. Inclua ao abrir: Número do título/duplicata; Cliente/fornecedor envolvido; Valor e data de vencimento; Banco/conta envolvida (se for remessa/boleto).",
+      "default_priority": "MEDIUM",
+      "icon": "💰"
+    },
+    {
+      "macro_category": "Comercial e Vendas",
+      "item_title": "Cadastros",
+      "item_description": "Cadastro ou ajuste de produto, cliente, parceiro, tabela de preços. Inclua ao abrir: Código ou nome do produto/parceiro; Campos a ajustar e novos valores; Empresa/filial.",
+      "default_priority": "MEDIUM",
+      "icon": "🗂️"
+    },
+    {
+      "macro_category": "Comercial e Vendas",
+      "item_title": "Compras / Pedido de Compra / Entrada de Nota",
+      "item_description": "Pedido de compra, aprovação de NFe de entrada, entrada de nota de imobilizado. Inclua ao abrir: Número do pedido de compra; Fornecedor envolvido; Número da nota de entrada, se já emitida.",
+      "default_priority": "MEDIUM",
+      "icon": "🛍️"
+    },
+    {
+      "macro_category": "Relatórios e Customizações",
+      "item_title": "Importação de Dados / Planilhas",
+      "item_description": "Importação de dados via planilha (plano de contas, produtos, etc). Inclua ao abrir: Tipo de dado a importar; Anexar a planilha-modelo ou a planilha com os dados; Quantidade aproximada de registros.",
+      "default_priority": "MEDIUM",
+      "icon": "📥"
+    },
+    {
+      "macro_category": "Sistemas e Acessos",
+      "item_title": "Infraestrutura / Atualização de Sistema",
+      "item_description": "Atualização de versão do Sankhya, Wildfly, JDK, espaço em disco, criação de base de teste/nova empresa. Inclua ao abrir: Versão atual x versão desejada; Janela de manutenção preferida (fora do horário comercial, se possível); Ambiente (produção, teste, homologação).",
+      "default_priority": "MEDIUM",
+      "icon": "🖥️"
+    },
+    {
+      "macro_category": "Financeiro",
+      "item_title": "Custo de Produto",
+      "item_description": "Dúvidas ou ajustes no custo de um item específico. Inclua ao abrir: Código do produto; Custo esperado x custo exibido; Método de custeio usado pela empresa (médio, FIFO, etc.), se souber.",
+      "default_priority": "MEDIUM",
+      "icon": "🏷️"
+    },
+    {
+      "macro_category": "Atendimento e Treinamento",
+      "item_title": "Atendimento Presencial / Visita / Agenda",
+      "item_description": "Solicitação de atendimento presencial ou agendamento de visita técnica. Inclua ao abrir: Local e data/horário preferido; Motivo da visita; Pessoa de contato no local.",
+      "default_priority": "MEDIUM",
+      "icon": "📅"
+    },
+    {
+      "macro_category": "Atendimento e Treinamento",
+      "item_title": "Treinamento",
+      "item_description": "Treinamento de usuários em rotinas do sistema (financeiro, fiscal, estoque, etc.). Inclua ao abrir: Tema do treinamento; Quantidade de participantes; Data/horário preferido.",
+      "default_priority": "MEDIUM",
+      "icon": "🎓"
+    }
+  ]
+}
