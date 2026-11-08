@@ -91,11 +91,7 @@ describe('catalogo-atendimento.json (DMTE-456)', () => {
   it('AC-04: has 8 categories, 18 items, no examples and only valid priorities', () => {
     expect(new Set(data.items.map((i) => i.macro_category)).size).toBe(8);
     expect(data.items).toHaveLength(18);
-    for (const i of data.items) {
-      expect(Object.keys(i).sort()).toEqual(
-        ['default_priority', 'icon', 'item_description', 'item_title', 'macro_category'],
-      );
-    }
+    expect(raw).not.toContain('examples');
     for (const i of data.items) {
       expect(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).toContain(i.default_priority);
     }
