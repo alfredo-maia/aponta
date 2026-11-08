@@ -13,7 +13,7 @@ O Alfredo respondeu "Vamos lá, aprovado" à SPEC v1 (comentário `01a1a36e-d331
 - Q2: só visual; abas de estado do TiFlux e play no cartão fora.
 - Q3: identidade verde do Aponta mantida; sidebar e barra de abas internas fora.
 - Q4: paleta única `brand-*`. ADR `docs/adr/0001-paleta-unica-brand-na-aba-tickets.md`.
-- Q5: 1440, 1280, 1024 e 768px; abaixo de 768px fora.
+- Q5: 1440, 1280, 1024 e 768px; abaixo de 768px fora. **Revisada em 2026-11-08 pelo Alfredo**, no comentário `01a1bb77-ca76-7db4-9f63-53cec7c7f0ff` do fio da DMTE-430: "O qa sempre trava já vamos para próxima a fatia 7 espero que o sistema através dela corrija erros com as skill de design, impecable para deixar o sistema funcionando em pc e celulares". Celular entra no escopo, medido em 390px. Que isso exija mexer no menu lateral (shell global, que o D3 deixava de fora) é interpretação do Developer, porque a barra fixa de 240px ocupava 62% da tela do celular; a confirmar com o Alfredo.
 - Q6: aceite visual do Alfredo por capturas comparadas ao TiFlux, sem diff automático.
 - Q7: testes pela `TicketsPage` com dados simulados, mais stories e testes do DS, mais o aceite visual.
 - Fatias: as sete abaixo, sem juntar 5 e 6.
@@ -70,7 +70,7 @@ Escopo e exclusões
 
 - D1 [Humano] Todas as opções da aba Tickets estão no escopo. [Proposta] Superfícies: (a) cabeçalho e toolbar; (b) Kanban (colunas, cartão, SLA, menu do cartão, estados); (c) Lista (tabela, agrupamento, colunas, paginação, estados); (d) Busca avançada; (e) Criar ticket; (f) Detalhe do ticket e seus blocos (comentários, apontamentos, anexos, checklist); (g) visão CLIENT.
 - D2 [Proposta] Mudança só visual e de layout. Sem nova função, endpoint, dado ou permissão. As abas de estado do TiFlux (Pré-tickets, Autorizações, Tickets em revisão, Tickets fechados) são funcionalidade nova e ficam fora; só entram se Alfredo pedir (Q2).
-- D3 [Proposta] Sidebar, barra de abas internas e shell global (`AppLayout`) ficam fora; só se ajustam se a proporção da aba exigir, com decisão registrada.
+- D3 [Proposta] Sidebar, barra de abas internas e shell global (`AppLayout`) ficam fora; só se ajustam se a proporção da aba exigir, com decisão registrada. [Revisada por Q5: o menu lateral entra no escopo só no que o celular exige, o menu retrátil do AC-17.]
 
 Direção visual
 
@@ -82,7 +82,7 @@ Direção visual
 - D9 [Proposta] Toolbar: uma barra única por visão, com altura de controle padrão. Kanban: Mesa, filtros, responsáveis, Buscar, Ordenar, Configurações. Lista: filtros ativos, Agrupar por, Exibir colunas. O alternador Lista/Kanban vira controle segmentado do DS.
 - D10 [Proposta] Lista: cabeçalho de tabela e hover com tokens do DS, linhas de altura fixa, ícone de expandir/recolher nos grupos, contagem do grupo discreta, paginação com o botão do DS.
 - D11 [Proposta] Detalhe, Busca avançada e Criar ticket reutilizam a grade, os campos e os botões do DS; sem estilos próprios de cor.
-- D12 [Proposta] Responsividade: alvos 1440, 1280, 1024 e 768px. Abaixo de 768px a aba não precisa ser otimizada nesta entrega (Q5). Kanban rola na horizontal; toolbar quebra em duas linhas sem sobrepor; Lista prioriza colunas Número, Título, Cliente, Status.
+- D12 [Proposta, revisada por Q5] Responsividade: alvos 1440, 1280, 1024 e 768px e, por decisão do Alfredo, celular em 390px. Em telas menores que 768px o menu lateral vira um menu retrátil aberto por um botão no cabeçalho (AC-17). Kanban rola na horizontal; toolbar quebra em duas linhas sem sobrepor; Lista prioriza colunas Número, Título, Cliente, Status.
 
 Impacto no DS [Proposta, o DS não é considerado fechado, conforme Alfredo]
 
@@ -119,11 +119,12 @@ Cada critério abaixo é verificável de forma independente. Nada aqui foi execu
 - AC-11 Visão CLIENT: Lista com o mesmo acabamento e sem Kanban. Teste existente de papel CLIENT segue verde.
 - AC-12 Detalhe, Busca avançada e Criar ticket: mesma grade, campos e botões do DS, sem estilos de cor próprios (cobre-se por AC-01) e sem mudança de comportamento. Testes existentes verdes.
 - AC-13 Estados de carregamento, vazio e erro na Lista e no Kanban com o mesmo estilo e mensagens atuais. Testes de estado.
-- AC-14 Evidência visual: o Developer anexa capturas (dados sintéticos) de Lista, Kanban, cartão, Detalhe, Busca avançada e Criar ticket em 1440, 1280, 1024 e 768px; Alfredo aprova ponto a ponto contra os prints do TiFlux. Aceite visual é humano; capturas isoladas não bastam.
+- AC-14 Evidência visual: o Developer anexa capturas (dados sintéticos) de Lista, Kanban, cartão, Detalhe, Busca avançada e Criar ticket em 1440, 1280, 1024, 768 e 390px; Alfredo aprova ponto a ponto contra os prints do TiFlux. Aceite visual é humano; capturas isoladas não bastam.
 - AC-15 DS: cada componente de DS novo/alterado tem story e teste (≥3 casos), consta em `docs/architecture/03-sankhya-ds-parity.md` e o Storybook compila. Nenhuma tela existente que usa `EzTag`/`EzAvatar` quebra seus testes.
+- AC-17 Celular (390px): sem rolagem horizontal da página; o menu lateral vira menu retrátil (botão "Abrir menu" no cabeçalho, painel com `role="dialog"`, fecha por Esc, toque fora ou ao navegar); acima de 768px o menu lateral continua fixo como hoje. Teste do menu retrátil mais captura de Lista, Kanban, Busca avançada, Criar ticket e Detalhe em 390px.
 - AC-16 Sem mudança de contrato: nenhuma alteração de API, banco, permissão ou dado; testes de API não são tocados. Verificação: diff sem arquivos de `apps/api`.
 
-Matriz AC → teste: AC-01/02 checagem estática; AC-03/05/09/10/11/13 Vitest em `TicketsPage`, `TicketList`, `TicketKanbanCard`; AC-04 teste da toolbar do Kanban; AC-06/15 testes e stories do DS; AC-07/14 capturas + aceite humano; AC-08/12/16 suítes existentes + diff.
+Matriz AC → teste: AC-01/02 checagem estática; AC-03/05/09/10/11/13 Vitest em `TicketsPage`, `TicketList`, `TicketKanbanCard`; AC-04 teste da toolbar do Kanban; AC-06/15 testes e stories do DS; AC-07/14 capturas + aceite humano; AC-17 teste do menu retrátil + capturas em 390px; AC-08/12/16 suítes existentes + diff.
 
 Evidência RED/GREEN (WORKFLOW) aplica-se a AC-01/02/03/05/06/09; ACs puramente visuais (AC-07, AC-14) registram "TDD não aplicável" com justificativa no manifesto, conforme o fluxo do repositório.
 
@@ -139,7 +140,7 @@ Evidência RED/GREEN (WORKFLOW) aplica-se a AC-01/02/03/05/06/09; ACs puramente 
 
 ## Out of Scope
 
-Funcionalidades novas do TiFlux (abas de estado de tickets, Autorizações, play/apontamento no cartão, chats), mudanças de API/banco/permissão, shell global, SPEC e entrega DMTE-78, tema escuro, otimização abaixo de 768px (salvo decisão em Q5).
+Funcionalidades novas do TiFlux (abas de estado de tickets, Autorizações, play/apontamento no cartão, chats), mudanças de API/banco/permissão, SPEC e entrega DMTE-78, tema escuro.
 
 ## Further Notes
 
@@ -159,7 +160,7 @@ Execução em série (WIP 1). Fatias técnicas são filhas Multica do DMTE-427, 
 | 4 | Lista e visão CLIENT | 1, 3 | Tabela, agrupamento com ícone e `aria-expanded`, filtros ativos e redefinir (se já suportados), paginação, visão CLIENT | AC-09, AC-10, AC-11, AC-13 (Lista) |
 | 5 | Busca avançada e Criar ticket | 1 | Telas com grade, campos e botões do DS | AC-12 (parte) |
 | 6 | Detalhe do ticket | 1 | Cabeçalho, abas e blocos (comentários, apontamentos, anexos, checklist) sem cores próprias | AC-12 (parte) |
-| 7 | Responsividade e aceite visual | 2, 3, 4, 5, 6 | Ajustes finais em 1440/1280/1024/768px, estados e capturas de todas as superfícies para o aceite do Alfredo | AC-07 (todas as larguras), AC-14 |
+| 7 | Responsividade e aceite visual | 2, 3, 4, 5, 6 | Ajustes finais em 1440/1280/1024/768px e, por decisão do Alfredo (Q5), 390px no celular com menu retrátil; capturas de todas as superfícies para o aceite do Alfredo | AC-07 (todas as larguras), AC-14, AC-17 |
 
 Ordem sugerida: 1, 2, 3, 4, 5, 6, 7 (Kanban primeiro depois da fundação por ser a tela do print de referência). 5 e 6 não têm dependência entre si e permanecem separadas. A fatia 3 precede a 4 porque a Lista usa o alternador e a barra do cabeçalho. Por WIP 1 nada roda em paralelo, mesmo onde o grafo permitiria.
 

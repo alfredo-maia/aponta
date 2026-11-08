@@ -74,7 +74,7 @@ export function TicketKanbanCard({
   };
 
   return (
-    <li className="rounded-[8px] border border-gray-200 bg-white p-3 shadow-xs transition-shadow hover:shadow-sm">
+    <li className="list-none rounded-[8px] border border-gray-200 bg-white p-3 shadow-xs transition-shadow hover:shadow-sm">
       <Link
         to={path}
         onClick={handleClick}

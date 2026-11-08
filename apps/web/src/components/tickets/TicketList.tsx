@@ -38,14 +38,14 @@ const COLUMNS: ColumnDef[] = [
     label: 'Número',
     sortField: 'protocol',
     defaultVisible: true,
-    render: (t) => <span className="font-mono text-[12px]">{t.protocol}</span>,
+    render: (t) => <span className="whitespace-nowrap font-mono text-[12px]">{t.protocol}</span>,
   },
   {
     id: 'title',
     label: 'Título',
     sortField: 'title',
     defaultVisible: true,
-    render: (t) => <span className="font-medium text-gray-900">{t.title}</span>,
+    render: (t) => <span className="block min-w-[14rem] font-medium text-gray-900">{t.title}</span>,
   },
   {
     id: 'client',
@@ -302,8 +302,13 @@ export function TicketList({
         )}
       </div>
 
-      <div className="overflow-x-auto rounded-[10px] border border-gray-200 bg-white">
-        <table className="w-full text-left">
+      <div
+        role="region"
+        aria-label="Tabela de chamados"
+        tabIndex={0}
+        className="overflow-x-auto rounded-control border border-gray-200 bg-white outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+      >
+        <table className="w-full min-w-[720px] text-left">
           <thead>
             <tr className="border-b border-gray-200 bg-gray-80">
               {visibleColumns.map((col) => (

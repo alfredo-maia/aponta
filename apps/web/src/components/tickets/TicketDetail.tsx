@@ -122,14 +122,14 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="min-w-0 space-y-1">
           <span className="font-mono text-xs text-gray-500">
             {ticket.protocol}
           </span>
-          <h1 className="text-2xl font-bold text-gray-900">{ticket.title}</h1>
+          <h1 className="break-words text-xl font-bold text-gray-900 sm:text-2xl">{ticket.title}</h1>
         </div>
-        <div className="flex shrink-0 flex-col items-end gap-2">
+        <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
           <div className="flex items-center gap-2">
             {user?.role === 'CLIENT' ? (
               <EzTag

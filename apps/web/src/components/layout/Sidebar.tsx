@@ -66,11 +66,23 @@ const ROLE_VISIBILITY: Record<string, string[]> = {
 
 const DEFAULT_VISIBILITY = ['Tickets', 'Conhecimentos', 'Configurações'];
 
-export function Sidebar() {
+interface SidebarProps {
+  /** Dentro do menu retrátil do celular: sempre expandido e sem o botão de recolher. */
+  inDrawer?: boolean;
+  /** Chamado depois de escolher um destino, para o menu retrátil se fechar. */
+  onNavigate?: () => void;
+}
+
+export function Sidebar({ inDrawer = false, onNavigate }: SidebarProps = {}) {
   const user = useAuthStore((state) => state.user);
   const location = useLocation();
   const navigate = useNavigate();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsedState, setCollapsedState] = useState(false);
+  const collapsed = inDrawer ? false : collapsedState;
+  const go = (to: string) => {
+    navigate(to);
+    onNavigate?.();
+  };
 
   const allowList = user?.role
     ? ROLE_VISIBILITY[user.role] ?? DEFAULT_VISIBILITY
@@ -95,7 +107,7 @@ export function Sidebar() {
           size={collapsed ? 'small' : 'medium'}
           className="w-full"
           leftIcon={Plus}
-          onClick={() => navigate('/tickets/new')}
+          onClick={() => go('/tickets/new')}
           label={collapsed ? undefined : 'Novo Ticket'}
           title="Novo Ticket"
         />
@@ -118,7 +130,7 @@ export function Sidebar() {
             collapsed={collapsed}
             active={isActive}
             disabled={item.disabled}
-            onClick={() => navigate(item.to)}
+            onClick={() => go(item.to)}
             className={item.submenu && !collapsed ? 'pl-8' : undefined}
           />
         );
@@ -126,16 +138,18 @@ export function Sidebar() {
 
       <div className="flex-1" />
 
-      {/* Footer / Toggle — fixed, outside the scroll flow of the items above */}
-      <div className="mt-auto pt-2 pb-1 border-t border-gray-100">
-        <EzSidebarButton
-          label={collapsed ? 'Expandir' : 'Esconder'}
-          icon={collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
-          collapsed={collapsed}
-          onClick={() => setCollapsed(!collapsed)}
-          className="text-gray-500 hover:text-gray-900"
-        />
-      </div>
+      {/* Footer / Toggle — fixed, outside the scroll flow of the items above; não existe no menu retrátil */}
+      {!inDrawer && (
+        <div className="mt-auto pt-2 pb-1 border-t border-gray-100">
+          <EzSidebarButton
+            label={collapsed ? 'Expandir' : 'Esconder'}
+            icon={collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
+            collapsed={collapsed}
+            onClick={() => setCollapsedState(!collapsedState)}
+            className="text-gray-500 hover:text-gray-900"
+          />
+        </div>
+      )}
     </EzSidebarNavigator>
   );
 }

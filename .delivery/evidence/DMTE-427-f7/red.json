@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-08T14:10:49.314532+00:00",
+  "finished_at": "2026-11-08T14:10:59.999014+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run",
+    "web:test",
+    "--skip-nx-cache",
+    "--",
+    "src/components/layout/AppLayout.test.tsx"
+  ],
+  "base_sha": "63ce7bcbd30544c147c9c76a37a03012b9ca1443",
+  "head_sha": "63ce7bcbd30544c147c9c76a37a03012b9ca1443",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/components/layout/AppLayout.test.tsx": "9ec6962a90cc6f39f2fc3dbf84872f2968030d3f5696856820619c942af72484"
+  },
+  "criteria": [
+    "AC-17"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/layout/AppLayout.test.tsx": "9ec6962a90cc6f39f2fc3dbf84872f2968030d3f5696856820619c942af72484"
+  },
+  "log": ".delivery/evidence/DMTE-427-f7/red.log",
+  "log_sha256": "39ff55010233fc251d52c2a85ef54ec65c50862081ed7df0c5734be327e66d73"
+}

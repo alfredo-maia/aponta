@@ -1,0 +1,1560 @@
+
+> nx run web:test src/components/layout/AppLayout.test.tsx
+
+> vitest src/components/layout/AppLayout.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-430-31f270e18a18/workdir/aponta/apps/web
+
+ ❯ |web| src/components/layout/AppLayout.test.tsx (9 tests | 6 failed) 1222ms
+     ✓ renders the DS background tone (bg-gray-80) on the shell, not the old bg-background token 72ms
+     ✓ renders a white header with the DS border color, not the old bg-background token 106ms
+     ✓ renders the Sidebar, UserMenu trigger and the routed page content 31ms
+       × has an "Abrir menu" button in the header, closed by default 102ms
+       × opens the navigation as a named dialog and flips aria-expanded 193ms
+       × does not offer the collapse toggle inside the drawer 179ms
+       × closes with Escape 168ms
+       × closes when the backdrop is tapped 217ms
+       × closes after choosing a destination, and shows that page 149ms
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 3 passed (9)
+   Start at  11:10:54
+   Duration  4.35s (transform 1.76s, setup 95ms, import 2.37s, tests 1.22s, environment 431ms)
+
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/components/layout/AppLayout.test.tsx > AppLayout > AC-17: menu retrátil no celular > has an "Abrir menu" button in the header, closed by default
+Error: [2mexpect([22m[31mreceived[39m[2m).toBeInTheDocument()[22m
+
+[31mreceived[39m value must be an HTMLElement or an SVGElement.
+Received has type:  Null
+Received has value: [31mnull[39m
+ ❯ src/components/layout/AppLayout.test.tsx:51:22
+     49|       renderLayout();
+     50|       const toggle = screen.queryByRole('button', { name: 'Abrir menu'…
+     51|       expect(toggle).toBeInTheDocument();
+       |                      ^
+     52|       expect(toggle).toHaveAttribute('aria-expanded', 'false');
+     53|       expect(screen.queryByRole('dialog', { name: 'Menu principal' }))…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |web| src/components/layout/AppLayout.test.tsx > AppLayout > AC-17: menu retrátil no celular > opens the navigation as a named dialog and flips aria-expanded
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Abrir menu"
+
+Here are the accessible roles:
+
+  navigation:
+
+  Name "":
+  [36m<nav[39m
+    [33mclass[39m=[32m"flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300 shrink-0 w-[240px] min-w-[240px]"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Novo Ticket":
+  [36m<button[39m
+    [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-brand-500 text-gray-70 border border-brand-500 hover:bg-brand-700 hover:border-brand-700 disabled:bg-gray-400 disabled:border-gray-400 disabled:text-gray-70 h-[42px] text-sm px-4 w-full"[39m
+    [33mtitle[39m=[32m"Novo Ticket"[39m
+  [36m/>[39m
+
+  Name "Dashboard":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Tickets":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] bg-brand-100 text-brand-700 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Chats Em breve":
+  [36m<button[39m
+    [33maria-disabled[39m=[32m"true"[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 opacity-50 cursor-not-allowed hover:bg-transparent hover:text-gray-700 justify-start"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Clientes":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Mesa":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Contratos":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Relatórios":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Agenda":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Conhecimentos":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Cofre de Senhas":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Auditoria":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start pl-8"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Configurações":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Esconder":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] hover:bg-gray-80 justify-start text-gray-500 hover:text-gray-900"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "AL alfredo@dmtecnologia.com.br":
+  [36m<button[39m
+    [33mclass[39m=[32m"inline-flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200 rounded-[12px]"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  [36m<header[39m
+    [33mclass[39m=[32m"flex justify-end border-b border-gray-200 bg-white p-3"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  tablist:
+
+  Name "Abas abertas":
+  [36m<div[39m
+    [33maria-label[39m=[32m"Abas abertas"[39m
+    [33mclass[39m=[32m"flex items-center gap-1 overflow-x-auto border-b border-gray-200 bg-white px-3 pt-2"[39m
+    [33mrole[39m=[32m"tablist"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  tab:
+
+  Name "Tickets":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"true"[39m
+    [33mclass[39m=[32m"flex max-w-[220px] shrink-0 cursor-pointer items-center gap-2 rounded-t-[8px] border border-b-0 px-3 py-1.5 text-[13px] font-medium transition-colors border-gray-200 bg-gray-80 text-gray-900"[39m
+    [33mrole[39m=[32m"tab"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  [36m<main[39m
+    [33mclass[39m=[32m"flex-1 overflow-auto p-6 min-w-0"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen bg-gray-80 text-gray-900"[39m
+    [36m>[39m
+      [36m<nav[39m
+        [33mclass[39m=[32m"flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300 shrink-0 w-[240px] min-w-[240px]"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-col flex-1 gap-1 p-2 overflow-y-auto no-scrollbar"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex flex-col gap-3 p-2 mb-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center justify-between px-2 py-1"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-xl font-bold text-gray-900 tracking-tight"[39m
+              [36m>[39m
+                [0mAponta[0m
+              [36m</span>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-brand-500 text-gray-70 border border-brand-500 hover:bg-brand-700 hover:border-brand-700 disabled:bg-gray-400 disabled:border-gray-400 disabled:text-gray-70 h-[42px] text-sm px-4 w-full"[39m
+              [33mtitle[39m=[32m"Novo Ticket"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-plus shrink-0 h-4 w-4"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M5 12h14"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 5v14"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"font-normal"[39m
+                [36m>[39m
+                  [0mNovo Ticket[0m
+                [36m</span>[39m
+              [36m</div>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex shrink-0 items-center justify-center w-5 h-5"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-layout-dashboard"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"9"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"3"[39m
+                  [33my[39m=[32m"3"[39m
+                [36m/>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"5"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"14"[39m
+                  [33my[39m=[32m"3"[39m
+                [36m/>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"9"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"14"[39m
+                  [33my[39m=[32m"12"[39m
+                [36m/>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"5"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"3"[39m
+                  [33my[39m=[32m"16"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"truncate flex-1 text-left"[39m
+            [36m>[39m
+              [0mDashboard[0m
+            [36m</span>[39m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] bg-brand-100 text-brand-700 justify-start"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex shrink-0 items-center justify-center w-5 h-5"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-ticket"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M13 5v2"[39m
+                ...
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/layout/AppLayout.test.tsx:59:31
+     57|       const user = userEvent.setup();
+     58|       renderLayout();
+     59|       await user.click(screen.getByRole('button', { name: 'Abrir menu'…
+       |                               ^
+     60|
+     61|       const dialog = screen.queryByRole('dialog', { name: 'Menu princi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |web| src/components/layout/AppLayout.test.tsx > AppLayout > AC-17: menu retrátil no celular > does not offer the collapse toggle inside the drawer
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Abrir menu"
+
+Here are the accessible roles:
+
+  navigation:
+
+  Name "":
+  [36m<nav[39m
+    [33mclass[39m=[32m"flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300 shrink-0 w-[240px] min-w-[240px]"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Novo Ticket":
+  [36m<button[39m
+    [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-brand-500 text-gray-70 border border-brand-500 hover:bg-brand-700 hover:border-brand-700 disabled:bg-gray-400 disabled:border-gray-400 disabled:text-gray-70 h-[42px] text-sm px-4 w-full"[39m
+    [33mtitle[39m=[32m"Novo Ticket"[39m
+  [36m/>[39m
+
+  Name "Dashboard":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Tickets":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] bg-brand-100 text-brand-700 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Chats Em breve":
+  [36m<button[39m
+    [33maria-disabled[39m=[32m"true"[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 opacity-50 cursor-not-allowed hover:bg-transparent hover:text-gray-700 justify-start"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Clientes":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Mesa":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Contratos":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Relatórios":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Agenda":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Conhecimentos":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Cofre de Senhas":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Auditoria":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start pl-8"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Configurações":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Esconder":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] hover:bg-gray-80 justify-start text-gray-500 hover:text-gray-900"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "AL alfredo@dmtecnologia.com.br":
+  [36m<button[39m
+    [33mclass[39m=[32m"inline-flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200 rounded-[12px]"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  [36m<header[39m
+    [33mclass[39m=[32m"flex justify-end border-b border-gray-200 bg-white p-3"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  tablist:
+
+  Name "Abas abertas":
+  [36m<div[39m
+    [33maria-label[39m=[32m"Abas abertas"[39m
+    [33mclass[39m=[32m"flex items-center gap-1 overflow-x-auto border-b border-gray-200 bg-white px-3 pt-2"[39m
+    [33mrole[39m=[32m"tablist"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  tab:
+
+  Name "Tickets":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"true"[39m
+    [33mclass[39m=[32m"flex max-w-[220px] shrink-0 cursor-pointer items-center gap-2 rounded-t-[8px] border border-b-0 px-3 py-1.5 text-[13px] font-medium transition-colors border-gray-200 bg-gray-80 text-gray-900"[39m
+    [33mrole[39m=[32m"tab"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  [36m<main[39m
+    [33mclass[39m=[32m"flex-1 overflow-auto p-6 min-w-0"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen bg-gray-80 text-gray-900"[39m
+    [36m>[39m
+      [36m<nav[39m
+        [33mclass[39m=[32m"flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300 shrink-0 w-[240px] min-w-[240px]"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-col flex-1 gap-1 p-2 overflow-y-auto no-scrollbar"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex flex-col gap-3 p-2 mb-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center justify-between px-2 py-1"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-xl font-bold text-gray-900 tracking-tight"[39m
+              [36m>[39m
+                [0mAponta[0m
+              [36m</span>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-brand-500 text-gray-70 border border-brand-500 hover:bg-brand-700 hover:border-brand-700 disabled:bg-gray-400 disabled:border-gray-400 disabled:text-gray-70 h-[42px] text-sm px-4 w-full"[39m
+              [33mtitle[39m=[32m"Novo Ticket"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-plus shrink-0 h-4 w-4"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M5 12h14"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 5v14"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"font-normal"[39m
+                [36m>[39m
+                  [0mNovo Ticket[0m
+                [36m</span>[39m
+              [36m</div>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex shrink-0 items-center justify-center w-5 h-5"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-layout-dashboard"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"9"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"3"[39m
+                  [33my[39m=[32m"3"[39m
+                [36m/>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"5"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"14"[39m
+                  [33my[39m=[32m"3"[39m
+                [36m/>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"9"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"14"[39m
+                  [33my[39m=[32m"12"[39m
+                [36m/>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"5"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"3"[39m
+                  [33my[39m=[32m"16"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"truncate flex-1 text-left"[39m
+            [36m>[39m
+              [0mDashboard[0m
+            [36m</span>[39m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] bg-brand-100 text-brand-700 justify-start"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex shrink-0 items-center justify-center w-5 h-5"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-ticket"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M13 5v2"[39m
+                ...
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/layout/AppLayout.test.tsx:70:31
+     68|       const user = userEvent.setup();
+     69|       renderLayout();
+     70|       await user.click(screen.getByRole('button', { name: 'Abrir menu'…
+       |                               ^
+     71|       const dialog = screen.getByRole('dialog', { name: 'Menu principa…
+     72|       expect(within(dialog).queryByRole('button', { name: 'Esconder' }…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |web| src/components/layout/AppLayout.test.tsx > AppLayout > AC-17: menu retrátil no celular > closes with Escape
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Abrir menu"
+
+Here are the accessible roles:
+
+  navigation:
+
+  Name "":
+  [36m<nav[39m
+    [33mclass[39m=[32m"flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300 shrink-0 w-[240px] min-w-[240px]"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Novo Ticket":
+  [36m<button[39m
+    [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-brand-500 text-gray-70 border border-brand-500 hover:bg-brand-700 hover:border-brand-700 disabled:bg-gray-400 disabled:border-gray-400 disabled:text-gray-70 h-[42px] text-sm px-4 w-full"[39m
+    [33mtitle[39m=[32m"Novo Ticket"[39m
+  [36m/>[39m
+
+  Name "Dashboard":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Tickets":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] bg-brand-100 text-brand-700 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Chats Em breve":
+  [36m<button[39m
+    [33maria-disabled[39m=[32m"true"[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 opacity-50 cursor-not-allowed hover:bg-transparent hover:text-gray-700 justify-start"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Clientes":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Mesa":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Contratos":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Relatórios":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Agenda":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Conhecimentos":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Cofre de Senhas":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Auditoria":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start pl-8"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Configurações":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Esconder":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] hover:bg-gray-80 justify-start text-gray-500 hover:text-gray-900"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "AL alfredo@dmtecnologia.com.br":
+  [36m<button[39m
+    [33mclass[39m=[32m"inline-flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200 rounded-[12px]"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  [36m<header[39m
+    [33mclass[39m=[32m"flex justify-end border-b border-gray-200 bg-white p-3"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  tablist:
+
+  Name "Abas abertas":
+  [36m<div[39m
+    [33maria-label[39m=[32m"Abas abertas"[39m
+    [33mclass[39m=[32m"flex items-center gap-1 overflow-x-auto border-b border-gray-200 bg-white px-3 pt-2"[39m
+    [33mrole[39m=[32m"tablist"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  tab:
+
+  Name "Tickets":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"true"[39m
+    [33mclass[39m=[32m"flex max-w-[220px] shrink-0 cursor-pointer items-center gap-2 rounded-t-[8px] border border-b-0 px-3 py-1.5 text-[13px] font-medium transition-colors border-gray-200 bg-gray-80 text-gray-900"[39m
+    [33mrole[39m=[32m"tab"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  [36m<main[39m
+    [33mclass[39m=[32m"flex-1 overflow-auto p-6 min-w-0"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen bg-gray-80 text-gray-900"[39m
+    [36m>[39m
+      [36m<nav[39m
+        [33mclass[39m=[32m"flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300 shrink-0 w-[240px] min-w-[240px]"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-col flex-1 gap-1 p-2 overflow-y-auto no-scrollbar"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex flex-col gap-3 p-2 mb-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center justify-between px-2 py-1"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-xl font-bold text-gray-900 tracking-tight"[39m
+              [36m>[39m
+                [0mAponta[0m
+              [36m</span>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-brand-500 text-gray-70 border border-brand-500 hover:bg-brand-700 hover:border-brand-700 disabled:bg-gray-400 disabled:border-gray-400 disabled:text-gray-70 h-[42px] text-sm px-4 w-full"[39m
+              [33mtitle[39m=[32m"Novo Ticket"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-plus shrink-0 h-4 w-4"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M5 12h14"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 5v14"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"font-normal"[39m
+                [36m>[39m
+                  [0mNovo Ticket[0m
+                [36m</span>[39m
+              [36m</div>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex shrink-0 items-center justify-center w-5 h-5"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-layout-dashboard"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"9"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"3"[39m
+                  [33my[39m=[32m"3"[39m
+                [36m/>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"5"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"14"[39m
+                  [33my[39m=[32m"3"[39m
+                [36m/>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"9"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"14"[39m
+                  [33my[39m=[32m"12"[39m
+                [36m/>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"5"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"3"[39m
+                  [33my[39m=[32m"16"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"truncate flex-1 text-left"[39m
+            [36m>[39m
+              [0mDashboard[0m
+            [36m</span>[39m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] bg-brand-100 text-brand-700 justify-start"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex shrink-0 items-center justify-center w-5 h-5"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-ticket"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M13 5v2"[39m
+                ...
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/layout/AppLayout.test.tsx:78:31
+     76|       const user = userEvent.setup();
+     77|       renderLayout();
+     78|       await user.click(screen.getByRole('button', { name: 'Abrir menu'…
+       |                               ^
+     79|       await user.keyboard('{Escape}');
+     80|       expect(screen.queryByRole('dialog', { name: 'Menu principal' }))…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |web| src/components/layout/AppLayout.test.tsx > AppLayout > AC-17: menu retrátil no celular > closes when the backdrop is tapped
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Abrir menu"
+
+Here are the accessible roles:
+
+  navigation:
+
+  Name "":
+  [36m<nav[39m
+    [33mclass[39m=[32m"flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300 shrink-0 w-[240px] min-w-[240px]"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Novo Ticket":
+  [36m<button[39m
+    [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-brand-500 text-gray-70 border border-brand-500 hover:bg-brand-700 hover:border-brand-700 disabled:bg-gray-400 disabled:border-gray-400 disabled:text-gray-70 h-[42px] text-sm px-4 w-full"[39m
+    [33mtitle[39m=[32m"Novo Ticket"[39m
+  [36m/>[39m
+
+  Name "Dashboard":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Tickets":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] bg-brand-100 text-brand-700 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Chats Em breve":
+  [36m<button[39m
+    [33maria-disabled[39m=[32m"true"[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 opacity-50 cursor-not-allowed hover:bg-transparent hover:text-gray-700 justify-start"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Clientes":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Mesa":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Contratos":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Relatórios":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Agenda":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Conhecimentos":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Cofre de Senhas":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Auditoria":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start pl-8"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Configurações":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Esconder":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] hover:bg-gray-80 justify-start text-gray-500 hover:text-gray-900"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "AL alfredo@dmtecnologia.com.br":
+  [36m<button[39m
+    [33mclass[39m=[32m"inline-flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200 rounded-[12px]"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  [36m<header[39m
+    [33mclass[39m=[32m"flex justify-end border-b border-gray-200 bg-white p-3"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  tablist:
+
+  Name "Abas abertas":
+  [36m<div[39m
+    [33maria-label[39m=[32m"Abas abertas"[39m
+    [33mclass[39m=[32m"flex items-center gap-1 overflow-x-auto border-b border-gray-200 bg-white px-3 pt-2"[39m
+    [33mrole[39m=[32m"tablist"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  tab:
+
+  Name "Tickets":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"true"[39m
+    [33mclass[39m=[32m"flex max-w-[220px] shrink-0 cursor-pointer items-center gap-2 rounded-t-[8px] border border-b-0 px-3 py-1.5 text-[13px] font-medium transition-colors border-gray-200 bg-gray-80 text-gray-900"[39m
+    [33mrole[39m=[32m"tab"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  [36m<main[39m
+    [33mclass[39m=[32m"flex-1 overflow-auto p-6 min-w-0"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen bg-gray-80 text-gray-900"[39m
+    [36m>[39m
+      [36m<nav[39m
+        [33mclass[39m=[32m"flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300 shrink-0 w-[240px] min-w-[240px]"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-col flex-1 gap-1 p-2 overflow-y-auto no-scrollbar"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex flex-col gap-3 p-2 mb-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center justify-between px-2 py-1"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-xl font-bold text-gray-900 tracking-tight"[39m
+              [36m>[39m
+                [0mAponta[0m
+              [36m</span>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-brand-500 text-gray-70 border border-brand-500 hover:bg-brand-700 hover:border-brand-700 disabled:bg-gray-400 disabled:border-gray-400 disabled:text-gray-70 h-[42px] text-sm px-4 w-full"[39m
+              [33mtitle[39m=[32m"Novo Ticket"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-plus shrink-0 h-4 w-4"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M5 12h14"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 5v14"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"font-normal"[39m
+                [36m>[39m
+                  [0mNovo Ticket[0m
+                [36m</span>[39m
+              [36m</div>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex shrink-0 items-center justify-center w-5 h-5"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-layout-dashboard"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"9"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"3"[39m
+                  [33my[39m=[32m"3"[39m
+                [36m/>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"5"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"14"[39m
+                  [33my[39m=[32m"3"[39m
+                [36m/>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"9"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"14"[39m
+                  [33my[39m=[32m"12"[39m
+                [36m/>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"5"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"3"[39m
+                  [33my[39m=[32m"16"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"truncate flex-1 text-left"[39m
+            [36m>[39m
+              [0mDashboard[0m
+            [36m</span>[39m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] bg-brand-100 text-brand-700 justify-start"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex shrink-0 items-center justify-center w-5 h-5"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-ticket"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M13 5v2"[39m
+                ...
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/layout/AppLayout.test.tsx:87:31
+     85|       const user = userEvent.setup();
+     86|       renderLayout();
+     87|       await user.click(screen.getByRole('button', { name: 'Abrir menu'…
+       |                               ^
+     88|       await user.click(screen.getByTestId('menu-backdrop'));
+     89|       expect(screen.queryByRole('dialog', { name: 'Menu principal' }))…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |web| src/components/layout/AppLayout.test.tsx > AppLayout > AC-17: menu retrátil no celular > closes after choosing a destination, and shows that page
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Abrir menu"
+
+Here are the accessible roles:
+
+  navigation:
+
+  Name "":
+  [36m<nav[39m
+    [33mclass[39m=[32m"flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300 shrink-0 w-[240px] min-w-[240px]"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Novo Ticket":
+  [36m<button[39m
+    [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-brand-500 text-gray-70 border border-brand-500 hover:bg-brand-700 hover:border-brand-700 disabled:bg-gray-400 disabled:border-gray-400 disabled:text-gray-70 h-[42px] text-sm px-4 w-full"[39m
+    [33mtitle[39m=[32m"Novo Ticket"[39m
+  [36m/>[39m
+
+  Name "Dashboard":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Tickets":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] bg-brand-100 text-brand-700 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Chats Em breve":
+  [36m<button[39m
+    [33maria-disabled[39m=[32m"true"[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 opacity-50 cursor-not-allowed hover:bg-transparent hover:text-gray-700 justify-start"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Clientes":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Mesa":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Contratos":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Relatórios":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Agenda":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Conhecimentos":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Cofre de Senhas":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Auditoria":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start pl-8"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Configurações":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Esconder":
+  [36m<button[39m
+    [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] hover:bg-gray-80 justify-start text-gray-500 hover:text-gray-900"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "AL alfredo@dmtecnologia.com.br":
+  [36m<button[39m
+    [33mclass[39m=[32m"inline-flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200 rounded-[12px]"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  [36m<header[39m
+    [33mclass[39m=[32m"flex justify-end border-b border-gray-200 bg-white p-3"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  tablist:
+
+  Name "Abas abertas":
+  [36m<div[39m
+    [33maria-label[39m=[32m"Abas abertas"[39m
+    [33mclass[39m=[32m"flex items-center gap-1 overflow-x-auto border-b border-gray-200 bg-white px-3 pt-2"[39m
+    [33mrole[39m=[32m"tablist"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  tab:
+
+  Name "Tickets":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"true"[39m
+    [33mclass[39m=[32m"flex max-w-[220px] shrink-0 cursor-pointer items-center gap-2 rounded-t-[8px] border border-b-0 px-3 py-1.5 text-[13px] font-medium transition-colors border-gray-200 bg-gray-80 text-gray-900"[39m
+    [33mrole[39m=[32m"tab"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  [36m<main[39m
+    [33mclass[39m=[32m"flex-1 overflow-auto p-6 min-w-0"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen bg-gray-80 text-gray-900"[39m
+    [36m>[39m
+      [36m<nav[39m
+        [33mclass[39m=[32m"flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300 shrink-0 w-[240px] min-w-[240px]"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-col flex-1 gap-1 p-2 overflow-y-auto no-scrollbar"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex flex-col gap-3 p-2 mb-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center justify-between px-2 py-1"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-xl font-bold text-gray-900 tracking-tight"[39m
+              [36m>[39m
+                [0mAponta[0m
+              [36m</span>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-brand-500 text-gray-70 border border-brand-500 hover:bg-brand-700 hover:border-brand-700 disabled:bg-gray-400 disabled:border-gray-400 disabled:text-gray-70 h-[42px] text-sm px-4 w-full"[39m
+              [33mtitle[39m=[32m"Novo Ticket"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-plus shrink-0 h-4 w-4"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M5 12h14"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 5v14"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"font-normal"[39m
+                [36m>[39m
+                  [0mNovo Ticket[0m
+                [36m</span>[39m
+              [36m</div>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] text-gray-700 hover:bg-gray-80 hover:text-gray-900 justify-start"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex shrink-0 items-center justify-center w-5 h-5"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-layout-dashboard"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"9"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"3"[39m
+                  [33my[39m=[32m"3"[39m
+                [36m/>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"5"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"14"[39m
+                  [33my[39m=[32m"3"[39m
+                [36m/>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"9"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"14"[39m
+                  [33my[39m=[32m"12"[39m
+                [36m/>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"5"[39m
+                  [33mrx[39m=[32m"1"[39m
+                  [33mwidth[39m=[32m"7"[39m
+                  [33mx[39m=[32m"3"[39m
+                  [33my[39m=[32m"16"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"truncate flex-1 text-left"[39m
+            [36m>[39m
+              [0mDashboard[0m
+            [36m</span>[39m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors font-medium outline-none text-[14px] bg-brand-100 text-brand-700 justify-start"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex shrink-0 items-center justify-center w-5 h-5"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-ticket"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M13 5v2"[39m
+                ...
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/layout/AppLayout.test.tsx:95:31
+     93|       const user = userEvent.setup();
+     94|       renderLayout();
+     95|       await user.click(screen.getByRole('button', { name: 'Abrir menu'…
+       |                               ^
+     96|       const dialog = screen.getByRole('dialog', { name: 'Menu principa…
+     97|       await user.click(within(dialog).getByRole('button', { name: 'Das…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+Warning: command "vitest src/components/layout/AppLayout.test.tsx" exited with non-zero status code

@@ -6,7 +6,7 @@
   "multica_id": "01a1a2ef-0513-7170-8abc-490e1d79dbfa",
   "cycle": "2026-10-26/2026-11-08",
   "tier": 3,
-  "base_sha": "29c8be5c2acc7b3865334a0c312fe6b173894558",
+  "base_sha": "63ce7bcbd30544c147c9c76a37a03012b9ca1443",
   "criteria": [
     {
       "id": "AC-01",
@@ -76,7 +76,7 @@
     },
     {
       "id": "AC-07",
-      "description": "Colunas do Kanban com largura de 290px (antes 320px), cabeçalho com nome e contador, rolagem horizontal preservada.",
+      "description": "Colunas do Kanban com largura de 290px (antes 320px), cabeçalho com nome e contador, rolagem horizontal preservada. Fatia 7: rolagem horizontal da página verificada em 1440, 1280, 1024, 768 e 390px por captura (scrollWidth igual a clientWidth em todas as telas).",
       "tests": [
         "apps/web/src/components/tickets/TicketKanban.test.tsx"
       ],
@@ -154,26 +154,54 @@
         "apps/web/src/pages/TicketAdvancedSearchPage.collapsible.test.tsx",
         "apps/web/src/components/tickets/TicketCsat.test.tsx",
         "apps/web/src/pages/TicketDetailPage.test.tsx"
+      ],
+      "tdd_required": false,
+      "reason": "Fatias 5 e 6, já integradas na main: os pares RED/GREEN reais estão preservados em .delivery/evidence/DMTE-427-f5-r2, f5-r3 e f6. Nesta fatia o par oficial do manifesto passa a cobrir AC-17 (schema com um único tdd.red/tdd.green por entrega)."
+    },
+    {
+      "id": "AC-14",
+      "description": "Evidência visual: capturas (dados sintéticos, API simulada no navegador) de Kanban, Lista, Lista com filtros, Busca avançada, Criar ticket e Detalhe em 1440, 1280, 1024, 768 e 390px, mais o menu aberto em 390px, anexadas na issue DMTE-430. O aceite visual é humano e do Alfredo; as capturas isoladas não bastam. Situação: as capturas existem fora do repositório e vão anexadas no fio da DMTE-430; o aceite do Alfredo ainda não ocorreu.",
+      "tests": [
+        "capturas anexadas no fio da DMTE-430 (sem teste automático)"
+      ],
+      "tdd_required": false,
+      "reason": "Aceite visual é humano por definição da SPEC (AC-14); não há teste automático nem baseline visual aprovada. O rig de captura é um script fora do repositório; não é gate."
+    },
+    {
+      "id": "AC-17",
+      "description": "Celular (390px): sem rolagem horizontal da página; o menu lateral vira menu retrátil (botão Abrir menu, painel role=dialog com foco que entra e volta, botão Fechar menu, fecha por Esc, toque fora ou ao navegar); desde 768px o menu continua fixo. Teste do menu retrátil em AppLayout.test.tsx. Demais ajustes de largura (cabeçalho da aba em linhas, tabela da Lista com rolagem horizontal em região focável, cabeçalho do detalhe empilhado, cartões do Kanban sem marcador) são só de classe, sem teste, verificados por captura. Acessibilidade do painel: fundo inert, rolagem do fundo travada e fechamento automático ao chegar em 768px, com testes. As demais páginas do shell foram capturadas só para medir rolagem horizontal (nenhuma passou da largura) e não foram validadas ponta a ponta.",
+      "tests": [
+        "apps/web/src/components/layout/AppLayout.test.tsx"
       ]
     }
   ],
   "spec": "docs/delivery/specs/DMTE-427.md",
   "changed_files": [
     ".delivery/deliveries/DMTE-427.json",
-    ".delivery/evidence/DMTE-427-f6/red.json",
-    ".delivery/evidence/DMTE-427-f6/red.log",
-    ".delivery/evidence/DMTE-427-f6/green.json",
-    ".delivery/evidence/DMTE-427-f6/green.log",
-    "apps/web/src/components/tickets/TicketCsat.test.tsx",
-    "apps/web/src/components/tickets/TicketCsat.tsx",
-    "apps/web/src/components/tickets/TicketWorklogs.tsx",
-    "apps/web/src/pages/TicketDetailPage.tsx",
-    "docs/architecture/03-sankhya-ds-parity.md"
+    ".delivery/evidence/DMTE-427-f7/red.json",
+    ".delivery/evidence/DMTE-427-f7/red.log",
+    ".delivery/evidence/DMTE-427-f7-r2/red.json",
+    ".delivery/evidence/DMTE-427-f7-r2/red.log",
+    ".delivery/evidence/DMTE-427-f7-r2/green.json",
+    ".delivery/evidence/DMTE-427-f7-r2/green.log",
+    "apps/web/src/components/layout/AppLayout.test.tsx",
+    "apps/web/src/components/layout/AppLayout.tsx",
+    "apps/web/src/components/layout/Sidebar.tsx",
+    "apps/web/src/components/tickets/TicketDetail.tsx",
+    "apps/web/src/components/tickets/TicketKanbanCard.tsx",
+    "apps/web/src/components/tickets/TicketList.tsx",
+    "apps/web/src/components/tickets/TicketsHeader.tsx",
+    "docs/architecture/03-sankhya-ds-parity.md",
+    "docs/delivery/specs/DMTE-427.md",
+    ".delivery/evidence/DMTE-427-f7-r3/red.json",
+    ".delivery/evidence/DMTE-427-f7-r3/red.log",
+    ".delivery/evidence/DMTE-427-f7-r3/green.json",
+    ".delivery/evidence/DMTE-427-f7-r3/green.log"
   ],
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-427-f6/red.json",
-    "green": ".delivery/evidence/DMTE-427-f6/green.json"
+    "red": ".delivery/evidence/DMTE-427-f7-r3/red.json",
+    "green": ".delivery/evidence/DMTE-427-f7-r3/green.json"
   },
   "design_system": {
     "applicable": true,
