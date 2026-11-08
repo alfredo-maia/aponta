@@ -143,6 +143,24 @@ describe('TicketAdvancedSearchPage (D4)', () => {
     });
   });
 
+  it('AC-12: "Filtros adicionais" is a button that expands and collapses the extra filters (aria-expanded)', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    const toggle = screen.queryByRole('button', { name: 'Filtros adicionais' });
+    expect(toggle).not.toBeNull();
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('checkbox', { name: 'Meus' })).not.toBeInTheDocument();
+
+    await user.click(toggle as HTMLElement);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('checkbox', { name: 'Meus' })).toBeInTheDocument();
+
+    await user.click(toggle as HTMLElement);
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('checkbox', { name: 'Meus' })).not.toBeInTheDocument();
+  });
+
   it('keeps Estágio disabled until a Mesa is chosen', async () => {
     renderPage();
 
