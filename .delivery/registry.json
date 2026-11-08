@@ -320,6 +320,20 @@
       "epic": null,
       "title": "Tickets: refinar estética e proporção da aba Tickets",
       "note": "Tier 3 provisório, confirmado pelo Architect ao abrir a SPEC. Issue GitHub #120 criada com autorização do Alfredo. Alfredo decidiu que todo o trabalho (SPEC e implementação) fica no ciclo 01; a implementação pode se estender além de 08/11/2026. Pedido novo: não usa DMTE-78/PR #91 nem a SPEC de 2026-10-23 como base."
+    },
+    "DMTE-456": {
+      "delivery": "DMTE-456",
+      "repository": "alfredo-maia/aponta",
+      "github_issue": 147,
+      "multica_id": "01a1bc30-4b2a-7251-8509-7e21475a663f",
+      "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-456",
+      "kind": "delivery",
+      "tier": 1,
+      "state": "Em implementação",
+      "cycle": "2026-10-26/2026-11-08",
+      "epic": null,
+      "title": "Catálogo de atendimento: seed idempotente",
+      "note": "Tier 1 (dados + script). Execução em produção pelo usuário."
     }
   }
 }
