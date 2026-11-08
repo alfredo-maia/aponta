@@ -108,3 +108,33 @@ export const ComScrollbarHorizontal: Story = {
   ),
 };
 
+
+/**
+ * DMTE-455: grid em largura de celular (390px). Rolagem horizontal por toque
+ * (`touch-pan-x`), barra com trilho/thumb maiores em ponteiro grosso e
+ * tabela com largura mínima menor abaixo de `sm`.
+ */
+export const Mobile390: Story = {
+  render: () => (
+    <div style={{ width: 390 }}>
+      <EzGridWrapper alwaysShowHorizontalScrollbar>
+        <thead className="bg-gray-90">
+          <tr>
+            <th className="px-4 py-3 font-semibold text-gray-700">Nome Fantasia</th>
+            <th className="px-4 py-3 font-semibold text-gray-700">CNPJ</th>
+            <th className="px-4 py-3 font-semibold text-gray-700">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {orgs.map((org) => (
+            <tr key={org.cnpj} className="border-t border-gray-100">
+              <td className="px-4 py-3 whitespace-nowrap">{org.name}</td>
+              <td className="px-4 py-3 whitespace-nowrap">{org.cnpj}</td>
+              <td className="px-4 py-3">{org.active ? 'Ativo' : 'Inativo'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </EzGridWrapper>
+    </div>
+  ),
+};
