@@ -100,6 +100,13 @@
         "command": "ts-node -r dotenv/config prisma/seed.ts",
         "cwd": "apps/api"
       }
+    },
+    "catalog-seed": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "ts-node -r dotenv/config prisma/seed-catalog.ts",
+        "cwd": "apps/api"
+      }
     }
   }
 }

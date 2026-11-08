@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "delivery": "DMTE-456",
+  "repository": "alfredo-maia/aponta",
+  "github_issue": 147,
+  "multica_id": "01a1bc30-4b2a-7251-8509-7e21475a663f",
+  "cycle": "2026-10-26/2026-11-08",
+  "tier": 1,
+  "base_sha": "0d1bbc00cc9ea9d9ae721acc844b978eaf5f69d6",
+  "criteria": [
+    {"id": "AC-01", "description": "Seed cria 8 categorias e 18 itens com título, descrição, prioridade, ícone e mesa", "tests": ["seedServiceCatalog (DMTE-456) AC-01: creates the 8 categories and 18 items with title, description, priority, icon and desk"]},
+    {"id": "AC-02", "description": "Segunda execução não cria registros e corrige campos alterados", "tests": ["seedServiceCatalog (DMTE-456) AC-02: a second run creates nothing new and repairs edited fields"]},
+    {"id": "AC-03", "description": "Mesa ausente ou prioridade inválida aborta antes de escrever", "tests": ["seedServiceCatalog (DMTE-456) AC-03: a missing service desk aborts before any write", "seedServiceCatalog (DMTE-456) AC-03: an invalid priority aborts before any write"]},
+    {"id": "AC-04", "description": "JSON versionado: 8 categorias, 18 itens, sem examples, prioridades válidas", "tests": ["catalogo-atendimento.json (DMTE-456) AC-04: has 8 categories, 18 items, no examples and only valid priorities"]},
+    {"id": "AC-05", "description": "Categorias fora do JSON não são alteradas", "tests": ["seedServiceCatalog (DMTE-456) AC-05: categories outside the JSON are left untouched"]}
+  ],
+  "spec": "docs/delivery/specs/DMTE-456.md",
+  "changed_files": [
+    ".delivery/deliveries/DMTE-456.json",
+    ".delivery/registry.json",
+    "apps/api/project.json",
+    "apps/api/prisma/seed-catalog.ts",
+    "apps/api/prisma/seed-catalog.spec.ts",
+    "apps/api/prisma/seeds/catalogo-atendimento.json",
+    "docs/delivery/specs/DMTE-456.md"
+  ],
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-456/red.json",
+    "green": ".delivery/evidence/DMTE-456/green.json"
+  },
+  "design_system": {"applicable": false, "reason": "Dados e script de seed; sem TSX nem componente DS."}
+}
