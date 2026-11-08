@@ -6,12 +6,12 @@
 
  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-430-31f270e18a18/workdir/aponta/apps/web
 
- ✓ |web| src/components/tickets/TicketCsat.test.tsx (9 tests) 562ms
+ ✓ |web| src/components/tickets/TicketCsat.test.tsx (9 tests) 605ms
 
  Test Files  1 passed (1)
       Tests  9 passed (9)
-   Start at  10:25:03
-   Duration  5.23s (transform 3.18s, setup 108ms, import 3.83s, tests 562ms, environment 513ms)
+   Start at  10:32:34
+   Duration  3.65s (transform 1.68s, setup 92ms, import 2.32s, tests 605ms, environment 436ms)
 
 
 

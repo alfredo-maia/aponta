@@ -50,7 +50,7 @@ export function TicketCsat({ ticket }: TicketCsatProps) {
     }
 
     return (
-      <div role="group" aria-label="Nota" className="flex gap-1 text-2xl">
+      <div role="group" aria-labelledby="csat-score-label" className="flex gap-1 text-2xl">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
             key={star}
@@ -117,7 +117,9 @@ export function TicketCsat({ ticket }: TicketCsatProps) {
         className="space-y-4"
       >
         <div>
-          <span aria-hidden="true" className="mb-1 block text-sm font-medium">Nota</span>
+          <span id="csat-score-label" className="mb-1 block text-sm font-medium">
+            Nota
+          </span>
           {renderStars(score, true)}
         </div>
 
