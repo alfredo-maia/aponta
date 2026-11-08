@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-08T13:49:01.436751+00:00",
+  "finished_at": "2026-11-08T13:49:14.516124+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run",
+    "web:test",
+    "--skip-nx-cache",
+    "--",
+    "src/components/tickets/TicketCsat.test.tsx"
+  ],
+  "base_sha": "29c8be5c2acc7b3865334a0c312fe6b173894558",
+  "head_sha": "83880f6353f9526b59205f6d2be7adab74f74e75",
+  "exit_code": 0,
+  "tests": {
+    "apps/web/src/components/tickets/TicketCsat.test.tsx": "89ceb53f4b5e23b2116098a2f664794c52e7f08f1f961a6183fc310c353ac238"
+  },
+  "criteria": [
+    "AC-12"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/tickets/TicketCsat.test.tsx": "89ceb53f4b5e23b2116098a2f664794c52e7f08f1f961a6183fc310c353ac238",
+    "apps/web/src/components/tickets/TicketCsat.tsx": "e70261885d36785b726e39a7ce299616a925f399960c63fa1aa7058807ba3f98",
+    "apps/web/src/components/tickets/TicketWorklogs.tsx": "e73c7e20296c6e1fd7fd752a9a569bcc91c5070eddcbb0a059bc733c87f6c747",
+    "apps/web/src/pages/TicketDetailPage.tsx": "e1636c806ef56f0860faedeed925b95359c3cbf7f6664c10a0e59a91cc568f3f"
+  },
+  "log": ".delivery/evidence/DMTE-427-f6/green.log",
+  "log_sha256": "b5a4118576a8ddcfacb1194b63b595e5887a90e43c07bd9a7344cb077b09bb2f"
+}

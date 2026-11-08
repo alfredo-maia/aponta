@@ -6,7 +6,7 @@
   "multica_id": "01a1a2ef-0513-7170-8abc-490e1d79dbfa",
   "cycle": "2026-10-26/2026-11-08",
   "tier": 3,
-  "base_sha": "14d21cdc8b66be80de0838de7ceebcf58a5f4b2e",
+  "base_sha": "29c8be5c2acc7b3865334a0c312fe6b173894558",
   "criteria": [
     {
       "id": "AC-01",
@@ -146,41 +146,34 @@
     },
     {
       "id": "AC-12",
-      "description": "Busca avançada e Criar ticket (parte da fatia 5): grade, campos e botões do DS e sem estilos de cor próprios. Checkboxes dos filtros adicionais em EzCheck; banner de erro do formulário em EzAlert (role alert); botões do catálogo em EzButton; cartão do formulário com os tokens rounded-card e shadow-card. Detalhe do ticket é a fatia 6. Única mudança de comportamento: o erro de envio do formulário ganha role=alert (EzAlert), com teste. Mudanças só visuais (checkbox a 14px, Busca avançada em max-w-5xl com três colunas, botões tertiary no catálogo) estão listadas em docs/architecture/03-sankhya-ds-parity.md e dependem do aceite visual da fatia 7. Os filtros adicionais abrem e recolhem com EzCollapsibleBox (rodada r3, achado do QA: o details nativo tinha equivalente no DS), com teste de aria-expanded. O conteúdo é desmontado enquanto recolhido (o details o mantinha no DOM); o estado fica no formulário e o que foi marcado volta marcado ao reabrir, com teste de caracterização sem RED em TicketAdvancedSearchPage.collapsible.test.tsx. Só o botão que envolve o cartão do catálogo continua nativo, sem equivalente no DS.",
+      "description": "Busca avançada e Criar ticket (parte da fatia 5): grade, campos e botões do DS e sem estilos de cor próprios. Checkboxes dos filtros adicionais em EzCheck; banner de erro do formulário em EzAlert (role alert); botões do catálogo em EzButton; cartão do formulário com os tokens rounded-card e shadow-card. Detalhe do ticket é a fatia 6. Única mudança de comportamento: o erro de envio do formulário ganha role=alert (EzAlert), com teste. Mudanças só visuais (checkbox a 14px, Busca avançada em max-w-5xl com três colunas, botões tertiary no catálogo) estão listadas em docs/architecture/03-sankhya-ds-parity.md e dependem do aceite visual da fatia 7. Os filtros adicionais abrem e recolhem com EzCollapsibleBox (rodada r3, achado do QA: o details nativo tinha equivalente no DS), com teste de aria-expanded. O conteúdo é desmontado enquanto recolhido (o details o mantinha no DOM); o estado fica no formulário e o que foi marcado volta marcado ao reabrir, com teste de caracterização sem RED em TicketAdvancedSearchPage.collapsible.test.tsx. Só o botão que envolve o cartão do catálogo continua nativo, sem equivalente no DS. Fatia 6 (Detalhe do ticket): avaliação CSAT com grupo 'Nota', botões 'Nota N de 5' com aria-pressed e nota só de leitura em role img; botões da CSAT e das abas do detalhe em EzButton; raios de 8px e 10px do detalhe e do apontamento em rounded-control. Mudanças de comportamento: role=alert no erro de envio (fatia 5) e a semântica das estrelas da CSAT (fatia 6), ambas com teste. Mudanças só visuais estão em docs/architecture/03-sankhya-ds-parity.md e dependem do aceite visual da fatia 7. Continuam nativos, sem equivalente ou sem como validar sem captura: details dos filtros, botão do cartão do catálogo, selects do cabeçalho do ticket, botões do apontamento e raios de 6px e 4px do apontamento. Cobertura honesta: só a semântica das estrelas da CSAT tem RED/GREEN novo (par oficial DMTE-427-f6, com um teste existente da CSAT atualizado para os novos nomes). As trocas de EzButton nas abas e de raio no detalhe e no apontamento não mudam comportamento e são cobertas pelas suítes existentes (TicketDetailPage, TicketWorklogs), que seguem verdes sem alteração. O RED/GREEN da fatia 5 está preservado em DMTE-427-f5-r2 e DMTE-427-f5-r3, já na main. O AC-12 não está fechado para o detalhe: a lista do que sobra (raios fora de token e controles nativos) está no fim de docs/architecture/03-sankhya-ds-parity.md e vai para a fatia 7.",
       "tests": [
         "apps/web/src/pages/TicketAdvancedSearchPage.test.tsx",
         "apps/web/src/components/tickets/TicketForm.test.tsx",
         "apps/web/src/pages/CreateTicketPage.test.tsx",
-        "apps/web/src/pages/TicketAdvancedSearchPage.test.tsx::AC-12: \"Filtros adicionais\" is a button that expands and collapses the extra filters (aria-expanded)",
-        "apps/web/src/pages/TicketAdvancedSearchPage.collapsible.test.tsx"
+        "apps/web/src/pages/TicketAdvancedSearchPage.collapsible.test.tsx",
+        "apps/web/src/components/tickets/TicketCsat.test.tsx",
+        "apps/web/src/pages/TicketDetailPage.test.tsx"
       ]
     }
   ],
   "spec": "docs/delivery/specs/DMTE-427.md",
   "changed_files": [
     ".delivery/deliveries/DMTE-427.json",
-    ".delivery/evidence/DMTE-427-f5-r2/green.json",
-    ".delivery/evidence/DMTE-427-f5-r2/green.log",
-    ".delivery/evidence/DMTE-427-f5-r2/red.json",
-    ".delivery/evidence/DMTE-427-f5-r2/red.log",
-    ".delivery/evidence/DMTE-427-f5-r3/green.json",
-    ".delivery/evidence/DMTE-427-f5-r3/green.log",
-    ".delivery/evidence/DMTE-427-f5-r3/red.json",
-    ".delivery/evidence/DMTE-427-f5-r3/red.log",
-    ".delivery/evidence/DMTE-427-f5/red.json",
-    ".delivery/evidence/DMTE-427-f5/red.log",
-    "apps/web/src/components/tickets/TicketForm.test.tsx",
-    "apps/web/src/components/tickets/TicketForm.tsx",
-    "apps/web/src/pages/CreateTicketPage.tsx",
-    "apps/web/src/pages/TicketAdvancedSearchPage.collapsible.test.tsx",
-    "apps/web/src/pages/TicketAdvancedSearchPage.test.tsx",
-    "apps/web/src/pages/TicketAdvancedSearchPage.tsx",
+    ".delivery/evidence/DMTE-427-f6/red.json",
+    ".delivery/evidence/DMTE-427-f6/red.log",
+    ".delivery/evidence/DMTE-427-f6/green.json",
+    ".delivery/evidence/DMTE-427-f6/green.log",
+    "apps/web/src/components/tickets/TicketCsat.test.tsx",
+    "apps/web/src/components/tickets/TicketCsat.tsx",
+    "apps/web/src/components/tickets/TicketWorklogs.tsx",
+    "apps/web/src/pages/TicketDetailPage.tsx",
     "docs/architecture/03-sankhya-ds-parity.md"
   ],
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-427-f5-r3/red.json",
-    "green": ".delivery/evidence/DMTE-427-f5-r3/green.json"
+    "red": ".delivery/evidence/DMTE-427-f6/red.json",
+    "green": ".delivery/evidence/DMTE-427-f6/green.json"
   },
   "design_system": {
     "applicable": true,

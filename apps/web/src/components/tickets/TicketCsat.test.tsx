@@ -86,8 +86,7 @@ describe('TicketCsat', () => {
     const user = userEvent.setup();
     renderComponent(baseTicket);
 
-    const stars = screen.getAllByRole('button', { name: '★' });
-    await user.click(stars[2]); // select 3rd star = score 3
+    await user.click(screen.getByRole('button', { name: 'Nota 3 de 5' }));
 
     const commentBox = screen.getByPlaceholderText(/deixe um comentário/i);
     await user.type(commentBox, 'Muito bom atendimento');
@@ -100,6 +99,32 @@ describe('TicketCsat', () => {
         comment: 'Muito bom atendimento',
       });
     });
+  });
+
+  it('AC-12: the star rating is a named group whose buttons have distinct names and expose the chosen score', async () => {
+    loginAsRequester();
+    const user = userEvent.setup();
+    renderComponent(baseTicket);
+
+    const group = screen.queryByRole('group', { name: 'Nota' });
+    expect(group).toBeInTheDocument();
+    for (const n of [1, 2, 3, 4, 5]) {
+      expect(screen.queryByRole('button', { name: `Nota ${n} de 5` })).toBeInTheDocument();
+    }
+    expect(screen.queryByRole('button', { name: 'Nota 5 de 5' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.queryByRole('button', { name: 'Nota 2 de 5' })).toHaveAttribute('aria-pressed', 'false');
+
+    await user.click(screen.getByRole('button', { name: 'Nota 2 de 5' }));
+    expect(screen.getByRole('button', { name: 'Nota 2 de 5' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Nota 5 de 5' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('AC-12: the stored score in the summary view is announced as one image, not five disabled buttons', () => {
+    loginAsOther();
+    renderComponent({ ...baseTicket, csatScore: 4, csatComment: 'Ótimo!' });
+
+    expect(screen.queryByRole('img', { name: 'Nota 4 de 5' })).toBeInTheDocument();
+    expect(screen.queryAllByRole('button', { name: /^Nota \d de 5$/ })).toHaveLength(0);
   });
 
   it('shows an error message when the CSAT submission fails', async () => {

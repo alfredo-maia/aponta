@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Ticket } from '../../hooks/useTickets';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../stores/authStore';
+import { EzButton } from '../ds';
 
 interface TicketCsatProps {
   ticket: Ticket;
@@ -33,21 +34,33 @@ export function TicketCsat({ ticket }: TicketCsatProps) {
   });
 
   const renderStars = (currentScore: number, interactive = false) => {
+    const starClass = (star: number) => (star <= currentScore ? 'text-brand-600' : 'text-gray-300');
+
+    // Só leitura: um único elemento com a nota, em vez de cinco botões desabilitados.
+    if (!interactive) {
+      return (
+        <div role="img" aria-label={`Nota ${currentScore} de 5`} className="flex gap-1 text-2xl">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <span key={star} aria-hidden="true" className={starClass(star)}>
+              ★
+            </span>
+          ))}
+        </div>
+      );
+    }
+
     return (
-      <div className="flex gap-1 text-2xl">
+      <div role="group" aria-labelledby="csat-score-label" className="flex gap-1 text-2xl">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
             key={star}
             type="button"
-            className={`${
-              star <= currentScore ? 'text-brand-600' : 'text-gray-300'
-            } ${interactive ? 'hover:scale-110 transition-transform' : 'cursor-default'}`}
-            onClick={() => {
-              if (interactive) setScore(star);
-            }}
-            disabled={!interactive}
+            aria-label={`Nota ${star} de 5`}
+            aria-pressed={star === currentScore}
+            className={`${starClass(star)} rounded-control outline-none transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-brand-500`}
+            onClick={() => setScore(star)}
           >
-            ★
+            <span aria-hidden="true">★</span>
           </button>
         ))}
       </div>
@@ -71,16 +84,18 @@ export function TicketCsat({ ticket }: TicketCsatProps) {
           )}
         </div>
         {canRate && (
-          <button
+          <EzButton
+            type="button"
+            variant="secondary"
+            size="small"
+            className="mt-4 sm:mt-0"
             onClick={() => {
               setScore(ticket.csatScore || 5);
               setComment(ticket.csatComment || '');
               setIsEditing(true);
             }}
-            className="mt-4 sm:mt-0 text-sm px-3 py-1 bg-white border border-brand-200 text-brand-600 rounded hover:bg-brand-100 transition-colors"
-          >
-            Alterar Nota
-          </button>
+            label="Alterar Nota"
+          />
         )}
       </div>
     );
@@ -88,7 +103,7 @@ export function TicketCsat({ ticket }: TicketCsatProps) {
 
   // Formulário de notas (hasRated && isEditing OU !hasRated && canRate)
   return (
-    <div className="mt-6 p-4 rounded-lg bg-white border shadow-sm">
+    <div className="mt-6 p-4 rounded-card bg-white border border-gray-100 shadow-card">
       <h3 className="text-lg font-semibold text-gray-900 mb-2">Avalie nosso atendimento</h3>
       <p className="text-sm text-gray-500 mb-4">
         Seu chamado foi resolvido! Gostaríamos muito de saber como foi a sua experiência.
@@ -102,7 +117,9 @@ export function TicketCsat({ ticket }: TicketCsatProps) {
         className="space-y-4"
       >
         <div>
-          <label className="block text-sm font-medium mb-1">Nota</label>
+          <span id="csat-score-label" className="mb-1 block text-sm font-medium">
+            Nota
+          </span>
           {renderStars(score, true)}
         </div>
 
@@ -126,23 +143,20 @@ export function TicketCsat({ ticket }: TicketCsatProps) {
         )}
 
         <div className="flex gap-2 pt-2">
-          <button
+          <EzButton
             type="submit"
             disabled={mutation.isPending}
-            className="px-4 py-2 bg-brand-600 text-white rounded text-sm hover:bg-brand-700 disabled:opacity-50 transition-colors"
-          >
-            {mutation.isPending ? 'Enviando...' : 'Enviar Avaliação'}
-          </button>
-          
+            label={mutation.isPending ? 'Enviando...' : 'Enviar Avaliação'}
+          />
+
           {hasRated && (
-             <button
-               type="button"
-               disabled={mutation.isPending}
-               onClick={() => setIsEditing(false)}
-               className="px-4 py-2 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-colors"
-             >
-               Cancelar
-             </button>
+            <EzButton
+              type="button"
+              variant="secondary"
+              disabled={mutation.isPending}
+              onClick={() => setIsEditing(false)}
+              label="Cancelar"
+            />
           )}
         </div>
       </form>

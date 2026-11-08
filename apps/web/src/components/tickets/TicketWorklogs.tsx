@@ -662,7 +662,7 @@ export function TicketWorklogs({
     <div className="space-y-4" data-testid="ticket-worklogs-section">
       {/* 4 Summary KPI Cards (TiFlux / Aponta parity) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-4 rounded-[10px] bg-white border border-gray-200 shadow-xs flex flex-col justify-between">
+        <div className="p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between">
           <span className="text-[12px] font-medium text-gray-500">
             Atendentes
           </span>
@@ -672,7 +672,7 @@ export function TicketWorklogs({
           </div>
         </div>
 
-        <div className="p-4 rounded-[10px] bg-white border border-gray-200 shadow-xs flex flex-col justify-between">
+        <div className="p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between">
           <span className="text-[12px] font-medium text-gray-500">Horas</span>
           <div className="flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900">
             <Clock className="w-5 h-5 text-gray-400" />
@@ -680,7 +680,7 @@ export function TicketWorklogs({
           </div>
         </div>
 
-        <div className="p-4 rounded-[10px] bg-white border border-gray-200 shadow-xs flex flex-col justify-between">
+        <div className="p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between">
           <span className="text-[12px] font-medium text-gray-500">
             Apontamentos
           </span>
@@ -690,7 +690,7 @@ export function TicketWorklogs({
           </div>
         </div>
 
-        <div className="p-4 rounded-[10px] bg-white border border-gray-200 shadow-xs flex flex-col justify-between">
+        <div className="p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between">
           <span className="text-[12px] font-medium text-gray-500">
             Deslocamentos
           </span>
@@ -702,7 +702,7 @@ export function TicketWorklogs({
       </div>
 
       {/* Main Apontamentos Panel */}
-      <section className="space-y-4 bg-white rounded-[10px] border border-gray-200 p-5 shadow-xs">
+      <section className="space-y-4 bg-white rounded-control border border-gray-200 p-5 shadow-xs">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3">
           <div className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-brand-600" />
@@ -1495,7 +1495,7 @@ export function TicketWorklogs({
           )}
 
           {!isLoading && !isError && worklogs.length > 0 && (
-            <div className="overflow-x-auto border border-gray-200 rounded-[8px]">
+            <div className="overflow-x-auto border border-gray-200 rounded-control">
               <table className="w-full text-left border-collapse text-[13px]">
                 <thead>
                   <tr className="bg-gray-80/80 border-b border-gray-200 text-gray-500 text-[12px] font-medium">
