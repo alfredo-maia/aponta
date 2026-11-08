@@ -7,7 +7,7 @@ import { filtersToSearchParams } from '../lib/ticketFilterParams';
 import type { TicketFiltersInput, TicketPriority, TicketStatus } from '../hooks/useTickets';
 import { statusLabels, priorityLabels } from '../components/tickets/TicketCard';
 import type { DeskStage } from '../components/MesaStagesEditor';
-import { EzCheck, EzComboBox, EzTextInput, EzButton } from '../components/ds';
+import { EzCheck, EzCollapsibleBox, EzComboBox, EzTextInput, EzButton } from '../components/ds';
 
 interface PickerOption {
   id: string;
@@ -260,11 +260,8 @@ export function TicketAdvancedSearchPage() {
           </EzComboBox>
         </div>
 
-        <details className="rounded-control border border-gray-200 p-3">
-          <summary className="cursor-pointer text-[13px] font-medium text-gray-700">
-            Filtros adicionais
-          </summary>
-          <div className="mt-3 flex flex-wrap gap-4 text-[13px]">
+        <EzCollapsibleBox title="Filtros adicionais">
+          <div className="flex flex-wrap gap-4">
             <EzCheck
               id="adv-search-mine"
               label="Meus"
@@ -290,7 +287,7 @@ export function TicketAdvancedSearchPage() {
               onChange={(e) => setForm((f) => ({ ...f, overdue: e.target.checked }))}
             />
           </div>
-        </details>
+        </EzCollapsibleBox>
 
         <div className="flex gap-2">
           <EzButton type="submit">Buscar</EzButton>

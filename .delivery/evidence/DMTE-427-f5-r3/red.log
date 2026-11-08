@@ -1,0 +1,225 @@
+
+> nx run web:test src/pages/TicketAdvancedSearchPage.test.tsx
+
+> vitest src/pages/TicketAdvancedSearchPage.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-427-c1e8af88098f/workdir/aponta/apps/web
+
+ ❯ |web| src/pages/TicketAdvancedSearchPage.test.tsx (10 tests | 1 failed) 3176ms
+     ✓ renders every D4 field for AGENT/ADMIN  401ms
+     ✓ hides Cliente, Solicitante and Atendente for CLIENT (RBAC §2.5) 113ms
+     ✓ RODADA 2: hides Atendente (but keeps Solicitante) for CLIENT_MASTER, since GET /users/agents returns 403 for this role 69ms
+     ✓ RODADA 2: "Status" has Abertos/Fechados shortcuts that map to notClosed/closedOnly, not a literal status (D4)  393ms
+     ✓ RODADA 2: "Fechados" shortcut maps to closedOnly 187ms
+     ✓ AC-12: the "Filtros adicionais" checkboxes map to mine/unassigned/paused/overdue and "Limpar" unchecks them  1160ms
+     × AC-12: "Filtros adicionais" is a button that expands and collapses the extra filters (aria-expanded) 68ms
+     ✓ keeps Estágio disabled until a Mesa is chosen 263ms
+     ✓ "Buscar" navigates to "/" with the chosen filters in the query string 221ms
+     ✓ "Limpar" resets every field back to empty 292ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  10:26:42
+   Duration  8.90s (transform 3.25s, setup 269ms, import 4.37s, tests 3.18s, environment 829ms)
+
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
+✓ Lockfile passes supply-chain policies (verified 16d ago)
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages are hard linked from the content-addressable store to the virtual store.
+  Content-addressable store is at: /home/hermes/.local/share/pnpm/store/v11
+  Virtual store is at:             node_modules/.pnpm
+Progress: resolved 387, reused 387, downloaded 0, added 380
+Progress: resolved 793, reused 793, downloaded 0, added 786
+Progress: resolved 833, reused 833, downloaded 0, added 826
+Progress: resolved 1116, reused 1116, downloaded 0, added 1109
+Progress: resolved 1341, reused 1341, downloaded 0, added 1333
+Progress: resolved 1417, reused 1417, downloaded 0, added 1409
+Progress: resolved 1746, reused 1746, downloaded 0, added 1738
+Progress: resolved 1956, reused 1956, downloaded 0, added 1950
+Packages: +1966
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1966, reused 1966, downloaded 0, added 1966, done
+
+dependencies:
++ @dnd-kit/core 6.3.1
++ @dnd-kit/sortable 10.0.0
++ @dnd-kit/utilities 3.2.2
++ @hello-pangea/dnd 18.0.1
++ @hookform/resolvers 5.9.1
++ @modelcontextprotocol/sdk 1.31.0
++ @nestjs/axios 4.0.1
++ @nestjs/common 11.2.6
++ @nestjs/config 4.0.4
++ @nestjs/core 11.2.6
++ @nestjs/event-emitter 12.0.1
++ @nestjs/jwt 11.0.2
++ @nestjs/passport 11.0.5
++ @nestjs/platform-express 11.2.6
++ @nestjs/schedule 6.1.3
++ @nestjs/swagger 11.4.7
++ @nestjs/terminus 11.1.1
++ @nestjs/throttler 6.7.1
++ @prisma/adapter-pg 7.10.0
++ @prisma/client 7.10.0
++ @tanstack/react-query 5.104.0
++ @tanstack/react-query-devtools 5.104.0
++ @tanstack/react-table 8.21.3
++ @tiptap/extension-color 3.31.4
++ @tiptap/extension-highlight 3.31.4
++ @tiptap/extension-image 3.31.4
++ @tiptap/extension-link 3.31.4
++ @tiptap/extension-table 3.31.4
++ @tiptap/extension-table-cell 3.31.4
++ @tiptap/extension-table-header 3.31.4
++ @tiptap/extension-table-row 3.31.4
++ @tiptap/extension-text-align 3.31.4
++ @tiptap/extension-text-style 3.31.4
++ @tiptap/extension-underline 3.31.4
++ @tiptap/pm 3.31.4
++ @tiptap/react 3.31.4
++ @tiptap/starter-kit 3.31.4
++ @types/multer 2.3.0
++ @types/passport-http-bearer 1.0.42
++ axios 1.20.0
++ bcryptjs 3.0.3
++ class-transformer 0.5.1
++ class-validator 0.15.1
++ clsx 2.1.1
++ cron 4.4.0
++ dotenv 17.4.2
++ framer-motion 12.43.0
++ helmet 8.3.0
++ imapflow 2.1.2
++ lucide-react 1.48.0
++ mailparser 3.9.32
++ multer 2.4.0
++ nestjs-pino 5.3.0
++ nodemailer 10.0.13
++ passport 0.7.0
++ passport-http-bearer 1.0.1
++ passport-jwt 4.0.1
++ passport-local 1.0.0
++ pg 8.23.0
++ pino 10.3.1
++ pino-http 11.0.0
++ pino-pretty 13.1.3
++ prisma 7.10.0
++ react 19.3.0
++ react-dom 19.3.0
++ react-hook-form 7.89.0
++ react-router-dom 7.18.4
++ recharts 3.10.1
++ reflect-metadata 0.1.14
++ rxjs 7.8.2
++ sanitize-html 2.17.0
++ sonner 2.0.8
++ tailwind-merge 3.7.0
++ tslib 2.8.1
++ tw-animate-css 1.4.0
++ zod 4.6.5
++ zustand 5.0.15
+
+devDependencies:
++ @eslint/js 9.39.5
++ @nestjs/schematics 11.1.0
++ @nestjs/testing 11.2.6
++ @nx/devkit 22.7.1
++ @nx/esbuild 22.7.12
++ @nx/eslint 22.7.12
++ @nx/eslint-plugin 22.7.12
++ @nx/jest 22.7.12
++ @nx/js 22.7.12
++ @nx/nest 22.7.12
++ @nx/node 22.7.12
++ @nx/playwright 22.7.1
++ @nx/react 22.7.12
++ @nx/storybook 22.7.12
++ @nx/vite 22.7.12
++ @nx/vitest 22.7.1
++ @nx/web 22.7.12
++ @nx/webpack 22.7.12
++ @playwright/test 1.63.0
++ @storybook/addon-a11y 10.6.1
++ @storybook/react 10.6.1
++ @storybook/react-vite 10.6.1
++ @swc-node/register 1.11.1
++ @swc/cli 0.8.1
++ @swc/core 1.15.8
++ @swc/helpers 0.5.18
++ @swc/jest 0.2.39
++ @tailwindcss/vite 4.3.3
++ @testing-library/dom 10.4.0
++ @testing-library/jest-dom 6.9.1
++ @testing-library/react 16.3.0
++ @testing-library/user-event 14.6.7
++ @types/bcryptjs 3.0.0
++ @types/express 5.0.6
++ @types/jest 30.0.0
++ @types/mailparser 3.9.0
++ @types/node 25.9.8
++ @types/nodemailer 8.0.2
++ @types/passport-jwt 4.0.1
++ @types/passport-local 1.0.38
++ @types/react 19.3.0
++ @types/react-dom 19.3.0
++ @types/sanitize-html 2.16.2
++ @types/supertest 7.2.1
++ @vitejs/plugin-react 6.1.1
++ @vitest/coverage-v8 4.1.11
++ @vitest/ui 4.1.11
++ autoprefixer 10.6.1
++ esbuild 0.27.7
++ eslint 9.39.5
++ eslint-config-prettier 10.1.8
++ eslint-plugin-import 2.31.0
++ eslint-plugin-jsx-a11y 6.10.1
++ eslint-plugin-playwright 1.8.3
++ eslint-plugin-react 7.35.0
++ eslint-plugin-react-hooks 5.0.0
++ jest 30.5.2
++ jest-environment-node 30.5.2
++ jest-util 30.5.1
++ jiti 2.4.2
++ jsdom 22.1.0
++ nx 22.7.0
++ prettier 3.9.9
++ storybook 10.6.1
++ supertest 7.3.0
++ tailwindcss 4.3.3
++ ts-jest 29.4.14
++ ts-node 10.9.1
++ typescript 5.9.3
++ typescript-eslint 8.71.0
++ vite 8.3.1
++ vitest 4.1.11
++ webpack-cli 5.1.4
+
+Done in 29.3s using pnpm v12.8.1
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/pages/TicketAdvancedSearchPage.test.tsx > TicketAdvancedSearchPage (D4) > AC-12: "Filtros adicionais" is a button that expands and collapses the extra filters (aria-expanded)
+AssertionError: expected null not to be null
+ ❯ src/pages/TicketAdvancedSearchPage.test.tsx:151:24
+    149|
+    150|     const toggle = screen.queryByRole('button', { name: 'Filtros adici…
+    151|     expect(toggle).not.toBeNull();
+       |                        ^
+    152|     expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    153|     expect(screen.queryByRole('checkbox', { name: 'Meus' })).not.toBeI…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+Warning: command "vitest src/pages/TicketAdvancedSearchPage.test.tsx" exited with non-zero status code

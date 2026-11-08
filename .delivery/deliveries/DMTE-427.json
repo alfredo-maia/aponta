@@ -183,7 +183,8 @@
       "EzTag",
       "EzAvatar",
       "EzButton",
-      "EzCheck"
+      "EzCheck",
+      "EzCollapsibleBox"
     ],
     "stories": [
       "apps/web/src/components/ds/EzSegmented.stories.tsx",
