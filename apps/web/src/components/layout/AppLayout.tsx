@@ -1,20 +1,102 @@
-import { Outlet } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 import { UserMenu } from './UserMenu';
 import { TabBar } from './TabBar';
 import { TabsProvider } from '../../contexts/TabsContext';
 
+/**
+ * Shell do app. Desde 768px o menu lateral é fixo; abaixo disso ele vira um
+ * menu retrátil (DMTE-427, AC-17): botão no cabeçalho, painel em `role="dialog"`,
+ * que fecha por Esc, toque fora ou ao escolher um destino.
+ */
 export function AppLayout() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { pathname } = useLocation();
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const wasOpen = useRef(false);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [menuOpen]);
+
+  // Foco: entra no painel ao abrir e volta ao botão ao fechar (menu modal).
+  useEffect(() => {
+    if (menuOpen) {
+      dialogRef.current?.focus();
+    } else if (wasOpen.current) {
+      toggleRef.current?.focus();
+    }
+    wasOpen.current = menuOpen;
+  }, [menuOpen]);
+
   return (
     <div className="flex min-h-screen bg-gray-80 text-gray-900">
-      <Sidebar />
-      <div className="flex flex-1 flex-col min-w-0">
-        <header className="flex justify-end border-b border-gray-200 bg-white p-3">
-          <UserMenu />
+      <div className="sticky top-0 hidden h-screen shrink-0 md:block">
+        <Sidebar />
+      </div>
+
+      {menuOpen && (
+        <div className="md:hidden">
+          <div
+            data-testid="menu-backdrop"
+            aria-hidden="true"
+            className="fixed inset-0 z-40 bg-gray-900/40"
+            onClick={() => setMenuOpen(false)}
+          />
+          <div
+            ref={dialogRef}
+            id="menu-principal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu principal"
+            tabIndex={-1}
+            className="fixed inset-y-0 left-0 z-50 max-w-[85vw] shadow-popover outline-none"
+          >
+            <button
+              type="button"
+              aria-label="Fechar menu"
+              onClick={() => setMenuOpen(false)}
+              className="absolute right-2 top-2 z-10 inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-control text-gray-700 outline-none hover:bg-gray-80 focus-visible:ring-2 focus-visible:ring-brand-500"
+            >
+              <X aria-hidden="true" className="h-5 w-5" />
+            </button>
+            <Sidebar inDrawer onNavigate={() => setMenuOpen(false)} />
+          </div>
+        </div>
+      )}
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="flex items-center justify-between border-b border-gray-200 bg-white p-3">
+          <button
+            ref={toggleRef}
+            type="button"
+            aria-label="Abrir menu"
+            aria-expanded={menuOpen}
+            aria-controls="menu-principal"
+            onClick={() => setMenuOpen(true)}
+            className="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-control text-gray-700 outline-none hover:bg-gray-80 focus-visible:ring-2 focus-visible:ring-brand-500 md:hidden"
+          >
+            <Menu aria-hidden="true" className="h-5 w-5" />
+          </button>
+          <div className="ml-auto min-w-0">
+            <UserMenu />
+          </div>
         </header>
         <TabsProvider>
           <TabBar />
-          <main className="flex-1 overflow-auto p-6 min-w-0">
+          <main className="min-w-0 flex-1 overflow-auto p-3 sm:p-6">
             <Outlet />
           </main>
         </TabsProvider>

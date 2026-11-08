@@ -1,0 +1,21 @@
+
+> nx run web:test src/components/layout/AppLayout.test.tsx
+
+> vitest src/components/layout/AppLayout.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-430-31f270e18a18/workdir/aponta/apps/web
+
+ ✓ |web| src/components/layout/AppLayout.test.tsx (12 tests) 1364ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  11:21:30
+   Duration  4.51s (transform 1.67s, setup 164ms, import 2.27s, tests 1.36s, environment 523ms)
+
+
+
+
+ NX   Successfully ran target test for project web
+
+

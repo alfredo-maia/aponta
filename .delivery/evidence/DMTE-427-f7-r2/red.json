@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-08T14:17:40.770594+00:00",
+  "finished_at": "2026-11-08T14:17:48.352477+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run",
+    "web:test",
+    "--skip-nx-cache",
+    "--",
+    "src/components/layout/AppLayout.test.tsx"
+  ],
+  "base_sha": "63ce7bcbd30544c147c9c76a37a03012b9ca1443",
+  "head_sha": "63ce7bcbd30544c147c9c76a37a03012b9ca1443",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/components/layout/AppLayout.test.tsx": "1ed8599ebffa6db32b40940a3e40397aa5ba50797248009339bf353c6bbabfe7"
+  },
+  "criteria": [
+    "AC-17"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/layout/AppLayout.test.tsx": "1ed8599ebffa6db32b40940a3e40397aa5ba50797248009339bf353c6bbabfe7",
+    "apps/web/src/components/layout/AppLayout.tsx": "075b6bdfb561bf7c5bcfd0d5bf4333a691e1c62484100bffe0343629df0bd378",
+    "apps/web/src/components/layout/Sidebar.tsx": "1f1ec0f58c8e003d53c17038d895b92d595c71e28f7a062eaca6383968f2e6c5",
+    "apps/web/src/components/tickets/TicketDetail.tsx": "b90c4c721c288929e2dda0341e26d8e260e95363939f0c889fc40ad510940ea5",
+    "apps/web/src/components/tickets/TicketKanbanCard.tsx": "2cb4be1dd7df5f5e94b49aaa3f2d090c260c0b9c6ade987cf62e19bd344ccce3",
+    "apps/web/src/components/tickets/TicketList.tsx": "1111480575f687708f65fd7873cc21f10329bc73d5cf65844e6201789cb32bdf",
+    "apps/web/src/components/tickets/TicketsHeader.tsx": "d416d85192a19eda55a24b59a1d6bfb80adb766f6d363196ce525d1b6d5fb9e2"
+  },
+  "log": ".delivery/evidence/DMTE-427-f7-r2/red.log",
+  "log_sha256": "3843ed0d4a2b5b3214c4ed95cc4dab99930b9c5482047937f85327fd33ed3ca9"
+}

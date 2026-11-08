@@ -13,7 +13,7 @@ O Alfredo respondeu "Vamos lá, aprovado" à SPEC v1 (comentário `01a1a36e-d331
 - Q2: só visual; abas de estado do TiFlux e play no cartão fora.
 - Q3: identidade verde do Aponta mantida; sidebar e barra de abas internas fora.
 - Q4: paleta única `brand-*`. ADR `docs/adr/0001-paleta-unica-brand-na-aba-tickets.md`.
-- Q5: 1440, 1280, 1024 e 768px; abaixo de 768px fora.
+- Q5: 1440, 1280, 1024 e 768px; abaixo de 768px fora. **Revisada pelo Alfredo em 2026-11-08 (comentário "já vamos para a fatia 7 ... deixar o sistema funcionando em pc e celulares", no fio da DMTE-430): celular entra no escopo, medido em 390px. O shell global (menu lateral) também entra, porque a barra fixa de 240px ocupava quase toda a tela do celular (revisa D3 e D12).**
 - Q6: aceite visual do Alfredo por capturas comparadas ao TiFlux, sem diff automático.
 - Q7: testes pela `TicketsPage` com dados simulados, mais stories e testes do DS, mais o aceite visual.
 - Fatias: as sete abaixo, sem juntar 5 e 6.
@@ -82,7 +82,7 @@ Direção visual
 - D9 [Proposta] Toolbar: uma barra única por visão, com altura de controle padrão. Kanban: Mesa, filtros, responsáveis, Buscar, Ordenar, Configurações. Lista: filtros ativos, Agrupar por, Exibir colunas. O alternador Lista/Kanban vira controle segmentado do DS.
 - D10 [Proposta] Lista: cabeçalho de tabela e hover com tokens do DS, linhas de altura fixa, ícone de expandir/recolher nos grupos, contagem do grupo discreta, paginação com o botão do DS.
 - D11 [Proposta] Detalhe, Busca avançada e Criar ticket reutilizam a grade, os campos e os botões do DS; sem estilos próprios de cor.
-- D12 [Proposta] Responsividade: alvos 1440, 1280, 1024 e 768px. Abaixo de 768px a aba não precisa ser otimizada nesta entrega (Q5). Kanban rola na horizontal; toolbar quebra em duas linhas sem sobrepor; Lista prioriza colunas Número, Título, Cliente, Status.
+- D12 [Proposta, revisada por Q5] Responsividade: alvos 1440, 1280, 1024 e 768px e, por decisão do Alfredo, celular em 390px. Em telas menores que 768px o menu lateral vira um menu retrátil aberto por um botão no cabeçalho (AC-17). Kanban rola na horizontal; toolbar quebra em duas linhas sem sobrepor; Lista prioriza colunas Número, Título, Cliente, Status.
 
 Impacto no DS [Proposta, o DS não é considerado fechado, conforme Alfredo]
 
@@ -119,11 +119,12 @@ Cada critério abaixo é verificável de forma independente. Nada aqui foi execu
 - AC-11 Visão CLIENT: Lista com o mesmo acabamento e sem Kanban. Teste existente de papel CLIENT segue verde.
 - AC-12 Detalhe, Busca avançada e Criar ticket: mesma grade, campos e botões do DS, sem estilos de cor próprios (cobre-se por AC-01) e sem mudança de comportamento. Testes existentes verdes.
 - AC-13 Estados de carregamento, vazio e erro na Lista e no Kanban com o mesmo estilo e mensagens atuais. Testes de estado.
-- AC-14 Evidência visual: o Developer anexa capturas (dados sintéticos) de Lista, Kanban, cartão, Detalhe, Busca avançada e Criar ticket em 1440, 1280, 1024 e 768px; Alfredo aprova ponto a ponto contra os prints do TiFlux. Aceite visual é humano; capturas isoladas não bastam.
+- AC-14 Evidência visual: o Developer anexa capturas (dados sintéticos) de Lista, Kanban, cartão, Detalhe, Busca avançada e Criar ticket em 1440, 1280, 1024, 768 e 390px; Alfredo aprova ponto a ponto contra os prints do TiFlux. Aceite visual é humano; capturas isoladas não bastam.
 - AC-15 DS: cada componente de DS novo/alterado tem story e teste (≥3 casos), consta em `docs/architecture/03-sankhya-ds-parity.md` e o Storybook compila. Nenhuma tela existente que usa `EzTag`/`EzAvatar` quebra seus testes.
+- AC-17 Celular (390px): sem rolagem horizontal da página; o menu lateral vira menu retrátil (botão "Abrir menu" no cabeçalho, painel com `role="dialog"`, fecha por Esc, toque fora ou ao navegar); acima de 768px o menu lateral continua fixo como hoje. Teste do menu retrátil mais captura de Lista, Kanban, Busca avançada, Criar ticket e Detalhe em 390px.
 - AC-16 Sem mudança de contrato: nenhuma alteração de API, banco, permissão ou dado; testes de API não são tocados. Verificação: diff sem arquivos de `apps/api`.
 
-Matriz AC → teste: AC-01/02 checagem estática; AC-03/05/09/10/11/13 Vitest em `TicketsPage`, `TicketList`, `TicketKanbanCard`; AC-04 teste da toolbar do Kanban; AC-06/15 testes e stories do DS; AC-07/14 capturas + aceite humano; AC-08/12/16 suítes existentes + diff.
+Matriz AC → teste: AC-01/02 checagem estática; AC-03/05/09/10/11/13 Vitest em `TicketsPage`, `TicketList`, `TicketKanbanCard`; AC-04 teste da toolbar do Kanban; AC-06/15 testes e stories do DS; AC-07/14 capturas + aceite humano; AC-17 teste do menu retrátil + capturas em 390px; AC-08/12/16 suítes existentes + diff.
 
 Evidência RED/GREEN (WORKFLOW) aplica-se a AC-01/02/03/05/06/09; ACs puramente visuais (AC-07, AC-14) registram "TDD não aplicável" com justificativa no manifesto, conforme o fluxo do repositório.
 

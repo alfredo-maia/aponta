@@ -1,0 +1,77 @@
+
+> nx run web:test src/components/layout/AppLayout.test.tsx
+
+> vitest src/components/layout/AppLayout.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-430-31f270e18a18/workdir/aponta/apps/web
+
+ ❯ |web| src/components/layout/AppLayout.test.tsx (12 tests | 2 failed) 1605ms
+     ✓ renders the DS background tone (bg-gray-80) on the shell, not the old bg-background token 122ms
+     ✓ renders a white header with the DS border color, not the old bg-background token 119ms
+     ✓ renders the Sidebar, UserMenu trigger and the routed page content 42ms
+       ✓ has an "Abrir menu" button in the header, closed by default 158ms
+       ✓ opens the navigation as a named dialog and flips aria-expanded 241ms
+       ✓ does not offer the collapse toggle inside the drawer 129ms
+       ✓ closes with Escape 140ms
+       ✓ closes when the backdrop is tapped 113ms
+       × moves focus into the dialog when it opens 130ms
+       ✓ returns focus to the "Abrir menu" button after closing with Escape 148ms
+       × has a visible "Fechar menu" button inside the dialog that closes it 87ms
+       ✓ closes after choosing a destination, and shows that page 171ms
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 passed (12)
+   Start at  11:17:42
+   Duration  4.90s (transform 1.77s, setup 126ms, import 2.48s, tests 1.60s, environment 508ms)
+
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/components/layout/AppLayout.test.tsx > AppLayout > AC-17: menu retrátil no celular > moves focus into the dialog when it opens
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/components/layout/AppLayout.test.tsx:97:55
+     95|       await user.click(screen.getByRole('button', { name: 'Abrir menu'…
+     96|       const dialog = screen.getByRole('dialog', { name: 'Menu principa…
+     97|       expect(dialog.contains(document.activeElement)).toBe(true);
+       |                                                       ^
+     98|     });
+     99|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |web| src/components/layout/AppLayout.test.tsx > AppLayout > AC-17: menu retrátil no celular > has a visible "Fechar menu" button inside the dialog that closes it
+Error: [2mexpect([22m[31mreceived[39m[2m).toBeInTheDocument()[22m
+
+[31mreceived[39m value must be an HTMLElement or an SVGElement.
+Received has type:  Null
+Received has value: [31mnull[39m
+ ❯ src/components/layout/AppLayout.test.tsx:113:77
+    111|       await user.click(screen.getByRole('button', { name: 'Abrir menu'…
+    112|       const dialog = screen.getByRole('dialog', { name: 'Menu principa…
+    113|       expect(within(dialog).queryByRole('button', { name: 'Fechar menu…
+       |                                                                             ^
+    114|       await user.click(within(dialog).getByRole('button', { name: 'Fec…
+    115|       expect(screen.queryByRole('dialog', { name: 'Menu principal' }))…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+Warning: command "vitest src/components/layout/AppLayout.test.tsx" exited with non-zero status code

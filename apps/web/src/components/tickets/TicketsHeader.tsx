@@ -43,7 +43,7 @@ export function TicketsHeader({
   }, [searchText]);
 
   return (
-    <div className="flex items-center justify-between gap-4">
+    <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
       <div className="flex shrink-0 items-center gap-4">
         <h1 className="text-[20px] font-semibold text-gray-900">Tickets</h1>
         {!isClient && (
@@ -59,8 +59,8 @@ export function TicketsHeader({
         )}
       </div>
 
-      <div className="flex items-center gap-2">
-        <div className="relative">
+      <div className="flex w-full items-center gap-2 sm:w-auto">
+        <div className="relative min-w-0 flex-1 sm:flex-none">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <label htmlFor="tickets-header-search" className="sr-only">
             Buscar
@@ -68,10 +68,12 @@ export function TicketsHeader({
           <input
             id="tickets-header-search"
             type="search"
+            name="search"
+            autoComplete="off"
             placeholder="Buscar…"
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
-            className="h-[var(--control-height-md)] w-56 rounded-control border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"
+            className="h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"
           />
         </div>
         <button
