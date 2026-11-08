@@ -102,6 +102,15 @@ describe('ServiceDesksPage', () => {
     expect(screen.getByLabelText(/linhas por página/i)).toBeInTheDocument();
   });
 
+  it('keeps the grid scrollable by touch in both axes on phones (DMTE-455)', async () => {
+    loginAs('ADMIN');
+    renderPage();
+
+    await screen.findByText('Suporte N1');
+    const content = screen.getByTestId('service-desks-grid-content');
+    expect(content).toHaveClass('touch-pan-x', 'touch-pan-y', 'overscroll-x-contain');
+  });
+
   it('should show the Sankhya-standard entity toolbar with Incluir, Recarregar, and column config', async () => {
     loginAs('ADMIN');
     renderPage();

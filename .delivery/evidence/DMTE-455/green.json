@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-08T17:15:45.344606+00:00",
+  "finished_at": "2026-11-08T17:16:23.998676+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run",
+    "web:test",
+    "--skip-nx-cache",
+    "--",
+    "src/components/ds/EzGrid.mobile.test.tsx",
+    "src/pages/OrganizationsPage.test.tsx",
+    "src/pages/ServiceDesksPage.test.tsx"
+  ],
+  "base_sha": "c9efc7663732da82704defb610d95618fd6c861b",
+  "head_sha": "d34321933cc5b414f1b9834c00e885499aec4907",
+  "exit_code": 0,
+  "tests": {
+    "apps/web/src/components/ds/EzGrid.mobile.test.tsx": "554ec2b3ffa397fa099571c27faffc717b9d8f420871946ed7a09de95625de6a",
+    "apps/web/src/pages/OrganizationsPage.test.tsx": "29d1d1192e778808e8922436b9f329b3b4e79321c939a7431df8488077ff7392",
+    "apps/web/src/pages/ServiceDesksPage.test.tsx": "7c7e7006d84e1da81c76286c3ffb5eb992add5e58a97584c370a824ebc228f66"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/ds/EzEntityGrid.tsx": "d93bf38eff537fc45f49d890114b5851da1ef90d579b14783dbd379cf29398e8",
+    "apps/web/src/components/ds/EzGrid.mobile.test.tsx": "554ec2b3ffa397fa099571c27faffc717b9d8f420871946ed7a09de95625de6a",
+    "apps/web/src/components/ds/EzGrid.stories.tsx": "1d3615f0a72bba70f48337e662f859ff9cba01d8e891e39ca4282d744a075ad2",
+    "apps/web/src/components/ds/EzGrid.tsx": "47a4f8c26dd69ed62cb4909a7e4d427b659e6983a22a10f5f6d5956ee40aca95",
+    "apps/web/src/components/ds/EzTaskbar.tsx": "da88ce0c7c8a1b4e40ec1fa6f79e1dd48d22f7b0bc421bfb7cb9323bbc42f1eb",
+    "apps/web/src/pages/OrganizationsPage.test.tsx": "29d1d1192e778808e8922436b9f329b3b4e79321c939a7431df8488077ff7392",
+    "apps/web/src/pages/OrganizationsPage.tsx": "e0c90817da7b7475e59f14cf7cc6890baa58af0d56a806dd6b0946dbde556918",
+    "apps/web/src/pages/ServiceDesksPage.test.tsx": "7c7e7006d84e1da81c76286c3ffb5eb992add5e58a97584c370a824ebc228f66",
+    "apps/web/src/pages/ServiceDesksPage.tsx": "e3d04a99f5d4ed0c55e7780283e9736fdd668747c78fd5f1bcb1909780cf48f9"
+  },
+  "log": ".delivery/evidence/DMTE-455/green.log",
+  "log_sha256": "37b1de83b757819a191962e8c6ba5b884389ce503393585573d98a54eaf4e36b"
+}

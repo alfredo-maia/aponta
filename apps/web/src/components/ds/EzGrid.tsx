@@ -133,6 +133,34 @@ export const EzGridWrapper = forwardRef<HTMLDivElement, EzGridProps>(
       window.addEventListener('mouseup', handleMouseUp);
     };
 
+    const handleThumbTouchStart = (e: React.TouchEvent) => {
+      const startX = e.touches[0]?.clientX;
+      if (startX === undefined) return;
+      dragStartXRef.current = startX;
+      dragStartScrollLeftRef.current = scrollContainerRef.current?.scrollLeft ?? 0;
+
+      const handleTouchMove = (moveEvent: TouchEvent) => {
+        const el = scrollContainerRef.current;
+        const x = moveEvent.touches[0]?.clientX;
+        if (!el || x === undefined) return;
+        const currentTrackWidth = trackRef.current?.clientWidth || el.clientWidth || 1;
+        const currentMaxThumbLeft = Math.max(1, currentTrackWidth - thumbWidth);
+        const distance = el.scrollWidth - el.clientWidth;
+        if (distance > 0) {
+          el.scrollLeft =
+            dragStartScrollLeftRef.current + ((x - dragStartXRef.current) / currentMaxThumbLeft) * distance;
+        }
+      };
+      const handleTouchEnd = () => {
+        window.removeEventListener('touchmove', handleTouchMove);
+        window.removeEventListener('touchend', handleTouchEnd);
+        window.removeEventListener('touchcancel', handleTouchEnd);
+      };
+      window.addEventListener('touchmove', handleTouchMove);
+      window.addEventListener('touchend', handleTouchEnd);
+      window.addEventListener('touchcancel', handleTouchEnd);
+    };
+
     const handleTrackClick = (e: React.MouseEvent<HTMLDivElement>) => {
       if (!scrollContainerRef.current || !trackRef.current) return;
       const trackRect = trackRef.current.getBoundingClientRect();
@@ -173,9 +201,9 @@ export const EzGridWrapper = forwardRef<HTMLDivElement, EzGridProps>(
           ref={scrollContainerRef}
           id="ez-grid-table-container"
           onScroll={handleScroll}
-          className="w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="w-full overflow-x-auto touch-pan-x touch-pan-y overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          <table className="w-full text-left border-collapse min-w-[600px]">
+          <table className="w-full text-left border-collapse min-w-[480px] sm:min-w-[600px]">
             {/* 
               Estilos aplicados em filhas genéricas (thead/tbody/tr)
               para quando usarmos o Tanstack Table dentro deste container
@@ -188,7 +216,7 @@ export const EzGridWrapper = forwardRef<HTMLDivElement, EzGridProps>(
             ref={trackRef}
             data-testid="ez-grid-horizontal-scrollbar"
             onClick={handleTrackClick}
-            className="w-full h-3 bg-gray-100 border-t border-gray-200 relative select-none cursor-pointer overflow-hidden"
+            className="w-full h-3 [@media(pointer:coarse)]:h-5 bg-gray-100 border-t border-gray-200 relative select-none cursor-pointer overflow-hidden"
           >
             <div
               data-testid="ez-grid-horizontal-scrollbar-thumb"
@@ -203,12 +231,13 @@ export const EzGridWrapper = forwardRef<HTMLDivElement, EzGridProps>(
               aria-valuemax={100}
               tabIndex={0}
               onMouseDown={handleThumbMouseDown}
+              onTouchStart={handleThumbTouchStart}
               onKeyDown={handleKeyDown}
               style={{
                 width: `${thumbWidth}px`,
                 transform: `translateX(${thumbLeft}px)`,
               }}
-              className="absolute top-[2px] h-[8px] bg-gray-300 hover:bg-gray-400 active:bg-gray-500 rounded-full cursor-grab active:cursor-grabbing transition-colors focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="absolute top-[2px] h-[8px] [@media(pointer:coarse)]:top-[4px] [@media(pointer:coarse)]:h-3 touch-none bg-gray-300 hover:bg-gray-400 active:bg-gray-500 rounded-full cursor-grab active:cursor-grabbing transition-colors focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
         )}
