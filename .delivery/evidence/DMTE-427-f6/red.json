@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-08T13:23:23.370463+00:00",
+  "finished_at": "2026-11-08T13:23:35.178199+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run",
+    "web:test",
+    "--skip-nx-cache",
+    "--",
+    "src/components/tickets/TicketCsat.test.tsx"
+  ],
+  "base_sha": "14d21cdc8b66be80de0838de7ceebcf58a5f4b2e",
+  "head_sha": "14d21cdc8b66be80de0838de7ceebcf58a5f4b2e",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/components/tickets/TicketCsat.test.tsx": "89ceb53f4b5e23b2116098a2f664794c52e7f08f1f961a6183fc310c353ac238"
+  },
+  "criteria": [
+    "AC-12"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/tickets/TicketCsat.test.tsx": "89ceb53f4b5e23b2116098a2f664794c52e7f08f1f961a6183fc310c353ac238"
+  },
+  "log": ".delivery/evidence/DMTE-427-f6/red.log",
+  "log_sha256": "a7c45df3bde95b4c0155a9afb8a0271e7c4f0a12ee8fc02bdd6f66d97d83ed0a"
+}

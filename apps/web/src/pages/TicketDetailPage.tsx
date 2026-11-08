@@ -14,7 +14,7 @@ import { useActivityTimer } from '../hooks/useActivityTimer';
 import { useTicket } from '../hooks/useTicket';
 import { Ticket } from '../hooks/useTickets';
 import { useAuthStore } from '../stores/authStore';
-import { EzSpinner, EzAlert, EzTabs, EzTabItem } from '../components/ds';
+import { EzAlert, EzButton, EzSpinner, EzTabs, EzTabItem } from '../components/ds';
 
 function isTicketSectionEnabled(ticket: Ticket, key: string): boolean {
   const sections = ticket.serviceDesk?.ticketSections;
@@ -111,7 +111,7 @@ export function TicketDetailPage() {
         <ArrowLeft className="h-4 w-4" /> Voltar
       </Link>
 
-      <div className="bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs">
+      <div className="bg-white rounded-control border border-gray-200 overflow-hidden shadow-xs">
         {/* Card Header with Protocol, Title, Status, and Actions (TiFlux Parity) */}
         <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-white">
           <div className="flex items-center gap-3">
@@ -247,7 +247,7 @@ export function TicketDetailPage() {
               <h3 className="text-[16px] font-semibold text-gray-900 border-b border-gray-100 pb-3">
                 Tipo de Atendimento
               </h3>
-              <div className="p-4 rounded-[8px] bg-gray-80 border border-gray-200">
+              <div className="p-4 rounded-control bg-gray-80 border border-gray-200">
                 <span className="text-[14px] text-gray-900 font-medium">
                   Atendimento Remoto
                 </span>
@@ -317,14 +317,9 @@ export function TicketDetailPage() {
                 <h3 className="text-[16px] font-semibold text-gray-900">
                   Compromissos
                 </h3>
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-[6px]"
-                >
-                  + Compromisso
-                </button>
+                <EzButton type="button" size="small" label="+ Compromisso" />
               </div>
-              <div className="p-8 text-center bg-gray-80/50 rounded-[8px] border border-dashed border-gray-200 text-gray-500 text-[13px]">
+              <div className="p-8 text-center bg-gray-80/50 rounded-control border border-dashed border-gray-200 text-gray-500 text-[13px]">
                 Nenhum compromisso agendado para este chamado.
               </div>
             </div>
@@ -340,18 +335,13 @@ export function TicketDetailPage() {
                 <h3 className="text-[16px] font-semibold text-gray-900">
                   Valorização
                 </h3>
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-[6px]"
-                >
-                  + Valor extra
-                </button>
+                <EzButton type="button" size="small" label="+ Valor extra" />
               </div>
               <div className="space-y-2">
                 <h4 className="text-[14px] font-medium text-gray-700">
                   Valores extras
                 </h4>
-                <div className="p-6 text-center bg-gray-80/50 rounded-[8px] border border-dashed border-gray-200 text-gray-500 text-[13px]">
+                <div className="p-6 text-center bg-gray-80/50 rounded-control border border-dashed border-gray-200 text-gray-500 text-[13px]">
                   Nenhum valor extra cadastrado.
                 </div>
               </div>
@@ -368,14 +358,9 @@ export function TicketDetailPage() {
                 <h3 className="text-[16px] font-semibold text-gray-900">
                   Assinatura eletrônica
                 </h3>
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-[6px]"
-                >
-                  + Assinatura
-                </button>
+                <EzButton type="button" size="small" label="+ Assinatura" />
               </div>
-              <div className="p-8 text-center bg-gray-80/50 rounded-[8px] border border-dashed border-gray-200 text-gray-500 text-[13px]">
+              <div className="p-8 text-center bg-gray-80/50 rounded-control border border-dashed border-gray-200 text-gray-500 text-[13px]">
                 Nenhuma assinatura cadastrada.
               </div>
             </div>
@@ -392,21 +377,11 @@ export function TicketDetailPage() {
                   Integrações GitHub
                 </h3>
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    className="px-3 py-1.5 text-[12px] font-medium text-gray-700 bg-white border border-gray-200 rounded-[6px] hover:bg-gray-80"
-                  >
-                    + Criar issue
-                  </button>
-                  <button
-                    type="button"
-                    className="px-3 py-1.5 text-[12px] font-medium text-gray-700 bg-white border border-gray-200 rounded-[6px] hover:bg-gray-80"
-                  >
-                    + Associar issue
-                  </button>
+                  <EzButton type="button" variant="secondary" size="small" label="+ Criar issue" />
+                  <EzButton type="button" variant="secondary" size="small" label="+ Associar issue" />
                 </div>
               </div>
-              <div className="p-8 text-center bg-gray-80/50 rounded-[8px] border border-dashed border-gray-200 text-gray-500 text-[13px]">
+              <div className="p-8 text-center bg-gray-80/50 rounded-control border border-dashed border-gray-200 text-gray-500 text-[13px]">
                 Não há dados vinculados do GitHub.
               </div>
             </div>

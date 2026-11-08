@@ -1,0 +1,247 @@
+
+> nx run web:test src/components/tickets/TicketCsat.test.tsx
+
+> vitest src/components/tickets/TicketCsat.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-430-31f270e18a18/workdir/aponta/apps/web
+
+ ❯ |web| src/components/tickets/TicketCsat.test.tsx (9 tests | 3 failed) 317ms
+     ✓ renders nothing when the ticket has not been rated and the viewer cannot rate it (not requester) 19ms
+     ✓ renders nothing when the requester views an OPEN (not RESOLVED) unrated ticket 3ms
+     ✓ shows the rating form for the requester when the ticket is RESOLVED and unrated 70ms
+     × submits a star rating and optional comment via PATCH 67ms
+     × AC-12: the star rating is a named group whose buttons have distinct names and expose the chosen score 14ms
+     × AC-12: the stored score in the summary view is announced as one image, not five disabled buttons 7ms
+     ✓ shows an error message when the CSAT submission fails 61ms
+     ✓ shows the already-rated summary view with the stored score/comment for any viewer 14ms
+     ✓ lets the requester edit an existing rating 56ms
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 6 passed (9)
+   Start at  10:23:31
+   Duration  2.10s (transform 959ms, setup 472ms, import 761ms, tests 317ms, environment 381ms)
+
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/components/tickets/TicketCsat.test.tsx > TicketCsat > submits a star rating and optional comment via PATCH
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Nota 3 de 5"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Avalie nosso atendimento":
+  [36m<h3[39m
+    [33mclass[39m=[32m"text-lg font-semibold text-gray-900 mb-2"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-sm text-gray-500 mb-4"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "★":
+  [36m<button[39m
+    [33mclass[39m=[32m"text-brand-600 hover:scale-110 transition-transform"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "★":
+  [36m<button[39m
+    [33mclass[39m=[32m"text-brand-600 hover:scale-110 transition-transform"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "★":
+  [36m<button[39m
+    [33mclass[39m=[32m"text-brand-600 hover:scale-110 transition-transform"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "★":
+  [36m<button[39m
+    [33mclass[39m=[32m"text-brand-600 hover:scale-110 transition-transform"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "★":
+  [36m<button[39m
+    [33mclass[39m=[32m"text-brand-600 hover:scale-110 transition-transform"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Enviar Avaliação":
+  [36m<button[39m
+    [33mclass[39m=[32m"px-4 py-2 bg-brand-600 text-white rounded text-sm hover:bg-brand-700 disabled:opacity-50 transition-colors"[39m
+    [33mtype[39m=[32m"submit"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  textbox:
+
+  Name "Comentário (opcional)":
+  [36m<textarea[39m
+    [33mclass[39m=[32m"w-full border rounded px-3 py-2 text-sm"[39m
+    [33mid[39m=[32m"csat-comment"[39m
+    [33mmaxlength[39m=[32m"1000"[39m
+    [33mplaceholder[39m=[32m"Deixe um comentário contando o que achou..."[39m
+    [33mrows[39m=[32m"3"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"mt-6 p-4 rounded-lg bg-white border shadow-sm"[39m
+    [36m>[39m
+      [36m<h3[39m
+        [33mclass[39m=[32m"text-lg font-semibold text-gray-900 mb-2"[39m
+      [36m>[39m
+        [0mAvalie nosso atendimento[0m
+      [36m</h3>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"text-sm text-gray-500 mb-4"[39m
+      [36m>[39m
+        [0mSeu chamado foi resolvido! Gostaríamos muito de saber como foi a sua experiência.[0m
+      [36m</p>[39m
+      [36m<form[39m
+        [33mclass[39m=[32m"space-y-4"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"block text-sm font-medium mb-1"[39m
+          [36m>[39m
+            [0mNota[0m
+          [36m</label>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex gap-1 text-2xl"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"text-brand-600 hover:scale-110 transition-transform"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m★[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"text-brand-600 hover:scale-110 transition-transform"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m★[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"text-brand-600 hover:scale-110 transition-transform"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m★[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"text-brand-600 hover:scale-110 transition-transform"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m★[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"text-brand-600 hover:scale-110 transition-transform"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m★[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"block text-sm font-medium mb-1"[39m
+            [33mfor[39m=[32m"csat-comment"[39m
+          [36m>[39m
+            [0mComentário (opcional)[0m
+          [36m</label>[39m
+          [36m<textarea[39m
+            [33mclass[39m=[32m"w-full border rounded px-3 py-2 text-sm"[39m
+            [33mid[39m=[32m"csat-comment"[39m
+            [33mmaxlength[39m=[32m"1000"[39m
+            [33mplaceholder[39m=[32m"Deixe um comentário contando o que achou..."[39m
+            [33mrows[39m=[32m"3"[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex gap-2 pt-2"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"px-4 py-2 bg-brand-600 text-white rounded text-sm hover:bg-brand-700 disabled:opacity-50 transition-colors"[39m
+            [33mtype[39m=[32m"submit"[39m
+          [36m>[39m
+            [0mEnviar Avaliação[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</form>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/tickets/TicketCsat.test.tsx:89:29
+     87|     renderComponent(baseTicket);
+     88|
+     89|     await user.click(screen.getByRole('button', { name: 'Nota 3 de 5' …
+       |                             ^
+     90|
+     91|     const commentBox = screen.getByPlaceholderText(/deixe um comentári…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |web| src/components/tickets/TicketCsat.test.tsx > TicketCsat > AC-12: the star rating is a named group whose buttons have distinct names and expose the chosen score
+Error: [2mexpect([22m[31mreceived[39m[2m).toBeInTheDocument()[22m
+
+[31mreceived[39m value must be an HTMLElement or an SVGElement.
+Received has type:  Null
+Received has value: [31mnull[39m
+ ❯ src/components/tickets/TicketCsat.test.tsx:110:19
+    108|
+    109|     const group = screen.queryByRole('group', { name: 'Nota' });
+    110|     expect(group).toBeInTheDocument();
+       |                   ^
+    111|     for (const n of [1, 2, 3, 4, 5]) {
+    112|       expect(screen.queryByRole('button', { name: `Nota ${n} de 5` }))…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |web| src/components/tickets/TicketCsat.test.tsx > TicketCsat > AC-12: the stored score in the summary view is announced as one image, not five disabled buttons
+Error: [2mexpect([22m[31mreceived[39m[2m).toBeInTheDocument()[22m
+
+[31mreceived[39m value must be an HTMLElement or an SVGElement.
+Received has type:  Null
+Received has value: [31mnull[39m
+ ❯ src/components/tickets/TicketCsat.test.tsx:126:64
+    124|     renderComponent({ ...baseTicket, csatScore: 4, csatComment: 'Ótimo…
+    125|
+    126|     expect(screen.queryByRole('img', { name: 'Nota 4 de 5' })).toBeInT…
+       |                                                                ^
+    127|     expect(screen.queryAllByRole('button', { name: /^Nota \d de 5$/ })…
+    128|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+Warning: command "vitest src/components/tickets/TicketCsat.test.tsx" exited with non-zero status code
