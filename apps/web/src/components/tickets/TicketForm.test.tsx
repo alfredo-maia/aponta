@@ -80,6 +80,17 @@ describe('TicketForm', () => {
     expect(screen.getByText('Algo deu errado no servidor.')).toBeInTheDocument();
   });
 
+  it('AC-12: announces the submit error as an alert (DS EzAlert)', () => {
+    renderForm({ submitError: 'Algo deu errado no servidor.' });
+    expect(screen.queryByRole('alert')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('Algo deu errado no servidor.');
+  });
+
+  it('AC-12: shows no alert when there is no submit error', () => {
+    renderForm({ submitError: null });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
   it('disables submit buttons while isSubmitting is true', () => {
     renderForm({ isSubmitting: true });
     expect(screen.getByRole('button', { name: /enviando/i })).toBeDisabled();

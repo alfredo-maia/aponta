@@ -6,7 +6,7 @@ import { api } from '../lib/api';
 import type { Ticket, TicketPriority } from '../hooks/useTickets';
 import type { TicketFormValues } from '../components/tickets/TicketForm';
 import { TicketForm } from '../components/tickets/TicketForm';
-import { EzCardItem, EzAlert } from '../components/ds';
+import { EzCardItem, EzAlert, EzButton } from '../components/ds';
 
 export interface CatalogItem {
   id: string;
@@ -118,7 +118,7 @@ export function CreateTicketPage() {
                 <button
                   key={item.id}
                   onClick={() => setSelectedCatalogItem(item)}
-                  className="text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-200 rounded-[16px]"
+                  className="text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-200 rounded-card"
                 >
                   <EzCardItem className="items-start p-4 hover:border-brand-200 cursor-pointer h-full">
                     <span className="font-medium text-brand-600 mb-1">
@@ -135,7 +135,8 @@ export function CreateTicketPage() {
         ))}
 
         <div className="pt-6">
-          <button
+          <EzButton
+            variant="tertiary"
             onClick={() =>
               setSelectedCatalogItem({
                 id: 'custom',
@@ -146,10 +147,8 @@ export function CreateTicketPage() {
                 defaultPriority: 'MEDIUM',
               })
             }
-            className="text-sm font-medium text-gray-500 hover:text-brand-600 transition-colors underline"
-          >
-            Meu problema não está catalogado (abrir chamado em branco)
-          </button>
+            label="Meu problema não está catalogado (abrir chamado em branco)"
+          />
         </div>
       </div>
     );
@@ -159,13 +158,13 @@ export function CreateTicketPage() {
     <div className="space-y-4 pt-4 max-w-lg">
       <div className="flex items-center gap-3">
         {catalog.length > 0 && (
-          <button
+          <EzButton
+            variant="tertiary"
+            size="small"
+            leftIcon={ArrowLeft}
             onClick={() => setSelectedCatalogItem(null)}
-            className="p-1.5 -ml-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-80 rounded-md transition-colors"
             aria-label="Voltar para o catálogo"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
+          />
         )}
         <h1 className="text-[20px] font-semibold text-gray-900">Abrir Chamado</h1>
       </div>

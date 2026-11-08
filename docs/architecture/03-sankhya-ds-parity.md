@@ -133,3 +133,13 @@ Nenhum componente novo no DS nesta fatia; só reaproveitamento.
 - **Paginação:** "Anterior" e "Próxima" passam de botões nativos com classes próprias para `EzButton` (`secondary`, `small`). Comportamento e nomes acessíveis iguais; os testes existentes seguem valendo.
 - **Grupos da Lista:** o botão do cabeçalho do grupo continua um `<button>` nativo (uma linha de tabela clicável não tem equivalente no DS), agora com chevron e `aria-expanded`, `rounded-control` e anel de foco por token.
 - **Fora desta fatia:** linhas de altura fixa e contagem do grupo mais discreta (D10) ficam para a fatia 7, que revisa as capturas por largura; o ajuste visual depende do aceite do Alfredo.
+
+## Busca avançada e Criar ticket (DMTE-427 fatia 5)
+
+As duas telas já usavam `EzComboBox`, `EzTextInput`, `EzButton` e `EzCardItem`. A fatia 5 troca só o que ainda fugia do DS; nenhum componente novo.
+
+- **Filtros adicionais da Busca avançada:** os quatro checkboxes nativos (Meus, Não atendidos, Pausados, Vencidos) passam para `EzCheck`, com `id` e rótulo próprios. O mapeamento para `mine`/`unassigned`/`paused`/`overdue` não mudou. O container usa `rounded-control`, e o formulário passa de `max-w-3xl` para `max-w-5xl` com três colunas em telas largas (o intervalo De/Até ocupa duas).
+- **Criar ticket:** o banner de erro do formulário passa a ser `EzAlert` (`error`), que tem `role="alert"` e é anunciado por leitor de tela. O cartão do formulário usa os tokens `rounded-card` e `shadow-card` da fatia 1, no lugar do raio e da sombra literais. "Voltar para o catálogo" e "Meu problema não está catalogado" passam de botões nativos para `EzButton` (`tertiary`); o botão do item do catálogo usa `rounded-card`.
+- **Comportamento:** igual, com uma única exceção: o erro de envio agora tem `role="alert"` (vem do `EzAlert`). Nomes acessíveis dos botões mantidos.
+- **Mudanças visuais, sem captura ainda** (dependem do aceite do Alfredo na fatia 7): o rótulo dos checkboxes passa de 13px para 14px (tamanho fixo do `EzCheck`); a Busca avançada fica mais larga (`max-w-5xl`, três colunas em tela larga), o que é uma proposta, não um pedido da SPEC; "Meu problema não está catalogado" deixa de ser texto sublinhado cinza e vira um botão `tertiary` na cor de marca, que pode quebrar linha em tela estreita; "Voltar para o catálogo" passa a ser o botão quadrado do `EzButton` sem rótulo, com o nome acessível no `aria-label`.
+- **Continua nativo, de propósito:** o `<button>` que envolve cada `EzCardItem` do catálogo (o `EzButton` não tem formato de cartão) e o `<details>`/`<summary>` dos filtros adicionais (o DS não tem componente equivalente). O botão do catálogo ganha só `rounded-card`.

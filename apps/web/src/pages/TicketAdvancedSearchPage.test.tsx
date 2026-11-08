@@ -117,6 +117,32 @@ describe('TicketAdvancedSearchPage (D4)', () => {
     });
   });
 
+  it('AC-12: the "Filtros adicionais" checkboxes map to mine/unassigned/paused/overdue and "Limpar" unchecks them', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(screen.getByText('Filtros adicionais'));
+    for (const name of ['Meus', 'Não atendidos', 'Pausados', 'Vencidos']) {
+      await user.click(screen.getByRole('checkbox', { name }));
+      expect(screen.getByRole('checkbox', { name })).toBeChecked();
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Limpar' }));
+    for (const name of ['Meus', 'Não atendidos', 'Pausados', 'Vencidos']) {
+      expect(screen.getByRole('checkbox', { name })).not.toBeChecked();
+    }
+
+    await user.click(screen.getByRole('checkbox', { name: 'Meus' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Vencidos' }));
+    await user.click(screen.getByRole('button', { name: 'Buscar' }));
+    await waitFor(() => {
+      const url = screen.getByTestId('location-probe').textContent ?? '';
+      expect(url).toContain('mine=true');
+      expect(url).toContain('overdue=true');
+      expect(url).not.toContain('paused=true');
+    });
+  });
+
   it('keeps Estágio disabled until a Mesa is chosen', async () => {
     renderPage();
 

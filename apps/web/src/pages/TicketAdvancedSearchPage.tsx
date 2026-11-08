@@ -7,7 +7,7 @@ import { filtersToSearchParams } from '../lib/ticketFilterParams';
 import type { TicketFiltersInput, TicketPriority, TicketStatus } from '../hooks/useTickets';
 import { statusLabels, priorityLabels } from '../components/tickets/TicketCard';
 import type { DeskStage } from '../components/MesaStagesEditor';
-import { EzComboBox, EzTextInput, EzButton } from '../components/ds';
+import { EzCheck, EzComboBox, EzTextInput, EzButton } from '../components/ds';
 
 interface PickerOption {
   id: string;
@@ -106,11 +106,11 @@ export function TicketAdvancedSearchPage() {
   const handleClear = () => setForm(EMPTY_FORM);
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="max-w-5xl space-y-6">
       <h1 className="text-[20px] font-semibold text-gray-900">Busca avançada</h1>
 
       <form onSubmit={handleSearch} className="space-y-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <EzComboBox
             id="adv-search-date-field"
             label="Data"
@@ -122,7 +122,7 @@ export function TicketAdvancedSearchPage() {
             <option value="createdAt">Abertura</option>
             <option value="closedAt">Fechamento</option>
           </EzComboBox>
-          <div className="flex gap-2">
+          <div className="flex gap-2 lg:col-span-2">
             <EzTextInput
               id="adv-search-date-from"
               label="De"
@@ -260,43 +260,35 @@ export function TicketAdvancedSearchPage() {
           </EzComboBox>
         </div>
 
-        <details className="rounded-[10px] border border-gray-200 p-3">
+        <details className="rounded-control border border-gray-200 p-3">
           <summary className="cursor-pointer text-[13px] font-medium text-gray-700">
             Filtros adicionais
           </summary>
           <div className="mt-3 flex flex-wrap gap-4 text-[13px]">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={form.mine}
-                onChange={(e) => setForm((f) => ({ ...f, mine: e.target.checked }))}
-              />
-              Meus
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={form.unassigned}
-                onChange={(e) => setForm((f) => ({ ...f, unassigned: e.target.checked }))}
-              />
-              Não atendidos
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={form.paused}
-                onChange={(e) => setForm((f) => ({ ...f, paused: e.target.checked }))}
-              />
-              Pausados
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={form.overdue}
-                onChange={(e) => setForm((f) => ({ ...f, overdue: e.target.checked }))}
-              />
-              Vencidos
-            </label>
+            <EzCheck
+              id="adv-search-mine"
+              label="Meus"
+              checked={form.mine}
+              onChange={(e) => setForm((f) => ({ ...f, mine: e.target.checked }))}
+            />
+            <EzCheck
+              id="adv-search-unassigned"
+              label="Não atendidos"
+              checked={form.unassigned}
+              onChange={(e) => setForm((f) => ({ ...f, unassigned: e.target.checked }))}
+            />
+            <EzCheck
+              id="adv-search-paused"
+              label="Pausados"
+              checked={form.paused}
+              onChange={(e) => setForm((f) => ({ ...f, paused: e.target.checked }))}
+            />
+            <EzCheck
+              id="adv-search-overdue"
+              label="Vencidos"
+              checked={form.overdue}
+              onChange={(e) => setForm((f) => ({ ...f, overdue: e.target.checked }))}
+            />
           </div>
         </details>
 
