@@ -90,7 +90,7 @@ describe('EzEntityGrid paginação no celular', () => {
       <EzEntityGrid columns={columns} data={data} pageSize={2} showGridCornerMenu />
     );
     expect(screen.getByTestId('ez-grid-corner-menu-button').className).toContain(
-      '[@media(pointer:coarse)]:p-2.5'
+      '[@media(pointer:coarse)]:h-11'
     );
   });
 });

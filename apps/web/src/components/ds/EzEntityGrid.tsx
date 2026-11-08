@@ -1701,7 +1701,7 @@ function EzEntityGridInner<T>(
             title="Opções da grade"
             data-testid="ez-grid-corner-menu-button"
             onClick={() => setIsCornerMenuOpen((prev) => !prev)}
-            className="absolute top-1.5 right-1.5 z-20 p-1 [@media(pointer:coarse)]:p-2.5 rounded-[6px] bg-white/90 hover:bg-white text-gray-500 hover:text-gray-900 border border-gray-200 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+            className="absolute top-1.5 right-1.5 z-20 p-1 [@media(pointer:coarse)]:h-11 [@media(pointer:coarse)]:w-11 [@media(pointer:coarse)]:inline-flex [@media(pointer:coarse)]:items-center [@media(pointer:coarse)]:justify-center rounded-[6px] bg-white/90 hover:bg-white text-gray-500 hover:text-gray-900 border border-gray-200 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
           </button>

@@ -114,6 +114,15 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     localStorage.clear();
   });
 
+  it('keeps the grid scrollable by touch in both axes on phones (DMTE-455)', async () => {
+    loginAs('ADMIN');
+    renderPage();
+
+    await screen.findByText('Empresa A');
+    const content = screen.getByTestId('organizations-grid-content');
+    expect(content).toHaveClass('touch-pan-x', 'touch-pan-y', 'overscroll-x-contain');
+  });
+
   it('shows an access-denied message for non-ADMIN roles', () => {
     loginAs('AGENT');
     renderPage();
