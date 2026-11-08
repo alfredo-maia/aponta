@@ -6,7 +6,7 @@
   "multica_id": "01a1a2ef-0513-7170-8abc-490e1d79dbfa",
   "cycle": "2026-10-26/2026-11-08",
   "tier": 3,
-  "base_sha": "faec29b8f821b2609ff333c69c6dc26927b918aa",
+  "base_sha": "cd85edfeb86b608c2e12563c73d5c1dc19b04b98",
   "criteria": [
     {
       "id": "AC-01",
@@ -95,12 +95,13 @@
     },
     {
       "id": "AC-13",
-      "description": "Estados de carregamento, vazio e erro do Kanban com o mesmo estilo e as mesmas mensagens.",
+      "description": "Estados de carregamento, vazio e erro com o mesmo estilo e as mesmas mensagens: Kanban (fatia 2) e Lista (fatia 4).",
       "tests": [
-        "apps/web/src/components/tickets/TicketKanban.test.tsx"
+        "apps/web/src/components/tickets/TicketKanban.test.tsx",
+        "apps/web/src/components/tickets/TicketList.test.tsx"
       ],
       "tdd_required": false,
-      "reason": "Sem mudança de comportamento nos estados; os testes existentes de carregamento, erro e coluna vazia seguem verdes. A parte da Lista é da fatia 4."
+      "reason": "Sem mudança nos estados: os testes existentes de carregamento, erro e vazio do Kanban e da Lista seguem verdes sem alteração. Na Lista, só se acrescentou que os filtros ativos continuam visíveis no carregamento e no erro (AC-10), sem mexer nas mensagens."
     },
     {
       "id": "AC-03",
@@ -109,29 +110,60 @@
         "apps/web/src/components/ds/EzSegmented.test.tsx",
         "apps/web/src/components/tickets/TicketsHeader.test.tsx",
         "apps/web/src/pages/TicketsPage.test.tsx"
+      ],
+      "tdd_required": false,
+      "reason": "Fatia 3, já integrada na main (PR #139, cd85edf): o par RED/GREEN real está preservado em .delivery/evidence/DMTE-427-f3/{red,green}.json. Nesta fatia o par oficial do manifesto passa a cobrir AC-09/AC-10 (schema com um único tdd.red/tdd.green por entrega)."
+    },
+    {
+      "id": "AC-09",
+      "description": "Lista: grupos com ícone de expandir/recolher e aria-expanded, contagem do grupo, ordenação por coluna intacta; paginação com o botão do DS (EzButton). Cabeçalho e linhas já usavam tokens do DS (gray-80/gray-100) desde a fatia 1. Fora desta fatia, por decisão registrada no doc de paridade: linhas de altura fixa e contagem do grupo mais discreta (D10), para a fatia 7.",
+      "tests": [
+        "apps/web/src/components/tickets/TicketList.test.tsx",
+        "apps/web/src/pages/TicketsPage.test.tsx"
       ]
+    },
+    {
+      "id": "AC-10",
+      "description": "Lista: filtros ativos visíveis (TicketActiveFilters) com 'Redefinir filtros', só para filtros que a tela já suporta (URL e Busca avançada). Nenhum filtro novo. Filtros que guardam só um id mostram o nome do campo, sem inventar o valor.",
+      "tests": [
+        "apps/web/src/components/tickets/TicketActiveFilters.test.tsx",
+        "apps/web/src/pages/TicketsPage.test.tsx"
+      ]
+    },
+    {
+      "id": "AC-11",
+      "description": "Visão CLIENT: Lista com o mesmo acabamento e sem Kanban e sem alternador.",
+      "tests": [
+        "apps/web/src/pages/TicketsPage.test.tsx",
+        "apps/web/src/components/tickets/TicketsHeader.test.tsx"
+      ],
+      "tdd_required": false,
+      "reason": "Sem mudança de comportamento do papel CLIENT: a Lista, os filtros ativos e a paginação valem igual para ele, e os testes existentes de CLIENT (sem Kanban, sem alternador) seguem verdes sem alteração."
     }
   ],
   "spec": "docs/delivery/specs/DMTE-427.md",
   "changed_files": [
     ".delivery/deliveries/DMTE-427.json",
-    ".delivery/evidence/DMTE-427-f3/red.json",
-    ".delivery/evidence/DMTE-427-f3/red.log",
-    ".delivery/evidence/DMTE-427-f3/green.json",
-    ".delivery/evidence/DMTE-427-f3/green.log",
-    "apps/web/src/components/ds/EzSegmented.stories.tsx",
-    "apps/web/src/components/ds/EzSegmented.test.tsx",
-    "apps/web/src/components/ds/EzSegmented.tsx",
-    "apps/web/src/components/ds/index.ts",
-    "apps/web/src/components/tickets/TicketsHeader.test.tsx",
-    "apps/web/src/components/tickets/TicketsHeader.tsx",
+    ".delivery/evidence/DMTE-427-f4/red.json",
+    ".delivery/evidence/DMTE-427-f4/red.log",
+    ".delivery/evidence/DMTE-427-f4/green.json",
+    ".delivery/evidence/DMTE-427-f4/green.log",
+    "apps/web/src/components/tickets/TicketActiveFilters.test.tsx",
+    "apps/web/src/components/tickets/TicketActiveFilters.tsx",
+    "apps/web/src/components/tickets/TicketList.test.tsx",
+    "apps/web/src/components/tickets/TicketList.tsx",
     "apps/web/src/pages/TicketsPage.test.tsx",
+    "apps/web/src/pages/TicketsPage.tsx",
+    ".delivery/evidence/DMTE-427-f4-r2/red.json",
+    ".delivery/evidence/DMTE-427-f4-r2/red.log",
+    ".delivery/evidence/DMTE-427-f4-r2/green.json",
+    ".delivery/evidence/DMTE-427-f4-r2/green.log",
     "docs/architecture/03-sankhya-ds-parity.md"
   ],
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-427-f3/red.json",
-    "green": ".delivery/evidence/DMTE-427-f3/green.json"
+    "red": ".delivery/evidence/DMTE-427-f4-r2/red.json",
+    "green": ".delivery/evidence/DMTE-427-f4-r2/green.json"
   },
   "design_system": {
     "applicable": true,
@@ -140,7 +172,8 @@
       "EzAlert",
       "EzTabs",
       "EzTag",
-      "EzAvatar"
+      "EzAvatar",
+      "EzButton"
     ],
     "stories": [
       "apps/web/src/components/ds/EzSegmented.stories.tsx",

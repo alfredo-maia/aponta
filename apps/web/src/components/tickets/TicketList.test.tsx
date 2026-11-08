@@ -120,6 +120,23 @@ describe('TicketList (D5: Lista agrupável)', () => {
     expect(screen.queryByText('AP-2026-0002')).not.toBeInTheDocument();
   });
 
+  it('AC-09: the group header exposes aria-expanded and flips it when toggled', async () => {
+    const user = userEvent.setup();
+    renderList();
+
+    await user.selectOptions(screen.getByLabelText(/agrupar por/i), 'organization');
+    const header = screen.getByRole('button', { name: /Acme \(1\)/ });
+    expect(header).toHaveAttribute('aria-expanded', 'false');
+
+    await user.click(header);
+    expect(header).toHaveAttribute('aria-expanded', 'true');
+    expect(await screen.findByText('AP-2026-0001')).toBeInTheDocument();
+
+    await user.click(header);
+    expect(header).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('AP-2026-0001')).not.toBeInTheDocument();
+  });
+
   it('"Nenhum" removes grouping and shows every row flat', async () => {
     const user = userEvent.setup();
     renderList();

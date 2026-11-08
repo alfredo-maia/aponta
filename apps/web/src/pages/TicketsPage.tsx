@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { TicketList } from '../components/tickets/TicketList';
 import { TicketKanban } from '../components/tickets/TicketKanban';
+import { TicketActiveFilters } from '../components/tickets/TicketActiveFilters';
 import { TicketsHeader, type TicketsViewMode } from '../components/tickets/TicketsHeader';
-import { EzAlert, EzSpinner } from '../components/ds';
+import { EzAlert, EzButton, EzSpinner } from '../components/ds';
 import type { TicketFiltersInput } from '../hooks/useTickets';
 import { useTickets } from '../hooks/useTickets';
 import { useAuthStore } from '../stores/authStore';
@@ -89,6 +90,15 @@ export function TicketsPage() {
         onOpenAdvancedSearch={() => openInTab('/tickets/search', 'Busca avançada')}
       />
 
+      {viewMode === 'list' && (
+        <TicketActiveFilters
+          filters={filters}
+          onReset={() =>
+            setFilters((prev) => ({ sortBy: prev.sortBy, sortDir: prev.sortDir }))
+          }
+        />
+      )}
+
       {isLoading ? (
         <div className="flex justify-center py-8">
           <EzSpinner label="Carregando chamados…" />
@@ -128,26 +138,24 @@ export function TicketsPage() {
                 {meta.total === 1 ? 'chamado' : 'chamados'})
               </span>
               <div className="flex gap-2">
-                <button
-                  type="button"
+                <EzButton
+                  variant="secondary"
+                  size="small"
+                  label="Anterior"
                   disabled={currentPage <= 1}
                   onClick={() =>
                     setFilters((prev) => ({ ...prev, page: currentPage - 1 }))
                   }
-                  className="rounded-[8px] border border-gray-200 px-3 py-1 text-gray-700 hover:bg-gray-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Anterior
-                </button>
-                <button
-                  type="button"
+                />
+                <EzButton
+                  variant="secondary"
+                  size="small"
+                  label="Próxima"
                   disabled={currentPage >= meta.totalPages}
                   onClick={() =>
                     setFilters((prev) => ({ ...prev, page: currentPage + 1 }))
                   }
-                  className="rounded-[8px] border border-gray-200 px-3 py-1 text-gray-700 hover:bg-gray-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Próxima
-                </button>
+                />
               </div>
             </nav>
           )}
