@@ -1068,7 +1068,8 @@ export function OrganizationsPage() {
                 </EzFilterDrawer>
 
                 {/* Grid Content */}
-                <div className="flex-1 p-3 overflow-x-auto min-w-0 flex flex-col">
+                <div data-testid="organizations-grid-content"
+className="flex-1 p-3 overflow-x-auto touch-pan-x touch-pan-y overscroll-x-contain min-w-0 flex flex-col">
                   {orgs?.length === 0 ? (
                     <div className="p-4">
                       <EzEmptyCard title="Nenhuma empresa cadastrada ainda." />

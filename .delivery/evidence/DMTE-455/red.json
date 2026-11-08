@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-08T17:14:52.135403+00:00",
+  "finished_at": "2026-11-08T17:15:29.029085+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run",
+    "web:test",
+    "--skip-nx-cache",
+    "--",
+    "src/components/ds/EzGrid.mobile.test.tsx",
+    "src/pages/OrganizationsPage.test.tsx",
+    "src/pages/ServiceDesksPage.test.tsx"
+  ],
+  "base_sha": "c9efc7663732da82704defb610d95618fd6c861b",
+  "head_sha": "c9efc7663732da82704defb610d95618fd6c861b",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/components/ds/EzGrid.mobile.test.tsx": "554ec2b3ffa397fa099571c27faffc717b9d8f420871946ed7a09de95625de6a",
+    "apps/web/src/pages/OrganizationsPage.test.tsx": "29d1d1192e778808e8922436b9f329b3b4e79321c939a7431df8488077ff7392",
+    "apps/web/src/pages/ServiceDesksPage.test.tsx": "7c7e7006d84e1da81c76286c3ffb5eb992add5e58a97584c370a824ebc228f66"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/ds/EzGrid.mobile.test.tsx": "554ec2b3ffa397fa099571c27faffc717b9d8f420871946ed7a09de95625de6a",
+    "apps/web/src/pages/OrganizationsPage.test.tsx": "29d1d1192e778808e8922436b9f329b3b4e79321c939a7431df8488077ff7392",
+    "apps/web/src/pages/ServiceDesksPage.test.tsx": "7c7e7006d84e1da81c76286c3ffb5eb992add5e58a97584c370a824ebc228f66"
+  },
+  "log": ".delivery/evidence/DMTE-455/red.log",
+  "log_sha256": "b848701704737658a1ad363602c0aed4cf1cc00bc49d6bda79bcbccfe89e52f9"
+}

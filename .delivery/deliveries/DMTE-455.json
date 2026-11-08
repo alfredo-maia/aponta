@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "delivery": "DMTE-455",
+  "repository": "alfredo-maia/aponta",
+  "github_issue": 145,
+  "multica_id": "01a1bbe1-ab78-757f-aeaa-f86044dd1069",
+  "cycle": "2026-10-26/2026-11-08",
+  "tier": 1,
+  "base_sha": "c9efc7663732da82704defb610d95618fd6c861b",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "A tabela do DS Grid rola com o dedo nos dois eixos sem prender a página; o thumb da barra horizontal arrasta por toque e fica maior em ponteiro grosso.",
+      "tests": [
+        "apps/web/src/components/ds/EzGrid.mobile.test.tsx"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "Paginação empilhada no celular; botões de página, seletor de linhas, botão de opções da grade e botões da taskbar com alvo de 44px.",
+      "tests": [
+        "apps/web/src/components/ds/EzGrid.mobile.test.tsx"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "Telas Organizações e Service Desks mantêm a rolagem por toque nos dois eixos.",
+      "tests": [
+        "apps/web/src/pages/OrganizationsPage.test.tsx",
+        "apps/web/src/pages/ServiceDesksPage.test.tsx"
+      ]
+    }
+  ],
+  "changed_files": [
+    "apps/web/src/components/ds/EzEntityGrid.tsx",
+    "apps/web/src/components/ds/EzGrid.mobile.test.tsx",
+    "apps/web/src/components/ds/EzGrid.stories.tsx",
+    "apps/web/src/components/ds/EzGrid.tsx",
+    "apps/web/src/components/ds/EzTaskbar.tsx",
+    "apps/web/src/pages/OrganizationsPage.test.tsx",
+    "apps/web/src/pages/OrganizationsPage.tsx",
+    "apps/web/src/pages/ServiceDesksPage.test.tsx",
+    "apps/web/src/pages/ServiceDesksPage.tsx"
+  ],
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-455/red.json",
+    "green": ".delivery/evidence/DMTE-455/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzGrid",
+      "EzEntityGrid",
+      "EzTaskbar"
+    ],
+    "stories": [
+      "apps/web/src/components/ds/EzGrid.stories.tsx"
+    ]
+  }
+}
