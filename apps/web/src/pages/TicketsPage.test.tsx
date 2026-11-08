@@ -373,6 +373,28 @@ describe('TicketsPage', () => {
     );
   });
 
+  it('AC-10: shows the active filters in the list and "Redefinir filtros" clears them and refetches', async () => {
+    mockApiGet();
+    const user = userEvent.setup();
+    renderDashboard(['/?view=list&status=OPEN']);
+
+    await screen.findByText('Printer not working');
+    expect(screen.getByRole('group', { name: /filtros ativos/i })).toHaveTextContent('Status: Aberto');
+
+    vi.mocked(api.get).mockClear();
+    mockApiGet();
+    await user.click(screen.getByRole('button', { name: 'Redefinir filtros' }));
+
+    await waitFor(() =>
+      expect(screen.queryByRole('group', { name: /filtros ativos/i })).not.toBeInTheDocument(),
+    );
+    await waitFor(() => {
+      const ticketCalls = vi.mocked(api.get).mock.calls.filter(([url]) => String(url).includes('/tickets'));
+      expect(ticketCalls.length).toBeGreaterThan(0);
+      expect((ticketCalls[ticketCalls.length - 1][1] as { params: Record<string, unknown> }).params.status).toBeUndefined();
+    });
+  });
+
   it('RODADA 2: stays at "/" on initial load (no ?view=) and only writes ?view= once the user switches views', async () => {
     mockApiGet();
     const user = userEvent.setup();

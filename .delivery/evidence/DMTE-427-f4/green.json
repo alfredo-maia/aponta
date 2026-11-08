@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-08T02:03:46.321169+00:00",
+  "finished_at": "2026-11-08T02:04:01.933916+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run",
+    "web:test",
+    "--skip-nx-cache",
+    "--",
+    "src/components/tickets/TicketActiveFilters.test.tsx",
+    "src/components/tickets/TicketList.test.tsx",
+    "src/pages/TicketsPage.test.tsx"
+  ],
+  "base_sha": "cd85edfeb86b608c2e12563c73d5c1dc19b04b98",
+  "head_sha": "cd85edfeb86b608c2e12563c73d5c1dc19b04b98",
+  "exit_code": 0,
+  "tests": {
+    "apps/web/src/components/tickets/TicketActiveFilters.test.tsx": "803de5b860b068dfbb20eda0c58166b61c2c7aca6cc5f1d98259b10d39687001",
+    "apps/web/src/components/tickets/TicketList.test.tsx": "ab08076c852051690e47ed229c604c3805965e69bbe4f92bcb1ee7638e140eb2",
+    "apps/web/src/pages/TicketsPage.test.tsx": "0d8f6a6a3f38c8594525d948f386989b8af0e75894246c11f38cda7ea93126b5"
+  },
+  "criteria": [
+    "AC-09",
+    "AC-10"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/tickets/TicketActiveFilters.test.tsx": "803de5b860b068dfbb20eda0c58166b61c2c7aca6cc5f1d98259b10d39687001",
+    "apps/web/src/components/tickets/TicketActiveFilters.tsx": "b69f7ff74ebf254055954ce3e12548227e814217a336c1b40249a873f31485eb",
+    "apps/web/src/components/tickets/TicketList.test.tsx": "ab08076c852051690e47ed229c604c3805965e69bbe4f92bcb1ee7638e140eb2",
+    "apps/web/src/components/tickets/TicketList.tsx": "90f25c7688d4ca6495d1263723a6273c3c8859caee55037ee41247a9eae5e951",
+    "apps/web/src/pages/TicketsPage.test.tsx": "0d8f6a6a3f38c8594525d948f386989b8af0e75894246c11f38cda7ea93126b5",
+    "apps/web/src/pages/TicketsPage.tsx": "e58e7cfabe358b84af4fe7b63afe7516c3e279dd2aff7edad29a636bf4a2008f"
+  },
+  "log": ".delivery/evidence/DMTE-427-f4/green.log",
+  "log_sha256": "d446c04a78c243e14882897d8875f0d318ced250db174a8f9bc4d1260c81d551"
+}

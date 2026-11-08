@@ -1,0 +1,29 @@
+
+> nx run web:test src/components/tickets/TicketActiveFilters.test.tsx src/components/tickets/TicketList.test.tsx src/pages/TicketsPage.test.tsx
+
+> vitest src/components/tickets/TicketActiveFilters.test.tsx src/components/tickets/TicketList.test.tsx src/pages/TicketsPage.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-430-31f270e18a18/workdir/aponta/apps/web
+
+ ✓ |web| src/components/tickets/TicketActiveFilters.test.tsx (4 tests) 386ms
+ ✓ |web| src/components/tickets/TicketList.test.tsx (11 tests) 1368ms
+ ✓ |web| src/pages/TicketsPage.test.tsx (22 tests) 3235ms
+     ✓ should render ticket list  412ms
+     ✓ defaults non-CLIENT users to the Kanban view and lets them switch to List  344ms
+     ✓ reflects a search typed in the header back into the URL (bookmarkable/shareable)  702ms
+
+ Test Files  3 passed (3)
+      Tests  37 passed (37)
+   Start at  23:03:53
+   Duration  7.68s (transform 5.36s, setup 321ms, import 9.08s, tests 4.99s, environment 2.00s)
+
+
+
+
+ NX   Successfully ran target test for project web
+
+
+stderr | src/pages/TicketsPage.test.tsx > TicketsPage > navigates to /tickets/search when "Busca avançada" is clicked (AC3)
+No routes matched location "/tickets/search" 
+

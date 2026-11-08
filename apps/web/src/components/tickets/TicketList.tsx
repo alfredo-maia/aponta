@@ -1,4 +1,5 @@
 import { Fragment, useState, type ReactNode } from 'react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import type { Ticket } from '../../hooks/useTickets';
 import { EzAlert, EzEmptyCard, EzSpinner, EzTag } from '../ds';
 import { statusLabels, priorityLabels, statusTagVariants, priorityTagVariants } from './TicketCard';
@@ -332,10 +333,18 @@ export function TicketList({
                         <td colSpan={visibleColumns.length} className="px-3 py-2">
                           <button
                             type="button"
+                            aria-expanded={isExpanded}
                             onClick={() => toggleGroup(groupKey)}
-                            className="flex w-full items-center gap-2 text-left text-[13px] font-semibold text-gray-900"
+                            className="flex w-full cursor-pointer items-center gap-2 rounded-control text-left text-[13px] font-semibold text-gray-900 outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                           >
-                            {groupKey} ({groupTickets.length})
+                            {isExpanded ? (
+                              <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-500" />
+                            ) : (
+                              <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-500" />
+                            )}
+                            <span>
+                              {groupKey} ({groupTickets.length})
+                            </span>
                           </button>
                         </td>
                       </tr>
