@@ -31,6 +31,22 @@ export function AppLayout() {
     return () => document.removeEventListener('keydown', closeOnEscape);
   }, [menuOpen]);
 
+  // Menu modal: trava a rolagem do fundo e fecha se a tela crescer até o menu fixo,
+  // para o painel e a barra fixa nunca coexistirem.
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    document.body.style.overflow = 'hidden';
+    const desktop = typeof window.matchMedia === 'function' ? window.matchMedia('(min-width: 768px)') : null;
+    const closeOnDesktop = (event: { matches: boolean }) => {
+      if (event.matches) setMenuOpen(false);
+    };
+    desktop?.addEventListener('change', closeOnDesktop);
+    return () => {
+      document.body.style.overflow = '';
+      desktop?.removeEventListener('change', closeOnDesktop);
+    };
+  }, [menuOpen]);
+
   // Foco: entra no painel ao abrir e volta ao botão ao fechar (menu modal).
   useEffect(() => {
     if (menuOpen) {
@@ -43,7 +59,11 @@ export function AppLayout() {
 
   return (
     <div className="flex min-h-screen bg-gray-80 text-gray-900">
-      <div className="sticky top-0 hidden h-screen shrink-0 md:block">
+      <div
+        data-testid="desktop-sidebar"
+        inert={menuOpen}
+        className="sticky top-0 hidden h-screen shrink-0 md:block"
+      >
         <Sidebar />
       </div>
 
@@ -77,7 +97,7 @@ export function AppLayout() {
         </div>
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div data-testid="app-content" inert={menuOpen} className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-gray-200 bg-white p-3">
           <button
             ref={toggleRef}

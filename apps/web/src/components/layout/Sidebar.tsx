@@ -77,7 +77,7 @@ export function Sidebar({ inDrawer = false, onNavigate }: SidebarProps = {}) {
   const user = useAuthStore((state) => state.user);
   const location = useLocation();
   const navigate = useNavigate();
-  const [collapsedState, setCollapsed] = useState(false);
+  const [collapsedState, setCollapsedState] = useState(false);
   const collapsed = inDrawer ? false : collapsedState;
   const go = (to: string) => {
     navigate(to);
@@ -145,7 +145,7 @@ export function Sidebar({ inDrawer = false, onNavigate }: SidebarProps = {}) {
             label={collapsed ? 'Expandir' : 'Esconder'}
             icon={collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
             collapsed={collapsed}
-            onClick={() => setCollapsed(!collapsedState)}
+            onClick={() => setCollapsedState(!collapsedState)}
             className="text-gray-500 hover:text-gray-900"
           />
         </div>

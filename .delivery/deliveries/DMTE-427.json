@@ -160,7 +160,7 @@
     },
     {
       "id": "AC-14",
-      "description": "Evidência visual: capturas (dados sintéticos, API simulada no navegador) de Kanban, Lista, Lista com filtros, Busca avançada, Criar ticket e Detalhe em 1440, 1280, 1024, 768 e 390px, mais o menu aberto em 390px, anexadas na issue DMTE-430. O aceite visual é humano e do Alfredo; as capturas isoladas não bastam.",
+      "description": "Evidência visual: capturas (dados sintéticos, API simulada no navegador) de Kanban, Lista, Lista com filtros, Busca avançada, Criar ticket e Detalhe em 1440, 1280, 1024, 768 e 390px, mais o menu aberto em 390px, anexadas na issue DMTE-430. O aceite visual é humano e do Alfredo; as capturas isoladas não bastam. Situação: as capturas existem fora do repositório e vão anexadas no fio da DMTE-430; o aceite do Alfredo ainda não ocorreu.",
       "tests": [
         "capturas anexadas no fio da DMTE-430 (sem teste automático)"
       ],
@@ -169,7 +169,7 @@
     },
     {
       "id": "AC-17",
-      "description": "Celular (390px): sem rolagem horizontal da página; o menu lateral vira menu retrátil (botão Abrir menu, painel role=dialog com foco que entra e volta, botão Fechar menu, fecha por Esc, toque fora ou ao navegar); desde 768px o menu continua fixo. Teste do menu retrátil em AppLayout.test.tsx. Demais ajustes de largura (cabeçalho da aba em linhas, tabela da Lista com rolagem horizontal em região focável, cabeçalho do detalhe empilhado, cartões do Kanban sem marcador) são só de classe, sem teste, verificados por captura.",
+      "description": "Celular (390px): sem rolagem horizontal da página; o menu lateral vira menu retrátil (botão Abrir menu, painel role=dialog com foco que entra e volta, botão Fechar menu, fecha por Esc, toque fora ou ao navegar); desde 768px o menu continua fixo. Teste do menu retrátil em AppLayout.test.tsx. Demais ajustes de largura (cabeçalho da aba em linhas, tabela da Lista com rolagem horizontal em região focável, cabeçalho do detalhe empilhado, cartões do Kanban sem marcador) são só de classe, sem teste, verificados por captura. Acessibilidade do painel: fundo inert, rolagem do fundo travada e fechamento automático ao chegar em 768px, com testes. As demais páginas do shell foram capturadas só para medir rolagem horizontal (nenhuma passou da largura) e não foram validadas ponta a ponta.",
       "tests": [
         "apps/web/src/components/layout/AppLayout.test.tsx"
       ]
@@ -192,12 +192,16 @@
     "apps/web/src/components/tickets/TicketList.tsx",
     "apps/web/src/components/tickets/TicketsHeader.tsx",
     "docs/architecture/03-sankhya-ds-parity.md",
-    "docs/delivery/specs/DMTE-427.md"
+    "docs/delivery/specs/DMTE-427.md",
+    ".delivery/evidence/DMTE-427-f7-r3/red.json",
+    ".delivery/evidence/DMTE-427-f7-r3/red.log",
+    ".delivery/evidence/DMTE-427-f7-r3/green.json",
+    ".delivery/evidence/DMTE-427-f7-r3/green.log"
   ],
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-427-f7-r2/red.json",
-    "green": ".delivery/evidence/DMTE-427-f7-r2/green.json"
+    "red": ".delivery/evidence/DMTE-427-f7-r3/red.json",
+    "green": ".delivery/evidence/DMTE-427-f7-r3/green.json"
   },
   "design_system": {
     "applicable": true,
