@@ -6,14 +6,16 @@
 
  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-427-c1e8af88098f/workdir/aponta/apps/web
 
- ✓ |web| src/pages/TicketAdvancedSearchPage.test.tsx (10 tests) 2388ms
-     ✓ renders every D4 field for AGENT/ADMIN  323ms
-     ✓ AC-12: the "Filtros adicionais" checkboxes map to mine/unassigned/paused/overdue and "Limpar" unchecks them  681ms
+ ✓ |web| src/pages/TicketAdvancedSearchPage.test.tsx (10 tests) 3338ms
+     ✓ renders every D4 field for AGENT/ADMIN  469ms
+     ✓ RODADA 2: "Status" has Abertos/Fechados shortcuts that map to notClosed/closedOnly, not a literal status (D4)  375ms
+     ✓ AC-12: the "Filtros adicionais" checkboxes map to mine/unassigned/paused/overdue and "Limpar" unchecks them  1133ms
+     ✓ keeps Estágio disabled until a Mesa is chosen  428ms
 
  Test Files  1 passed (1)
       Tests  10 passed (10)
-   Start at  10:27:50
-   Duration  7.78s (transform 3.26s, setup 115ms, import 4.30s, tests 2.39s, environment 730ms)
+   Start at  10:34:40
+   Duration  7.65s (transform 2.44s, setup 156ms, import 3.30s, tests 3.34s, environment 599ms)
 
 
 

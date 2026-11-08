@@ -261,7 +261,7 @@ export function TicketAdvancedSearchPage() {
         </div>
 
         <EzCollapsibleBox title="Filtros adicionais">
-          <div className="flex flex-wrap gap-4 text-[13px]">
+          <div className="flex flex-wrap gap-4">
             <EzCheck
               id="adv-search-mine"
               label="Meus"
