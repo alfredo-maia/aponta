@@ -6,7 +6,7 @@
   "multica_id": "01a1bc30-4b2a-7251-8509-7e21475a663f",
   "cycle": "2026-10-26/2026-11-08",
   "tier": 1,
-  "base_sha": "0d1bbc00cc9ea9d9ae721acc844b978eaf5f69d6",
+  "base_sha": "c448742fcfdaf969829a0fd470dc70b6eef41a7c",
   "criteria": [
     {"id": "AC-01", "description": "Seed cria 8 categorias e 18 itens com título, descrição, prioridade, ícone e mesa", "tests": ["seedServiceCatalog (DMTE-456) AC-01: creates the 8 categories and 18 items with title, description, priority, icon and desk"]},
     {"id": "AC-02", "description": "Segunda execução não cria registros e corrige campos alterados", "tests": ["seedServiceCatalog (DMTE-456) AC-02: a second run creates nothing new and repairs edited fields"]},

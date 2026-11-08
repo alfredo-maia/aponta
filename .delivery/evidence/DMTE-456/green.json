@@ -1,8 +1,8 @@
 {
   "version": 1,
   "phase": "green",
-  "started_at": "2026-11-08T17:40:17.764115+00:00",
-  "finished_at": "2026-11-08T17:40:26.602757+00:00",
+  "started_at": "2026-11-08T20:47:05.454794+00:00",
+  "finished_at": "2026-11-08T20:47:12.838815+00:00",
   "command": [
     "pnpm",
     "exec",
@@ -12,8 +12,8 @@
     "--skip-nx-cache",
     "--testPathPatterns=seed-catalog"
   ],
-  "base_sha": "0d1bbc00cc9ea9d9ae721acc844b978eaf5f69d6",
-  "head_sha": "0d1bbc00cc9ea9d9ae721acc844b978eaf5f69d6",
+  "base_sha": "c448742fcfdaf969829a0fd470dc70b6eef41a7c",
+  "head_sha": "90e7824b03ca7971d69b05aee17b0604831ab5ab",
   "exit_code": 0,
   "tests": {
     "apps/api/prisma/seed-catalog.spec.ts": "17383aaf3e14ed77ee9df47dc471d474906202814f9ab8e718a2b733af4220d4"
@@ -32,5 +32,5 @@
     "apps/api/project.json": "5ff443e3af6429c7bfed8daa19cac4d81781d18e6bf094e1a8a0f75787877649"
   },
   "log": ".delivery/evidence/DMTE-456/green.log",
-  "log_sha256": "bdb34cc794f35ee29c277b7c440b0e04a718b7ab5a0e64a0f6b440994b98b106"
+  "log_sha256": "b4a2a8c8f7ffbf8b1c85948a6631f66a8c83249769c8150e67c62934653eb5d1"
 }
