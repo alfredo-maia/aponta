@@ -1,0 +1,527 @@
+
+> nx run web:test src/components/ds/EzGrid.mobile.test.tsx src/pages/OrganizationsPage.test.tsx src/pages/ServiceDesksPage.test.tsx
+
+> vitest src/components/ds/EzGrid.mobile.test.tsx src/pages/OrganizationsPage.test.tsx src/pages/ServiceDesksPage.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-455-724b1d7c8a2c/workdir/redwt/apps/web
+
+ ❯ |web| src/components/ds/EzGrid.mobile.test.tsx (7 tests | 7 failed) 342ms
+     × rola a tabela com o dedo sem arrastar a página (touch-pan-x + overscroll contido) 97ms
+     × arrasta o thumb da barra horizontal por toque 33ms
+     × usa trilho e thumb maiores em ponteiro grosso (toque) 18ms
+     × empilha a paginação e dá alvos de toque de 44px aos botões de página 68ms
+     × aumenta o alvo do botão de opções da grade em ponteiro grosso 41ms
+     × quebra linha e dá alvo de toque de 44px aos botões em ponteiro grosso 47ms
+     × seletor de linhas por página tem 44px de altura abaixo de sm 27ms
+ ❯ |web| src/pages/ServiceDesksPage.test.tsx (13 tests | 1 failed) 4810ms
+     ✓ should list existing service desks for an ADMIN user  343ms
+     × keeps the grid scrollable by touch in both axes on phones (DMTE-455) 180ms
+     ✓ should show the Sankhya-standard entity toolbar with Incluir, Recarregar, and column config 101ms
+     ✓ should enable Excluir and Duplicar once a row is selected, and call the delete endpoint on confirmation  327ms
+     ✓ should open the create form only after clicking Incluir, and create a new service desk  379ms
+     ✓ should not submit when the name field is empty 180ms
+     ✓ should show an access-denied message for a non-ADMIN user 7ms
+     ✓ shows Portuguese labels for ticket sections instead of database keys 247ms
+     ✓ should link a service desk to a client and save its SLA overrides  399ms
+     ✓ shows the Sankhya-standard filter drawer with search, status and dynamic filter fields 231ms
+     ✓ filters the grid by search text and status (Sankhya filter drawer)  631ms
+     ✓ filters dynamically by any column using the rule builder (Sankhya Filtros parity)  840ms
+     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  934ms
+ ❯ |web| src/pages/OrganizationsPage.test.tsx (31 tests | 1 failed) 11196ms
+     × keeps the grid scrollable by touch in both axes on phones (DMTE-455) 411ms
+     ✓ shows an access-denied message for non-ADMIN roles 16ms
+     ✓ shows the list view by default with a mode toggle (Tiflux/Sankhya-parity, issue #57)  535ms
+     ✓ switches to the full-page form via Ações > Cadastrar manualmente and validates it  313ms
+     ✓ switches between Grid Mode and Form Mode via the toolbar toggle  323ms
+     ✓ creates a new organization with rich fields  676ms
+     ✓ looks up a CNPJ and autofills legal name / trade name  368ms
+     ✓ locks CNPJ and Razão Social after a Receita lookup, standardizing form-mode editability (Sankhya parity)  479ms
+     ✓ toggles CPF/CNPJ fields based on document type (Tiflux-parity, issue #56)  404ms
+     ✓ shows the empty state when there are no organizations 32ms
+     ✓ opens the full-page detail with the Tiflux-parity 3-column panel  328ms
+     ✓ shows the "Cliente ativo" toggle and inactivates the organization  317ms
+     ✓ defaults to the Usuários tab, lists only CLIENT/CLIENT_MASTER users and allows linking  423ms
+     ✓ updates organization name and legal name on blur in Usuários tab  732ms
+     ✓ toggles visibility and quarterly billing from the detail header 275ms
+     ✓ adds a new contact from the Usuários tab 254ms
+     ✓ saves serviceType/healthStatus from the Usuários tab (Perfil do Cliente, issue #56)  375ms
+     ✓ shows an honest stub in the Recursos tab (no fabricated module) 157ms
+     ✓ manages Mesas (N:N) and Grupo de Atendentes in the Relacionamentos tab (Tiflux-parity, issue #57)  454ms
+     ✓ renders billing preferences and updates quarterly billing in Faturamento tab (issue #58)  861ms
+     ✓ supports inline editing of cells and Cadastrar por CNPJ via toolbar actions (Sankhya parity)  503ms
+     ✓ renders Sankhya standard entity toolbar, filter drawer, and screen config modal (br.com.sankhya.core.cad.parceiros parity) 163ms
+     ✓ filters the grid by search text, status, and document type (Sankhya filter drawer)  527ms
+     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  357ms
+     ✓ navigates between organizations from the detail view using toolbar Anterior/Próximo 217ms
+     ✓ duplicates a selected organization into a prefilled Nova Empresa form (Duplicar) 132ms
+     ✓ persists column visibility toggles to the per-user screen config (localStorage) 130ms
+     ✓ edits the optional grid columns (IE, IM, Pasta, Perfil, Saúde) once made visible via screen config  815ms
+     ✓ restores default screen configuration from the config modal 154ms
+     ✓ filters dynamically by any column using the rule builder (Sankhya Filtros parity)  415ms
+     ✓ does not offer grouping and shows the record count in a single place 44ms
+
+ Test Files  3 failed (3)
+      Tests  9 failed | 42 passed (51)
+   Start at  14:15:12
+   Duration  15.46s (transform 4.74s, setup 415ms, import 7.72s, tests 16.35s, environment 1.87s)
+
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
+stderr | src/components/ds/EzGrid.mobile.test.tsx > EzEntityGrid paginação no celular > empilha a paginação e dá alvos de toque de 44px aos botões de página
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzGrid.mobile.test.tsx > EzEntityGrid paginação no celular > aumenta o alvo do botão de opções da grade em ponteiro grosso
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzGrid.mobile.test.tsx > EzTaskbar e seletor de linhas no celular (revisão interna) > seletor de linhas por página tem 44px de altura abaixo de sm
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/pages/OrganizationsPage.test.tsx > OrganizationsPage > keeps the grid scrollable by touch in both axes on phones (DMTE-455)
+TestingLibraryElementError: Unable to find an element by: [data-testid="organizations-grid-content"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-col h-full bg-gray-80"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-col w-full bg-white border-b border-gray-200 px-6 py-4 gap-3"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex items-center justify-between min-h-[40px]"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<h1[39m
+              [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900 leading-none m-0"[39m
+            [36m>[39m
+              [0mClientes[0m
+            [36m</h1>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-4"[39m
+          [36m/>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex-1 overflow-auto p-6"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"space-y-6"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs flex flex-col"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center justify-between gap-3 px-3 py-1.5 bg-white border-b border-gray-200 select-none min-h-[44px]"[39m
+              [33mdata-testid[39m=[32m"ez-entity-toolbar"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-center gap-1 flex-wrap"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33maria-label[39m=[32m"Painel de filtros"[39m
+                  [33mclass[39m=[32m"inline-flex items-center justify-center h-[32px] px-2.5 rounded-[6px] text-[12px] font-medium transition-colors border cursor-pointer bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900"[39m
+                  [33mdata-testid[39m=[32m"ez-toolbar-filter-panel-button"[39m
+                  [33mtitle[39m=[32m"Painel de filtros"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-funnel lucide-filter w-3.5 h-3.5 mr-1.5"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [0mFiltros[0m
+                [36m</button>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"w-px h-5 bg-gray-200 mx-0.5"[39m
+                [36m/>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"relative inline-flex items-center rounded-[6px] border border-gray-200 bg-white"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33maria-label[39m=[32m"Alternar para Modo Formulário"[39m
+                    [33mclass[39m=[32m"inline-flex items-center gap-1.5 px-2.5 h-[30px] rounded-l-[5px] text-[12px] font-medium transition-colors cursor-pointer text-brand-700 bg-brand-50/50 hover:bg-brand-50"[39m
+                    [33mdata-testid[39m=[32m"ez-toolbar-mode-toggle-button"[39m
+                    [33mtitle[39m=[32m"Ver formulário do registro"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33maria-hidden[39m=[32m"true"[39m
+                      [33mclass[39m=[32m"lucide lucide-layout-grid w-3.5 h-3.5 text-brand-600"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mheight[39m=[32m"24"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                      [33mwidth[39m=[32m"24"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<rect[39m
+                        [33mheight[39m=[32m"7"[39m
+                        [33mrx[39m=[32m"1"[39m
+                        [33mwidth[39m=[32m"7"[39m
+                        [33mx[39m=[32m"3"[39m
+                        [33my[39m=[32m"3"[39m
+                      [36m/>[39m
+                      [36m<rect[39m
+                        [33mheight[39m=[32m"7"[39m
+                        [33mrx[39m=[32m"1"[39m
+                        [33mwidth[39m=[32m"7"[39m
+                        [33mx[39m=[32m"14"[39m
+                        [33my[39m=[32m"3"[39m
+                      [36m/>[39m
+                      [36m<rect[39m
+                        [33mheight[39m=[32m"7"[39m
+                        [33mrx[39m=[32m"1"[39m
+                        [33mwidth[39m=[32m"7"[39m
+                        [33mx[39m=[32m"14"[39m
+                        [33my[39m=[32m"14"[39m
+                      [36m/>[39m
+                      [36m<rect[39m
+                        [33mheight[39m=[32m"7"[39m
+                        [33mrx[39m=[32m"1"[39m
+                        [33mwidth[39m=[32m"7"[39m
+                        [33mx[39m=[32m"3"[39m
+                        [33my[39m=[32m"14"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                    [36m<span>[39m
+                      [0mGrade[0m
+                    [36m</span>[39m
+                  [36m</button>[39m
+                  [36m<button[39m
+                    [33maria-expanded[39m=[32m"false"[39m
+                    [33maria-label[39m=[32m"Opções do modo de visualização"[39m
+                    [33mclass[39m=[32m"inline-flex items-center justify-center w-6 h-[30px] border-l border-gray-200 rounded-r-[5px] text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors cursor-po...
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/OrganizationsPage.test.tsx:122:28
+    120|
+    121|     await screen.findByText('Empresa A');
+    122|     const content = screen.getByTestId('organizations-grid-content');
+       |                            ^
+    123|     expect(content).toHaveClass('touch-pan-x', 'touch-pan-y', 'overscr…
+    124|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |web| src/pages/ServiceDesksPage.test.tsx > ServiceDesksPage > keeps the grid scrollable by touch in both axes on phones (DMTE-455)
+TestingLibraryElementError: Unable to find an element by: [data-testid="service-desks-grid-content"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-col h-full bg-gray-80"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-col w-full bg-white border-b border-gray-200 px-6 py-4 gap-3"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex items-center justify-between min-h-[40px]"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-3"[39m
+          [36m>[39m
+            [36m<h1[39m
+              [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900 leading-none m-0"[39m
+            [36m>[39m
+              [0mMesa[0m
+            [36m</h1>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-4"[39m
+          [36m/>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex-1 overflow-auto p-6"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"space-y-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"bg-white rounded-[10px] border border-gray-200 overflow-hidden shadow-xs flex flex-col"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center justify-between gap-3 px-3 py-1.5 bg-white border-b border-gray-200 select-none min-h-[44px]"[39m
+              [33mdata-testid[39m=[32m"ez-entity-toolbar"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-center gap-1 flex-wrap"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33maria-label[39m=[32m"Painel de filtros"[39m
+                  [33mclass[39m=[32m"inline-flex items-center justify-center h-[32px] px-2.5 rounded-[6px] text-[12px] font-medium transition-colors border cursor-pointer bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900"[39m
+                  [33mdata-testid[39m=[32m"ez-toolbar-filter-panel-button"[39m
+                  [33mtitle[39m=[32m"Painel de filtros"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-funnel lucide-filter w-3.5 h-3.5 mr-1.5"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [0mFiltros[0m
+                [36m</button>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"w-px h-5 bg-gray-200 mx-0.5"[39m
+                [36m/>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"relative inline-flex items-center rounded-[6px] border border-gray-200 bg-white"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33maria-label[39m=[32m"Alternar para Modo Formulário"[39m
+                    [33mclass[39m=[32m"inline-flex items-center gap-1.5 px-2.5 h-[30px] rounded-l-[5px] text-[12px] font-medium transition-colors cursor-pointer text-brand-700 bg-brand-50/50 hover:bg-brand-50"[39m
+                    [33mdata-testid[39m=[32m"ez-toolbar-mode-toggle-button"[39m
+                    [33mtitle[39m=[32m"Ver formulário do registro"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33maria-hidden[39m=[32m"true"[39m
+                      [33mclass[39m=[32m"lucide lucide-layout-grid w-3.5 h-3.5 text-brand-600"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mheight[39m=[32m"24"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                      [33mwidth[39m=[32m"24"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<rect[39m
+                        [33mheight[39m=[32m"7"[39m
+                        [33mrx[39m=[32m"1"[39m
+                        [33mwidth[39m=[32m"7"[39m
+                        [33mx[39m=[32m"3"[39m
+                        [33my[39m=[32m"3"[39m
+                      [36m/>[39m
+                      [36m<rect[39m
+                        [33mheight[39m=[32m"7"[39m
+                        [33mrx[39m=[32m"1"[39m
+                        [33mwidth[39m=[32m"7"[39m
+                        [33mx[39m=[32m"14"[39m
+                        [33my[39m=[32m"3"[39m
+                      [36m/>[39m
+                      [36m<rect[39m
+                        [33mheight[39m=[32m"7"[39m
+                        [33mrx[39m=[32m"1"[39m
+                        [33mwidth[39m=[32m"7"[39m
+                        [33mx[39m=[32m"14"[39m
+                        [33my[39m=[32m"14"[39m
+                      [36m/>[39m
+                      [36m<rect[39m
+                        [33mheight[39m=[32m"7"[39m
+                        [33mrx[39m=[32m"1"[39m
+                        [33mwidth[39m=[32m"7"[39m
+                        [33mx[39m=[32m"3"[39m
+                        [33my[39m=[32m"14"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                    [36m<span>[39m
+                      [0mGrade[0m
+                    [36m</span>[39m
+                  [36m</button>[39m
+                  [36m<button[39m
+                    [33maria-expanded[39m=[32m"false"[39m
+                    [33maria-label[39m=[32m"Opções do modo de visualização"[39m
+                    [33mclass[39m=[32m"inline-flex items-center justify-center w-6 h-[30px] border-l border-gray-200 rounded-r-[5px] text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors cursor-pointe...
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/ServiceDesksPage.test.tsx:110:28
+    108|
+    109|     await screen.findByText('Suporte N1');
+    110|     const content = screen.getByTestId('service-desks-grid-content');
+       |                            ^
+    111|     expect(content).toHaveClass('touch-pan-x', 'touch-pan-y', 'overscr…
+    112|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |web| src/components/ds/EzGrid.mobile.test.tsx > EzGridWrapper no celular > rola a tabela com o dedo sem arrastar a página (touch-pan-x + overscroll contido)
+Error: [2mexpect([22m[31melement[39m[2m).toHaveClass([22m[32m[32m"touch-pan-x"[32m[39m[2m)[22m
+
+Expected the element to have class:
+[32m  touch-pan-x[39m
+Received:
+[31m  w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden[39m
+ ❯ src/components/ds/EzGrid.mobile.test.tsx:29:22
+     27|     );
+     28|     const scroller = container.querySelector('#ez-grid-table-container…
+     29|     expect(scroller).toHaveClass('touch-pan-x');
+       |                      ^
+     30|     expect(scroller).toHaveClass('touch-pan-y');
+     31|     expect(scroller).toHaveClass('overscroll-x-contain');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  |web| src/components/ds/EzGrid.mobile.test.tsx > EzGridWrapper no celular > arrasta o thumb da barra horizontal por toque
+AssertionError: expected 0 to be greater than 0
+ ❯ src/components/ds/EzGrid.mobile.test.tsx:54:33
+     52|     fireEvent.touchEnd(thumb);
+     53|
+     54|     expect(scroller.scrollLeft).toBeGreaterThan(0);
+       |                                 ^
+     55|   });
+     56|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  |web| src/components/ds/EzGrid.mobile.test.tsx > EzGridWrapper no celular > usa trilho e thumb maiores em ponteiro grosso (toque)
+AssertionError: expected 'w-full h-3 bg-gray-100 border-t borde…' to contain '[@media(pointer:coarse)]:h-5'
+
+Expected: "[@media(pointer:coarse)]:h-5"
+Received: "w-full h-3 bg-gray-100 border-t border-gray-200 relative select-none cursor-pointer overflow-hidden"
+
+ ❯ src/components/ds/EzGrid.mobile.test.tsx:65:74
+     63|       </EzGridWrapper>
+     64|     );
+     65|     expect(screen.getByTestId('ez-grid-horizontal-scrollbar').classNam…
+       |                                                                          ^
+     66|       '[@media(pointer:coarse)]:h-5'
+     67|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  |web| src/components/ds/EzGrid.mobile.test.tsx > EzEntityGrid paginação no celular > empilha a paginação e dá alvos de toque de 44px aos botões de página
+Error: [2mexpect([22m[31melement[39m[2m).toHaveClass([22m[32m[32m"h-11"[32m[39m[2m)[22m
+
+Expected the element to have class:
+[32m  h-11[39m
+Received:
+[31m  inline-flex items-center justify-center h-[32px] w-[32px] rounded-[8px] text-gray-500 transition-colors hover:bg-gray-80 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none[39m
+ ❯ src/components/ds/EzGrid.mobile.test.tsx:78:22
+     76|     const next = screen.getByLabelText('Próxima página');
+     77|     for (const button of [prev, next]) {
+     78|       expect(button).toHaveClass('h-11');
+       |                      ^
+     79|       expect(button).toHaveClass('w-11');
+     80|       expect(button).toHaveClass('sm:h-[32px]');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  |web| src/components/ds/EzGrid.mobile.test.tsx > EzEntityGrid paginação no celular > aumenta o alvo do botão de opções da grade em ponteiro grosso
+AssertionError: expected 'absolute top-1.5 right-1.5 z-20 p-1 r…' to contain '[@media(pointer:coarse)]:h-11'
+
+Expected: "[@media(pointer:coarse)]:h-11"
+Received: "absolute top-1.5 right-1.5 z-20 p-1 rounded-[6px] bg-white/90 hover:bg-white text-gray-500 hover:text-gray-900 border border-gray-200 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+
+ ❯ src/components/ds/EzGrid.mobile.test.tsx:92:72
+     90|       <EzEntityGrid columns={columns} data={data} pageSize={2} showGri…
+     91|     );
+     92|     expect(screen.getByTestId('ez-grid-corner-menu-button').className)…
+       |                                                                        ^
+     93|       '[@media(pointer:coarse)]:h-11'
+     94|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  |web| src/components/ds/EzGrid.mobile.test.tsx > EzTaskbar e seletor de linhas no celular (revisão interna) > quebra linha e dá alvo de toque de 44px aos botões em ponteiro grosso
+Error: [2mexpect([22m[31melement[39m[2m).toHaveClass([22m[32m[32m"flex-wrap"[32m[39m[2m)[22m
+
+Expected the element to have class:
+[32m  flex-wrap[39m
+Received:
+[31m  flex items-center gap-1 justify-start[39m
+ ❯ src/components/ds/EzGrid.mobile.test.tsx:102:34
+    100|     render(<EzTaskbar buttons={['INSERT', 'SAVE']} onAction={() => und…
+    101|     const button = screen.getByRole('button', { name: 'Incluir' });
+    102|     expect(button.parentElement).toHaveClass('flex-wrap');
+       |                                  ^
+    103|     expect(button.className).toContain('[@media(pointer:coarse)]:h-11'…
+    104|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  |web| src/components/ds/EzGrid.mobile.test.tsx > EzTaskbar e seletor de linhas no celular (revisão interna) > seletor de linhas por página tem 44px de altura abaixo de sm
+Error: [2mexpect([22m[31melement[39m[2m).toHaveClass([22m[32m[32m"h-11"[32m[39m[2m)[22m
+
+Expected the element to have class:
+[32m  h-11[39m
+Received:
+[31m  h-[32px] px-2 text-[13px] text-gray-700 bg-white border border-gray-200 rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-200 cursor-pointer[39m
+ ❯ src/components/ds/EzGrid.mobile.test.tsx:108:57
+    106|   it('seletor de linhas por página tem 44px de altura abaixo de sm', (…
+    107|     render(<EzEntityGrid columns={columns} data={data} pageSize={2} pa…
+    108|     expect(screen.getByLabelText('Linhas por página:')).toHaveClass('h…
+       |                                                         ^
+    109|   });
+    110| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+Warning: command "vitest src/components/ds/EzGrid.mobile.test.tsx src/pages/OrganizationsPage.test.tsx src/pages/ServiceDesksPage.test.tsx" exited with non-zero status code

@@ -21,11 +21,11 @@
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-427",
       "kind": "delivery",
       "tier": 3,
-      "state": "Em implementação",
+      "state": "Planejada",
       "cycle": "2026-10-26/2026-11-08",
       "epic": null,
-      "title": "Refinar layout da aba Tickets: ajustar disposição e cores",
-      "note": "SPEC v2 e ADR 0001 em plan/dmte-427 (SHA 26aaf08eb82781ab629eb4e08be6779f119429bb). Sete fatias técnicas em série (WIP 1), delegadas como filhas Multica do pai DMTE-427; sem issue GitHub por fatia. Fatia 1 (DMTE-430, fundação visual) em implementação."
+      "title": "Tickets: refinar estética e proporção da aba Tickets",
+      "note": "Tier 3 provisório, confirmado pelo Architect ao abrir a SPEC. Issue GitHub #120 criada com autorização do Alfredo. Alfredo decidiu que todo o trabalho (SPEC e implementação) fica no ciclo 01; a implementação pode se estender além de 08/11/2026. Pedido novo: não usa DMTE-78/PR #91 nem a SPEC de 2026-10-23 como base."
     },
     "DMTE-159": {
       "delivery": "DMTE-159",
@@ -307,19 +307,19 @@
       "title": "Composição de métodos de engenharia e alinhamento verificável",
       "note": "Configuração administrativa; sem produto/deploy. Ensaios sintéticos em DMTE-293. PR #109 mergeado em 01/11/2026. Aceite humano não registrado."
     },
-    "DMTE-427": {
-      "delivery": "DMTE-427",
+    "DMTE-455": {
+      "delivery": "DMTE-455",
       "repository": "alfredo-maia/aponta",
-      "github_issue": 120,
-      "multica_id": "01a1a2ef-0513-7170-8abc-490e1d79dbfa",
-      "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-427",
+      "github_issue": 145,
+      "multica_id": "01a1bbe1-ab78-757f-aeaa-f86044dd1069",
+      "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-455",
       "kind": "delivery",
-      "tier": 3,
-      "state": "Planejada",
+      "tier": 1,
+      "state": "Em implementação",
       "cycle": "2026-10-26/2026-11-08",
       "epic": null,
-      "title": "Tickets: refinar estética e proporção da aba Tickets",
-      "note": "Tier 3 provisório, confirmado pelo Architect ao abrir a SPEC. Issue GitHub #120 criada com autorização do Alfredo. Alfredo decidiu que todo o trabalho (SPEC e implementação) fica no ciclo 01; a implementação pode se estender além de 08/11/2026. Pedido novo: não usa DMTE-78/PR #91 nem a SPEC de 2026-10-23 como base."
+      "title": "DS Grid: responsividade e toque no celular (390px) em todas as telas",
+      "note": "Bug Tier 1 pedido pelo Alfredo; planejamento com SPEC dispensado. RED oficial gravado contra a base c9efc76 (código que ainda não tinha o comportamento); a primeira rodada de TDD foi feita antes do coletor existir para esta entrega (histórico nas run-messages do Multica)."
     }
   }
 }
