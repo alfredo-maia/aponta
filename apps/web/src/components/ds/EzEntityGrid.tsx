@@ -2212,7 +2212,7 @@ function EzEntityGridInner<T>(
                 aria-label="Linhas por página:"
                 value={table.getState().pagination.pageSize}
                 onChange={handlePageSizeChange}
-                className="h-[32px] px-2 text-[13px] text-gray-700 bg-white border border-gray-200 rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-200 cursor-pointer"
+                className="h-11 sm:h-[32px] px-2 text-[13px] text-gray-700 bg-white border border-gray-200 rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-200 cursor-pointer"
               >
                 {resolvedPageSizeOptions.map((option) => (
                   <option key={option} value={option}>

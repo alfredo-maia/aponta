@@ -201,7 +201,7 @@ export const EzGridWrapper = forwardRef<HTMLDivElement, EzGridProps>(
           ref={scrollContainerRef}
           id="ez-grid-table-container"
           onScroll={handleScroll}
-          className="w-full overflow-x-auto touch-pan-x overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="w-full overflow-x-auto touch-pan-x touch-pan-y overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <table className="w-full text-left border-collapse min-w-[480px] sm:min-w-[600px]">
             {/* 

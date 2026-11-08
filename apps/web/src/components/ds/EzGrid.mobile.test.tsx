@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { EzGridWrapper } from './EzGrid';
 import { EzEntityGrid } from './EzEntityGrid';
+import { EzTaskbar } from './EzTaskbar';
 
 // DMTE-455: o grid precisa ser confortável em tela de celular (390px).
 // jsdom não faz layout, então os testes cobrem comportamento de toque e as
@@ -26,6 +27,7 @@ describe('EzGridWrapper no celular', () => {
     );
     const scroller = container.querySelector('#ez-grid-table-container') as HTMLDivElement;
     expect(scroller).toHaveClass('touch-pan-x');
+    expect(scroller).toHaveClass('touch-pan-y');
     expect(scroller).toHaveClass('overscroll-x-contain');
   });
 
@@ -90,5 +92,19 @@ describe('EzEntityGrid paginação no celular', () => {
     expect(screen.getByTestId('ez-grid-corner-menu-button').className).toContain(
       '[@media(pointer:coarse)]:p-2.5'
     );
+  });
+});
+
+describe('EzTaskbar e seletor de linhas no celular (revisão interna)', () => {
+  it('quebra linha e dá alvo de toque de 44px aos botões em ponteiro grosso', () => {
+    render(<EzTaskbar buttons={['INSERT', 'SAVE']} onAction={() => undefined} />);
+    const button = screen.getByRole('button', { name: 'Incluir' });
+    expect(button.parentElement).toHaveClass('flex-wrap');
+    expect(button.className).toContain('[@media(pointer:coarse)]:h-11');
+  });
+
+  it('seletor de linhas por página tem 44px de altura abaixo de sm', () => {
+    render(<EzEntityGrid columns={columns} data={data} pageSize={2} pageSizeOptions={[2, 5]} />);
+    expect(screen.getByLabelText('Linhas por página:')).toHaveClass('h-11');
   });
 });

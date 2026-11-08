@@ -118,7 +118,7 @@ export const EzTaskbar = forwardRef<HTMLDivElement, EzTaskbarProps>(
       <div
         ref={ref}
         className={cn(
-          'flex items-center gap-1',
+          'flex flex-wrap items-center gap-1',
           alignRight ? 'justify-end' : 'justify-start',
           className
         )}
@@ -147,7 +147,7 @@ export const EzTaskbar = forwardRef<HTMLDivElement, EzTaskbarProps>(
                   aria-expanded={isMoreOptionsOpen}
                   onClick={() => setIsMoreOptionsOpen((prev) => !prev)}
                   className={cn(
-                    'inline-flex items-center justify-center h-[36px] w-[36px] rounded-[8px] transition-colors',
+                    'inline-flex items-center justify-center h-[36px] w-[36px] [@media(pointer:coarse)]:h-11 [@media(pointer:coarse)]:w-11 rounded-[8px] transition-colors',
                     'text-gray-500 hover:bg-gray-80 hover:text-gray-900',
                     'focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-200'
                   )}
@@ -195,7 +195,7 @@ export const EzTaskbar = forwardRef<HTMLDivElement, EzTaskbarProps>(
               disabled={isDisabled}
               onClick={() => onAction(button)}
               className={cn(
-                'inline-flex items-center justify-center h-[36px] w-[36px] rounded-[8px] transition-colors',
+                'inline-flex items-center justify-center h-[36px] w-[36px] [@media(pointer:coarse)]:h-11 [@media(pointer:coarse)]:w-11 rounded-[8px] transition-colors',
                 'focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-200',
                 isPrimary
                   ? 'bg-brand-500 text-gray-70 hover:bg-brand-700'
