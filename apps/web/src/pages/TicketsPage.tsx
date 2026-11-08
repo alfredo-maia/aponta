@@ -90,6 +90,15 @@ export function TicketsPage() {
         onOpenAdvancedSearch={() => openInTab('/tickets/search', 'Busca avançada')}
       />
 
+      {viewMode === 'list' && (
+        <TicketActiveFilters
+          filters={filters}
+          onReset={() =>
+            setFilters((prev) => ({ sortBy: prev.sortBy, sortDir: prev.sortDir }))
+          }
+        />
+      )}
+
       {isLoading ? (
         <div className="flex justify-center py-8">
           <EzSpinner label="Carregando chamados…" />
@@ -108,12 +117,6 @@ export function TicketsPage() {
       ) : (
         /* ================= LIST VIEW (MODO LISTA) ================= */
         <>
-          <TicketActiveFilters
-            filters={filters}
-            onReset={() =>
-              setFilters((prev) => ({ sortBy: prev.sortBy, sortDir: prev.sortDir }))
-            }
-          />
           <TicketList
             tickets={tickets}
             isLoading={isLoading}

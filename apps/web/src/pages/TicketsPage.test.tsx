@@ -395,6 +395,30 @@ describe('TicketsPage', () => {
     });
   });
 
+  it('AC-10: keeps "Redefinir filtros" available when the fetch fails, so a bad filter can be cleared', async () => {
+    vi.mocked(api.get).mockImplementation((url: string) => {
+      if (url === '/service-desks') return Promise.resolve({ data: serviceDesks });
+      return Promise.reject(new Error('boom'));
+    });
+    renderDashboard(['/?view=list&status=OPEN']);
+
+    expect(await screen.findByText(/falha ao carregar os chamados/i)).toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: /filtros ativos/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Redefinir filtros' })).toBeInTheDocument();
+  });
+
+  it('AC-10: "Redefinir filtros" also clears the search text typed in the header', async () => {
+    mockApiGet();
+    const user = userEvent.setup();
+    renderDashboard(['/?view=list&search=impressora']);
+
+    await screen.findByText('Printer not working');
+    expect(screen.getByLabelText(/buscar/i)).toHaveValue('impressora');
+
+    await user.click(screen.getByRole('button', { name: 'Redefinir filtros' }));
+    await waitFor(() => expect(screen.getByLabelText(/buscar/i)).toHaveValue(''));
+  });
+
   it('RODADA 2: stays at "/" on initial load (no ?view=) and only writes ?view= once the user switches views', async () => {
     mockApiGet();
     const user = userEvent.setup();

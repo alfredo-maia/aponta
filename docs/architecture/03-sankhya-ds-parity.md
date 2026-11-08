@@ -124,3 +124,12 @@ O alternador Lista/Kanban do cabeçalho de Tickets era um par de botões com cla
 - `EzSegmented` é um grupo nomeado (`role="group"` com `aria-label`) de botões com `aria-pressed`, altura do token `--control-height-md` (alinhado com Buscar e Busca avançada) e anel de foco visível. Opção pode ser desabilitada.
 - `EzTabs` não foi alterado. Os testes que buscavam os botões "Lista" e "Kanban" por papel `button` seguem valendo.
 - Story: `EzSegmented.stories.tsx`. Testes: `EzSegmented.test.tsx` (5 casos), `TicketsHeader.test.tsx` e `TicketsPage.test.tsx`.
+
+## Lista, filtros ativos e paginação (DMTE-427 fatia 4)
+
+Nenhum componente novo no DS nesta fatia; só reaproveitamento.
+
+- **Filtros ativos** (`TicketActiveFilters`, em `components/tickets`, não no DS): chips com `EzTag` (variante `gray`) e a ação "Redefinir filtros" com `EzButton` (`tertiary`). Mostra só filtros que a tela já suportava (URL e Busca avançada); filtro que guarda só um id mostra o nome do campo ("Cliente", "Mesa de serviço"), não o valor. Página, ordenação e o filtro por avatar do Kanban não contam. Fica visível também durante o carregamento e quando a consulta falha, para dar para limpar um filtro que quebra a lista.
+- **Paginação:** "Anterior" e "Próxima" passam de botões nativos com classes próprias para `EzButton` (`secondary`, `small`). Comportamento e nomes acessíveis iguais; os testes existentes seguem valendo.
+- **Grupos da Lista:** o botão do cabeçalho do grupo continua um `<button>` nativo (uma linha de tabela clicável não tem equivalente no DS), agora com chevron e `aria-expanded`, `rounded-control` e anel de foco por token.
+- **Fora desta fatia:** linhas de altura fixa e contagem do grupo mais discreta (D10) ficam para a fatia 7, que revisa as capturas por largura; o ajuste visual depende do aceite do Alfredo.

@@ -95,12 +95,13 @@
     },
     {
       "id": "AC-13",
-      "description": "Estados de carregamento, vazio e erro do Kanban com o mesmo estilo e as mesmas mensagens.",
+      "description": "Estados de carregamento, vazio e erro com o mesmo estilo e as mesmas mensagens: Kanban (fatia 2) e Lista (fatia 4).",
       "tests": [
-        "apps/web/src/components/tickets/TicketKanban.test.tsx"
+        "apps/web/src/components/tickets/TicketKanban.test.tsx",
+        "apps/web/src/components/tickets/TicketList.test.tsx"
       ],
       "tdd_required": false,
-      "reason": "Sem mudança de comportamento nos estados; os testes existentes de carregamento, erro e coluna vazia seguem verdes. A parte da Lista é da fatia 4."
+      "reason": "Sem mudança nos estados: os testes existentes de carregamento, erro e vazio do Kanban e da Lista seguem verdes sem alteração. Na Lista, só se acrescentou que os filtros ativos continuam visíveis no carregamento e no erro (AC-10), sem mexer nas mensagens."
     },
     {
       "id": "AC-03",
@@ -115,7 +116,7 @@
     },
     {
       "id": "AC-09",
-      "description": "Lista: grupos com ícone de expandir/recolher e aria-expanded, contagem do grupo, ordenação por coluna intacta; paginação com o botão do DS (EzButton). Cabeçalho e linhas já usavam tokens do DS (gray-80/gray-100) desde a fatia 1.",
+      "description": "Lista: grupos com ícone de expandir/recolher e aria-expanded, contagem do grupo, ordenação por coluna intacta; paginação com o botão do DS (EzButton). Cabeçalho e linhas já usavam tokens do DS (gray-80/gray-100) desde a fatia 1. Fora desta fatia, por decisão registrada no doc de paridade: linhas de altura fixa e contagem do grupo mais discreta (D10), para a fatia 7.",
       "tests": [
         "apps/web/src/components/tickets/TicketList.test.tsx",
         "apps/web/src/pages/TicketsPage.test.tsx"
@@ -152,12 +153,17 @@
     "apps/web/src/components/tickets/TicketList.test.tsx",
     "apps/web/src/components/tickets/TicketList.tsx",
     "apps/web/src/pages/TicketsPage.test.tsx",
-    "apps/web/src/pages/TicketsPage.tsx"
+    "apps/web/src/pages/TicketsPage.tsx",
+    ".delivery/evidence/DMTE-427-f4-r2/red.json",
+    ".delivery/evidence/DMTE-427-f4-r2/red.log",
+    ".delivery/evidence/DMTE-427-f4-r2/green.json",
+    ".delivery/evidence/DMTE-427-f4-r2/green.log",
+    "docs/architecture/03-sankhya-ds-parity.md"
   ],
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-427-f4/red.json",
-    "green": ".delivery/evidence/DMTE-427-f4/green.json"
+    "red": ".delivery/evidence/DMTE-427-f4-r2/red.json",
+    "green": ".delivery/evidence/DMTE-427-f4-r2/green.json"
   },
   "design_system": {
     "applicable": true,
