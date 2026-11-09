@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-09T02:41:41.058728+00:00",
+  "finished_at": "2026-11-09T02:41:46.879580+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "--root",
+    "apps/web",
+    "src/components/ds/escapeOverlays.test.tsx"
+  ],
+  "base_sha": "4c1b29522e8e606c7f7098ba1f120eab96e5dc93",
+  "head_sha": "4c1b29522e8e606c7f7098ba1f120eab96e5dc93",
+  "exit_code": 0,
+  "tests": {
+    "apps/web/src/components/ds/escapeOverlays.test.tsx": "aadd37437a693d699fc7e6ef250ba3a1995f742ff4359cb718c9cdea6ae94411"
+  },
+  "criteria": [
+    "AC-2",
+    "AC-8"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/ds/EzEntityGrid.tsx": "2f42362652dbddd0c99580884cd6a96d2bb73266ec42c0f613b153c34fae728c",
+    "apps/web/src/components/ds/EzEntityScreenConfigModal.tsx": "23f737d2540dc876b4b5c2d887cdea1bd1ea90491a1ba1897309272d7175973a",
+    "apps/web/src/components/ds/EzFilterDrawer.tsx": "e3e7a6066c686a2058871dcded927d4ff8480b76c9d689352ee5a44858915faf",
+    "apps/web/src/components/ds/EzPopoverPlus.tsx": "bd55176762b53c576a5ab3820544ed648cb98fb9dfb791731cbf94107e8f03ae",
+    "apps/web/src/components/ds/EzPopup.tsx": "d0d9e87a7d4d99d152143bdf3ceae4f615e3c2b51f7467fb542368c395538f74",
+    "apps/web/src/components/ds/escapeOverlays.test.tsx": "aadd37437a693d699fc7e6ef250ba3a1995f742ff4359cb718c9cdea6ae94411",
+    "apps/web/src/components/layout/AppLayout.tsx": "5e54a927b5bd0b13d9fdd07cc249f595f94872f7fb81713ab81b9edf3e8f7e3b",
+    "apps/web/src/pages/VaultPage.tsx": "4a821d8bd494b8365b1d2010cdaafd7eb0d8a63841c4cce18b7c8248225c95f1"
+  },
+  "log": ".delivery/evidence/DMTE-459/green-t2.log",
+  "log_sha256": "1d818dc311613b0ac48a2d8a926dcef057814f4503323ae275b2b9ddd70f001d"
+}

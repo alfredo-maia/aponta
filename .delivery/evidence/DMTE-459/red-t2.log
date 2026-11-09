@@ -1,0 +1,3059 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-459-e6dc95fae8d1/workdir/aponta/apps/web
+
+ ❯ |web| src/components/ds/escapeOverlays.test.tsx (9 tests | 8 failed) 594ms
+     × EzPopup 334ms
+     × EzPopoverPlus 22ms
+     × EzFilterDrawer 14ms
+     × EzEntityScreenConfigModal 55ms
+     × só a camada do topo fecha: drawer sobre popup 23ms
+     × components/ds/EzEntityGrid.tsx usa só o mecanismo único 98ms
+     ✓ components/ds/EzModal.tsx usa só o mecanismo único 4ms
+     × components/layout/AppLayout.tsx usa só o mecanismo único 2ms
+     × pages/VaultPage.tsx usa só o mecanismo único 9ms
+
+ Test Files  1 failed (1)
+      Tests  8 failed | 1 passed (9)
+   Start at  23:33:22
+   Duration  8.06s (transform 1.44s, setup 725ms, import 3.22s, tests 594ms, environment 2.36s)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/components/ds/escapeOverlays.test.tsx > AC-2: sobreposições do DS fecham com Esc > EzPopup
+AssertionError: expected "vi.fn()" to be called 1 times, but got 0 times
+ ❯ src/components/ds/escapeOverlays.test.tsx:17:21
+     15|     render(<EzPopup trigger="t" open onClose={onClose}>c</EzPopup>);
+     16|     esc();
+     17|     expect(onClose).toHaveBeenCalledTimes(1);
+       |                     ^
+     18|   });
+     19|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  |web| src/components/ds/escapeOverlays.test.tsx > AC-2: sobreposições do DS fecham com Esc > EzPopoverPlus
+AssertionError: expected "vi.fn()" to be called 1 times, but got 0 times
+ ❯ src/components/ds/escapeOverlays.test.tsx:24:21
+     22|     render(<EzPopoverPlus trigger="t" open onClose={onClose}>c</EzPopo…
+     23|     esc();
+     24|     expect(onClose).toHaveBeenCalledTimes(1);
+       |                     ^
+     25|   });
+     26|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  |web| src/components/ds/escapeOverlays.test.tsx > AC-2: sobreposições do DS fecham com Esc > EzFilterDrawer
+AssertionError: expected "vi.fn()" to be called 1 times, but got 0 times
+ ❯ src/components/ds/escapeOverlays.test.tsx:31:21
+     29|     render(<EzFilterDrawer isOpen onClose={onClose}>c</EzFilterDrawer>…
+     30|     esc();
+     31|     expect(onClose).toHaveBeenCalledTimes(1);
+       |                     ^
+     32|   });
+     33|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  |web| src/components/ds/escapeOverlays.test.tsx > AC-2: sobreposições do DS fecham com Esc > EzEntityScreenConfigModal
+AssertionError: expected "vi.fn()" to be called 1 times, but got 0 times
+ ❯ src/components/ds/escapeOverlays.test.tsx:49:21
+     47|     );
+     48|     esc();
+     49|     expect(onClose).toHaveBeenCalledTimes(1);
+       |                     ^
+     50|     expect(screen.getByTestId('ez-entity-screen-config-modal')).toBeIn…
+     51|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  |web| src/components/ds/escapeOverlays.test.tsx > AC-2: sobreposições do DS fecham com Esc > só a camada do topo fecha: drawer sobre popup
+AssertionError: expected "vi.fn()" to be called 1 times, but got 0 times
+ ❯ src/components/ds/escapeOverlays.test.tsx:63:25
+     61|     );
+     62|     esc();
+     63|     expect(closeDrawer).toHaveBeenCalledTimes(1);
+       |                         ^
+     64|     expect(closePopup).not.toHaveBeenCalled();
+     65|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  |web| src/components/ds/escapeOverlays.test.tsx > AC-8: sem listener de Esc próprio > components/ds/EzEntityGrid.tsx usa só o mecanismo único
+AssertionError: expected 'import {\n  forwardRef,\n  HTMLAttrib…' not to match /key === 'Escape'/
+
+- Expected:
+/key === 'Escape'/
+
++ Received:
+"import {
+  forwardRef,
+  HTMLAttributes,
+  Ref,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { createPortal } from 'react-dom';
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  ColumnPinningState,
+  ExpandedState,
+  FilterFn,
+  flexRender,
+  getCoreRowModel,
+  getExpandedRowModel,
+  getFilteredRowModel,
+  getGroupedRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  GroupingState,
+  RowSelectionState,
+  SortingState,
+  VisibilityState,
+  useReactTable,
+} from '@tanstack/react-table';
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  BarChart3,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  Filter,
+  MoreVertical,
+  Pin,
+  PinOff,
+  RotateCcw,
+  Rows,
+  Search,
+  Settings,
+  SlidersHorizontal,
+  X,
+} from 'lucide-react';
+import { cn } from './utils';
+import { EzGridWrapper } from './EzGrid';
+import { EzTaskbar, EzTaskbarButton } from './EzTaskbar';
+import { EzFilterBar, FilterDef } from './EzFilterBar';
+
+/**
+ * Generic, server-agnostic data grid built by composing the existing DS
+ * primitives (`EzGridWrapper` + `@tanstack/react-table`, `EzTaskbar` and
+ * `EzFilterBar`). Mirrors the visual behavior and UX of Sankhya's `snk-grid`
+ * (sortable columns, row selection, taskbar, Excel-style column filters,
+ * persistent horizontal scrollbar, status bar metrics, AG Grid corner menu,
+ * grid statistics modal and column configurator) WITHOUT any coupling to
+ * `SnkApplication` / `DataUnit` / `configName` — the screen owns `data`/`columns`
+ * and reacts to the callbacks below.
+ */
+export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'children'> & {
+  /** Column definitions, in the exact shape expected by `@tanstack/react-table`. */
+  columns: ColumnDef<T>[];
+  /** Rows rendered by the grid. */
+  data: T[];
+  /** Ordered list of taskbar button identifiers (see `EzTaskbar`). Omit to hide the taskbar. */
+  taskbarButtons?: EzTaskbarButton[];
+  /** Called with the button identifier whenever a taskbar action is clicked. */
+  onTaskbarAction?: (action: string) => void;
+  /** Full list of filters (see `EzFilterBar`). Omit to hide the filter bar. */
+  filters?: FilterDef[];
+  /** Called with the single updated filter from the filter bar's quick-edit popover. */
+  onFilterChange?: (filter: FilterDef) => void;
+  /** Called with the full filters list when the user applies changes in the filter modal. */
+  onApplyAll?: (filters: FilterDef[]) => void;
+  /** Enables a leading checkbox column for multi-row selection. @default false */
+  selectable?: boolean;
+  /** Enables a leading row number column (#) displaying the 1-based index of each row (Sankhya ERP parity). @default false */
+  showRowNumbers?: boolean;
+  /** Called with the currently selected rows (original data items) whenever the selection changes. */
+  onSelectionChange?: (rows: T[]) => void;
+  /** Number of rows per page. Omit to render every row without pagination controls. */
+  pageSize?: number;
+  /** Available page size choices in the rich pagination dropdown. @default [5, 10, 20, 50, 100] */
+  pageSizeOptions?: number[];
+  /** Callback fired whenever the user changes the page size via the dropdown selector. */
+  onPageSizeChange?: (newPageSize: number) => void;
+  /**
+   * Whether to display the persistent AG Grid style horizontal scrollbar on overflow.
+   * @default true
+   */
+  showHorizontalScrollbar?: boolean;
+  /**
+   * Forces the horizontal scrollbar to always show regardless of measured overflow.
+   * Useful in tests and Storybook.
+   * @default false
+   */
+  alwaysShowHorizontalScrollbar?: boolean;
+  /**
+   * Maps a column id to an aggregation to show in a footer row (e.g. `{ amount: 'sum' }`).
+   * Omit to hide the footer row entirely. Values are formatted as pt-BR currency-style numbers
+   * (2 decimal places, comma separator) to match Sankhya's financial grids.
+   */
+  footerAggregations?: Record<string, 'sum' | 'avg' | 'min' | 'max' | 'count'>;
+  /**
+   * Column ids to pin to the left and/or right edge of the grid (mirrors AG Grid's `pinned`
+   * columns in Sankhya's financial screens, e.g. keeping an \"amount\" column visible while
+   * scrolling horizontally). Supports multiple columns per side — each gets a cumulative
+   * `left`/`right` offset measured from the rendered header widths, so a 2nd pinned column
+   * sticks right after the 1st instead of overlapping it. Pinned cells get `position: sticky`
+   * plus a `data-pinned` attribute so consumers can style the sticky boundary (shadow/border)
+   * if desired. Omit to keep the original column order with no pinning.
+   */
+  pinnedColumns?: { left?: string[]; right?: string[] };
+  /**
+   * Column ids to group rows by, in order (mirrors AG Grid's row grouping in Sankhya's
+   * financial screens, e.g. grouping entries by \"category\" or \"status\"). Groups render as a
+   * collapsed summary row (label + row count) that expands on click to reveal its leaf rows —
+   * only one level of grouping is supported (`groupBy[0]`); extra ids are accepted but ignored,
+   * matching table-core's own fallback for unknown column ids. Omit to render flat rows as usual.
+   */
+  groupBy?: string[];
+  /**
+   * Vertical row density.
+   * - `compact`: ~20-25px row height (`py-1` on cells, `py-1.5` on headers), matches Sankhya ERP grid density.
+   * - `comfortable`: ~40-48px row height (`py-3`).
+   * @default 'compact'
+   */
+  density?: 'compact' | 'comfortable';
+  /**
+   * Enables Excel-style column filters (funnel icon on header) with distinct values checklist.
+   * @default true
+   */
+  enableColumnFilters?: boolean;
+  /**
+   * Displays the bottom status bar with row counts and selection metrics (Sankhya / Excel parity).
+   * @default true
+   */
+  showStatusBar?: boolean;
+  /**
+   * Enables the AG Grid corner menu button in the top right of the table (Sankhya parity).
+   * @default true
+   */
+  showGridCornerMenu?: boolean;
+  /**
+   * Enables the column header dropdown menu with sort, filter, pin, and group options (Sankhya parity).
+   * @default true
+   */
+  enableColumnMenu?: boolean;
+  /**
+   * Shows the \"Agrupar por este campo\" entry in the column header menu.
+   * @default true
+   */
+  enableColumnGrouping?: boolean;
+  /**
+   * Header label of the row number column (when `showRowNumbers` is on).
+   * @default '#'
+   */
+  rowNumberLabel?: string;
+  /**
+   * Enables zebra striping on alternating rows (Sankhya parity).
+   * @default true
+   */
+  zebraStriping?: boolean;
+  /**
+   * Enables keyboard navigation across rows (ArrowUp / ArrowDown, Space to select).
+   * @default true
+   */
+  enableKeyboardNavigation?: boolean;
+  /**
+   * Initial column visibility configuration (map of column id to boolean).
+   */
+  initialColumnVisibility?: Record<string, boolean>;
+  /**
+   * Enables dragging column headers to reorder columns in the grid (Sankhya parity).
+   * @default true
+   */
+  enableColumnReorder?: boolean;
+  /**
+   * Custom column order (list of column ids).
+   */
+  columnOrder?: string[];
+  /**
+   * Callback fired when column order changes via drag-and-drop.
+   */
+  onColumnOrderChange?: (newOrder: string[]) => void;
+  /**
+   * Enables dragging the column header's right edge to resize columns (Sankhya parity).
+   * @default true
+   */
+  enableColumnResize?: boolean;
+  /**
+   * Custom column sizing (map of column id to width in pixels).
+   */
+  columnSizing?: Record<string, number>;
+  /**
+   * Callback fired when column sizing changes via drag resize.
+   */
+  onColumnSizingChange?: (sizing: Record<string, number>) => void;
+};
+
+const inArrayFilter: FilterFn<any> = (row, columnId, filterValue: unknown) => {
+  if (!filterValue || !Array.isArray(filterValue)) return true;
+  const raw = row.getValue(columnId);
+  const formatted = raw === undefined || raw === null || raw === '' ? '(Vazio)' : String(raw);
+  return (filterValue as string[]).includes(formatted);
+};
+
+/* =========================================================================
+   1. EXCEL-STYLE COLUMN FILTER POPOVER (Sankhya Parity with Tabs)
+   ========================================================================= */
+interface EzColumnFilterPopoverProps {
+  triggerElement: HTMLElement | null | undefined;
+  columnTitle: string;
+  uniqueValues: { value: string; count: number }[];
+  currentFilter: string[] | undefined;
+  onApply: (selectedValues: string[] | undefined) => void;
+  onClose: () => void;
+}
+
+function EzColumnFilterPopover({
+  triggerElement,
+  columnTitle,
+  uniqueValues,
+  currentFilter,
+  onApply,
+  onClose,
+}: EzColumnFilterPopoverProps) {
+  const allValues = useMemo(() => uniqueValues.map((v) => v.value), [uniqueValues]);
+  const [selected, setSelected] = useState<Set<string>>(
+    () => new Set(currentFilter !== undefined ? currentFilter : allValues)
+  );
+  const [search, setSearch] = useState('');
+  const [activeTab, setActiveTab] = useState<'all' | 'filtered'>('all');
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
+
+  useLayoutEffect(() => {
+    if (triggerElement) {
+      const rect = triggerElement.getBoundingClientRect();
+      const popoverWidth = 270;
+      let left = rect.right - popoverWidth;
+      if (typeof window !== 'undefined') {
+        if (left < 8) left = 8;
+        if (left + popoverWidth > window.innerWidth - 8) {
+          left = Math.max(8, window.innerWidth - popoverWidth - 8);
+        }
+      }
+      setCoords({
+        top: rect.bottom + 6,
+        left,
+      });
+    }
+  }, [triggerElement]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(target) &&
+        (!triggerElement || !triggerElement.contains(target))
+      ) {
+        onClose();
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose, triggerElement]);
+
+  const visibleValues = useMemo(() => {
+    let list = uniqueValues;
+    if (activeTab === 'filtered') {
+      list = list.filter((v) => selected.has(v.value));
+    }
+    if (!search.trim()) return list;
+    const lower = search.toLowerCase();
+    return list.filter((v) => v.value.toLowerCase().includes(lower));
+  }, [uniqueValues, activeTab, selected, search]);
+
+  const isAllVisibleSelected =
+    visibleValues.length > 0 && visibleValues.every((v) => selected.has(v.value));
+
+  const toggleSelectAll = () => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (isAllVisibleSelected) {
+        visibleValues.forEach((v) => next.delete(v.value));
+      } else {
+        visibleValues.forEach((v) => next.add(v.value));
+      }
+      return next;
+    });
+  };
+
+  const toggleItem = (val: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(val)) next.delete(val);
+      else next.add(val);
+      return next;
+    });
+  };
+
+  const handleApply = () => {
+    if (selected.size === allValues.length) {
+      onApply(undefined);
+    } else {
+      onApply(Array.from(selected));
+    }
+    onClose();
+  };
+
+  const handleClear = () => {
+    onApply(undefined);
+    onClose();
+  };
+
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div
+      ref={popoverRef}
+      role=\"dialog\"
+      aria-label={`Filtrar ${columnTitle}`}
+      data-testid=\"ez-grid-column-filter-popover\"
+      style={
+        coords
+          ? {
+              position: 'fixed',
+              top: `${coords.top}px`,
+              left: `${coords.left}px`,
+            }
+          : { position: 'fixed', top: '100px', left: '100px' }
+      }
+      className=\"w-72 bg-white rounded-[10px] shadow-2xl border border-gray-200 z-[9999] p-3 flex flex-col gap-2.5 text-left font-normal select-none\"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className=\"flex items-center justify-between pb-1.5 border-b border-gray-100\">
+        <span className=\"text-[12px] font-semibold text-gray-800 truncate\">
+          Filtro: {columnTitle}
+        </span>
+        <button
+          type=\"button\"
+          aria-label=\"Fechar filtro\"
+          onClick={onClose}
+          className=\"text-gray-400 hover:text-gray-600 p-0.5 rounded hover:bg-gray-100 transition-colors cursor-pointer\"
+        >
+          <X className=\"w-3.5 h-3.5\" />
+        </button>
+      </div>
+
+      {/* Tabs: Todos | Filtrados [QTD] (Sankhya filtermodal.tpl.html parity) */}
+      <div className=\"flex border-b border-gray-200 text-[12px]\">
+        <button
+          type=\"button\"
+          data-testid=\"ez-grid-filter-tab-all\"
+          onClick={() => setActiveTab('all')}
+          className={cn(
+            'flex-1 py-1 text-center font-medium border-b-2 transition-colors cursor-pointer',
+            activeTab === 'all'
+              ? 'border-brand-600 text-brand-700 font-semibold'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          )}
+        >
+          Todos
+        </button>
+        <button
+          type=\"button\"
+          data-testid=\"ez-grid-filter-tab-filtered\"
+          onClick={() => setActiveTab('filtered')}
+          className={cn(
+            'flex-1 py-1 text-center font-medium border-b-2 transition-colors cursor-pointer',
+            activeTab === 'filtered'
+              ? 'border-brand-600 text-brand-700 font-semibold'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          )}
+        >
+          Filtrados ({selected.size})
+        </button>
+      </div>
+
+      <div className=\"relative\">
+        <input
+          type=\"text\"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder=\"Pesquisar...\"
+          aria-label=\"Pesquisar valores\"
+          data-testid=\"ez-grid-column-filter-search\"
+          className=\"w-full text-[12px] px-2.5 py-1.5 pl-7 bg-gray-50 border border-gray-200 rounded-[6px] focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500\"
+        />
+        <Search className=\"w-3.5 h-3.5 text-gray-400 absolute left-2 top-2 pointer-events-none\" />
+      </div>
+
+      <div className=\"flex items-center gap-2 px-1 text-[12px] text-gray-600\">
+        <input
+          type=\"checkbox\"
+          id={`filter-select-all-${columnTitle}`}
+          checked={isAllVisibleSelected}
+          onChange={toggleSelectAll}
+          data-testid=\"ez-grid-column-filter-select-all\"
+          className=\"w-3.5 h-3.5 rounded border-gray-300 text-brand-600 focus:ring-brand-500 cursor-pointer\"
+        />
+        <label htmlFor={`filter-select-all-${columnTitle}`} className=\"cursor-pointer font-medium\">
+          (Selecionar tudo)
+        </label>
+      </div>
+
+      <div className=\"max-h-40 overflow-y-auto space-y-0.5 pr-1 text-[12px] border-y border-gray-100 py-1.5\">
+        {visibleValues.length === 0 ? (
+          <div className=\"text-gray-400 text-center py-2 text-[12px]\">Nenhum valor encontrado</div>
+        ) : (
+          visibleValues.map((item) => (
+            <label
+              key={item.value}
+              className=\"flex items-center justify-between gap-2 px-1 py-1 rounded hover:bg-gray-50 cursor-pointer\"
+            >
+              <div className=\"flex items-center gap-2 truncate\">
+                <input
+                  type=\"checkbox\"
+                  checked={selected.has(item.value)}
+                  onChange={() => toggleItem(item.value)}
+                  data-testid={`ez-grid-column-filter-item-${item.value}`}
+                  className=\"w-3.5 h-3.5 rounded border-gray-300 text-brand-600 focus:ring-brand-500 cursor-pointer\"
+                />
+                <span className=\"truncate text-gray-700\" title={item.value}>
+                  {item.value}
+                </span>
+              </div>
+              <span className=\"text-gray-400 text-[11px] shrink-0\">({item.count})</span>
+            </label>
+          ))
+        )}
+      </div>
+
+      <div className=\"flex items-center justify-between pt-1\">
+        <button
+          type=\"button\"
+          onClick={handleClear}
+          data-testid=\"ez-grid-column-filter-clear\"
+          className=\"text-[12px] text-gray-500 hover:text-gray-800 px-2 py-1 rounded hover:bg-gray-100 transition-colors cursor-pointer\"
+        >
+          Limpar
+        </button>
+        <div className=\"flex items-center gap-1.5\">
+          <button
+            type=\"button\"
+            onClick={onClose}
+            className=\"text-[12px] text-gray-600 hover:text-gray-900 px-2.5 py-1 rounded border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer\"
+          >
+            Cancelar
+          </button>
+          <button
+            type=\"button\"
+            onClick={handleApply}
+            data-testid=\"ez-grid-column-filter-apply\"
+            className=\"text-[12px] text-white bg-brand-600 hover:bg-brand-700 px-3 py-1 rounded-[6px] font-medium shadow-sm transition-colors cursor-pointer\"
+          >
+            Aplicar
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+/* =========================================================================
+   2. COLUMN MENU POPOVER (Sankhya getMainMenuItems Parity)
+   ========================================================================= */
+interface EzColumnMenuPopoverProps {
+  triggerElement: HTMLElement | null | undefined;
+  columnTitle: string;
+  canSort: boolean;
+  sortDirection: false | 'asc' | 'desc';
+  canFilter: boolean;
+  isPinned: false | 'left' | 'right';
+  isGrouped: boolean;
+  onSortAsc: () => void;
+  onSortDesc: () => void;
+  onOpenFilter: () => void;
+  onTogglePin: () => void;
+  onToggleGroup?: () => void;
+  onHideColumn?: () => void;
+  onOpenColumnConfig?: () => void;
+  onClose: () => void;
+}
+
+function EzColumnMenuPopover({
+  triggerElement,
+  columnTitle,
+  canSort,
+  sortDirection,
+  canFilter,
+  isPinned,
+  isGrouped,
+  onSortAsc,
+  onSortDesc,
+  onOpenFilter,
+  onTogglePin,
+  onToggleGroup,
+  onHideColumn,
+  onOpenColumnConfig,
+  onClose,
+}: EzColumnMenuPopoverProps) {
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
+
+  useLayoutEffect(() => {
+    if (triggerElement) {
+      const rect = triggerElement.getBoundingClientRect();
+      const popoverWidth = 200;
+      let left = rect.right - popoverWidth;
+      if (typeof window !== 'undefined') {
+        if (left < 8) left = 8;
+        if (left + popoverWidth > window.innerWidth - 8) {
+          left = Math.max(8, window.innerWidth - popoverWidth - 8);
+        }
+      }
+      setCoords({
+        top: rect.bottom + 6,
+        left,
+      });
+    }
+  }, [triggerElement]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(target) &&
+        (!triggerElement || !triggerElement.contains(target))
+      ) {
+        onClose();
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose, triggerElement]);
+
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div
+      ref={popoverRef}
+      role=\"menu\"
+      aria-label={`Opções da coluna ${columnTitle}`}
+      data-testid=\"ez-grid-column-menu-popover\"
+      style={
+        coords
+          ? {
+              position: 'fixed',
+              top: `${coords.top}px`,
+              left: `${coords.left}px`,
+            }
+          : { position: 'fixed', top: '100px', left: '100px' }
+      }
+      className=\"w-52 bg-white rounded-[10px] shadow-2xl border border-gray-200 z-[9999] p-1 flex flex-col gap-0.5 text-left font-normal select-none\"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className=\"px-2.5 py-1 text-[11px] font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100\">
+        {columnTitle}
+      </div>
+
+      {canSort && (
+        <>
+          <button
+            type=\"button\"
+            data-testid=\"ez-grid-column-menu-sort-asc\"
+            onClick={() => {
+              onSortAsc();
+              onClose();
+            }}
+            className={cn(
+              'flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left',
+              sortDirection === 'asc' && 'font-semibold text-brand-700 bg-brand-50'
+            )}
+          >
+            <ArrowUp className=\"w-3.5 h-3.5 text-brand-600\" />
+            Ordenar Ascendente
+          </button>
+          <button
+            type=\"button\"
+            data-testid=\"ez-grid-column-menu-sort-desc\"
+            onClick={() => {
+              onSortDesc();
+              onClose();
+            }}
+            className={cn(
+              'flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left',
+              sortDirection === 'desc' && 'font-semibold text-red-700 bg-red-50'
+            )}
+          >
+            <ArrowDown className=\"w-3.5 h-3.5 text-red-600\" />
+            Ordenar Descendente
+          </button>
+        </>
+      )}
+
+      {canFilter && (
+        <button
+          type=\"button\"
+          data-testid=\"ez-grid-column-menu-filter\"
+          onClick={() => {
+            onOpenFilter();
+            onClose();
+          }}
+          className=\"flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left border-t border-gray-100\"
+        >
+          <Filter className=\"w-3.5 h-3.5 text-gray-500\" />
+          Filtrar...
+        </button>
+      )}
+
+      <button
+        type=\"button\"
+        data-testid=\"ez-grid-column-menu-pin\"
+        onClick={() => {
+          onTogglePin();
+          onClose();
+        }}
+        className=\"flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left\"
+      >
+        {isPinned ? (
+          <>
+            <PinOff className=\"w-3.5 h-3.5 text-gray-500\" />
+            Desafixar Coluna
+          </>
+        ) : (
+          <>
+            <Pin className=\"w-3.5 h-3.5 text-gray-500\" />
+            Fixar à Esquerda
+          </>
+        )}
+      </button>
+
+      {onToggleGroup && (
+<button
+        type=\"button\"
+        data-testid=\"ez-grid-column-menu-group\"
+        onClick={() => {
+          onToggleGroup();
+          onClose();
+        }}
+        className=\"flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left\"
+      >
+        <Rows className=\"w-3.5 h-3.5 text-gray-500\" />
+        {isGrouped ? 'Desagrupar' : 'Agrupar por este campo'}
+      </button>
+)}
+
+      {onHideColumn && (
+        <button
+          type=\"button\"
+          data-testid=\"ez-grid-column-menu-hide\"
+          onClick={() => {
+            onHideColumn();
+            onClose();
+          }}
+          className=\"flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left border-t border-gray-100\"
+        >
+          <EyeOff className=\"w-3.5 h-3.5 text-gray-500\" />
+          Ocultar esta Coluna
+        </button>
+      )}
+
+      {onOpenColumnConfig && (
+        <button
+          type=\"button\"
+          data-testid=\"ez-grid-column-menu-configure\"
+          onClick={() => {
+            onOpenColumnConfig();
+            onClose();
+          }}
+          className=\"flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left\"
+        >
+          <Settings className=\"w-3.5 h-3.5 text-gray-500\" />
+          Configurar Colunas...
+        </button>
+      )}
+    </div>,
+    document.body
+  );
+}
+
+/* =========================================================================
+   3. GRID CORNER MENU (Sankhya ag-grid-menu Parity)
+   ========================================================================= */
+interface EzGridCornerMenuProps {
+  triggerElement: HTMLElement | null | undefined;
+  density: 'compact' | 'comfortable';
+  onToggleDensity: () => void;
+  onClearAllFilters: () => void;
+  onOpenColumnConfig: () => void;
+  onOpenStatistics: () => void;
+  columnsList: { id: string; label: string }[];
+  onSelectColumn: (columnId: string) => void;
+  onClose: () => void;
+}
+
+function EzGridCornerMenuPopover({
+  triggerElement,
+  density,
+  onToggleDensity,
+  onClearAllFilters,
+  onOpenColumnConfig,
+  onOpenStatistics,
+  columnsList,
+  onSelectColumn,
+  onClose,
+}: EzGridCornerMenuProps) {
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useLayoutEffect(() => {
+    if (triggerElement) {
+      const rect = triggerElement.getBoundingClientRect();
+      const popoverWidth = 240;
+      let left = rect.right - popoverWidth;
+      if (typeof window !== 'undefined') {
+        if (left < 8) left = 8;
+        if (left + popoverWidth > window.innerWidth - 8) {
+          left = Math.max(8, window.innerWidth - popoverWidth - 8);
+        }
+      }
+      setCoords({
+        top: rect.bottom + 6,
+        left,
+      });
+    }
+  }, [triggerElement]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(target) &&
+        (!triggerElement || !triggerElement.contains(target))
+      ) {
+        onClose();
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose, triggerElement]);
+
+  const filteredColumns = useMemo(() => {
+    if (!searchTerm.trim()) return [];
+    const term = searchTerm.toLowerCase();
+    return columnsList.filter((c) => c.label.toLowerCase().includes(term));
+  }, [columnsList, searchTerm]);
+
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div
+      ref={popoverRef}
+      role=\"menu\"
+      aria-label=\"Menu de opções da grade\"
+      data-testid=\"ez-grid-corner-menu\"
+      style={
+        coords
+          ? {
+              position: 'fixed',
+              top: `${coords.top}px`,
+              left: `${coords.left}px`,
+            }
+          : { position: 'fixed', top: '100px', left: '100px' }
+      }
+      className=\"w-60 bg-white rounded-[10px] shadow-2xl border border-gray-200 z-[9999] p-2 flex flex-col gap-1 text-left font-normal select-none\"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className=\"px-2 py-1 text-[11px] font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100 flex items-center justify-between\">
+        <span>Opções da Grade</span>
+        <button
+          type=\"button\"
+          onClick={onClose}
+          className=\"text-gray-400 hover:text-gray-600 rounded p-0.5\"
+        >
+          <X className=\"w-3 h-3\" />
+        </button>
+      </div>
+
+      {/* Localizar Coluna (Sankhya findcolumn.tpl.html parity) */}
+      <div className=\"relative my-1\">
+        <input
+          type=\"text\"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder=\"Localizar coluna...\"
+          data-testid=\"ez-grid-corner-find-column-input\"
+          className=\"w-full text-[12px] px-2.5 py-1 pl-7 bg-gray-50 border border-gray-200 rounded-[6px] focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500\"
+        />
+        <Search className=\"w-3.5 h-3.5 text-gray-400 absolute left-2 top-2 pointer-events-none\" />
+        {filteredColumns.length > 0 && (
+          <div className=\"absolute top-full left-0 right-0 mt-1 max-h-32 overflow-y-auto bg-white border border-gray-200 rounded-[6px] shadow-lg z-50\">
+            {filteredColumns.map((c) => (
+              <button
+                key={c.id}
+                type=\"button\"
+                onClick={() => {
+                  onSelectColumn(c.id);
+                  onClose();
+                }}
+                className=\"w-full text-left px-2.5 py-1.5 text-[12px] text-gray-700 hover:bg-gray-100 truncate cursor-pointer\"
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <button
+        type=\"button\"
+        data-testid=\"ez-grid-corner-toggle-density\"
+        onClick={() => {
+          onToggleDensity();
+          onClose();
+        }}
+        className=\"flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left\"
+      >
+        <SlidersHorizontal className=\"w-3.5 h-3.5 text-gray-500\" />
+        {density === 'compact' ? 'Modo Confortável (40px)' : 'Modo Compacto (20px)'}
+      </button>
+
+      <button
+        type=\"button\"
+        data-testid=\"ez-grid-corner-clear-filters\"
+        onClick={() => {
+          onClearAllFilters();
+          onClose();
+        }}
+        className=\"flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left\"
+      >
+        <Filter className=\"w-3.5 h-3.5 text-gray-500\" />
+        Limpar Todos os Filtros
+      </button>
+
+      <button
+        type=\"button\"
+        data-testid=\"ez-grid-corner-configure-columns\"
+        onClick={() => {
+          onOpenColumnConfig();
+          onClose();
+        }}
+        className=\"flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left\"
+      >
+        <Eye className=\"w-3.5 h-3.5 text-gray-500\" />
+        Configurar Colunas...
+      </button>
+
+      <button
+        type=\"button\"
+        data-testid=\"ez-grid-corner-statistics\"
+        onClick={() => {
+          onOpenStatistics();
+          onClose();
+        }}
+        className=\"flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer w-full text-left\"
+      >
+        <BarChart3 className=\"w-3.5 h-3.5 text-gray-500\" />
+        Estatísticas da Grade...
+      </button>
+    </div>,
+    document.body
+  );
+}
+
+/* =========================================================================
+   4. GRID STATISTICS MODAL (Sankhya GridStatistics Parity)
+   ========================================================================= */
+interface NumericStatistic {
+  columnName: string;
+  count: number;
+  sum: number;
+  avg: number;
+  min: number;
+  max: number;
+}
+
+interface EzGridStatisticsModalProps {
+  statistics: NumericStatistic[];
+  onClose: () => void;
+}
+
+function EzGridStatisticsModal({ statistics, onClose }: EzGridStatisticsModalProps) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  if (typeof document === 'undefined') return null;
+
+  const formatNumber = (v: number) =>
+    v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  return createPortal(
+    <div
+      className=\"fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 backdrop-blur-xs p-4\"
+      onClick={onClose}
+    >
+      <div
+        role=\"dialog\"
+        aria-label=\"Estatísticas da Grade\"
+        data-testid=\"ez-grid-statistics-modal\"
+        onClick={(e) => e.stopPropagation()}
+        className=\"w-full max-w-2xl bg-white rounded-[12px] shadow-2xl border border-gray-200 overflow-hidden flex flex-col\"
+      >
+        <div className=\"flex items-center justify-between px-5 py-3.5 border-b border-gray-200 bg-gray-50\">
+          <div className=\"flex items-center gap-2\">
+            <BarChart3 className=\"w-4 h-4 text-brand-600\" />
+            <h3 className=\"text-[14px] font-semibold text-gray-800\">Estatísticas da Grade</h3>
+          </div>
+          <button
+            type=\"button\"
+            onClick={onClose}
+            aria-label=\"Fechar estatísticas\"
+            className=\"text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-200 transition-colors cursor-pointer\"
+          >
+            <X className=\"w-4 h-4\" />
+          </button>
+        </div>
+
+        <div className=\"p-5 max-h-[60vh] overflow-y-auto\">
+          {statistics.length === 0 ? (
+            <div className=\"text-center py-8 text-gray-500 text-[13px]\">
+              Nenhuma coluna numérica disponível para cálculo de estatísticas.
+            </div>
+          ) : (
+            <div className=\"border border-gray-200 rounded-[8px] overflow-hidden\">
+              <table className=\"w-full text-left text-[12px] border-collapse\">
+                <thead className=\"bg-gray-100 text-gray-700 font-semibold border-b border-gray-200\">
+                  <tr>
+                    <th className=\"px-3.5 py-2\">Coluna</th>
+                    <th className=\"px-3 py-2 text-right\">Ocorrências</th>
+                    <th className=\"px-3 py-2 text-right\">Soma</th>
+                    <th className=\"px-3 py-2 text-right\">Média</th>
+                    <th className=\"px-3 py-2 text-right\">Mínimo</th>
+                    <th className=\"px-3 py-2 text-right\">Máximo</th>
+                  </tr>
+                </thead>
+                <tbody className=\"divide-y divide-gray-100\">
+                  {statistics.map((s) => (
+                    <tr key={s.columnName} className=\"hover:bg-gray-50 transition-colors\">
+                      <td className=\"px-3.5 py-2 font-medium text-gray-900\">{s.columnName}</td>
+                      <td className=\"px-3 py-2 text-right text-gray-600\">{s.count}</td>
+                      <td className=\"px-3 py-2 text-right font-medium text-gray-900\">
+                        {formatNumber(s.sum)}
+                      </td>
+                      <td className=\"px-3 py-2 text-right text-gray-600\">{formatNumber(s.avg)}</td>
+                      <td className=\"px-3 py-2 text-right text-gray-600\">{formatNumber(s.min)}</td>
+                      <td className=\"px-3 py-2 text-right text-gray-600\">{formatNumber(s.max)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <div className=\"flex items-center justify-end px-5 py-3 border-t border-gray-200 bg-gray-50\">
+          <button
+            type=\"button\"
+            onClick={onClose}
+            className=\"px-4 py-1.5 text-[12px] font-medium text-gray-700 bg-white border border-gray-300 rounded-[6px] hover:bg-gray-50 transition-colors cursor-pointer\"
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+/* =========================================================================
+   5. COLUMN CONFIGURATOR MODAL (Sankhya GridConfig Parity)
+   ========================================================================= */
+interface EzGridColumnConfigModalProps {
+  columns: { id: string; label: string; isVisible: boolean }[];
+  onToggleColumn: (columnId: string) => void;
+  onRestoreDefaults: () => void;
+  onClose: () => void;
+}
+
+function EzGridColumnConfigModal({
+  columns,
+  onToggleColumn,
+  onRestoreDefaults,
+  onClose,
+}: EzGridColumnConfigModalProps) {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  const visibleColumns = useMemo(() => {
+    if (!searchTerm.trim()) return columns;
+    const term = searchTerm.toLowerCase();
+    return columns.filter((c) => c.label.toLowerCase().includes(term));
+  }, [columns, searchTerm]);
+
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div
+      className=\"fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 backdrop-blur-xs p-4\"
+      onClick={onClose}
+    >
+      <div
+        role=\"dialog\"
+        aria-label=\"Configuração da Grade\"
+        data-testid=\"ez-grid-column-config-modal\"
+        onClick={(e) => e.stopPropagation()}
+        className=\"w-full max-w-md bg-white rounded-[12px] shadow-2xl border border-gray-200 overflow-hidden flex flex-col\"
+      >
+        <div className=\"flex items-center justify-between px-5 py-3.5 border-b border-gray-200 bg-gray-50\">
+          <div className=\"flex items-center gap-2\">
+            <Eye className=\"w-4 h-4 text-brand-600\" />
+            <h3 className=\"text-[14px] font-semibold text-gray-800\">Configuração de Colunas</h3>
+          </div>
+          <button
+            type=\"button\"
+            onClick={onClose}
+            aria-label=\"Fechar configuração\"
+            className=\"text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-200 transition-colors cursor-pointer\"
+          >
+            <X className=\"w-4 h-4\" />
+          </button>
+        </div>
+
+        <div className=\"p-4 flex flex-col gap-3\">
+          <div className=\"relative\">
+            <input
+              type=\"text\"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder=\"Pesquisar colunas...\"
+              data-testid=\"ez-grid-config-search-input\"
+              className=\"w-full text-[12px] px-3 py-1.5 pl-8 bg-gray-50 border border-gray-200 rounded-[6px] focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500\"
+            />
+            <Search className=\"w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-2 pointer-events-none\" />
+          </div>
+
+          <div className=\"max-h-60 overflow-y-auto space-y-1 border border-gray-200 rounded-[8px] p-2 bg-gray-50/50\">
+            {visibleColumns.map((c) => (
+              <label
+                key={c.id}
+                className=\"flex items-center justify-between px-2.5 py-1.5 bg-white rounded-[6px] border border-gray-100 hover:border-gray-200 cursor-pointer shadow-2xs\"
+              >
+                <div className=\"flex items-center gap-2.5\">
+                  <input
+                    type=\"checkbox\"
+                    checked={c.isVisible}
+                    onChange={() => onToggleColumn(c.id)}
+                    data-testid={`ez-grid-config-toggle-${c.id}`}
+                    className=\"w-3.5 h-3.5 rounded border-gray-300 text-brand-600 focus:ring-brand-500 cursor-pointer\"
+                  />
+                  <span className=\"text-[12px] text-gray-800 font-medium\">{c.label}</span>
+                </div>
+                {c.isVisible ? (
+                  <Eye className=\"w-3.5 h-3.5 text-brand-600\" />
+                ) : (
+                  <EyeOff className=\"w-3.5 h-3.5 text-gray-400\" />
+                )}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className=\"flex items-center justify-between px-5 py-3 border-t border-gray-200 bg-gray-50\">
+          <button
+            type=\"button\"
+            data-testid=\"ez-grid-config-restore-defaults\"
+            onClick={onRestoreDefaults}
+            className=\"flex items-center gap-1.5 text-[12px] font-medium text-gray-600 hover:text-gray-900 transition-colors cursor-pointer\"
+          >
+            <RotateCcw className=\"w-3.5 h-3.5\" />
+            Restaurar Padrão
+          </button>
+          <button
+            type=\"button\"
+            onClick={onClose}
+            className=\"px-4 py-1.5 text-[12px] font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-[6px] shadow-sm transition-colors cursor-pointer\"
+          >
+            Concluir
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+/* =========================================================================
+   6. MAIN COMPONENT (EzEntityGridInner)
+   ========================================================================= */
+type EzEntityGridComponent = <T,>(
+  props: EzEntityGridProps<T> & { ref?: Ref<HTMLDivElement> }
+) => React.ReactElement | null;
+
+function EzEntityGridInner<T>(
+  {
+    columns,
+    data,
+    taskbarButtons,
+    onTaskbarAction,
+    filters,
+    onFilterChange,
+    onApplyAll,
+    selectable = false,
+    showRowNumbers = false,
+    enableColumnGrouping = true,
+    rowNumberLabel = '#',
+    onSelectionChange,
+    pageSize,
+    pageSizeOptions,
+    onPageSizeChange,
+    showHorizontalScrollbar = true,
+    alwaysShowHorizontalScrollbar = false,
+    footerAggregations,
+    pinnedColumns,
+    groupBy,
+    density = 'compact',
+    enableColumnFilters = true,
+    showStatusBar = true,
+    showGridCornerMenu = true,
+    enableColumnMenu = true,
+    zebraStriping = true,
+    enableKeyboardNavigation = true,
+    initialColumnVisibility,
+    enableColumnReorder = true,
+    columnOrder,
+    onColumnOrderChange,
+    enableColumnResize = true,
+    columnSizing,
+    onColumnSizingChange,
+    className,
+    ...props
+  }: EzEntityGridProps<T>,
+  ref: Ref<HTMLDivElement>
+) {
+  const [currentDensity, setCurrentDensity] = useState<'compact' | 'comfortable'>(density);
+
+  useEffect(() => {
+    setCurrentDensity(density);
+  }, [density]);
+
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    initialColumnVisibility ?? {}
+  );
+  const [columnOrderState, setColumnOrderState] = useState<string[]>(() => columnOrder ?? []);
+  useEffect(() => {
+    if (columnOrder) {
+      setColumnOrderState(columnOrder);
+    }
+  }, [columnOrder]);
+
+  const [columnSizingState, setColumnSizingState] = useState<Record<string, number>>(
+    () => columnSizing ?? {}
+  );
+  useEffect(() => {
+    if (columnSizing) {
+      setColumnSizingState(columnSizing);
+    }
+  }, [columnSizing]);
+
+  const [draggedColId, setDraggedColId] = useState<string | null>(null);
+  const [dragOverColId, setDragOverColId] = useState<string | null>(null);
+
+  const [localPinnedColumns, setLocalPinnedColumns] = useState<{ left: string[]; right: string[] }>({
+    left: pinnedColumns?.left ?? [],
+    right: pinnedColumns?.right ?? [],
+  });
+
+  useEffect(() => {
+    setLocalPinnedColumns({
+      left: pinnedColumns?.left ?? [],
+      right: pinnedColumns?.right ?? [],
+    });
+  }, [pinnedColumns]);
+
+  const [localGroupBy, setLocalGroupBy] = useState<string[]>(groupBy ?? []);
+  useEffect(() => {
+    setLocalGroupBy(groupBy ?? []);
+  }, [groupBy]);
+
+  const [activeFilterColumnId, setActiveFilterColumnId] = useState<string | null>(null);
+  const [activeMenuColumnId, setActiveMenuColumnId] = useState<string | null>(null);
+  const [isCornerMenuOpen, setIsCornerMenuOpen] = useState(false);
+  const [isStatisticsModalOpen, setIsStatisticsModalOpen] = useState(false);
+  const [isColumnConfigModalOpen, setIsColumnConfigModalOpen] = useState(false);
+  const [focusedRowIndex, setFocusedRowIndex] = useState<number | null>(null);
+
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: pageSize ?? Math.max(data.length, 1),
+  });
+
+  useEffect(() => {
+    if (pageSize !== undefined) {
+      setPagination((prev) => (prev.pageSize === pageSize ? prev : { ...prev, pageSize }));
+    }
+  }, [pageSize]);
+
+  const defaultPageSizeOptions = useMemo(() => [5, 10, 20, 50, 100], []);
+  const resolvedPageSizeOptions = useMemo(() => {
+    const base = pageSizeOptions ?? defaultPageSizeOptions;
+    if (pageSize !== undefined && !base.includes(pageSize)) {
+      return [...base, pageSize].sort((a, b) => a - b);
+    }
+    return base;
+  }, [pageSizeOptions, defaultPageSizeOptions, pageSize]);
+
+  const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const nextSize = Number(e.target.value);
+    table.setPageSize(nextSize);
+    onPageSizeChange?.(nextSize);
+  };
+
+  const columnPinning = useMemo<ColumnPinningState>(
+    () => ({ left: localPinnedColumns.left, right: localPinnedColumns.right }),
+    [localPinnedColumns]
+  );
+
+  const grouping = useMemo<GroupingState>(
+    () => (localGroupBy && localGroupBy.length > 0 ? [localGroupBy[0]] : []),
+    [localGroupBy]
+  );
+  const [expanded, setExpanded] = useState<ExpandedState>({});
+
+  const resolvedColumns = useMemo<ColumnDef<T>[]>(() => {
+    const leadingCols: ColumnDef<T>[] = [];
+    if (showRowNumbers) {
+      leadingCols.push({
+        id: '__rowNumber__',
+        enableSorting: false,
+        enableResizing: false,
+        size: 56,
+        minSize: 56,
+        maxSize: 56,
+        header: () => (
+          <span className=\"text-gray-400 font-mono text-[11px] select-none text-center block min-w-6\">{rowNumberLabel}</span>
+        ),
+        cell: ({ row }) => (
+          <span
+            className=\"text-gray-400 font-mono text-[11px] select-none text-center block w-6\"
+            data-testid=\"ez-grid-row-number\"
+          >
+            {row.index + 1}
+          </span>
+        ),
+      });
+    }
+    if (selectable) {
+      leadingCols.push({
+        id: 'select',
+        enableSorting: false,
+        enableResizing: false,
+        size: 44,
+        minSize: 44,
+        maxSize: 44,
+        header: ({ table }) => (
+          <input
+            type=\"checkbox\"
+            aria-label=\"Selecionar todas as linhas\"
+            checked={table.getIsAllRowsSelected()}
+            onChange={table.getToggleAllRowsSelectedHandler()}
+            className=\"w-4 h-4 rounded border-gray-300 text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200\"
+          />
+        ),
+        cell: ({ row }) => (
+          <input
+            type=\"checkbox\"
+            aria-label=\"Selecionar linha\"
+            checked={row.getIsSelected()}
+            onChange={row.getToggleSelectedHandler()}
+            className=\"w-4 h-4 rounded border-gray-300 text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200\"
+          />
+        ),
+      });
+    }
+    return [...leadingCols, ...columns];
+  }, [columns, selectable, showRowNumbers, rowNumberLabel]);
+
+  const table = useReactTable<T>({
+    data,
+    columns: resolvedColumns,
+    state: {
+      sorting,
+      rowSelection,
+      pagination,
+      columnPinning,
+      grouping,
+      expanded,
+      columnFilters,
+      columnVisibility,
+      columnOrder: columnOrderState.length > 0 ? columnOrderState : undefined,
+      columnSizing: columnSizingState,
+    },
+    enableRowSelection: selectable,
+    enableGrouping: grouping.length > 0,
+    enableFilters: enableColumnFilters,
+    enableColumnResizing: enableColumnResize,
+    columnResizeMode: 'onChange',
+    onSortingChange: setSorting,
+    onRowSelectionChange: setRowSelection,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onColumnOrderChange: (updater) => {
+      const nextOrder = typeof updater === 'function' ? updater(columnOrderState) : updater;
+      setColumnOrderState(nextOrder);
+      onColumnOrderChange?.(nextOrder);
+    },
+    onColumnSizingChange: (updater) => {
+      const nextSizing = typeof updater === 'function' ? updater(columnSizingState) : updater;
+      setColumnSizingState(nextSizing);
+      onColumnSizingChange?.(nextSizing);
+    },
+    onPaginationChange: setPagination,
+    onExpandedChange: setExpanded,
+    filterFns: {
+      inArray: inArrayFilter,
+    },
+    defaultColumn: {
+      filterFn: inArrayFilter,
+      minSize: 60,
+      maxSize: 800,
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getGroupedRowModel: getGroupedRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    paginateExpandedRows: false,
+  });
+
+  const handleDragStart = (e: React.DragEvent, colId: string) => {
+    setDraggedColId(colId);
+    e.dataTransfer.setData('text/plain', colId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, colId: string) => {
+    if (enableColumnReorder && colId !== '__rowNumber__' && colId !== 'select') {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (dragOverColId !== colId) {
+        setDragOverColId(colId);
+      }
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, targetColId: string) => {
+    e.preventDefault();
+    setDragOverColId(null);
+    const sourceColId = e.dataTransfer.getData('text/plain') || draggedColId;
+    setDraggedColId(null);
+    if (!sourceColId || sourceColId === targetColId) return;
+    if (targetColId === '__rowNumber__' || targetColId === 'select') return;
+
+    const currentOrder = table.getAllLeafColumns().map((c) => c.id);
+    const sourceIndex = currentOrder.indexOf(sourceColId);
+    const targetIndex = currentOrder.indexOf(targetColId);
+    if (sourceIndex === -1 || targetIndex === -1) return;
+
+    const nextOrder = [...currentOrder];
+    nextOrder.splice(sourceIndex, 1);
+    nextOrder.splice(targetIndex, 0, sourceColId);
+
+    setColumnOrderState(nextOrder);
+    onColumnOrderChange?.(nextOrder);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedColId(null);
+    setDragOverColId(null);
+  };
+
+  const filterButtonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const columnMenuButtonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const cornerMenuButtonRef = useRef<HTMLButtonElement>(null);
+
+  const getColumnUniqueValues = useCallback(
+    (columnId: string) => {
+      const counts = new Map<string, number>();
+      for (const row of table.getCoreRowModel().rows) {
+        const raw = row.getValue(columnId);
+        const val = raw === undefined || raw === null || raw === '' ? '(Vazio)' : String(raw);
+        counts.set(val, (counts.get(val) ?? 0) + 1);
+      }
+      return Array.from(counts.entries())
+        .map(([value, count]) => ({ value, count }))
+        .sort((a, b) => a.value.localeCompare(b.value));
+    },
+    [table]
+  );
+
+  const isInitialSelectionRender = useRef(true);
+  useEffect(() => {
+    if (isInitialSelectionRender.current) {
+      isInitialSelectionRender.current = false;
+      return;
+    }
+    if (!onSelectionChange) return;
+    const selectedRows = table.getSelectedRowModel().rows.map((row) => row.original);
+    onSelectionChange(selectedRows);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rowSelection]);
+
+  const showTaskbar = !!taskbarButtons && taskbarButtons.length > 0;
+  const showFilterBar = !!filters;
+  const showPagination = pageSize !== undefined;
+  const showFooter = !!footerAggregations && Object.keys(footerAggregations).length > 0;
+
+  const footerValues = useMemo<Record<string, number>>(() => {
+    if (!showFooter) return {};
+    const result: Record<string, number> = {};
+    const filteredRows = table.getFilteredRowModel().rows;
+    for (const [columnId, aggregation] of Object.entries(footerAggregations ?? {})) {
+      const values = filteredRows
+        .map((row) => (row.original as Record<string, unknown>)[columnId])
+        .filter((value): value is number => typeof value === 'number');
+
+      if (values.length === 0) {
+        result[columnId] = 0;
+        continue;
+      }
+
+      switch (aggregation) {
+        case 'sum':
+          result[columnId] = values.reduce((acc, value) => acc + value, 0);
+          break;
+        case 'avg':
+          result[columnId] = values.reduce((acc, value) => acc + value, 0) / values.length;
+          break;
+        case 'min':
+          result[columnId] = Math.min(...values);
+          break;
+        case 'max':
+          result[columnId] = Math.max(...values);
+          break;
+        case 'count':
+          result[columnId] = values.length;
+          break;
+      }
+    }
+    return result;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [table, columnFilters, footerAggregations, showFooter]);
+
+  const selectedMetrics = useMemo(() => {
+    const selectedRows = table.getSelectedRowModel().rows;
+    if (selectedRows.length === 0) return null;
+
+    const aggregationKeys = footerAggregations ? Object.keys(footerAggregations) : [];
+    const firstRow = data[0] as Record<string, unknown> | undefined;
+
+    let candidateKeys = aggregationKeys;
+    if (candidateKeys.length === 0 && firstRow) {
+      candidateKeys = Object.keys(firstRow).filter(
+        (key) => typeof firstRow[key] === 'number' && key !== 'id'
+      );
+    }
+
+    if (candidateKeys.length === 0) {
+      return { count: selectedRows.length };
+    }
+
+    let sum = 0;
+    let numericCount = 0;
+    for (const row of selectedRows) {
+      const orig = row.original as Record<string, unknown>;
+      for (const key of candidateKeys) {
+        const val = orig[key];
+        if (typeof val === 'number') {
+          sum += val;
+          numericCount++;
+        }
+      }
+    }
+
+    if (numericCount === 0) {
+      return { count: selectedRows.length };
+    }
+
+    return {
+      count: selectedRows.length,
+      sum,
+      avg: sum / numericCount,
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [table, rowSelection, data, footerAggregations]);
+
+  // Overall statistics across the current filtered dataset for numeric columns
+  const numericStatistics = useMemo<NumericStatistic[]>(() => {
+    const rows = table.getFilteredRowModel().rows;
+    if (rows.length === 0 || data.length === 0) return [];
+
+    const stats: NumericStatistic[] = [];
+    for (const col of table.getVisibleLeafColumns()) {
+      if (col.id === 'select') continue;
+      const values = rows
+        .map((r) => r.getValue(col.id))
+        .filter((v): v is number => typeof v === 'number' && !isNaN(v));
+
+      if (values.length > 0) {
+        const sum = values.reduce((a, b) => a + b, 0);
+        const header = col.columnDef.header;
+        const columnName = typeof header === 'string' ? header : col.id;
+        stats.push({
+          columnName,
+          count: values.length,
+          sum,
+          avg: sum / values.length,
+          min: Math.min(...values),
+          max: Math.max(...values),
+        });
+      }
+    }
+    return stats;
+  }, [table, data]);
+
+  const formatFooterValue = (value: number) =>
+    value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  const orderedHeaders = useMemo(
+    () => [
+      ...table.getLeftHeaderGroups().flatMap((group) => group.headers),
+      ...table.getCenterHeaderGroups().flatMap((group) => group.headers),
+      ...table.getRightHeaderGroups().flatMap((group) => group.headers),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [table, columnPinning, resolvedColumns, columnVisibility]
+  );
+
+  const headerCellRefs = useRef<Map<string, HTMLTableCellElement>>(new Map());
+  const [pinnedOffsets, setPinnedOffsets] = useState<Record<string, number>>({});
+  const registerHeaderCellRef = useCallback(
+    (columnId: string) => (el: HTMLTableCellElement | null) => {
+      if (el) headerCellRefs.current.set(columnId, el);
+      else headerCellRefs.current.delete(columnId);
+    },
+    []
+  );
+
+  const pinnedColumnsKey = useMemo(() => {
+    const left = orderedHeaders
+      .filter((header) => header.column.getIsPinned() === 'left')
+      .map((header) => header.column.id);
+    const right = orderedHeaders
+      .filter((header) => header.column.getIsPinned() === 'right')
+      .map((header) => header.column.id);
+    return JSON.stringify({ left, right });
+  }, [orderedHeaders]);
+
+  useLayoutEffect(() => {
+    const { left, right } = JSON.parse(pinnedColumnsKey) as { left: string[]; right: string[] };
+    const offsets: Record<string, number> = {};
+
+    let leftAcc = 0;
+    for (const columnId of left) {
+      offsets[columnId] = leftAcc;
+      leftAcc += headerCellRefs.current.get(columnId)?.offsetWidth ?? 0;
+    }
+
+    let rightAcc = 0;
+    for (const columnId of [...right].reverse()) {
+      offsets[columnId] = rightAcc;
+      rightAcc += headerCellRefs.current.get(columnId)?.offsetWidth ?? 0;
+    }
+
+    setPinnedOffsets((previous) => {
+      const previousKeys = Object.keys(previous);
+      const nextKeys = Object.keys(offsets);
+      const unchanged =
+        previousKeys.length === nextKeys.length &&
+        nextKeys.every((key) => previous[key] === offsets[key]);
+      return unchanged ? previous : offsets;
+    });
+  }, [pinnedColumnsKey, data]);
+
+  const pinnedStyle = (columnId: string, pinned: false | 'left' | 'right') =>
+    pinned ? { [pinned]: pinnedOffsets[columnId] ?? 0 } : undefined;
+
+  const handleToggleColumnPin = (colId: string) => {
+    setLocalPinnedColumns((prev) => {
+      if (prev.left.includes(colId)) {
+        return { ...prev, left: prev.left.filter((id) => id !== colId) };
+      }
+      return { ...prev, left: [...prev.left, colId] };
+    });
+  };
+
+  const handleToggleColumnGroup = (colId: string) => {
+    setLocalGroupBy((prev) => (prev.includes(colId) ? [] : [colId]));
+  };
+
+  const handleScrollToColumn = (colId: string) => {
+    const el = headerCellRefs.current.get(colId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  };
+
+  // Keyboard navigation handler
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTableSectionElement>) => {
+    if (!enableKeyboardNavigation) return;
+    const rows = table.getRowModel().rows;
+    if (rows.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setFocusedRowIndex((prev) => (prev === null ? 0 : Math.min(prev + 1, rows.length - 1)));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setFocusedRowIndex((prev) => (prev === null ? 0 : Math.max(prev - 1, 0)));
+    } else if (e.key === ' ' && focusedRowIndex !== null && selectable) {
+      e.preventDefault();
+      const targetRow = rows[focusedRowIndex];
+      if (targetRow) {
+        targetRow.toggleSelected();
+      }
+    }
+  };
+
+  return (
+    <div ref={ref} className={cn('flex flex-col gap-3 w-full', className)} {...props}>
+      {showFilterBar && (
+        <EzFilterBar
+          filters={filters ?? []}
+          onFilterChange={onFilterChange ?? (() => undefined)}
+          onApplyAll={onApplyAll ?? (() => undefined)}
+        />
+      )}
+
+      {showTaskbar && (
+        <EzTaskbar
+          buttons={taskbarButtons ?? []}
+          onAction={(action) => {
+            if (action === 'CONFIGURATOR') {
+              setIsColumnConfigModalOpen(true);
+            }
+            onTaskbarAction?.(action);
+          }}
+        />
+      )}
+
+      <div className=\"relative w-full\">
+        {/* AG Grid Corner Menu Button (Sankhya ag-grid-menu parity) */}
+        {showGridCornerMenu && (
+          <button
+            ref={cornerMenuButtonRef}
+            type=\"button\"
+            aria-label=\"Opções da grade\"
+            title=\"Opções da grade\"
+            data-testid=\"ez-grid-corner-menu-button\"
+            onClick={() => setIsCornerMenuOpen((prev) => !prev)}
+            className=\"absolute top-1.5 right-1.5 z-20 p-1 [@media(pointer:coarse)]:h-11 [@media(pointer:coarse)]:w-11 [@media(pointer:coarse)]:inline-flex [@media(pointer:coarse)]:items-center [@media(pointer:coarse)]:justify-center rounded-[6px] bg-white/90 hover:bg-white text-gray-500 hover:text-gray-900 border border-gray-200 shadow-2xs hover:shadow-xs transition-all cursor-pointer\"
+          >
+            <SlidersHorizontal className=\"w-3.5 h-3.5\" />
+          </button>
+        )}
+
+        <EzGridWrapper
+          showHorizontalScrollbar={showHorizontalScrollbar}
+          alwaysShowHorizontalScrollbar={alwaysShowHorizontalScrollbar}
+        >
+          <thead className=\"bg-gray-80\">
+            <tr>
+              {orderedHeaders.map((header, headerIndex) => {
+                const canSort = header.column.getCanSort();
+                const sortDirection = header.column.getIsSorted();
+                const SortIcon =
+                  sortDirection === 'asc' ? ArrowUp : sortDirection === 'desc' ? ArrowDown : ArrowUpDown;
+                const pinned = header.column.getIsPinned();
+                const isLast = headerIndex === orderedHeaders.length - 1;
+                const columnHeader = header.column.columnDef.header;
+                const columnHeaderLabel =
+                  typeof columnHeader === 'string'
+                    ? columnHeader
+                    : (header.column.columnDef.id ?? header.column.id);
+                const canFilter =
+                  enableColumnFilters &&
+                  header.column.id !== 'select' &&
+                  header.column.getCanFilter();
+                const isFiltered = header.column.getIsFiltered();
+                const isSpecialCol = header.column.id === '__rowNumber__' || header.column.id === 'select';
+                const isDraggable = enableColumnReorder && !isSpecialCol;
+                const canResizeColumn =
+                  enableColumnResize && !isSpecialCol && header.column.getCanResize();
+
+                return (
+                  <th
+                    key={header.id}
+                    ref={registerHeaderCellRef(header.column.id)}
+                    data-pinned={pinned || undefined}
+                    draggable={isDraggable}
+                    onDragStart={isDraggable ? (e) => handleDragStart(e, header.column.id) : undefined}
+                    onDragOver={isDraggable ? (e) => handleDragOver(e, header.column.id) : undefined}
+                    onDrop={isDraggable ? (e) => handleDrop(e, header.column.id) : undefined}
+                    onDragEnd={isDraggable ? handleDragEnd : undefined}
+                    data-dragged={draggedColId === header.column.id ? 'true' : undefined}
+                    data-dragover={dragOverColId === header.column.id ? 'true' : undefined}
+                    style={{
+                      ...pinnedStyle(header.column.id, pinned),
+                      width: header.getSize(),
+                      minWidth: header.getSize(),
+                    }}
+                    className={cn(
+                      'relative px-4 text-[13px] font-semibold text-gray-700 select-none bg-gray-80 transition-colors',
+                      currentDensity === 'compact' ? 'py-1.5' : 'py-3',
+                      !isLast && 'border-r border-gray-100',
+                      canSort && 'cursor-pointer',
+                      isDraggable && 'cursor-grab active:cursor-grabbing',
+                      dragOverColId === header.column.id && 'border-l-2 border-l-brand-600 bg-brand-50/50',
+                      draggedColId === header.column.id && 'opacity-40',
+                      pinned && 'sticky z-10',
+                      pinned === 'left' && 'shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
+                      pinned === 'right' && 'shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.15)]'
+                    )}
+                    onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                  >
+                    {/* Sankhya AG Grid sort indicator borders (sk-col-orderned-asc / desc) */}
+                    {sortDirection === 'asc' && (
+                      <span
+                        data-testid=\"sk-col-orderned-asc\"
+                        className=\"absolute top-0 left-0 right-0 h-[2px] bg-brand-500\"
+                      />
+                    )}
+                    {sortDirection === 'desc' && (
+                      <span
+                        data-testid=\"sk-col-orderned-desc\"
+                        className=\"absolute top-0 left-0 right-0 h-[2px] bg-red-500\"
+                      />
+                    )}
+
+                    <div className=\"flex items-center justify-between gap-1.5 w-full\">
+                      <span className=\"inline-flex items-center gap-1 truncate\">
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {canSort && (
+                          <SortIcon
+                            aria-hidden=\"true\"
+                            className={cn(
+                              'w-3.5 h-3.5 shrink-0',
+                              sortDirection === 'asc'
+                                ? 'text-brand-600'
+                                : sortDirection === 'desc'
+                                  ? 'text-red-600'
+                                  : 'text-gray-400'
+                            )}
+                          />
+                        )}
+                      </span>
+
+                      <div className=\"flex items-center gap-0.5 shrink-0\">
+                        {canFilter && (
+                          <button
+                            ref={(el) => {
+                              if (el) filterButtonRefs.current.set(header.column.id, el);
+                              else filterButtonRefs.current.delete(header.column.id);
+                            }}
+                            type=\"button\"
+                            aria-hidden=\"true\"
+                            tabIndex={-1}
+                            title={`Filtrar por ${columnHeaderLabel}`}
+                            data-testid={`ez-grid-column-filter-${header.column.id}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveFilterColumnId(
+                                activeFilterColumnId === header.column.id ? null : header.column.id
+                              );
+                            }}
+                            className={cn(
+                              'p-1 rounded hover:bg-gray-200 transition-colors cursor-pointer',
+                              isFiltered
+                                ? 'text-brand-600 bg-brand-50 hover:bg-brand-100'
+                                : 'text-gray-400 hover:text-gray-600'
+                            )}
+                          >
+                            <Filter className=\"w-3.5 h-3.5\" />
+                          </button>
+                        )}
+
+                        {enableColumnMenu && header.column.id !== 'select' && (
+                          <button
+                            ref={(el) => {
+                              if (el) columnMenuButtonRefs.current.set(header.column.id, el);
+                              else columnMenuButtonRefs.current.delete(header.column.id);
+                            }}
+                            type=\"button\"
+                            aria-hidden=\"true\"
+                            tabIndex={-1}
+                            title={`Menu da coluna ${columnHeaderLabel}`}
+                            data-testid={`ez-grid-column-menu-${header.column.id}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveMenuColumnId(
+                                activeMenuColumnId === header.column.id ? null : header.column.id
+                              );
+                            }}
+                            className=\"p-1 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors cursor-pointer\"
+                          >
+                            <MoreVertical className=\"w-3.5 h-3.5\" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {canResizeColumn && (
+                      <div
+                        onMouseDown={header.getResizeHandler()}
+                        onTouchStart={header.getResizeHandler()}
+                        onClick={(e) => e.stopPropagation()}
+                        data-testid={`ez-entity-grid-resize-handle-${header.column.id}`}
+                        data-resizing={header.column.getIsResizing() ? 'true' : undefined}
+                        className={cn(
+                          'absolute top-0 right-0 h-full w-1.5 cursor-col-resize select-none touch-none z-20 hover:bg-brand-300/50',
+                          header.column.getIsResizing() && 'bg-brand-500/60'
+                        )}
+                      />
+                    )}
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody
+            tabIndex={enableKeyboardNavigation ? 0 : undefined}
+            onKeyDown={handleKeyDown}
+            className=\"outline-none\"
+          >
+            {table.getRowModel().rows.map((row, rowIndex) => {
+              if (row.getIsGrouped()) {
+                const toggleExpanded = row.getToggleExpandedHandler();
+                const rawGroupingValue = row.getValue(row.groupingColumnId ?? '');
+                const groupLabel =
+                  rawGroupingValue === undefined || rawGroupingValue === null
+                    ? '(Sem valor)'
+                    : String(rawGroupingValue);
+                return (
+                  <tr
+                    key={row.id}
+                    data-testid=\"ez-entity-grid-group-row\"
+                    role=\"button\"
+                    tabIndex={0}
+                    className=\"border-t border-gray-200 bg-gray-80 cursor-pointer hover:bg-gray-80/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-200\"
+                    onClick={toggleExpanded}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleExpanded();
+                      }
+                    }}
+                  >
+                    <td
+                      colSpan={orderedHeaders.length}
+                      className={cn(
+                        'px-4 text-[13px] font-semibold text-gray-900',
+                        currentDensity === 'compact' ? 'py-1' : 'py-3'
+                      )}
+                    >
+                      <span className=\"inline-flex items-center gap-2\">
+                        {row.getIsExpanded() ? (
+                          <ChevronDown aria-hidden className=\"w-3.5 h-3.5 text-gray-500\" />
+                        ) : (
+                          <ChevronRight aria-hidden className=\"w-3.5 h-3.5 text-gray-500\" />
+                        )}
+                        {groupLabel}
+                        <span className=\"inline-flex items-center justify-center min-w-[1.25rem] px-1.5 py-0.5 rounded-full bg-gray-200 text-[11px] font-medium text-gray-700\">
+                          {row.subRows.length}
+                        </span>
+                      </span>
+                    </td>
+                  </tr>
+                );
+              }
+
+              const isSelected = row.getIsSelected();
+              const isFocused = focusedRowIndex === rowIndex;
+              const isEven = rowIndex % 2 === 1;
+
+              return (
+                <tr
+                  key={row.id}
+                  data-selected={isSelected || undefined}
+                  onClick={() => setFocusedRowIndex(rowIndex)}
+                  className={cn(
+                    'border-t border-gray-200 group transition-colors',
+                    isSelected
+                      ? 'bg-brand-50'
+                      : zebraStriping && isEven
+                        ? 'bg-gray-50/60 hover:bg-grid-row-hover'
+                        : 'bg-white hover:bg-grid-row-hover',
+                    isFocused && 'outline-1 outline-brand-500 outline-offset-[-1px]'
+                  )}
+                >
+                  {[
+                    ...row.getLeftVisibleCells(),
+                    ...row.getCenterVisibleCells(),
+                    ...row.getRightVisibleCells(),
+                  ].map((cell, cellIndex, allCells) => {
+                    const pinned = cell.column.getIsPinned();
+                    const isLastCell = cellIndex === allCells.length - 1;
+                    return (
+                      <td
+                        key={cell.id}
+                        data-pinned={pinned || undefined}
+                        style={{
+                          ...pinnedStyle(cell.column.id, pinned),
+                          width: cell.column.getSize(),
+                          minWidth: cell.column.getSize(),
+                        }}
+                        className={cn(
+                          'px-4 text-[13px] text-gray-900',
+                          currentDensity === 'compact' ? 'py-1' : 'py-3',
+                          !isLastCell && 'border-r border-gray-100',
+                          pinned && 'sticky z-10',
+                          pinned &&
+                            (isSelected
+                              ? 'bg-brand-50'
+                              : 'bg-white group-hover:bg-grid-row-hover'),
+                          pinned === 'left' && 'shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
+                          pinned === 'right' && 'shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.15)]'
+                        )}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+            {table.getRowModel().rows.length === 0 && (
+              <tr>
+                <td
+                  colSpan={orderedHeaders.length}
+                  className=\"px-4 py-6 text-center text-[13px] text-gray-500\"
+                >
+                  Nenhum registro encontrado.
+                </td>
+              </tr>
+            )}
+          </tbody>
+          {showFooter && (
+            <tfoot>
+              <tr
+                data-testid=\"ez-entity-grid-footer-row\"
+                className=\"border-t-2 border-gray-200 bg-gray-80 font-semibold\"
+              >
+                {orderedHeaders.map((header, headerIndex) => {
+                  const columnId = header.column.id;
+                  const value = footerValues[columnId];
+                  const pinned = header.column.getIsPinned();
+                  const isLastCell = headerIndex === orderedHeaders.length - 1;
+                  return (
+                    <td
+                      key={columnId}
+                      data-pinned={pinned || undefined}
+                      style={pinnedStyle(columnId, pinned)}
+                      className={cn(
+                        'px-4 text-[13px] font-semibold text-gray-900',
+                        currentDensity === 'compact' ? 'py-1' : 'py-3',
+                        !isLastCell && 'border-r border-gray-100',
+                        pinned && 'sticky z-10 bg-gray-80',
+                        pinned === 'left' && 'shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
+                        pinned === 'right' && 'shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.15)]'
+                      )}
+                    >
+                      {value !== undefined ? formatFooterValue(value) : ''}
+                    </td>
+                  );
+                })}
+              </tr>
+            </tfoot>
+          )}
+        </EzGridWrapper>
+      </div>
+
+      {/* Status Bar with Counts & Selection Metrics (Sankhya datagrid-footer-rows-counter) */}
+      {showStatusBar && (
+        <div
+          data-testid=\"ez-entity-grid-status-bar\"
+          className=\"flex flex-wrap items-center justify-between gap-3 px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-[8px] text-[12px] text-gray-600 select-none\"
+        >
+          <div className=\"flex items-center gap-3\">
+            <span data-testid=\"ez-entity-grid-total-count\" className=\"font-medium text-gray-700\">
+              {table.getState().columnFilters.length > 0
+                ? `Filtradas: ${table.getFilteredRowModel().rows.length} de ${data.length} linhas`
+                : `Total: ${data.length} linha${data.length !== 1 ? 's' : ''}`}
+            </span>
+            {selectable && (
+              <>
+                <span className=\"text-gray-300\">|</span>
+                <span data-testid=\"ez-entity-grid-selected-count\">
+                  {table.getSelectedRowModel().rows.length} selecionada
+                  {table.getSelectedRowModel().rows.length !== 1 ? 's' : ''}
+                </span>
+              </>
+            )}
+            {numericStatistics.length > 0 && (
+              <>
+                <span className=\"text-gray-300\">|</span>
+                <button
+                  type=\"button\"
+                  data-testid=\"ez-grid-open-statistics-button\"
+                  onClick={() => setIsStatisticsModalOpen(true)}
+                  className=\"inline-flex items-center gap-1 text-[11px] font-medium text-brand-600 hover:text-brand-800 transition-colors cursor-pointer\"
+                >
+                  <BarChart3 className=\"w-3.5 h-3.5\" />
+                  Estatísticas
+                </button>
+              </>
+            )}
+          </div>
+
+          {selectedMetrics && (
+            <div
+              data-testid=\"ez-entity-grid-selection-metrics\"
+              className=\"flex items-center gap-3 text-[12px] text-gray-600\"
+            >
+              <span>Contagem: {selectedMetrics.count}</span>
+              {selectedMetrics.sum !== undefined && (
+                <>
+                  <span className=\"text-gray-300\">|</span>
+                  <span>Soma: {formatFooterValue(selectedMetrics.sum)}</span>
+                </>
+              )}
+              {selectedMetrics.avg !== undefined && (
+                <>
+                  <span className=\"text-gray-300\">|</span>
+                  <span>Média: {formatFooterValue(selectedMetrics.avg)}</span>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Column Filter Popover */}
+      {activeFilterColumnId && (() => {
+        const activeCol = table.getColumn(activeFilterColumnId);
+        if (!activeCol) return null;
+        const columnHeader = activeCol.columnDef.header;
+        const label =
+          typeof columnHeader === 'string'
+            ? columnHeader
+            : (activeCol.columnDef.id ?? activeCol.id);
+        const triggerEl = filterButtonRefs.current.get(activeFilterColumnId);
+
+        return (
+          <EzColumnFilterPopover
+            triggerElement={triggerEl}
+            columnTitle={label}
+            uniqueValues={getColumnUniqueValues(activeFilterColumnId)}
+            currentFilter={activeCol.getFilterValue() as string[] | undefined}
+            onApply={(selectedValues) => {
+              activeCol.setFilterValue(selectedValues);
+              setActiveFilterColumnId(null);
+            }}
+            onClose={() => setActiveFilterColumnId(null)}
+          />
+        );
+      })()}
+
+      {/* Column Menu Popover */}
+      {activeMenuColumnId && (() => {
+        const col = table.getColumn(activeMenuColumnId);
+        if (!col) return null;
+        const header = col.columnDef.header;
+        const title = typeof header === 'string' ? header : (col.columnDef.id ?? col.id);
+        const triggerEl = columnMenuButtonRefs.current.get(activeMenuColumnId);
+
+        return (
+          <EzColumnMenuPopover
+            triggerElement={triggerEl}
+            columnTitle={title}
+            canSort={col.getCanSort()}
+            sortDirection={col.getIsSorted()}
+            canFilter={col.getCanFilter()}
+            isPinned={col.getIsPinned()}
+            isGrouped={localGroupBy.includes(col.id)}
+            onSortAsc={() => col.toggleSorting(false)}
+            onSortDesc={() => col.toggleSorting(true)}
+            onOpenFilter={() => setActiveFilterColumnId(activeMenuColumnId)}
+            onTogglePin={() => handleToggleColumnPin(col.id)}
+            onToggleGroup={enableColumnGrouping ? () => handleToggleColumnGroup(col.id) : undefined}
+            onHideColumn={() => col.toggleVisibility(false)}
+            onOpenColumnConfig={() => setIsColumnConfigModalOpen(true)}
+            onClose={() => setActiveMenuColumnId(null)}
+          />
+        );
+      })()}
+
+      {/* Corner Menu Popover */}
+      {isCornerMenuOpen && (
+        <EzGridCornerMenuPopover
+          triggerElement={cornerMenuButtonRef.current}
+          density={currentDensity}
+          onToggleDensity={() =>
+            setCurrentDensity((prev) => (prev === 'compact' ? 'comfortable' : 'compact'))
+          }
+          onClearAllFilters={() => table.resetColumnFilters()}
+          onOpenColumnConfig={() => setIsColumnConfigModalOpen(true)}
+          onOpenStatistics={() => setIsStatisticsModalOpen(true)}
+          columnsList={table
+            .getAllLeafColumns()
+            .filter((c) => c.id !== 'select' && c.id !== '__rowNumber__')
+            .map((c) => ({
+              id: c.id,
+              label: typeof c.columnDef.header === 'string' ? c.columnDef.header : c.id,
+            }))}
+          onSelectColumn={handleScrollToColumn}
+          onClose={() => setIsCornerMenuOpen(false)}
+        />
+      )}
+
+      {/* Statistics Modal */}
+      {isStatisticsModalOpen && (
+        <EzGridStatisticsModal
+          statistics={numericStatistics}
+          onClose={() => setIsStatisticsModalOpen(false)}
+        />
+      )}
+
+      {/* Column Config Modal */}
+      {isColumnConfigModalOpen && (
+        <EzGridColumnConfigModal
+          columns={table
+            .getAllLeafColumns()
+            .filter((c) => c.id !== 'select' && c.id !== '__rowNumber__')
+            .map((c) => ({
+              id: c.id,
+              label: typeof c.columnDef.header === 'string' ? c.columnDef.header : c.id,
+              isVisible: c.getIsVisible(),
+            }))}
+          onToggleColumn={(colId) => {
+            const col = table.getColumn(colId);
+            if (col) col.toggleVisibility();
+          }}
+          onRestoreDefaults={() => table.resetColumnVisibility()}
+          onClose={() => setIsColumnConfigModalOpen(false)}
+        />
+      )}
+
+      {/* Rich Pagination Controls */}
+      {showPagination && (() => {
+        const totalCount = table.getFilteredRowModel().rows.length;
+        const currentPageIndex = table.getState().pagination.pageIndex;
+        const currentPageSize = table.getState().pagination.pageSize;
+        const recordStart = totalCount === 0 ? 0 : currentPageIndex * currentPageSize + 1;
+        const recordEnd =
+          totalCount === 0 ? 0 : Math.min((currentPageIndex + 1) * currentPageSize, totalCount);
+        const recordCountText = `${recordStart}-${recordEnd} de ${totalCount}`;
+
+        return (
+          <div className=\"flex flex-col items-stretch gap-3 pt-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between\">
+            <div className=\"flex items-center gap-2\">
+              <label
+                htmlFor=\"ez-entity-grid-page-size-select\"
+                className=\"text-[13px] text-gray-500 select-none\"
+              >
+                Linhas por página:
+              </label>
+              <select
+                id=\"ez-entity-grid-page-size-select\"
+                aria-label=\"Linhas por página:\"
+                value={table.getState().pagination.pageSize}
+                onChange={handlePageSizeChange}
+                className=\"h-11 sm:h-[32px] px-2 text-[13px] text-gray-700 bg-white border border-gray-200 rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-200 cursor-pointer\"
+              >
+                {resolvedPageSizeOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className=\"flex items-center gap-3\">
+              <span
+                data-testid=\"ez-entity-grid-pagination-count\"
+                className=\"text-[13px] text-gray-500 font-medium select-none\"
+              >
+                {recordCountText}
+              </span>
+              <span className=\"text-[13px] text-gray-500 select-none\">
+                Página {table.getState().pagination.pageIndex + 1} de {Math.max(table.getPageCount(), 1)}
+              </span>
+              <button
+                type=\"button\"
+                aria-label=\"Página anterior\"
+                title=\"Página anterior\"
+                disabled={!table.getCanPreviousPage()}
+                onClick={() => table.previousPage()}
+                className={cn(
+                  'inline-flex items-center justify-center h-11 w-11 sm:h-[32px] sm:w-[32px] rounded-[8px] text-gray-500 transition-colors',
+                  'hover:bg-gray-80 hover:text-gray-900',
+                  'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none'
+                )}
+              >
+                <ChevronLeft className=\"w-4 h-4\" />
+              </button>
+              <button
+                type=\"button\"
+                aria-label=\"Próxima página\"
+                title=\"Próxima página\"
+                disabled={!table.getCanNextPage()}
+                onClick={() => table.nextPage()}
+                className={cn(
+                  'inline-flex items-center justify-center h-11 w-11 sm:h-[32px] sm:w-[32px] rounded-[8px] text-gray-500 transition-colors',
+                  'hover:bg-gray-80 hover:text-gray-900',
+                  'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none'
+                )}
+              >
+                <ChevronRight className=\"w-4 h-4\" />
+              </button>
+            </div>
+          </div>
+        );
+      })()}
+    </div>
+  );
+}
+
+/**
+ * Aponta DS Entity Grid (visual behavior mirror of Sankhya DS `snk-grid`).
+ * Composes `EzGridWrapper` (+ `@tanstack/react-table`), `EzTaskbar` and
+ * `EzFilterBar` into a single generic, fully client-driven data grid with
+ * sortable columns, optional multi-row selection, rich pagination, Excel-style
+ * distinct-value filters with tabs, persistent AG Grid scrollbar, status bar,
+ * AG Grid corner menu, grid statistics, and column configurator.
+ */
+export const EzEntityGrid = forwardRef(EzEntityGridInner) as EzEntityGridComponent;
+(EzEntityGrid as unknown as { displayName?: string }).displayName = 'EzEntityGrid';
+"
+
+ ❯ src/components/ds/escapeOverlays.test.tsx:76:21
+     74|   ])('%s usa só o mecanismo único', (file) => {
+     75|     const src = readFileSync(resolve(__dirname, '../..', file), 'utf8'…
+     76|     expect(src).not.toMatch(/key === 'Escape'/);
+       |                     ^
+     77|     expect(src).toMatch(/useEscapeLayer/);
+     78|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  |web| src/components/ds/escapeOverlays.test.tsx > AC-8: sem listener de Esc próprio > components/layout/AppLayout.tsx usa só o mecanismo único
+AssertionError: expected 'import { useEffect, useRef, useState …' not to match /key === 'Escape'/
+
+- Expected:
+/key === 'Escape'/
+
++ Received:
+"import { useEffect, useRef, useState } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
+import { Sidebar } from './Sidebar';
+import { UserMenu } from './UserMenu';
+import { TabBar } from './TabBar';
+import { TabsProvider } from '../../contexts/TabsContext';
+
+/**
+ * Shell do app. Desde 768px o menu lateral é fixo; abaixo disso ele vira um
+ * menu retrátil (DMTE-427, AC-17): botão no cabeçalho, painel em `role=\"dialog\"`,
+ * que fecha por Esc, toque fora ou ao escolher um destino.
+ */
+export function AppLayout() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { pathname } = useLocation();
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const wasOpen = useRef(false);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [menuOpen]);
+
+  // Menu modal: trava a rolagem do fundo e fecha se a tela crescer até o menu fixo,
+  // para o painel e a barra fixa nunca coexistirem.
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    document.body.style.overflow = 'hidden';
+    const desktop = typeof window.matchMedia === 'function' ? window.matchMedia('(min-width: 768px)') : null;
+    const closeOnDesktop = (event: { matches: boolean }) => {
+      if (event.matches) setMenuOpen(false);
+    };
+    desktop?.addEventListener('change', closeOnDesktop);
+    return () => {
+      document.body.style.overflow = '';
+      desktop?.removeEventListener('change', closeOnDesktop);
+    };
+  }, [menuOpen]);
+
+  // Foco: entra no painel ao abrir e volta ao botão ao fechar (menu modal).
+  useEffect(() => {
+    if (menuOpen) {
+      dialogRef.current?.focus();
+    } else if (wasOpen.current) {
+      toggleRef.current?.focus();
+    }
+    wasOpen.current = menuOpen;
+  }, [menuOpen]);
+
+  return (
+    <div className=\"flex min-h-screen bg-gray-80 text-gray-900\">
+      <div
+        data-testid=\"desktop-sidebar\"
+        inert={menuOpen}
+        className=\"sticky top-0 hidden h-screen shrink-0 md:block\"
+      >
+        <Sidebar />
+      </div>
+
+      {menuOpen && (
+        <div className=\"md:hidden\">
+          <div
+            data-testid=\"menu-backdrop\"
+            aria-hidden=\"true\"
+            className=\"fixed inset-0 z-40 bg-gray-900/40\"
+            onClick={() => setMenuOpen(false)}
+          />
+          <div
+            ref={dialogRef}
+            id=\"menu-principal\"
+            role=\"dialog\"
+            aria-modal=\"true\"
+            aria-label=\"Menu principal\"
+            tabIndex={-1}
+            className=\"fixed inset-y-0 left-0 z-50 max-w-[85vw] shadow-popover outline-none\"
+          >
+            <button
+              type=\"button\"
+              aria-label=\"Fechar menu\"
+              onClick={() => setMenuOpen(false)}
+              className=\"absolute right-2 top-2 z-10 inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-control text-gray-700 outline-none hover:bg-gray-80 focus-visible:ring-2 focus-visible:ring-brand-500\"
+            >
+              <X aria-hidden=\"true\" className=\"h-5 w-5\" />
+            </button>
+            <Sidebar inDrawer onNavigate={() => setMenuOpen(false)} />
+          </div>
+        </div>
+      )}
+
+      <div data-testid=\"app-content\" inert={menuOpen} className=\"flex min-w-0 flex-1 flex-col\">
+        <header className=\"flex items-center justify-between border-b border-gray-200 bg-white p-3\">
+          <button
+            ref={toggleRef}
+            type=\"button\"
+            aria-label=\"Abrir menu\"
+            aria-expanded={menuOpen}
+            aria-controls=\"menu-principal\"
+            onClick={() => setMenuOpen(true)}
+            className=\"inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-control text-gray-700 outline-none hover:bg-gray-80 focus-visible:ring-2 focus-visible:ring-brand-500 md:hidden\"
+          >
+            <Menu aria-hidden=\"true\" className=\"h-5 w-5\" />
+          </button>
+          <div className=\"ml-auto min-w-0\">
+            <UserMenu />
+          </div>
+        </header>
+        <TabsProvider>
+          <TabBar />
+          <main className=\"min-w-0 flex-1 overflow-auto p-3 sm:p-6\">
+            <Outlet />
+          </main>
+        </TabsProvider>
+      </div>
+    </div>
+  );
+}
+
+export default AppLayout;
+"
+
+ ❯ src/components/ds/escapeOverlays.test.tsx:76:21
+     74|   ])('%s usa só o mecanismo único', (file) => {
+     75|     const src = readFileSync(resolve(__dirname, '../..', file), 'utf8'…
+     76|     expect(src).not.toMatch(/key === 'Escape'/);
+       |                     ^
+     77|     expect(src).toMatch(/useEscapeLayer/);
+     78|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  |web| src/components/ds/escapeOverlays.test.tsx > AC-8: sem listener de Esc próprio > pages/VaultPage.tsx usa só o mecanismo único
+AssertionError: expected 'import { useMemo, useState, FormEvent…' to match /useEscapeLayer/
+
+- Expected:
+/useEscapeLayer/
+
++ Received:
+"import { useMemo, useState, FormEvent, ReactNode } from 'react';
+import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
+import {
+  Lock,
+  LockOpen,
+  Copy,
+  Trash2,
+  Pencil,
+  ExternalLink,
+  FolderPlus,
+  KeyRound,
+  Search,
+  ShieldCheck,
+  X,
+} from 'lucide-react';
+import {
+  useVaultFolders,
+  useVaultCredentials,
+  useVaultMutations,
+  useRevealCredential,
+  VaultCredential,
+  VaultFolder,
+  CredentialInput,
+} from '../hooks/useVault';
+import { useAuthStore } from '../stores/authStore';
+import {
+  EzAlert,
+  EzButton,
+  EzActionsButton,
+  EzCardItem,
+  EzEmptyCard,
+  EzPagination,
+  EzSpinner,
+  EzTextInput,
+  EzTree,
+  EzTreeNode,
+} from '../components/ds';
+
+const ROOT_FOLDER_ID = 'root';
+const PAGE_SIZE = 10;
+
+type RevealedValues = { username?: string | null; password?: string | null };
+
+function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+  if (typeof document === 'undefined') return null;
+  return createPortal(
+    <div className=\"fixed inset-0 z-50 flex items-center justify-center px-4\">
+      <div className=\"fixed inset-0 bg-gray-900/60\" onClick={onClose} />
+      <div role=\"dialog\" aria-modal=\"true\" className=\"relative w-full max-w-md rounded-[24px] bg-white shadow-2xl\">
+        <div className=\"flex items-center justify-between border-b border-gray-100 px-6 py-4\">
+          <span className=\"text-[16px] font-semibold text-gray-900\">{title}</span>
+          <button onClick={onClose} aria-label=\"Fechar\" className=\"rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700\">
+            <X className=\"h-4 w-4\" />
+          </button>
+        </div>
+        <div className=\"px-6 py-4\">{children}</div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+function FolderModal({
+  initialName,
+  onSave,
+  onClose,
+}: {
+  initialName: string;
+  onSave: (name: string) => void;
+  onClose: () => void;
+}) {
+  const [name, setName] = useState(initialName);
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    onSave(name.trim());
+  };
+
+  return (
+    <Modal title={initialName ? 'Editar pasta' : 'Nova pasta'} onClose={onClose}>
+      <form onSubmit={handleSubmit} className=\"flex flex-col gap-4\">
+        <EzTextInput
+          label=\"Nome da pasta\"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          autoFocus
+          required
+        />
+        <div className=\"flex justify-end gap-3\">
+          <EzButton type=\"button\" variant=\"secondary\" label=\"Cancelar\" onClick={onClose} />
+          <EzButton type=\"submit\" variant=\"primary\" label=\"Salvar\" />
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
+function CredentialModal({
+  credential,
+  folders,
+  defaultFolderId,
+  onSave,
+  onClose,
+}: {
+  credential?: VaultCredential;
+  folders: VaultFolder[];
+  defaultFolderId: string;
+  onSave: (dto: Partial<CredentialInput>) => void;
+  onClose: () => void;
+}) {
+  const isEdit = Boolean(credential);
+  const [name, setName] = useState(credential?.name ?? '');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [url, setUrl] = useState(credential?.url ?? '');
+  const [description, setDescription] = useState(credential?.description ?? '');
+  const [folderId, setFolderId] = useState(
+    credential ? credential.folderId ?? ROOT_FOLDER_ID : defaultFolderId,
+  );
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    if (!isEdit && !password.trim()) return;
+
+    const dto: Partial<CredentialInput> = {
+      name: name.trim(),
+      url: url.trim() || undefined,
+      description: description.trim() || undefined,
+      folderId: folderId === ROOT_FOLDER_ID ? undefined : folderId,
+    };
+    if (username.trim()) dto.username = username.trim();
+    if (password.trim()) dto.password = password.trim();
+    onSave(dto);
+  };
+
+  return (
+    <Modal title={isEdit ? 'Editar senha' : 'Nova senha'} onClose={onClose}>
+      <form onSubmit={handleSubmit} className=\"flex flex-col gap-4\">
+        <EzTextInput label=\"Nome\" value={name} onChange={(e) => setName(e.target.value)} autoFocus required />
+        <EzTextInput
+          label={isEdit ? 'Usuário (deixe em branco para não alterar)' : 'Usuário'}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <EzTextInput
+          label={isEdit ? 'Senha (deixe em branco para não alterar)' : 'Senha'}
+          type=\"password\"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required={!isEdit}
+        />
+        <EzTextInput label=\"URL\" value={url} onChange={(e) => setUrl(e.target.value)} />
+        <EzTextInput label=\"Notas\" value={description} onChange={(e) => setDescription(e.target.value)} />
+        <div className=\"flex flex-col gap-1.5\">
+          <label className=\"text-[14px] font-medium text-gray-900\">Pasta</label>
+          <select
+            value={folderId}
+            onChange={(e) => setFolderId(e.target.value)}
+            className=\"h-[42px] w-full rounded-[12px] border border-gray-200 bg-white px-3 text-[14px] text-gray-900 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600\"
+          >
+            <option value={ROOT_FOLDER_ID}>Raiz do cofre</option>
+            {folders.map((folder) => (
+              <option key={folder.id} value={folder.id}>
+                {folder.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className=\"flex justify-end gap-3\">
+          <EzButton type=\"button\" variant=\"secondary\" label=\"Cancelar\" onClick={onClose} />
+          <EzButton type=\"submit\" variant=\"primary\" label=\"Salvar\" />
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
+export function VaultPage() {
+  const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const canEdit = user?.role === 'ADMIN';
+
+  const [selectedFolderId, setSelectedFolderId] = useState<string>(ROOT_FOLDER_ID);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [revealed, setRevealed] = useState<Record<string, RevealedValues>>({});
+  const [folderModal, setFolderModal] = useState<{ folder?: VaultFolder } | null>(null);
+  const [credentialModal, setCredentialModal] = useState<{ credential?: VaultCredential } | null>(null);
+
+  const foldersQuery = useVaultFolders();
+  const credentialsQuery = useVaultCredentials({
+    folderId: selectedFolderId,
+    search: search || undefined,
+    page,
+    limit: PAGE_SIZE,
+  });
+  const {
+    createFolderMutation,
+    updateFolderMutation,
+    removeFolderMutation,
+    createCredentialMutation,
+    updateCredentialMutation,
+    removeCredentialMutation,
+  } = useVaultMutations();
+  const revealMutation = useRevealCredential();
+
+  const foldersData = foldersQuery.data;
+  const folders = useMemo<VaultFolder[]>(() => foldersData ?? [], [foldersData]);
+
+  const treeNodes = useMemo<EzTreeNode[]>(
+    () => [
+      { id: ROOT_FOLDER_ID, label: 'Raiz do cofre' },
+      ...folders.map((folder) => ({ id: folder.id, label: `${folder.name} (${folder.credentialCount})` })),
+    ],
+    [folders],
+  );
+
+  const selectedFolder = folders.find((f) => f.id === selectedFolderId);
+
+  const handleSelectFolder = (node: EzTreeNode) => {
+    setSelectedFolderId(String(node.id));
+    setPage(1);
+    setRevealed({});
+  };
+
+  const handleCopy = async (credentialId: string, field: 'username' | 'password') => {
+    const value = await revealMutation.mutateAsync({ id: credentialId, field, intent: 'copy' });
+    if (value) await navigator.clipboard.writeText(value);
+  };
+
+  const handleToggleReveal = async (cred: VaultCredential) => {
+    if (revealed[cred.id]) {
+      setRevealed((prev) => {
+        const next = { ...prev };
+        delete next[cred.id];
+        return next;
+      });
+      return;
+    }
+
+    const [username, password] = await Promise.all([
+      cred.hasUsername
+        ? revealMutation.mutateAsync({ id: cred.id, field: 'username', intent: 'reveal' })
+        : Promise.resolve(null),
+      cred.hasPassword
+        ? revealMutation.mutateAsync({ id: cred.id, field: 'password', intent: 'reveal' })
+        : Promise.resolve(null),
+    ]);
+    setRevealed((prev) => ({ ...prev, [cred.id]: { username, password } }));
+  };
+
+  const handleSaveFolder = (name: string) => {
+    if (folderModal?.folder) {
+      updateFolderMutation.mutate({ id: folderModal.folder.id, name });
+    } else {
+      createFolderMutation.mutate(name);
+    }
+    setFolderModal(null);
+  };
+
+  const handleRemoveFolder = (folder: VaultFolder) => {
+    if (!window.confirm(`Remover a pasta \"${folder.name}\"?`)) return;
+    removeFolderMutation.mutate(folder.id, {
+      onSuccess: () => {
+        if (selectedFolderId === folder.id) setSelectedFolderId(ROOT_FOLDER_ID);
+      },
+    });
+  };
+
+  const handleSaveCredential = (dto: Partial<CredentialInput>) => {
+    if (credentialModal?.credential) {
+      updateCredentialMutation.mutate({ id: credentialModal.credential.id, ...dto });
+    } else {
+      createCredentialMutation.mutate(dto as CredentialInput);
+    }
+    setCredentialModal(null);
+  };
+
+  const handleRemoveCredential = (cred: VaultCredential) => {
+    if (!window.confirm('Excluir senha definitivamente?')) return;
+    removeCredentialMutation.mutate(cred.id);
+  };
+
+  if (foldersQuery.isLoading || credentialsQuery.isLoading)
+    return (
+      <div className=\"flex justify-center p-8\">
+        <EzSpinner label=\"Carregando cofre...\" />
+      </div>
+    );
+  if (foldersQuery.isError || credentialsQuery.isError)
+    return (
+      <div className=\"p-8\">
+        <EzAlert variant=\"error\">Erro ao carregar o cofre de senhas.</EzAlert>
+      </div>
+    );
+
+  const credentials = credentialsQuery.data?.data ?? [];
+  const meta = credentialsQuery.data?.meta;
+
+  return (
+    <div className=\"space-y-6\">
+      <div className=\"flex items-center justify-between\">
+        <h1 className=\"text-3xl font-bold tracking-tight flex items-center gap-2\">
+          <Lock className=\"h-8 w-8\" /> Cofre de Senhas
+        </h1>
+        {canEdit && (
+          <EzButton
+            variant=\"secondary\"
+            label=\"Auditoria\"
+            leftIcon={ShieldCheck}
+            onClick={() => navigate('/vault/audit')}
+          />
+        )}
+      </div>
+
+      <div className=\"grid grid-cols-1 gap-4 md:grid-cols-[260px_1fr]\">
+        <EzCardItem flat className=\"p-3\">
+          <EzTree
+            nodes={treeNodes}
+            selectedId={selectedFolderId}
+            onSelect={handleSelectFolder}
+            defaultExpandedIds={[]}
+          />
+        </EzCardItem>
+
+        <EzCardItem flat className=\"overflow-hidden\">
+          <div className=\"flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-4 py-3\">
+            <EzTextInput
+              type=\"search\"
+              placeholder=\"Buscar senha...\"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              leftIcon={<Search className=\"h-4 w-4\" />}
+              className=\"max-w-xs\"
+            />
+            {canEdit && (
+              <EzActionsButton
+                label=\"Ações\"
+                actions={[
+                  { label: 'Nova pasta', icon: <FolderPlus className=\"h-4 w-4\" />, onClick: () => setFolderModal({}) },
+                  { label: 'Nova senha', icon: <KeyRound className=\"h-4 w-4\" />, onClick: () => setCredentialModal({}) },
+                ]}
+              />
+            )}
+          </div>
+
+          {canEdit && selectedFolder && (
+            <div className=\"flex items-center justify-between gap-2 border-b border-gray-100 bg-gray-90/40 px-4 py-2 text-sm text-gray-600\">
+              <span>
+                Pasta: <strong>{selectedFolder.name}</strong>
+              </span>
+              <div className=\"flex gap-2\">
+                <button
+                  title=\"Editar pasta\"
+                  onClick={() => setFolderModal({ folder: selectedFolder })}
+                  className=\"rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-900\"
+                >
+                  <Pencil className=\"h-4 w-4\" />
+                </button>
+                <button
+                  title=\"Remover pasta\"
+                  onClick={() => handleRemoveFolder(selectedFolder)}
+                  className=\"rounded p-1 text-red-500 hover:bg-red-50 hover:text-red-700\"
+                >
+                  <Trash2 className=\"h-4 w-4\" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {!credentials.length ? (
+            <EzEmptyCard title=\"Nenhuma credencial liberada para esta operação.\" />
+          ) : (
+            <table className=\"w-full text-left text-[14px]\">
+              <thead className=\"bg-gray-90/60 text-gray-600\">
+                <tr>
+                  <th className=\"px-4 py-2 font-medium\">Nome</th>
+                  <th className=\"px-4 py-2 font-medium\">Usuário</th>
+                  <th className=\"px-4 py-2 font-medium\">Senha</th>
+                  <th className=\"px-4 py-2 font-medium\">URL</th>
+                  {canEdit && <th className=\"px-4 py-2 font-medium text-right\">Ações</th>}
+                </tr>
+              </thead>
+              <tbody className=\"divide-y divide-gray-100\">
+                {credentials.map((cred) => {
+                  const row = revealed[cred.id];
+                  return (
+                    <tr key={cred.id} className=\"hover:bg-gray-90/40\">
+                      <td className=\"px-4 py-3\">
+                        <div className=\"flex items-center gap-2\">
+                          <button
+                            title={row ? 'Ocultar' : 'Revelar linha'}
+                            onClick={() => handleToggleReveal(cred)}
+                            className=\"text-gray-500 hover:text-brand-600\"
+                          >
+                            {row ? <LockOpen className=\"h-4 w-4\" /> : <Lock className=\"h-4 w-4\" />}
+                          </button>
+                          <span className=\"font-medium text-gray-900\">{cred.name}</span>
+                        </div>
+                      </td>
+                      <td className=\"px-4 py-3\">
+                        {cred.hasUsername ? (
+                          <div className=\"flex items-center gap-2 text-gray-700\">
+                            <span>{row ? row.username : '••••••••'}</span>
+                            <button
+                              title=\"Copiar usuário\"
+                              onClick={() => handleCopy(cred.id, 'username')}
+                              className=\"text-gray-400 hover:text-brand-600\"
+                            >
+                              <Copy className=\"h-3.5 w-3.5\" />
+                            </button>
+                          </div>
+                        ) : (
+                          <span className=\"text-gray-400\">—</span>
+                        )}
+                      </td>
+                      <td className=\"px-4 py-3\">
+                        {cred.hasPassword ? (
+                          <div className=\"flex items-center gap-2 text-gray-700\">
+                            <span>{row ? row.password : '••••••••'}</span>
+                            <button
+                              title=\"Copiar senha\"
+                              onClick={() => handleCopy(cred.id, 'password')}
+                              className=\"text-gray-400 hover:text-brand-600\"
+                            >
+                              <Copy className=\"h-3.5 w-3.5\" />
+                            </button>
+                          </div>
+                        ) : (
+                          <span className=\"text-gray-400\">—</span>
+                        )}
+                      </td>
+                      <td className=\"px-4 py-3\">
+                        {cred.url ? (
+                          <div className=\"flex items-center gap-2 text-gray-700\">
+                            <span className=\"truncate max-w-[160px]\">{cred.url}</span>
+                            <button
+                              title=\"Copiar URL\"
+                              onClick={() => navigator.clipboard.writeText(cred.url ?? '')}
+                              className=\"text-gray-400 hover:text-brand-600\"
+                            >
+                              <Copy className=\"h-3.5 w-3.5\" />
+                            </button>
+                            <a href={cred.url} target=\"_blank\" rel=\"noreferrer\" title=\"Abrir URL\" className=\"text-gray-400 hover:text-brand-600\">
+                              <ExternalLink className=\"h-3.5 w-3.5\" />
+                            </a>
+                          </div>
+                        ) : (
+                          <span className=\"text-gray-400\">—</span>
+                        )}
+                      </td>
+                      {canEdit && (
+                        <td className=\"px-4 py-3 text-right\">
+                          <div className=\"flex justify-end gap-2\">
+                            <button
+                              title=\"Editar\"
+                              onClick={() => setCredentialModal({ credential: cred })}
+                              className=\"rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-900\"
+                            >
+                              <Pencil className=\"h-4 w-4\" />
+                            </button>
+                            <button
+                              title=\"Excluir\"
+                              onClick={() => handleRemoveCredential(cred)}
+                              className=\"rounded p-1 text-red-500 hover:bg-red-50 hover:text-red-700\"
+                            >
+                              <Trash2 className=\"h-4 w-4\" />
+                            </button>
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+
+          {meta && meta.totalPages > 1 && (
+            <div className=\"flex justify-end border-t border-gray-100 px-4 py-3\">
+              <EzPagination currentPage={meta.page} totalPages={meta.totalPages} onChange={setPage} />
+            </div>
+          )}
+        </EzCardItem>
+      </div>
+
+      {folderModal && (
+        <FolderModal
+          initialName={folderModal.folder?.name ?? ''}
+          onSave={handleSaveFolder}
+          onClose={() => setFolderModal(null)}
+        />
+      )}
+
+      {credentialModal && (
+        <CredentialModal
+          credential={credentialModal.credential}
+          folders={folders}
+          defaultFolderId={selectedFolderId}
+          onSave={handleSaveCredential}
+          onClose={() => setCredentialModal(null)}
+        />
+      )}
+    </div>
+  );
+}
+"
+
+ ❯ src/components/ds/escapeOverlays.test.tsx:77:17
+     75|     const src = readFileSync(resolve(__dirname, '../..', file), 'utf8'…
+     76|     expect(src).not.toMatch(/key === 'Escape'/);
+     77|     expect(src).toMatch(/useEscapeLayer/);
+       |                 ^
+     78|   });
+     79| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+

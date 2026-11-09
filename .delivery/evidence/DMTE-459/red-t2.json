@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-09T02:33:17.608313+00:00",
+  "finished_at": "2026-11-09T02:33:31.476758+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "--root",
+    "apps/web",
+    "src/components/ds/escapeOverlays.test.tsx"
+  ],
+  "base_sha": "4c1b29522e8e606c7f7098ba1f120eab96e5dc93",
+  "head_sha": "4c1b29522e8e606c7f7098ba1f120eab96e5dc93",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/components/ds/escapeOverlays.test.tsx": "aadd37437a693d699fc7e6ef250ba3a1995f742ff4359cb718c9cdea6ae94411"
+  },
+  "criteria": [
+    "AC-2",
+    "AC-8"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/ds/escapeOverlays.test.tsx": "aadd37437a693d699fc7e6ef250ba3a1995f742ff4359cb718c9cdea6ae94411"
+  },
+  "log": ".delivery/evidence/DMTE-459/red-t2.log",
+  "log_sha256": "4b58986655db3dcded77f6157cbcf65bc8afbf6b81dcf397a59b4ae0d264bc27"
+}

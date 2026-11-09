@@ -10,6 +10,7 @@ import {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { useEscapeLayer } from '../../hooks/useEscapeLayer';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -240,6 +241,7 @@ function EzColumnFilterPopover({
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'filtered'>('all');
   const popoverRef = useRef<HTMLDivElement>(null);
+  useEscapeLayer(onClose);
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
 
   useLayoutEffect(() => {
@@ -271,14 +273,9 @@ function EzColumnFilterPopover({
         onClose();
       }
     };
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
     document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [onClose, triggerElement]);
 
@@ -519,6 +516,7 @@ function EzColumnMenuPopover({
   onClose,
 }: EzColumnMenuPopoverProps) {
   const popoverRef = useRef<HTMLDivElement>(null);
+  useEscapeLayer(onClose);
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
 
   useLayoutEffect(() => {
@@ -550,14 +548,9 @@ function EzColumnMenuPopover({
         onClose();
       }
     };
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
     document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [onClose, triggerElement]);
 
@@ -733,6 +726,7 @@ function EzGridCornerMenuPopover({
   onClose,
 }: EzGridCornerMenuProps) {
   const popoverRef = useRef<HTMLDivElement>(null);
+  useEscapeLayer(onClose);
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -765,14 +759,9 @@ function EzGridCornerMenuPopover({
         onClose();
       }
     };
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
     document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [onClose, triggerElement]);
 
@@ -917,13 +906,7 @@ interface EzGridStatisticsModalProps {
 }
 
 function EzGridStatisticsModal({ statistics, onClose }: EzGridStatisticsModalProps) {
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  useEscapeLayer(onClose);
 
   if (typeof document === 'undefined') return null;
 
@@ -1027,13 +1010,7 @@ function EzGridColumnConfigModal({
 }: EzGridColumnConfigModalProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  useEscapeLayer(onClose);
 
   const visibleColumns = useMemo(() => {
     if (!searchTerm.trim()) return columns;

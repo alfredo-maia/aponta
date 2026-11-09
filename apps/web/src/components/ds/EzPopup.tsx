@@ -1,5 +1,6 @@
 import { HTMLAttributes, forwardRef, ReactNode, useEffect, useRef } from 'react';
 import { cn } from './utils';
+import { useEscapeLayer } from '../../hooks/useEscapeLayer';
 
 export interface EzPopupProps extends HTMLAttributes<HTMLDivElement> {
   /**
@@ -29,6 +30,7 @@ export interface EzPopupProps extends HTMLAttributes<HTMLDivElement> {
 export const EzPopup = forwardRef<HTMLDivElement, EzPopupProps>(
   ({ trigger, open, onClose, position = 'bottom', className, children, ...props }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
+    useEscapeLayer(onClose, open);
 
     useEffect(() => {
       if (!open) return;

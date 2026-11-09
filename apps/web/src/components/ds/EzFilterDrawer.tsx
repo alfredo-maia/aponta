@@ -1,6 +1,7 @@
 import { ReactNode, useState } from 'react';
 import { X, Filter, RotateCcw, Bookmark, Plus, Trash2, Check } from 'lucide-react';
 import { cn } from './utils';
+import { useEscapeLayer } from '../../hooks/useEscapeLayer';
 
 export interface SavedFilterItem {
   id: string;
@@ -45,6 +46,7 @@ export function EzFilterDrawer({
   onDeleteSavedFilter,
   activeSavedFilterId,
 }: EzFilterDrawerProps) {
+  useEscapeLayer(onClose, isOpen);
   const [isSaving, setIsSaving] = useState(false);
   const [filterNameInput, setFilterNameInput] = useState('');
 
