@@ -6,7 +6,7 @@
   "multica_id": "01a1be18-e412-7df9-8210-10ab0211cf45",
   "cycle": "2026-10-26/2026-11-08",
   "tier": 2,
-  "base_sha": "45d9d52da21e7eb1711fd88a4c6af4785de909db",
+  "base_sha": "d6a50d5aaa9a8b5fc266b8d6d6acec1c75c52588",
   "criteria": [
     {
       "id": "AC-1",
@@ -109,12 +109,13 @@
     "apps/web/src/pages/CreateTicketPage.tsx",
     "apps/web/src/pages/TicketDetailPage.test.tsx",
     "apps/web/src/pages/TicketDetailPage.tsx",
-    "apps/web/src/pages/VaultPage.tsx"
+    "apps/web/src/pages/VaultPage.tsx",
+    "docs/superpowers/specs/2026-11-08-esc-padronizado.md"
   ],
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-459/red.json",
-    "green": ".delivery/evidence/DMTE-459/green.json"
+    "red": ".delivery/evidence/DMTE-459/red-r4.json",
+    "green": ".delivery/evidence/DMTE-459/green-r4.json"
   },
   "design_system": {
     "applicable": true,
