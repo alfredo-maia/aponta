@@ -45,4 +45,21 @@ describe('App', () => {
       await screen.findByRole('heading', { name: 'Tickets' }),
     ).toBeInTheDocument();
   });
+
+  it.each(['/tickets', '/tickets?mine=true'])(
+    'renders the tickets list at %s (Dashboard links, DMTE-460)',
+    async (url) => {
+      useAuthStore.setState({
+        token: 'fake.jwt.token',
+        user: { sub: '1', email: 'jane@example.com', role: 'CLIENT' },
+      });
+      window.history.pushState({}, '', url);
+
+      render(<App />);
+
+      expect(
+        await screen.findByRole('heading', { name: 'Tickets' }),
+      ).toBeInTheDocument();
+    },
+  );
 });
