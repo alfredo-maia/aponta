@@ -1,3 +1,4 @@
+import { PermissionsService } from '../permissions/permissions.service';
 import {
   BadRequestException,
   ForbiddenException,
@@ -40,6 +41,7 @@ export class WorklogsService {
     private readonly prisma: PrismaService,
     private readonly commentsService: CommentsService,
     private readonly ticketsService: TicketsService,
+    private readonly permissionsService: PermissionsService,
   ) {}
 
   async eligibleContracts(ticketId: string, startTime: string, endTime: string, user: CurrentUserPayload) {
@@ -135,6 +137,13 @@ export class WorklogsService {
     const billable = courtesy ? false : (dto.billable ?? true);
     if (courtesy && dto.billable === true) {
       throw new BadRequestException('Garantia ou bonificação não pode ser faturável');
+    }
+    if (
+      valuationType === ValuationType.GUARANTEE &&
+      currentUser.role !== Role.ADMIN &&
+      !(await this.permissionsService.hasPermission(currentUser.id, 'LAUNCH_WORKLOG_GUARANTEE'))
+    ) {
+      throw new ForbiddenException('Sem permissão para lançar garantia');
     }
     if (valuationType === ValuationType.BONUS && currentUser.role !== Role.ADMIN) {
       throw new ForbiddenException('Somente admin pode autorizar bonificação');

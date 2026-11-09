@@ -21,7 +21,7 @@ describe('mandatory commercial authorization', () => {
       technicianCostRate: { findMany: jest.fn().mockResolvedValue([{ id: 'cost', effectiveFrom: new Date('2026-01-01'), hourlyCostCents: 10000 }]) },
       worklog: { create: jest.fn(({ data }) => Promise.resolve({ id: 'log', ...data })), update: jest.fn(), delete: jest.fn(), findMany: jest.fn().mockResolvedValue([]), findUnique: jest.fn(), count: jest.fn().mockResolvedValue(0) },
       preAppointment: { create: jest.fn(({ data }) => Promise.resolve({ id: 'timer', ...data })), findUnique: jest.fn(), update: jest.fn() } };
-    service = new WorklogsService(db, {} as any, {} as any);
+    service = new WorklogsService(db, {} as any, {} as any, { hasPermission: async () => true } as any);
   });
   it('blocks a company without an explicit desk relationship', async () => {
     db.serviceDesk.findFirst.mockResolvedValue(null);

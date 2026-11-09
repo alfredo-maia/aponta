@@ -5,6 +5,7 @@ import { WorklogsService } from './worklogs.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CommentsService } from '../comments/comments.service';
 import { TicketsService } from '../tickets/tickets.service';
+import { PermissionsService } from '../permissions/permissions.service';
 import { TenantHelper } from '../core/security/tenant.helper';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
@@ -43,6 +44,7 @@ describe('WorklogsService', () => {
   };
   let mockCommentsService: { create: jest.Mock; withTransaction: jest.Mock };
   let mockTicketsService: { changeStage: jest.Mock; withTransaction: jest.Mock };
+  let mockPermissions: { hasPermission: jest.Mock };
 
   const agentUser: CurrentUserPayload = { id: 'agent-1', role: Role.AGENT };
   const adminUser: CurrentUserPayload = { id: 'admin-1', role: Role.ADMIN };
@@ -93,12 +95,15 @@ describe('WorklogsService', () => {
     mockCommentsService = { create: jest.fn(), withTransaction: jest.fn(() => mockCommentsService) };
     mockTicketsService = { changeStage: jest.fn(), withTransaction: jest.fn(() => mockTicketsService) };
 
+    mockPermissions = { hasPermission: jest.fn().mockResolvedValue(false) };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         WorklogsService,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: CommentsService, useValue: mockCommentsService },
         { provide: TicketsService, useValue: mockTicketsService },
+        { provide: PermissionsService, useValue: mockPermissions },
       ],
     }).compile();
 
@@ -456,8 +461,28 @@ describe('WorklogsService', () => {
       expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
     });
 
+    it('rejects a guarantee from an agent without LAUNCH_WORKLOG_GUARANTEE', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPermissions.hasPermission.mockResolvedValue(false);
+
+      await expect(service.create(
+        'ticket-1',
+        {
+          startTime: '2026-10-13T08:00:00Z',
+          endTime: '2026-10-13T09:00:00Z',
+          description: 'Retrabalho em garantia',
+          valuationType: ValuationType.GUARANTEE,
+          bonusReason: 'Correção de erro técnico',
+        },
+        agentUser,
+      )).rejects.toThrow(ForbiddenException);
+      expect(mockPermissions.hasPermission).toHaveBeenCalledWith('agent-1', 'LAUNCH_WORKLOG_GUARANTEE');
+      expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
+    });
+
     it('should zero the value and default billable to false when valuationType is GUARANTEE', async () => {
       mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPermissions.hasPermission.mockResolvedValue(true);
       mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-9' });
 
       await service.create(

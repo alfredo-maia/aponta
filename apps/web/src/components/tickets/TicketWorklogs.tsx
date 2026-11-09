@@ -34,6 +34,7 @@ import {
   type ActivityTimer,
 } from '../../hooks/useActivityTimer';
 import type { PreAppointment } from '../../hooks/usePreAppointments';
+import { useEffectivePermissions } from '../../hooks/usePermissions';
 import {
   useWorklogs,
   useWorklogContracts,
@@ -155,6 +156,13 @@ export function TicketWorklogs({
 }: TicketWorklogsProps) {
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.role === 'ADMIN';
+  const effectivePermissions = useEffectivePermissions();
+  // DMTE-463: só admin ou grupo com LAUNCH_WORKLOG_GUARANTEE vê o tipo de valorização.
+  const canSeeValuation =
+    isAdmin ||
+    !!effectivePermissions.data?.permissions.includes(
+      'LAUNCH_WORKLOG_GUARANTEE',
+    );
   /** The next stage that also closes the ticket, if the current stage can reach one. */
   const finalNextStage = nextStages.find((stage) => stage.isFinal);
 
@@ -268,6 +276,16 @@ export function TicketWorklogs({
       ? 'CONTRACT'
       : initialDraft?.valuationType || 'CONTRACT',
   );
+  useEffect(() => {
+    if (
+      effectivePermissions.data &&
+      !canSeeValuation &&
+      valuationType !== 'CONTRACT'
+    ) {
+      setValuationType('CONTRACT');
+      setBillable(true);
+    }
+  }, [effectivePermissions.data, canSeeValuation, valuationType]);
   const [manualValue, setManualValue] = useState<string>(
     isAdmin ? initialDraft?.manualValue || '' : '',
   );
@@ -568,9 +586,7 @@ export function TicketWorklogs({
     }
 
     const effectiveNextStageId =
-      mode === 'CLOSE_TICKET'
-        ? finalNextStage?.id
-        : nextStageId || undefined;
+      mode === 'CLOSE_TICKET' ? finalNextStage?.id : nextStageId || undefined;
 
     try {
       await createMutation.mutateAsync({
@@ -1030,24 +1046,27 @@ export function TicketWorklogs({
 
             {/* Row 3: Valorização e Cobrança */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 items-end">
-              <EzComboBox
-                id="worklog-valuation-type"
-                data-testid="worklog-valuation-type-select"
-                label="Tipo de Valorização"
-                value={valuationType}
-                onChange={(e) => {
-                  const next = e.target.value as ValuationType;
-                  setValuationType(next);
-                  if (['GUARANTEE', 'BONUS'].includes(next)) setBillable(false);
-                  else if (['GUARANTEE', 'BONUS'].includes(valuationType))
-                    setBillable(true);
-                }}
-              >
-                <option value="CONTRACT">Contrato</option>
-                <option value="GUARANTEE">Garantia</option>
-                {isAdmin && <option value="MANUAL">Valor manual</option>}
-                {isAdmin && <option value="BONUS">Bonificação</option>}
-              </EzComboBox>
+              {canSeeValuation && (
+                <EzComboBox
+                  id="worklog-valuation-type"
+                  data-testid="worklog-valuation-type-select"
+                  label="Tipo de Valorização"
+                  value={valuationType}
+                  onChange={(e) => {
+                    const next = e.target.value as ValuationType;
+                    setValuationType(next);
+                    if (['GUARANTEE', 'BONUS'].includes(next))
+                      setBillable(false);
+                    else if (['GUARANTEE', 'BONUS'].includes(valuationType))
+                      setBillable(true);
+                  }}
+                >
+                  <option value="CONTRACT">Contrato</option>
+                  <option value="GUARANTEE">Garantia</option>
+                  {isAdmin && <option value="MANUAL">Valor manual</option>}
+                  {isAdmin && <option value="BONUS">Bonificação</option>}
+                </EzComboBox>
+              )}
 
               {isAdmin &&
                 (valuationType === 'MANUAL' ? (
@@ -1612,12 +1631,14 @@ export function TicketWorklogs({
                               }
                               variant={wl.billable ? 'green' : 'gray'}
                             />
-                            <span className="block text-xs text-gray-500">
-                              {valuationTypeLabels[wl.valuationType]}
-                              {wl.valuationType === 'CONTRACT'
-                                ? ` · ${wl.valuationSnapshot?.contractName || wl.contractId || 'Legado / sem contrato vinculado'}`
-                                : ''}
-                            </span>
+                            {canSeeValuation && (
+                              <span className="block text-xs text-gray-500">
+                                {valuationTypeLabels[wl.valuationType]}
+                                {wl.valuationType === 'CONTRACT'
+                                  ? ` · ${wl.valuationSnapshot?.contractName || wl.contractId || 'Legado / sem contrato vinculado'}`
+                                  : ''}
+                              </span>
+                            )}
                           </td>
 
                           {isAdmin && (
