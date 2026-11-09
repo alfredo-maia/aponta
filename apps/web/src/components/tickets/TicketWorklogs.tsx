@@ -1053,7 +1053,9 @@ export function TicketWorklogs({
                     setValuationType(next);
                     if (['GUARANTEE', 'BONUS'].includes(next))
                       setBillable(false);
-                    else if (['GUARANTEE', 'BONUS'].includes(valuationType))
+                    else if (
+                      ['GUARANTEE', 'BONUS'].includes(selectedValuationType)
+                    )
                       setBillable(true);
                   }}
                 >
