@@ -133,17 +133,17 @@ export class WorklogsService {
     const description = dto.description.trim();
     if (!description) throw new BadRequestException('Informe a descrição do apontamento');
     const valuationType = dto.valuationType ?? ValuationType.CONTRACT;
-    const courtesy = valuationType === ValuationType.GUARANTEE || valuationType === ValuationType.BONUS;
-    const billable = courtesy ? false : (dto.billable ?? true);
-    if (courtesy && dto.billable === true) {
-      throw new BadRequestException('Garantia ou bonificação não pode ser faturável');
-    }
     if (
       valuationType === ValuationType.GUARANTEE &&
       currentUser.role !== Role.ADMIN &&
       !(await this.permissionsService.hasPermission(currentUser.id, 'LAUNCH_WORKLOG_GUARANTEE'))
     ) {
       throw new ForbiddenException('Sem permissão para lançar garantia');
+    }
+    const courtesy = valuationType === ValuationType.GUARANTEE || valuationType === ValuationType.BONUS;
+    const billable = courtesy ? false : (dto.billable ?? true);
+    if (courtesy && dto.billable === true) {
+      throw new BadRequestException('Garantia ou bonificação não pode ser faturável');
     }
     if (valuationType === ValuationType.BONUS && currentUser.role !== Role.ADMIN) {
       throw new ForbiddenException('Somente admin pode autorizar bonificação');

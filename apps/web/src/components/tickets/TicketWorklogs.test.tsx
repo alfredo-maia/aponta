@@ -451,6 +451,17 @@ describe('TicketWorklogs', () => {
     await waitFor(() => expect(api.post).toHaveBeenCalledWith('/tickets/t-1/worklogs', expect.objectContaining({ valuationType: 'CONTRACT' })));
   });
 
+  it('does not leak the valuation type in the expanded row of an agent without the permission', async () => {
+    loginAs('AGENT');
+    currentWorklogs = mockWorklogs;
+    renderComponent('t-1', true);
+    await screen.findByTestId('worklog-item-wl-2');
+    fireEvent.click(screen.getByTestId('worklog-expand-all-btn'));
+    await screen.findAllByText('Detalhamento das atividades');
+    expect(screen.queryByText(/Garantia/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Contrato:|Tipo:/)).not.toBeInTheDocument();
+  });
+
   it('shows the valuation type and the Garantia option to an agent with LAUNCH_WORKLOG_GUARANTEE', async () => {
     loginAs('AGENT');
     currentPermissions = ['LAUNCH_WORKLOG_GUARANTEE'];

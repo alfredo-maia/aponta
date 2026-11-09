@@ -1688,10 +1688,12 @@ export function TicketWorklogs({
                                 <WorklogDescriptionView
                                   description={wl.description}
                                 />
-                                <WorklogValuation
-                                  worklog={wl}
-                                  showFinancial={isAdmin}
-                                />
+                                {canSeeValuation && (
+                                  <WorklogValuation
+                                    worklog={wl}
+                                    showFinancial={isAdmin}
+                                  />
+                                )}
                               </div>
                             </td>
                           </tr>

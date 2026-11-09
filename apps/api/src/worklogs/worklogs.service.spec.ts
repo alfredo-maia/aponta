@@ -480,6 +480,23 @@ describe('WorklogsService', () => {
       expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
     });
 
+    it('answers 403 (not 400) for a guarantee without permission even when billable is true', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPermissions.hasPermission.mockResolvedValue(false);
+
+      await expect(service.create(
+        'ticket-1',
+        {
+          startTime: '2026-10-13T08:00:00Z',
+          endTime: '2026-10-13T09:00:00Z',
+          description: 'Garantia faturável',
+          valuationType: ValuationType.GUARANTEE,
+          billable: true,
+        },
+        agentUser,
+      )).rejects.toThrow(ForbiddenException);
+    });
+
     it('should zero the value and default billable to false when valuationType is GUARANTEE', async () => {
       mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
       mockPermissions.hasPermission.mockResolvedValue(true);
@@ -506,6 +523,7 @@ describe('WorklogsService', () => {
 
     it('rejects billable guarantees before opening a transaction', async () => {
       mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPermissions.hasPermission.mockResolvedValue(true);
       mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-10' });
 
       await expect(service.create(
