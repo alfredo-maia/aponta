@@ -180,6 +180,22 @@ describe('TicketKanban', () => {
   });
 
   describe('fallback por status (nenhuma mesa selecionada)', () => {
+    it('DMTE-458: board is a snap-scroll container and columns are fluid (no fixed 290px)', () => {
+      renderKanban({ tickets: [baseTicket], isLoading: false, isError: false });
+
+      const board = screen.getByTestId('kanban-board');
+      expect(board.className).toContain('overflow-x-auto');
+      expect(board.className).toContain('snap-x');
+
+      const columns = screen.getAllByTestId('kanban-column');
+      expect(columns.length).toBeGreaterThan(0);
+      for (const col of columns) {
+        expect(col.className).not.toContain('w-[290px]');
+        expect(col.className).toContain('lg:flex-1');
+        expect(col.className).toContain('snap-start');
+      }
+    });
+
     it('shows a skeleton loading state with every column label while isLoading', () => {
       renderKanban({ tickets: [], isLoading: true, isError: false });
 
