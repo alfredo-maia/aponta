@@ -13,7 +13,7 @@ Só quem tem `VIEW_TICKET_VALUES` em algum grupo (direto ou pelo grupo técnico)
 
 ## Decisões
 - Nova regra `canViewTicketValues(userId)` em `PermissionsService`: só olha as permissões efetivas, sem bypass de ADMIN.
-- Backend: `maskValue` passa a usar essa regra; `excessHourlyRateCents` do contrato e `worklog-audit` também. Valor manual (`MANUAL`) exige ADMIN **e** a permissão. Bonificação segue exclusiva do ADMIN.
+- Backend: `maskValue` (valores dos apontamentos) passa a usar essa regra para qualquer role. `excessHourlyRateCents` do contrato e a auditoria (`worklog-audit`) continuam superfícies só de ADMIN, e a permissão passa a ser exigida além do role. Valor manual (`MANUAL`) também exige ADMIN **e** a permissão. Bonificação segue exclusiva do ADMIN. (Esclarecido na implementação: o texto anterior dizia só "também".)
 - `GET /auth/me` ganha `canViewTicketValues` (calculado igual, também para ADMIN). `isAdmin` e `permissions` não mudam.
 - Tela: Valor, coluna, total, tipo "Valor manual" e a exibição financeira do detalhe usam `canViewTicketValues`; o resto do `isAdmin` fica.
 - Migração: remove `VIEW_TICKET_VALUES` do grupo "Administrador" e cria o grupo "Valores de tickets" com essa chave e sem membros, se não existir. `DEFAULT_PERMISSION_GROUPS[ADMIN]` deixa de listar a chave. Quem entra no grupo é decisão do Alfredo, em Configurações; até lá ninguém vê valor.
@@ -33,7 +33,7 @@ Só quem tem `VIEW_TICKET_VALUES` em algum grupo (direto ou pelo grupo técnico)
 ## Riscos e exclusões
 - Efeito imediato após deploy: ninguém vê valor até o Alfredo montar o grupo. Mitigação: aviso na entrega; a migração é revertível pela tela de grupos.
 - RBAC e tenant: nenhuma rota nova; o mascaramento é no servidor. QA confere ADMIN sem permissão e agente com permissão.
-- Fora de escopo: relatórios e telas de contratos com valor, mudança de role dos usuários, deploy.
+- Fora de escopo (pendência registrada na revisão): `commercial-reports.service.ts` ainda libera valor e custo a qualquer ADMIN sem a permissão; relatórios e telas de contratos com valor, mudança de role dos usuários, deploy.
 
 ## Ticket único
 T1: backend + migração + tela + testes (AC-01..AC-06). Sem bloqueadores. Dispensa grill-with-docs/to-spec/to-tickets originais porque é ajuste de RBAC em funcionalidade existente com decisões humanas já registradas; ticket único como na entrega DMTE-456.
