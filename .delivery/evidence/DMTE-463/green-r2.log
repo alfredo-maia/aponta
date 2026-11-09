@@ -1,0 +1,11 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-463-1b3676a1b37a/workdir/aponta/apps/web
+
+ ✓ |web| src/components/tickets/TicketWorklogs.test.tsx (59 tests | 58 skipped) 508ms
+     ✓ submits CONTRACT for an agent with a stale GUARANTEE draft when permissions never load  495ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 58 skipped (59)
+   Start at  00:22:18
+   Duration  4.65s (transform 2.15s, setup 116ms, import 3.02s, tests 508ms, environment 611ms)
+

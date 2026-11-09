@@ -334,6 +334,20 @@
       "epic": null,
       "title": "Catálogo de atendimento: seed idempotente",
       "note": "Tier 1 (dados + script). Execução em produção pelo usuário."
+    },
+    "DMTE-463": {
+      "delivery": "DMTE-463",
+      "repository": "alfredo-maia/aponta",
+      "github_issue": 161,
+      "multica_id": "01a1be1b-486b-79bc-9070-376c7963c1cf",
+      "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-463",
+      "kind": "delivery",
+      "tier": 2,
+      "state": "Em revisão",
+      "cycle": "2026-11-09/2026-11-22",
+      "epic": null,
+      "title": "Apontamento do ticket: ocultar tipo de valorização do consultor; Garantia por permissão",
+      "note": "Permissão nova LAUNCH_WORKLOG_GUARANTEE aprovada pelo Alfredo, sem concessão padrão. PR #158."
     }
   }
 }

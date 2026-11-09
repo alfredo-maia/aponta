@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "delivery": "DMTE-463",
+  "repository": "alfredo-maia/aponta",
+  "github_issue": 161,
+  "multica_id": "01a1be1b-486b-79bc-9070-376c7963c1cf",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 2,
+  "base_sha": "5922052f8e8334517304f4757c52e06cf8f43ce9",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "Permissão LAUNCH_WORKLOG_GUARANTEE no catálogo, sem concessão padrão",
+      "tests": [
+        "apps/api/src/permission-groups/permission-groups.controller.spec.ts"
+      ],
+      "tdd_required": false,
+      "reason": "Entrada de catálogo sem comportamento próprio; o efeito é exercitado em AC-02. Sem RED retroativo."
+    },
+    {
+      "id": "AC-02",
+      "description": "API: Garantia exige ADMIN ou a permissão (403 antes de 400)",
+      "tests": [
+        "apps/api/src/worklogs/worklogs.service.spec.ts"
+      ],
+      "tdd_required": false,
+      "reason": "RED real ocorreu na execução Multica 01a1be24-5541-7225-8c1a-e515fa7b4e73 (asserção, antes da implementação) mas não foi gravado pelo coletor; não se inventa evidência retroativa. Revisão do QA conferiu o histórico."
+    },
+    {
+      "id": "AC-03",
+      "description": "Web: tipo de valorização (campo, rótulo e detalhe) só para ADMIN ou com a permissão",
+      "tests": [
+        "apps/web/src/components/tickets/TicketWorklogs.test.tsx"
+      ],
+      "tdd_required": false,
+      "reason": "RED real na execução Multica 01a1be24-5541-7225-8c1a-e515fa7b4e73, não gravado pelo coletor; sem RED retroativo."
+    },
+    {
+      "id": "AC-04",
+      "description": "Web: sem a permissão o apontamento sai como CONTRACT, inclusive com rascunho antigo e permissões não carregadas",
+      "tests": [
+        "apps/web/src/components/tickets/TicketWorklogs.test.tsx"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "Fora do escopo preservado: Bonificação e Valor manual só ADMIN",
+      "tests": [
+        "apps/web/src/components/tickets/TicketWorklogs.test.tsx"
+      ],
+      "tdd_required": false,
+      "reason": "Comportamento já existente, preservado e coberto por testes anteriores."
+    }
+  ],
+  "spec": "docs/superpowers/specs/2026-11-09-worklog-valuation-visibility.md",
+  "changed_files": [
+    "apps/api/src/permission-groups/permission-catalog.ts",
+    "apps/api/src/worklogs/worklogs.commercial.spec.ts",
+    "apps/api/src/worklogs/worklogs.service.spec.ts",
+    "apps/api/src/worklogs/worklogs.service.ts",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx",
+    "apps/web/src/components/tickets/TicketWorklogs.tsx",
+    "docs/superpowers/specs/2026-11-09-worklog-valuation-visibility.md"
+  ],
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-463/red-r2.json",
+    "green": ".delivery/evidence/DMTE-463/green-r2.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzComboBox",
+      "EzTextInput"
+    ],
+    "stories": [
+      "apps/web/src/components/ds/EzComboBox.stories.tsx"
+    ]
+  }
+}

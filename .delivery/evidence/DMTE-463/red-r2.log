@@ -1,0 +1,450 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-463-1b3676a1b37a/workdir/aponta/apps/web
+
+ ❯ |web| src/components/tickets/TicketWorklogs.test.tsx (59 tests | 1 failed | 58 skipped) 1449ms
+     ↓ formatWorklogMinutes formats minutes into human readable text
+     ↓ formatAttendanceType translates the attendance type enum
+     ↓ formatWorklogValue formats a monetary value or a dash when null
+     ↓ renders worklogs list and summary header correctly
+     ↓ renders empty state when no worklogs exist
+     ↓ uses the DS EzComboBox (Storybook) for every worklog selector
+     ↓ allows filling the form and submitting a new worklog
+     ↓ allows choosing attendance type and a custom time range, sending them on submit
+     ↓ blocks submission when the end time is not after the start time
+     ↓ quick chip buttons update the end time and the computed duration
+     ↓ sends valuationType MANUAL with the entered value
+     ↓ blocks submission when valuationType is MANUAL without a value
+     ↓ hides the valuation type from an agent without LAUNCH_WORKLOG_GUARANTEE and submits CONTRACT
+     ↓ does not leak the valuation type in the expanded row of an agent without the permission
+     × submits CONTRACT for an agent with a stale GUARANTEE draft when permissions never load 1442ms
+     ↓ shows the valuation type and the Garantia option to an agent with LAUNCH_WORKLOG_GUARANTEE
+     ↓ unchecks billable automatically when GUARANTEE is selected
+     ↓ sends nextStageId when a next stage is chosen
+     ↓ does not send nextStageId when "Não alterar" stays selected
+     ↓ sends sendAsReply when the checkbox is checked
+     ↓ renders TiFlux-parity action buttons and checkbox text
+     ↓ submits with the final next stage when "Salvar e fechar ticket" is clicked
+     ↓ disables "Salvar e fechar ticket" when no reachable next stage closes the ticket
+     ↓ submits and advances start time to previous end time when "Salvar e criar novo apontamento" is clicked
+     ↓ allows deleting own worklog when confirmed
+     ↓ renders modal closed by default when defaultModalOpen is false and opens upon "+ Apontamento" click
+     ↓ handles activity timer start, pause, and stop to open apontamento modal
+     ↓ lists a Brasília pré-apontamento while the timer runs and converts it into the form
+     ↓ appends a new pré-apontamento when starting again instead of overwriting
+     ↓ converts stopped raw time with its original contract and source identifier
+     ↓ discards the running pré-apontamento from the timer cancel control
+     ↓ prefills + Apontamento from the running pré without opening from the table
+     ↓ pauses and resumes the running pré from the table row
+     ↓ falls back to the author email local-part when the name is empty
+     ↓ falls back to Técnico when author and session emails are empty
+     ↓ prefills from derived timer times when initTime and endTime are blank
+     ↓ paginates the pré-apontamentos table when the list grows
+     ↓ clamps pagination back to the last page after deleting the only row on page 2
+     ↓ renders modal with spellcheck and portuguese language attributes
+     ↓ saves worklog draft in localStorage and restores it automatically
+     ↓ handles pasting image screenshot, uploading attachment and inserting it inline
+     ↓ keeps filled fields after closing the modal with X and reopening
+     ↓ renders the apontamento modal at 5xl width
+     ↓ expands and collapses activity details per row and in bulk
+     ↓ filters the history by attendant and attendance type via the funnel
+     ↓ sorts worklogs by day and shows filtered totals in the footer
+     ↓ hides monetary data and manual valuation for agents even with unmasked payloads
+     ↓ submits an explicit eligible contract and preserves it in the draft
+     ↓ keeps unknown contract values distinct from free coverage
+     ↓ does not restore manual financial fields for an agent draft
+     ↓ rejects negative manual amounts before calling the API
+     ↓ keeps unknown historical totals visible without inferring free values
+     ↓ blocks every valuation mode when no commercial contract is eligible
+     ↓ requires a bonus reason and records its eligible contract without quota consumption
+     ↓ submits near-midnight Brasília work as true instants in the correct local cycle
+     ↓ renders marked UTC logs in Brasília while preserving naive-Z legacy wallclocks
+     ↓ keeps incomplete worklog-day-input editable and blocks submission
+     ↓ keeps incomplete worklog-start-time-input editable and blocks submission
+     ↓ keeps incomplete worklog-end-time-input editable and blocks submission
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 58 skipped (59)
+   Start at  00:12:47
+   Duration  5.54s (transform 1.97s, setup 122ms, import 2.98s, tests 1.45s, environment 631ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/components/tickets/TicketWorklogs.test.tsx > TicketWorklogs > submits CONTRACT for an agent with a stale GUARANTEE draft when permissions never load
+AssertionError: expected "vi.fn()" to be called with arguments: [ '/tickets/t-1/worklogs', …(1) ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    "/tickets/t-1/worklogs",
+-   ObjectContaining {
+-     "billable": true,
+-     "valuationType": "CONTRACT",
++   {
++     "attendanceType": "REMOTE",
++     "billable": false,
++     "bonusReason": "Antigo",
++     "contractId": "contract-1",
++     "description": "Rascunho antigo",
++     "endTime": "2026-11-09T11:30:00.000Z",
++     "startTime": "2026-11-09T11:00:00.000Z",
++     "valuationType": "GUARANTEE",
+    },
+  ]
+
+
+Number of calls: 1
+
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body[39m
+    [33mstyle[39m=[32m""[39m
+  [36m>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-4"[39m
+        [33mdata-testid[39m=[32m"ticket-worklogs-section"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid grid-cols-2 md:grid-cols-4 gap-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[12px] font-medium text-gray-500"[39m
+            [36m>[39m
+              [0mAtendentes[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-headphones w-5 h-5 text-gray-400"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<span>[39m
+                [0m0[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[12px] font-medium text-gray-500"[39m
+            [36m>[39m
+              [0mHoras[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-clock w-5 h-5 text-gray-400"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M12 6v6l4 2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<span>[39m
+                [0m00:00[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[12px] font-medium text-gray-500"[39m
+            [36m>[39m
+              [0mApontamentos[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-list-ordered w-5 h-5 text-gray-400"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M11 5h10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M11 12h10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M11 19h10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M4 4h1v5"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M4 9h2"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M6.5 20H3.4c0-1 2.6-1.925 2.6-3.5a1.5 1.5 0 0 0-2.6-1.02"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<span>[39m
+                [0m0[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[12px] font-medium text-gray-500"[39m
+            [36m>[39m
+              [0mDeslocamentos[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-car w-5 h-5 text-gray-400"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"7"[39m
+                  [33mcy[39m=[32m"17"[39m
+                  [33mr[39m=[32m"2"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M9 17h6"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"17"[39m
+                  [33mcy[39m=[32m"17"[39m
+                  [33mr[39m=[32m"2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<span>[39m
+                [0m0[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<section[39m
+          [33mclass[39m=[32m"space-y-4 bg-white rounded-control border border-gray-200 p-5 shadow-xs"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-clock w-5 h-5 text-brand-600"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M12 6v6l4 2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<h2[39m
+                [33mclass[39m=[32m"text-[16px] font-semibold text-gray-900"[39m
+              [36m>[39m
+                [0mApontamento de Horas (Worklog)[0m
+              [36m</h2>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex flex-wrap items-center gap-3"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-center gap-1.5 bg-gray-80 border border-gray-200 px-2.5 py-1 rounded-[6px] text-[13px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-clock w-3.5 h-3.5 text-gray-500"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"10"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 6v6l4 2"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"font-mono font-bold text-gray-800 min-w-[62px]"[39m
+                  [33mdata-testid[39m=[32m"worklog-timer-display"[39m
+                [36m>[39m
+                  [0m00:00:00[0m
+                [36m</span>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium text-green-700 bg-green-100 hover:bg-green-200 border border-green-300 rounded cursor-pointer"[39m
+                  [33mdata-testid[39m=[32m"worklog-timer-start-btn"[39m
+                  [33mtitle[39m=[32m"Iniciar cronômetro desta atividade"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-play w-3 h-3 fill-current"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [0mIniciar[0m
+                [36m</button>[39m
+              [36m</div>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-brand-500 text-gray-70 border border-brand-500 hover:bg-brand-700 hover:border-brand-700 disabled:bg-gray-400 disabled:border-gray-400 disabled:text-gray-70 h-[32px] text-xs px-4"[39m
+                [33mdata-testid[39m=[32m"open-worklog-modal-btn"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-plus shrink-0 h-3.5 w-3.5"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M5 12h14"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M12 5v14"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"font-normal"[39m
+                  [36m>[39m
+                    [0mApontamento[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between pt-1 gap-2"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[13px] font-medium text-gray-700"[39m
+            [36m>[39m
+              [0mHistórico de Apontamentos[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"space-y-2"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-[13px] text-gray-500 italic text-center py-6 bg-gray-80/50 rounded-[6px] border border-dashed border-gray-200"[39m
+            [36m>[39m
+              [0mNenhum apontamento de horas registrado neste chamado até o momento.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ src/components/tickets/TicketWorklogs.test.tsx:475:42
+    473|     await screen.findByRole('option', { name: 'Suporte' });
+    474|     fireEvent.submit(screen.getByTestId('worklog-form'));
+    475|     await waitFor(() => expect(api.post).toHaveBeenCalledWith('/ticket…
+       |                                          ^
+    476|     expect(vi.mocked(api.post).mock.calls[0][1]).not.toHaveProperty('b…
+    477|   });
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

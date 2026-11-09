@@ -568,11 +568,19 @@ export function TicketWorklogs({
       );
       return;
     }
-    if (['GUARANTEE', 'BONUS'].includes(valuationType) && !bonusReason.trim()) {
+    // DMTE-463 AC4: sem permissão confirmada, o lançamento é sempre CONTRATO
+    // (o rascunho pode trazer um tipo de quando o usuário ainda tinha acesso).
+    const submitValuationType: ValuationType = canSeeValuation
+      ? valuationType
+      : 'CONTRACT';
+    if (
+      ['GUARANTEE', 'BONUS'].includes(submitValuationType) &&
+      !bonusReason.trim()
+    ) {
       setFormError('Informe o motivo da garantia ou bonificação.');
       return;
     }
-    if (valuationType === 'MANUAL') {
+    if (submitValuationType === 'MANUAL') {
       parsedManualValue = Number(manualValue);
       if (
         !isAdmin ||
@@ -594,14 +602,16 @@ export function TicketWorklogs({
         endTime: toISO(day, endTimeOfDay),
         attendanceType,
         description: description.trim() || description,
-        billable: !['GUARANTEE', 'BONUS'].includes(valuationType),
-        valuationType,
+        billable: !['GUARANTEE', 'BONUS'].includes(submitValuationType),
+        valuationType: submitValuationType,
         contractId: selectedContract,
         ...(preAppointmentId ? { preAppointmentId } : {}),
-        ...(['GUARANTEE', 'BONUS'].includes(valuationType)
+        ...(['GUARANTEE', 'BONUS'].includes(submitValuationType)
           ? { bonusReason: bonusReason.trim() }
           : {}),
-        ...(valuationType === 'MANUAL' ? { value: parsedManualValue } : {}),
+        ...(submitValuationType === 'MANUAL'
+          ? { value: parsedManualValue }
+          : {}),
         ...(effectiveNextStageId ? { nextStageId: effectiveNextStageId } : {}),
         ...(sendAsReply ? { sendAsReply: true } : {}),
         ...(isAdmin && selectedAuthorId ? { authorId: selectedAuthorId } : {}),
@@ -1266,7 +1276,10 @@ export function TicketWorklogs({
                 type="submit"
                 data-testid="worklog-submit-button"
                 size="small"
-                disabled={createMutation.isPending}
+                disabled={
+                  createMutation.isPending ||
+                  (!canSeeValuation && effectivePermissions.isLoading)
+                }
                 label={createMutation.isPending ? 'Salvando…' : 'Salvar'}
               />
             </div>
