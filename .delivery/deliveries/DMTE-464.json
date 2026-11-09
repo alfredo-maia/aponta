@@ -6,7 +6,7 @@
   "multica_id": "01a1be1b-7ad8-77d2-9a23-28f480f952b3",
   "cycle": "2026-10-26/2026-11-08",
   "tier": 2,
-  "base_sha": "016422114062f6c740a715a2233a75c3284067af",
+  "base_sha": "d6a50d5aaa9a8b5fc266b8d6d6acec1c75c52588",
   "criteria": [
     {
       "id": "AC-01",
@@ -72,12 +72,13 @@
     "apps/api/src/worklogs/worklogs.service.ts",
     "apps/web/src/components/tickets/TicketWorklogs.test.tsx",
     "apps/web/src/components/tickets/TicketWorklogs.tsx",
-    "apps/web/src/hooks/usePermissions.ts"
+    "apps/web/src/hooks/usePermissions.ts",
+    "docs/delivery/specs/DMTE-464.md"
   ],
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-464/red.json",
-    "green": ".delivery/evidence/DMTE-464/green.json"
+    "red": ".delivery/evidence/DMTE-464/red-r2.json",
+    "green": ".delivery/evidence/DMTE-464/green-r2.json"
   },
   "design_system": {
     "applicable": true,

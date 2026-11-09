@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-09T17:19:18.826786+00:00",
+  "finished_at": "2026-11-09T17:23:27.565336+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run-many",
+    "-t",
+    "test",
+    "-p",
+    "api,web",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "d6a50d5aaa9a8b5fc266b8d6d6acec1c75c52588",
+  "head_sha": "7dc471eeefa8794ff7f51e1a5caa1b5ee9aed6dc",
+  "exit_code": 1,
+  "tests": {
+    "apps/api/src/worklogs/worklogs.service.spec.ts": "18fd2566c049346563660d72fa9e04e85043b90b21f4ba5691eda7833293a125",
+    "apps/api/src/permissions/permissions.service.spec.ts": "d78cc31085bf4fbea8b2fc8d5fae2b1f58457997b831abde848e1e95f82e504a",
+    "apps/api/src/auth/auth.controller.spec.ts": "ff9b9e18fb4f165014329c9edf47eac779593af20f5f210587c399214143d257",
+    "apps/api/prisma/seed.spec.ts": "dc2f268da081334b5901407986781c7ca6679c5edf9255f188046a74aaf67b1b",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "63a9b22143300dbb7481540e2a286fb3d424cac2e3fbfff12fa95d12a72ce00d"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06"
+  ],
+  "source_hashes": {
+    "apps/api/prisma/migrations/20261109120000_view_ticket_values_group/migration.sql": "1e857808ca5afc1089ff264a7b0cf8aa050ecd88789c6dba331428d7e649379d",
+    "apps/api/prisma/seed.spec.ts": "dc2f268da081334b5901407986781c7ca6679c5edf9255f188046a74aaf67b1b",
+    "apps/api/src/auth/auth.controller.spec.ts": "ff9b9e18fb4f165014329c9edf47eac779593af20f5f210587c399214143d257",
+    "apps/api/src/permissions/permissions.service.spec.ts": "d78cc31085bf4fbea8b2fc8d5fae2b1f58457997b831abde848e1e95f82e504a",
+    "apps/api/src/worklogs/worklogs.commercial.spec.ts": "310e5dcf304fa0e2146310ab55a9d191c39394c7d9d7f28823e169e191fd9fd9",
+    "apps/api/src/worklogs/worklogs.service.spec.ts": "18fd2566c049346563660d72fa9e04e85043b90b21f4ba5691eda7833293a125",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "63a9b22143300dbb7481540e2a286fb3d424cac2e3fbfff12fa95d12a72ce00d"
+  },
+  "log": ".delivery/evidence/DMTE-464/red-r2.log",
+  "log_sha256": "4843d80ea7815feb9f8c01c506cb8a94a61e729a7c06541b03b898b5177b355f"
+}
