@@ -26,6 +26,14 @@ interface TicketKanbanCardProps {
   visibleFields?: TicketKanbanCardVisibleFields;
 }
 
+/** DMTE-461: cor do card pela prioridade (Crítica vermelho, Alta amarelo, Média verde, Baixa azul). */
+const priorityCardClasses: Record<Ticket['priority'], string> = {
+  CRITICAL: 'border-red-300 bg-red-50',
+  HIGH: 'border-yellow-300 bg-yellow-50',
+  MEDIUM: 'border-green-300 bg-green-50',
+  LOW: 'border-blue-300 bg-blue-50',
+};
+
 function formatCardDate(value: string | null | undefined): string | null {
   if (!value) return null;
   return new Date(value).toLocaleDateString('pt-BR');
@@ -74,7 +82,7 @@ export function TicketKanbanCard({
   };
 
   return (
-    <li className="list-none rounded-[8px] border border-gray-200 bg-white p-3 shadow-xs transition-shadow hover:shadow-sm">
+    <li className={`list-none rounded-[8px] border p-3 shadow-xs transition-shadow hover:shadow-sm ${priorityCardClasses[ticket.priority] ?? 'border-gray-200 bg-white'}`}>
       <Link
         to={path}
         onClick={handleClick}
