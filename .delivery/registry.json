@@ -334,6 +334,20 @@
       "epic": null,
       "title": "Catálogo de atendimento: seed idempotente",
       "note": "Tier 1 (dados + script). Execução em produção pelo usuário."
+    },
+    "DMTE-461": {
+      "delivery": "DMTE-461",
+      "repository": "alfredo-maia/aponta",
+      "github_issue": 164,
+      "multica_id": "01a1be1a-4e94-7591-8cf8-8e8f248893ae",
+      "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-461",
+      "kind": "delivery",
+      "tier": 1,
+      "state": "Em revisão",
+      "cycle": "2026-11-09/2026-11-22",
+      "epic": null,
+      "title": "Tickets: cards do Kanban coloridos pela prioridade",
+      "note": "Tier 1 (classes de cor). Baixa=azul é suposição não especificada no pedido. PR #151."
     }
   }
 }

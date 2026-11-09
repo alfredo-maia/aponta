@@ -1,0 +1,101 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-467-3cccdc05c950/workdir/w151/apps/web
+
+ ❯ |web| src/components/tickets/TicketKanbanCard.test.tsx (20 tests | 4 failed | 16 skipped) 286ms
+     ↓ is a single link for the whole card, with the protocol highlighted and an accessible label
+     ↓ truncates a long title with line-clamp-2 and keeps the full text in the title attribute
+     ↓ shows the requester's organization (truncated) and the Status tag
+     × tints the card by priority CRITICAL 232ms
+     × tints the card by priority HIGH 20ms
+     × tints the card by priority MEDIUM 17ms
+     × tints the card by priority LOW 12ms
+     ↓ shows Prioridade as the tag instead of Status when tagField="priority"
+     ↓ shows a small avatar for the assigned agent, initials-based (no photo in the schema)
+     ↓ AC-06: shows compact SLA chips (icon + time) named by the full text, not the long pills
+       ↓ soma as pausas acumuladas aos dois prazos
+       ↓ congela o tempo enquanto o ticket está pausado (soma a pausa em curso)
+     ↓ AC-05: puts the SLA chips and the agent avatar in the same footer row
+     ↓ AC-05: leaves no empty avatar strip when there is no agent and no SLA
+     ↓ AC-05: keeps the footer when only the agent exists, with the avatar pushed to the right
+     ↓ has a menu with only "Abrir ticket" and "Abrir em nova aba interna" (no apontamento/play)
+     ↓ clicking the menu trigger does not also trigger the card link navigation
+     ↓ RODADA 2 ("Exibir campos", D6c): hides Cliente, Responsável and SLA when their field is turned off
+     ↓ RODADA 2 ("Exibir campos", D6c): shows "Data de criação"/"Data de última atualização" only when explicitly turned on
+     ↓ RODADA 2 ("Exibir campos", D6c): omits the date fields by default (back-compat with existing callers)
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 16 skipped (20)
+   Start at  14:32:38
+   Duration  3.63s (transform 1.65s, setup 115ms, import 2.46s, tests 286ms, environment 533ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/components/tickets/TicketKanbanCard.test.tsx > TicketKanbanCard (D7) > tints the card by priority CRITICAL
+Error: [2mexpect([22m[31melement[39m[2m).toHaveClass([22m[32m[32m"bg-red-50 border-red-300"[32m[39m[2m)[22m
+
+Expected the element to have class:
+[32m  bg-red-50 border-red-300[39m
+Received:
+[31m  list-none rounded-[8px] border border-gray-200 bg-white p-3 shadow-xs transition-shadow hover:shadow-sm[39m
+ ❯ src/components/tickets/TicketKanbanCard.test.tsx:71:18
+     69|     renderCard({ ...baseTicket, priority });
+     70|     const card = screen.getByRole('link', { name: /AP-2026-0001/ }).cl…
+     71|     expect(card).toHaveClass(bg, border);
+       |                  ^
+     72|     expect(card).not.toHaveClass('bg-white');
+     73|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |web| src/components/tickets/TicketKanbanCard.test.tsx > TicketKanbanCard (D7) > tints the card by priority HIGH
+Error: [2mexpect([22m[31melement[39m[2m).toHaveClass([22m[32m[32m"bg-yellow-50 border-yellow-300"[32m[39m[2m)[22m
+
+Expected the element to have class:
+[32m  bg-yellow-50 border-yellow-300[39m
+Received:
+[31m  list-none rounded-[8px] border border-gray-200 bg-white p-3 shadow-xs transition-shadow hover:shadow-sm[39m
+ ❯ src/components/tickets/TicketKanbanCard.test.tsx:71:18
+     69|     renderCard({ ...baseTicket, priority });
+     70|     const card = screen.getByRole('link', { name: /AP-2026-0001/ }).cl…
+     71|     expect(card).toHaveClass(bg, border);
+       |                  ^
+     72|     expect(card).not.toHaveClass('bg-white');
+     73|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |web| src/components/tickets/TicketKanbanCard.test.tsx > TicketKanbanCard (D7) > tints the card by priority MEDIUM
+Error: [2mexpect([22m[31melement[39m[2m).toHaveClass([22m[32m[32m"bg-green-50 border-green-300"[32m[39m[2m)[22m
+
+Expected the element to have class:
+[32m  bg-green-50 border-green-300[39m
+Received:
+[31m  list-none rounded-[8px] border border-gray-200 bg-white p-3 shadow-xs transition-shadow hover:shadow-sm[39m
+ ❯ src/components/tickets/TicketKanbanCard.test.tsx:71:18
+     69|     renderCard({ ...baseTicket, priority });
+     70|     const card = screen.getByRole('link', { name: /AP-2026-0001/ }).cl…
+     71|     expect(card).toHaveClass(bg, border);
+       |                  ^
+     72|     expect(card).not.toHaveClass('bg-white');
+     73|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |web| src/components/tickets/TicketKanbanCard.test.tsx > TicketKanbanCard (D7) > tints the card by priority LOW
+Error: [2mexpect([22m[31melement[39m[2m).toHaveClass([22m[32m[32m"bg-blue-50 border-blue-300"[32m[39m[2m)[22m
+
+Expected the element to have class:
+[32m  bg-blue-50 border-blue-300[39m
+Received:
+[31m  list-none rounded-[8px] border border-gray-200 bg-white p-3 shadow-xs transition-shadow hover:shadow-sm[39m
+ ❯ src/components/tickets/TicketKanbanCard.test.tsx:71:18
+     69|     renderCard({ ...baseTicket, priority });
+     70|     const card = screen.getByRole('link', { name: /AP-2026-0001/ }).cl…
+     71|     expect(card).toHaveClass(bg, border);
+       |                  ^
+     72|     expect(card).not.toHaveClass('bg-white');
+     73|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+

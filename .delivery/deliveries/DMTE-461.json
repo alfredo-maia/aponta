@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "delivery": "DMTE-461",
+  "repository": "alfredo-maia/aponta",
+  "github_issue": 164,
+  "multica_id": "01a1be1a-4e94-7591-8cf8-8e8f248893ae",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "base_sha": "d6a50d5aaa9a8b5fc266b8d6d6acec1c75c52588",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "No modo Kanban o card ganha fundo e borda pela prioridade: Crítica vermelho, Alta amarelo, Média verde, Baixa azul",
+      "tests": [
+        "TicketKanbanCard (D7) tints the card by priority CRITICAL",
+        "TicketKanbanCard (D7) tints the card by priority HIGH",
+        "TicketKanbanCard (D7) tints the card by priority MEDIUM",
+        "TicketKanbanCard (D7) tints the card by priority LOW"
+      ]
+    }
+  ],
+  "changed_files": [
+    ".delivery/deliveries/DMTE-461.json",
+    ".delivery/registry.json",
+    "apps/web/src/components/tickets/TicketKanbanCard.test.tsx",
+    "apps/web/src/components/tickets/TicketKanbanCard.tsx"
+  ],
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-461/red.json",
+    "green": ".delivery/evidence/DMTE-461/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzAvatar",
+      "EzDropdown",
+      "EzSlaChip",
+      "EzTag"
+    ],
+    "exception": "Sem componente DS novo ou alterado; só classes de cor do card via utilitários Tailwind já usados no app."
+  }
+}
