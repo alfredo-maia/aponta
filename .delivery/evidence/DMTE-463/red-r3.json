@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-09T03:38:15.207474+00:00",
+  "finished_at": "2026-11-09T03:38:20.263327+00:00",
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "--root",
+    "apps/web",
+    "src/components/tickets/TicketWorklogs.test.tsx",
+    "-t",
+    "stale GUARANTEE draft when permissions fail"
+  ],
+  "base_sha": "eaebed509f1482a4d3bd36c09fd032ffe595a451",
+  "head_sha": "80170e25b2ccb75e1a5e5e94929203dc5acad1e6",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "2b8c6ba6c98d46d362066aa84db470d2c560dea834c93d8948a3254608e9f41b"
+  },
+  "criteria": [
+    "AC-04"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "2b8c6ba6c98d46d362066aa84db470d2c560dea834c93d8948a3254608e9f41b"
+  },
+  "log": ".delivery/evidence/DMTE-463/red-r3.log",
+  "log_sha256": "ad7dec983e7d28dc9b6b99958ed0cf1d22627f36d07af1421f57efe9d6f7a201"
+}

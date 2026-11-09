@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-09T03:39:06.079188+00:00",
+  "finished_at": "2026-11-09T03:39:11.017707+00:00",
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "--root",
+    "apps/web",
+    "src/components/tickets/TicketWorklogs.test.tsx",
+    "-t",
+    "stale GUARANTEE draft when permissions fail"
+  ],
+  "base_sha": "eaebed509f1482a4d3bd36c09fd032ffe595a451",
+  "head_sha": "80170e25b2ccb75e1a5e5e94929203dc5acad1e6",
+  "exit_code": 0,
+  "tests": {
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "2b8c6ba6c98d46d362066aa84db470d2c560dea834c93d8948a3254608e9f41b"
+  },
+  "criteria": [
+    "AC-04"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "2b8c6ba6c98d46d362066aa84db470d2c560dea834c93d8948a3254608e9f41b",
+    "apps/web/src/components/tickets/TicketWorklogs.tsx": "b79d4cecf907c88cd7e07c6fd4c7c8c4369ab15270fde7aad4e788f721211b4e"
+  },
+  "log": ".delivery/evidence/DMTE-463/green-r3.log",
+  "log_sha256": "126fe67b998f01bdf5d141c2348a3a0ad75af7165c6087c5026468b2113f2aa4"
+}

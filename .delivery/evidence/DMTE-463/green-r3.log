@@ -1,0 +1,11 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-463-1b3676a1b37a/workdir/aponta/apps/web
+
+ ✓ |web| src/components/tickets/TicketWorklogs.test.tsx (61 tests | 60 skipped) 376ms
+     ✓ does not show the guarantee reason field for an agent with a stale GUARANTEE draft when permissions fail  371ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 60 skipped (61)
+   Start at  00:39:07
+   Duration  3.49s (transform 1.62s, setup 108ms, import 2.30s, tests 376ms, environment 466ms)
+

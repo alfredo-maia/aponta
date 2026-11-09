@@ -271,21 +271,17 @@ export function TicketWorklogs({
         ? initialDraft.billable
         : true,
   );
-  const [valuationType, setValuationType] = useState<ValuationType>(
+  const [selectedValuationType, setValuationType] = useState<ValuationType>(
     ['MANUAL', 'BONUS'].includes(initialDraft?.valuationType) && !isAdmin
       ? 'CONTRACT'
       : initialDraft?.valuationType || 'CONTRACT',
   );
-  useEffect(() => {
-    if (
-      effectivePermissions.data &&
-      !canSeeValuation &&
-      valuationType !== 'CONTRACT'
-    ) {
-      setValuationType('CONTRACT');
-      setBillable(true);
-    }
-  }, [effectivePermissions.data, canSeeValuation, valuationType]);
+  // DMTE-463: fonte única do tipo efetivo. Sem a permissão confirmada (inclusive
+  // enquanto carrega ou se a consulta falhar) vale CONTRACT na tela e no envio;
+  // o rascunho guarda a escolha e ela volta quando a permissão chega.
+  const valuationType: ValuationType = canSeeValuation
+    ? selectedValuationType
+    : 'CONTRACT';
   const [manualValue, setManualValue] = useState<string>(
     isAdmin ? initialDraft?.manualValue || '' : '',
   );
@@ -345,7 +341,7 @@ export function TicketWorklogs({
       sendAsReply ||
       selectedAuthorId ||
       attendanceType !== 'REMOTE' ||
-      valuationType !== 'CONTRACT' ||
+      selectedValuationType !== 'CONTRACT' ||
       startTimeOfDay !== '08:00' ||
       endTimeOfDay !== '08:30' ||
       day !== todayStr(),
@@ -368,7 +364,7 @@ export function TicketWorklogs({
         attendanceType,
         description,
         billable,
-        valuationType,
+        valuationType: selectedValuationType,
         contractId,
         manualValue,
         bonusReason,
@@ -389,7 +385,7 @@ export function TicketWorklogs({
     attendanceType,
     description,
     billable,
-    valuationType,
+    selectedValuationType,
     contractId,
     manualValue,
     bonusReason,
@@ -568,19 +564,11 @@ export function TicketWorklogs({
       );
       return;
     }
-    // DMTE-463 AC4: sem permissão confirmada, o lançamento é sempre CONTRATO
-    // (o rascunho pode trazer um tipo de quando o usuário ainda tinha acesso).
-    const submitValuationType: ValuationType = canSeeValuation
-      ? valuationType
-      : 'CONTRACT';
-    if (
-      ['GUARANTEE', 'BONUS'].includes(submitValuationType) &&
-      !bonusReason.trim()
-    ) {
+    if (['GUARANTEE', 'BONUS'].includes(valuationType) && !bonusReason.trim()) {
       setFormError('Informe o motivo da garantia ou bonificação.');
       return;
     }
-    if (submitValuationType === 'MANUAL') {
+    if (valuationType === 'MANUAL') {
       parsedManualValue = Number(manualValue);
       if (
         !isAdmin ||
@@ -602,16 +590,14 @@ export function TicketWorklogs({
         endTime: toISO(day, endTimeOfDay),
         attendanceType,
         description: description.trim() || description,
-        billable: !['GUARANTEE', 'BONUS'].includes(submitValuationType),
-        valuationType: submitValuationType,
+        billable: !['GUARANTEE', 'BONUS'].includes(valuationType),
+        valuationType,
         contractId: selectedContract,
         ...(preAppointmentId ? { preAppointmentId } : {}),
-        ...(['GUARANTEE', 'BONUS'].includes(submitValuationType)
+        ...(['GUARANTEE', 'BONUS'].includes(valuationType)
           ? { bonusReason: bonusReason.trim() }
           : {}),
-        ...(submitValuationType === 'MANUAL'
-          ? { value: parsedManualValue }
-          : {}),
+        ...(valuationType === 'MANUAL' ? { value: parsedManualValue } : {}),
         ...(effectiveNextStageId ? { nextStageId: effectiveNextStageId } : {}),
         ...(sendAsReply ? { sendAsReply: true } : {}),
         ...(isAdmin && selectedAuthorId ? { authorId: selectedAuthorId } : {}),
