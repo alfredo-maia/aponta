@@ -26,7 +26,7 @@ function isTicketSectionEnabled(ticket: Ticket, key: string): boolean {
 export function TicketDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  useEscapeLayer(() => navigate('/'));
+  useEscapeLayer(() => navigate('/'), true, 'page');
   const [searchParams] = useSearchParams();
   const { data: ticket, isLoading, isError } = useTicket(id);
   const user = useAuthStore((state) => state.user);

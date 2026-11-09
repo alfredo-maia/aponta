@@ -86,6 +86,7 @@
   ],
   "spec": "docs/superpowers/specs/2026-11-08-esc-padronizado.md",
   "changed_files": [
+    ".delivery/deliveries/DMTE-459.json",
     "apps/web/src/components/ds/EzDialog.tsx",
     "apps/web/src/components/ds/EzEntityGrid.tsx",
     "apps/web/src/components/ds/EzEntityScreenConfigModal.tsx",
@@ -101,14 +102,14 @@
     "apps/web/src/components/layout/AppLayout.tsx",
     "apps/web/src/components/tickets/TicketFormMode.test.tsx",
     "apps/web/src/components/tickets/TicketFormMode.tsx",
+    "apps/web/src/hooks/useEscapeLayer.review.test.tsx",
     "apps/web/src/hooks/useEscapeLayer.test.tsx",
     "apps/web/src/hooks/useEscapeLayer.ts",
     "apps/web/src/pages/CreateTicketPage.test.tsx",
     "apps/web/src/pages/CreateTicketPage.tsx",
     "apps/web/src/pages/TicketDetailPage.test.tsx",
     "apps/web/src/pages/TicketDetailPage.tsx",
-    "apps/web/src/pages/VaultPage.tsx",
-    ".delivery/deliveries/DMTE-459.json"
+    "apps/web/src/pages/VaultPage.tsx"
   ],
   "tdd": {
     "mode": "required",

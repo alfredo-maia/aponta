@@ -22,7 +22,7 @@ export interface EzPageHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, 
  */
 export const EzPageHeader = forwardRef<HTMLDivElement, EzPageHeaderProps>(
   ({ title, breadcrumbs, actions, activeMode, onModeChange, showBackButton, onBack, className, ...props }, ref) => {
-    useEscapeLayer(() => onBack?.(), !!showBackButton && !!onBack);
+    useEscapeLayer(() => onBack?.(), !!showBackButton && !!onBack, 'page');
     return (
       <div
         ref={ref}

@@ -37,7 +37,7 @@ export function TicketFormMode({
   onBackToGrid,
   className,
 }: TicketFormModeProps) {
-  useEscapeLayer(onBackToGrid);
+  useEscapeLayer(onBackToGrid, true, 'page');
   const [activeTab, setActiveTab] = useState<'geral' | 'sla' | 'anexos' | 'csat'>('geral');
   const [title, setTitle] = useState(ticket.title);
   const [description, setDescription] = useState(ticket.description ?? '');

@@ -1,0 +1,91 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-459-e6dc95fae8d1/workdir/aponta/apps/web
+
+ ❯ |web| src/hooks/useEscapeLayer.review.test.tsx (4 tests | 4 failed) 506ms
+     × sobreposição tem prioridade sobre "Voltar" mesmo se a tela montar depois 109ms
+     × "Voltar" de tela ignora Esc dentro de campo de texto 179ms
+     × Esc no campo de nome do filtro salvo só cancela o salvamento e não fecha o painel 99ms
+     × confirmação de descarte não reaparece ao reabrir o modal 103ms
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  00:00:33
+   Duration  3.29s (transform 583ms, setup 222ms, import 1.21s, tests 506ms, environment 1.02s)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/hooks/useEscapeLayer.review.test.tsx > revisão interna (rodada 2) > sobreposição tem prioridade sobre "Voltar" mesmo se a tela montar depois
+AssertionError: expected "vi.fn()" to be called 1 times, but got 0 times
+ ❯ src/hooks/useEscapeLayer.review.test.tsx:24:21
+     22|     );
+     23|     fireEvent.keyDown(document.body, { key: 'Escape' });
+     24|     expect(onClose).toHaveBeenCalledTimes(1);
+       |                     ^
+     25|     expect(onBack).not.toHaveBeenCalled();
+     26|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |web| src/hooks/useEscapeLayer.review.test.tsx > revisão interna (rodada 2) > "Voltar" de tela ignora Esc dentro de campo de texto
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array []
+
+
+Number of calls: 1
+
+ ❯ src/hooks/useEscapeLayer.review.test.tsx:34:24
+     32|     await user.click(screen.getByLabelText('comentário'));
+     33|     await user.keyboard('{Escape}');
+     34|     expect(onBack).not.toHaveBeenCalled();
+       |                        ^
+     35|     await user.click(document.body);
+     36|     await user.keyboard('{Escape}');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |web| src/hooks/useEscapeLayer.review.test.tsx > revisão interna (rodada 2) > Esc no campo de nome do filtro salvo só cancela o salvamento e não fecha o painel
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array []
+
+
+Number of calls: 1
+
+ ❯ src/hooks/useEscapeLayer.review.test.tsx:46:25
+     44|     await user.click(screen.getByTestId('ez-filter-drawer-save-btn'));
+     45|     await user.keyboard('{Escape}');
+     46|     expect(onClose).not.toHaveBeenCalled();
+       |                         ^
+     47|     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+     48|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |web| src/hooks/useEscapeLayer.review.test.tsx > revisão interna (rodada 2) > confirmação de descarte não reaparece ao reabrir o modal
+Error: [2mexpect([22m[31melement[39m[2m).not.toBeInTheDocument()[22m
+
+[31mexpected document not to contain element, found <span
+  class="text-[16px] font-semibold text-gray-900"
+>
+  Descartar alterações?
+</span> instead[39m
+ ❯ src/hooks/useEscapeLayer.review.test.tsx:56:61
+     54|     rerender(<EzModal isOpen={false} dirty onClose={vi.fn()}>f</EzModa…
+     55|     rerender(<EzModal isOpen dirty onClose={vi.fn()}>f</EzModal>);
+     56|     expect(screen.queryByText('Descartar alterações?')).not.toBeInTheD…
+       |                                                             ^
+     57|   });
+     58| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+

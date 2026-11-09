@@ -99,7 +99,7 @@ export function CreateTicketPage() {
     },
   });
 
-  useEscapeLayer(() => setSelectedCatalogItem(null), catalog.length > 0 && !!selectedCatalogItem);
+  useEscapeLayer(() => setSelectedCatalogItem(null), catalog.length > 0 && !!selectedCatalogItem, 'page');
 
   if (catalog.length > 0 && !selectedCatalogItem) {
     return (

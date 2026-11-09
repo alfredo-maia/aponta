@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-09T03:00:30.814363+00:00",
+  "finished_at": "2026-11-09T03:00:37.280499+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "--root",
+    "apps/web",
+    "src/hooks/useEscapeLayer.review.test.tsx"
+  ],
+  "base_sha": "404bdea132c08f6ec8ac7142516aa85c0c5c7cb0",
+  "head_sha": "404bdea132c08f6ec8ac7142516aa85c0c5c7cb0",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/hooks/useEscapeLayer.review.test.tsx": "75834f9e56ff565d2d53aa3cd12062582008b4498079b78491b9c0df75df843d"
+  },
+  "criteria": [
+    "AC-1",
+    "AC-3",
+    "AC-4",
+    "AC-5"
+  ],
+  "source_hashes": {
+    "apps/web/src/hooks/useEscapeLayer.review.test.tsx": "75834f9e56ff565d2d53aa3cd12062582008b4498079b78491b9c0df75df843d"
+  },
+  "log": ".delivery/evidence/DMTE-459/red-r2.log",
+  "log_sha256": "620adc43257ad1d8f7b2f43ff7d2524ebf8cf31d582541af83e814b034af4e88"
+}

@@ -60,7 +60,7 @@ export const EzSimpleBar = forwardRef<HTMLDivElement, EzSimpleBarProps>(
     },
     ref
   ) => {
-    useEscapeLayer(() => onBack?.(), !!onBack);
+    useEscapeLayer(() => onBack?.(), !!onBack, 'page');
     const rightSlot = actions ?? children;
 
     return (

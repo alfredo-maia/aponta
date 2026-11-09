@@ -41,6 +41,10 @@ export const EzModal = forwardRef<HTMLDivElement, EzModalProps>(
       };
     }, [isOpen]);
 
+    useEffect(() => {
+      if (!isOpen) setConfirmingDiscard(false);
+    }, [isOpen]);
+
     useEscapeLayer(() => (dirty ? setConfirmingDiscard(true) : onClose()), isOpen);
 
     if (!mounted || !isOpen) return null;

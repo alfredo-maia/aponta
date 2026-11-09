@@ -131,7 +131,10 @@ export function EzFilterDrawer({
                   onChange={(e) => setFilterNameInput(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleSave();
-                    if (e.key === 'Escape') setIsSaving(false);
+                    if (e.key === 'Escape') {
+                      e.preventDefault();
+                      setIsSaving(false);
+                    }
                   }}
                   autoFocus
                   className="flex-1 h-7 px-2 text-[12px] border border-gray-300 rounded-[5px] focus:outline-none focus:border-brand-500"

@@ -1,38 +1,52 @@
 import { useEffect, useRef } from 'react';
 
-type Layer = { current: () => void };
+/** 'overlay' (modal, drawer, popover) sempre tem prioridade sobre 'page' (Voltar de tela). */
+export type EscapeLayerKind = 'overlay' | 'page';
 
-// Pilha global: um único listener, só a camada do topo age a cada Esc.
+type Layer = { handler: { current: () => void }; kind: EscapeLayerKind };
+
+// Pilha global: um único listener, só uma camada age a cada Esc.
 const stack: Layer[] = [];
+
+const isTextField = (el: EventTarget | null) =>
+  el instanceof HTMLElement && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
 
 function onKeyDown(e: KeyboardEvent) {
   if (e.key !== 'Escape' || e.defaultPrevented || e.isComposing) return;
   if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
-  const top = stack[stack.length - 1];
+  const top = [...stack].reverse().find((l) => l.kind === 'overlay') ?? stack[stack.length - 1];
   if (!top) return;
+  // Em campo de texto o Esc pertence ao campo; só sobreposições fecham mesmo assim.
+  if (top.kind === 'page' && isTextField(e.target)) return;
   e.preventDefault();
-  top.current();
+  top.handler.current();
 }
 
 /**
- * Registra uma camada de Esc (modal, diálogo, drawer, "Voltar" de tela).
- * A camada do topo da pilha trata o Esc; ao desativar, o foco volta ao gatilho.
+ * Registra uma camada de Esc. Ao desativar, o foco volta ao gatilho se ficou sem dono.
  * Campos que tratam Esc sozinhos devem chamar `preventDefault` (ex.: EzTextEdit).
  */
-export function useEscapeLayer(onEscape: () => void, active = true): void {
+export function useEscapeLayer(onEscape: () => void, active = true, kind: EscapeLayerKind = 'overlay'): void {
   const handler = useRef(onEscape);
   handler.current = onEscape;
+  const trigger = useRef<HTMLElement | null>(null);
+  const wasActive = useRef(false);
+  // Lido no render, antes de os filhos receberem foco (autoFocus).
+  if (active && !wasActive.current) trigger.current = document.activeElement as HTMLElement | null;
+  wasActive.current = active;
 
   useEffect(() => {
     if (!active) return;
-    const trigger = document.activeElement as HTMLElement | null;
-    const layer: Layer = handler;
+    const layer: Layer = { handler, kind };
     if (stack.length === 0) document.addEventListener('keydown', onKeyDown);
     stack.push(layer);
     return () => {
-      stack.splice(stack.indexOf(layer), 1);
+      const i = stack.indexOf(layer);
+      if (i >= 0) stack.splice(i, 1);
       if (stack.length === 0) document.removeEventListener('keydown', onKeyDown);
-      if (trigger?.isConnected) trigger.focus();
+      const focused = document.activeElement;
+      const orphaned = !focused || focused === document.body || !focused.isConnected;
+      if (orphaned && trigger.current?.isConnected) trigger.current.focus();
     };
-  }, [active]);
+  }, [active, kind]);
 }
