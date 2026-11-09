@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-09T02:29:29.762275+00:00",
+  "finished_at": "2026-11-09T02:29:34.888618+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "--root",
+    "apps/web",
+    "src/hooks/useEscapeLayer.test.tsx"
+  ],
+  "base_sha": "45d9d52da21e7eb1711fd88a4c6af4785de909db",
+  "head_sha": "45d9d52da21e7eb1711fd88a4c6af4785de909db",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/hooks/useEscapeLayer.test.tsx": "0bc5530df7a032e6cba5dab6e9a9799e7277fd831e1678e33519427d5fe38f5c"
+  },
+  "criteria": [
+    "AC-1",
+    "AC-4",
+    "AC-5",
+    "AC-6",
+    "AC-7"
+  ],
+  "source_hashes": {
+    "apps/web/src/hooks/useEscapeLayer.test.tsx": "0bc5530df7a032e6cba5dab6e9a9799e7277fd831e1678e33519427d5fe38f5c",
+    "apps/web/src/hooks/useEscapeLayer.ts": "58f5e524d0229f04687aa810dc773995edd2e81da31f47f572fb3bb3dbcb7646"
+  },
+  "log": ".delivery/evidence/DMTE-459/red.log",
+  "log_sha256": "a7bb43f0eb1201d24f968191c1ee0b08c5016bf239355e033efd64d3a586d06b"
+}

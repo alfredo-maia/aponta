@@ -104,3 +104,14 @@ export const Interativo: Story = {
     return <Demo />;
   },
 };
+
+/** Com `dirty`, Esc pede confirmação antes de descartar as alterações. */
+export const AlteracoesNaoSalvas: Story = {
+  args: {
+    isOpen: true,
+    onClose: () => undefined,
+    dirty: true,
+    title: 'Editar chamado',
+    children: 'Pressione Esc para ver a confirmação de descarte.',
+  },
+};

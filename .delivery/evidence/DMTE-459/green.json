@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-09T02:30:07.249829+00:00",
+  "finished_at": "2026-11-09T02:30:17.005574+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "--root",
+    "apps/web",
+    "src/hooks/useEscapeLayer.test.tsx"
+  ],
+  "base_sha": "45d9d52da21e7eb1711fd88a4c6af4785de909db",
+  "head_sha": "45d9d52da21e7eb1711fd88a4c6af4785de909db",
+  "exit_code": 0,
+  "tests": {
+    "apps/web/src/hooks/useEscapeLayer.test.tsx": "0bc5530df7a032e6cba5dab6e9a9799e7277fd831e1678e33519427d5fe38f5c"
+  },
+  "criteria": [
+    "AC-1",
+    "AC-4",
+    "AC-5",
+    "AC-6",
+    "AC-7"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/ds/EzDialog.tsx": "6039b0590ddea007d0fc1f23d0d86623f43f43ac3be206465f02894642abf69a",
+    "apps/web/src/components/ds/EzModal.tsx": "6b0a8211fac64003f307ee217911ebefcf8ecba2e3de325e379bc58388b42f6b",
+    "apps/web/src/hooks/useEscapeLayer.test.tsx": "0bc5530df7a032e6cba5dab6e9a9799e7277fd831e1678e33519427d5fe38f5c",
+    "apps/web/src/hooks/useEscapeLayer.ts": "d5e66c957916a0bb9784fbbdc681367be29c1d506661f266bb8af87f58233c11"
+  },
+  "log": ".delivery/evidence/DMTE-459/green.log",
+  "log_sha256": "b9690396874490b1827f7f3fd9274b92d8f70dd2a8985b573009567b0bf65195"
+}
