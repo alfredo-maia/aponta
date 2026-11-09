@@ -1,0 +1,135 @@
+{
+  "version": 1,
+  "delivery": "DMTE-459",
+  "repository": "alfredo-maia/aponta",
+  "github_issue": 152,
+  "multica_id": "01a1be18-e412-7df9-8210-10ab0211cf45",
+  "cycle": "2026-10-26/2026-11-08",
+  "tier": 2,
+  "base_sha": "45d9d52da21e7eb1711fd88a4c6af4785de909db",
+  "criteria": [
+    {
+      "id": "AC-1",
+      "description": "Esc fecha só a sobreposição do topo",
+      "tests": [
+        "useEscapeLayer AC-1: Esc age só na camada do topo, uma por vez",
+        "EzModal + Esc AC-1: Esc fecha só o modal do topo"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "description": "Cada sobreposição do DS fecha com Esc",
+      "tests": [
+        "AC-2: sobreposições do DS fecham com Esc"
+      ],
+      "tdd_required": false,
+      "reason": "Par RED/GREEN próprio gravado em .delivery/evidence/DMTE-459/red-t2.json e green-t2.json (o coletor aceita um par por entrega; a ordem real está nas run-messages do Multica). Ticket T2 (#154)."
+    },
+    {
+      "id": "AC-3",
+      "description": "Esc volta nas telas com Voltar; sem efeito sem botão",
+      "tests": [
+        "AC-3: Esc aciona \"Voltar\" das telas",
+        "TicketDetailPage AC-3",
+        "CreateTicketPage AC-3",
+        "TicketFormMode AC-3"
+      ],
+      "tdd_required": false,
+      "reason": "Par RED/GREEN próprio gravado em .delivery/evidence/DMTE-459/red-t3.json e green-t3.json (o coletor aceita um par por entrega; a ordem real está nas run-messages do Multica). Ticket T3 (#155). Teste de EzPageHeader foi corrigido depois do RED (usava EzPageLayout por engano); sem RED novo."
+    },
+    {
+      "id": "AC-4",
+      "description": "Esc em campo em edição só cancela a edição",
+      "tests": [
+        "useEscapeLayer AC-4: Esc em campo em edição só cancela a edição e não fecha o modal"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "description": "Alterações não salvas pedem confirmação",
+      "tests": [
+        "EzModal + Esc AC-5: com alterações não salvas, Esc pede confirmação; Esc na confirmação mantém a edição"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "description": "Esc com defaultPrevented, IME ou modificador é ignorado",
+      "tests": [
+        "useEscapeLayer AC-6: ignora defaultPrevented, IME e modificadores"
+      ]
+    },
+    {
+      "id": "AC-7",
+      "description": "Foco retorna ao gatilho",
+      "tests": [
+        "EzModal + Esc AC-7: devolve o foco ao gatilho ao fechar"
+      ]
+    },
+    {
+      "id": "AC-8",
+      "description": "Sem listener de Esc próprio nos componentes migrados",
+      "tests": [
+        "AC-8: sem listener de Esc próprio"
+      ],
+      "tdd_required": false,
+      "reason": "Par RED/GREEN próprio gravado em .delivery/evidence/DMTE-459/red-t2.json e green-t2.json (o coletor aceita um par por entrega; a ordem real está nas run-messages do Multica). Ticket T2."
+    },
+    {
+      "id": "AC-9",
+      "description": "Story ou exceção documentada para DS alterado",
+      "tests": [
+        "EzModal.stories AlteracoesNaoSalvas"
+      ],
+      "tdd_required": false,
+      "reason": "Verificação documental (story adicionada); sem teste automatizado."
+    }
+  ],
+  "spec": "docs/superpowers/specs/2026-11-08-esc-padronizado.md",
+  "changed_files": [
+    "apps/web/src/components/ds/EzDialog.tsx",
+    "apps/web/src/components/ds/EzEntityGrid.tsx",
+    "apps/web/src/components/ds/EzEntityScreenConfigModal.tsx",
+    "apps/web/src/components/ds/EzFilterDrawer.tsx",
+    "apps/web/src/components/ds/EzModal.stories.tsx",
+    "apps/web/src/components/ds/EzModal.tsx",
+    "apps/web/src/components/ds/EzPageLayout.tsx",
+    "apps/web/src/components/ds/EzPopoverPlus.tsx",
+    "apps/web/src/components/ds/EzPopup.tsx",
+    "apps/web/src/components/ds/EzSimpleBar.tsx",
+    "apps/web/src/components/ds/escapeBack.test.tsx",
+    "apps/web/src/components/ds/escapeOverlays.test.tsx",
+    "apps/web/src/components/layout/AppLayout.tsx",
+    "apps/web/src/components/tickets/TicketFormMode.test.tsx",
+    "apps/web/src/components/tickets/TicketFormMode.tsx",
+    "apps/web/src/hooks/useEscapeLayer.test.tsx",
+    "apps/web/src/hooks/useEscapeLayer.ts",
+    "apps/web/src/pages/CreateTicketPage.test.tsx",
+    "apps/web/src/pages/CreateTicketPage.tsx",
+    "apps/web/src/pages/TicketDetailPage.test.tsx",
+    "apps/web/src/pages/TicketDetailPage.tsx",
+    "apps/web/src/pages/VaultPage.tsx",
+    ".delivery/deliveries/DMTE-459.json"
+  ],
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-459/red.json",
+    "green": ".delivery/evidence/DMTE-459/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzModal",
+      "EzDialog",
+      "EzPopup",
+      "EzPopoverPlus",
+      "EzFilterDrawer",
+      "EzEntityScreenConfigModal",
+      "EzPageLayout",
+      "EzSimpleBar"
+    ],
+    "stories": [
+      "apps/web/src/components/ds/EzModal.stories.tsx"
+    ],
+    "exception": "Mudança comportamental (teclado) sem alteração visual; story nova só para EzModal (dirty). EzDialog, EzPopup, EzPopoverPlus, EzFilterDrawer, EzPageHeader e EzSimpleBar apenas passam a ouvir Esc, sem nova variante visual."
+  }
+}

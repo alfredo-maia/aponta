@@ -1,11 +1,10 @@
 
  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-459-e6dc95fae8d1/workdir/aponta/apps/web
 
- ✓ |web| src/hooks/useEscapeLayer.test.tsx (7 tests) 1167ms
-     ✓ AC-4: Esc em campo em edição só cancela a edição e não fecha o modal  486ms
+ ✓ |web| src/hooks/useEscapeLayer.test.tsx (7 tests) 294ms
 
  Test Files  1 passed (1)
       Tests  7 passed (7)
-   Start at  23:30:11
-   Duration  4.99s (transform 1.11s, setup 386ms, import 1.90s, tests 1.17s, environment 1.21s)
+   Start at  23:58:53
+   Duration  1.68s (transform 232ms, setup 121ms, import 549ms, tests 294ms, environment 444ms)
 
