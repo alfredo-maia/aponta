@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-09T02:34:08.073193+00:00",
+  "finished_at": "2026-11-09T02:34:35.821850+00:00",
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "--root",
+    "apps/web",
+    "src/components/layout/AppLayout.test.tsx"
+  ],
+  "base_sha": "d6a50d5aaa9a8b5fc266b8d6d6acec1c75c52588",
+  "head_sha": "8a09a5283fb00ea942e1dec2934e08aac7b018d7",
+  "exit_code": 0,
+  "tests": {
+    "apps/web/src/components/layout/AppLayout.test.tsx": "14b2fd45a9af1e4899ee4867526ab459434b79d5ee65543f68cf95d5ec6d1652"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/layout/AppLayout.test.tsx": "14b2fd45a9af1e4899ee4867526ab459434b79d5ee65543f68cf95d5ec6d1652",
+    "apps/web/src/components/layout/AppLayout.tsx": "4e46bbd4de0fd4c5ddcf9c499609408737c14dd6d2a327052610e9cf7c3e7fda",
+    "apps/web/src/components/layout/Sidebar.tsx": "b9f4d5c6088a89a1709da876464e8229a8a64e7028fb402f3aac594659283042"
+  },
+  "log": ".delivery/evidence/DMTE-457/green.log",
+  "log_sha256": "3c95ff1a64c96e38f365b2a29254a0cb81b50994baddcfea722d72ba18ca5957"
+}

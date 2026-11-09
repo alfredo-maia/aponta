@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "delivery": "DMTE-457",
+  "repository": "alfredo-maia/aponta",
+  "github_issue": 157,
+  "multica_id": "01a1be12-3caf-77b5-9219-fb133dbee7cb",
+  "cycle": "2026-10-26/2026-11-08",
+  "tier": 1,
+  "base_sha": "d6a50d5aaa9a8b5fc266b8d6d6acec1c75c52588",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "Opção da nav bar (exceto Tickets) abre a aba da opção; escolher de novo foca a aba existente sem duplicar",
+      "tests": [
+        "AppLayout DMTE-457: opções da nav bar abrem ou focam uma aba opens a tab for the chosen option and focuses it again instead of duplicating"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "Tickets não abre aba extra (aba fixa)",
+      "tests": [
+        "AppLayout DMTE-457: opções da nav bar abrem ou focam uma aba does not open an extra tab for \"Tickets\" (fixed tab); tickets keep opening their own tabs"
+      ]
+    }
+  ],
+  "changed_files": [
+    ".delivery/deliveries/DMTE-457.json",
+    ".delivery/registry.json",
+    "apps/web/src/components/layout/AppLayout.test.tsx",
+    "apps/web/src/components/layout/AppLayout.tsx",
+    "apps/web/src/components/layout/Sidebar.tsx"
+  ],
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-457/red.json",
+    "green": ".delivery/evidence/DMTE-457/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzSidebar"
+    ],
+    "exception": "Sem componente DS novo ou alterado; a Sidebar continua usando EzSidebarNavigator/EzSidebarButton e muda só a navegação."
+  }
+}

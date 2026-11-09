@@ -334,6 +334,20 @@
       "epic": null,
       "title": "Catálogo de atendimento: seed idempotente",
       "note": "Tier 1 (dados + script). Execução em produção pelo usuário."
+    },
+    "DMTE-457": {
+      "delivery": "DMTE-457",
+      "repository": "alfredo-maia/aponta",
+      "github_issue": 157,
+      "multica_id": "01a1be12-3caf-77b5-9219-fb133dbee7cb",
+      "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-457",
+      "kind": "delivery",
+      "tier": 1,
+      "state": "Em implementação",
+      "cycle": "2026-10-26/2026-11-08",
+      "epic": null,
+      "title": "Nav bar: abrir nova aba ou focar aba existente ao selecionar opção (exceto Tickets)",
+      "note": "Tier 1, bug pequeno; Architect dispensado. Pendente decisão do Alfredo: botão Novo Ticket fora do escopo."
     }
   }
 }

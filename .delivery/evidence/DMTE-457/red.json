@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-09T02:33:22.355460+00:00",
+  "finished_at": "2026-11-09T02:33:54.071226+00:00",
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "--root",
+    "apps/web",
+    "src/components/layout/AppLayout.test.tsx"
+  ],
+  "base_sha": "d6a50d5aaa9a8b5fc266b8d6d6acec1c75c52588",
+  "head_sha": "d6a50d5aaa9a8b5fc266b8d6d6acec1c75c52588",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/components/layout/AppLayout.test.tsx": "14b2fd45a9af1e4899ee4867526ab459434b79d5ee65543f68cf95d5ec6d1652"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/layout/AppLayout.test.tsx": "14b2fd45a9af1e4899ee4867526ab459434b79d5ee65543f68cf95d5ec6d1652"
+  },
+  "log": ".delivery/evidence/DMTE-457/red.log",
+  "log_sha256": "c836787c9afb119cbad44b75f719bb53440c5a83c23b96b5f724f08427b2e5a7"
+}
