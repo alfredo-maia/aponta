@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-09T15:08:27.646867+00:00",
+  "finished_at": "2026-11-09T15:08:30.218038+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_aponta_delivery.py",
+    "-v"
+  ],
+  "base_sha": "d6a50d5aaa9a8b5fc266b8d6d6acec1c75c52588",
+  "head_sha": "d6a50d5aaa9a8b5fc266b8d6d6acec1c75c52588",
+  "exit_code": 1,
+  "tests": {
+    "scripts/test_aponta_delivery.py": "26d107933a07cb68553dba130553e30bcab2772a5fb163dbecd7b1bb416d64fe"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03"
+  ],
+  "source_hashes": {
+    ".env.prod.bak-before-domain-fix-20261021001152": "14aed18fac02cce28b108cfaf1deca7ffc51c01ee4ab5ae65a97b4bdd5a97f55",
+    ".snk-docs-tmp/snk-attach__EzAttachmentList.txt": "48f6b94c262553f196cd823e44961a7659222fd8bcc0de0696cdb237620b2a1c",
+    ".snk-docs-tmp/snk-data-exporter__EzDataExporter.txt": "515aeb4fc6262b2b1af070cec278f4d325de55ed6fb307e791c0595fb0d61b25",
+    ".snk-docs-tmp/snk-entity-list__EzEntityList.txt": "9bd2fb64a037bbd2444669fceb734e5b7ebd96e335256ab2bc1ad37cb2af415f",
+    ".snk-docs-tmp/snk-filter-bar__EzFilterBar.txt": "61488f341fe77c4749192fbc7e55f8b78de1c20a9dec54fe16ccc0b97f702e17",
+    ".snk-docs-tmp/snk-form__EzEntityForm.txt": "0b250c644b6ad09313dae5ae80b1d3dd19a0c64dfe054750061e8754d24983d7",
+    ".snk-docs-tmp/snk-grid__EzEntityGrid.txt": "90198bf6b724dd607b86d90ebdbe50ca5c876564e0e4519e3480f8837ab5d979",
+    ".snk-docs-tmp/snk-layout-form-config__EzLayoutFormConfig.txt": "68314ab8c945e286b2deaa351ea0015ea3bb68907c093c6f98676ac63f74a1bb",
+    ".snk-docs-tmp/snk-pesquisa__EzAdvancedSearch.txt": "26225c1988b7f6aaae0a9a79ea05f453b98dbcceb61fa72c41aa03fff6a89e81",
+    ".snk-docs-tmp/snk-print-selector__EzPrintSelector.txt": "bd61c0ecbbaf688474c3dedd5f07e1ac24549646b2b301f653db59bfd84f3b16",
+    ".snk-docs-tmp/snk-simple-bar__EzSimpleBar.txt": "354e2ff84739eee7d1e3d66b07c9d98f6e2f9ca33de3f2df3db2dbb8234007d0",
+    ".snk-docs-tmp/snk-simple-crud__EzSimpleCrud.txt": "1c8d58165c80a5df69238d2bed090a31c1be458bdc3a4a806a3cc982c838c87c",
+    ".snk-docs-tmp/snk-simple-form-config__EzSimpleFormConfig.txt": "88b5f34b8bf3fc2ece9d5cf6c35369dc708e945f2fbb486a4c09d693c0191982",
+    ".snk-docs-tmp/snk-taskbar__EzTaskbar.txt": "ec62db974f8a09121df7e3e37a6610102540d1a31120f28665a1cb7bf7c94c1f",
+    "scripts/aponta_delivery.py": "e3b6947c4bb60ce91446e8e306e67da40ea96f37a8c408d7511aa20e77c34bd5",
+    "scripts/publicar_qa.py": "4821f22a495806d9831c30ed98ae84225b22f3cc9aa0da9fdd6e3b3775cf009e",
+    "scripts/test_aponta_delivery.py": "26d107933a07cb68553dba130553e30bcab2772a5fb163dbecd7b1bb416d64fe"
+  },
+  "log": ".delivery/evidence/DMTE-466/red.log",
+  "log_sha256": "564790e3ea25c7a5b7c238f4578c4f09401e62d21c92aef7e48ad4ccc2c98ea6"
+}

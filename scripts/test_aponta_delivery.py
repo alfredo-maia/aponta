@@ -19,7 +19,7 @@ class DeliveryTests(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
         self.manifest = {
-            'version': 1, 'delivery': 'DMTE-159', 'repository': 'alfredo-maia/aponta',
+            'version': 1, 'delivery': 'DMTE-159', 'repository': delivery.CANONICAL_REPOSITORY,
             'github_issue': 92, 'multica_id': '01a17485-8de1-7e6d-950a-1e295fef336b',
             'cycle': '2026-10-26/2026-11-08', 'tier': 2,
             'criteria': [{'id': 'AC-01', 'description': 'Reject invalid inputs', 'tests': ['test_gate']}],
@@ -122,7 +122,7 @@ class DeliveryTests(unittest.TestCase):
         self.assertEqual(delivery.validate_binding(self.manifest, {**self.manifest, 'kind': 'delivery'}), [])
 
     def test_pr_link_contract(self):
-        self.assertEqual(delivery.validate_pr('Aponta-Delivery: DMTE-159\nRefs alfredo-maia/aponta#92', self.manifest), [])
+        self.assertEqual(delivery.validate_pr('Aponta-Delivery: DMTE-159\nRefs ' + delivery.CANONICAL_REPOSITORY + '#92', self.manifest), [])
 
     def test_pr_cannot_close_issue_before_delivery(self):
         self.assertTrue(delivery.validate_pr('Aponta-Delivery: DMTE-159\nCloses #92', self.manifest))
@@ -159,7 +159,7 @@ class DeliveryTests(unittest.TestCase):
             'base_sha': 'a' * 40, 'legacy_sha': 'b' * 40,
             'reason': 'Implementation predates the evidence collector.',
             'approval': {'status': 'approved', 'approved_by': 'owner',
-                         'source': 'https://github.com/alfredo-maia/aponta/issues/92#issuecomment-123'},
+                         'source': 'https://github.com/' + delivery.CANONICAL_REPOSITORY + '/issues/92#issuecomment-123'},
         }
         self.manifest['base_sha'] = 'a' * 40
         (self.root / '.delivery').mkdir(exist_ok=True)
@@ -367,6 +367,44 @@ class EvidenceBaseMovedTests(unittest.TestCase):
         (self.root / 'x.py').write_text('x')
         other = self.commit('unrelated history')
         self.assertTrue(any('Evidence base SHA differs' in e for e in self.validate(other)))
+
+
+class ResolvePrFromEventTests(unittest.TestCase):
+    """merge_group events (native GitHub Merge Queue) have no `pull_request`
+    key — only a head_ref like "refs/heads/gh-readonly-queue/main/pr-7-abc".
+    These lock in that resolve_pr_from_event treats a queue run exactly like
+    the PR it repackages, by fetching the real PR through the injected
+    fetch_pr, and that a malformed/unrecognizable head_ref is reported back
+    to the caller instead of silently proceeding with an empty PR."""
+
+    def test_no_event_returns_empty(self):
+        self.assertEqual(delivery.resolve_pr_from_event(None, fetch_pr=None), ({}, None, None, None))
+
+    def test_pull_request_event_reads_body_and_shas_directly(self):
+        event = {'pull_request': {'body': 'Aponta-Delivery: DMTE-1',
+                                   'base': {'sha': 'a' * 40}, 'head': {'sha': 'b' * 40}}}
+        pr, base, head, merge_group = delivery.resolve_pr_from_event(event, fetch_pr=None)
+        self.assertEqual((pr['body'], base, head, merge_group), ('Aponta-Delivery: DMTE-1', 'a' * 40, 'b' * 40, None))
+
+    def test_merge_group_event_resolves_pr_via_fetch_pr(self):
+        event = {'merge_group': {'head_ref': 'refs/heads/gh-readonly-queue/main/pr-7-deadbeef', 'head_sha': 'c' * 40}}
+        fetched = {'body': 'Aponta-Delivery: DMTE-7', 'base': {'sha': 'd' * 40}, 'head': {'sha': 'e' * 40}}
+        seen_numbers = []
+
+        def fetch_pr(number):
+            seen_numbers.append(number)
+            return fetched
+
+        pr, base, head, merge_group = delivery.resolve_pr_from_event(event, fetch_pr)
+        self.assertEqual(seen_numbers, ['7'])
+        self.assertEqual((pr, base, head), (fetched, 'd' * 40, 'e' * 40))
+        self.assertEqual(merge_group, event['merge_group'])
+
+    def test_merge_group_with_unparseable_head_ref_reports_unresolved(self):
+        event = {'merge_group': {'head_ref': 'refs/heads/some-unexpected-branch', 'head_sha': 'f' * 40}}
+        pr, base, head, merge_group = delivery.resolve_pr_from_event(event, fetch_pr=lambda n: self.fail('must not fetch'))
+        self.assertEqual((pr, base, head), ({}, None, None))
+        self.assertEqual(merge_group, event['merge_group'])
 
 
 if __name__ == '__main__':

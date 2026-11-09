@@ -8,7 +8,7 @@ O ciclo é rótulo de planejamento, não prazo nem portão. Quem coordena regist
 
 GitHub registra produto; Multica registra execução. Uma entrega tem uma issue GitHub principal e um pai Multica canônico. Épicos agrupam entregas; não são executados como uma única tarefa longa. As etapas de Triagem/Architect/Developer/QA/Delivery são delegadas por menção no pai Multica canônico e não geram issues GitHub nem issues Multica por fase. Tickets de implementação produzidos por to-tickets são sub-issues GitHub da SPEC e herdam a identidade da entrega, conforme docs/agents/issue-tracker.md.
 
-O registro `.delivery/registry.json` é a identidade versionada, não uma automação bidirecional de status. A implantação verifica os vínculos reais pelos serviços autenticados; CI verifica a estrutura sem credenciais Multica. Cada PR declara exatamente `Aponta-Delivery: DMTE-N` e `Refs alfredo-maia/aponta#N`.
+O registro `.delivery/registry.json` é a identidade versionada, não uma automação bidirecional de status. A implantação verifica os vínculos reais pelos serviços autenticados; CI verifica a estrutura sem credenciais Multica. Cada PR declara exatamente `Aponta-Delivery: DMTE-N` e `Refs dmrepositorio/aponta#N`.
 
 ## Esteira
 

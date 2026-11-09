@@ -16,6 +16,13 @@ import sys
 import uuid
 
 
+# The canonical repository identity. Read from GITHUB_REPOSITORY (set
+# automatically by every GitHub Actions run) so a future org/repo transfer
+# never requires touching this script again; local/offline runs fall back to
+# the current real location.
+CANONICAL_REPOSITORY = os.environ.get('GITHUB_REPOSITORY', 'dmrepositorio/aponta')
+
+
 def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -136,8 +143,8 @@ def identity_errors(value: dict) -> list[str]:
     errors = []
     if not re.fullmatch(r'DMTE-\d+', str(value.get('delivery', ''))):
         errors.append('delivery must be a DMTE key.')
-    if value.get('repository') != 'alfredo-maia/aponta':
-        errors.append('repository must be alfredo-maia/aponta.')
+    if value.get('repository') != CANONICAL_REPOSITORY:
+        errors.append('repository must be ' + CANONICAL_REPOSITORY + '.')
     number = value.get('github_issue')
     if type(number) is not int or number < 1:
         errors.append('github_issue must be a positive issue number.')
@@ -257,7 +264,7 @@ def validate_legacy_exception(root: Path, manifest: dict, tdd_ids: set[str],
         if not isinstance(approval, dict):
             raise ValueError('Legacy approval must be an object.')
         source = approval.get('source', '')
-        expected = (r'https://github\.com/alfredo-maia/aponta/issues/'
+        expected = (r'https://github\.com/' + re.escape(CANONICAL_REPOSITORY) + r'/issues/'
                     + str(manifest['github_issue']) + r'#issuecomment-\d+')
         if (approval.get('status') != 'approved' or not approval.get('approved_by')
                 or not isinstance(source, str) or not re.fullmatch(expected, source)):
@@ -361,7 +368,7 @@ def validate_pr(body: str, manifest: dict) -> list[str]:
     if keys != [manifest.get('delivery')]:
         errors.append('PR must identify exactly its canonical delivery.')
     number = manifest.get('github_issue')
-    if not re.search(r'\bRefs\s+(?:alfredo-maia/aponta)?#' + str(number) + r'\b', body, re.I):
+    if not re.search(r'\bRefs\s+(?:' + re.escape(CANONICAL_REPOSITORY) + r')?#' + str(number) + r'\b', body, re.I):
         errors.append('PR must reference its primary GitHub issue with Refs.')
     if re.search(r'\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s*:?\s+(?:[\w.-]+/[\w.-]+)?#\d+', body, re.I):
         errors.append('Do not auto-close product issues before production validation; use Refs.')
@@ -389,6 +396,37 @@ def writer_lock(path: Path):
             yield
         finally:
             fcntl.flock(handle, fcntl.LOCK_UN)
+
+
+def resolve_pr_from_event(event: dict | None, fetch_pr) -> tuple[dict, str | None, str | None, dict | None]:
+    """Resolve the PR body/base/head SHAs from a GitHub Actions event payload.
+
+    Handles both `pull_request` events (body is right there in the payload)
+    and `merge_group` events from the native Merge Queue, which carry NO
+    `pull_request` key at all — only a `head_ref` shaped like
+    "refs/heads/gh-readonly-queue/<base>/pr-<N>-<sha>". For the latter,
+    `fetch_pr(number)` resolves the real PR (inject `lambda n: json.loads(...)`
+    wrapping `gh api repos/<repo>/pulls/<n>` in production; a canned dict in
+    tests) so the exact same delivery/body contract applies whether this run
+    was triggered by the PR itself or by the queue re-testing it against the
+    latest main.
+
+    Returns (pr, base_sha, head_sha, merge_group) — pr/base/head are empty/None
+    with no errors appended by the caller only when event itself is falsy;
+    an unresolvable merge_group head_ref is a caller-visible error, surfaced
+    via the returned merge_group being truthy but base/head staying None.
+    """
+    if not event:
+        return {}, None, None, None
+    merge_group = event.get('merge_group')
+    if merge_group:
+        ref_match = re.search(r'/pr-(\d+)-', merge_group.get('head_ref') or '')
+        if not ref_match:
+            return {}, None, None, merge_group
+        pr = fetch_pr(ref_match.group(1))
+        return pr, pr['base']['sha'], pr['head']['sha'], merge_group
+    pr = event.get('pull_request', {})
+    return pr, pr.get('base', {}).get('sha'), pr.get('head', {}).get('sha'), None
 
 
 def main() -> int:
@@ -435,8 +473,16 @@ def main() -> int:
     registry = json.loads((root / args.registry).read_text())
     errors = validate_registry(registry)
     event = json.loads(args.event.read_text()) if args.event else None
+
+    def fetch_pr(number: str) -> dict:
+        return json.loads(subprocess.run(
+            ['gh', 'api', 'repos/' + CANONICAL_REPOSITORY + '/pulls/' + number],
+            capture_output=True, text=True, check=True).stdout)
+
+    pr, base, head, merge_group = resolve_pr_from_event(event, fetch_pr)
+    if event and merge_group and base is None:
+        errors.append('Could not resolve the PR number from the merge_group head_ref.')
     if event:
-        pr = event.get('pull_request', {})
         matches = re.findall(r'^Aponta-Delivery:\s*(DMTE-\d+)\s*$', pr.get('body') or '', re.M)
         if len(matches) != 1:
             errors.append('PR must declare exactly one Aponta-Delivery: DMTE-N line.')
@@ -449,11 +495,16 @@ def main() -> int:
         else:
             manifest = json.loads(path.read_text())
             errors += validate_manifest(root, manifest)
-            if event:
-                errors += validate_pr(event['pull_request'].get('body') or '', manifest)
-                base, head = event['pull_request']['base']['sha'], event['pull_request']['head']['sha']
-                if git(root, 'rev-parse', 'HEAD') != head:
-                    errors.append('Checkout is not the PR head SHA.')
+            if event and base and head:
+                errors += validate_pr(pr.get('body') or '', manifest)
+                # In a merge_group run, HEAD is the queue's synthetic merge
+                # commit (main + this PR + anything ahead of it in the
+                # queue) — that commit's SHA is merge_group.head_sha, not
+                # the PR's own head_sha, so the checkout-identity check must
+                # compare against the right one per event type.
+                expected_checkout = merge_group['head_sha'] if merge_group else head
+                if git(root, 'rev-parse', 'HEAD') != expected_checkout:
+                    errors.append('Checkout is not the expected head SHA.')
                 changes = git(root, 'diff', '--name-only', base + '...' + head).splitlines()
                 declared = set(manifest.get('changed_files', []))
                 undeclared = [p for p in changes if p not in declared and not p.startswith('.delivery/')]
