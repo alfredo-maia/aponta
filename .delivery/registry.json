@@ -334,6 +334,20 @@
       "epic": null,
       "title": "Catálogo de atendimento: seed idempotente",
       "note": "Tier 1 (dados + script). Execução em produção pelo usuário."
+    },
+    "DMTE-464": {
+      "delivery": "DMTE-464",
+      "repository": "alfredo-maia/aponta",
+      "github_issue": 156,
+      "multica_id": "01a1be1b-7ad8-77d2-9a23-28f480f952b3",
+      "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-464",
+      "kind": "delivery",
+      "tier": 2,
+      "state": "Planejada",
+      "cycle": "2026-10-26/2026-11-08",
+      "epic": null,
+      "title": "Apontamento do ticket: valor só com a permissão VIEW_TICKET_VALUES",
+      "note": "Tier 2. Controle por permissão do grupo, não por role; decisões do Alfredo na issue Multica."
     }
   }
 }
