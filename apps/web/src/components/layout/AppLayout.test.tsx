@@ -175,4 +175,37 @@ describe('AppLayout', () => {
       expect(screen.getByTestId('dashboard-page')).toBeInTheDocument();
     });
   });
+
+  describe('DMTE-457: opções da nav bar abrem ou focam uma aba', () => {
+    const tabNames = () => screen.getAllByRole('tab').map((t) => t.textContent);
+
+    it('opens a tab for the chosen option and focuses it again instead of duplicating', async () => {
+      sessionStorage.clear();
+      const user = userEvent.setup();
+      renderLayout();
+      const nav = () => within(screen.getByTestId('desktop-sidebar'));
+
+      await user.click(nav().getByRole('button', { name: 'Dashboard' }));
+      expect(tabNames()).toEqual(['Tickets', 'Dashboard']);
+      expect(screen.getByRole('tab', { name: /Dashboard/ })).toHaveAttribute('aria-selected', 'true');
+
+      await user.click(nav().getByRole('button', { name: 'Tickets' }));
+      expect(screen.getByTestId('page-content')).toBeInTheDocument();
+      await user.click(nav().getByRole('button', { name: 'Dashboard' }));
+
+      expect(tabNames()).toEqual(['Tickets', 'Dashboard']);
+      expect(screen.getByRole('tab', { name: /Dashboard/ })).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByTestId('dashboard-page')).toBeInTheDocument();
+    });
+
+    it('does not open an extra tab for "Tickets" (fixed tab); tickets keep opening their own tabs', async () => {
+      sessionStorage.clear();
+      const user = userEvent.setup();
+      renderLayout();
+      const nav = within(screen.getByTestId('desktop-sidebar'));
+      await user.click(nav.getByRole('button', { name: 'Tickets' }));
+      await user.click(nav.getByRole('button', { name: 'Tickets' }));
+      expect(tabNames()).toEqual(['Tickets']);
+    });
+  });
 });
