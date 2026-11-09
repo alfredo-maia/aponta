@@ -407,47 +407,5 @@ class ResolvePrFromEventTests(unittest.TestCase):
         self.assertEqual(merge_group, event['merge_group'])
 
 
-class MirrorQaStatusTests(unittest.TestCase):
-    """GitHub never copies a third-party commit status (like Multica's
-    'Independent QA') from a PR's real head to the Merge Queue's synthetic
-    commit. Without mirroring, a required check stays unsatisfiable forever
-    on that synthetic commit and the PR never leaves AWAITING_CHECKS. These
-    lock in that a success status is copied verbatim, and that a missing or
-    non-success status is reported as an error instead of posting anyway."""
-
-    def test_success_status_is_copied_to_the_target_sha(self):
-        posted = []
-        errors = delivery.mirror_qa_status(
-            fetch_statuses=lambda sha: [{'context': 'Independent QA', 'state': 'success',
-                                         'description': 'QA Multica independente aprovou este SHA',
-                                         'target_url': 'https://multica.example/issues/1'}],
-            post_status=lambda sha, payload: posted.append((sha, payload)),
-            head_sha='a' * 40, target_sha='b' * 40)
-        self.assertEqual(errors, [])
-        self.assertEqual(len(posted), 1)
-        sha, payload = posted[0]
-        self.assertEqual(sha, 'b' * 40)
-        self.assertEqual(payload['state'], 'success')
-        self.assertEqual(payload['context'], 'Independent QA')
-
-    def test_missing_qa_status_is_reported_without_posting(self):
-        posted = []
-        errors = delivery.mirror_qa_status(
-            fetch_statuses=lambda sha: [{'context': 'Delivery contract', 'state': 'success'}],
-            post_status=lambda sha, payload: posted.append((sha, payload)),
-            head_sha='a' * 40, target_sha='b' * 40)
-        self.assertTrue(errors)
-        self.assertEqual(posted, [])
-
-    def test_non_success_qa_status_is_reported_without_posting(self):
-        posted = []
-        errors = delivery.mirror_qa_status(
-            fetch_statuses=lambda sha: [{'context': 'Independent QA', 'state': 'failure'}],
-            post_status=lambda sha, payload: posted.append((sha, payload)),
-            head_sha='a' * 40, target_sha='b' * 40)
-        self.assertTrue(errors)
-        self.assertEqual(posted, [])
-
-
 if __name__ == '__main__':
     unittest.main()

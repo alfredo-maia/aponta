@@ -28,15 +28,6 @@
       "tests": [
         "ResolvePrFromEventTests.test_merge_group_with_unparseable_head_ref_reports_unresolved"
       ]
-    },
-    {
-      "id": "AC-04",
-      "description": "mirror_qa_status copia o status 'Independent QA' do SHA real da PR para o commit sintetico da merge queue quando ele existe e esta success; reporta erro sem publicar nada quando o status esta ausente ou nao-success",
-      "tests": [
-        "MirrorQaStatusTests.test_success_status_is_copied_to_the_target_sha",
-        "MirrorQaStatusTests.test_missing_qa_status_is_reported_without_posting",
-        "MirrorQaStatusTests.test_non_success_qa_status_is_reported_without_posting"
-      ]
     }
   ],
   "spec": "docs/delivery/specs/DMTE-466.md",

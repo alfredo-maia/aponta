@@ -49,15 +49,12 @@ test_file_deleted_by_the_slice_but_changed_on_main_is_rejected (test_aponta_deli
 test_governance_file_changed_on_both_sides_does_not_invalidate_evidence (test_aponta_delivery.EvidenceBaseMovedTests.test_governance_file_changed_on_both_sides_does_not_invalidate_evidence) ... ok
 test_slice_file_renamed_on_main_is_rejected (test_aponta_delivery.EvidenceBaseMovedTests.test_slice_file_renamed_on_main_is_rejected) ... ok
 test_slice_file_with_non_ascii_name_changed_on_main_is_rejected (test_aponta_delivery.EvidenceBaseMovedTests.test_slice_file_with_non_ascii_name_changed_on_main_is_rejected) ... ok
-test_missing_qa_status_is_reported_without_posting (test_aponta_delivery.MirrorQaStatusTests.test_missing_qa_status_is_reported_without_posting) ... ok
-test_non_success_qa_status_is_reported_without_posting (test_aponta_delivery.MirrorQaStatusTests.test_non_success_qa_status_is_reported_without_posting) ... ok
-test_success_status_is_copied_to_the_target_sha (test_aponta_delivery.MirrorQaStatusTests.test_success_status_is_copied_to_the_target_sha) ... ok
 test_merge_group_event_resolves_pr_via_fetch_pr (test_aponta_delivery.ResolvePrFromEventTests.test_merge_group_event_resolves_pr_via_fetch_pr) ... ok
 test_merge_group_with_unparseable_head_ref_reports_unresolved (test_aponta_delivery.ResolvePrFromEventTests.test_merge_group_with_unparseable_head_ref_reports_unresolved) ... ok
 test_no_event_returns_empty (test_aponta_delivery.ResolvePrFromEventTests.test_no_event_returns_empty) ... ok
 test_pull_request_event_reads_body_and_shas_directly (test_aponta_delivery.ResolvePrFromEventTests.test_pull_request_event_reads_body_and_shas_directly) ... ok
 
 ----------------------------------------------------------------------
-Ran 58 tests in 5.075s
+Ran 55 tests in 0.871s
 
 OK
