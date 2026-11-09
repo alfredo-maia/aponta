@@ -462,6 +462,20 @@ describe('TicketWorklogs', () => {
     expect(screen.queryByText(/Contrato:|Tipo:/)).not.toBeInTheDocument();
   });
 
+  it('submits CONTRACT for an agent with a stale GUARANTEE draft when permissions never load', async () => {
+    loginAs('AGENT');
+    localStorage.setItem('aponta_worklog_draft_t-1', JSON.stringify({ valuationType: 'GUARANTEE', billable: false, bonusReason: 'Antigo', description: 'Rascunho antigo' }));
+    const base = vi.mocked(api.get).getMockImplementation()!;
+    vi.mocked(api.get).mockImplementation((url: string) =>
+      String(url).includes('/auth/me') ? Promise.reject(new Error('offline')) : base(url),
+    );
+    renderComponent('t-1', true);
+    await screen.findByRole('option', { name: 'Suporte' });
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith('/tickets/t-1/worklogs', expect.objectContaining({ valuationType: 'CONTRACT', billable: true })));
+    expect(vi.mocked(api.post).mock.calls[0][1]).not.toHaveProperty('bonusReason');
+  });
+
   it('shows the valuation type and the Garantia option to an agent with LAUNCH_WORKLOG_GUARANTEE', async () => {
     loginAs('AGENT');
     currentPermissions = ['LAUNCH_WORKLOG_GUARANTEE'];
