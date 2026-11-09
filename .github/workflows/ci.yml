@@ -5,10 +5,21 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  merge_group:
+    branches: [main]
 
 env:
   NODE_VERSION: '24'
   PNPM_VERSION: '12.8.1'
+
+# Cancel a stale CI run for the same PR when new commits land, so only the
+# latest commit's result gates merge — avoids wasted runner time and race
+# conditions between superseded runs. Scoped to pull_request only: a push-to-
+# main or merge_group run must NEVER be cancelled mid-flight, since deploy.yml
+# waits on this exact workflow's conclusion via workflow_run.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   lint-typecheck-unit:
