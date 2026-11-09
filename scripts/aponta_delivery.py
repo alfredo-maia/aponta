@@ -429,6 +429,40 @@ def resolve_pr_from_event(event: dict | None, fetch_pr) -> tuple[dict, str | Non
     return pr, pr.get('base', {}).get('sha'), pr.get('head', {}).get('sha'), None
 
 
+def mirror_qa_status(fetch_statuses, post_status, head_sha: str, target_sha: str) -> list[str]:
+    """Copy the 'Independent QA' commit status from a PR's real head commit to
+    the Merge Queue's synthetic commit (`merge_group.head_sha`).
+
+    GitHub Actions check-runs triggered BY the `merge_group` event land on
+    that synthetic commit automatically (CI, Delivery contract), but
+    third-party commit statuses posted by an external system — like the
+    Multica QA agent posting 'Independent QA' against the PR's own head
+    commit — are never carried over. Without this mirror, a required
+    status check configured in the branch protection ruleset is permanently
+    unsatisfiable on the queue commit and the PR stalls in
+    AWAITING_CHECKS forever, even though a human (or an agent) already
+    approved the exact code being merged.
+
+    `fetch_statuses(sha) -> list[dict]` and `post_status(sha, payload)` are
+    injected so this is testable without a real GitHub API call; production
+    wires them to `gh api repos/<repo>/commits/<sha>/statuses` (GET) and
+    `gh api -X POST repos/<repo>/statuses/<sha>` (POST) respectively.
+    """
+    statuses = fetch_statuses(head_sha)
+    qa = next((s for s in statuses if s.get('context') == 'Independent QA'), None)
+    if qa is None:
+        return ['Independent QA status not found on PR head ' + head_sha + '; cannot mirror to the merge queue.']
+    if qa.get('state') != 'success':
+        return ['Independent QA on PR head ' + head_sha + ' is not success (state=' + str(qa.get('state')) + '); cannot mirror.']
+    post_status(target_sha, {
+        'state': 'success',
+        'context': 'Independent QA',
+        'description': qa.get('description') or '',
+        'target_url': qa.get('target_url') or '',
+    })
+    return []
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, default=Path.cwd())
@@ -444,6 +478,8 @@ def main() -> int:
     check.add_argument('--manifest', type=Path)
     check.add_argument('--event', type=Path)
     check.add_argument('--registry', type=Path, default=Path('.delivery/registry.json'))
+    mirror = sub.add_parser('mirror-qa-status', help="copy 'Independent QA' from a PR head to the merge queue's synthetic commit")
+    mirror.add_argument('--event', type=Path, required=True)
     cycle = sub.add_parser('cycle', help='print the automatic cycle id for a date (default: today, America/Sao_Paulo)')
     cycle.add_argument('--date', type=dt.date.fromisoformat)
     locked = sub.add_parser('with-lock')
@@ -460,6 +496,37 @@ def main() -> int:
     if args.action == 'cycle':
         print(cycle_for(args.date or today_sao_paulo()))
         return 0
+    if args.action == 'mirror-qa-status':
+        event = json.loads(args.event.read_text())
+        merge_group = event.get('merge_group')
+        if not merge_group:
+            print('Not a merge_group event; nothing to mirror.')
+            return 0
+        ref_match = re.search(r'/pr-(\d+)-', merge_group.get('head_ref') or '')
+        if not ref_match:
+            print('ERROR: could not resolve the PR number from the merge_group head_ref.', file=sys.stderr)
+            return 1
+        pr = json.loads(subprocess.run(
+            ['gh', 'api', 'repos/' + CANONICAL_REPOSITORY + '/pulls/' + ref_match.group(1)],
+            capture_output=True, text=True, check=True).stdout)
+        head_sha = pr['head']['sha']
+
+        def fetch_statuses(sha: str) -> list[dict]:
+            return json.loads(subprocess.run(
+                ['gh', 'api', 'repos/' + CANONICAL_REPOSITORY + '/commits/' + sha + '/statuses'],
+                capture_output=True, text=True, check=True).stdout)
+
+        def post_status(sha: str, payload: dict) -> None:
+            subprocess.run(
+                ['gh', 'api', '-X', 'POST', 'repos/' + CANONICAL_REPOSITORY + '/statuses/' + sha, '--input', '-'],
+                input=json.dumps(payload), capture_output=True, text=True, check=True)
+
+        mirror_errors = mirror_qa_status(fetch_statuses, post_status, head_sha, merge_group['head_sha'])
+        for error in mirror_errors:
+            print('ERROR: ' + error, file=sys.stderr)
+        if not mirror_errors:
+            print('Mirrored Independent QA from ' + head_sha + ' to ' + merge_group['head_sha'] + '.')
+        return 1 if mirror_errors else 0
     if args.action == 'with-lock':
         command = args.command[1:] if args.command[:1] == ['--'] else args.command
         if not command:

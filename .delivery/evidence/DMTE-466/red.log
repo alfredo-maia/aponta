@@ -49,19 +49,37 @@ test_file_deleted_by_the_slice_but_changed_on_main_is_rejected (test_aponta_deli
 test_governance_file_changed_on_both_sides_does_not_invalidate_evidence (test_aponta_delivery.EvidenceBaseMovedTests.test_governance_file_changed_on_both_sides_does_not_invalidate_evidence) ... ok
 test_slice_file_renamed_on_main_is_rejected (test_aponta_delivery.EvidenceBaseMovedTests.test_slice_file_renamed_on_main_is_rejected) ... ok
 test_slice_file_with_non_ascii_name_changed_on_main_is_rejected (test_aponta_delivery.EvidenceBaseMovedTests.test_slice_file_with_non_ascii_name_changed_on_main_is_rejected) ... ok
+test_missing_qa_status_is_reported_without_posting (test_aponta_delivery.MirrorQaStatusTests.test_missing_qa_status_is_reported_without_posting) ... FAIL
+test_non_success_qa_status_is_reported_without_posting (test_aponta_delivery.MirrorQaStatusTests.test_non_success_qa_status_is_reported_without_posting) ... FAIL
+test_success_status_is_copied_to_the_target_sha (test_aponta_delivery.MirrorQaStatusTests.test_success_status_is_copied_to_the_target_sha) ... FAIL
 test_merge_group_event_resolves_pr_via_fetch_pr (test_aponta_delivery.ResolvePrFromEventTests.test_merge_group_event_resolves_pr_via_fetch_pr) ... FAIL
-test_merge_group_with_unparseable_head_ref_reports_unresolved (test_aponta_delivery.ResolvePrFromEventTests.test_merge_group_with_unparseable_head_ref_reports_unresolved) ... FAIL
+test_merge_group_with_unparseable_head_ref_reports_unresolved (test_aponta_delivery.ResolvePrFromEventTests.test_merge_group_with_unparseable_head_ref_reports_unresolved) ... ok
 test_no_event_returns_empty (test_aponta_delivery.ResolvePrFromEventTests.test_no_event_returns_empty) ... ok
-test_pull_request_event_reads_body_and_shas_directly (test_aponta_delivery.ResolvePrFromEventTests.test_pull_request_event_reads_body_and_shas_directly) ... ERROR
+test_pull_request_event_reads_body_and_shas_directly (test_aponta_delivery.ResolvePrFromEventTests.test_pull_request_event_reads_body_and_shas_directly) ... ok
 
 ======================================================================
-ERROR: test_pull_request_event_reads_body_and_shas_directly (test_aponta_delivery.ResolvePrFromEventTests.test_pull_request_event_reads_body_and_shas_directly)
+FAIL: test_missing_qa_status_is_reported_without_posting (test_aponta_delivery.MirrorQaStatusTests.test_missing_qa_status_is_reported_without_posting)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/home/hermes/repos/aponta/scripts/test_aponta_delivery.py", line 387, in test_pull_request_event_reads_body_and_shas_directly
-    self.assertEqual((pr['body'], base, head, merge_group), ('Aponta-Delivery: DMTE-1', 'a' * 40, 'b' * 40, None))
-                      ~~^^^^^^^^
-KeyError: 'body'
+  File "/home/hermes/repos/aponta/scripts/test_aponta_delivery.py", line 439, in test_missing_qa_status_is_reported_without_posting
+    self.assertTrue(errors)
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_non_success_qa_status_is_reported_without_posting (test_aponta_delivery.MirrorQaStatusTests.test_non_success_qa_status_is_reported_without_posting)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/repos/aponta/scripts/test_aponta_delivery.py", line 448, in test_non_success_qa_status_is_reported_without_posting
+    self.assertTrue(errors)
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_success_status_is_copied_to_the_target_sha (test_aponta_delivery.MirrorQaStatusTests.test_success_status_is_copied_to_the_target_sha)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/repos/aponta/scripts/test_aponta_delivery.py", line 427, in test_success_status_is_copied_to_the_target_sha
+    self.assertEqual(len(posted), 1)
+AssertionError: 0 != 1
 
 ======================================================================
 FAIL: test_merge_group_event_resolves_pr_via_fetch_pr (test_aponta_delivery.ResolvePrFromEventTests.test_merge_group_event_resolves_pr_via_fetch_pr)
@@ -78,15 +96,7 @@ First extra element 0:
 - []
 + ['7']
 
-======================================================================
-FAIL: test_merge_group_with_unparseable_head_ref_reports_unresolved (test_aponta_delivery.ResolvePrFromEventTests.test_merge_group_with_unparseable_head_ref_reports_unresolved)
 ----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/home/hermes/repos/aponta/scripts/test_aponta_delivery.py", line 407, in test_merge_group_with_unparseable_head_ref_reports_unresolved
-    self.assertEqual(merge_group, event['merge_group'])
-AssertionError: None != {'head_ref': 'refs/heads/some-unexpected-[59 chars]fff'}
+Ran 58 tests in 4.362s
 
-----------------------------------------------------------------------
-Ran 55 tests in 2.433s
-
-FAILED (failures=2, errors=1)
+FAILED (failures=4)
