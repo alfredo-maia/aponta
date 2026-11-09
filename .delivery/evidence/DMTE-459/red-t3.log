@@ -1,0 +1,45 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-459-e6dc95fae8d1/workdir/aponta/apps/web
+
+ ❯ |web| src/components/ds/escapeBack.test.tsx (4 tests | 2 failed) 217ms
+     × EzPageLayout com botão Voltar 127ms
+     ✓ EzPageLayout sem botão Voltar não reage ao Esc 21ms
+     × EzSimpleBar com onBack 44ms
+     ✓ sobreposição aberta tem prioridade: Esc fecha o modal e não volta 15ms
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  23:42:31
+   Duration  3.48s (transform 574ms, setup 321ms, import 1.20s, tests 217ms, environment 1.30s)
+
+stderr | src/components/ds/escapeBack.test.tsx > AC-3: Esc aciona "Voltar" das telas > EzPageLayout com botão Voltar
+React does not recognize the `showBackButton` prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase `showbackbutton` instead. If you accidentally passed it from a parent component, remove it from the DOM element.
+Unknown event handler property `onBack`. It will be ignored.
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/components/ds/escapeBack.test.tsx > AC-3: Esc aciona "Voltar" das telas > EzPageLayout com botão Voltar
+AssertionError: expected "vi.fn()" to be called 1 times, but got 0 times
+ ❯ src/components/ds/escapeBack.test.tsx:14:20
+     12|     render(<EzPageLayout title="T" showBackButton onBack={onBack} />);
+     13|     esc();
+     14|     expect(onBack).toHaveBeenCalledTimes(1);
+       |                    ^
+     15|   });
+     16|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |web| src/components/ds/escapeBack.test.tsx > AC-3: Esc aciona "Voltar" das telas > EzSimpleBar com onBack
+AssertionError: expected "vi.fn()" to be called 1 times, but got 0 times
+ ❯ src/components/ds/escapeBack.test.tsx:28:20
+     26|     render(<EzSimpleBar title="T" onBack={onBack} />);
+     27|     esc();
+     28|     expect(onBack).toHaveBeenCalledTimes(1);
+       |                    ^
+     29|   });
+     30|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+

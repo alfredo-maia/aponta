@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useEscapeLayer } from '../hooks/useEscapeLayer';
 import { ArrowLeft } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Ticket, TicketPriority } from '../hooks/useTickets';
@@ -97,6 +98,8 @@ export function CreateTicketPage() {
       setSubmitError('Falha ao criar o chamado. Verifique os dados e tente novamente.');
     },
   });
+
+  useEscapeLayer(() => setSelectedCatalogItem(null), catalog.length > 0 && !!selectedCatalogItem);
 
   if (catalog.length > 0 && !selectedCatalogItem) {
     return (

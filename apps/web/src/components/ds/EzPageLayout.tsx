@@ -1,5 +1,6 @@
 import { HTMLAttributes, forwardRef, ReactNode } from 'react';
 import { cn } from './utils';
+import { useEscapeLayer } from '../../hooks/useEscapeLayer';
 import { LayoutList, AppWindow, ArrowLeft } from 'lucide-react';
 
 export interface EzPageHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
@@ -21,6 +22,7 @@ export interface EzPageHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, 
  */
 export const EzPageHeader = forwardRef<HTMLDivElement, EzPageHeaderProps>(
   ({ title, breadcrumbs, actions, activeMode, onModeChange, showBackButton, onBack, className, ...props }, ref) => {
+    useEscapeLayer(() => onBack?.(), !!showBackButton && !!onBack);
     return (
       <div
         ref={ref}

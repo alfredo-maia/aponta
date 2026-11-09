@@ -199,6 +199,24 @@ describe('CreateTicketPage', () => {
     expect(banner).toHaveTextContent('Troca de Impressora');
   });
 
+  it('AC-3: Esc no formulário volta para o catálogo', async () => {
+    vi.mocked(api.get).mockImplementation((url) => {
+      if (url === '/catalog') {
+        return Promise.resolve({
+          data: [{ id: 'cat-1', name: 'Hardware', description: null, items: [{ id: 'item-1', title: 'Troca de Impressora', description: 'x', icon: null, defaultServiceDeskId: 'sd-1', defaultPriority: 'HIGH' }] }],
+        });
+      }
+      if (url === '/service-desks') return Promise.resolve({ data: [{ id: 'sd-1', name: 'Suporte N1' }] });
+      return Promise.resolve({ data: [] });
+    });
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(await screen.findByRole('button', { name: /troca de impressora/i }));
+    expect(await screen.findByText('Abrir Chamado')).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    expect(await screen.findByText('Catálogo de Serviços')).toBeInTheDocument();
+  });
+
   it('lets the user open a blank ticket from the catalog via "não está catalogado"', async () => {
     vi.mocked(api.get).mockImplementation((url) => {
       if (url === '/catalog') {

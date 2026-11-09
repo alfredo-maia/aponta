@@ -1,3 +1,4 @@
+import { useEscapeLayer } from '../../hooks/useEscapeLayer';
 import { useState } from 'react';
 import {
   Clock,
@@ -36,6 +37,7 @@ export function TicketFormMode({
   onBackToGrid,
   className,
 }: TicketFormModeProps) {
+  useEscapeLayer(onBackToGrid);
   const [activeTab, setActiveTab] = useState<'geral' | 'sla' | 'anexos' | 'csat'>('geral');
   const [title, setTitle] = useState(ticket.title);
   const [description, setDescription] = useState(ticket.description ?? '');

@@ -41,6 +41,14 @@ describe('TicketFormMode', () => {
     expect(screen.getByText('Avaliação CSAT')).toBeInTheDocument();
   });
 
+  it('AC-3: Esc volta para a grade', async () => {
+    const user = userEvent.setup();
+    const onBackToGrid = vi.fn();
+    render(<TicketFormMode ticket={mockTicket} layout="CASCADE" onBackToGrid={onBackToGrid} />);
+    await user.keyboard('{Escape}');
+    expect(onBackToGrid).toHaveBeenCalledTimes(1);
+  });
+
   it('allows editing title, status, priority, and saving', async () => {
     const user = userEvent.setup();
     const onSave = vi.fn().mockResolvedValue(undefined);
