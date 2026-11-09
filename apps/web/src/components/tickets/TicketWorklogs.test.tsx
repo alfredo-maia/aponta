@@ -476,6 +476,30 @@ describe('TicketWorklogs', () => {
     expect(vi.mocked(api.post).mock.calls[0][1]).not.toHaveProperty('bonusReason');
   });
 
+  it('does not show the guarantee reason field for an agent with a stale GUARANTEE draft when permissions fail', async () => {
+    loginAs('AGENT');
+    localStorage.setItem('aponta_worklog_draft_t-1', JSON.stringify({ valuationType: 'GUARANTEE', billable: false, bonusReason: 'Antigo', description: 'Rascunho antigo' }));
+    const base = vi.mocked(api.get).getMockImplementation()!;
+    vi.mocked(api.get).mockImplementation((url: string) =>
+      String(url).includes('/auth/me') ? Promise.reject(new Error('offline')) : base(url),
+    );
+    renderComponent('t-1', true);
+    await screen.findByRole('option', { name: 'Suporte' });
+    await waitFor(() => expect(vi.mocked(api.get).mock.calls.some(([u]) => String(u).includes('/auth/me'))).toBe(true));
+    expect(screen.queryByLabelText(/Motivo da garantia ou bonificação/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('worklog-valuation-type-select')).not.toBeInTheDocument();
+    expect(screen.getByTestId('worklog-billable-checkbox')).toBeChecked();
+  });
+
+  it('keeps a GUARANTEE draft for an agent who has the permission once it loads', async () => {
+    loginAs('AGENT');
+    currentPermissions = ['LAUNCH_WORKLOG_GUARANTEE'];
+    localStorage.setItem('aponta_worklog_draft_t-1', JSON.stringify({ valuationType: 'GUARANTEE', billable: false, bonusReason: 'Retrabalho', description: 'Rascunho' }));
+    renderComponent('t-1', true);
+    expect(await screen.findByTestId('worklog-valuation-type-select')).toHaveValue('GUARANTEE');
+    expect(screen.getByLabelText(/Motivo da garantia ou bonificação/)).toHaveValue('Retrabalho');
+  });
+
   it('shows the valuation type and the Garantia option to an agent with LAUNCH_WORKLOG_GUARANTEE', async () => {
     loginAs('AGENT');
     currentPermissions = ['LAUNCH_WORKLOG_GUARANTEE'];
