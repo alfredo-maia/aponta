@@ -5,6 +5,8 @@ import { useAuthStore } from '../stores/authStore';
 interface EffectivePermissions {
   isAdmin: boolean;
   permissions: string[];
+  /** DMTE-464: sem bypass de ADMIN; só o grupo de permissões decide. */
+  canViewTicketValues: boolean;
 }
 
 interface MeResponse extends EffectivePermissions {
@@ -22,7 +24,11 @@ export function useEffectivePermissions() {
     queryKey: ['auth', 'me', 'permissions'],
     queryFn: async () => {
       const { data } = await api.get<MeResponse>('/auth/me');
-      return { isAdmin: data.isAdmin, permissions: data.permissions ?? [] };
+      return {
+        isAdmin: data.isAdmin,
+        permissions: data.permissions ?? [],
+        canViewTicketValues: data.canViewTicketValues === true,
+      };
     },
     enabled: !!token,
   });
@@ -32,4 +38,9 @@ export function useHasPermission(key: string): boolean {
   const { data } = useEffectivePermissions();
   if (!data) return false;
   return data.isAdmin || data.permissions.includes(key);
+}
+
+export function useCanViewTicketValues(): boolean {
+  const { data } = useEffectivePermissions();
+  return data?.canViewTicketValues === true;
 }

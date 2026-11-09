@@ -42,7 +42,6 @@ describe('DEFAULT_PERMISSION_GROUPS (DMTE-126)', () => {
     ['VIEW_AND_OPEN_TICKETS', [Role.ADMIN, Role.AGENT]],
     ['CREATE_EDIT_WORKLOGS', [Role.ADMIN, Role.AGENT_MASTER, Role.AGENT]],
     ['MANAGE_BILLING', [Role.ADMIN]],
-    ['VIEW_TICKET_VALUES', [Role.ADMIN]],
     ['VIEW_ADD_INTERNAL_COMMUNICATION', [Role.ADMIN, Role.AGENT]],
     ['VIEW_ALL_SCHEDULES', [Role.ADMIN, Role.AGENT_MASTER, Role.AGENT, Role.CLIENT_MASTER]],
     // DMTE-128: CREATE_TICKET_SCHEDULING cobre create/update/remove de
@@ -111,5 +110,13 @@ describe('DEFAULT_PERMISSION_GROUPS (DMTE-126)', () => {
       expect(hasKey(Role.AGENT, 'VIEW_PASSWORD_VAULT_AUDIT')).toBe(false);
       expect(hasKey(Role.AGENT_MASTER, 'VIEW_PASSWORD_VAULT_AUDIT')).toBe(false);
     });
+  });
+});
+
+describe('DMTE-464 VIEW_TICKET_VALUES', () => {
+  it('AC-06: nenhum grupo padrão por role traz a permissão; quem vê valor é decidido pelo grupo "Valores de tickets"', () => {
+    for (const role of Object.values(Role)) {
+      expect(DEFAULT_PERMISSION_GROUPS[role].permissions).not.toContain('VIEW_TICKET_VALUES');
+    }
   });
 });

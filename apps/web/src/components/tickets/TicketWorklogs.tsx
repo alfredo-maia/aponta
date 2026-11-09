@@ -29,6 +29,7 @@ import {
 import { brasiliaWallClockIso } from '../../lib/billingTime';
 import { preparePastedImage } from '../../lib/preparePastedImage';
 import { useAuthStore } from '../../stores/authStore';
+import { useCanViewTicketValues } from '../../hooks/usePermissions';
 import {
   useActivityTimer,
   type ActivityTimer,
@@ -155,6 +156,7 @@ export function TicketWorklogs({
 }: TicketWorklogsProps) {
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.role === 'ADMIN';
+  const canViewValues = useCanViewTicketValues();
   /** The next stage that also closes the ticket, if the current stage can reach one. */
   const finalNextStage = nextStages.find((stage) => stage.isFinal);
 
@@ -558,6 +560,7 @@ export function TicketWorklogs({
       parsedManualValue = Number(manualValue);
       if (
         !isAdmin ||
+        !canViewValues ||
         !manualValue.trim() ||
         !Number.isFinite(parsedManualValue) ||
         parsedManualValue < 0
@@ -1045,11 +1048,11 @@ export function TicketWorklogs({
               >
                 <option value="CONTRACT">Contrato</option>
                 <option value="GUARANTEE">Garantia</option>
-                {isAdmin && <option value="MANUAL">Valor manual</option>}
+                {isAdmin && canViewValues && <option value="MANUAL">Valor manual</option>}
                 {isAdmin && <option value="BONUS">Bonificação</option>}
               </EzComboBox>
 
-              {isAdmin &&
+              {canViewValues &&
                 (valuationType === 'MANUAL' ? (
                   <EzTextInput
                     id="worklog-manual-value"
@@ -1523,7 +1526,7 @@ export function TicketWorklogs({
                     <th className="py-2.5 px-3">Atendimento</th>
                     <th className="py-2.5 px-3">Deslocamento</th>
                     <th className="py-2.5 px-3">Contrato / Serviço avulso</th>
-                    {isAdmin && <th className="py-2.5 px-3">Valor</th>}
+                    {canViewValues && <th className="py-2.5 px-3">Valor</th>}
                     <th className="py-2.5 px-3 text-right">Ações</th>
                   </tr>
                 </thead>
@@ -1531,7 +1534,7 @@ export function TicketWorklogs({
                   {visibleWorklogs.length === 0 && (
                     <tr>
                       <td
-                        colSpan={isAdmin ? 8 : 7}
+                        colSpan={canViewValues ? 8 : 7}
                         className="py-8 px-3 text-center text-[13px] text-gray-500"
                         data-testid="worklog-filter-empty"
                       >
@@ -1620,7 +1623,7 @@ export function TicketWorklogs({
                             </span>
                           </td>
 
-                          {isAdmin && (
+                          {canViewValues && (
                             <td className="py-3 px-3 font-mono text-gray-700">
                               <div className="flex items-center gap-1.5">
                                 <span>
@@ -1659,7 +1662,7 @@ export function TicketWorklogs({
                             data-testid={`worklog-detail-${wl.id}`}
                             className="bg-gray-80/70"
                           >
-                            <td colSpan={isAdmin ? 8 : 7} className="px-4 py-3">
+                            <td colSpan={canViewValues ? 8 : 7} className="px-4 py-3">
                               <div className="text-[12px] bg-white p-3 rounded-[6px] border border-gray-200 text-gray-800">
                                 <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block mb-2">
                                   Detalhamento das atividades
@@ -1669,7 +1672,7 @@ export function TicketWorklogs({
                                 />
                                 <WorklogValuation
                                   worklog={wl}
-                                  showFinancial={isAdmin}
+                                  showFinancial={canViewValues}
                                 />
                               </div>
                             </td>
@@ -1682,7 +1685,7 @@ export function TicketWorklogs({
                 <tfoot>
                   <tr className="bg-gray-80 border-t border-gray-200 text-[12px]">
                     <td
-                      colSpan={isAdmin ? 6 : 7}
+                      colSpan={canViewValues ? 6 : 7}
                       className="py-2.5 px-3 font-medium text-gray-600"
                     >
                       Total de horas:{' '}
@@ -1693,7 +1696,7 @@ export function TicketWorklogs({
                         {formatWorklogMinutes(visibleTotalMinutes)}
                       </strong>
                     </td>
-                    {isAdmin && (
+                    {canViewValues && (
                       <td
                         className="py-2.5 px-3 font-medium text-gray-600"
                         colSpan={2}

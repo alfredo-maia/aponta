@@ -109,9 +109,23 @@ type PreRow = {
 let currentWorklogs: unknown[] = [];
 let preStore: PreRow[] = [];
 
+// DMTE-464: null = segue o role (ADMIN vê valor), como o servidor fazia antes.
+let viewTicketValues: boolean | null = null;
+
 function installApiStubs() {
   vi.mocked(api.get).mockImplementation((url: string) => {
     const path = String(url);
+    if (path === '/auth/me') {
+      const role = useAuthStore.getState().user?.role;
+      return Promise.resolve({
+        data: {
+          id: 'u-1',
+          isAdmin: role === 'ADMIN',
+          permissions: [],
+          canViewTicketValues: viewTicketValues ?? role === 'ADMIN',
+        },
+      });
+    }
     if (path.includes('/pre-appointments')) {
       return Promise.resolve({ data: [...preStore] });
     }
@@ -199,6 +213,7 @@ describe('TicketWorklogs', () => {
     localStorage.clear();
     currentWorklogs = [];
     preStore = [];
+    viewTicketValues = null;
     installApiStubs();
     useAuthStore.setState({ token: null, user: null });
   });
@@ -1076,7 +1091,7 @@ describe('TicketWorklogs', () => {
     loginAs('ADMIN');
     renderComponent('t-1', true);
     expect(screen.queryByDisplayValue('Incluso no contrato')).not.toBeInTheDocument();
-    expect(screen.getByDisplayValue('A calcular ao salvar')).toBeInTheDocument();
+    expect(await screen.findByDisplayValue('A calcular ao salvar')).toBeInTheDocument();
     fireEvent.change(screen.getByTestId('worklog-valuation-type-select'), { target: { value: 'GUARANTEE' } });
     expect(screen.getByTestId('worklog-billable-checkbox')).toBeDisabled();
     expect(screen.getByTestId('worklog-billable-checkbox')).not.toBeChecked();
@@ -1097,6 +1112,7 @@ describe('TicketWorklogs', () => {
     loginAs('ADMIN');
     renderComponent('t-1', true);
     fireEvent.change(screen.getByTestId('worklog-description-input'), { target: { value: 'Atividade realizada' } });
+    await screen.findByRole('option', { name: 'Valor manual' });
     fireEvent.change(screen.getByTestId('worklog-valuation-type-select'), { target: { value: 'MANUAL' } });
     fireEvent.change(screen.getByTestId('worklog-manual-value-input'), { target: { value: '-10' } });
     fireEvent.submit(screen.getByTestId('worklog-form'));
@@ -1165,6 +1181,32 @@ describe('TicketWorklogs', () => {
     expect(await screen.findByText('O horário de término deve ser posterior ao horário de início.')).toBeInTheDocument();
     expect(api.post).not.toHaveBeenCalled();
   });
+
+  describe('valor por permissão (DMTE-464)', () => {
+    const withValue = [{ ...mockWorklogs[0], valueCents: 10000 }];
+
+    it('AC-05: ADMIN sem VIEW_TICKET_VALUES não vê campo, valor da linha nem total', async () => {
+      viewTicketValues = false;
+      currentWorklogs = withValue;
+      loginAs('ADMIN');
+      renderComponent();
+      const item = await screen.findByTestId('worklog-item-wl-1');
+      await screen.findByTestId('worklog-footer-hours');
+      await waitFor(() => expect(api.get).toHaveBeenCalledWith('/auth/me'));
+      expect(within(item).queryByText('R$ 100,00')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('worklog-footer-value')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Valor')).not.toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: 'Valor manual' })).not.toBeInTheDocument();
+    });
+
+    it('AC-05: agente com VIEW_TICKET_VALUES vê o valor da linha e o total', async () => {
+      viewTicketValues = true;
+      currentWorklogs = withValue;
+      loginAs('AGENT');
+      renderComponent();
+      const item = await screen.findByTestId('worklog-item-wl-1');
+      expect(await within(item).findByText('R$ 100,00')).toBeInTheDocument();
+      expect(await screen.findByTestId('worklog-footer-value')).toHaveTextContent('R$ 100,00');
+    });
+  });
 });
-
-

@@ -104,4 +104,30 @@ describe('PermissionsService', () => {
       expect(result).toBe(false);
     });
   });
+
+  describe('canViewTicketValues (DMTE-464)', () => {
+    it('é verdadeiro quando um grupo direto tem VIEW_TICKET_VALUES', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({
+        permissionGroupLinks: [{ permissionGroup: { permissions: ['VIEW_TICKET_VALUES'] } }],
+        technicalGroup: null,
+      });
+      await expect(service.canViewTicketValues('user-1')).resolves.toBe(true);
+    });
+
+    it('é verdadeiro quando o grupo técnico do usuário tem a permissão', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({
+        permissionGroupLinks: [],
+        technicalGroup: { permissionGroupLinks: [{ permissionGroup: { permissions: ['VIEW_TICKET_VALUES'] } }] },
+      });
+      await expect(service.canViewTicketValues('user-1')).resolves.toBe(true);
+    });
+
+    it('é falso sem a permissão, mesmo com outras permissões', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({
+        permissionGroupLinks: [{ permissionGroup: { permissions: ['MANAGE_USERS'] } }],
+        technicalGroup: null,
+      });
+      await expect(service.canViewTicketValues('user-1')).resolves.toBe(false);
+    });
+  });
 });

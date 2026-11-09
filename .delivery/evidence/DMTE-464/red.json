@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-09T02:39:05.479496+00:00",
+  "finished_at": "2026-11-09T02:43:17.318250+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run-many",
+    "-t",
+    "test",
+    "-p",
+    "api,web",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "016422114062f6c740a715a2233a75c3284067af",
+  "head_sha": "016422114062f6c740a715a2233a75c3284067af",
+  "exit_code": 1,
+  "tests": {
+    "apps/api/src/worklogs/worklogs.service.spec.ts": "18fd2566c049346563660d72fa9e04e85043b90b21f4ba5691eda7833293a125",
+    "apps/api/src/permissions/permissions.service.spec.ts": "d78cc31085bf4fbea8b2fc8d5fae2b1f58457997b831abde848e1e95f82e504a",
+    "apps/api/src/auth/auth.controller.spec.ts": "ff9b9e18fb4f165014329c9edf47eac779593af20f5f210587c399214143d257",
+    "apps/api/prisma/seed.spec.ts": "dc2f268da081334b5901407986781c7ca6679c5edf9255f188046a74aaf67b1b",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "1706b3bfa956f06eb81b08c92925cbd954da8d6b9a760a1cc8db83feb79ab649"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06"
+  ],
+  "source_hashes": {
+    "apps/api/prisma/seed.spec.ts": "dc2f268da081334b5901407986781c7ca6679c5edf9255f188046a74aaf67b1b",
+    "apps/api/src/auth/auth.controller.spec.ts": "ff9b9e18fb4f165014329c9edf47eac779593af20f5f210587c399214143d257",
+    "apps/api/src/permissions/permissions.service.spec.ts": "d78cc31085bf4fbea8b2fc8d5fae2b1f58457997b831abde848e1e95f82e504a",
+    "apps/api/src/permissions/permissions.service.ts": "4c737c51d31350a54d11d13c518f2874fb97dcc3a4bcd5e04c8a70e1d88c633c",
+    "apps/api/src/worklogs/worklogs.commercial.spec.ts": "b0a879ace36930772add8637397daa643407d58ad18f0d2a2ef9575eb65a6dae",
+    "apps/api/src/worklogs/worklogs.service.spec.ts": "18fd2566c049346563660d72fa9e04e85043b90b21f4ba5691eda7833293a125",
+    "apps/api/src/worklogs/worklogs.service.ts": "fbfb53bab1614a492a2aa3d9675513af33d4d25783f4d16de213e0a7982a8b3e",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "1706b3bfa956f06eb81b08c92925cbd954da8d6b9a760a1cc8db83feb79ab649"
+  },
+  "log": ".delivery/evidence/DMTE-464/red.log",
+  "log_sha256": "d5206f335ce9123cf12140445932c73ee247b5738f6bddef5f87009000f89406"
+}
