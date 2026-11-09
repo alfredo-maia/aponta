@@ -1,0 +1,94 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-467-3cccdc05c950/workdir/w158/apps/web
+
+ ❯ |web| src/components/tickets/TicketWorklogs.test.tsx (61 tests | 1 failed | 60 skipped) 391ms
+     ↓ formatWorklogMinutes formats minutes into human readable text
+     ↓ formatAttendanceType translates the attendance type enum
+     ↓ formatWorklogValue formats a monetary value or a dash when null
+     ↓ renders worklogs list and summary header correctly
+     ↓ renders empty state when no worklogs exist
+     ↓ uses the DS EzComboBox (Storybook) for every worklog selector
+     ↓ allows filling the form and submitting a new worklog
+     ↓ allows choosing attendance type and a custom time range, sending them on submit
+     ↓ blocks submission when the end time is not after the start time
+     ↓ quick chip buttons update the end time and the computed duration
+     ↓ sends valuationType MANUAL with the entered value
+     ↓ blocks submission when valuationType is MANUAL without a value
+     ↓ hides the valuation type from an agent without LAUNCH_WORKLOG_GUARANTEE and submits CONTRACT
+     ↓ does not leak the valuation type in the expanded row of an agent without the permission
+     ↓ submits CONTRACT for an agent with a stale GUARANTEE draft when permissions never load
+     × does not show the guarantee reason field for an agent with a stale GUARANTEE draft when permissions fail 385ms
+     ↓ keeps a GUARANTEE draft for an agent who has the permission once it loads
+     ↓ shows the valuation type and the Garantia option to an agent with LAUNCH_WORKLOG_GUARANTEE
+     ↓ unchecks billable automatically when GUARANTEE is selected
+     ↓ sends nextStageId when a next stage is chosen
+     ↓ does not send nextStageId when "Não alterar" stays selected
+     ↓ sends sendAsReply when the checkbox is checked
+     ↓ renders TiFlux-parity action buttons and checkbox text
+     ↓ submits with the final next stage when "Salvar e fechar ticket" is clicked
+     ↓ disables "Salvar e fechar ticket" when no reachable next stage closes the ticket
+     ↓ submits and advances start time to previous end time when "Salvar e criar novo apontamento" is clicked
+     ↓ allows deleting own worklog when confirmed
+     ↓ renders modal closed by default when defaultModalOpen is false and opens upon "+ Apontamento" click
+     ↓ handles activity timer start, pause, and stop to open apontamento modal
+     ↓ lists a Brasília pré-apontamento while the timer runs and converts it into the form
+     ↓ appends a new pré-apontamento when starting again instead of overwriting
+     ↓ converts stopped raw time with its original contract and source identifier
+     ↓ discards the running pré-apontamento from the timer cancel control
+     ↓ prefills + Apontamento from the running pré without opening from the table
+     ↓ pauses and resumes the running pré from the table row
+     ↓ falls back to the author email local-part when the name is empty
+     ↓ falls back to Técnico when author and session emails are empty
+     ↓ prefills from derived timer times when initTime and endTime are blank
+     ↓ paginates the pré-apontamentos table when the list grows
+     ↓ clamps pagination back to the last page after deleting the only row on page 2
+     ↓ renders modal with spellcheck and portuguese language attributes
+     ↓ saves worklog draft in localStorage and restores it automatically
+     ↓ handles pasting image screenshot, uploading attachment and inserting it inline
+     ↓ keeps filled fields after closing the modal with X and reopening
+     ↓ renders the apontamento modal at 5xl width
+     ↓ expands and collapses activity details per row and in bulk
+     ↓ filters the history by attendant and attendance type via the funnel
+     ↓ sorts worklogs by day and shows filtered totals in the footer
+     ↓ hides monetary data and manual valuation for agents even with unmasked payloads
+     ↓ submits an explicit eligible contract and preserves it in the draft
+     ↓ keeps unknown contract values distinct from free coverage
+     ↓ does not restore manual financial fields for an agent draft
+     ↓ rejects negative manual amounts before calling the API
+     ↓ keeps unknown historical totals visible without inferring free values
+     ↓ blocks every valuation mode when no commercial contract is eligible
+     ↓ requires a bonus reason and records its eligible contract without quota consumption
+     ↓ submits near-midnight Brasília work as true instants in the correct local cycle
+     ↓ renders marked UTC logs in Brasília while preserving naive-Z legacy wallclocks
+     ↓ keeps incomplete worklog-day-input editable and blocks submission
+     ↓ keeps incomplete worklog-start-time-input editable and blocks submission
+     ↓ keeps incomplete worklog-end-time-input editable and blocks submission
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 60 skipped (61)
+   Start at  14:17:02
+   Duration  6.18s (transform 2.89s, setup 195ms, import 3.95s, tests 391ms, environment 1.16s)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/components/tickets/TicketWorklogs.test.tsx > TicketWorklogs > does not show the guarantee reason field for an agent with a stale GUARANTEE draft when permissions fail
+Error: [2mexpect([22m[31melement[39m[2m).not.toBeInTheDocument()[22m
+
+[31mexpected document not to contain element, found <input
+  class="flex-1 w-full bg-transparent border-none outline-none text-[14px] text-gray-900 placeholder:text-gray-400 h-full pl-4 pr-4"
+  id="worklog-bonus-reason"
+  required=""
+  type="text"
+  value="Antigo"
+/> instead[39m
+ ❯ src/components/tickets/TicketWorklogs.test.tsx:489:78
+    487|     await screen.findByRole('option', { name: 'Suporte' });
+    488|     await waitFor(() => expect(vi.mocked(api.get).mock.calls.some(([u]…
+    489|     expect(screen.queryByLabelText(/Motivo da garantia ou bonificação/…
+       |                                                                              ^
+    490|     expect(screen.queryByTestId('worklog-valuation-type-select')).not.…
+    491|     expect(screen.getByTestId('worklog-billable-checkbox')).toBeChecke…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

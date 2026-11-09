@@ -6,7 +6,7 @@
   "multica_id": "01a1be1b-486b-79bc-9070-376c7963c1cf",
   "cycle": "2026-11-09/2026-11-22",
   "tier": 2,
-  "base_sha": "eaebed509f1482a4d3bd36c09fd032ffe595a451",
+  "base_sha": "d6a50d5aaa9a8b5fc266b8d6d6acec1c75c52588",
   "criteria": [
     {
       "id": "AC-01",
@@ -64,8 +64,8 @@
   ],
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-463/red-r3.json",
-    "green": ".delivery/evidence/DMTE-463/green-r3.json"
+    "red": ".delivery/evidence/DMTE-463/red-r4.json",
+    "green": ".delivery/evidence/DMTE-463/green-r4.json"
   },
   "design_system": {
     "applicable": true,
