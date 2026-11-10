@@ -71,6 +71,67 @@ def build_query(parent, qa_issue=None):
       AND t.issue_id=i.id AND {author} ORDER BY c.created_at"""
 
 
+def git(root, *args):
+    return subprocess.run(['git', '-C', str(root), *args], capture_output=True, text=True, check=True).stdout.strip()
+
+
+def parent_of(root, registry, delivery):
+    """Multica parent of a delivery: its registry entry or, without one, its own manifest."""
+    entry = json.loads(Path(registry).read_text())['deliveries'].get(delivery)
+    if not entry:
+        entry = json.loads((Path(root) / '.delivery/deliveries' / (delivery + '.json')).read_text())
+    return entry['multica_id']
+
+
+# Paths a delivery may change after the review without changing what was reviewed.
+GOVERNANCE = ('.delivery/', 'docs/')
+
+
+def blob(root, commit, name):
+    """Mode and content of a path at a commit, so a permission change also counts as a difference."""
+    entry = git(root, 'ls-tree', commit, '--', name)
+    return entry.split('\t')[0] if entry else None  # None: deleted by the delivery
+
+
+def reviewed(root, commit, delivery, main_ref):
+    """What the QA judges at a commit: the delivery's own code, its acceptance criteria and its SPEC."""
+    base = git(root, 'merge-base', main_ref, commit)
+    names = git(root, 'diff', '--no-renames', '--name-only', '-z', base, commit).split('\0')
+    code = {name: blob(root, commit, name) for name in names if name and not name.startswith(GOVERNANCE)}
+    manifest = json.loads(git(root, 'show', commit + ':.delivery/deliveries/' + delivery + '.json'))
+    spec = manifest.get('spec')
+    return code, manifest.get('criteria'), blob(root, commit, spec) if isinstance(spec, str) else None
+
+
+def carry_source(root, records, commit, delivery, main_ref='origin/main'):
+    """Approved SHA whose reviewed code is identical to `commit`, or None.
+
+    A commit that only records governance (manifest, evidence, docs) or brings main in without
+    touching the delivery's files leaves the reviewed code as it was; the approval then still
+    describes what will be merged. Any difference in code, criteria or SPEC needs a new review.
+    """
+    try:
+        target = reviewed(root, commit, delivery, main_ref)
+    except (subprocess.CalledProcessError, ValueError):
+        return None
+    seen = []
+    for row in reversed(records):
+        content = row.get('content') or ''
+        if RESULT_LINE.findall(content) != ['APROVADO']:
+            continue
+        for candidate in SHA_FIELD.findall(content):
+            if candidate == commit or candidate in seen:
+                continue
+            seen.append(candidate)
+            try:
+                assess(records, candidate)
+                if reviewed(root, candidate, delivery, main_ref) == target:
+                    return candidate
+            except (subprocess.CalledProcessError, ValueError):
+                continue
+    return None
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--delivery', required=True)
@@ -80,18 +141,29 @@ def main():
     args = parser.parse_args()
     if not re.fullmatch(r'DMTE-\d+', args.delivery) or not re.fullmatch('[0-9a-f]{40}', args.sha):
         raise ValueError('Use a canonical delivery and full SHA.')
-    entry = json.loads(args.registry.read_text())['deliveries'][args.delivery]
-    parent = str(uuid.UUID(entry['multica_id']))
+    parent = str(uuid.UUID(parent_of(ROOT, args.registry, args.delivery)))
     source = str(uuid.UUID(args.qa_issue)) if args.qa_issue else parent
     query = build_query(parent, args.qa_issue)
     p = subprocess.run(['docker','exec','multica-postgres-1','psql','-U','multica','-d','multica','-At','-c',query],capture_output=True,text=True,check=True)
     current = (os.environ.get('MULTICA_TASK_ID'), os.environ.get('MULTICA_AGENT_ID'))
-    proof = assess([json.loads(line) for line in p.stdout.splitlines() if line], args.sha, current)
-    payload = {'state':'success','context':'Independent QA','description':'QA Multica independente aprovou este SHA',
+    records = [json.loads(line) for line in p.stdout.splitlines() if line]
+    carried = None
+    try:
+        proof = assess(records, args.sha, current)
+    except ValueError:
+        # No approval for this exact SHA: reuse one only when the reviewed code is identical.
+        subprocess.run(['git', '-C', str(ROOT), 'fetch', '-q', 'origin', 'main'], capture_output=True)
+        carried = carry_source(ROOT, records, args.sha, args.delivery)
+        if not carried:
+            raise
+        proof = assess(records, carried)
+    description = ('QA aprovou ' + carried[:10] + '; código revisado idêntico neste SHA' if carried
+                   else 'QA Multica independente aprovou este SHA')
+    payload = {'state':'success','context':'Independent QA','description':description,
         'target_url':'https://multica.dmtecnologia.cloud/dm-tecnologia/issues/'+source}
     subprocess.run(['gh','api','-X','POST','repos/'+CANONICAL_REPOSITORY+'/statuses/'+args.sha,'--input','-'],
         input=json.dumps(payload),capture_output=True,text=True,check=True)
-    result = {'delivery':args.delivery,'sha':args.sha,'qa_issue':source,'source_task_id':proof['source_task_id'],'result':'success'}
+    result = {'delivery':args.delivery,'sha':args.sha,'qa_issue':source,'source_task_id':proof['source_task_id'],'result':'success','carried_from':carried}
     STATE.mkdir(parents=True, exist_ok=True)
     (STATE / ('qa-status-'+args.delivery+'.json')).write_text(json.dumps(result,indent=2))
     print(json.dumps(result))
