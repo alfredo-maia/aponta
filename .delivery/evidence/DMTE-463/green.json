@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-10T22:57:12.752412+00:00",
+  "finished_at": "2026-11-10T22:59:37.496026+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run-many",
+    "-t",
+    "test",
+    "-p",
+    "api,web",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "8f29c1f3beb85a0295ed6f4abedaf6abb9c98673",
+  "head_sha": "326eef929669b67e2e0b32915b5f4beacac7845d",
+  "exit_code": 0,
+  "tests": {
+    "apps/api/src/worklogs/worklogs.service.spec.ts": "8608ac522b0668da38e97b09d08635b710d6efb3edc53382595b45031ba59d1e",
+    "apps/api/src/worklogs/worklogs.commercial.spec.ts": "762dab32665cdb3a3f2fdb7efba8edab7faaee9dcfc54fe548ba84603c97c4d0",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "d4fb1d95298960b69141d48abb04f5c814f8c4b07d6841a1daaca4676c23242b"
+  },
+  "criteria": [
+    "AC-02",
+    "AC-03",
+    "AC-04"
+  ],
+  "source_hashes": {
+    "apps/api/src/permission-groups/permission-catalog.ts": "b8fc73c5c4a9a0977f68453e698fd0144e971ec80e6a8b8b01f8e2206bbe68fb",
+    "apps/api/src/worklogs/worklogs.commercial.spec.ts": "762dab32665cdb3a3f2fdb7efba8edab7faaee9dcfc54fe548ba84603c97c4d0",
+    "apps/api/src/worklogs/worklogs.service.spec.ts": "8608ac522b0668da38e97b09d08635b710d6efb3edc53382595b45031ba59d1e",
+    "apps/api/src/worklogs/worklogs.service.ts": "46663e64e299c9ef418286803317f9c3c7befd69c5e0b1ad9f231072027e7509",
+    "apps/web-e2e/src/commercial-v2.spec.ts": "a6de5b42ad202c39e6b57ea815a0cb423ef509f3810afe76c08e777c44e4bd88",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "d4fb1d95298960b69141d48abb04f5c814f8c4b07d6841a1daaca4676c23242b",
+    "apps/web/src/components/tickets/TicketWorklogs.tsx": "a5695569fbd96c2eadeb37e016192007a9160fb846ec6070caa41c98391b9277"
+  },
+  "log": ".delivery/evidence/DMTE-463/green.log",
+  "log_sha256": "00ea70b4d6c08419e4d49a68baeca997a66316ac2b5cd53cdafe43de908960aa"
+}
