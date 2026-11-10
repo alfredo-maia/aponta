@@ -18,7 +18,7 @@ These rules apply to agents working in this repository. See `docs/delivery/WORKF
 
 ### Issue tracker
 
-Issues live in this repo's GitHub Issues (`alfredo-maia/aponta`), via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+Issues live in this repo's GitHub Issues (`dmrepositorio/aponta`), via the `gh` CLI. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

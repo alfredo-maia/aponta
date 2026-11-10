@@ -1,9 +1,17 @@
 name: CD (Produção)
 
 on:
-  push:
-    branches:
-      - main
+  # Never trigger directly on push — that let deploy race the CI workflow
+  # on the exact same commit (classic "deploy before tests finish" bug the
+  # push trigger alone can't prevent, even with a concurrency gate, since
+  # push and workflow_run are independent event streams). Deploy only after
+  # the CI workflow itself reports a conclusion for a push to main, and only
+  # proceeds if that conclusion was a real success (checked in the job
+  # below) — this is the standard "wait for CI, then CD" gate pattern.
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
 
 concurrency:
   group: deploy-production
@@ -12,23 +20,37 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Guard clause: only deploy when the upstream CI run that triggered this
+    # was itself triggered by a push to main (not a PR/merge_group run) AND
+    # it actually succeeded. A failed/cancelled CI run must never reach the
+    # SSH deploy step.
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
     steps:
       - name: Deploy to VPS using SSH
         uses: appleboy/ssh-action@master
+        env:
+          # The exact commit CI just validated — deploy pins to this SHA
+          # instead of trailing "origin/main" so what ships is provably
+          # identical to what passed CI, even if another merge lands on
+          # main microseconds later while this job is still running.
+          DEPLOY_SHA: ${{ github.event.workflow_run.head_sha }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
           port: 2000
+          envs: DEPLOY_SHA
           # Não usa porta padronizada, assume 22 a não ser que exista overrides.
           script: |
             set -e
-            echo "Iniciando Deploy do Aponta via GitHub Actions..."
+            echo "Iniciando Deploy do Aponta via GitHub Actions (SHA validado pelo CI: $DEPLOY_SHA)..."
             cd /home/hermes/repos/aponta
-            
-            # Baixa a última versão da main
+
+            # Baixa e fixa exatamente o commit que o CI acabou de aprovar —
+            # nunca "a main mais recente", para garantir que o que sobe é
+            # idêntico ao que passou nos testes.
             git fetch origin main
-            git reset --hard origin/main
+            git reset --hard "$DEPLOY_SHA"
             
             # Carrega credenciais locais do host (sudo) e sobe os containers
             source ~/.hermes/.env 2>/dev/null
