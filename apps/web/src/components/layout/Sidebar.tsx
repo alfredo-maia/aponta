@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
+import { useOpenInTab } from '../../contexts/TabsContext';
 import {
   EzSidebarNavigator,
   EzSidebarButton,
@@ -77,10 +78,19 @@ export function Sidebar({ inDrawer = false, onNavigate }: SidebarProps = {}) {
   const user = useAuthStore((state) => state.user);
   const location = useLocation();
   const navigate = useNavigate();
+  const openInTab = useOpenInTab();
   const [collapsedState, setCollapsedState] = useState(false);
   const collapsed = inDrawer ? false : collapsedState;
   const go = (to: string) => {
     navigate(to);
+    onNavigate?.();
+  };
+
+  // "Tickets" é a aba fixa (vários tickets abrem cada um a sua aba). Qualquer outra
+  // opção abre a própria aba ou foca a que já está aberta (DMTE-457).
+  const goToItem = (to: string, label: string) => {
+    if (to === '/') navigate(to);
+    else openInTab(to, label);
     onNavigate?.();
   };
 
@@ -130,7 +140,7 @@ export function Sidebar({ inDrawer = false, onNavigate }: SidebarProps = {}) {
             collapsed={collapsed}
             active={isActive}
             disabled={item.disabled}
-            onClick={() => go(item.to)}
+            onClick={() => goToItem(item.to, item.label)}
             className={item.submenu && !collapsed ? 'pl-8' : undefined}
           />
         );

@@ -36,7 +36,10 @@ export function AppLayout() {
   useEffect(() => {
     if (!menuOpen) return undefined;
     document.body.style.overflow = 'hidden';
-    const desktop = typeof window.matchMedia === 'function' ? window.matchMedia('(min-width: 768px)') : null;
+    const desktop =
+      typeof window.matchMedia === 'function'
+        ? window.matchMedia('(min-width: 768px)')
+        : null;
     const closeOnDesktop = (event: { matches: boolean }) => {
       if (event.matches) setMenuOpen(false);
     };
@@ -58,70 +61,74 @@ export function AppLayout() {
   }, [menuOpen]);
 
   return (
-    <div className="flex min-h-screen bg-gray-80 text-gray-900">
-      <div
-        data-testid="desktop-sidebar"
-        inert={menuOpen}
-        className="sticky top-0 hidden h-screen shrink-0 md:block"
-      >
-        <Sidebar />
-      </div>
-
-      {menuOpen && (
-        <div className="md:hidden">
-          <div
-            data-testid="menu-backdrop"
-            aria-hidden="true"
-            className="fixed inset-0 z-40 bg-gray-900/40"
-            onClick={() => setMenuOpen(false)}
-          />
-          <div
-            ref={dialogRef}
-            id="menu-principal"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Menu principal"
-            tabIndex={-1}
-            className="fixed inset-y-0 left-0 z-50 max-w-[85vw] shadow-popover outline-none"
-          >
-            <button
-              type="button"
-              aria-label="Fechar menu"
-              onClick={() => setMenuOpen(false)}
-              className="absolute right-2 top-2 z-10 inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-control text-gray-700 outline-none hover:bg-gray-80 focus-visible:ring-2 focus-visible:ring-brand-500"
-            >
-              <X aria-hidden="true" className="h-5 w-5" />
-            </button>
-            <Sidebar inDrawer onNavigate={() => setMenuOpen(false)} />
-          </div>
+    <TabsProvider>
+      <div className="flex min-h-screen bg-gray-80 text-gray-900">
+        <div
+          data-testid="desktop-sidebar"
+          inert={menuOpen}
+          className="sticky top-0 hidden h-screen shrink-0 md:block"
+        >
+          <Sidebar />
         </div>
-      )}
 
-      <div data-testid="app-content" inert={menuOpen} className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-gray-200 bg-white p-3">
-          <button
-            ref={toggleRef}
-            type="button"
-            aria-label="Abrir menu"
-            aria-expanded={menuOpen}
-            aria-controls="menu-principal"
-            onClick={() => setMenuOpen(true)}
-            className="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-control text-gray-700 outline-none hover:bg-gray-80 focus-visible:ring-2 focus-visible:ring-brand-500 md:hidden"
-          >
-            <Menu aria-hidden="true" className="h-5 w-5" />
-          </button>
-          <div className="ml-auto min-w-0">
-            <UserMenu />
+        {menuOpen && (
+          <div className="md:hidden">
+            <div
+              data-testid="menu-backdrop"
+              aria-hidden="true"
+              className="fixed inset-0 z-40 bg-gray-900/40"
+              onClick={() => setMenuOpen(false)}
+            />
+            <div
+              ref={dialogRef}
+              id="menu-principal"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Menu principal"
+              tabIndex={-1}
+              className="fixed inset-y-0 left-0 z-50 max-w-[85vw] shadow-popover outline-none"
+            >
+              <button
+                type="button"
+                aria-label="Fechar menu"
+                onClick={() => setMenuOpen(false)}
+                className="absolute right-2 top-2 z-10 inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-control text-gray-700 outline-none hover:bg-gray-80 focus-visible:ring-2 focus-visible:ring-brand-500"
+              >
+                <X aria-hidden="true" className="h-5 w-5" />
+              </button>
+              <Sidebar inDrawer onNavigate={() => setMenuOpen(false)} />
+            </div>
           </div>
-        </header>
-        <TabsProvider>
+        )}
+
+        <div
+          data-testid="app-content"
+          inert={menuOpen}
+          className="flex min-w-0 flex-1 flex-col"
+        >
+          <header className="flex items-center justify-between border-b border-gray-200 bg-white p-3">
+            <button
+              ref={toggleRef}
+              type="button"
+              aria-label="Abrir menu"
+              aria-expanded={menuOpen}
+              aria-controls="menu-principal"
+              onClick={() => setMenuOpen(true)}
+              className="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-control text-gray-700 outline-none hover:bg-gray-80 focus-visible:ring-2 focus-visible:ring-brand-500 md:hidden"
+            >
+              <Menu aria-hidden="true" className="h-5 w-5" />
+            </button>
+            <div className="ml-auto min-w-0">
+              <UserMenu />
+            </div>
+          </header>
           <TabBar />
           <main className="min-w-0 flex-1 overflow-auto p-3 sm:p-6">
             <Outlet />
           </main>
-        </TabsProvider>
+        </div>
       </div>
-    </div>
+    </TabsProvider>
   );
 }
 
