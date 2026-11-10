@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { AttendanceType, Role, ValuationType } from '@prisma/client';
 import { WorklogsService } from './worklogs.service';
+import { PermissionsService } from '../permissions/permissions.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CommentsService } from '../comments/comments.service';
 import { TicketsService } from '../tickets/tickets.service';
@@ -58,6 +59,8 @@ describe('WorklogsService', () => {
     terms: [{ id: 'term-1', effectiveFrom: new Date('2026-01-01T03:00:00Z'), approved: true, active: true, startsAt: new Date('2026-01-01T03:00:00Z'), endsAt: null, type: 'MONTHLY_HOURS', includedMinutes: 600, monthlyFeeCents: 10000, excessHourlyRateCents: 12000, serviceDeskIds: ['desk-1'] }],
   };
 
+  let mockPermissions: { canViewTicketValues: jest.Mock };
+
   beforeEach(async () => {
     mockPrisma = {
       $transaction: jest.fn((callback) => callback(mockPrisma)),
@@ -90,6 +93,7 @@ describe('WorklogsService', () => {
         delete: jest.fn(),
       },
     };
+    mockPermissions = { canViewTicketValues: jest.fn().mockResolvedValue(true) };
     mockCommentsService = { create: jest.fn(), withTransaction: jest.fn(() => mockCommentsService) };
     mockTicketsService = { changeStage: jest.fn(), withTransaction: jest.fn(() => mockTicketsService) };
 
@@ -99,6 +103,7 @@ describe('WorklogsService', () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: CommentsService, useValue: mockCommentsService },
         { provide: TicketsService, useValue: mockTicketsService },
+        { provide: PermissionsService, useValue: mockPermissions },
       ],
     }).compile();
 
@@ -643,6 +648,7 @@ describe('WorklogsService', () => {
     });
 
     it('exposes the time convention without disclosing the financial snapshot', async () => {
+      mockPermissions.canViewTicketValues.mockResolvedValue(false);
       const result = await service.create('ticket-1', dto, agentUser);
       expect(result).toMatchObject({ timeConvention: 'UTC', valuationSnapshot: null, valueCents: null });
     });
@@ -665,6 +671,7 @@ describe('WorklogsService', () => {
     });
 
     it.each([Role.AGENT, Role.AGENT_MASTER])('hides cents and snapshot on create/list/delete for %s', async (role) => {
+      mockPermissions.canViewTicketValues.mockResolvedValue(false);
       const user = { id: 'agent-1', role };
       const created = await service.create('ticket-1', dto, user);
       const financial = { id: 'wl-1', ticketId: 'ticket-1', authorId: 'agent-1', contractId: 'contract-1', value: 120, valueCents: 12000, valuationSnapshot: { rateCents: 12000 } };
@@ -1097,6 +1104,55 @@ describe('WorklogsService', () => {
       await expect(service.deletePreAppointment('ticket-1', 'pre-1', agentUser)).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  describe('valor por permissão VIEW_TICKET_VALUES (DMTE-464)', () => {
+    const dto = { startTime: '2026-10-13T08:00:00Z', endTime: '2026-10-13T09:00:00Z', description: 'Trabalho' };
+    const financial = { id: 'wl-1', ticketId: 'ticket-1', authorId: 'agent-1', contractId: 'contract-1', value: 120, valueCents: 12000, costCents: 8000, bonusReason: 'x', valuationSnapshot: { rateCents: 12000 } };
+
+    it('AC-01: ADMIN sem a permissão não recebe valores na criação nem na listagem', async () => {
+      mockPermissions.canViewTicketValues.mockResolvedValue(false);
+      mockPrisma.worklog.create.mockResolvedValue(financial);
+      mockPrisma.worklog.findMany.mockResolvedValue([financial]);
+      const created = await service.create('ticket-1', dto, adminUser);
+      const [listed] = await service.findByTicket('ticket-1', adminUser);
+      for (const result of [created, listed]) {
+        expect(result).toMatchObject({ value: null, valueCents: null, costCents: null, bonusReason: null, valuationSnapshot: null });
+      }
+      expect(mockPermissions.canViewTicketValues).toHaveBeenCalledWith('admin-1');
+    });
+
+    it('AC-02: agente com a permissão recebe os valores', async () => {
+      mockPermissions.canViewTicketValues.mockResolvedValue(true);
+      mockPrisma.worklog.findMany.mockResolvedValue([financial]);
+      const [listed] = await service.findByTicket('ticket-1', agentUser);
+      expect(listed).toMatchObject({ value: 120, valueCents: 12000, costCents: 8000 });
+      expect(mockPermissions.canViewTicketValues).toHaveBeenCalledWith('agent-1');
+    });
+
+    it('AC-02: a tarifa de excesso do contrato só aparece com a permissão', async () => {
+      mockPermissions.canViewTicketValues.mockResolvedValue(false);
+      const hidden = await service.eligibleContracts('ticket-1', dto.startTime, dto.endTime, adminUser);
+      expect(hidden).toEqual([expect.objectContaining({ excessHourlyRateCents: null })]);
+      mockPermissions.canViewTicketValues.mockResolvedValue(true);
+      const shown = await service.eligibleContracts('ticket-1', dto.startTime, dto.endTime, adminUser);
+      expect(shown).toEqual([expect.objectContaining({ excessHourlyRateCents: 12000 })]);
+    });
+
+    it('AC-03: valor manual é recusado para ADMIN sem a permissão', async () => {
+      mockPermissions.canViewTicketValues.mockResolvedValue(false);
+      mockPrisma.worklog.create.mockResolvedValue(financial);
+      await expect(
+        service.create('ticket-1', { ...dto, valuationType: ValuationType.MANUAL, value: 250 }, adminUser),
+      ).rejects.toThrow(ForbiddenException);
+      expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
+    });
+
+    it('auditoria financeira é recusada para ADMIN sem a permissão', async () => {
+      mockPermissions.canViewTicketValues.mockResolvedValue(false);
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      await expect(service.auditByTicket('ticket-1', adminUser)).rejects.toThrow(ForbiddenException);
     });
   });
 });

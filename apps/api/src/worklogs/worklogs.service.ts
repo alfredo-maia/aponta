@@ -15,6 +15,7 @@ import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator
 import { assertListedAgentMayMutate } from '../service-desks/desk-policy';
 import { TenantHelper } from '../core/security/tenant.helper';
 import { TicketsService } from '../tickets/tickets.service';
+import { PermissionsService } from '../permissions/permissions.service';
 import { allocateCommercialSegments, isCompleteCommercialTerm } from './commercial-valuation';
 
 const BRASILIA_TZ = 'America/Sao_Paulo';
@@ -40,6 +41,7 @@ export class WorklogsService {
     private readonly prisma: PrismaService,
     private readonly commentsService: CommentsService,
     private readonly ticketsService: TicketsService,
+    private readonly permissions: PermissionsService,
   ) {}
 
   async eligibleContracts(ticketId: string, startTime: string, endTime: string, user: CurrentUserPayload) {
@@ -51,12 +53,13 @@ export class WorklogsService {
     if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end <= start) {
       throw new BadRequestException('Informe um intervalo válido');
     }
+    const canViewValues = await this.permissions.canViewTicketValues(user.id);
     return this.prisma.$transaction(async database => {
       const { contracts } = await this.commercialContext(database, ticketId, user, start, end);
       return contracts.map(contract => ({ id: contract.id, name: contract.name, type: contract.type,
         organizationId: contract.organizationId, active: contract.active, approved: contract.approved,
         startsAt: contract.startsAt, endsAt: contract.endsAt, includedMinutes: contract.includedMinutes,
-        hoursLimit: contract.hoursLimit, excessHourlyRateCents: user.role === Role.ADMIN ? contract.excessHourlyRateCents : null }));
+        hoursLimit: contract.hoursLimit, excessHourlyRateCents: user.role === Role.ADMIN && canViewValues ? contract.excessHourlyRateCents : null }));
     });
   }
 
@@ -145,8 +148,9 @@ export class WorklogsService {
     if (valuationType === ValuationType.CONTRACT && !billable) {
       throw new BadRequestException('Use Garantia ou Bonificação com motivo para horas não faturáveis');
     }
-    if (valuationType === ValuationType.MANUAL && currentUser.role !== Role.ADMIN) {
-      throw new ForbiddenException('Somente admin pode informar valor manual');
+    if (valuationType === ValuationType.MANUAL &&
+      (currentUser.role !== Role.ADMIN || !(await this.permissions.canViewTicketValues(currentUser.id)))) {
+      throw new ForbiddenException('Somente admin com permissão de ver valores pode informar valor manual');
     }
     if (valuationType === ValuationType.MANUAL &&
       (dto.value == null || !Number.isFinite(dto.value) || dto.value < 0 ||
@@ -218,7 +222,7 @@ export class WorklogsService {
         this.logger.error('Falha ao publicar evento de apontamento já salvo');
       }
     });
-    return this.maskValue(worklog, currentUser);
+    return this.maskValue(worklog, await this.permissions.canViewTicketValues(currentUser.id));
   }
 
   private async computeValuation(
@@ -317,10 +321,10 @@ export class WorklogsService {
     });
   }
 
-  private maskValue<T extends { value?: number | null; valueCents?: number | null; costCents?: number | null; valuationSnapshot?: unknown; bonusReason?: string | null }>(log: T, user: CurrentUserPayload): T {
+  private maskValue<T extends { value?: number | null; valueCents?: number | null; costCents?: number | null; valuationSnapshot?: unknown; bonusReason?: string | null }>(log: T, canViewValues: boolean): T {
     const snapshot = log.valuationSnapshot as { timeConvention?: string } | null;
     const timed = snapshot?.timeConvention === 'UTC' ? { ...log, timeConvention: 'UTC' } : log;
-    if (user.role === Role.ADMIN) return timed;
+    if (canViewValues) return timed;
     return { ...timed, value: null, valueCents: null, costCents: null, bonusReason: null, valuationSnapshot: null };
   }
 
@@ -353,7 +357,8 @@ export class WorklogsService {
       },
       orderBy: { createdAt: 'desc' },
     });
-    return logs.map(log => this.maskValue(log, currentUser));
+    const canViewValues = await this.permissions.canViewTicketValues(currentUser.id);
+    return logs.map(log => this.maskValue(log, canViewValues));
   }
 
   async delete(
@@ -387,11 +392,13 @@ export class WorklogsService {
       }
       return database.worklog.delete({ where: { id: worklogId } });
     });
-    return this.maskValue(deleted, currentUser);
+    return this.maskValue(deleted, await this.permissions.canViewTicketValues(currentUser.id));
   }
 
   async auditByTicket(ticketId: string, currentUser: CurrentUserPayload) {
-    if (currentUser.role !== Role.ADMIN) throw new ForbiddenException('Auditoria restrita ao administrador');
+    if (currentUser.role !== Role.ADMIN || !(await this.permissions.canViewTicketValues(currentUser.id))) {
+      throw new ForbiddenException('Auditoria restrita ao administrador com permissão de ver valores');
+    }
     const ticket = await this.prisma.ticket.findUnique({ where: { id: ticketId } });
     if (!ticket) throw new NotFoundException('Chamado não encontrado');
     return this.prisma.worklog.findMany({ where: { ticketId }, orderBy: { createdAt: 'desc' }, include: { author: AUTHOR_SELECT } });
