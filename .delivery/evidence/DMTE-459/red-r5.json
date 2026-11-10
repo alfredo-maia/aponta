@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-10T15:19:23.693604+00:00",
+  "finished_at": "2026-11-10T15:19:36.304830+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "--root",
+    "apps/web",
+    "src/hooks/useEscapeLayer.test.tsx"
+  ],
+  "base_sha": "d6a50d5aaa9a8b5fc266b8d6d6acec1c75c52588",
+  "head_sha": "5775ece29fc8261f3057dd6ec8858f310de19329",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/hooks/useEscapeLayer.test.tsx": "d55c66afbd42c3ed64ac99db656dce85504f61151d56716f2c0ab6816baf8626"
+  },
+  "criteria": [
+    "AC-1",
+    "AC-4",
+    "AC-5",
+    "AC-6",
+    "AC-7"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/ds/EzModal.stories.tsx": "f1bbaf85a01d531b2f95bd99f47c2b6746e2106ecf649121993170bbeeeadf99",
+    "apps/web/src/components/ds/escapeBack.test.tsx": "b6902ad3a6bc343a3286e1a049c23c15a87200ce42dc6f15530d040f1840c4ff",
+    "apps/web/src/components/ds/escapeOverlays.test.tsx": "aadd37437a693d699fc7e6ef250ba3a1995f742ff4359cb718c9cdea6ae94411",
+    "apps/web/src/components/tickets/TicketFormMode.test.tsx": "54e3fded27b514d4f0826641766f2b5a53fbd9a24c9d51eca7e99ea8e6fc59fb",
+    "apps/web/src/hooks/useEscapeLayer.review.test.tsx": "75834f9e56ff565d2d53aa3cd12062582008b4498079b78491b9c0df75df843d",
+    "apps/web/src/hooks/useEscapeLayer.test.tsx": "d55c66afbd42c3ed64ac99db656dce85504f61151d56716f2c0ab6816baf8626",
+    "apps/web/src/hooks/useEscapeLayer.ts": "e59a93f704b2b6612cdb54dadac7ed2de9a065998fa5696364f9acd18f14f4cf",
+    "apps/web/src/pages/CreateTicketPage.test.tsx": "06d979596581ee0bd67b259f7ee948ca0c219d0b691ffd2dc6390c1a61e52e5d",
+    "apps/web/src/pages/TicketDetailPage.test.tsx": "f042293fde02afcbf2d55d5707b39ae4802a034d4695ddd0568b215c32f12f7d"
+  },
+  "log": ".delivery/evidence/DMTE-459/red-r5.log",
+  "log_sha256": "9c1a969ccc7fc914243156120af2dbf9f505bcc516896284df655a9e9831fb78"
+}

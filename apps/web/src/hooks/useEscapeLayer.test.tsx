@@ -44,7 +44,7 @@ describe('useEscapeLayer', () => {
     const user = userEvent.setup();
     render(
       <EzModal isOpen onClose={onClose}>
-        <EzTextEdit value="Titulo" onSave={vi.fn()} />
+        <EzTextEdit value="Titulo" onChange={vi.fn()} onSave={vi.fn()} />
       </EzModal>
     );
     await user.click(screen.getByText('Titulo'));

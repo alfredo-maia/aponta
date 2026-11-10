@@ -114,8 +114,8 @@
   ],
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-459/red-r4.json",
-    "green": ".delivery/evidence/DMTE-459/green-r4.json"
+    "red": ".delivery/evidence/DMTE-459/red-r5.json",
+    "green": ".delivery/evidence/DMTE-459/green-r5.json"
   },
   "design_system": {
     "applicable": true,
