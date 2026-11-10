@@ -1,5 +1,11 @@
+import json
+import os
+from pathlib import Path
+import subprocess
+import tempfile
 import unittest
-from publicar_qa import assess, build_query, QA, RAPIDO_QA, ULTRA_QA
+from publicar_qa import assess, build_query, carry_source, parent_of, QA, RAPIDO_QA, ULTRA_QA
+from qa_merge_queue import pr_number, queue_verdict
 
 
 class QaProofTests(unittest.TestCase):
@@ -95,3 +101,120 @@ class QaSourceTests(unittest.TestCase):
 
 
 if __name__=='__main__':unittest.main()
+
+class QaCarryTests(unittest.TestCase):
+    """An approval follows the reviewed code: it is republished on a new SHA only when that code is identical (DMTE-470)."""
+    ENV = {'GIT_AUTHOR_NAME': 't', 'GIT_AUTHOR_EMAIL': 't@t', 'GIT_COMMITTER_NAME': 't', 'GIT_COMMITTER_EMAIL': 't@t'}
+    PARENT = '01a17485-8de1-7e6d-950a-1e295fef336b'
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.git('init', '-q', '-b', 'main')
+        self.write('app.py', 'first = 1\n\n\n\nlast = 1\n')
+        self.write('other.py', 'x = 1\n')
+        self.write('docs/spec.md', 'AC-01\n')
+        self.write('.delivery/registry.json', json.dumps({'version': 1, 'deliveries': {}}))
+        self.manifest = {'delivery': 'DMTE-900', 'multica_id': self.PARENT, 'spec': 'docs/spec.md',
+                         'criteria': [{'id': 'AC-01', 'description': 'd', 'tests': ['t']}]}
+        self.write('.delivery/deliveries/DMTE-900.json', json.dumps(self.manifest))
+        self.commit('base')
+        self.git('checkout', '-q', '-b', 'feat')
+        self.write('app.py', 'first = 1\n\n\n\nlast = 2\n')
+        self.approved = self.commit('reviewed code')
+        self.records = [self.review('APROVADO', self.approved)]
+
+    def git(self, *args):
+        return subprocess.run(['git', '-C', str(self.root), *args], check=True, capture_output=True, text=True,
+                              env={**os.environ, **self.ENV}).stdout.strip()
+
+    def write(self, name, content):
+        path = self.root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content)
+
+    def commit(self, message):
+        self.git('add', '-A')
+        self.git('commit', '-q', '-m', message)
+        return self.git('rev-parse', 'HEAD')
+
+    def review(self, result, sha):
+        return {'content': 'RESULTADO=' + result + '\nSHA: ' + sha, 'author_type': 'agent', 'author_id': ULTRA_QA,
+                'task_agent': ULTRA_QA, 'task_status': 'completed', 'source_task_id': 'task'}
+
+    def main_changes(self, name, content):
+        self.git('checkout', '-q', 'main')
+        self.write(name, content)
+        self.commit('main moves')
+        self.git('checkout', '-q', 'feat')
+        self.git('merge', '-q', '--no-edit', 'main')
+        return self.git('rev-parse', 'HEAD')
+
+    def carry(self, sha):
+        return carry_source(self.root, self.records, sha, 'DMTE-900', main_ref='main')
+
+    def test_governance_only_commit_carries_the_approval(self):
+        self.write('.delivery/evidence/note.json', '{}')
+        self.write('docs/notes.md', 'registro\n')
+        self.assertEqual(self.carry(self.commit('manifest and docs only')), self.approved)
+
+    def test_merging_main_without_touching_reviewed_files_carries(self):
+        self.assertEqual(self.carry(self.main_changes('other.py', 'x = 2\n')), self.approved)
+
+    def test_source_change_after_approval_does_not_carry(self):
+        self.write('app.py', 'first = 1\n\n\n\nlast = 3\n')
+        self.assertIsNone(self.carry(self.commit('late fix')))
+
+    def test_new_source_file_after_approval_does_not_carry(self):
+        self.write('extra.py', 'y = 1\n')
+        self.assertIsNone(self.carry(self.commit('late file')))
+
+    def test_main_change_to_a_reviewed_file_does_not_carry(self):
+        self.assertIsNone(self.carry(self.main_changes('app.py', 'first = 9\n\n\n\nlast = 1\n')))
+
+    def test_workflow_change_does_not_carry(self):
+        self.write('.github/workflows/ci.yml', 'name: CI\n')
+        self.assertIsNone(self.carry(self.commit('ci change')))
+
+    def test_changed_acceptance_criteria_do_not_carry(self):
+        self.write('.delivery/deliveries/DMTE-900.json', json.dumps({**self.manifest, 'criteria': []}))
+        self.assertIsNone(self.carry(self.commit('criteria dropped')))
+
+    def test_changed_spec_does_not_carry(self):
+        self.write('docs/spec.md', 'AC-01 reescrito\n')
+        self.assertIsNone(self.carry(self.commit('spec rewritten')))
+
+    def test_rejected_review_does_not_carry(self):
+        self.records = [self.review('APROVADO', self.approved), self.review('REJEITADO', self.approved)]
+        self.write('docs/notes.md', 'registro\n')
+        self.assertIsNone(self.carry(self.commit('docs only')))
+
+    def test_most_recent_identical_approval_is_used(self):
+        self.write('app.py', 'first = 1\n\n\n\nlast = 3\n')
+        second = self.commit('second round')
+        self.records.append(self.review('APROVADO', second))
+        self.write('docs/notes.md', 'registro\n')
+        self.assertEqual(self.carry(self.commit('docs only')), second)
+
+    def test_parent_comes_from_the_manifest_when_registry_has_no_entry(self):
+        self.assertEqual(parent_of(self.root, self.root / '.delivery/registry.json', 'DMTE-900'), self.PARENT)
+
+
+class QaMergeQueueTests(unittest.TestCase):
+    """The queue commit passes Independent QA only when the PR head carries the attestation (DMTE-470)."""
+
+    def test_reads_the_pr_number_from_the_queue_ref(self):
+        self.assertEqual(pr_number('refs/heads/gh-readonly-queue/main/pr-163-d6a50d5aaa9a'), '163')
+        self.assertIsNone(pr_number('refs/heads/some-branch'))
+
+    def test_passes_with_a_successful_attestation_on_the_pr_head(self):
+        self.assertTrue(queue_verdict([{'context': 'Independent QA', 'state': 'success'}]))
+
+    def test_fails_without_the_attestation(self):
+        self.assertFalse(queue_verdict([]))
+        self.assertFalse(queue_verdict([{'context': 'Other check', 'state': 'success'}]))
+
+    def test_latest_attestation_wins(self):
+        newest_first = [{'context': 'Independent QA', 'state': 'failure'}, {'context': 'Independent QA', 'state': 'success'}]
+        self.assertFalse(queue_verdict(newest_first))

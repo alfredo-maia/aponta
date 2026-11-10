@@ -429,6 +429,49 @@ def resolve_pr_from_event(event: dict | None, fetch_pr) -> tuple[dict, str | Non
     return pr, pr.get('base', {}).get('sha'), pr.get('head', {}).get('sha'), None
 
 
+def check_contract(root: Path, registry_path: Path, event: dict | None, fetch_pr,
+                   manifest_path: Path | None = None) -> list[str]:
+    """Every contract error for this checkout; `event` is the GitHub Actions payload when run by CI."""
+    registry = json.loads((root / registry_path).read_text())
+    errors = validate_registry(registry)
+    pr, base, head, merge_group = resolve_pr_from_event(event, fetch_pr)
+    if event and merge_group and base is None:
+        errors.append('Could not resolve the PR number from the merge_group head_ref.')
+    if event:
+        matches = re.findall(r'^Aponta-Delivery:\s*(DMTE-\d+)\s*$', pr.get('body') or '', re.M)
+        if len(matches) != 1:
+            errors.append('PR must declare exactly one Aponta-Delivery: DMTE-N line.')
+        else:
+            manifest_path = Path('.delivery/deliveries') / (matches[0] + '.json')
+    if manifest_path:
+        path = root / manifest_path
+        if not path.is_file():
+            errors.append('Delivery manifest is missing: ' + str(manifest_path))
+        else:
+            manifest = json.loads(path.read_text())
+            errors += validate_manifest(root, manifest)
+            if event and base and head:
+                errors += validate_pr(pr.get('body') or '', manifest)
+                # In a merge_group run, HEAD is the queue's synthetic merge
+                # commit (main + this PR + anything ahead of it in the
+                # queue) — that commit's SHA is merge_group.head_sha, not
+                # the PR's own head_sha, so the checkout-identity check must
+                # compare against the right one per event type.
+                expected_checkout = merge_group['head_sha'] if merge_group else head
+                if git(root, 'rev-parse', 'HEAD') != expected_checkout:
+                    errors.append('Checkout is not the expected head SHA.')
+                changes = git(root, 'diff', '--name-only', base + '...' + head).splitlines()
+                declared = set(manifest.get('changed_files', []))
+                undeclared = [p for p in changes if p not in declared and not p.startswith('.delivery/')]
+                if undeclared:
+                    errors.append('Changed files missing from delivery manifest: ' + ', '.join(undeclared))
+                if manifest.get('base_sha') != git(root, 'merge-base', base, head):
+                    errors.append('Manifest base_sha differs from the PR merge base.')
+            entry = registry.get('deliveries', {}).get(manifest.get('delivery'))
+            errors += validate_binding(manifest, entry)
+    return errors
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, default=Path.cwd())
@@ -470,8 +513,6 @@ def main() -> int:
         except BlockingIOError:
             print('Another Aponta writer holds the lock.', file=sys.stderr)
             return 2
-    registry = json.loads((root / args.registry).read_text())
-    errors = validate_registry(registry)
     event = json.loads(args.event.read_text()) if args.event else None
 
     def fetch_pr(number: str) -> dict:
@@ -479,41 +520,7 @@ def main() -> int:
             ['gh', 'api', 'repos/' + CANONICAL_REPOSITORY + '/pulls/' + number],
             capture_output=True, text=True, check=True).stdout)
 
-    pr, base, head, merge_group = resolve_pr_from_event(event, fetch_pr)
-    if event and merge_group and base is None:
-        errors.append('Could not resolve the PR number from the merge_group head_ref.')
-    if event:
-        matches = re.findall(r'^Aponta-Delivery:\s*(DMTE-\d+)\s*$', pr.get('body') or '', re.M)
-        if len(matches) != 1:
-            errors.append('PR must declare exactly one Aponta-Delivery: DMTE-N line.')
-        else:
-            args.manifest = Path('.delivery/deliveries') / (matches[0] + '.json')
-    if args.manifest:
-        path = root / args.manifest
-        if not path.is_file():
-            errors.append('Delivery manifest is missing: ' + str(args.manifest))
-        else:
-            manifest = json.loads(path.read_text())
-            errors += validate_manifest(root, manifest)
-            if event and base and head:
-                errors += validate_pr(pr.get('body') or '', manifest)
-                # In a merge_group run, HEAD is the queue's synthetic merge
-                # commit (main + this PR + anything ahead of it in the
-                # queue) — that commit's SHA is merge_group.head_sha, not
-                # the PR's own head_sha, so the checkout-identity check must
-                # compare against the right one per event type.
-                expected_checkout = merge_group['head_sha'] if merge_group else head
-                if git(root, 'rev-parse', 'HEAD') != expected_checkout:
-                    errors.append('Checkout is not the expected head SHA.')
-                changes = git(root, 'diff', '--name-only', base + '...' + head).splitlines()
-                declared = set(manifest.get('changed_files', []))
-                undeclared = [p for p in changes if p not in declared and not p.startswith('.delivery/')]
-                if undeclared:
-                    errors.append('Changed files missing from delivery manifest: ' + ', '.join(undeclared))
-                if manifest.get('base_sha') != git(root, 'merge-base', base, head):
-                    errors.append('Manifest base_sha differs from the PR merge base.')
-            entry = registry.get('deliveries', {}).get(manifest.get('delivery'))
-            errors += validate_binding(manifest, entry)
+    errors = check_contract(root, args.registry, event, fetch_pr, args.manifest)
     for error in errors:
         print('ERROR: ' + error, file=sys.stderr)
     if not errors:

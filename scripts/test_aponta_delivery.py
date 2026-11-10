@@ -369,6 +369,135 @@ class EvidenceBaseMovedTests(unittest.TestCase):
         self.assertTrue(any('Evidence base SHA differs' in e for e in self.validate(other)))
 
 
+class DeliveryGateTests(unittest.TestCase):
+    """The gate derives base and changed files from Git, binds a delivery by its own manifest and,
+    in the merge queue, validates the PR head tree (DMTE-470)."""
+    ENV = EvidenceBaseMovedTests.ENV
+    ISSUE, PARENT = 5, '01a17485-8de1-7e6d-950a-1e295fef336b'
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.git('init', '-q', '-b', 'main')
+        self.write('.gitignore', '__pycache__/\n')
+        self.write('tool.py', 'def value():\n    return 1\n')
+        self.write('other.py', 'x = 1\n')
+        self.write('docs/spec.md', 'AC-01: value is two\n')
+        self.write('.delivery/registry.json', json.dumps({'version': 1, 'deliveries': {}}))
+        self.base = self.commit('base')
+        self.git('checkout', '-q', '-b', 'feat')
+        self.write('test_tool.py', 'import unittest\nimport tool\n\n\nclass T(unittest.TestCase):\n'
+                                   '    def test_value(self):\n        self.assertEqual(tool.value(), 2)\n')
+        self.record('red')
+        self.write('tool.py', 'def value():\n    return 2\n')
+        self.record('green')
+        self.manifest = {
+            'version': 1, 'delivery': 'DMTE-900', 'repository': delivery.CANONICAL_REPOSITORY,
+            'github_issue': self.ISSUE, 'multica_id': self.PARENT, 'cycle': None, 'tier': 2,
+            'criteria': [{'id': 'AC-01', 'description': 'value is two', 'tests': ['T.test_value']}],
+            'spec': 'docs/spec.md',
+            'tdd': {'mode': 'required', 'red': '.delivery/evidence/red.json', 'green': '.delivery/evidence/green.json'},
+            'design_system': {'applicable': False, 'reason': 'Python only; no UI'},
+        }
+        self.head = self.save_manifest('delivery')
+
+    def git(self, *args):
+        return subprocess.run(['git', '-C', str(self.root), *args], check=True, capture_output=True, text=True,
+                              env={**os.environ, **self.ENV}).stdout.strip()
+
+    def write(self, name, content):
+        path = self.root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content)
+
+    def commit(self, message):
+        self.git('add', '-A')
+        self.git('commit', '-q', '--allow-empty', '-m', message)
+        return self.git('rev-parse', 'HEAD')
+
+    def record(self, phase):
+        delivery.capture(self.root, self.root / '.delivery/evidence' / (phase + '.json'), phase, self.base,
+                         [sys.executable, '-m', 'unittest', 'test_tool.py'], ['test_tool.py'], ['AC-01'])
+
+    def save_manifest(self, message, name='DMTE-900', **changes):
+        self.write('.delivery/deliveries/' + name + '.json', json.dumps({**self.manifest, **changes}))
+        return self.commit(message)
+
+    def main_moves(self, name='other.py', content='x = 2\n'):
+        self.git('checkout', '-q', 'main')
+        self.write(name, content)
+        tip = self.commit('main moves')
+        self.git('checkout', '-q', 'feat')
+        return tip
+
+    def pr(self, base=None, head=None):
+        return {'body': 'Aponta-Delivery: DMTE-900\nRefs #%d' % self.ISSUE,
+                'base': {'sha': base or self.base, 'ref': 'main'}, 'head': {'sha': head or self.head}}
+
+    def check(self, event=None):
+        return delivery.check_contract(self.root, Path('.delivery/registry.json'),
+                                       event or {'pull_request': self.pr()}, fetch_pr=None)
+
+    def test_manifest_needs_neither_base_sha_nor_changed_files(self):
+        self.assertEqual(self.check(), [])
+
+    def test_main_moving_does_not_require_a_manifest_commit(self):
+        self.save_manifest('old style manifest', base_sha=self.base, changed_files=['tool.py', 'test_tool.py'])
+        tip = self.main_moves()
+        self.git('merge', '-q', '--no-edit', 'main')
+        self.head = self.git('rev-parse', 'HEAD')
+        self.assertEqual(self.check({'pull_request': self.pr(base=tip)}), [])
+
+    def test_stale_event_base_does_not_inflate_the_delivery(self):
+        self.main_moves()
+        self.git('merge', '-q', '--no-edit', 'main')
+        self.head = self.git('rev-parse', 'HEAD')
+        self.assertEqual(self.check({'pull_request': self.pr(base=self.base)}), [])
+
+    def test_undeclared_changed_file_is_not_an_error(self):
+        self.head = self.save_manifest('partial list', base_sha=self.base, changed_files=['tool.py'])
+        self.assertEqual(self.check(), [])
+
+    def test_ui_change_is_classified_from_the_diff_not_from_the_manifest(self):
+        self.write('apps/web/src/pages/Page.tsx', 'export const Page = () => null\n')
+        self.head = self.save_manifest('ui slipped in', base_sha=self.base, changed_files=['tool.py', 'test_tool.py'])
+        self.assertIn('UI changes require a design system assessment.', self.check())
+
+    def test_delivery_absent_from_registry_is_bound_by_its_manifest(self):
+        self.assertNotIn('Delivery is absent from canonical registry.', self.check())
+
+    def test_two_manifests_cannot_claim_the_same_identity(self):
+        self.head = self.save_manifest('clone', name='DMTE-901', delivery='DMTE-901')
+        self.assertTrue([e for e in self.check() if 'Duplicate canonical GitHub/Multica identity' in e])
+
+    def test_registry_entry_still_binds_when_present(self):
+        entry = {**{k: self.manifest[k] for k in ['delivery', 'repository', 'github_issue', 'multica_id', 'cycle']},
+                 'tier': 3, 'kind': 'delivery'}
+        self.write('.delivery/registry.json', json.dumps({'version': 1, 'deliveries': {'DMTE-900': entry}}))
+        self.head = self.commit('registry entry with another tier')
+        self.assertIn('Manifest differs from canonical registry: tier', self.check())
+
+    def test_source_changed_after_green_is_still_rejected(self):
+        self.write('tool.py', 'def value():\n    return 2  # changed after GREEN\n')
+        self.head = self.commit('late change')
+        self.assertIn('GREEN source hashes differ from the reviewed sources.', self.check())
+
+    def test_checkout_must_be_the_reviewed_commit(self):
+        self.assertIn('Checkout is not the expected head SHA.', self.check({'pull_request': self.pr(head=self.base)}))
+
+    def test_merge_queue_validates_the_pr_head_tree(self):
+        tip = self.main_moves()  # the PR branch is NOT updated: the queue combines them
+        self.git('checkout', '-q', '-b', 'queue', tip)
+        self.git('merge', '-q', '--squash', 'feat')
+        queued = self.commit('queue: main + PR')
+        event = {'merge_group': {'head_ref': 'refs/heads/gh-readonly-queue/main/pr-7-abc', 'head_sha': queued}}
+        errors = delivery.check_contract(self.root, Path('.delivery/registry.json'), event,
+                                         fetch_pr=lambda number: self.pr(base=tip))
+        self.assertEqual(errors, [])
+        self.assertEqual(self.git('worktree', 'list').count('\n'), 0, 'temporary worktree must be removed')
+
+
 class ResolvePrFromEventTests(unittest.TestCase):
     """merge_group events (native GitHub Merge Queue) have no `pull_request`
     key — only a head_ref like "refs/heads/gh-readonly-queue/main/pr-7-abc".

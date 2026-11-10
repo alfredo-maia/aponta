@@ -71,6 +71,16 @@ def build_query(parent, qa_issue=None):
       AND t.issue_id=i.id AND {author} ORDER BY c.created_at"""
 
 
+def parent_of(root, registry, delivery):
+    """Multica parent of a delivery."""
+    return (json.loads(Path(registry).read_text())['deliveries'].get(delivery) or {}).get('multica_id')
+
+
+def carry_source(root, records, commit, delivery, main_ref='origin/main'):
+    """Approved SHA whose reviewed code is identical to `commit`, or None."""
+    return None
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--delivery', required=True)
