@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-10T22:11:19.974802+00:00",
+  "finished_at": "2026-11-10T22:16:59.600260+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run-many",
+    "-t",
+    "test",
+    "-p",
+    "api,web",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "172c0e2d05668f995ed9312f73f176c8fd5ea54c",
+  "head_sha": "1b73224692aa6fa46db0a12c1de48282496d1720",
+  "exit_code": 1,
+  "tests": {
+    "apps/api/src/worklogs/worklogs.service.spec.ts": "18fd2566c049346563660d72fa9e04e85043b90b21f4ba5691eda7833293a125",
+    "apps/api/src/permissions/permissions.service.spec.ts": "d78cc31085bf4fbea8b2fc8d5fae2b1f58457997b831abde848e1e95f82e504a",
+    "apps/api/src/auth/auth.controller.spec.ts": "ff9b9e18fb4f165014329c9edf47eac779593af20f5f210587c399214143d257",
+    "apps/api/prisma/seed.spec.ts": "dc2f268da081334b5901407986781c7ca6679c5edf9255f188046a74aaf67b1b",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "63a9b22143300dbb7481540e2a286fb3d424cac2e3fbfff12fa95d12a72ce00d"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06"
+  ],
+  "source_hashes": {
+    "apps/api/prisma/seed.spec.ts": "dc2f268da081334b5901407986781c7ca6679c5edf9255f188046a74aaf67b1b",
+    "apps/api/src/auth/auth.controller.spec.ts": "ff9b9e18fb4f165014329c9edf47eac779593af20f5f210587c399214143d257",
+    "apps/api/src/permissions/permissions.service.spec.ts": "d78cc31085bf4fbea8b2fc8d5fae2b1f58457997b831abde848e1e95f82e504a",
+    "apps/api/src/permissions/permissions.service.ts": "4c737c51d31350a54d11d13c518f2874fb97dcc3a4bcd5e04c8a70e1d88c633c",
+    "apps/api/src/worklogs/worklogs.commercial.spec.ts": "310e5dcf304fa0e2146310ab55a9d191c39394c7d9d7f28823e169e191fd9fd9",
+    "apps/api/src/worklogs/worklogs.service.spec.ts": "18fd2566c049346563660d72fa9e04e85043b90b21f4ba5691eda7833293a125",
+    "apps/api/src/worklogs/worklogs.service.ts": "fbfb53bab1614a492a2aa3d9675513af33d4d25783f4d16de213e0a7982a8b3e",
+    "apps/web-e2e/src/commercial-v2.spec.ts": "f986b74745afd3e180ed052bfee7d4ce90ff90f9e8931e8abd8cc69b928c16bd",
+    "apps/web-e2e/src/contracts.spec.ts": "7902dd8d4ec1e3cec0152f6dd6705505163b444fe2c200ff7d6bf76db6930931",
+    "apps/web-e2e/src/support/permission-groups.ts": "6d383f2a2f8048b9da4b9d0d51a9bb64516f1f7d30a76d18a1be611eae475efa",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "63a9b22143300dbb7481540e2a286fb3d424cac2e3fbfff12fa95d12a72ce00d"
+  },
+  "log": ".delivery/evidence/DMTE-464/red.log",
+  "log_sha256": "6bb6e2e8c3397988a3e28724ed112467622b5ba3c1cc6dd3d961642cb12966ea"
+}

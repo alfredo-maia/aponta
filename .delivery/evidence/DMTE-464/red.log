@@ -1,0 +1,3164 @@
+
+ NX   Running target test for 2 projects:
+
+- api
+- web
+
+
+
+> nx run api:test
+
+> jest --passWithNoTests=true
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m api [39m[27m[0m [2mprisma/[22m[1mseed.spec.ts[22m
+[1m[31m  [1m● [22m[1mDMTE-464 VIEW_TICKET_VALUES › AC-06: nenhum grupo padrão por role traz a permissão; quem vê valor é decidido pelo grupo "Valores de tickets"[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mnot[2m.[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected value: not [32m"VIEW_TICKET_VALUES"[39m
+    Received array:     [31m["VIEW_CLIENTS_AND_RESOURCE_GROUPS", "MANAGE_CLIENTS_AND_RESOURCE_GROUPS", "VIEW_CONTRACTS_ADMIN", "MANAGE_CONTRACTS", "VIEW_RESOURCES_ADMIN", "MANAGE_RESOURCES", "MANAGE_TRAVEL", "EDIT_CLOSED_TICKETS", "MANAGE_BILLING", "MANAGE_BACKUP_RESOURCES", "ADD_SLA_TIME", [7m"VIEW_TICKET_VALUES"[27m, "MANAGE_INTEGRATIONS", "ACCESS_DATA_WAREHOUSES", "MANAGE_SCHEDULES_ADMIN", "MANAGE_CUSTOM_FIELDS", "MANAGE_CAMPAIGNS", "ACCESS_CLIENT_PORTAL", "UPLOAD_TICKET_ATTACHMENTS", "REMOVE_TICKET_ATTACHMENTS", "VIEW_ALL_CLIENT_TICKETS", "REMOVE_REPLY_ATTACHMENTS", "REMOVE_REPLIES", "VIEW_LAST_30_DAYS_TICKETS_WIDGET", "VIEW_TICKETS_BY_DESK_WIDGET", "VIEW_CONTRACT_CONSUMPTION_WIDGET", "VIEW_WORKLOG_INFO", "CANCEL_TICKETS", "VIEW_SLA_INFO", "VIEW_CUSTOM_FIELDS_INFO", "VIEW_VALUATION_INFO", "VIEW_CHECKLIST_INFO", "VIEW_TICKET_HISTORY", "OPEN_REQUESTS_AS_PRE_TICKETS", "EDIT_CUSTOM_FIELDS", "VIEW_RESOURCES_CLIENT", "VIEW_KNOWLEDGE_BASE", "VIEW_CONTRACTS_CLIENT", "OPEN_CHILD_TICKETS", "MANAGE_PERMISSION_GROUPS", "MANAGE_USERS", "MANAGE_SERVICE_CATALOGS", "MANAGE_SERVICE_DESKS", "ACCESS_AGENT_SETTINGS", "REVIEW_REOPEN_CLOSED_TICKETS", "EDIT_ORGANIZATION_SETTINGS", "MANAGE_EMAIL_TICKETS", "MANAGE_NEW_TICKET_AUTHORIZATION", "VIEW_USERS_IN_AGENT_REPORTS", "MANAGE_BULK_REMOTE_COMMANDS", "REMOVE_PUBLIC_TICKET_FILTERS", "MANAGE_TICKET_GROUP_TEMPLATES", "VIEW_ADMIN_REPORTS", "VIEW_AGENT_REPORTS", "VIEW_RESOURCE_INVENTORY_REPORTS", "VIEW_CUSTOM_REPORTS", "MANAGE_CUSTOM_REPORTS", "VIEW_CLIENT_CONSUMPTION_STATEMENT_REPORT", "VIEW_EXTRA_VALUATION_REPORT", "VIEW_CONTRACT_CONSUMPTION_CHART_REPORT", "ACCESS_CHAT_INDICATORS", "EXPORT_DATA", "VIEW_AND_OPEN_TICKETS", "CREATE_EDIT_WORKLOGS", "EDIT_TICKETS", "CHANGE_PRIORITY_AND_DISABLE_SLA", "ADD_REMOVE_VALUATION_ON_OPEN_TICKETS", "REMOTE_ACCESS", "EDIT_ALL_WORKLOGS", "VIEW_ADD_INTERNAL_COMMUNICATION", "MANAGE_KNOWLEDGE_BASE", "PAUSE_RESUME_SLA", "VIEW_TICKETS_NOT_RESPONSIBLE_FOR", "ACCESS_CHAT", "CREATE_TICKET_SCHEDULING", "VIEW_PASSWORD_VAULT", "MANAGE_PASSWORD_VAULT", "VIEW_PASSWORD_VAULT_AUDIT", "VIEW_ALL_SCHEDULES", "MANAGE_REQUESTERS_AND_CLIENT_USERS", "MANAGE_PRE_WORKLOGS", "ACCESS_PRE_TICKETS", "EDIT_PUBLIC_TICKET_FILTERS", "MANAGE_JIRA_GITHUB_ISSUES", "MANAGE_TEMPLATES", "EDIT_SERVICE_CATALOG_ON_CLOSED_TICKET", "MANAGE_CHECKLISTS", "CANCEL_CHATS"][39m
+
+[2m    [0m [90m 117 |[39m   it([32m'AC-06: nenhum grupo padrão por role traz a permissão; quem vê valor é decidido pelo grupo "Valores de tickets"'[39m[33m,[39m () [33m=>[39m {[22m
+[2m     [90m 118 |[39m     [36mfor[39m ([36mconst[39m role [36mof[39m [33mObject[39m[33m.[39mvalues([33mRole[39m)) {[22m
+[2m    [31m[1m>[22m[2m[39m[90m 119 |[39m       expect([33mDEFAULT_PERMISSION_GROUPS[39m[role][33m.[39mpermissions)[33m.[39mnot[33m.[39mtoContain([32m'VIEW_TICKET_VALUES'[39m)[33m;[39m[22m
+[2m     [90m     |[39m                                                               [31m[1m^[22m[2m[39m[22m
+[2m     [90m 120 |[39m     }[22m
+[2m     [90m 121 |[39m   })[33m;[39m[22m
+[2m     [90m 122 |[39m })[33m;[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36mprisma/seed.spec.ts[39m[0m[2m:119:63)[22m[2m[22m
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m api [39m[27m[0m [2msrc/permissions/[22m[1mpermissions.service.spec.ts[22m
+[1m[31m  [1m● [22m[1mPermissionsService › canViewTicketValues (DMTE-464) › é verdadeiro quando um grupo direto tem VIEW_TICKET_VALUES[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mresolves[2m.[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+[2m    [0m [90m 112 |[39m         technicalGroup[33m:[39m [36mnull[39m[33m,[39m[22m
+[2m     [90m 113 |[39m       })[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 114 |[39m       [36mawait[39m expect(service[33m.[39mcanViewTicketValues([32m'user-1'[39m))[33m.[39mresolves[33m.[39mtoBe([36mtrue[39m)[33m;[39m[22m
+[2m     [90m     |[39m                                                                    [31m[1m^[22m[2m[39m[22m
+[2m     [90m 115 |[39m     })[33m;[39m[22m
+[2m     [90m 116 |[39m[22m
+[2m     [90m 117 |[39m     it([32m'é verdadeiro quando o grupo técnico do usuário tem a permissão'[39m[33m,[39m [36masync[39m () [33m=>[39m {[0m[22m
+
+[2m      [2mat Object.toBe ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2140:20)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/permissions/permissions.service.spec.ts[39m[0m[2m:114:68)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mPermissionsService › canViewTicketValues (DMTE-464) › é verdadeiro quando o grupo técnico do usuário tem a permissão[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mresolves[2m.[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+[2m    [0m [90m 120 |[39m         technicalGroup[33m:[39m { permissionGroupLinks[33m:[39m [{ permissionGroup[33m:[39m { permissions[33m:[39m [[32m'VIEW_TICKET_VALUES'[39m] } }] }[33m,[39m[22m
+[2m     [90m 121 |[39m       })[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 122 |[39m       [36mawait[39m expect(service[33m.[39mcanViewTicketValues([32m'user-1'[39m))[33m.[39mresolves[33m.[39mtoBe([36mtrue[39m)[33m;[39m[22m
+[2m     [90m     |[39m                                                                    [31m[1m^[22m[2m[39m[22m
+[2m     [90m 123 |[39m     })[33m;[39m[22m
+[2m     [90m 124 |[39m[22m
+[2m     [90m 125 |[39m     it([32m'é falso sem a permissão, mesmo com outras permissões'[39m[33m,[39m [36masync[39m () [33m=>[39m {[0m[22m
+
+[2m      [2mat Object.toBe ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2140:20)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/permissions/permissions.service.spec.ts[39m[0m[2m:122:68)[22m[2m[22m
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m api [39m[27m[0m [2msrc/auth/[22m[1mauth.controller.spec.ts[22m
+[1m[31m  [1m● [22m[1mAuthController › getProfile › returns the safe user record plus effective permissions for a non-admin[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 0[39m
+
+    [33m@@ -1,7 +1,6 @@[39m
+    [2m  Object {[22m
+    [32m-   "canViewTicketValues": false,[39m
+    [2m    "email": "jane@example.com",[22m
+    [2m    "id": "user-1",[22m
+    [2m    "isAdmin": false,[22m
+    [2m    "name": "Jane Doe",[22m
+    [2m    "permissions": Array [[22m
+
+[2m    [0m [90m 131 |[39m       expect(usersService[33m.[39mfindById)[33m.[39mtoHaveBeenCalledWith(mockSafeUser[33m.[39mid)[33m;[39m[22m
+[2m     [90m 132 |[39m       expect(permissionsService[33m.[39mgetEffectivePermissions)[33m.[39mtoHaveBeenCalledWith(mockSafeUser[33m.[39mid)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 133 |[39m       expect(result)[33m.[39mtoEqual({[22m
+[2m     [90m     |[39m                      [31m[1m^[22m[2m[39m[22m
+[2m     [90m 134 |[39m         [33m...[39mmockSafeUser[33m,[39m[22m
+[2m     [90m 135 |[39m         isAdmin[33m:[39m [36mfalse[39m[33m,[39m[22m
+[2m     [90m 136 |[39m         permissions[33m:[39m [[32m'MANAGE_USERS'[39m][33m,[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/auth/auth.controller.spec.ts[39m[0m[2m:133:22)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mAuthController › getProfile › marks ADMIN as isAdmin without requiring any PermissionGroup link[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 0[39m
+
+    [33m@@ -1,7 +1,6 @@[39m
+    [2m  Object {[22m
+    [32m-   "canViewTicketValues": false,[39m
+    [2m    "email": "jane@example.com",[22m
+    [2m    "id": "admin-1",[22m
+    [2m    "isAdmin": true,[22m
+    [2m    "name": "Jane Doe",[22m
+    [2m    "permissions": Array [],[22m
+
+[2m    [0m [90m 147 |[39m[22m
+[2m     [90m 148 |[39m       expect(permissionsService[33m.[39mgetEffectivePermissions)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 149 |[39m       expect(result)[33m.[39mtoEqual({ [33m...[39madminUser[33m,[39m isAdmin[33m:[39m [36mtrue[39m[33m,[39m permissions[33m:[39m [][33m,[39m canViewTicketValues[33m:[39m [36mfalse[39m })[33m;[39m[22m
+[2m     [90m     |[39m                      [31m[1m^[22m[2m[39m[22m
+[2m     [90m 150 |[39m     })[33m;[39m[22m
+[2m     [90m 151 |[39m[22m
+[2m     [90m 152 |[39m     it([32m'AC-04: ADMIN com a permissão no grupo recebe canViewTicketValues verdadeiro'[39m[33m,[39m [36masync[39m () [33m=>[39m {[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/auth/auth.controller.spec.ts[39m[0m[2m:149:22)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mAuthController › getProfile › AC-04: ADMIN com a permissão no grupo recebe canViewTicketValues verdadeiro[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m"admin-1"[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 157 |[39m       [36mconst[39m result [33m=[39m [36mawait[39m controller[33m.[39mgetProfile({ user[33m:[39m adminUser } [36mas[39m never)[33m;[39m[22m
+[2m     [90m 158 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 159 |[39m       expect(permissionsService[33m.[39mcanViewTicketValues)[33m.[39mtoHaveBeenCalledWith([32m'admin-1'[39m)[33m;[39m[22m
+[2m     [90m     |[39m                                                      [31m[1m^[22m[2m[39m[22m
+[2m     [90m 160 |[39m       expect(result)[33m.[39mtoMatchObject({ isAdmin[33m:[39m [36mtrue[39m[33m,[39m canViewTicketValues[33m:[39m [36mtrue[39m })[33m;[39m[22m
+[2m     [90m 161 |[39m     })[33m;[39m[22m
+[2m     [90m 162 |[39m   })[33m;[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/auth/auth.controller.spec.ts[39m[0m[2m:159:54)[22m[2m[22m
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m api [39m[27m[0m [2msrc/worklogs/[22m[1mworklogs.service.spec.ts[22m
+[1m[31m  [1m● [22m[1mWorklogsService › valor por permissão VIEW_TICKET_VALUES (DMTE-464) › AC-01: ADMIN sem a permissão não recebe valores na criação nem na listagem[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoMatchObject[2m([22m[32mexpected[39m[2m)[22m
+
+    [32m- Expected  - 5[39m
+    [31m+ Received  + 7[39m
+
+    [2m  Object {[22m
+    [32m-   "bonusReason": null,[39m
+    [32m-   "costCents": null,[39m
+    [32m-   "valuationSnapshot": null,[39m
+    [32m-   "value": null,[39m
+    [32m-   "valueCents": null,[39m
+    [31m+   "bonusReason": "x",[39m
+    [31m+   "costCents": 8000,[39m
+    [31m+   "valuationSnapshot": Object {[39m
+    [31m+     "rateCents": 12000,[39m
+    [31m+   },[39m
+    [31m+   "value": 120,[39m
+    [31m+   "valueCents": 12000,[39m
+    [2m  }[22m
+
+[2m    [0m [90m 1119 |[39m       [36mconst[39m [listed] [33m=[39m [36mawait[39m service[33m.[39mfindByTicket([32m'ticket-1'[39m[33m,[39m adminUser)[33m;[39m[22m
+[2m     [90m 1120 |[39m       [36mfor[39m ([36mconst[39m result [36mof[39m [created[33m,[39m listed]) {[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1121 |[39m         expect(result)[33m.[39mtoMatchObject({ value[33m:[39m [36mnull[39m[33m,[39m valueCents[33m:[39m [36mnull[39m[33m,[39m costCents[33m:[39m [36mnull[39m[33m,[39m bonusReason[33m:[39m [36mnull[39m[33m,[39m valuationSnapshot[33m:[39m [36mnull[39m })[33m;[39m[22m
+[2m     [90m      |[39m                        [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1122 |[39m       }[22m
+[2m     [90m 1123 |[39m       expect(mockPermissions[33m.[39mcanViewTicketValues)[33m.[39mtoHaveBeenCalledWith([32m'admin-1'[39m)[33m;[39m[22m
+[2m     [90m 1124 |[39m     })[33m;[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/worklogs/worklogs.service.spec.ts[39m[0m[2m:1121:24)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mWorklogsService › valor por permissão VIEW_TICKET_VALUES (DMTE-464) › AC-02: agente com a permissão recebe os valores[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoMatchObject[2m([22m[32mexpected[39m[2m)[22m
+
+    [32m- Expected  - 3[39m
+    [31m+ Received  + 3[39m
+
+    [2m  Object {[22m
+    [32m-   "costCents": 8000,[39m
+    [32m-   "value": 120,[39m
+    [32m-   "valueCents": 12000,[39m
+    [31m+   "costCents": null,[39m
+    [31m+   "value": null,[39m
+    [31m+   "valueCents": null,[39m
+    [2m  }[22m
+
+[2m    [0m [90m 1128 |[39m       mockPrisma[33m.[39mworklog[33m.[39mfindMany[33m.[39mmockResolvedValue([financial])[33m;[39m[22m
+[2m     [90m 1129 |[39m       [36mconst[39m [listed] [33m=[39m [36mawait[39m service[33m.[39mfindByTicket([32m'ticket-1'[39m[33m,[39m agentUser)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1130 |[39m       expect(listed)[33m.[39mtoMatchObject({ value[33m:[39m [35m120[39m[33m,[39m valueCents[33m:[39m [35m12000[39m[33m,[39m costCents[33m:[39m [35m8000[39m })[33m;[39m[22m
+[2m     [90m      |[39m                      [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1131 |[39m       expect(mockPermissions[33m.[39mcanViewTicketValues)[33m.[39mtoHaveBeenCalledWith([32m'agent-1'[39m)[33m;[39m[22m
+[2m     [90m 1132 |[39m     })[33m;[39m[22m
+[2m     [90m 1133 |[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/worklogs/worklogs.service.spec.ts[39m[0m[2m:1130:22)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mWorklogsService › valor por permissão VIEW_TICKET_VALUES (DMTE-464) › AC-02: a tarifa de excesso do contrato só aparece com a permissão[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  -  2[39m
+    [31m+ Received  + 12[39m
+
+    [2m  Array [[22m
+    [32m-   ObjectContaining {[39m
+    [32m-     "excessHourlyRateCents": null,[39m
+    [31m+   Object {[39m
+    [31m+     "active": true,[39m
+    [31m+     "approved": true,[39m
+    [31m+     "endsAt": null,[39m
+    [31m+     "excessHourlyRateCents": 12000,[39m
+    [31m+     "hoursLimit": null,[39m
+    [31m+     "id": "contract-1",[39m
+    [31m+     "includedMinutes": 600,[39m
+    [31m+     "name": "Suporte",[39m
+    [31m+     "organizationId": "org-1",[39m
+    [31m+     "startsAt": 2026-01-01T03:00:00.000Z,[39m
+    [31m+     "type": "MONTHLY_HOURS",[39m
+    [2m    },[22m
+    [2m  ][22m
+
+[2m    [0m [90m 1135 |[39m       mockPermissions[33m.[39mcanViewTicketValues[33m.[39mmockResolvedValue([36mfalse[39m)[33m;[39m[22m
+[2m     [90m 1136 |[39m       [36mconst[39m hidden [33m=[39m [36mawait[39m service[33m.[39meligibleContracts([32m'ticket-1'[39m[33m,[39m dto[33m.[39mstartTime[33m,[39m dto[33m.[39mendTime[33m,[39m adminUser)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1137 |[39m       expect(hidden)[33m.[39mtoEqual([expect[33m.[39mobjectContaining({ excessHourlyRateCents[33m:[39m [36mnull[39m })])[33m;[39m[22m
+[2m     [90m      |[39m                      [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1138 |[39m       mockPermissions[33m.[39mcanViewTicketValues[33m.[39mmockResolvedValue([36mtrue[39m)[33m;[39m[22m
+[2m     [90m 1139 |[39m       [36mconst[39m shown [33m=[39m [36mawait[39m service[33m.[39meligibleContracts([32m'ticket-1'[39m[33m,[39m dto[33m.[39mstartTime[33m,[39m dto[33m.[39mendTime[33m,[39m adminUser)[33m;[39m[22m
+[2m     [90m 1140 |[39m       expect(shown)[33m.[39mtoEqual([expect[33m.[39mobjectContaining({ excessHourlyRateCents[33m:[39m [35m12000[39m })])[33m;[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/worklogs/worklogs.service.spec.ts[39m[0m[2m:1137:22)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mWorklogsService › valor por permissão VIEW_TICKET_VALUES (DMTE-464) › AC-03: valor manual é recusado para ADMIN sem a permissão[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mrejects[2m.[22mtoThrow[2m()[22m
+
+    Received promise resolved instead of rejected
+    Resolved to value: [31m{"authorId": "agent-1", "bonusReason": "x", "contractId": "contract-1", "costCents": 8000, "id": "wl-1", "ticketId": "ticket-1", "valuationSnapshot": {"rateCents": 12000}, "value": 120, "valueCents": 12000}[39m
+
+[2m    [0m [90m 1144 |[39m       mockPermissions[33m.[39mcanViewTicketValues[33m.[39mmockResolvedValue([36mfalse[39m)[33m;[39m[22m
+[2m     [90m 1145 |[39m       mockPrisma[33m.[39mworklog[33m.[39mcreate[33m.[39mmockResolvedValue(financial)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1146 |[39m       [36mawait[39m expect([22m
+[2m     [90m      |[39m             [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1147 |[39m         service[33m.[39mcreate([32m'ticket-1'[39m[33m,[39m { [33m...[39mdto[33m,[39m valuationType[33m:[39m [33mValuationType[39m[33m.[39m[33mMANUAL[39m[33m,[39m value[33m:[39m [35m250[39m }[33m,[39m adminUser)[33m,[39m[22m
+[2m     [90m 1148 |[39m       )[33m.[39mrejects[33m.[39mtoThrow([33mForbiddenException[39m)[33m;[39m[22m
+[2m     [90m 1149 |[39m       expect(mockPrisma[33m.[39mworklog[33m.[39mcreate)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/worklogs/worklogs.service.spec.ts[39m[0m[2m:1146:13)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mWorklogsService › valor por permissão VIEW_TICKET_VALUES (DMTE-464) › auditoria financeira é recusada para ADMIN sem a permissão[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mrejects[2m.[22mtoThrow[2m()[22m
+
+    Received promise resolved instead of rejected
+    Resolved to value: [31m[][39m
+
+[2m    [0m [90m 1153 |[39m       mockPermissions[33m.[39mcanViewTicketValues[33m.[39mmockResolvedValue([36mfalse[39m)[33m;[39m[22m
+[2m     [90m 1154 |[39m       mockPrisma[33m.[39mticket[33m.[39mfindUnique[33m.[39mmockResolvedValue(validTicket)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1155 |[39m       [36mawait[39m expect(service[33m.[39mauditByTicket([32m'ticket-1'[39m[33m,[39m adminUser))[33m.[39mrejects[33m.[39mtoThrow([33mForbiddenException[39m)[33m;[39m[22m
+[2m     [90m      |[39m             [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1156 |[39m     })[33m;[39m[22m
+[2m     [90m 1157 |[39m   })[33m;[39m[22m
+[2m     [90m 1158 |[39m })[33m;[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/worklogs/worklogs.service.spec.ts[39m[0m[2m:1155:13)[22m[2m[22m
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m api [39m[27m[0m [2msrc/knowledge-attachments/[22m[1mknowledge-attachments.controller.spec.ts[22m ([0m[1m[41m11.522 s[49m[22m[0m)
+[1m[31m  [1m● [22m[1mKnowledgeAttachmentsController multer pipeline (real HTTP) › rejects a file over 25MB with a 413-class error before it reaches the service[39m[22m
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+[2m      [2mat _getError ([22m[2m../../node_modules/.pnpm/jest-circus@30.5.2_babel-plugin-macros@3.1.0_supports-color@7.2.0/node_modules/jest-circus/build/jestAdapterInit.js[2m:1985:12)[22m[2m[22m
+[2m          at Array.map (<anonymous>)[22m
+
+    Cause:
+        thrown: "Exceeded timeout of 5000 ms for a test.
+        Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+    [2m    [0m [90m 172 |[39m   })[33m;[39m[22m
+    [2m     [90m 173 |[39m[22m
+    [2m    [31m[1m>[22m[2m[39m[90m 174 |[39m   it([32m'rejects a file over 25MB with a 413-class error before it reaches the service'[39m[33m,[39m [36masync[39m () [33m=>[39m {[22m
+    [2m     [90m     |[39m   [31m[1m^[22m[2m[39m[22m
+    [2m     [90m 175 |[39m     [36mconst[39m oversized [33m=[39m [33mBuffer[39m[33m.[39malloc([35m25[39m [33m*[39m [35m1024[39m [33m*[39m [35m1024[39m [33m+[39m [35m1[39m[33m,[39m [32m'a'[39m)[33m;[39m[22m
+    [2m     [90m 176 |[39m[22m
+    [2m     [90m 177 |[39m     [36mconst[39m res [33m=[39m [36mawait[39m request(app[33m.[39mgetHttpServer())[0m[22m
+
+    [2m      [2mat [22m[2m[0m[36msrc/knowledge-attachments/knowledge-attachments.controller.spec.ts[39m[0m[2m:174:3[22m[2m[22m
+    [2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/knowledge-attachments/knowledge-attachments.controller.spec.ts[39m[0m[2m:32:1)[22m[2m[22m
+
+[33mA worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.[39m
+
+[1mSummary of all failing tests[22m
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [2mprisma/[22m[1mseed.spec.ts[22m
+[1m[31m  [1m● [22m[1mDMTE-464 VIEW_TICKET_VALUES › AC-06: nenhum grupo padrão por role traz a permissão; quem vê valor é decidido pelo grupo "Valores de tickets"[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mnot[2m.[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected value: not [32m"VIEW_TICKET_VALUES"[39m
+    Received array:     [31m["VIEW_CLIENTS_AND_RESOURCE_GROUPS", "MANAGE_CLIENTS_AND_RESOURCE_GROUPS", "VIEW_CONTRACTS_ADMIN", "MANAGE_CONTRACTS", "VIEW_RESOURCES_ADMIN", "MANAGE_RESOURCES", "MANAGE_TRAVEL", "EDIT_CLOSED_TICKETS", "MANAGE_BILLING", "MANAGE_BACKUP_RESOURCES", "ADD_SLA_TIME", [7m"VIEW_TICKET_VALUES"[27m, "MANAGE_INTEGRATIONS", "ACCESS_DATA_WAREHOUSES", "MANAGE_SCHEDULES_ADMIN", "MANAGE_CUSTOM_FIELDS", "MANAGE_CAMPAIGNS", "ACCESS_CLIENT_PORTAL", "UPLOAD_TICKET_ATTACHMENTS", "REMOVE_TICKET_ATTACHMENTS", "VIEW_ALL_CLIENT_TICKETS", "REMOVE_REPLY_ATTACHMENTS", "REMOVE_REPLIES", "VIEW_LAST_30_DAYS_TICKETS_WIDGET", "VIEW_TICKETS_BY_DESK_WIDGET", "VIEW_CONTRACT_CONSUMPTION_WIDGET", "VIEW_WORKLOG_INFO", "CANCEL_TICKETS", "VIEW_SLA_INFO", "VIEW_CUSTOM_FIELDS_INFO", "VIEW_VALUATION_INFO", "VIEW_CHECKLIST_INFO", "VIEW_TICKET_HISTORY", "OPEN_REQUESTS_AS_PRE_TICKETS", "EDIT_CUSTOM_FIELDS", "VIEW_RESOURCES_CLIENT", "VIEW_KNOWLEDGE_BASE", "VIEW_CONTRACTS_CLIENT", "OPEN_CHILD_TICKETS", "MANAGE_PERMISSION_GROUPS", "MANAGE_USERS", "MANAGE_SERVICE_CATALOGS", "MANAGE_SERVICE_DESKS", "ACCESS_AGENT_SETTINGS", "REVIEW_REOPEN_CLOSED_TICKETS", "EDIT_ORGANIZATION_SETTINGS", "MANAGE_EMAIL_TICKETS", "MANAGE_NEW_TICKET_AUTHORIZATION", "VIEW_USERS_IN_AGENT_REPORTS", "MANAGE_BULK_REMOTE_COMMANDS", "REMOVE_PUBLIC_TICKET_FILTERS", "MANAGE_TICKET_GROUP_TEMPLATES", "VIEW_ADMIN_REPORTS", "VIEW_AGENT_REPORTS", "VIEW_RESOURCE_INVENTORY_REPORTS", "VIEW_CUSTOM_REPORTS", "MANAGE_CUSTOM_REPORTS", "VIEW_CLIENT_CONSUMPTION_STATEMENT_REPORT", "VIEW_EXTRA_VALUATION_REPORT", "VIEW_CONTRACT_CONSUMPTION_CHART_REPORT", "ACCESS_CHAT_INDICATORS", "EXPORT_DATA", "VIEW_AND_OPEN_TICKETS", "CREATE_EDIT_WORKLOGS", "EDIT_TICKETS", "CHANGE_PRIORITY_AND_DISABLE_SLA", "ADD_REMOVE_VALUATION_ON_OPEN_TICKETS", "REMOTE_ACCESS", "EDIT_ALL_WORKLOGS", "VIEW_ADD_INTERNAL_COMMUNICATION", "MANAGE_KNOWLEDGE_BASE", "PAUSE_RESUME_SLA", "VIEW_TICKETS_NOT_RESPONSIBLE_FOR", "ACCESS_CHAT", "CREATE_TICKET_SCHEDULING", "VIEW_PASSWORD_VAULT", "MANAGE_PASSWORD_VAULT", "VIEW_PASSWORD_VAULT_AUDIT", "VIEW_ALL_SCHEDULES", "MANAGE_REQUESTERS_AND_CLIENT_USERS", "MANAGE_PRE_WORKLOGS", "ACCESS_PRE_TICKETS", "EDIT_PUBLIC_TICKET_FILTERS", "MANAGE_JIRA_GITHUB_ISSUES", "MANAGE_TEMPLATES", "EDIT_SERVICE_CATALOG_ON_CLOSED_TICKET", "MANAGE_CHECKLISTS", "CANCEL_CHATS"][39m
+
+[2m    [0m [90m 117 |[39m   it([32m'AC-06: nenhum grupo padrão por role traz a permissão; quem vê valor é decidido pelo grupo "Valores de tickets"'[39m[33m,[39m () [33m=>[39m {[22m
+[2m     [90m 118 |[39m     [36mfor[39m ([36mconst[39m role [36mof[39m [33mObject[39m[33m.[39mvalues([33mRole[39m)) {[22m
+[2m    [31m[1m>[22m[2m[39m[90m 119 |[39m       expect([33mDEFAULT_PERMISSION_GROUPS[39m[role][33m.[39mpermissions)[33m.[39mnot[33m.[39mtoContain([32m'VIEW_TICKET_VALUES'[39m)[33m;[39m[22m
+[2m     [90m     |[39m                                                               [31m[1m^[22m[2m[39m[22m
+[2m     [90m 120 |[39m     }[22m
+[2m     [90m 121 |[39m   })[33m;[39m[22m
+[2m     [90m 122 |[39m })[33m;[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36mprisma/seed.spec.ts[39m[0m[2m:119:63)[22m[2m[22m
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [2msrc/permissions/[22m[1mpermissions.service.spec.ts[22m
+[1m[31m  [1m● [22m[1mPermissionsService › canViewTicketValues (DMTE-464) › é verdadeiro quando um grupo direto tem VIEW_TICKET_VALUES[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mresolves[2m.[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+[2m    [0m [90m 112 |[39m         technicalGroup[33m:[39m [36mnull[39m[33m,[39m[22m
+[2m     [90m 113 |[39m       })[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 114 |[39m       [36mawait[39m expect(service[33m.[39mcanViewTicketValues([32m'user-1'[39m))[33m.[39mresolves[33m.[39mtoBe([36mtrue[39m)[33m;[39m[22m
+[2m     [90m     |[39m                                                                    [31m[1m^[22m[2m[39m[22m
+[2m     [90m 115 |[39m     })[33m;[39m[22m
+[2m     [90m 116 |[39m[22m
+[2m     [90m 117 |[39m     it([32m'é verdadeiro quando o grupo técnico do usuário tem a permissão'[39m[33m,[39m [36masync[39m () [33m=>[39m {[0m[22m
+
+[2m      [2mat Object.toBe ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2140:20)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/permissions/permissions.service.spec.ts[39m[0m[2m:114:68)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mPermissionsService › canViewTicketValues (DMTE-464) › é verdadeiro quando o grupo técnico do usuário tem a permissão[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mresolves[2m.[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+[2m    [0m [90m 120 |[39m         technicalGroup[33m:[39m { permissionGroupLinks[33m:[39m [{ permissionGroup[33m:[39m { permissions[33m:[39m [[32m'VIEW_TICKET_VALUES'[39m] } }] }[33m,[39m[22m
+[2m     [90m 121 |[39m       })[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 122 |[39m       [36mawait[39m expect(service[33m.[39mcanViewTicketValues([32m'user-1'[39m))[33m.[39mresolves[33m.[39mtoBe([36mtrue[39m)[33m;[39m[22m
+[2m     [90m     |[39m                                                                    [31m[1m^[22m[2m[39m[22m
+[2m     [90m 123 |[39m     })[33m;[39m[22m
+[2m     [90m 124 |[39m[22m
+[2m     [90m 125 |[39m     it([32m'é falso sem a permissão, mesmo com outras permissões'[39m[33m,[39m [36masync[39m () [33m=>[39m {[0m[22m
+
+[2m      [2mat Object.toBe ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2140:20)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/permissions/permissions.service.spec.ts[39m[0m[2m:122:68)[22m[2m[22m
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [2msrc/auth/[22m[1mauth.controller.spec.ts[22m
+[1m[31m  [1m● [22m[1mAuthController › getProfile › returns the safe user record plus effective permissions for a non-admin[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 0[39m
+
+    [33m@@ -1,7 +1,6 @@[39m
+    [2m  Object {[22m
+    [32m-   "canViewTicketValues": false,[39m
+    [2m    "email": "jane@example.com",[22m
+    [2m    "id": "user-1",[22m
+    [2m    "isAdmin": false,[22m
+    [2m    "name": "Jane Doe",[22m
+    [2m    "permissions": Array [[22m
+
+[2m    [0m [90m 131 |[39m       expect(usersService[33m.[39mfindById)[33m.[39mtoHaveBeenCalledWith(mockSafeUser[33m.[39mid)[33m;[39m[22m
+[2m     [90m 132 |[39m       expect(permissionsService[33m.[39mgetEffectivePermissions)[33m.[39mtoHaveBeenCalledWith(mockSafeUser[33m.[39mid)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 133 |[39m       expect(result)[33m.[39mtoEqual({[22m
+[2m     [90m     |[39m                      [31m[1m^[22m[2m[39m[22m
+[2m     [90m 134 |[39m         [33m...[39mmockSafeUser[33m,[39m[22m
+[2m     [90m 135 |[39m         isAdmin[33m:[39m [36mfalse[39m[33m,[39m[22m
+[2m     [90m 136 |[39m         permissions[33m:[39m [[32m'MANAGE_USERS'[39m][33m,[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/auth/auth.controller.spec.ts[39m[0m[2m:133:22)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mAuthController › getProfile › marks ADMIN as isAdmin without requiring any PermissionGroup link[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 0[39m
+
+    [33m@@ -1,7 +1,6 @@[39m
+    [2m  Object {[22m
+    [32m-   "canViewTicketValues": false,[39m
+    [2m    "email": "jane@example.com",[22m
+    [2m    "id": "admin-1",[22m
+    [2m    "isAdmin": true,[22m
+    [2m    "name": "Jane Doe",[22m
+    [2m    "permissions": Array [],[22m
+
+[2m    [0m [90m 147 |[39m[22m
+[2m     [90m 148 |[39m       expect(permissionsService[33m.[39mgetEffectivePermissions)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 149 |[39m       expect(result)[33m.[39mtoEqual({ [33m...[39madminUser[33m,[39m isAdmin[33m:[39m [36mtrue[39m[33m,[39m permissions[33m:[39m [][33m,[39m canViewTicketValues[33m:[39m [36mfalse[39m })[33m;[39m[22m
+[2m     [90m     |[39m                      [31m[1m^[22m[2m[39m[22m
+[2m     [90m 150 |[39m     })[33m;[39m[22m
+[2m     [90m 151 |[39m[22m
+[2m     [90m 152 |[39m     it([32m'AC-04: ADMIN com a permissão no grupo recebe canViewTicketValues verdadeiro'[39m[33m,[39m [36masync[39m () [33m=>[39m {[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/auth/auth.controller.spec.ts[39m[0m[2m:149:22)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mAuthController › getProfile › AC-04: ADMIN com a permissão no grupo recebe canViewTicketValues verdadeiro[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    Expected: [32m"admin-1"[39m
+
+    Number of calls: [31m0[39m
+
+[2m    [0m [90m 157 |[39m       [36mconst[39m result [33m=[39m [36mawait[39m controller[33m.[39mgetProfile({ user[33m:[39m adminUser } [36mas[39m never)[33m;[39m[22m
+[2m     [90m 158 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 159 |[39m       expect(permissionsService[33m.[39mcanViewTicketValues)[33m.[39mtoHaveBeenCalledWith([32m'admin-1'[39m)[33m;[39m[22m
+[2m     [90m     |[39m                                                      [31m[1m^[22m[2m[39m[22m
+[2m     [90m 160 |[39m       expect(result)[33m.[39mtoMatchObject({ isAdmin[33m:[39m [36mtrue[39m[33m,[39m canViewTicketValues[33m:[39m [36mtrue[39m })[33m;[39m[22m
+[2m     [90m 161 |[39m     })[33m;[39m[22m
+[2m     [90m 162 |[39m   })[33m;[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/auth/auth.controller.spec.ts[39m[0m[2m:159:54)[22m[2m[22m
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [2msrc/worklogs/[22m[1mworklogs.service.spec.ts[22m
+[1m[31m  [1m● [22m[1mWorklogsService › valor por permissão VIEW_TICKET_VALUES (DMTE-464) › AC-01: ADMIN sem a permissão não recebe valores na criação nem na listagem[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoMatchObject[2m([22m[32mexpected[39m[2m)[22m
+
+    [32m- Expected  - 5[39m
+    [31m+ Received  + 7[39m
+
+    [2m  Object {[22m
+    [32m-   "bonusReason": null,[39m
+    [32m-   "costCents": null,[39m
+    [32m-   "valuationSnapshot": null,[39m
+    [32m-   "value": null,[39m
+    [32m-   "valueCents": null,[39m
+    [31m+   "bonusReason": "x",[39m
+    [31m+   "costCents": 8000,[39m
+    [31m+   "valuationSnapshot": Object {[39m
+    [31m+     "rateCents": 12000,[39m
+    [31m+   },[39m
+    [31m+   "value": 120,[39m
+    [31m+   "valueCents": 12000,[39m
+    [2m  }[22m
+
+[2m    [0m [90m 1119 |[39m       [36mconst[39m [listed] [33m=[39m [36mawait[39m service[33m.[39mfindByTicket([32m'ticket-1'[39m[33m,[39m adminUser)[33m;[39m[22m
+[2m     [90m 1120 |[39m       [36mfor[39m ([36mconst[39m result [36mof[39m [created[33m,[39m listed]) {[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1121 |[39m         expect(result)[33m.[39mtoMatchObject({ value[33m:[39m [36mnull[39m[33m,[39m valueCents[33m:[39m [36mnull[39m[33m,[39m costCents[33m:[39m [36mnull[39m[33m,[39m bonusReason[33m:[39m [36mnull[39m[33m,[39m valuationSnapshot[33m:[39m [36mnull[39m })[33m;[39m[22m
+[2m     [90m      |[39m                        [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1122 |[39m       }[22m
+[2m     [90m 1123 |[39m       expect(mockPermissions[33m.[39mcanViewTicketValues)[33m.[39mtoHaveBeenCalledWith([32m'admin-1'[39m)[33m;[39m[22m
+[2m     [90m 1124 |[39m     })[33m;[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/worklogs/worklogs.service.spec.ts[39m[0m[2m:1121:24)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mWorklogsService › valor por permissão VIEW_TICKET_VALUES (DMTE-464) › AC-02: agente com a permissão recebe os valores[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoMatchObject[2m([22m[32mexpected[39m[2m)[22m
+
+    [32m- Expected  - 3[39m
+    [31m+ Received  + 3[39m
+
+    [2m  Object {[22m
+    [32m-   "costCents": 8000,[39m
+    [32m-   "value": 120,[39m
+    [32m-   "valueCents": 12000,[39m
+    [31m+   "costCents": null,[39m
+    [31m+   "value": null,[39m
+    [31m+   "valueCents": null,[39m
+    [2m  }[22m
+
+[2m    [0m [90m 1128 |[39m       mockPrisma[33m.[39mworklog[33m.[39mfindMany[33m.[39mmockResolvedValue([financial])[33m;[39m[22m
+[2m     [90m 1129 |[39m       [36mconst[39m [listed] [33m=[39m [36mawait[39m service[33m.[39mfindByTicket([32m'ticket-1'[39m[33m,[39m agentUser)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1130 |[39m       expect(listed)[33m.[39mtoMatchObject({ value[33m:[39m [35m120[39m[33m,[39m valueCents[33m:[39m [35m12000[39m[33m,[39m costCents[33m:[39m [35m8000[39m })[33m;[39m[22m
+[2m     [90m      |[39m                      [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1131 |[39m       expect(mockPermissions[33m.[39mcanViewTicketValues)[33m.[39mtoHaveBeenCalledWith([32m'agent-1'[39m)[33m;[39m[22m
+[2m     [90m 1132 |[39m     })[33m;[39m[22m
+[2m     [90m 1133 |[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/worklogs/worklogs.service.spec.ts[39m[0m[2m:1130:22)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mWorklogsService › valor por permissão VIEW_TICKET_VALUES (DMTE-464) › AC-02: a tarifa de excesso do contrato só aparece com a permissão[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  -  2[39m
+    [31m+ Received  + 12[39m
+
+    [2m  Array [[22m
+    [32m-   ObjectContaining {[39m
+    [32m-     "excessHourlyRateCents": null,[39m
+    [31m+   Object {[39m
+    [31m+     "active": true,[39m
+    [31m+     "approved": true,[39m
+    [31m+     "endsAt": null,[39m
+    [31m+     "excessHourlyRateCents": 12000,[39m
+    [31m+     "hoursLimit": null,[39m
+    [31m+     "id": "contract-1",[39m
+    [31m+     "includedMinutes": 600,[39m
+    [31m+     "name": "Suporte",[39m
+    [31m+     "organizationId": "org-1",[39m
+    [31m+     "startsAt": 2026-01-01T03:00:00.000Z,[39m
+    [31m+     "type": "MONTHLY_HOURS",[39m
+    [2m    },[22m
+    [2m  ][22m
+
+[2m    [0m [90m 1135 |[39m       mockPermissions[33m.[39mcanViewTicketValues[33m.[39mmockResolvedValue([36mfalse[39m)[33m;[39m[22m
+[2m     [90m 1136 |[39m       [36mconst[39m hidden [33m=[39m [36mawait[39m service[33m.[39meligibleContracts([32m'ticket-1'[39m[33m,[39m dto[33m.[39mstartTime[33m,[39m dto[33m.[39mendTime[33m,[39m adminUser)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1137 |[39m       expect(hidden)[33m.[39mtoEqual([expect[33m.[39mobjectContaining({ excessHourlyRateCents[33m:[39m [36mnull[39m })])[33m;[39m[22m
+[2m     [90m      |[39m                      [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1138 |[39m       mockPermissions[33m.[39mcanViewTicketValues[33m.[39mmockResolvedValue([36mtrue[39m)[33m;[39m[22m
+[2m     [90m 1139 |[39m       [36mconst[39m shown [33m=[39m [36mawait[39m service[33m.[39meligibleContracts([32m'ticket-1'[39m[33m,[39m dto[33m.[39mstartTime[33m,[39m dto[33m.[39mendTime[33m,[39m adminUser)[33m;[39m[22m
+[2m     [90m 1140 |[39m       expect(shown)[33m.[39mtoEqual([expect[33m.[39mobjectContaining({ excessHourlyRateCents[33m:[39m [35m12000[39m })])[33m;[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/worklogs/worklogs.service.spec.ts[39m[0m[2m:1137:22)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mWorklogsService › valor por permissão VIEW_TICKET_VALUES (DMTE-464) › AC-03: valor manual é recusado para ADMIN sem a permissão[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mrejects[2m.[22mtoThrow[2m()[22m
+
+    Received promise resolved instead of rejected
+    Resolved to value: [31m{"authorId": "agent-1", "bonusReason": "x", "contractId": "contract-1", "costCents": 8000, "id": "wl-1", "ticketId": "ticket-1", "valuationSnapshot": {"rateCents": 12000}, "value": 120, "valueCents": 12000}[39m
+
+[2m    [0m [90m 1144 |[39m       mockPermissions[33m.[39mcanViewTicketValues[33m.[39mmockResolvedValue([36mfalse[39m)[33m;[39m[22m
+[2m     [90m 1145 |[39m       mockPrisma[33m.[39mworklog[33m.[39mcreate[33m.[39mmockResolvedValue(financial)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1146 |[39m       [36mawait[39m expect([22m
+[2m     [90m      |[39m             [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1147 |[39m         service[33m.[39mcreate([32m'ticket-1'[39m[33m,[39m { [33m...[39mdto[33m,[39m valuationType[33m:[39m [33mValuationType[39m[33m.[39m[33mMANUAL[39m[33m,[39m value[33m:[39m [35m250[39m }[33m,[39m adminUser)[33m,[39m[22m
+[2m     [90m 1148 |[39m       )[33m.[39mrejects[33m.[39mtoThrow([33mForbiddenException[39m)[33m;[39m[22m
+[2m     [90m 1149 |[39m       expect(mockPrisma[33m.[39mworklog[33m.[39mcreate)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/worklogs/worklogs.service.spec.ts[39m[0m[2m:1146:13)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mWorklogsService › valor por permissão VIEW_TICKET_VALUES (DMTE-464) › auditoria financeira é recusada para ADMIN sem a permissão[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mrejects[2m.[22mtoThrow[2m()[22m
+
+    Received promise resolved instead of rejected
+    Resolved to value: [31m[][39m
+
+[2m    [0m [90m 1153 |[39m       mockPermissions[33m.[39mcanViewTicketValues[33m.[39mmockResolvedValue([36mfalse[39m)[33m;[39m[22m
+[2m     [90m 1154 |[39m       mockPrisma[33m.[39mticket[33m.[39mfindUnique[33m.[39mmockResolvedValue(validTicket)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 1155 |[39m       [36mawait[39m expect(service[33m.[39mauditByTicket([32m'ticket-1'[39m[33m,[39m adminUser))[33m.[39mrejects[33m.[39mtoThrow([33mForbiddenException[39m)[33m;[39m[22m
+[2m     [90m      |[39m             [31m[1m^[22m[2m[39m[22m
+[2m     [90m 1156 |[39m     })[33m;[39m[22m
+[2m     [90m 1157 |[39m   })[33m;[39m[22m
+[2m     [90m 1158 |[39m })[33m;[39m[0m[22m
+
+[2m      [2mat expect ([22m[2m../../node_modules/.pnpm/expect@30.5.2/node_modules/expect/build/index.js[2m:2116:15)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/worklogs/worklogs.service.spec.ts[39m[0m[2m:1155:13)[22m[2m[22m
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [2msrc/knowledge-attachments/[22m[1mknowledge-attachments.controller.spec.ts[22m ([0m[1m[41m11.522 s[49m[22m[0m)
+[1m[31m  [1m● [22m[1mKnowledgeAttachmentsController multer pipeline (real HTTP) › rejects a file over 25MB with a 413-class error before it reaches the service[39m[22m
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+[2m      [2mat _getError ([22m[2m../../node_modules/.pnpm/jest-circus@30.5.2_babel-plugin-macros@3.1.0_supports-color@7.2.0/node_modules/jest-circus/build/jestAdapterInit.js[2m:1985:12)[22m[2m[22m
+[2m          at Array.map (<anonymous>)[22m
+
+    Cause:
+        thrown: "Exceeded timeout of 5000 ms for a test.
+        Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+    [2m    [0m [90m 172 |[39m   })[33m;[39m[22m
+    [2m     [90m 173 |[39m[22m
+    [2m    [31m[1m>[22m[2m[39m[90m 174 |[39m   it([32m'rejects a file over 25MB with a 413-class error before it reaches the service'[39m[33m,[39m [36masync[39m () [33m=>[39m {[22m
+    [2m     [90m     |[39m   [31m[1m^[22m[2m[39m[22m
+    [2m     [90m 175 |[39m     [36mconst[39m oversized [33m=[39m [33mBuffer[39m[33m.[39malloc([35m25[39m [33m*[39m [35m1024[39m [33m*[39m [35m1024[39m [33m+[39m [35m1[39m[33m,[39m [32m'a'[39m)[33m;[39m[22m
+    [2m     [90m 176 |[39m[22m
+    [2m     [90m 177 |[39m     [36mconst[39m res [33m=[39m [36mawait[39m request(app[33m.[39mgetHttpServer())[0m[22m
+
+    [2m      [2mat [22m[2m[0m[36msrc/knowledge-attachments/knowledge-attachments.controller.spec.ts[39m[0m[2m:174:3[22m[2m[22m
+    [2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/knowledge-attachments/knowledge-attachments.controller.spec.ts[39m[0m[2m:32:1)[22m[2m[22m
+
+
+[1mTest Suites: [22m[1m[31m5 failed[39m[22m, [1m[32m75 passed[39m[22m, 80 total
+[1mTests:       [22m[1m[31m12 failed[39m[22m, [1m[32m1071 passed[39m[22m, 1083 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        [1m[33m61.855 s[39m[22m
+[2mRan all test suites[22m[2m.[22m
+Warning: command "jest --passWithNoTests=true" exited with non-zero status code
+> nx run web:test
+
+> vitest
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-464-8604f3879eec/workdir/aponta/apps/web
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders a header cell for each column and a row for each data entry
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders the EzFilterBar above the grid when filters is provided
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders a footer row with the sum of numeric columns when footerAggregations is provided
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > does not render a footer row when footerAggregations is not provided
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > keeps the footer row empty for a column id that does not exist in the data
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > sums the full dataset (not just the current page) when footerAggregations and pageSize are both set
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders a left-pinned column before the other columns, marked with data-pinned="left"
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders a right-pinned column after the other columns, marked with data-pinned="right"
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > keeps the original column order when pinnedColumns is not provided
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > gives a 2nd left-pinned column a cumulative offset so it does not overlap the 1st
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > ignores a pinned column id that does not exist in the data without crashing
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid grouping > renders one collapsed group header row per distinct value when groupBy is set
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid grouping > does not render group rows when groupBy is omitted
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid grouping > ignores a groupBy column id that does not exist in the data without crashing
+[Table] Column with id 'doesNotExist' does not exist.
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid grouping > shows a fallback label instead of the literal string "undefined" when the grouping value is missing
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid visual tokens (Sankhya ERP parity) > applies compact row density by default (~25px line height with py-1 on cells and py-1.5 on headers)
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid visual tokens (Sankhya ERP parity) > applies comfortable density (py-3) when density="comfortable" is passed
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid visual tokens (Sankhya ERP parity) > applies hover:bg-grid-row-hover to body rows
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid visual tokens (Sankhya ERP parity) > adds border-r border-gray-100 vertical grade between header columns except on the last column
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid rich pagination and horizontal scrollbar (Sankhya parity) > renders persistent horizontal scrollbar when alwaysShowHorizontalScrollbar is enabled
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid rich pagination and horizontal scrollbar (Sankhya parity) > does not render horizontal scrollbar when showHorizontalScrollbar is false
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Excel-style column filters and status bar counters > does not render column filter buttons when enableColumnFilters is false
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Excel-style column filters and status bar counters > does not render status bar when showStatusBar is false
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > renders zebra striping and vertical dividers on body cells
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > renders sequential row numbers when showRowNumbers is true
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > respects initialColumnVisibility prop to hide specified columns on mount
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > supports custom columnOrder and drag-and-drop reordering (Sankhya AG Grid parity)
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > renders a resize handle for each resizable column, never for special columns (Sankhya AG Grid parity)
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > hides the resize handle when enableColumnResize is false
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > resizes a column by dragging its resize handle (mousedown + mousemove + mouseup)
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > supports controlled columnSizing and onColumnSizingChange when dragging the resize handle
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/components/ds/EzEntityGrid.test.tsx (51 tests) 27543ms
+     ✓ renders a header cell for each column and a row for each data entry  988ms
+     ✓ sorts rows by column when its header is clicked  759ms
+     ✓ calls onSelectionChange with the selected rows when a row checkbox is clicked  450ms
+     ✓ applies compact row density by default (~25px line height with py-1 on cells and py-1.5 on headers)  441ms
+     ✓ applies comfortable density (py-3) when density="comfortable" is passed  337ms
+     ✓ applies bg-brand-50 to selected rows when selectable is true and row is checked  471ms
+     ✓ displays explicit record count "1-2 de 3" and page size selector when paginated  685ms
+     ✓ renders status bar with total row count and selection counter when selectable  1649ms
+     ✓ opens Excel-style column filter popover on funnel click and filters data by distinct values  1112ms
+     ✓ clears column filter restoring all rows  1876ms
+     ✓ searches values within filter popover and uses select all  1760ms
+     ✓ does not render column filter buttons when enableColumnFilters is false  322ms
+     ✓ renders Sankhya sort indicators (green border for asc, red for desc)  1348ms
+     ✓ opens column header menu and sorts via menu action  1372ms
+     ✓ provides "Todos" and "Filtrados" tabs in the Excel filter popover  1677ms
+     ✓ renders AG Grid corner menu and toggles density  2200ms
+     ✓ opens Grid Statistics modal and displays numeric metrics  1700ms
+     ✓ opens Column Configurator modal and toggles column visibility  1532ms
+     ✓ renders sequential row numbers when showRowNumbers is true  466ms
+     ✓ respects initialColumnVisibility prop to hide specified columns on mount  565ms
+     ✓ hides column directly via "Ocultar esta Coluna" in column menu  744ms
+     ✓ opens Column Configurator modal from taskbar CONFIGURATOR action  331ms
+     ✓ supports controlled columnSizing and onColumnSizingChange when dragging the resize handle  508ms
+ ✓ |web| src/components/tickets/TicketKanban.test.tsx (34 tests) 11903ms
+       ✓ shows a skeleton loading state with every column label while isLoading  485ms
+       ✓ shows an error message when isError is true  493ms
+       ✓ groups tickets into their matching status column with correct counts  421ms
+       ✓ does nothing when a card is dropped outside any column (no destination)  312ms
+       ✓ rolls back the optimistic update when the status-update API call fails  435ms
+       ✓ shows a collapse toggle and an "Abrir novo ticket" link on every column by default (fallback por status)  353ms
+       ✓ lists service desks in the Mesa dropdown and switches to stage-grouped columns on selection, without needing initialServiceDeskId  339ms
+       ✓ AC-04: keeps Mesa, responsáveis, Ordenar and Configurações in one toolbar row, in that order  633ms
+       ✓ renders one avatar per distinct agent present in the tickets  351ms
+       ✓ clicking an avatar filters the board to that agent's tickets (toggle, multi-select)  728ms
+       ✓ opens "Ordenar", sorts cards by Título asc/desc, and "Limpar" restores the original order  2319ms
+       ✓ "Configurações" lets the user group by Responsável instead of Status/Estágio  350ms
+       ✓ "Configurações" lets the user group by Prioridade  617ms
+       ✓ RODADA 2 ("Exibir campos", D6c): "Configurações" lets the user toggle optional card fields, persisted like "Agrupar por"  821ms
+ ❯ |web| src/components/tickets/TicketWorklogs.test.tsx (57 tests | 6 failed) 58895ms
+     ✓ formatWorklogMinutes formats minutes into human readable text 19ms
+     ✓ formatAttendanceType translates the attendance type enum 3ms
+     ✓ formatWorklogValue formats a monetary value or a dash when null 1ms
+     ✓ renders worklogs list and summary header correctly  1644ms
+     ✓ renders empty state when no worklogs exist 213ms
+     ✓ uses the DS EzComboBox (Storybook) for every worklog selector  316ms
+     ✓ allows filling the form and submitting a new worklog  3841ms
+     ✓ allows choosing attendance type and a custom time range, sending them on submit  4949ms
+     × blocks submission when the end time is not after the start time 6076ms
+     × quick chip buttons update the end time and the computed duration 3911ms
+     × sends valuationType MANUAL with the entered value 5300ms
+     ✓ blocks submission when valuationType is MANUAL without a value  2061ms
+     ✓ unchecks billable automatically when GUARANTEE is selected  722ms
+     ✓ sends nextStageId when a next stage is chosen  2322ms
+     ✓ does not send nextStageId when "Não alterar" stays selected  2399ms
+     ✓ sends sendAsReply when the checkbox is checked  2857ms
+     ✓ renders TiFlux-parity action buttons and checkbox text  644ms
+     ✓ submits with the final next stage when "Salvar e fechar ticket" is clicked  2220ms
+     ✓ disables "Salvar e fechar ticket" when no reachable next stage closes the ticket 140ms
+     ✓ submits and advances start time to previous end time when "Salvar e criar novo apontamento" is clicked  1263ms
+     ✓ allows deleting own worklog when confirmed  422ms
+     ✓ renders modal closed by default when defaultModalOpen is false and opens upon "+ Apontamento" click 135ms
+     × handles activity timer start, pause, and stop to open apontamento modal 1201ms
+     ✓ lists a Brasília pré-apontamento while the timer runs and converts it into the form  430ms
+     ✓ appends a new pré-apontamento when starting again instead of overwriting  459ms
+     ✓ converts stopped raw time with its original contract and source identifier  561ms
+     ✓ discards the running pré-apontamento from the timer cancel control  544ms
+     ✓ prefills + Apontamento from the running pré without opening from the table  312ms
+     ✓ pauses and resumes the running pré from the table row  614ms
+     ✓ falls back to the author email local-part when the name is empty 123ms
+     ✓ falls back to Técnico when author and session emails are empty 100ms
+     ✓ prefills from derived timer times when initTime and endTime are blank 186ms
+     ✓ paginates the pré-apontamentos table when the list grows  424ms
+     ✓ clamps pagination back to the last page after deleting the only row on page 2  446ms
+     ✓ renders modal with spellcheck and portuguese language attributes 58ms
+     ✓ saves worklog draft in localStorage and restores it automatically  2097ms
+     ✓ handles pasting image screenshot, uploading attachment and inserting it inline 276ms
+     ✓ keeps filled fields after closing the modal with X and reopening  2418ms
+     ✓ renders the apontamento modal at 5xl width 100ms
+     ✓ expands and collapses activity details per row and in bulk 287ms
+     ✓ filters the history by attendant and attendance type via the funnel  369ms
+     ✓ sorts worklogs by day and shows filtered totals in the footer 175ms
+     ✓ hides monetary data and manual valuation for agents even with unmasked payloads  373ms
+     ✓ submits an explicit eligible contract and preserves it in the draft  333ms
+     ✓ keeps unknown contract values distinct from free coverage 239ms
+     ✓ does not restore manual financial fields for an agent draft 69ms
+     ✓ rejects negative manual amounts before calling the API  389ms
+     ✓ keeps unknown historical totals visible without inferring free values  362ms
+     ✓ blocks every valuation mode when no commercial contract is eligible  679ms
+     ✓ requires a bonus reason and records its eligible contract without quota consumption  427ms
+     ✓ submits near-midnight Brasília work as true instants in the correct local cycle  303ms
+     ✓ renders marked UTC logs in Brasília while preserving naive-Z legacy wallclocks 133ms
+     ✓ keeps incomplete worklog-day-input editable and blocks submission 174ms
+     ✓ keeps incomplete worklog-start-time-input editable and blocks submission 146ms
+     ✓ keeps incomplete worklog-end-time-input editable and blocks submission 82ms
+       × AC-05: ADMIN sem VIEW_TICKET_VALUES não vê campo, valor da linha nem total 1206ms
+       × AC-05: agente com VIEW_TICKET_VALUES vê o valor da linha e o total 1316ms
+ ✓ |web| src/pages/OrganizationsPage.test.tsx (31 tests) 62634ms
+     ✓ keeps the grid scrollable by touch in both axes on phones (DMTE-455)  1311ms
+     ✓ shows the list view by default with a mode toggle (Tiflux/Sankhya-parity, issue #57)  2874ms
+     ✓ switches to the full-page form via Ações > Cadastrar manualmente and validates it  3778ms
+     ✓ switches between Grid Mode and Form Mode via the toolbar toggle  6455ms
+     ✓ creates a new organization with rich fields  8775ms
+     ✓ looks up a CNPJ and autofills legal name / trade name  2861ms
+     ✓ locks CNPJ and Razão Social after a Receita lookup, standardizing form-mode editability (Sankhya parity)  2640ms
+     ✓ toggles CPF/CNPJ fields based on document type (Tiflux-parity, issue #56)  1898ms
+     ✓ opens the full-page detail with the Tiflux-parity 3-column panel  1577ms
+     ✓ shows the "Cliente ativo" toggle and inactivates the organization  1542ms
+     ✓ defaults to the Usuários tab, lists only CLIENT/CLIENT_MASTER users and allows linking  1690ms
+     ✓ updates organization name and legal name on blur in Usuários tab  2267ms
+     ✓ toggles visibility and quarterly billing from the detail header  2141ms
+     ✓ adds a new contact from the Usuários tab  1592ms
+     ✓ saves serviceType/healthStatus from the Usuários tab (Perfil do Cliente, issue #56)  1397ms
+     ✓ shows an honest stub in the Recursos tab (no fabricated module)  678ms
+     ✓ manages Mesas (N:N) and Grupo de Atendentes in the Relacionamentos tab (Tiflux-parity, issue #57)  2173ms
+     ✓ renders billing preferences and updates quarterly billing in Faturamento tab (issue #58)  3987ms
+     ✓ supports inline editing of cells and Cadastrar por CNPJ via toolbar actions (Sankhya parity)  2354ms
+     ✓ renders Sankhya standard entity toolbar, filter drawer, and screen config modal (br.com.sankhya.core.cad.parceiros parity)  556ms
+     ✓ filters the grid by search text, status, and document type (Sankhya filter drawer)  1872ms
+     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  1599ms
+     ✓ navigates between organizations from the detail view using toolbar Anterior/Próximo  702ms
+     ✓ duplicates a selected organization into a prefilled Nova Empresa form (Duplicar)  921ms
+     ✓ persists column visibility toggles to the per-user screen config (localStorage)  464ms
+     ✓ edits the optional grid columns (IE, IM, Pasta, Perfil, Saúde) once made visible via screen config  2825ms
+     ✓ restores default screen configuration from the config modal  367ms
+     ✓ filters dynamically by any column using the rule builder (Sankhya Filtros parity)  910ms
+ ✓ |web| src/pages/VaultPage.test.tsx (21 tests) 10299ms
+     ✓ allows ADMIN to delete a credential after confirming  653ms
+     ✓ hides destructive/management actions for a non-ADMIN role (AGENT)  326ms
+     ✓ reveals a row in place when the lock icon is clicked, auditing the reveal server-side  395ms
+     ✓ navigates to /vault/audit when ADMIN clicks "Auditoria"  442ms
+     ✓ selecting a non-root folder shows its header actions and resets page/revealed state  376ms
+     ✓ creates a folder via "Nova pasta" and edits a selected folder's name  1756ms
+     ✓ does not delete the folder when confirm is cancelled, but does when confirmed  316ms
+     ✓ creates a credential via "Nova senha" and edits one without touching blank username/password  1984ms
+     ✓ does not save a new credential with a blank/whitespace-only name, nor without a password  1221ms
+     ✓ renders pagination when there is more than one page and refetches for the clicked page  384ms
+     ✓ searches credentials by text and resets to page 1  388ms
+     ✓ closes folder and credential modals via "Cancelar" without calling the API  866ms
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > defaults a new article to "Público" and hides the Compartilhar button
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/TicketDetailPage.test.tsx (23 tests) 7881ms
+     ✓ should render ticket details with status, priority and SLA deadlines  829ms
+     ✓ should render the comment timeline with an internal-note indicator only on internal comments  639ms
+     ✓ should show the comment form and post a new comment  1146ms
+     ✓ should show the worklogs section for agents and admins  302ms
+     ✓ starts a TiFlux-style pré-apontamento from the header play on any tab  768ms
+       ✓ shows the assignment dropdown to agents and allows assigning a ticket  340ms
+       ✓ shows an error message (not a silent revert) when the backend rejects an invalid status transition  337ms
+       ✓ shows the "Histórico" section with the audit trail to agents  431ms
+       ✓ shows an empty-state message when there is no audit history yet  310ms
+       ✓ refetches the audit trail after an assignment succeeds  404ms
+       ✓ switches between tabs and shows respective tab panels for agents  369ms
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > shows the Compartilhar button once "Privado" is selected, and opens the sharing dialog
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > shows the new-article form to an AGENT and creates a PUBLIC article inside the open folder
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > selects an agent group and a client in the share dialog, and sends them (plus auto-share) in the create payload
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/ContractsPage.test.tsx (22 tests) 17100ms
+     ✓ shows a loading state while contracts are being fetched  357ms
+     ✓ shows an error state when the contracts request fails  388ms
+     ✓ shows financial columns (valor mensal / reajuste) for ADMIN  470ms
+     ✓ shows financial columns for CLIENT_MASTER as well  343ms
+     ✓ lets admins create with explicit excess rate and minute allowance  891ms
+     ✓ prevents non-admin management and hides detail financial data  335ms
+     ✓ opens a contract's detail as a full page (no dialog) and returns to the list via the back button  573ms
+     ✓ navigates between contracts using the toolbar Anterior/Próximo buttons  347ms
+     ✓ shows a dedicated "Novo contrato" button directly on the toolbar for ADMIN, opening the full-page form  502ms
+     ✓ lets an ADMIN select a contract and delete it via the toolbar  460ms
+     ✓ shows the backend conflict message when deleting a contract with worklogs fails  500ms
+     ✓ renders the Sankhya standard filter drawer and screen config modal (parity with Clientes)  466ms
+     ✓ filters contracts by name or company on the client side via the filter drawer  1809ms
+     ✓ filters contracts by status (Ativo/Inativo) via the filter drawer  2015ms
+     ✓ filters dynamically by modality using the rule builder (Sankhya Filtros parity)  1582ms
+     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  3514ms
+     ✓ edits via the update command without turning zero into missing money  1342ms
+     ✓ validates reversed dates before saving  604ms
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > allows an AGENT to update an existing article, pre-populating the access type and sharing lists
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > renders the label and a contenteditable surface tagged with testId
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > renders the formatting toolbar (bold, italic, underline, lists, link, image)
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > toggles preview mode via the toolbar eye button
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > renders a custom preview when renderPreview is provided
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > shows the error message when hasError is set
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > disables all toolbar buttons when disabled
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > toggles bold/italic/underline/list formatting without throwing when clicked
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > prompts for a URL and inserts a link when "Inserir Link" is clicked
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > removes the link when the URL prompt is answered with an empty string
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > loads the edit form with EzRichText pre-filled with the existing article content
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/KnowledgePage.test.tsx (22 tests) 22857ms
+     ✓ shows the folders grid first, not the article list  313ms
+     ✓ opens a folder and lists only its articles, filtered by folderId  474ms
+     ✓ shows a breadcrumb back to the folders grid once inside a folder  410ms
+     ✓ defaults a new article to "Público" and hides the Compartilhar button  1063ms
+     ✓ shows the Compartilhar button once "Privado" is selected, and opens the sharing dialog  3092ms
+     ✓ shows the new-article form to an AGENT and creates a PUBLIC article inside the open folder  4379ms
+     ✓ selects an agent group and a client in the share dialog, and sends them (plus auto-share) in the create payload  4125ms
+     ✓ allows an AGENT to update an existing article, pre-populating the access type and sharing lists  4067ms
+     ✓ allows filtering by search keyword and tag inside a folder  395ms
+     ✓ allows selecting more than one tag at once (OR filter)  592ms
+     ✓ toggles between list and grid view modes  465ms
+     ✓ allows deleting an article  618ms
+     ✓ shows attachment upload controls to an AGENT and allows removing an attachment  450ms
+     ✓ loads the edit form with EzRichText pre-filled with the existing article content  775ms
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > does nothing when the link prompt is cancelled (returns null)
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/TicketsPage.test.tsx > TicketsPage > navigates to /tickets/search when "Busca avançada" is clicked (AC3)
+No routes matched location "/tickets/search" 
+
+ ✓ |web| src/pages/TicketsPage.test.tsx (24 tests) 12710ms
+     ✓ should render ticket list  1101ms
+     ✓ should show empty state when no tickets  367ms
+     ✓ should render a Kanban card per ticket with protocol, title and status tag (D7)  537ms
+     ✓ defaults non-CLIENT users to the Kanban view and lets them switch to List  1340ms
+     ✓ shows the "Tickets" title and hides the view toggle entirely for CLIENT users (AC2)  355ms
+     ✓ renders pagination controls in List view and navigates between pages  1208ms
+     ✓ disables the "Anterior" button on page 1 and "Próxima" on the last page  941ms
+     ✓ does not render pagination controls when there is only a single page  448ms
+     ✓ navigates to the previous page when "Anterior" is clicked  883ms
+     ✓ seeds filters from the URL query string, e.g. a dashboard KPI link (?mine=true)  402ms
+     ✓ AC-10: shows the active filters in the list and "Redefinir filtros" clears them and refetches  359ms
+     ✓ AC-10: "Redefinir filtros" also clears the search text typed in the header  352ms
+     ✓ RODADA 2: stays at "/" on initial load (no ?view=) and only writes ?view= once the user switches views  808ms
+     ✓ reflects a search typed in the header back into the URL (bookmarkable/shareable)  1509ms
+     ✓ navigates to /tickets/search when "Busca avançada" is clicked (AC3)  758ms
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > prompts for a URL and inserts an image when "Inserir Imagem (URL)" is clicked
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > skips inserting an image when the prompt is cancelled
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > disables toolbar buttons (not just typing) while in preview mode
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > renders without a label and without a testId when they are omitted
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > enables Portuguese spellcheck on the contenteditable surface
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > toggles strikethrough and blockquote without throwing
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > enables undo after a change and disables redo until an undo happens
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > toggles highlight without emitting a style attribute (mark-only HTML)
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > applies and removes a text color from the color palette dropdown
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > applies each text alignment option
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > inserts a table and shows row/column controls while inside it
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > toggles source-code mode and applies edited raw HTML back to the editor
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > disables the new formatting buttons while in preview mode
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/components/ds/EzRichText.test.tsx (25 tests) 10899ms
+     ✓ renders the label and a contenteditable surface tagged with testId  606ms
+     ✓ renders the formatting toolbar (bold, italic, underline, lists, link, image)  426ms
+     ✓ toggles preview mode via the toolbar eye button  919ms
+     ✓ renders a custom preview when renderPreview is provided  798ms
+     ✓ toggles bold/italic/underline/list formatting without throwing when clicked  917ms
+     ✓ prompts for a URL and inserts a link when "Inserir Link" is clicked  364ms
+     ✓ removes the link when the URL prompt is answered with an empty string  549ms
+     ✓ does nothing when the link prompt is cancelled (returns null)  373ms
+     ✓ prompts for a URL and inserts an image when "Inserir Imagem (URL)" is clicked  342ms
+     ✓ toggles strikethrough and blockquote without throwing  311ms
+     ✓ enables undo after a change and disables redo until an undo happens  339ms
+     ✓ applies and removes a text color from the color palette dropdown  327ms
+     ✓ applies each text alignment option  689ms
+     ✓ inserts a table and shows row/column controls while inside it  518ms
+     ✓ toggles source-code mode and applies edited raw HTML back to the editor  1786ms
+     ✓ disables the new formatting buttons while in preview mode  349ms
+ ✓ |web| src/pages/DashboardPage.test.tsx (16 tests) 6080ms
+     ✓ shows a loading spinner while the summary is being fetched  319ms
+     ✓ shows the "Modo TV" control and a working "Ações" menu with Novo Ticket  1145ms
+     ✓ renders the Resumo de tickets KPI row from ticketSummary  442ms
+     ✓ renders each "Resumo de tickets" KPI as a link to the matching filtered ticket list  457ms
+     ✓ renders the open-tickets-by-status breakdown  470ms
+     ✓ renders a real pie chart (not a donut) for Tickets em andamento and switches grouping via plain tabs  592ms
+     ✓ switches to Chats tab and renders chat KPI rows, departments and agents tables  362ms
+     ✓ shows a "Não há dados" empty state for chat tables when there is no data, instead of fabricated rows  397ms
+     ✓ switches to Horas tab and renders Ontem/Hoje plus the weekly line chart and monthly totals  353ms
+ ✓ |web| src/components/contracts/CommercialReport.test.tsx (17 tests) 3911ms
+     ✓ never presents incomplete costs as profit and labels project saldo as partial  464ms
+     ✓ falls back to the contract id when a contract has no name  322ms
+     ✓ rejects a negative hourly cost  380ms
+     ✓ saves a valid hourly cost rate and resets the form on success  445ms
+     ✓ shows an error message when saving the hourly cost rate fails  361ms
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should render ticket form with new DS components
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should populate the service desk dropdown from the API
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/ServiceDesksPage.test.tsx (13 tests) 15824ms
+     ✓ should list existing service desks for an ADMIN user  1142ms
+     ✓ keeps the grid scrollable by touch in both axes on phones (DMTE-455)  398ms
+     ✓ should show the Sankhya-standard entity toolbar with Incluir, Recarregar, and column config  515ms
+     ✓ should enable Excluir and Duplicar once a row is selected, and call the delete endpoint on confirmation  1431ms
+     ✓ should open the create form only after clicking Incluir, and create a new service desk  1416ms
+     ✓ should not submit when the name field is empty  802ms
+     ✓ shows Portuguese labels for ticket sections instead of database keys  1073ms
+     ✓ should link a service desk to a client and save its SLA overrides  1739ms
+     ✓ shows the Sankhya-standard filter drawer with search, status and dynamic filter fields  587ms
+     ✓ filters the grid by search text and status (Sankhya filter drawer)  2078ms
+     ✓ filters dynamically by any column using the rule builder (Sankhya Filtros parity)  2609ms
+     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  1981ms
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > renders all core fields
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should not submit when required fields are empty
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > shows the submit error banner when submitError is set
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should submit the form and navigate to the new ticket detail page
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > AC-12: announces the submit error as an alert (DS EzAlert)
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > AC-12: shows no alert when there is no submit error
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > disables submit buttons while isSubmitting is true
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > disables the Cliente and Solicitante fields for CLIENT role users
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows the service catalog when the API returns categories, and lets the user pick an item
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > keeps the Cliente and Solicitante fields enabled for ADMIN/AGENT role users
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows the service catalog when the API returns categories, and lets the user pick an item
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > locks title, service desk and priority when a catalogOverride is supplied
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user open a blank ticket from the catalog via "não está catalogado"
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > toggles the schedule date field on and off via the "Agendar Ticket" button
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/hooks/useActivityTimer.test.ts (11 tests) 1031ms
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user open a blank ticket from the catalog via "não está catalogado"
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user go back from the form to the catalog view
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user go back from the form to the catalog view
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > shows a validation error and blocks submit when title/description/service desk are empty
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows a submit error message and does not navigate when the API call fails
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits with saveAndNew: true when "Salvar e criar novo" is clicked
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits with saveAndNew: true when "Salvar e criar novo" is clicked
+An update to EzRichText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to Controller inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits without saveAndNew when the primary "Abrir Ticket" button is clicked
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits without saveAndNew when the primary "Abrir Ticket" button is clicked
+An update to EzRichText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to Controller inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > patches the parent ticket and uploads attachments after creating the ticket
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > attaches a file via EzUpload and removes it again via the file item remove button
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > filters available requesters down to the selected organization once Cliente is chosen
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/CreateTicketPage.test.tsx (10 tests) 11551ms
+     ✓ should render ticket form with new DS components  1784ms
+     ✓ should populate the service desk dropdown from the API  1714ms
+     ✓ should not submit when required fields are empty  1877ms
+     ✓ should submit the form and navigate to the new ticket detail page  1486ms
+     ✓ shows the service catalog when the API returns categories, and lets the user pick an item  747ms
+     ✓ lets the user open a blank ticket from the catalog via "não está catalogado"  453ms
+     ✓ lets the user go back from the form to the catalog view  690ms
+     ✓ shows a submit error message and does not navigate when the API call fails  870ms
+     ✓ forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit  689ms
+     ✓ patches the parent ticket and uploads attachments after creating the ticket  1219ms
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > lets the user search and attach a parent ticket
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > hides inactive, closed and internal desks from the Mesa options
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/MyAccountPage.test.tsx > MyAccountPage > renders tabs for Minha Conta and Segurança, defaulting to Minha Conta
+An update to ProfileTab inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > warns and blocks submit when the desk requires catalog or attachments
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > warns and blocks submit when the desk requires catalog or attachments
+An update to EzRichText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to Controller inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > lets the user add followers via the multi-select
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/components/tickets/TicketForm.test.tsx (18 tests) 10670ms
+     ✓ renders all core fields  1353ms
+     ✓ shows the submit error banner when submitError is set  766ms
+     ✓ AC-12: announces the submit error as an alert (DS EzAlert)  427ms
+     ✓ disables submit buttons while isSubmitting is true  662ms
+     ✓ keeps the Cliente and Solicitante fields enabled for ADMIN/AGENT role users  364ms
+     ✓ locks title, service desk and priority when a catalogOverride is supplied  328ms
+     ✓ toggles the schedule date field on and off via the "Agendar Ticket" button  928ms
+     ✓ shows a validation error and blocks submit when title/description/service desk are empty  531ms
+     ✓ submits with saveAndNew: true when "Salvar e criar novo" is clicked  874ms
+     ✓ submits without saveAndNew when the primary "Abrir Ticket" button is clicked  641ms
+     ✓ attaches a file via EzUpload and removes it again via the file item remove button  465ms
+     ✓ filters available requesters down to the selected organization once Cliente is chosen  526ms
+     ✓ lets the user search and attach a parent ticket  443ms
+     ✓ hides inactive, closed and internal desks from the Mesa options  610ms
+     ✓ warns and blocks submit when the desk requires catalog or attachments  846ms
+     ✓ lets the user add followers via the multi-select  327ms
+ ✓ |web| src/pages/MyAccountPage.test.tsx (9 tests) 3505ms
+       ✓ submits updated name and email via PATCH /auth/me  569ms
+       ✓ submits the change password request and shows a success message  602ms
+       ✓ shows an error message when the current password is wrong (401)  700ms
+       ✓ creates a token, shows the plaintext value once, then lists it as metadata-only  543ms
+ ✓ |web| src/components/BusinessHoursEditor.test.tsx (9 tests) 3419ms
+     ✓ shows a 24/7 message when no business hours are configured  317ms
+     ✓ adds a new window and saves the full config via PUT  1354ms
+     ✓ adds a holiday and includes it in the save payload  462ms
+     ✓ applies the same Mon-Fri window in one click via the shortcut  363ms
+ ✓ |web| src/components/schedule/AppointmentModal.test.tsx (8 tests) 3317ms
+     ✓ validates required title before saving  308ms
+     ✓ validates that end time is after start time  501ms
+     ✓ submits a new appointment successfully  353ms
+     ✓ renders edit mode with existing appointment and allows delete  364ms
+     ✓ shows the linked ticket and requester, with an option to unlink  301ms
+     ✓ opens the ticket search modal with Cliente/Mesa filters and links the selected ticket  937ms
+ ✓ |web| src/components/tickets/TicketKanbanCard.test.tsx (16 tests) 1693ms
+     ✓ is a single link for the whole card, with the protocol highlighted and an accessible label  349ms
+     ✓ has a menu with only "Abrir ticket" and "Abrir em nova aba interna" (no apontamento/play)  525ms
+ ✓ |web| src/pages/TicketAdvancedSearchPage.test.tsx (10 tests) 7451ms
+     ✓ renders every D4 field for AGENT/ADMIN  909ms
+     ✓ RODADA 2: "Status" has Abertos/Fechados shortcuts that map to notClosed/closedOnly, not a literal status (D4)  1091ms
+     ✓ RODADA 2: "Fechados" shortcut maps to closedOnly  537ms
+     ✓ AC-12: the "Filtros adicionais" checkboxes map to mine/unassigned/paused/overdue and "Limpar" unchecks them  2140ms
+     ✓ AC-12: "Filtros adicionais" is a button that expands and collapses the extra filters (aria-expanded)  354ms
+     ✓ keeps Estágio disabled until a Mesa is chosen  991ms
+     ✓ "Buscar" navigates to "/" with the chosen filters in the query string  660ms
+stderr | src/components/ds/EzSimpleCrud.test.tsx > EzSimpleCrud > renders the grid by default with the IN_MEMORY data
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/layout/AppLayout.test.tsx > AppLayout > AC-17: menu retrátil no celular > when the viewport grows to the desktop width > closes the drawer, so the fixed sidebar and the drawer never coexist
+An update to AppLayout inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/components/layout/Sidebar.test.tsx (15 tests) 2342ms
+     ✓ always renders the "Novo Ticket" action button as a highlighted button, not a nav link  405ms
+     ✓ renders Chats as a disabled "Em breve" item that does not navigate (Issue #45 not shipped yet)  376ms
+     ✓ toggles collapsed state when "Esconder"/"Expandir" is clicked  308ms
+ ✓ |web| src/components/layout/AppLayout.test.tsx (15 tests) 5253ms
+     ✓ renders a white header with the DS border color, not the old bg-background token  393ms
+       ✓ opens the navigation as a named dialog and flips aria-expanded  984ms
+       ✓ does not offer the collapse toggle inside the drawer  370ms
+       ✓ closes with Escape  371ms
+       ✓ moves focus into the dialog when it opens  477ms
+       ✓ has a visible "Fechar menu" button inside the dialog that closes it  425ms
+       ✓ closes after choosing a destination, and shows that page  430ms
+ ✓ |web| src/components/ds/EzSimpleCrud.test.tsx (8 tests) 3529ms
+     ✓ renders the grid by default with the IN_MEMORY data  517ms
+     ✓ clicking INSERT shows an empty form  436ms
+     ✓ clicking a grid row shows the form filled with that item  339ms
+     ✓ SAVE in IN_MEMORY mode updates the dataset and returns to the grid  690ms
+     ✓ CANCEL returns to the grid without changing the dataset  546ms
+     ✓ SERVER mode SAVE calls onSave and adds the returned item to the grid  758ms
+ ✓ |web| src/components/ds/EzEntityForm.test.tsx (10 tests) 487ms
+ ✓ |web| src/components/tickets/TicketList.test.tsx (11 tests) 1067ms
+stderr | src/components/ds/EzGrid.test.tsx > EzGridWrapper > observes container resize via ResizeObserver
+An update to EzGridWrapper inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to EzGridWrapper inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/components/ds/EzGrid.test.tsx (9 tests) 126ms
+ ✓ |web| src/pages/SchedulePage.test.tsx (11 tests) 2496ms
+     ✓ opens create modal when clicking "Novo Agendamento"  379ms
+     ✓ navigates to the previous and next week, and back to today  506ms
+ ✓ |web| src/components/tickets/TicketCsat.test.tsx (9 tests) 1702ms
+     ✓ shows the rating form for the requester when the ticket is RESOLVED and unrated  340ms
+     ✓ submits a star rating and optional comment via PATCH  537ms
+     ✓ AC-12: the star rating is a named group whose buttons have distinct names and expose the chosen score  396ms
+ ✓ |web| src/components/ds/EzDataExporter.test.tsx (9 tests) 1513ms
+     ✓ selects a format by clicking its option  309ms
+     ✓ calls onExport with the selected format and scope when confirming  340ms
+ ✓ |web| src/components/tickets/TicketAttachments.test.tsx (7 tests) 1372ms
+     ✓ shows a loading state while fetching attachments  358ms
+ ✓ |web| src/components/ds/EzAdvancedSearch.test.tsx (9 tests) 685ms
+ ✓ |web| src/components/ds/EzSimpleFormConfig.test.tsx (8 tests) 1425ms
+     ✓ renders the list of available fields with the correct visible state  385ms
+     ✓ allows creating and assigning a new tab to a field  463ms
+ ✓ |web| src/components/contracts/CommercialTicketContext.test.tsx (6 tests) 1140ms
+     ✓ lets an admin pick an organization and regularizes the ticket  518ms
+ ✓ |web| src/hooks/useUserScreenConfig.test.ts (7 tests) 212ms
+ ✓ |web| src/pages/TechnicalGroupsPage.test.tsx (6 tests) 1833ms
+     ✓ opens a group detail with Informações, Equipe and Acessos tabs  304ms
+     ✓ adds a member on the Equipe tab via POST /technical-groups/:id/members/:userId  438ms
+     ✓ adds a service desk access on the Acessos tab via POST .../service-desks/:id  326ms
+ ✓ |web| src/components/knowledge/KnowledgeArticleAttachments.test.tsx (8 tests) 1104ms
+ ✓ |web| src/pages/SettingsPage.test.tsx (7 tests) 778ms
+ ✓ |web| src/pages/PermissionGroupsPage.test.tsx (4 tests) 1849ms
+     ✓ renders the permission matrix grouped by category from the catalog  676ms
+     ✓ "Selecionar todos" checks every permission in that category only, and Save persists the result  563ms
+     ✓ adds a user link via POST /permission-groups/:id/users/:userId  358ms
+ ✓ |web| src/pages/RegisterPage.test.tsx (4 tests) 2159ms
+     ✓ should render register form  442ms
+     ✓ should register and log in the user on success (happy path)  712ms
+     ✓ should show a generic/conflict error when registration itself fails (409)  373ms
+     ✓ should show a distinguishing message and a path to /login when register succeeds but auto-login fails  604ms
+ ✓ |web| src/components/ds/EzSidebar.test.tsx (10 tests) 406ms
+ ✓ |web| src/components/tickets/TicketChecklist.test.tsx (6 tests) 1192ms
+     ✓ shows the empty state with a button to create the first checklist  368ms
+     ✓ adds a new pending item via the inline form  415ms
+ ✓ |web| src/pages/VaultAuditPage.test.tsx (4 tests) 1263ms
+     ✓ queries the audit log with the selected filters once "Exibir" is clicked  655ms
+stderr | src/components/ds/EzGrid.mobile.test.tsx > EzEntityGrid paginação no celular > empilha a paginação e dá alvos de toque de 44px aos botões de página
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzGrid.mobile.test.tsx > EzEntityGrid paginação no celular > aumenta o alvo do botão de opções da grade em ponteiro grosso
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzGrid.mobile.test.tsx > EzTaskbar e seletor de linhas no celular (revisão interna) > seletor de linhas por página tem 44px de altura abaixo de sm
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/components/ds/EzGrid.mobile.test.tsx (7 tests) 574ms
+ ✓ |web| src/components/ServiceDeskEditor.test.tsx (7 tests) 1243ms
+ ✓ |web| src/contexts/TabsContext.test.tsx (6 tests) 742ms
+ ✓ |web| src/components/knowledge/KnowledgeFoldersGrid.test.tsx (6 tests) 1554ms
+     ✓ allows a canAuthor user to create a new folder  954ms
+ ✓ |web| src/components/contracts/CommercialContract.test.tsx (4 tests) 1431ms
+     ✓ approves a monthly contract with explicit zero allowance and zero fee  872ms
+ ✓ |web| src/components/ds/EzEntityToolbar.test.tsx (4 tests) 855ms
+     ✓ toggles viewMode and opens mode configuration dropdown  409ms
+ ✓ |web| src/pages/ReportsPage.test.tsx (5 tests) 906ms
+     ✓ shows the Faturamento tab for ADMIN and switches content on click  364ms
+ ✓ |web| src/components/layout/TabBar.test.tsx (5 tests) 987ms
+     ✓ renders the fixed Tickets tab without a close button  317ms
+     ✓ clicking a tab navigates to its path  327ms
+ ✓ |web| src/pages/PublicCsatPage.test.tsx (5 tests) 1300ms
+     ✓ shows the ticket summary and 5 stars pre-selected  518ms
+     ✓ submits the chosen score+comment only when Confirmar is clicked  504ms
+ ✓ |web| src/hooks/useTickets.test.tsx (4 tests) 385ms
+ ✓ |web| src/components/ds/EzFilterBar.test.tsx (6 tests) 1526ms
+     ✓ opens the quick-edit popover with clear/pin/remove options when a chip is clicked  462ms
+ ✓ |web| src/hooks/usePreAppointments.test.ts (7 tests) 261ms
+ ✓ |web| src/components/tickets/TicketParent.test.tsx (5 tests) 1038ms
+     ✓ switches to edit mode and submits a parent protocol to link  379ms
+ ✓ |web| src/pages/UsersPage.test.tsx (4 tests) 1095ms
+     ✓ searches by typing in the search box, sending q to GET /users  328ms
+     ✓ opens the user detail and toggles Usuário ativo via PATCH /users/:id/active  313ms
+ ✓ |web| src/components/ds/EzTaskbar.test.tsx (7 tests) 1473ms
+     ✓ renders a button for each entry in the buttons prop  552ms
+     ✓ fires onAction with the correct button identifier on click  317ms
+     ✓ opens a dropdown with actionsList items when MORE_OPTIONS is clicked  343ms
+ ✓ |web| src/components/ds/EzDropdown.test.tsx (8 tests) 1503ms
+     ✓ opens and shows options when trigger is clicked  371ms
+ ✓ |web| src/components/ds/EzMultiSelect.test.tsx (9 tests) 2731ms
+     ✓ renders properly with placeholder when empty  370ms
+     ✓ shows options when clicked/focused  454ms
+     ✓ calls onChange when an option is selected  634ms
+     ✓ filters options based on search input locally  599ms
+ ✓ |web| src/components/schedule/CompromissoDetailModal.test.tsx (4 tests) 661ms
+ ✓ |web| src/stores/authStore.test.ts (8 tests) 66ms
+ ✓ |web| src/components/tickets/TicketFormMode.test.tsx (4 tests) 1585ms
+     ✓ allows editing title, status, priority, and saving  1046ms
+ ✓ |web| src/components/ds/EzModal.test.tsx (7 tests) 617ms
+ ✓ |web| src/components/ds/EzAttachmentList.test.tsx (8 tests) 354ms
+ ✓ |web| src/components/ds/EzDoubleList.test.tsx (8 tests) 990ms
+ ✓ |web| src/components/ds/EzFilterDrawer.test.tsx (5 tests) 819ms
+     ✓ supports saving, applying, and deleting saved filters (Sankhya parity)  455ms
+ ✓ |web| src/components/ds/EzEntityScreenConfigModal.test.tsx (4 tests) 893ms
+     ✓ toggles column visibility when checkbox clicked  326ms
+ ✓ |web| src/components/contracts/ContractForm.test.tsx (3 tests) 984ms
+     ✓ preserves exact stored dates during an unrelated edit and sends minutes without legacy fractional hours  705ms
+ ✓ |web| src/components/ds/EzTileMedium.test.tsx (10 tests) 347ms
+ ✓ |web| src/components/tickets/RichContentView.test.tsx (9 tests) 527ms
+ ✓ |web| src/components/ds/EzPrintSelector.test.tsx (7 tests) 1509ms
+     ✓ renders every option as a selectable radio item  453ms
+     ✓ calls onPrint with the selected option id and remember=false by default  344ms
+     ✓ calls onPrint with remember=true when the "usar sempre esta seleção" checkbox is checked  401ms
+ ✓ |web| src/components/tickets/TicketsHeader.test.tsx (6 tests) 1319ms
+     ✓ shows "Tickets" as the title, in that position, with Lista/Kanban, Buscar and Busca avançada (AC2)  340ms
+     ✓ debounces typed search text before calling onSearchChange  621ms
+ ✓ |web| src/components/ds/EzSlaChip.test.tsx (6 tests) 171ms
+ ✓ |web| src/components/ds/EzSearch.test.tsx (8 tests) 797ms
+ ✓ |web| src/hooks/useAppointments.test.tsx (4 tests) 242ms
+ ✓ |web| src/components/ds/EzComboBox.test.tsx (7 tests) 537ms
+ ✓ |web| src/lib/preparePastedImage.test.ts (7 tests) 72ms
+ ✓ |web| src/pages/DocsPage.test.tsx (5 tests) 1560ms
+     ✓ renders the header and the "Visão geral" section by default  366ms
+     ✓ highlights the clicked sidebar nav item and scrolls to the matching section  388ms
+     ✓ jumps to the API section when the in-text FAQ link is clicked  320ms
+ ✓ |web| src/components/ds/EzDateInput.test.tsx (8 tests) 593ms
+ ✓ |web| src/pages/LoginPage.test.tsx (4 tests) 1843ms
+     ✓ should render login form  374ms
+     ✓ should show validation errors when submitted empty  318ms
+     ✓ should call login on submit and store the token  553ms
+     ✓ should show an error message on invalid credentials  594ms
+ ✓ |web| src/components/MesaStagesEditor.test.tsx (2 tests) 1774ms
+     ✓ lists stages and creates a new one  970ms
+     ✓ edits name and allowed transitions  801ms
+ ✓ |web| src/components/ds/EzSimpleBar.test.tsx (7 tests) 513ms
+ ✓ |web| src/components/ds/EzUpload.test.tsx (6 tests) 338ms
+stderr | src/components/ds/EzLayoutFormConfig.test.tsx > EzLayoutFormConfig > calls onChange with the correct value when clicking the other option
+An update to EzLayoutFormConfig inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzLayoutFormConfig.test.tsx > EzLayoutFormConfig > calls onChange with CASCADE when clicking it while SIDE_BY_SIDE is selected
+An update to EzLayoutFormConfig inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/components/ds/EzLayoutFormConfig.test.tsx (6 tests) 699ms
+ ✓ |web| src/components/ds/EzPopover.test.tsx (6 tests) 560ms
+ ✓ |web| src/components/ds/EzEntityList.test.tsx (5 tests) 889ms
+ ✓ |web| src/components/ds/EzSegmented.test.tsx (5 tests) 426ms
+ ✓ |web| src/components/ds/EzPageLayout.test.tsx (5 tests) 289ms
+ ✓ |web| src/components/layout/UserMenu.test.tsx (3 tests) 506ms
+ ✓ |web| src/components/ds/EzBreadcrumb.test.tsx (5 tests) 442ms
+ ✓ |web| src/components/MesaFlagEditor.test.tsx (2 tests) 768ms
+     ✓ patches the selected flags for a mesa  624ms
+ ✓ |web| src/lib/brasiliaTime.test.ts (6 tests) 44ms
+ ✓ |web| src/components/ds/EzPagination.test.tsx (6 tests) 730ms
+ ✓ |web| src/components/ds/EzTabs.test.tsx (4 tests) 333ms
+ ✓ |web| src/components/ds/EzToast.test.tsx (6 tests) 338ms
+ ✓ |web| src/components/ds/EzCheck.test.tsx (6 tests) 392ms
+ ✓ |web| src/components/ds/EzActionsButton.test.tsx (4 tests) 559ms
+ ✓ |web| src/components/ds/EzList.test.tsx (5 tests) 425ms
+ ✓ |web| src/components/ds/EzAlert.test.tsx (6 tests) 694ms
+     ✓ renders correctly with default info variant  311ms
+ ✓ |web| src/components/tickets/TicketActiveFilters.test.tsx (4 tests) 433ms
+ ✓ |web| src/hooks/usePermissions.test.tsx (2 tests) 219ms
+ ✓ |web| src/components/ds/EzCollapsibleBox.test.tsx (4 tests) 407ms
+ ✓ |web| src/components/ds/EzTextArea.test.tsx (5 tests) 728ms
+     ✓ allows user input  510ms
+ ✓ |web| src/components/ds/EzSortableList.test.tsx (3 tests) 295ms
+ ✓ |web| src/components/ds/EzTextEdit.test.tsx (4 tests) 1839ms
+     ✓ renders the value as plain text initially  390ms
+     ✓ switches to an input on click and saves on Enter  799ms
+     ✓ saves on blur as well  386ms
+ ✓ |web| src/components/ds/EzMultiSelectionList.test.tsx (4 tests) 822ms
+     ✓ renders all item labels  360ms
+ ✓ |web| src/components/ds/EzClassicComboBox.test.tsx (4 tests) 545ms
+ ✓ |web| src/components/ds/EzPopoverPlus.test.tsx (4 tests) 542ms
+ ✓ |web| src/components/ds/EzSearchPlus.test.tsx (4 tests) 667ms
+     ✓ calls onChange when the user types  359ms
+ ✓ |web| src/pages/TicketAdvancedSearchPage.collapsible.test.tsx (1 test) 1104ms
+     ✓ a checkbox marked before collapsing is still checked after reopening (the state lives in the form)  1086ms
+ ✓ |web| src/components/ds/EzAlertList.test.tsx (4 tests) 706ms
+ ✓ |web| src/components/ds/EzGuideNavigator.test.tsx (3 tests) 472ms
+ ✓ |web| src/components/ds/EzTooltip.test.tsx (4 tests) 185ms
+ ✓ |web| src/components/ds/EzPopup.test.tsx (4 tests) 377ms
+ ✓ |web| src/components/ds/EzSplitButton.test.tsx (4 tests) 482ms
+ ✓ |web| src/lib/ticketFilterParams.test.ts (2 tests) 12ms
+ ✓ |web| src/components/ds/EzCalendar.test.tsx (4 tests) 482ms
+ ✓ |web| src/components/ds/EzModalContainer.test.tsx (4 tests) 232ms
+ ✓ |web| src/components/ds/EzClassicTextArea.test.tsx (5 tests) 561ms
+ ✓ |web| src/components/tickets/SlaBadge.test.tsx (5 tests) 126ms
+ ✓ |web| src/components/ds/EzNumberInput.test.tsx (5 tests) 449ms
+ ✓ |web| src/components/tickets/TicketComments.test.tsx (1 test) 262ms
+ ✓ |web| src/components/ds/EzTree.test.tsx (4 tests) 651ms
+     ✓ expands children when the chevron is clicked  392ms
+ ✓ |web| src/components/ds/EzCardItem.test.tsx (6 tests) 280ms
+ ✓ |web| src/components/ds/EzChip.test.tsx (5 tests) 431ms
+ ✓ |web| src/components/ds/EzButton.test.tsx (5 tests) 179ms
+ ✓ |web| src/components/ds/EzClassicInput.test.tsx (5 tests) 373ms
+ ✓ |web| src/components/ds/EzTextInput.test.tsx (5 tests) 273ms
+ ✓ |web| src/components/ds/EzTagInput.test.tsx (4 tests) 540ms
+     ✓ adds a new tag when typing text and pressing Enter  329ms
+ ✓ |web| src/components/ds/EzSplitPanel.test.tsx (4 tests) 421ms
+ ✓ |web| src/components/ds/EzChart.test.tsx (4 tests) 406ms
+ ✓ |web| src/components/ds/EzRadioButton.test.tsx (5 tests) 519ms
+ ✓ |web| src/components/ds/EzTile.test.tsx (4 tests) 146ms
+ ✓ |web| src/components/ds/EzListItem.test.tsx (4 tests) 270ms
+ ✓ |web| src/components/ds/EzProgressBar.test.tsx (6 tests) 184ms
+ ✓ |web| src/components/ds/EzSkeleton.test.tsx (5 tests) 192ms
+ ✓ |web| src/components/ds/EzIcon.test.tsx (4 tests) 302ms
+ ✓ |web| src/App.test.tsx (2 tests) 728ms
+     ✓ redirects unauthenticated users to the login page  483ms
+ ✓ |web| src/components/ds/EzAvatar.test.tsx (5 tests) 161ms
+ ✓ |web| src/components/ds/EzTimeInput.test.tsx (3 tests) 321ms
+ ✓ |web| src/components/ds/EzSpinner.test.tsx (4 tests) 189ms
+ ✓ |web| src/components/ds/EzDesignTokens.test.tsx (3 tests) 559ms
+     ✓ renders each control height preview from its CSS variable  306ms
+ ✓ |web| src/components/ds/EzTag.test.tsx (4 tests) 194ms
+ ✓ |web| src/components/ds/EzScrim.test.tsx (4 tests) 287ms
+ ✓ |web| src/lib/billingTime.test.ts (3 tests) 64ms
+ ✓ |web| src/components/ds/EzFilter.test.tsx (3 tests) 273ms
+ ✓ |web| src/components/ds/EzScroller.test.tsx (4 tests) 105ms
+ ✓ |web| src/components/ds/EzFilterInput.test.tsx (3 tests) 216ms
+ ✓ |web| src/components/ds/EzUnderface.test.tsx (3 tests) 125ms
+ ✓ |web| src/components/ds/EzDialog.test.tsx (3 tests) 127ms
+ ✓ |web| src/components/ds/EzDateTimeInput.test.tsx (3 tests) 305ms
+ ✓ |web| src/components/ds/EzBadge.test.tsx (3 tests) 182ms
+ ✓ |web| src/components/ds/EzFileItem.test.tsx (3 tests) 198ms
+ ✓ |web| src/components/ds/EzEmptyCard.test.tsx (3 tests) 119ms
+ ✓ |web| src/components/ds/EzFormView.test.tsx (3 tests) 79ms
+ ✓ |web| src/components/ds/EzGridView.test.tsx (3 tests) 200ms
+ ✓ |web| src/components/ds/EzForm.test.tsx (3 tests) 135ms
+ ✓ |web| src/lib/mesaLabels.test.ts (1 test) 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/components/tickets/TicketWorklogs.test.tsx > TicketWorklogs > blocks submission when the end time is not after the start time
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/components/tickets/TicketWorklogs.test.tsx:365:3
+    363|   });
+    364|
+    365|   it('blocks submission when the end time is not after the start time'…
+       |   ^
+    366|     loginAs('AGENT', 'u-1');
+    367|     currentWorklogs = [];
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |web| src/components/tickets/TicketWorklogs.test.tsx > TicketWorklogs > quick chip buttons update the end time and the computed duration
+AssertionError: expected '09:00' to be '09:15' // Object.is equality
+
+Expected: "09:15"
+Received: "09:00"
+
+ ❯ src/components/tickets/TicketWorklogs.test.tsx:402:28
+    400|     const chipExtend = screen.getByRole('button', { name: '+15m' });
+    401|     await user.click(chipExtend);
+    402|     expect(endInput.value).toBe('09:15');
+       |                            ^
+    403|     expect(screen.getByTestId('worklog-computed-duration')).toHaveText…
+    404|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |web| src/components/tickets/TicketWorklogs.test.tsx > TicketWorklogs > sends valuationType MANUAL with the entered value
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/components/tickets/TicketWorklogs.test.tsx:406:3
+    404|   });
+    405|
+    406|   it('sends valuationType MANUAL with the entered value', async () => {
+       |   ^
+    407|     loginAs('ADMIN', 'u-1');
+    408|     currentWorklogs = [];
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |web| src/components/tickets/TicketWorklogs.test.tsx > TicketWorklogs > handles activity timer start, pause, and stop to open apontamento modal
+TestingLibraryElementError: Unable to find an element by: [data-testid="worklog-timer-pause-btn"]
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+      [33mdata-testid[39m=[32m"ticket-worklogs-section"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"grid grid-cols-2 md:grid-cols-4 gap-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"text-[12px] font-medium text-gray-500"[39m
+          [36m>[39m
+            [0mAtendentes[0m
+          [36m</span>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-headphones w-5 h-5 text-gray-400"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<span>[39m
+              [0m0[0m
+            [36m</span>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"text-[12px] font-medium text-gray-500"[39m
+          [36m>[39m
+            [0mHoras[0m
+          [36m</span>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-clock w-5 h-5 text-gray-400"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"12"[39m
+                [33mr[39m=[32m"10"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M12 6v6l4 2"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<span>[39m
+              [0m00:00[0m
+            [36m</span>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"text-[12px] font-medium text-gray-500"[39m
+          [36m>[39m
+            [0mApontamentos[0m
+          [36m</span>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-list-ordered w-5 h-5 text-gray-400"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M11 5h10"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M11 12h10"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M11 19h10"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M4 4h1v5"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M4 9h2"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M6.5 20H3.4c0-1 2.6-1.925 2.6-3.5a1.5 1.5 0 0 0-2.6-1.02"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<span>[39m
+              [0m0[0m
+            [36m</span>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"text-[12px] font-medium text-gray-500"[39m
+          [36m>[39m
+            [0mDeslocamentos[0m
+          [36m</span>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-car w-5 h-5 text-gray-400"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"[39m
+              [36m/>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"7"[39m
+                [33mcy[39m=[32m"17"[39m
+                [33mr[39m=[32m"2"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M9 17h6"[39m
+              [36m/>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"17"[39m
+                [33mcy[39m=[32m"17"[39m
+                [33mr[39m=[32m"2"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<span>[39m
+              [0m0[0m
+            [36m</span>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"space-y-4 bg-white rounded-control border border-gray-200 p-5 shadow-xs"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-clock w-5 h-5 text-brand-600"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"12"[39m
+                [33mr[39m=[32m"10"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M12 6v6l4 2"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-[16px] font-semibold text-gray-900"[39m
+            [36m>[39m
+              [0mApontamento de Horas (Worklog)[0m
+            [36m</h2>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex flex-wrap items-center gap-3"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-1.5 bg-gray-80 border border-gray-200 px-2.5 py-1 rounded-[6px] text-[13px]"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-clock w-3.5 h-3.5 text-gray-500"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M12 6v6l4 2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"font-mono font-bold text-gray-800 min-w-[62px]"[39m
+                [33mdata-testid[39m=[32m"worklog-timer-display"[39m
+              [36m>[39m
+                [0m00:00:00[0m
+              [36m</span>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium text-green-700 bg-green-100 hover:bg-green-200 border border-green-300 rounded cursor-pointer"[39m
+                [33mdata-testid[39m=[32m"worklog-timer-start-btn"[39m
+                [33mtitle[39m=[32m"Iniciar cronômetro desta atividade"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-play w-3 h-3 fill-current"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [0mIniciar[0m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-brand-500 text-gray-70 border border-brand-500 hover:bg-brand-700 hover:border-brand-700 disabled:bg-gray-400 disabled:border-gray-400 disabled:text-gray-70 h-[32px] text-xs px-4"[39m
+              [33mdata-testid[39m=[32m"open-worklog-modal-btn"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-plus shrink-0 h-3.5 w-3.5"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M5 12h14"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 5v14"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"font-normal"[39m
+                [36m>[39m
+                  [0mApontamento[0m
+                [36m</span>[39m
+              [36m</div>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex items-center justify-between pt-1 gap-2"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"text-[13px] font-medium text-gray-700"[39m
+          [36m>[39m
+            [0mHistórico de Apontamentos[0m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"space-y-2"[39m
+        [36m>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"text-[13px] text-gray-500 italic text-center py-6 bg-gray-80/50 rounded-[6px] border border-dashed border-gray-200"[39m
+          [36m>[39m
+            [0mNenhum apontamento de horas registrado neste chamado até o momento.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body[39m
+    [33mstyle[39m=[32m""[39m
+  [36m>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-4"[39m
+        [33mdata-testid[39m=[32m"ticket-worklogs-section"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid grid-cols-2 md:grid-cols-4 gap-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[12px] font-medium text-gray-500"[39m
+            [36m>[39m
+              [0mAtendentes[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-headphones w-5 h-5 text-gray-400"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<span>[39m
+                [0m0[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[12px] font-medium text-gray-500"[39m
+            [36m>[39m
+              [0mHoras[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-clock w-5 h-5 text-gray-400"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M12 6v6l4 2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<span>[39m
+                [0m00:00[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[12px] font-medium text-gray-500"[39m
+            [36m>[39m
+              [0mApontamentos[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-list-ordered w-5 h-5 text-gray-400"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M11 5h10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M11 12h10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M11 19h10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M4 4h1v5"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M4 9h2"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M6.5 20H3.4c0-1 2.6-1.925 2.6-3.5a1.5 1.5 0 0 0-2.6-1.02"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<span>[39m
+                [0m0[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[12px] font-medium text-gray-500"[39m
+            [36m>[39m
+              [0mDeslocamentos[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-car w-5 h-5 text-gray-400"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"7"[39m
+                  [33mcy[39m=[32m"17"[39m
+                  [33mr[39m=[32m"2"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M9 17h6"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"17"[39m
+                  [33mcy[39m=[32m"17"[39m
+                  [33mr[39m=[32m"2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<span>[39m
+                [0m0[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<section[39m
+          [33mclass[39m=[32m"space-y-4 bg-white rounded-control border border-gray-200 p-5 shadow-xs"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-clock w-5 h-5 text-brand-600"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M12 6v6l4 2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<h2[39m
+                [33mclass[39m=[32m"text-[16px] font-semibold text-gray-900"[39m
+              [36m>[39m
+                [0mApontamento de Horas (Worklog)[0m
+              [36m</h2>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex flex-wrap items-center gap-3"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-center gap-1.5 bg-gray-80 border border-gray-200 px-2.5 py-1 rounded-[6px] text-[13px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-clock w-3.5 h-3.5 text-gray-500"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"10"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 6v6l4 2"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"font-mono font-bold text-gray-800 min-w-[62px]"[39m
+                  [33mdata-testid[39m=[32m"worklog-timer-display"[39m
+                [36m>[39m
+                  [0m00:00:00[0m
+                [36m</span>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium text-green-700 bg-green-100 hover:bg-green-200 border border-green-300 rounded cursor-pointer"[39m
+                  [33mdata-testid[39m=[32m"worklog-timer-start-btn"[39m
+                  [33mtitle[39m=[32m"Iniciar cronômetro desta atividade"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-play w-3 h-3 fill-current"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [0mIniciar[0m
+                [36m</button>[39m
+              [36m</div>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-brand-500 text-gray-70 border border-brand-500 hover:bg-brand-700 hover:border-brand-700 disabled:bg-gray-400 disabled:border-gray-400 disabled:text-gray-70 h-[32px] text-xs px-4"[39m
+                [33mdata-testid[39m=[32m"open-worklog-modal-btn"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-plus shrink-0 h-3.5 w-3.5"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M5 12h14"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M12 5v14"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"font-normal"[39m
+                  [36m>[39m
+                    [0mApontamento[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between pt-1 gap-2"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[13px] font-medium text-gray-700"[39m
+            [36m>[39m
+              [0mHistórico de Apontamentos[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"space-y-2"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-[13px] text-gray-500 italic text-center py-6 bg-gray-80/50 rounded-[6px] border border-dashed border-gray-200"[39m
+            [36m>[39m
+              [0mNenhum apontamento de horas registrado neste chamado até o momento.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ Proxy.waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/components/tickets/TicketWorklogs.test.tsx:639:11
+    637|     await user.click(screen.getByTestId('worklog-timer-start-btn'));
+    638|
+    639|     await waitFor(() => {
+       |           ^
+    640|       expect(screen.getByTestId('worklog-timer-pause-btn')).toBeInTheD…
+    641|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |web| src/components/tickets/TicketWorklogs.test.tsx > TicketWorklogs > valor por permissão (DMTE-464) > AC-05: ADMIN sem VIEW_TICKET_VALUES não vê campo, valor da linha nem total
+AssertionError: expected "vi.fn()" to be called with arguments: [ '/auth/me' ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+-   "/auth/me",
++   "/tickets/t-1/worklogs",
+  ]
+
+  2nd vi.fn() call:
+
+  [
+-   "/auth/me",
++   "/tickets/t-1/pre-appointments",
+  ]
+
+  3rd vi.fn() call:
+
+  [
+-   "/auth/me",
++   "/users/agents",
+  ]
+
+  4th vi.fn() call:
+
+  [
+-   "/auth/me",
++   "/tickets/t-1/worklog-contracts",
++   {
++     "params": {
++       "endTime": "2026-11-10T11:30:00.000Z",
++       "startTime": "2026-11-10T11:00:00.000Z",
++     },
++   },
+  ]
+
+  5th vi.fn() call:
+
+  [
+-   "/auth/me",
++   "/tickets/t-1",
+  ]
+
+
+Number of calls: 5
+
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body[39m
+    [33mstyle[39m=[32m"overflow: hidden;"[39m
+  [36m>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-4"[39m
+        [33mdata-testid[39m=[32m"ticket-worklogs-section"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid grid-cols-2 md:grid-cols-4 gap-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[12px] font-medium text-gray-500"[39m
+            [36m>[39m
+              [0mAtendentes[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-headphones w-5 h-5 text-gray-400"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<span>[39m
+                [0m1[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[12px] font-medium text-gray-500"[39m
+            [36m>[39m
+              [0mHoras[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-clock w-5 h-5 text-gray-400"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M12 6v6l4 2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<span>[39m
+                [0m01:00[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[12px] font-medium text-gray-500"[39m
+            [36m>[39m
+              [0mApontamentos[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-list-ordered w-5 h-5 text-gray-400"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M11 5h10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M11 12h10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M11 19h10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M4 4h1v5"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M4 9h2"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M6.5 20H3.4c0-1 2.6-1.925 2.6-3.5a1.5 1.5 0 0 0-2.6-1.02"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<span>[39m
+                [0m1[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"p-4 rounded-control bg-white border border-gray-200 shadow-xs flex flex-col justify-between"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[12px] font-medium text-gray-500"[39m
+            [36m>[39m
+              [0mDeslocamentos[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2 mt-2 text-[22px] font-bold text-gray-900"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-car w-5 h-5 text-gray-400"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [...
+ ❯ src/components/tickets/TicketWorklogs.test.tsx:1195:43
+    1193|       const item = await screen.findByTestId('worklog-item-wl-1');
+    1194|       await screen.findByTestId('worklog-footer-hours');
+    1195|       await waitFor(() => expect(api.get).toHaveBeenCalledWith('/auth/…
+       |                                           ^
+    1196|       expect(within(item).queryByText('R$ 100,00')).not.toBeInTheDocum…
+    1197|       expect(screen.queryByTestId('worklog-footer-value')).not.toBeInT…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |web| src/components/tickets/TicketWorklogs.test.tsx > TicketWorklogs > valor por permissão (DMTE-464) > AC-05: agente com VIEW_TICKET_VALUES vê o valor da linha e o total
+TestingLibraryElementError: Unable to find an element with the text: R$ 100,00. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<tr[39m
+  [33mclass[39m=[32m"hover:bg-gray-80/60 transition-colors group"[39m
+  [33mdata-testid[39m=[32m"worklog-item-wl-1"[39m
+[36m>[39m
+  [36m<td[39m
+    [33mclass[39m=[32m"py-3 px-3 text-center"[39m
+  [36m>[39m
+    [36m<button[39m
+      [33mclass[39m=[32m"p-1 text-gray-400 hover:text-gray-700 rounded cursor-pointer"[39m
+      [33mtitle[39m=[32m"Expandir detalhes"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33maria-hidden[39m=[32m"true"[39m
+        [33mclass[39m=[32m"lucide lucide-chevron-down w-3.5 h-3.5"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"24"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"24"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m6 9 6 6 6-6"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+    [36m</button>[39m
+  [36m</td>[39m
+  [36m<td[39m
+    [33mclass[39m=[32m"py-3 px-3"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex items-center gap-2"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 shrink-0"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"lucide lucide-user w-3.5 h-3.5"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"[39m
+          [36m/>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"12"[39m
+            [33mcy[39m=[32m"7"[39m
+            [33mr[39m=[32m"4"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+      [36m</div>[39m
+      [36m<span[39m
+        [33mclass[39m=[32m"font-medium text-gray-900"[39m
+      [36m>[39m
+        [0mTécnico Silva[0m
+      [36m</span>[39m
+    [36m</div>[39m
+  [36m</td>[39m
+  [36m<td[39m
+    [33mclass[39m=[32m"py-3 px-3 whitespace-nowrap"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex items-center gap-2"[39m
+    [36m>[39m
+      [36m<span[39m
+        [33mclass[39m=[32m"text-gray-700"[39m
+      [36m>[39m
+        [0m12/10/2026[0m
+        [0m [0m
+        [0m08:00 - 09:00[0m
+      [36m</span>[39m
+      [36m<span[39m
+        [33mclass[39m=[32m"inline-flex items-center px-2 py-0.5 rounded-[4px] text-[11px] font-mono font-bold text-white bg-brand-600"[39m
+      [36m>[39m
+        [0m01:00[0m
+      [36m</span>[39m
+    [36m</div>[39m
+  [36m</td>[39m
+  [36m<td[39m
+    [33mclass[39m=[32m"py-3 px-3 text-gray-600"[39m
+  [36m>[39m
+    [0mRemoto[0m
+  [36m</td>[39m
+  [36m<td[39m
+    [33mclass[39m=[32m"py-3 px-3 text-gray-400"[39m
+  [36m>[39m
+    [0mNenhum[0m
+  [36m</td>[39m
+  [36m<td[39m
+    [33mclass[39m=[32m"py-3 px-3"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px] text-[12px] font-medium leading-none select-none transition-colors border bg-green-100 text-green-800 border-green-200"[39m
+    [36m>[39m
+      [36m<span>[39m
+        [0mFaturável[0m
+      [36m</span>[39m
+    [36m</div>[39m
+    [36m<span[39m
+      [33mclass[39m=[32m"block text-xs text-gray-500"[39m
+    [36m>[39m
+      [0mContrato[0m
+      [0m · Legado / sem contrato vinculado[0m
+    [36m</span>[39m
+  [36m</td>[39m
+  [36m<td[39m
+    [33mclass[39m=[32m"py-3 px-3 text-right"[39m
+  [36m>[39m
+    [36m<button[39m
+      [33mclass[39m=[32m"p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-red-100 transition-colors shrink-0 cursor-pointer"[39m
+      [33mdata-testid[39m=[32m"worklog-delete-button-wl-1"[39m
+      [33mtitle[39m=[32m"Excluir apontamento"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33maria-hidden[39m=[32m"true"[39m
+        [33mclass[39m=[32m"lucide lucide-trash lucide-trash-2 w-4 h-4"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"24"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"24"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M10 11v6"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M14 11v6"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M3 6h18"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+    [36m</button>[39m
+  [36m</td>[39m
+[36m</tr>[39m
+
+Ignored nodes: comments, script, style
+[36m<tr[39m
+  [33mclass[39m=[32m"hover:bg-gray-80/60 transition-colors group"[39m
+  [33mdata-testid[39m=[32m"worklog-item-wl-1"[39m
+[36m>[39m
+  [36m<td[39m
+    [33mclass[39m=[32m"py-3 px-3 text-center"[39m
+  [36m>[39m
+    [36m<button[39m
+      [33mclass[39m=[32m"p-1 text-gray-400 hover:text-gray-700 rounded cursor-pointer"[39m
+      [33mtitle[39m=[32m"Expandir detalhes"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33maria-hidden[39m=[32m"true"[39m
+        [33mclass[39m=[32m"lucide lucide-chevron-down w-3.5 h-3.5"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"24"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"24"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m6 9 6 6 6-6"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+    [36m</button>[39m
+  [36m</td>[39m
+  [36m<td[39m
+    [33mclass[39m=[32m"py-3 px-3"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex items-center gap-2"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 shrink-0"[39m
+      [36m>[39m
+        [36m<svg[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"lucide lucide-user w-3.5 h-3.5"[39m
+          [33mfill[39m=[32m"none"[39m
+          [33mheight[39m=[32m"24"[39m
+          [33mstroke[39m=[32m"currentColor"[39m
+          [33mstroke-linecap[39m=[32m"round"[39m
+          [33mstroke-linejoin[39m=[32m"round"[39m
+          [33mstroke-width[39m=[32m"2"[39m
+          [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [33mwidth[39m=[32m"24"[39m
+          [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+        [36m>[39m
+          [36m<path[39m
+            [33md[39m=[32m"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"[39m
+          [36m/>[39m
+          [36m<circle[39m
+            [33mcx[39m=[32m"12"[39m
+            [33mcy[39m=[32m"7"[39m
+            [33mr[39m=[32m"4"[39m
+          [36m/>[39m
+        [36m</svg>[39m
+      [36m</div>[39m
+      [36m<span[39m
+        [33mclass[39m=[32m"font-medium text-gray-900"[39m
+      [36m>[39m
+        [0mTécnico Silva[0m
+      [36m</span>[39m
+    [36m</div>[39m
+  [36m</td>[39m
+  [36m<td[39m
+    [33mclass[39m=[32m"py-3 px-3 whitespace-nowrap"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex items-center gap-2"[39m
+    [36m>[39m
+      [36m<span[39m
+        [33mclass[39m=[32m"text-gray-700"[39m
+      [36m>[39m
+        [0m12/10/2026[0m
+        [0m [0m
+        [0m08:00 - 09:00[0m
+      [36m</span>[39m
+      [36m<span[39m
+        [33mclass[39m=[32m"inline-flex items-center px-2 py-0.5 rounded-[4px] text-[11px] font-mono font-bold text-white bg-brand-600"[39m
+      [36m>[39m
+        [0m01:00[0m
+      [36m</span>[39m
+    [36m</div>[39m
+  [36m</td>[39m
+  [36m<td[39m
+    [33mclass[39m=[32m"py-3 px-3 text-gray-600"[39m
+  [36m>[39m
+    [0mRemoto[0m
+  [36m</td>[39m
+  [36m<td[39m
+    [33mclass[39m=[32m"py-3 px-3 text-gray-400"[39m
+  [36m>[39m
+    [0mNenhum[0m
+  [36m</td>[39m
+  [36m<td[39m
+    [33mclass[39m=[32m"py-3 px-3"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px] text-[12px] font-medium leading-none select-none transition-colors border bg-green-100 text-green-800 border-green-200"[39m
+    [36m>[39m
+      [36m<span>[39m
+        [0mFaturável[0m
+      [36m</span>[39m
+    [36m</div>[39m
+    [36m<span[39m
+      [33mclass[39m=[32m"block text-xs text-gray-500"[39m
+    [36m>[39m
+      [0mContrato[0m
+      [0m · Legado / sem contrato vinculado[0m
+    [36m</span>[39m
+  [36m</td>[39m
+  [36m<td[39m
+    [33mclass[39m=[32m"py-3 px-3 text-right"[39m
+  [36m>[39m
+    [36m<button[39m
+      [33mclass[39m=[32m"p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-red-100 transition-colors shrink-0 cursor-pointer"[39m
+      [33mdata-testid[39m=[32m"worklog-delete-button-wl-1"[39m
+      [33mtitle[39m=[32m"Excluir apontamento"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33maria-hidden[39m=[32m"true"[39m
+        [33mclass[39m=[32m"lucide lucide-trash lucide-trash-2 w-4 h-4"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"24"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"24"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M10 11v6"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M14 11v6"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M3 6h18"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+    [36m</button>[39m
+  [36m</td>[39m
+[36m</tr>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/components/tickets/TicketWorklogs.test.tsx:1208:33
+    1206|       renderComponent();
+    1207|       const item = await screen.findByTestId('worklog-item-wl-1');
+    1208|       expect(await within(item).findByText('R$ 100,00')).toBeInTheDocu…
+       |                                 ^
+    1209|       expect(await screen.findByTestId('worklog-footer-value')).toHave…
+    1210|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed | 158 passed (159)
+      Tests  6 failed | 1170 passed (1176)
+   Start at  19:11:35
+   Duration  323.69s (transform 25.68s, setup 38.09s, import 206.42s, tests 413.60s, environment 214.97s)
+
+Warning: command "vitest" exited with non-zero status code
+
+
+ NX   Running target test for 2 projects failed
+
+Failed tasks:
+
+- api:test
+- web:test
+
