@@ -108,6 +108,7 @@ type PreRow = {
 
 let currentWorklogs: unknown[] = [];
 let preStore: PreRow[] = [];
+let currentPermissions: string[] = [];
 
 // DMTE-464: null = segue o role (ADMIN vê valor), como o servidor fazia antes.
 let viewTicketValues: boolean | null = null;
@@ -128,6 +129,9 @@ function installApiStubs() {
     }
     if (path.includes('/pre-appointments')) {
       return Promise.resolve({ data: [...preStore] });
+    }
+    if (path.includes('/auth/me')) {
+      return Promise.resolve({ data: { id: 'u-1', isAdmin: false, permissions: currentPermissions } });
     }
     if (path.includes('/users/agents')) {
       return Promise.resolve({ data: [] });
@@ -214,6 +218,7 @@ describe('TicketWorklogs', () => {
     currentWorklogs = [];
     preStore = [];
     viewTicketValues = null;
+    currentPermissions = [];
     installApiStubs();
     useAuthStore.setState({ token: null, user: null });
   });
@@ -275,13 +280,14 @@ describe('TicketWorklogs', () => {
 
   it('uses the DS EzComboBox (Storybook) for every worklog selector', async () => {
     loginAs('AGENT', 'u-1');
+    currentPermissions = ['LAUNCH_WORKLOG_GUARANTEE'];
     currentWorklogs = [];
 
     renderComponent();
 
+    const valuation = await screen.findByTestId('worklog-valuation-type-select');
     const attendance = screen.getByTestId('worklog-attendance-type-select');
     const nextStage = screen.getByTestId('worklog-next-stage-select');
-    const valuation = screen.getByTestId('worklog-valuation-type-select');
 
     expect(attendance.tagName).toBe('SELECT');
     expect(nextStage.tagName).toBe('SELECT');
@@ -445,13 +451,88 @@ describe('TicketWorklogs', () => {
     expect(api.post).not.toHaveBeenCalled();
   });
 
+  it('hides the valuation type from an agent without LAUNCH_WORKLOG_GUARANTEE and submits CONTRACT', async () => {
+    loginAs('AGENT');
+    currentWorklogs = mockWorklogs;
+    renderComponent('t-1', true);
+    await screen.findByTestId('worklog-item-wl-1');
+    await screen.findByRole('option', { name: 'Suporte' });
+    expect(screen.queryByTestId('worklog-valuation-type-select')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Tipo de Valorização/)).not.toBeInTheDocument();
+    expect(within(screen.getByTestId('worklog-item-wl-1')).queryByText(/Contrato ·/)).not.toBeInTheDocument();
+    expect(within(screen.getByTestId('worklog-item-wl-2')).queryByText('Garantia')).not.toBeInTheDocument();
+    fireEvent.change(screen.getByTestId('worklog-description-input'), { target: { value: 'Atividade realizada' } });
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith('/tickets/t-1/worklogs', expect.objectContaining({ valuationType: 'CONTRACT' })));
+  });
+
+  it('does not leak the valuation type in the expanded row of an agent without the permission', async () => {
+    loginAs('AGENT');
+    currentWorklogs = mockWorklogs;
+    renderComponent('t-1', true);
+    await screen.findByTestId('worklog-item-wl-2');
+    fireEvent.click(screen.getByTestId('worklog-expand-all-btn'));
+    await screen.findAllByText('Detalhamento das atividades');
+    expect(screen.queryByText(/Garantia/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Contrato:|Tipo:/)).not.toBeInTheDocument();
+  });
+
+  it('submits CONTRACT for an agent with a stale GUARANTEE draft when permissions never load', async () => {
+    loginAs('AGENT');
+    localStorage.setItem('aponta_worklog_draft_t-1', JSON.stringify({ valuationType: 'GUARANTEE', billable: false, bonusReason: 'Antigo', description: 'Rascunho antigo' }));
+    const base = vi.mocked(api.get).getMockImplementation()!;
+    vi.mocked(api.get).mockImplementation((url: string) =>
+      String(url).includes('/auth/me') ? Promise.reject(new Error('offline')) : base(url),
+    );
+    renderComponent('t-1', true);
+    await screen.findByRole('option', { name: 'Suporte' });
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith('/tickets/t-1/worklogs', expect.objectContaining({ valuationType: 'CONTRACT', billable: true })));
+    expect(vi.mocked(api.post).mock.calls[0][1]).not.toHaveProperty('bonusReason');
+  });
+
+  it('does not show the guarantee reason field for an agent with a stale GUARANTEE draft when permissions fail', async () => {
+    loginAs('AGENT');
+    localStorage.setItem('aponta_worklog_draft_t-1', JSON.stringify({ valuationType: 'GUARANTEE', billable: false, bonusReason: 'Antigo', description: 'Rascunho antigo' }));
+    const base = vi.mocked(api.get).getMockImplementation()!;
+    vi.mocked(api.get).mockImplementation((url: string) =>
+      String(url).includes('/auth/me') ? Promise.reject(new Error('offline')) : base(url),
+    );
+    renderComponent('t-1', true);
+    await screen.findByRole('option', { name: 'Suporte' });
+    await waitFor(() => expect(vi.mocked(api.get).mock.calls.some(([u]) => String(u).includes('/auth/me'))).toBe(true));
+    expect(screen.queryByLabelText(/Motivo da garantia ou bonificação/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('worklog-valuation-type-select')).not.toBeInTheDocument();
+    expect(screen.getByTestId('worklog-billable-checkbox')).toBeChecked();
+  });
+
+  it('keeps a GUARANTEE draft for an agent who has the permission once it loads', async () => {
+    loginAs('AGENT');
+    currentPermissions = ['LAUNCH_WORKLOG_GUARANTEE'];
+    localStorage.setItem('aponta_worklog_draft_t-1', JSON.stringify({ valuationType: 'GUARANTEE', billable: false, bonusReason: 'Retrabalho', description: 'Rascunho' }));
+    renderComponent('t-1', true);
+    expect(await screen.findByTestId('worklog-valuation-type-select')).toHaveValue('GUARANTEE');
+    expect(screen.getByLabelText(/Motivo da garantia ou bonificação/)).toHaveValue('Retrabalho');
+  });
+
+  it('shows the valuation type and the Garantia option to an agent with LAUNCH_WORKLOG_GUARANTEE', async () => {
+    loginAs('AGENT');
+    currentPermissions = ['LAUNCH_WORKLOG_GUARANTEE'];
+    renderComponent('t-1', true);
+    expect(await screen.findByTestId('worklog-valuation-type-select')).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Garantia' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Valor manual' })).not.toBeInTheDocument();
+  });
+
   it('unchecks billable automatically when GUARANTEE is selected', async () => {
     loginAs('AGENT', 'u-1');
+    currentPermissions = ['LAUNCH_WORKLOG_GUARANTEE'];
     currentWorklogs = [];
 
     const user = userEvent.setup();
     renderComponent();
 
+    await screen.findByTestId('worklog-valuation-type-select');
     const billableCheckbox = screen.getByTestId('worklog-billable-checkbox') as HTMLInputElement;
     expect(billableCheckbox.checked).toBe(true);
 
@@ -1099,11 +1180,12 @@ describe('TicketWorklogs', () => {
     expect(screen.getByTestId('worklog-billable-checkbox')).toBeChecked();
   });
 
-  it('does not restore manual financial fields for an agent draft', () => {
+  it('does not restore manual financial fields for an agent draft', async () => {
     loginAs('AGENT');
     localStorage.setItem('aponta_worklog_draft_t-1', JSON.stringify({ valuationType: 'MANUAL', manualValue: '250', description: 'Rascunho anterior' }));
     renderComponent('t-1', true);
-    expect(screen.getByTestId('worklog-valuation-type-select')).toHaveValue('CONTRACT');
+    await screen.findByTestId('worklog-description-input');
+    expect(screen.queryByTestId('worklog-valuation-type-select')).not.toBeInTheDocument();
     expect(screen.queryByTestId('worklog-manual-value-input')).not.toBeInTheDocument();
     expect(JSON.parse(localStorage.getItem('aponta_worklog_draft_t-1') || '{}').manualValue).toBe('');
   });
