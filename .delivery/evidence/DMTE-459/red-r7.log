@@ -1,0 +1,33 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-459-e6dc95fae8d1/workdir/aponta/apps/web
+
+ ❯ |web| src/hooks/useEscapeLayer.controls.test.tsx (5 tests | 4 failed) 280ms
+     × input checkbox: um Esc fecha o modal 89ms
+     × input radio: um Esc fecha o modal 14ms
+     × input range: um Esc fecha o modal 12ms
+     × input file: um Esc fecha o modal 29ms
+     ✓ input type=text continua saindo do campo no primeiro Esc 133ms
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 1 passed (5)
+   Start at  18:13:45
+   Duration  2.17s (transform 215ms, setup 197ms, import 713ms, tests 280ms, environment 552ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/hooks/useEscapeLayer.controls.test.tsx > AC-4: Esc com foco em controle que não é campo de texto > input checkbox: um Esc fecha o modal
+ FAIL  |web| src/hooks/useEscapeLayer.controls.test.tsx > AC-4: Esc com foco em controle que não é campo de texto > input radio: um Esc fecha o modal
+ FAIL  |web| src/hooks/useEscapeLayer.controls.test.tsx > AC-4: Esc com foco em controle que não é campo de texto > input range: um Esc fecha o modal
+ FAIL  |web| src/hooks/useEscapeLayer.controls.test.tsx > AC-4: Esc com foco em controle que não é campo de texto > input file: um Esc fecha o modal
+AssertionError: expected "vi.fn()" to be called 1 times, but got 0 times
+ ❯ src/hooks/useEscapeLayer.controls.test.tsx:14:21
+     12|     screen.getByLabelText('controle').focus();
+     13|     await user.keyboard('{Escape}');
+     14|     expect(onClose).toHaveBeenCalledTimes(1);
+       |                     ^
+     15|   });
+     16|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+

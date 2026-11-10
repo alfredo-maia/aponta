@@ -1,6 +1,7 @@
 import { createPortal } from 'react-dom';
 import { cn } from './utils';
 import { EzButton } from './EzButton';
+import { useEscapeLayer } from '../../hooks/useEscapeLayer';
 import { AlertTriangle, Info, X } from 'lucide-react';
 
 export interface EzDialogProps {
@@ -13,6 +14,8 @@ export interface EzDialogProps {
 }
 
 export function EzDialog({ open, title, message, onConfirm, onCancel, variant = 'info' }: EzDialogProps) {
+  useEscapeLayer(onCancel, open);
+
   if (!open) return null;
 
   const Icon = variant === 'info' ? Info : AlertTriangle;

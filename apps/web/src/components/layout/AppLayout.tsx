@@ -5,6 +5,7 @@ import { Sidebar } from './Sidebar';
 import { UserMenu } from './UserMenu';
 import { TabBar } from './TabBar';
 import { TabsProvider } from '../../contexts/TabsContext';
+import { useEscapeLayer } from '../../hooks/useEscapeLayer';
 
 /**
  * Shell do app. Desde 768px o menu lateral é fixo; abaixo disso ele vira um
@@ -22,14 +23,7 @@ export function AppLayout() {
     setMenuOpen(false);
   }, [pathname]);
 
-  useEffect(() => {
-    if (!menuOpen) return undefined;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMenuOpen(false);
-    };
-    document.addEventListener('keydown', closeOnEscape);
-    return () => document.removeEventListener('keydown', closeOnEscape);
-  }, [menuOpen]);
+  useEscapeLayer(() => setMenuOpen(false), menuOpen);
 
   // Menu modal: trava a rolagem do fundo e fecha se a tela crescer até o menu fixo,
   // para o painel e a barra fixa nunca coexistirem.

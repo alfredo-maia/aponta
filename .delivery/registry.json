@@ -335,6 +335,20 @@
       "title": "Catálogo de atendimento: seed idempotente",
       "note": "Tier 1 (dados + script). Execução em produção pelo usuário."
     },
+    "DMTE-459": {
+      "delivery": "DMTE-459",
+      "repository": "dmrepositorio/aponta",
+      "github_issue": 152,
+      "multica_id": "01a1be18-e412-7df9-8210-10ab0211cf45",
+      "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-459",
+      "kind": "delivery",
+      "tier": 2,
+      "state": "Em planejamento",
+      "cycle": "2026-10-26/2026-11-08",
+      "epic": null,
+      "title": "Padronizar tecla Esc para fechar/voltar na interface",
+      "note": "Escopo confirmado pelo Alfredo: Esc volta de página, ignora/confirma em edição, todos os componentes e telas."
+    },
     "DMTE-466": {
       "delivery": "DMTE-466",
       "repository": "dmrepositorio/aponta",
@@ -349,5 +363,5 @@
       "title": "CI/CD: merge queue, CD aguarda CI, suporte merge_group",
       "note": "Transferência de repo para dmrepositorio + merge queue nativo habilitados fora do fluxo de manifest (ação de infra pelo operador). Escopo deste manifest: workflows YAML + scripts/aponta_delivery.py, scripts/publicar_qa.py, scripts/test_aponta_delivery.py."
     }
-    }
+  }
 }

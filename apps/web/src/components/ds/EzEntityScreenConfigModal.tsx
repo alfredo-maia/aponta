@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, RotateCcw, Eye, EyeOff, Search, Settings } from 'lucide-react';
+import { useEscapeLayer } from '../../hooks/useEscapeLayer';
 import { EzTabs } from './EzTabs';
 import { EzLayoutFormConfig, EzLayoutFormConfigLayout } from './EzLayoutFormConfig';
 import { cn } from './utils';
@@ -34,6 +35,7 @@ export function EzEntityScreenConfigModal({
   onClose,
   initialTab = 'grid',
 }: EzEntityScreenConfigModalProps) {
+  useEscapeLayer(onClose);
   const [activeTab, setActiveTab] = useState<'grid' | 'form'>(initialTab);
   const [search, setSearch] = useState('');
 

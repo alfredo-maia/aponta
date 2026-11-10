@@ -1,6 +1,7 @@
 import { ReactNode, useState } from 'react';
 import { X, Filter, RotateCcw, Bookmark, Plus, Trash2, Check } from 'lucide-react';
 import { cn } from './utils';
+import { useEscapeLayer } from '../../hooks/useEscapeLayer';
 
 export interface SavedFilterItem {
   id: string;
@@ -45,6 +46,7 @@ export function EzFilterDrawer({
   onDeleteSavedFilter,
   activeSavedFilterId,
 }: EzFilterDrawerProps) {
+  useEscapeLayer(onClose, isOpen);
   const [isSaving, setIsSaving] = useState(false);
   const [filterNameInput, setFilterNameInput] = useState('');
 
@@ -129,7 +131,10 @@ export function EzFilterDrawer({
                   onChange={(e) => setFilterNameInput(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleSave();
-                    if (e.key === 'Escape') setIsSaving(false);
+                    if (e.key === 'Escape') {
+                      e.preventDefault();
+                      setIsSaving(false);
+                    }
                   }}
                   autoFocus
                   className="flex-1 h-7 px-2 text-[12px] border border-gray-300 rounded-[5px] focus:outline-none focus:border-brand-500"

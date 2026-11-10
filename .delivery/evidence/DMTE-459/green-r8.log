@@ -1,0 +1,11 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-459-e6dc95fae8d1/workdir/aponta/apps/web
+
+ ✓ |web| src/hooks/useEscapeLayer.revert.test.tsx (4 tests) 902ms
+     ✓ campo que grava no blur (padrão da tela Clientes) não grava o texto digitado  461ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  19:19:37
+   Duration  5.45s (transform 970ms, setup 317ms, import 1.83s, tests 902ms, environment 1.54s)
+

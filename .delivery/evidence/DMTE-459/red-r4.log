@@ -1,0 +1,103 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-467-3cccdc05c950/workdir/w160/apps/web
+
+ ❯ |web| src/hooks/useEscapeLayer.test.tsx (7 tests | 4 failed) 516ms
+     × AC-1: Esc age só na camada do topo, uma por vez 112ms
+     ✓ camada inativa não recebe Esc 16ms
+     ✓ AC-6: ignora defaultPrevented, IME e modificadores 5ms
+     × AC-4: Esc em campo em edição só cancela a edição e não fecha o modal 279ms
+     × AC-1: Esc fecha só o modal do topo 9ms
+     × AC-5: com alterações não salvas, Esc pede confirmação; Esc na confirmação mantém a edição 23ms
+     ✓ AC-7: devolve o foco ao gatilho ao fechar 57ms
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 3 passed (7)
+   Start at  14:03:21
+   Duration  3.38s (transform 1.54s, setup 108ms, import 1.99s, tests 516ms, environment 474ms)
+
+stderr | src/hooks/useEscapeLayer.test.tsx > EzModal + Esc > AC-5: com alterações não salvas, Esc pede confirmação; Esc na confirmação mantém a edição
+Received `true` for a non-boolean attribute `dirty`.
+
+If you want to write it to the DOM, pass a string instead: dirty="true" or dirty={value.toString()}.
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/hooks/useEscapeLayer.test.tsx > useEscapeLayer > AC-1: Esc age só na camada do topo, uma por vez
+AssertionError: expected "vi.fn()" to be called 1 times, but got 0 times
+ ❯ src/hooks/useEscapeLayer.test.tsx:22:17
+     20|     render(<><Layer name="b" onEscape={bottom} /><Layer name="t" onEsc…
+     21|     esc();
+     22|     expect(top).toHaveBeenCalledTimes(1);
+       |                 ^
+     23|     expect(bottom).not.toHaveBeenCalled();
+     24|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |web| src/hooks/useEscapeLayer.test.tsx > useEscapeLayer > AC-4: Esc em campo em edição só cancela a edição e não fecha o modal
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array []
+
+
+Number of calls: 1
+
+ ❯ src/hooks/useEscapeLayer.test.tsx:52:25
+     50|     await user.click(screen.getByText('Titulo'));
+     51|     await user.keyboard('{Escape}');
+     52|     expect(onClose).not.toHaveBeenCalled();
+       |                         ^
+     53|     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+     54|     await user.keyboard('{Escape}');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |web| src/hooks/useEscapeLayer.test.tsx > EzModal + Esc > AC-1: Esc fecha só o modal do topo
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array []
+
+
+Number of calls: 1
+
+ ❯ src/hooks/useEscapeLayer.test.tsx:66:24
+     64|     esc();
+     65|     expect(closeB).toHaveBeenCalledTimes(1);
+     66|     expect(closeA).not.toHaveBeenCalled();
+       |                        ^
+     67|   });
+     68|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |web| src/hooks/useEscapeLayer.test.tsx > EzModal + Esc > AC-5: com alterações não salvas, Esc pede confirmação; Esc na confirmação mantém a edição
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array []
+
+
+Number of calls: 1
+
+ ❯ src/hooks/useEscapeLayer.test.tsx:73:25
+     71|     render(<EzModal isOpen dirty onClose={onClose}>Form</EzModal>);
+     72|     esc();
+     73|     expect(onClose).not.toHaveBeenCalled();
+       |                         ^
+     74|     expect(screen.getByText('Descartar alterações?')).toBeInTheDocumen…
+     75|     esc();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+

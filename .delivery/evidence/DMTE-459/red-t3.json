@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-09T02:42:28.976003+00:00",
+  "finished_at": "2026-11-09T02:42:34.850614+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "--root",
+    "apps/web",
+    "src/components/ds/escapeBack.test.tsx"
+  ],
+  "base_sha": "1ccbd6cc0e92029d9d626bbeedca3271c7e36c14",
+  "head_sha": "1ccbd6cc0e92029d9d626bbeedca3271c7e36c14",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/components/ds/escapeBack.test.tsx": "703b16c974bb81ac32d134995d5751e38de3772b3a33435c2fc859a872df5f65"
+  },
+  "criteria": [
+    "AC-3"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/ds/escapeBack.test.tsx": "703b16c974bb81ac32d134995d5751e38de3772b3a33435c2fc859a872df5f65",
+    "apps/web/src/components/tickets/TicketFormMode.test.tsx": "54e3fded27b514d4f0826641766f2b5a53fbd9a24c9d51eca7e99ea8e6fc59fb",
+    "apps/web/src/pages/CreateTicketPage.test.tsx": "06d979596581ee0bd67b259f7ee948ca0c219d0b691ffd2dc6390c1a61e52e5d",
+    "apps/web/src/pages/TicketDetailPage.test.tsx": "f042293fde02afcbf2d55d5707b39ae4802a034d4695ddd0568b215c32f12f7d"
+  },
+  "log": ".delivery/evidence/DMTE-459/red-t3.log",
+  "log_sha256": "98b378e6ae0e03a8f9ba06b3142927390dddbeb32e1034479441b25d10e9f359"
+}

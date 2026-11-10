@@ -1,5 +1,6 @@
 import { HTMLAttributes, forwardRef, ReactNode } from 'react';
 import { cn } from './utils';
+import { useEscapeLayer } from '../../hooks/useEscapeLayer';
 import { X } from 'lucide-react';
 
 export interface EzPopoverPlusProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
@@ -39,6 +40,7 @@ export interface EzPopoverPlusProps extends Omit<HTMLAttributes<HTMLDivElement>,
  */
 export const EzPopoverPlus = forwardRef<HTMLDivElement, EzPopoverPlusProps>(
   ({ trigger, title, open, onClose, align = 'center', position = 'bottom', className, children, ...props }, ref) => {
+    useEscapeLayer(onClose, open);
     return (
       <div className="relative inline-block">
         <div className="cursor-pointer">{trigger}</div>

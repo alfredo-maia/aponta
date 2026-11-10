@@ -1,5 +1,6 @@
 import { HTMLAttributes, forwardRef, ReactNode } from 'react';
 import { cn } from './utils';
+import { useEscapeLayer } from '../../hooks/useEscapeLayer';
 import { ArrowLeft, ChevronRight } from 'lucide-react';
 
 /**
@@ -59,6 +60,7 @@ export const EzSimpleBar = forwardRef<HTMLDivElement, EzSimpleBarProps>(
     },
     ref
   ) => {
+    useEscapeLayer(() => onBack?.(), !!onBack, 'page');
     const rightSlot = actions ?? children;
 
     return (

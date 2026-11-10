@@ -220,6 +220,14 @@ describe('TicketDetailPage', () => {
     expect(screen.getByText('2026-10-02 17:30 UTC')).toBeInTheDocument();
   });
 
+  it('AC-3: Esc volta para a tela inicial', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByRole('heading', { name: 'Printer not working' });
+    await user.keyboard('{Escape}');
+    expect(await screen.findByText('Dashboard')).toBeInTheDocument();
+  });
+
   it('sets the browser tab title to "#<protocolo> - <título>" (TiFlux parity) and restores it on unmount', async () => {
     document.title = 'Aponta';
     const { unmount } = renderPage();

@@ -1,6 +1,7 @@
 import { useMemo, useState, FormEvent, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
+import { useEscapeLayer } from '../hooks/useEscapeLayer';
 import {
   Lock,
   LockOpen,
@@ -43,6 +44,7 @@ const PAGE_SIZE = 10;
 type RevealedValues = { username?: string | null; password?: string | null };
 
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+  useEscapeLayer(onClose);
   if (typeof document === 'undefined') return null;
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">

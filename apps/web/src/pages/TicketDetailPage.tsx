@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, PlayCircle, Square } from 'lucide-react';
 import { CommentForm } from '../components/tickets/CommentForm';
 import { TicketComments } from '../components/tickets/TicketComments';
@@ -11,6 +11,7 @@ import {
   TicketWorklogs,
 } from '../components/tickets/TicketWorklogs';
 import { useActivityTimer } from '../hooks/useActivityTimer';
+import { useEscapeLayer } from '../hooks/useEscapeLayer';
 import { useTicket } from '../hooks/useTicket';
 import { Ticket } from '../hooks/useTickets';
 import { useAuthStore } from '../stores/authStore';
@@ -24,6 +25,8 @@ function isTicketSectionEnabled(ticket: Ticket, key: string): boolean {
 
 export function TicketDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  useEscapeLayer(() => navigate('/'), true, 'page');
   const [searchParams] = useSearchParams();
   const { data: ticket, isLoading, isError } = useTicket(id);
   const user = useAuthStore((state) => state.user);

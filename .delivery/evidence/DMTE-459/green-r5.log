@@ -1,0 +1,10 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-467-3cccdc05c950/workdir/w160/apps/web
+
+ ✓ |web| src/hooks/useEscapeLayer.test.tsx (7 tests) 297ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  12:19:42
+   Duration  2.66s (transform 437ms, setup 182ms, import 908ms, tests 297ms, environment 893ms)
+

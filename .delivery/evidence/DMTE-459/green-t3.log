@@ -1,0 +1,10 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-459-e6dc95fae8d1/workdir/aponta/apps/web
+
+ ✓ |web| src/components/ds/escapeBack.test.tsx (4 tests) 153ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  23:58:00
+   Duration  3.54s (transform 378ms, setup 127ms, import 1.05s, tests 153ms, environment 1.89s)
+

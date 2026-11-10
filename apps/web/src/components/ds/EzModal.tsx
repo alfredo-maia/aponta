@@ -2,6 +2,8 @@ import { HTMLAttributes, forwardRef, ReactNode, useEffect, useState } from 'reac
 import { createPortal } from 'react-dom';
 import { cn } from './utils';
 import { X } from 'lucide-react';
+import { useEscapeLayer } from '../../hooks/useEscapeLayer';
+import { EzDialog } from './EzDialog';
 
 export interface EzModalProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   isOpen: boolean;
@@ -10,6 +12,8 @@ export interface EzModalProps extends Omit<HTMLAttributes<HTMLDivElement>, 'titl
   footer?: ReactNode;
   /** Prevent closing when clicking outside */
   preventOutsideClose?: boolean;
+  /** Alterações não salvas: Esc pede confirmação antes de fechar */
+  dirty?: boolean;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | 'full';
 }
 
@@ -17,8 +21,9 @@ export interface EzModalProps extends Omit<HTMLAttributes<HTMLDivElement>, 'titl
  * Aponta DS Modal (Dialog)
  */
 export const EzModal = forwardRef<HTMLDivElement, EzModalProps>(
-  ({ isOpen, onClose, title, footer, preventOutsideClose = false, maxWidth = 'md', className, children, ...props }, ref) => {
+  ({ isOpen, onClose, title, footer, preventOutsideClose = false, dirty = false, maxWidth = 'md', className, children, ...props }, ref) => {
     const [mounted, setMounted] = useState(false);
+    const [confirmingDiscard, setConfirmingDiscard] = useState(false);
 
     useEffect(() => {
       setMounted(true);
@@ -36,14 +41,11 @@ export const EzModal = forwardRef<HTMLDivElement, EzModalProps>(
       };
     }, [isOpen]);
 
-    // Handle escape key
     useEffect(() => {
-      const handleEscape = (e: KeyboardEvent) => {
-        if (e.key === 'Escape' && isOpen) onClose();
-      };
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
-    }, [isOpen, onClose]);
+      if (!isOpen) setConfirmingDiscard(false);
+    }, [isOpen]);
+
+    useEscapeLayer(() => (dirty ? setConfirmingDiscard(true) : onClose()), isOpen);
 
     if (!mounted || !isOpen) return null;
 
@@ -108,7 +110,22 @@ export const EzModal = forwardRef<HTMLDivElement, EzModalProps>(
       </div>
     );
 
-    return createPortal(content, document.body);
+    return (
+      <>
+        {createPortal(content, document.body)}
+        <EzDialog
+          open={confirmingDiscard}
+          variant="warning"
+          title="Descartar alterações?"
+          message="Há alterações não salvas. Se fechar agora, elas serão perdidas."
+          onCancel={() => setConfirmingDiscard(false)}
+          onConfirm={() => {
+            setConfirmingDiscard(false);
+            onClose();
+          }}
+        />
+      </>
+    );
   }
 );
 
