@@ -498,6 +498,157 @@ class DeliveryGateTests(unittest.TestCase):
         self.assertEqual(self.git('worktree', 'list').count('\n'), 0, 'temporary worktree must be removed')
 
 
+class HonestRedTests(unittest.TestCase):
+    """A RED must run against the delivery's committed code, never an earlier version of it (DMTE-471)."""
+    ENV = EvidenceBaseMovedTests.ENV
+    FIRST = 'def value():\n    return 2\n'
+    git, write, commit = DeliveryGateTests.git, DeliveryGateTests.write, DeliveryGateTests.commit
+    save_manifest, pr, check = DeliveryGateTests.save_manifest, DeliveryGateTests.pr, DeliveryGateTests.check
+    ISSUE = DeliveryGateTests.ISSUE
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.git('init', '-q', '-b', 'main')
+        self.write('.gitignore', '__pycache__/\n')
+        self.write('tool.py', 'def value():\n    return 1\n')
+        self.write('docs/spec.md', 'AC-01: value grows\n')
+        self.write('.delivery/registry.json', json.dumps({'version': 1, 'deliveries': {}}))
+        self.base = self.commit('base')
+        self.git('checkout', '-q', '-b', 'feat')
+        self.write('test_tool.py', 'import unittest\nimport tool\n\n\nclass T(unittest.TestCase):\n'
+                                   '    def test_value(self):\n        self.assertGreaterEqual(tool.value(), 2)\n')
+        self.record('red')
+        self.write('tool.py', self.FIRST)
+        self.record('green')
+        self.commit('first implementation')
+        self.write('tool.py', 'def value():\n    return 3\n')
+        self.head = self.commit('second implementation')
+        # The next cycle's test: the committed code returns 3 and the criterion now asks for 4.
+        self.write('test_more.py', 'import unittest\nimport tool\n\n\nclass M(unittest.TestCase):\n'
+                                   '    def test_value(self):\n        self.assertEqual(tool.value(), 4)\n')
+        self.manifest = {
+            'version': 1, 'delivery': 'DMTE-900', 'repository': delivery.CANONICAL_REPOSITORY,
+            'github_issue': self.ISSUE, 'multica_id': DeliveryGateTests.PARENT, 'cycle': None, 'tier': 2,
+            'criteria': [{'id': 'AC-01', 'description': 'value grows', 'tests': ['M.test_value']}],
+            'spec': 'docs/spec.md',
+            'tdd': {'mode': 'required', 'red': '.delivery/evidence/red-r2.json', 'green': '.delivery/evidence/green-r2.json'},
+            'design_system': {'applicable': False, 'reason': 'Python only; no UI'},
+        }
+
+    def record(self, phase, test='test_tool.py', cycle=''):
+        return delivery.capture(self.root, self.root / '.delivery/evidence' / (phase + cycle + '.json'), phase, self.base,
+                                [sys.executable, '-m', 'unittest', test], [test], ['AC-01'])
+
+    def assert_red_refused(self):
+        with self.assertRaises(ValueError) as refusal:
+            self.record('red', 'test_more.py', '-r2')
+        self.assertIn('tool.py', str(refusal.exception))
+        self.assertFalse((self.root / '.delivery/evidence/red-r2.json').exists())
+        self.assertFalse((self.root / '.delivery/evidence/red-r2.log').exists())
+
+    def test_red_is_refused_when_committed_source_is_back_at_the_base_version(self):
+        self.write('tool.py', self.git('show', self.base + ':tool.py') + '\n')
+        self.assert_red_refused()
+
+    def test_red_is_refused_when_committed_source_is_back_at_an_earlier_branch_commit(self):
+        self.write('tool.py', self.FIRST)
+        self.assert_red_refused()
+
+    def test_red_is_refused_when_committed_source_is_missing(self):
+        (self.root / 'tool.py').unlink()
+        self.assert_red_refused()
+
+    def test_red_is_recorded_against_the_current_committed_code(self):
+        self.assertEqual(self.record('red', 'test_more.py', '-r2')['exit_code'], 1)
+        self.assertTrue((self.root / '.delivery/evidence/red-r2.json').is_file())
+
+    def test_red_is_recorded_with_a_new_uncommitted_edit(self):
+        self.write('tool.py', 'def value():\n    return 3\n\n\ndef stub():\n    return None\n')
+        self.assertEqual(self.record('red', 'test_more.py', '-r2')['exit_code'], 1)
+
+    def test_contract_rejects_a_red_recorded_on_reverted_code(self):
+        # Evidence as the previous collector wrote it: the source put back at the base for the RED,
+        # then restored with the fix for the GREEN.
+        self.write('tool.py', self.git('show', self.base + ':tool.py') + '\n')
+        with patch.object(delivery, 'stale_sources', return_value=[]):
+            self.record('red', 'test_more.py', '-r2')
+        self.write('tool.py', 'def value():\n    return 4\n')
+        self.record('green', 'test_more.py', '-r2')
+        self.head = self.save_manifest('fabricated cycle')
+        self.assertIn('RED did not run against the committed code: tool.py', self.check())
+
+    def test_contract_accepts_an_honest_correction_cycle(self):
+        self.record('red', 'test_more.py', '-r2')
+        self.write('tool.py', 'def value():\n    return 4\n')
+        self.record('green', 'test_more.py', '-r2')
+        self.head = self.save_manifest('honest cycle')
+        self.assertEqual(self.check(), [])
+
+
+class InitManifestTests(unittest.TestCase):
+    """`init` writes the delivery manifest from its identity and the SPEC's criteria (DMTE-471)."""
+    PARENT = '01a17485-8de1-7e6d-950a-1e295fef336b'
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        (self.root / 'docs').mkdir()
+        (self.root / '.delivery/deliveries').mkdir(parents=True)
+        (self.root / 'docs/spec.md').write_text(
+            '# Title\n\n## Acceptance criteria\n\n- AC-01: rejects invalid input.\n'
+            '- AC-02 (operational): runs in the queue.\n\nAC-01 is covered by test_gate.\n')
+        self.path = self.root / '.delivery/deliveries/DMTE-901.json'
+
+    def init(self, name='DMTE-901', issue=7, parent=PARENT, spec='docs/spec.md', reason='Python CLI; no UI'):
+        return delivery.init_manifest(self.root, {'version': 1, 'deliveries': {}}, name, issue, parent, 2, spec, reason)
+
+    def test_manifest_carries_identity_cycle_and_spec_criteria(self):
+        self.init()
+        self.assertTrue(self.path.is_file())
+        manifest = json.loads(self.path.read_text())
+        self.assertEqual([manifest[key] for key in ('delivery', 'repository', 'github_issue', 'multica_id', 'tier', 'spec')],
+                         ['DMTE-901', delivery.CANONICAL_REPOSITORY, 7, self.PARENT, 2, 'docs/spec.md'])
+        self.assertEqual(manifest['cycle'], delivery.cycle_for(delivery.today_sao_paulo()))
+        self.assertEqual([(c['id'], c['description']) for c in manifest['criteria']],
+                         [('AC-01', 'rejects invalid input.'), ('AC-02', 'runs in the queue.')])
+        self.assertEqual(manifest['tdd'], {'mode': 'required', 'red': '.delivery/evidence/DMTE-901/red.json',
+                                           'green': '.delivery/evidence/DMTE-901/green.json'})
+        self.assertNotIn('base_sha', manifest)
+        self.assertNotIn('changed_files', manifest)
+
+    def test_generated_manifest_is_valid_once_the_tests_are_named(self):
+        self.init()
+        self.assertTrue(self.path.is_file())
+        manifest = json.loads(self.path.read_text())
+        self.assertIn('Every criterion needs a unique AC id, description and tests.',
+                      delivery.validate_manifest(self.root, manifest, check_evidence=False))
+        for criterion in manifest['criteria']:
+            criterion['tests'] = ['test_gate']
+        self.assertEqual(delivery.validate_manifest(self.root, manifest, check_evidence=False), [])
+
+    def test_existing_manifest_is_not_overwritten(self):
+        self.path.write_text('{"kept": true}')
+        with self.assertRaises(ValueError):
+            self.init()
+        self.assertEqual(self.path.read_text(), '{"kept": true}')
+
+    def test_spec_without_numbered_criteria_is_refused(self):
+        (self.root / 'docs/empty.md').write_text('# No criteria here\n')
+        with self.assertRaises(ValueError):
+            self.init(spec='docs/empty.md')
+        self.assertFalse(self.path.exists())
+
+    def test_identity_used_by_another_delivery_is_refused(self):
+        (self.root / '.delivery/deliveries/DMTE-800.json').write_text(json.dumps(
+            {'delivery': 'DMTE-800', 'github_issue': 7, 'multica_id': '01a17485-8de1-7e6d-950a-1e295fef3aaa'}))
+        with self.assertRaises(ValueError):
+            self.init()
+        self.assertFalse(self.path.exists())
+
+
 class ResolvePrFromEventTests(unittest.TestCase):
     """merge_group events (native GitHub Merge Queue) have no `pull_request`
     key — only a head_ref like "refs/heads/gh-readonly-queue/main/pr-7-abc".

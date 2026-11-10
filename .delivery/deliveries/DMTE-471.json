@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "delivery": "DMTE-471",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 170,
+  "multica_id": "01a1c781-afa0-7e45-8923-56734ae60e0f",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 2,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "`capture` da fase RED levanta erro e não grava evidência quando um fonte commitado pela entrega está, no diretório de trabalho, igual à versão da base, igual à de um commit anterior da branch, ou ausente.",
+      "tests": [
+        "HonestRedTests.test_red_is_refused_when_committed_source_is_back_at_the_base_version",
+        "HonestRedTests.test_red_is_refused_when_committed_source_is_back_at_an_earlier_branch_commit",
+        "HonestRedTests.test_red_is_refused_when_committed_source_is_missing"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "`capture` da fase RED continua gravando quando o teste novo falha contra o código commitado atual e quando um fonte commitado tem edição nova ainda não commitada.",
+      "tests": [
+        "HonestRedTests.test_red_is_recorded_against_the_current_committed_code",
+        "HonestRedTests.test_red_is_recorded_with_a_new_uncommitted_edit"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "`check_contract` rejeita uma entrega cujo RED registra um fonte commitado numa versão anterior à do `head_sha` da evidência, e continua aceitando o par de um ciclo de correção honesto.",
+      "tests": [
+        "HonestRedTests.test_contract_rejects_a_red_recorded_on_reverted_code",
+        "HonestRedTests.test_contract_accepts_an_honest_correction_cycle"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "`init_manifest` gera um manifest com identidade, ciclo automático, SPEC e os critérios da SPEC, sem `base_sha` nem `changed_files`; o manifest gerado falha no validador enquanto os testes dos critérios estão vazios e passa depois de preenchidos.",
+      "tests": [
+        "InitManifestTests.test_manifest_carries_identity_cycle_and_spec_criteria",
+        "InitManifestTests.test_generated_manifest_is_valid_once_the_tests_are_named"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "`init_manifest` recusa manifest existente, SPEC sem critérios numerados e identidade já usada por outra entrega.",
+      "tests": [
+        "InitManifestTests.test_existing_manifest_is_not_overwritten",
+        "InitManifestTests.test_spec_without_numbered_criteria_is_refused",
+        "InitManifestTests.test_identity_used_by_another_delivery_is_refused"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-471.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-471/red.json",
+    "green": ".delivery/evidence/DMTE-471/green.json"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Script Python de governança e documentação; nenhuma UI"
+  }
+}

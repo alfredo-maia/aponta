@@ -1,0 +1,93 @@
+/tmp/tmpdxoqqw9l/apps/web/src/pages/TicketDetailPage.tsx: classe de paleta fora do DS: teal-50
+FALHA: paleta fora do DS ou hex literal na aba Tickets (AC-01, DMTE-427).
+OK: nenhum hex literal ou classe de paleta fora do DS na aba Tickets (AC-01, DMTE-427).
+OK: nenhum hex literal ou classe de paleta fora do DS na aba Tickets (AC-01, DMTE-427).
+/tmp/tmpy_ve40t7/apps/web/src/components/tickets/TicketKanban.tsx: altura de controle fora da escala D6: h-[38px]
+FALHA: altura de controle ad hoc fora da escala D6 na aba Tickets (AC-02, DMTE-427).
+OK: alturas de controle seguem a escala D6 na aba Tickets (AC-02, DMTE-427).
+/tmp/tmpje6ckrfl/apps/web/src/pages/TicketDetailPage.tsx: found it
+FAIL
+OK
+...............................................................F..FFFFFFFF........................................................................................
+======================================================================
+FAIL: test_contract_rejects_a_red_recorded_on_reverted_code (test_aponta_delivery.HonestRedTests.test_contract_rejects_a_red_recorded_on_reverted_code)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix2/scripts/test_aponta_delivery.py", line 580, in test_contract_rejects_a_red_recorded_on_reverted_code
+    self.assertIn('RED did not run against the committed code: tool.py', self.check())
+AssertionError: 'RED did not run against the committed code: tool.py' not found in []
+
+======================================================================
+FAIL: test_red_is_refused_when_committed_source_is_back_at_an_earlier_branch_commit (test_aponta_delivery.HonestRedTests.test_red_is_refused_when_committed_source_is_back_at_an_earlier_branch_commit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix2/scripts/test_aponta_delivery.py", line 557, in test_red_is_refused_when_committed_source_is_back_at_an_earlier_branch_commit
+    self.assert_red_refused()
+  File "/home/hermes/multica/aponta-delivery-fix2/scripts/test_aponta_delivery.py", line 545, in assert_red_refused
+    with self.assertRaises(ValueError) as refusal:
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_red_is_refused_when_committed_source_is_back_at_the_base_version (test_aponta_delivery.HonestRedTests.test_red_is_refused_when_committed_source_is_back_at_the_base_version)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix2/scripts/test_aponta_delivery.py", line 553, in test_red_is_refused_when_committed_source_is_back_at_the_base_version
+    self.assert_red_refused()
+  File "/home/hermes/multica/aponta-delivery-fix2/scripts/test_aponta_delivery.py", line 545, in assert_red_refused
+    with self.assertRaises(ValueError) as refusal:
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_red_is_refused_when_committed_source_is_missing (test_aponta_delivery.HonestRedTests.test_red_is_refused_when_committed_source_is_missing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix2/scripts/test_aponta_delivery.py", line 561, in test_red_is_refused_when_committed_source_is_missing
+    self.assert_red_refused()
+  File "/home/hermes/multica/aponta-delivery-fix2/scripts/test_aponta_delivery.py", line 545, in assert_red_refused
+    with self.assertRaises(ValueError) as refusal:
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_existing_manifest_is_not_overwritten (test_aponta_delivery.InitManifestTests.test_existing_manifest_is_not_overwritten)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix2/scripts/test_aponta_delivery.py", line 634, in test_existing_manifest_is_not_overwritten
+    with self.assertRaises(ValueError):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_generated_manifest_is_valid_once_the_tests_are_named (test_aponta_delivery.InitManifestTests.test_generated_manifest_is_valid_once_the_tests_are_named)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix2/scripts/test_aponta_delivery.py", line 624, in test_generated_manifest_is_valid_once_the_tests_are_named
+    self.assertTrue(self.path.is_file())
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_identity_used_by_another_delivery_is_refused (test_aponta_delivery.InitManifestTests.test_identity_used_by_another_delivery_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix2/scripts/test_aponta_delivery.py", line 647, in test_identity_used_by_another_delivery_is_refused
+    with self.assertRaises(ValueError):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_manifest_carries_identity_cycle_and_spec_criteria (test_aponta_delivery.InitManifestTests.test_manifest_carries_identity_cycle_and_spec_criteria)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix2/scripts/test_aponta_delivery.py", line 610, in test_manifest_carries_identity_cycle_and_spec_criteria
+    self.assertTrue(self.path.is_file())
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_spec_without_numbered_criteria_is_refused (test_aponta_delivery.InitManifestTests.test_spec_without_numbered_criteria_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix2/scripts/test_aponta_delivery.py", line 640, in test_spec_without_numbered_criteria_is_refused
+    with self.assertRaises(ValueError):
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 162 tests in 14.421s
+
+FAILED (failures=9)

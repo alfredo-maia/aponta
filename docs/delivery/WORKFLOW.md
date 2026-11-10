@@ -32,6 +32,14 @@ A trava cobre a duração do comando, não uma conversa inteira nem outros hosts
 
 O manifest `.delivery/deliveries/DMTE-N.json` declara identidade, ciclo, Tier, critérios e testes, SPEC quando aplicável, TDD e avaliação do DS. O SPEC associa cada AC ao teste; mudanças de escopo atualizam a especificação antes de implementar.
 
+Gere o manifest com o comando, depois de escrever a SPEC, em vez de copiar o de outra entrega:
+
+```sh
+python3 scripts/aponta_delivery.py init --delivery DMTE-N --github-issue NUMERO --multica-id UUID_DO_PAI --tier 2 --spec docs/delivery/specs/DMTE-N.md --ds-reason "MOTIVO, SE NÃO HOUVER UI"
+```
+
+Ele preenche identidade, ciclo automático, caminhos de evidência e os critérios lidos das linhas `AC-NN: descrição` da SPEC, e recusa manifest existente ou identidade já usada. Os testes de cada critério ficam vazios e o `check` falha até serem nomeados. Sem `--ds-reason`, a avaliação do DS fica marcada como aplicável e precisa ser preenchida.
+
 Capture RED antes de implementar e GREEN no mesmo comando e teste, usando uma base SHA fixa:
 
 ```sh
@@ -39,6 +47,8 @@ python3 scripts/aponta_delivery.py record --phase red --base BASE_SHA --out .del
 python3 scripts/aponta_delivery.py record --phase green --base BASE_SHA --out .delivery/evidence/DMTE-N/green.json --test-file CAMINHO_TESTE --ac AC-01 -- COMANDO_DE_TESTE
 python3 scripts/aponta_delivery.py check --manifest .delivery/deliveries/DMTE-N.json
 ```
+
+O RED roda contra o código commitado da entrega. `record --phase red` recusa a captura, sem gravar evidência, quando um fonte que a entrega já commitou está no diretório de trabalho numa versão anterior (a da base ou a de um commit anterior da branch) ou foi apagado; o `check` rejeita um RED gravado assim. Num ciclo de correção, escreva o teste que reproduz o achado e grave o RED contra o código atual. Se o código pronto não permite um RED honesto, registre a lacuna e leve a decisão ao humano; nunca reverta código para produzir a falha.
 
 A base e os arquivos alterados da entrega são lidos do Git a cada verificação: a base é o merge-base do PR com a `main`, e os arquivos são o diff a partir dela. O manifest não precisa gravar `base_sha` nem `changed_files`, e a `main` andar não pede commit novo na entrega. Manifests antigos que trazem esses campos continuam aceitos; no PR, eles são ignorados em favor do Git. O RED/GREEN gravado numa base mais antiga continua válido quando essa base é ancestral da base atual e nenhum arquivo alterado ou testado pela entrega mudou entre as duas. Arquivos apagados ou renomeados pela entrega contam como alterados. Se a `main` tocou um desses arquivos, a evidência perde a validade e a entrega volta ao QA com evidência nova; `python3 scripts/atualizar_entrega.py DMTE-N` regrava o GREEN nesse caso e não faz push. A fila de merge testa a `main` combinada com o PR, então a branch não precisa estar atualizada para entrar nela; dentro da fila, o contrato é verificado na árvore do head do PR.
 
