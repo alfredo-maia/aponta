@@ -6,6 +6,10 @@
 # toca em outra execução, em staging ou em produção. No GitHub Actions isso não é
 # necessário: cada job roda numa máquina própria, com o Postgres do próprio job.
 #
+# Uma execução por checkout: duas no mesmo checkout disputam o diretório de build da API e
+# a segunda não sobe. Checkouts diferentes rodam ao mesmo tempo sem interferência. A porta do
+# inspetor do Node (9229) continua fixa; a execução que não a obtém só registra um aviso.
+#
 # Uso: scripts/e2e_isolated.sh [argumentos extras do Playwright]
 set -euo pipefail
 
