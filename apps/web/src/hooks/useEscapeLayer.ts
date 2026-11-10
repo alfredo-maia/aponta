@@ -17,24 +17,24 @@ const isTextField = (el: EventTarget | null): el is HTMLElement =>
     /^(TEXTAREA|SELECT)$/.test(el.tagName) ||
     (el instanceof HTMLInputElement && !NON_TEXT_INPUT.test(el.type)));
 
-// Valor do campo ao receber o foco: o Esc devolve o campo a ele (cancela a edição) antes de tirar o foco,
-// para que campos que gravam no blur não salvem o texto digitado.
-const valueOnFocus = new WeakMap<HTMLElement, string>();
+// Valor-base do campo: o do foco, ou o do último `change` confirmado. O Esc devolve o campo a ele
+// antes de tirar o foco, para que campo que grava no blur não salve o texto digitado.
+// shortcut: só input/textarea voltam (select grava no onChange e contenteditable só perde o foco), upgrade se surgir campo assim com rascunho.
+const baseValue = new WeakMap<HTMLElement, string>();
 
-function onFocusIn(e: FocusEvent) {
-  const el = e.target;
-  if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) {
-    valueOnFocus.set(el, el.value);
-  }
+function snapshot(el: EventTarget | null) {
+  if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) baseValue.set(el, el.value);
 }
+const onFocusIn = (e: FocusEvent) => snapshot(e.target);
+const onChange = (e: Event) => snapshot(e.target);
 
 function revertField(el: HTMLElement) {
-  const initial = valueOnFocus.get(el);
-  if (initial === undefined || !('value' in el) || el.value === initial) return;
+  const base = baseValue.get(el);
+  if (base === undefined || !('value' in el) || el.value === base) return;
   // Setter nativo + evento, para o React (campo controlado) receber o valor de volta.
-  const proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement : el instanceof HTMLSelectElement ? HTMLSelectElement : HTMLInputElement;
-  Object.getOwnPropertyDescriptor(proto.prototype, 'value')?.set?.call(el, initial);
-  el.dispatchEvent(new Event(el instanceof HTMLSelectElement ? 'change' : 'input', { bubbles: true }));
+  const proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement : HTMLInputElement;
+  Object.getOwnPropertyDescriptor(proto.prototype, 'value')?.set?.call(el, base);
+  el.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
 function onKeyDown(e: KeyboardEvent) {
@@ -68,9 +68,12 @@ export function useEscapeLayer(onEscape: () => void, active = true, kind: Escape
   useEffect(() => {
     if (!active) return;
     const layer: Layer = { handler, kind };
+    const focused = document.activeElement;
+    if (focused && !baseValue.has(focused as HTMLElement)) snapshot(focused); // autoFocus: o foco veio antes deste efeito
     if (stack.length === 0) {
       document.addEventListener('keydown', onKeyDown);
       document.addEventListener('focusin', onFocusIn);
+      document.addEventListener('change', onChange);
     }
     stack.push(layer);
     return () => {
@@ -79,6 +82,7 @@ export function useEscapeLayer(onEscape: () => void, active = true, kind: Escape
       if (stack.length === 0) {
         document.removeEventListener('keydown', onKeyDown);
         document.removeEventListener('focusin', onFocusIn);
+        document.removeEventListener('change', onChange);
       }
       const focused = document.activeElement;
       const orphaned = !focused || focused === document.body || !focused.isConnected;

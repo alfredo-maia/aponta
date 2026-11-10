@@ -15,7 +15,7 @@
         "EzModal + Esc AC-1: Esc fecha só o modal do topo"
       ],
       "tdd_required": false,
-      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r8/green-r8), que cobre AC-4; r6 e r7 ficam como histórico dos ciclos anteriores. "
+      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r9/green-r9), que cobre AC-4; r6, r7 e r8 ficam como histórico dos ciclos anteriores. "
     },
     {
       "id": "AC-2",
@@ -45,7 +45,8 @@
         "useEscapeLayer AC-4: Esc em campo em edição só cancela a edição e não fecha o modal",
         "AC-4: Esc em campo de texto dentro de sobreposição",
         "AC-4: Esc com foco em controle que não é campo de texto",
-        "AC-4: Esc cancela a edição de verdade"
+        "AC-4: Esc cancela a edição de verdade",
+        "AC-4: valor-base do cancelamento por Esc"
       ]
     },
     {
@@ -55,7 +56,7 @@
         "EzModal + Esc AC-5: com alterações não salvas, Esc pede confirmação; Esc na confirmação mantém a edição"
       ],
       "tdd_required": false,
-      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r8/green-r8), que cobre AC-4; r6 e r7 ficam como histórico dos ciclos anteriores. "
+      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r9/green-r9), que cobre AC-4; r6, r7 e r8 ficam como histórico dos ciclos anteriores. "
     },
     {
       "id": "AC-6",
@@ -64,7 +65,7 @@
         "useEscapeLayer AC-6: ignora defaultPrevented, IME e modificadores"
       ],
       "tdd_required": false,
-      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r8/green-r8), que cobre AC-4; r6 e r7 ficam como histórico dos ciclos anteriores. "
+      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r9/green-r9), que cobre AC-4; r6, r7 e r8 ficam como histórico dos ciclos anteriores. "
     },
     {
       "id": "AC-7",
@@ -73,7 +74,7 @@
         "EzModal + Esc AC-7: devolve o foco ao gatilho ao fechar"
       ],
       "tdd_required": false,
-      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r8/green-r8), que cobre AC-4; r6 e r7 ficam como histórico dos ciclos anteriores. "
+      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r9/green-r9), que cobre AC-4; r6, r7 e r8 ficam como histórico dos ciclos anteriores. "
     },
     {
       "id": "AC-8",
@@ -97,8 +98,8 @@
   "spec": "docs/superpowers/specs/2026-11-08-esc-padronizado.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-459/red-r8.json",
-    "green": ".delivery/evidence/DMTE-459/green-r8.json"
+    "red": ".delivery/evidence/DMTE-459/red-r9.json",
+    "green": ".delivery/evidence/DMTE-459/green-r9.json"
   },
   "design_system": {
     "applicable": true,
