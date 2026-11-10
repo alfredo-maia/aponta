@@ -40,7 +40,7 @@ test('commercial modalities, immutable costs, mandatory gate and stoppable timer
       { id: id.requester, role: Role.CLIENT, organizationId: id.org },
     ].map(user => ({ ...user, name: `Comercial ${user.role}`, email: `${user.id}@e2e.invalid`, password: 'unused-jwt-fixture' })) });
     for (const [userId, role] of [
-      [id.agent, Role.AGENT], [id.master, Role.CLIENT_MASTER], [id.requester, Role.CLIENT],
+      [id.admin, Role.ADMIN], [id.agent, Role.AGENT], [id.master, Role.CLIENT_MASTER], [id.requester, Role.CLIENT],
     ] as const) {
       await linkFixtureUserToDefaultPermissionGroup(db, userId, role);
     }

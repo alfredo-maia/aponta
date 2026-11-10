@@ -70,6 +70,9 @@
     "apps/api/src/worklogs/worklogs.commercial.spec.ts",
     "apps/api/src/worklogs/worklogs.service.spec.ts",
     "apps/api/src/worklogs/worklogs.service.ts",
+    "apps/web-e2e/src/commercial-v2.spec.ts",
+    "apps/web-e2e/src/contracts.spec.ts",
+    "apps/web-e2e/src/support/permission-groups.ts",
     "apps/web/src/components/tickets/TicketWorklogs.test.tsx",
     "apps/web/src/components/tickets/TicketWorklogs.tsx",
     "apps/web/src/hooks/usePermissions.ts",
@@ -78,7 +81,7 @@
   "tdd": {
     "mode": "required",
     "red": ".delivery/evidence/DMTE-464/red-r2.json",
-    "green": ".delivery/evidence/DMTE-464/green-r2.json"
+    "green": ".delivery/evidence/DMTE-464/green-r3.json"
   },
   "design_system": {
     "applicable": true,

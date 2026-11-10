@@ -36,7 +36,7 @@ test.describe('contracts and recorded valuation (real API/Postgres)', () => {
         { id: ids.requester, role: Role.CLIENT, organizationId: ids.org },
       ].map((user) => ({ ...user, name: `E2E ${user.role}`, email: `${user.id}@e2e.invalid`, password: 'unused-jwt-fixture' })) });
       for (const [userId, role] of [
-        [ids.agent, Role.AGENT], [ids.master, Role.CLIENT_MASTER],
+        [ids.admin, Role.ADMIN], [ids.agent, Role.AGENT], [ids.master, Role.CLIENT_MASTER],
         [ids.outsider, Role.CLIENT_MASTER], [ids.requester, Role.CLIENT],
       ] as const) {
         await linkFixtureUserToDefaultPermissionGroup(prisma, userId, role);
