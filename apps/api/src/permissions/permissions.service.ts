@@ -57,7 +57,8 @@ export class PermissionsService {
     return requiredKeys.some((key) => effective.has(key));
   }
 
-  async canViewTicketValues(_userId: string): Promise<boolean> {
-    return false;
+  /** DMTE-464: sem bypass de ADMIN, só o grupo de permissões decide quem vê valores. */
+  async canViewTicketValues(userId: string): Promise<boolean> {
+    return this.hasPermission(userId, 'VIEW_TICKET_VALUES');
   }
 }
