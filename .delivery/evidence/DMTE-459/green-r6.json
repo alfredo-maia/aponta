@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-10T21:06:52.796894+00:00",
+  "finished_at": "2026-11-10T21:06:59.979523+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "--root",
+    "apps/web",
+    "src/hooks/useEscapeLayer.fields.test.tsx"
+  ],
+  "base_sha": "172c0e2d05668f995ed9312f73f176c8fd5ea54c",
+  "head_sha": "8c9808539393058fa0fcb1dd684c734a55f240eb",
+  "exit_code": 0,
+  "tests": {
+    "apps/web/src/hooks/useEscapeLayer.fields.test.tsx": "cff3a50d0224dd27a9eeec54ec8d86eb22cbae16492c715e1e2085a093f23c91"
+  },
+  "criteria": [
+    "AC-4"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/ds/EzDialog.tsx": "6039b0590ddea007d0fc1f23d0d86623f43f43ac3be206465f02894642abf69a",
+    "apps/web/src/components/ds/EzEntityGrid.tsx": "2f42362652dbddd0c99580884cd6a96d2bb73266ec42c0f613b153c34fae728c",
+    "apps/web/src/components/ds/EzEntityScreenConfigModal.tsx": "23f737d2540dc876b4b5c2d887cdea1bd1ea90491a1ba1897309272d7175973a",
+    "apps/web/src/components/ds/EzFilterDrawer.tsx": "43a1f50a1c95e0ee396d52ae5e72e72e4f572cdf53b23564c2c27b962d0ee0b6",
+    "apps/web/src/components/ds/EzModal.stories.tsx": "f1bbaf85a01d531b2f95bd99f47c2b6746e2106ecf649121993170bbeeeadf99",
+    "apps/web/src/components/ds/EzModal.tsx": "40c72adad4c01c6e6f1037400d384a7880bb98b41a4fcb8ca2358a9d2a162636",
+    "apps/web/src/components/ds/EzPageLayout.tsx": "2d7c3d30a46eca6c73e2b09c3d741e71106d715d7a224b4c2362b199a691fa0a",
+    "apps/web/src/components/ds/EzPopoverPlus.tsx": "bd55176762b53c576a5ab3820544ed648cb98fb9dfb791731cbf94107e8f03ae",
+    "apps/web/src/components/ds/EzPopup.tsx": "d0d9e87a7d4d99d152143bdf3ceae4f615e3c2b51f7467fb542368c395538f74",
+    "apps/web/src/components/ds/EzSimpleBar.tsx": "80849e8b5b9903e8a6eb343a8f32cd9e9b1da000a916574de688f30006af9498",
+    "apps/web/src/components/ds/escapeBack.test.tsx": "b6902ad3a6bc343a3286e1a049c23c15a87200ce42dc6f15530d040f1840c4ff",
+    "apps/web/src/components/ds/escapeOverlays.test.tsx": "aadd37437a693d699fc7e6ef250ba3a1995f742ff4359cb718c9cdea6ae94411",
+    "apps/web/src/components/layout/AppLayout.tsx": "5e54a927b5bd0b13d9fdd07cc249f595f94872f7fb81713ab81b9edf3e8f7e3b",
+    "apps/web/src/components/tickets/TicketFormMode.test.tsx": "54e3fded27b514d4f0826641766f2b5a53fbd9a24c9d51eca7e99ea8e6fc59fb",
+    "apps/web/src/components/tickets/TicketFormMode.tsx": "0550d999c2ed77a80ff5bbe6443f0ef2414ba727b35b04702e794636aa53afde",
+    "apps/web/src/hooks/useEscapeLayer.fields.test.tsx": "cff3a50d0224dd27a9eeec54ec8d86eb22cbae16492c715e1e2085a093f23c91",
+    "apps/web/src/hooks/useEscapeLayer.review.test.tsx": "75834f9e56ff565d2d53aa3cd12062582008b4498079b78491b9c0df75df843d",
+    "apps/web/src/hooks/useEscapeLayer.test.tsx": "0bc5530df7a032e6cba5dab6e9a9799e7277fd831e1678e33519427d5fe38f5c",
+    "apps/web/src/hooks/useEscapeLayer.ts": "5d1e823e85b82687b509108f1efa676413436814cc8dc9e87aab79c26625fbb7",
+    "apps/web/src/pages/CreateTicketPage.test.tsx": "06d979596581ee0bd67b259f7ee948ca0c219d0b691ffd2dc6390c1a61e52e5d",
+    "apps/web/src/pages/CreateTicketPage.tsx": "6ab4ccea499b737814083ca7ac51c2d6d0a088504e4afe1ea257a340c9d9a838",
+    "apps/web/src/pages/TicketDetailPage.test.tsx": "f042293fde02afcbf2d55d5707b39ae4802a034d4695ddd0568b215c32f12f7d",
+    "apps/web/src/pages/TicketDetailPage.tsx": "709c613ef5769e1ca8de67bdf10fa8022a6910d54c081aa7582e03f1a0c512df",
+    "apps/web/src/pages/VaultPage.tsx": "4a821d8bd494b8365b1d2010cdaafd7eb0d8a63841c4cce18b7c8248225c95f1"
+  },
+  "log": ".delivery/evidence/DMTE-459/green-r6.log",
+  "log_sha256": "206c4a95234cef97e80112f95f7edca30107a21d7fe06470092a22fe69a06648"
+}

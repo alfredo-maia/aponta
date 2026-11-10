@@ -1,0 +1,10 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-459-e6dc95fae8d1/workdir/aponta/apps/web
+
+ ✓ |web| src/hooks/useEscapeLayer.fields.test.tsx (4 tests) 289ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  18:06:57
+   Duration  2.32s (transform 331ms, setup 172ms, import 836ms, tests 289ms, environment 648ms)
+

@@ -16,14 +16,17 @@ function onKeyDown(e: KeyboardEvent) {
   if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
   const top = [...stack].reverse().find((l) => l.kind === 'overlay') ?? stack[stack.length - 1];
   if (!top) return;
-  // Em campo de texto o Esc pertence ao campo; só sobreposições fecham mesmo assim.
-  if (top.kind === 'page' && isTextField(e.target)) return;
+  // Em campo de texto o Esc pertence ao campo: só tira o foco dele; o próximo Esc age na camada.
+  if (isTextField(e.target)) {
+    (e.target as HTMLElement).blur();
+    return;
+  }
   e.preventDefault();
   top.handler.current();
 }
 
 /**
- * Registra uma camada de Esc. Ao desativar, o foco volta ao gatilho se ficou sem dono.
+ * Registra uma camada de Esc. Em campo de texto o primeiro Esc só sai do campo. Ao desativar, o foco volta ao gatilho se ficou sem dono.
  * Campos que tratam Esc sozinhos devem chamar `preventDefault` (ex.: EzTextEdit).
  */
 export function useEscapeLayer(onEscape: () => void, active = true, kind: EscapeLayerKind = 'overlay'): void {

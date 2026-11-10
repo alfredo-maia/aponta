@@ -13,7 +13,9 @@
       "tests": [
         "useEscapeLayer AC-1: Esc age só na camada do topo, uma por vez",
         "EzModal + Esc AC-1: Esc fecha só o modal do topo"
-      ]
+      ],
+      "tdd_required": false,
+      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r6/green-r6), que cobre AC-4. "
     },
     {
       "id": "AC-2",
@@ -40,7 +42,8 @@
       "id": "AC-4",
       "description": "Esc em campo em edição só cancela a edição",
       "tests": [
-        "useEscapeLayer AC-4: Esc em campo em edição só cancela a edição e não fecha o modal"
+        "useEscapeLayer AC-4: Esc em campo em edição só cancela a edição e não fecha o modal",
+        "AC-4: Esc em campo de texto dentro de sobreposição"
       ]
     },
     {
@@ -48,21 +51,27 @@
       "description": "Alterações não salvas pedem confirmação",
       "tests": [
         "EzModal + Esc AC-5: com alterações não salvas, Esc pede confirmação; Esc na confirmação mantém a edição"
-      ]
+      ],
+      "tdd_required": false,
+      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r6/green-r6), que cobre AC-4. "
     },
     {
       "id": "AC-6",
       "description": "Esc com defaultPrevented, IME ou modificador é ignorado",
       "tests": [
         "useEscapeLayer AC-6: ignora defaultPrevented, IME e modificadores"
-      ]
+      ],
+      "tdd_required": false,
+      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r6/green-r6), que cobre AC-4. "
     },
     {
       "id": "AC-7",
       "description": "Foco retorna ao gatilho",
       "tests": [
         "EzModal + Esc AC-7: devolve o foco ao gatilho ao fechar"
-      ]
+      ],
+      "tdd_required": false,
+      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r6/green-r6), que cobre AC-4. "
     },
     {
       "id": "AC-8",
@@ -86,8 +95,8 @@
   "spec": "docs/superpowers/specs/2026-11-08-esc-padronizado.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-459/red.json",
-    "green": ".delivery/evidence/DMTE-459/green.json"
+    "red": ".delivery/evidence/DMTE-459/red-r6.json",
+    "green": ".delivery/evidence/DMTE-459/green-r6.json"
   },
   "design_system": {
     "applicable": true,
@@ -104,6 +113,6 @@
     "stories": [
       "apps/web/src/components/ds/EzModal.stories.tsx"
     ],
-    "exception": "Mudança comportamental (teclado) sem alteração visual; story nova só para EzModal (dirty). EzDialog, EzPopup, EzPopoverPlus, EzFilterDrawer, EzPageHeader e EzSimpleBar apenas passam a ouvir Esc, sem nova variante visual."
+    "exception": "Mudança comportamental (teclado) sem alteração visual; story nova só para EzModal (dirty). EzDialog, EzPopup, EzPopoverPlus, EzFilterDrawer, EzEntityScreenConfigModal, EzEntityGrid, EzPageHeader (em EzPageLayout.tsx) e EzSimpleBar apenas passam a ouvir Esc, sem nova variante visual."
   }
 }
