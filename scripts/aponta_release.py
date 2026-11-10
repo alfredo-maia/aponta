@@ -90,7 +90,7 @@ def new_staging_env() -> str:
         'POSTGRES_PASSWORD=' + secrets.token_urlsafe(24),
         'POSTGRES_DB=aponta_staging',
         'JWT_SECRET=' + secrets.token_urlsafe(48),
-        'API_PORT=3001',
+        'API_PORT=8191',
         'WEB_PORT=8190',
         'WEB_ORIGIN=https://staging.aponta.cloud',
         'VITE_API_URL=/api',
