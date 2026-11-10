@@ -15,6 +15,7 @@ import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator
 import { assertListedAgentMayMutate } from '../service-desks/desk-policy';
 import { TenantHelper } from '../core/security/tenant.helper';
 import { TicketsService } from '../tickets/tickets.service';
+import { PermissionsService } from '../permissions/permissions.service';
 import { allocateCommercialSegments, isCompleteCommercialTerm } from './commercial-valuation';
 
 const BRASILIA_TZ = 'America/Sao_Paulo';
@@ -40,6 +41,7 @@ export class WorklogsService {
     private readonly prisma: PrismaService,
     private readonly commentsService: CommentsService,
     private readonly ticketsService: TicketsService,
+    private readonly permissions: PermissionsService,
   ) {}
 
   async eligibleContracts(ticketId: string, startTime: string, endTime: string, user: CurrentUserPayload) {

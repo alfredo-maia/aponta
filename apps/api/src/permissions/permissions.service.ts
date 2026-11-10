@@ -56,4 +56,8 @@ export class PermissionsService {
     const effective = await this.getEffectivePermissions(userId);
     return requiredKeys.some((key) => effective.has(key));
   }
+
+  async canViewTicketValues(_userId: string): Promise<boolean> {
+    return false;
+  }
 }
