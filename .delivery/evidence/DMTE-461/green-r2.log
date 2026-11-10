@@ -1,0 +1,10 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-467-3cccdc05c950/workdir/w151/apps/web
+
+ ✓ |web| src/components/tickets/TicketKanbanCard.test.tsx (20 tests | 16 skipped) 164ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed | 16 skipped (20)
+   Start at  12:20:34
+   Duration  4.13s (transform 2.04s, setup 151ms, import 2.86s, tests 164ms, environment 642ms)
+

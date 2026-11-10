@@ -27,8 +27,8 @@
   ],
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-461/red.json",
-    "green": ".delivery/evidence/DMTE-461/green.json"
+    "red": ".delivery/evidence/DMTE-461/red-r2.json",
+    "green": ".delivery/evidence/DMTE-461/green-r2.json"
   },
   "design_system": {
     "applicable": true,

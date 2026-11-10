@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-10T15:20:11.148200+00:00",
+  "finished_at": "2026-11-10T15:20:32.771573+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "--root",
+    "apps/web",
+    "src/components/tickets/TicketKanbanCard.test.tsx",
+    "-t",
+    "tints the card by priority"
+  ],
+  "base_sha": "d6a50d5aaa9a8b5fc266b8d6d6acec1c75c52588",
+  "head_sha": "0030edcb284d395d8a080cfa8b088d2d854efab3",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/components/tickets/TicketKanbanCard.test.tsx": "0a98ea33c1ed9a9605f866409fd5d432c3ed29d7530c9bc1292c57071f17a9cd"
+  },
+  "criteria": [
+    "AC-01"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/tickets/TicketKanbanCard.test.tsx": "0a98ea33c1ed9a9605f866409fd5d432c3ed29d7530c9bc1292c57071f17a9cd"
+  },
+  "log": ".delivery/evidence/DMTE-461/red-r2.log",
+  "log_sha256": "64e546702e468a6f42cc7afb2a3c70a8731b537735e07bf11185804817137ea4"
+}
