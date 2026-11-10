@@ -1,12 +1,11 @@
 {
   "version": 1,
   "delivery": "DMTE-459",
-  "repository": "alfredo-maia/aponta",
+  "repository": "dmrepositorio/aponta",
   "github_issue": 152,
   "multica_id": "01a1be18-e412-7df9-8210-10ab0211cf45",
   "cycle": "2026-10-26/2026-11-08",
   "tier": 2,
-  "base_sha": "45d9d52da21e7eb1711fd88a4c6af4785de909db",
   "criteria": [
     {
       "id": "AC-1",
@@ -85,32 +84,6 @@
     }
   ],
   "spec": "docs/superpowers/specs/2026-11-08-esc-padronizado.md",
-  "changed_files": [
-    ".delivery/deliveries/DMTE-459.json",
-    "apps/web/src/components/ds/EzDialog.tsx",
-    "apps/web/src/components/ds/EzEntityGrid.tsx",
-    "apps/web/src/components/ds/EzEntityScreenConfigModal.tsx",
-    "apps/web/src/components/ds/EzFilterDrawer.tsx",
-    "apps/web/src/components/ds/EzModal.stories.tsx",
-    "apps/web/src/components/ds/EzModal.tsx",
-    "apps/web/src/components/ds/EzPageLayout.tsx",
-    "apps/web/src/components/ds/EzPopoverPlus.tsx",
-    "apps/web/src/components/ds/EzPopup.tsx",
-    "apps/web/src/components/ds/EzSimpleBar.tsx",
-    "apps/web/src/components/ds/escapeBack.test.tsx",
-    "apps/web/src/components/ds/escapeOverlays.test.tsx",
-    "apps/web/src/components/layout/AppLayout.tsx",
-    "apps/web/src/components/tickets/TicketFormMode.test.tsx",
-    "apps/web/src/components/tickets/TicketFormMode.tsx",
-    "apps/web/src/hooks/useEscapeLayer.review.test.tsx",
-    "apps/web/src/hooks/useEscapeLayer.test.tsx",
-    "apps/web/src/hooks/useEscapeLayer.ts",
-    "apps/web/src/pages/CreateTicketPage.test.tsx",
-    "apps/web/src/pages/CreateTicketPage.tsx",
-    "apps/web/src/pages/TicketDetailPage.test.tsx",
-    "apps/web/src/pages/TicketDetailPage.tsx",
-    "apps/web/src/pages/VaultPage.tsx"
-  ],
   "tdd": {
     "mode": "required",
     "red": ".delivery/evidence/DMTE-459/red.json",
