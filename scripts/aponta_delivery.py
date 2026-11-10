@@ -92,6 +92,15 @@ def tree_at(root: Path, commit: str):
         subprocess.run(['git', '-C', str(root), 'worktree', 'prune'], capture_output=True)
 
 
+def stale_sources(root: Path, base: str, head: str, tests, observed) -> list[str]:
+    return []
+
+
+def init_manifest(root: Path, registry: dict, delivery: str, github_issue: int, multica_id: str,
+                  tier: int, spec: str, ds_reason: str | None = None):
+    return None
+
+
 def is_source_path(name: str) -> bool:
     """Governance, docs and build noise are not delivery sources."""
     return (not name.startswith(('.delivery/', 'docs/', '.github/')) and name != 'AGENTS.md'
