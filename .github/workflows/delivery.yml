@@ -4,12 +4,15 @@ on:
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened, edited, ready_for_review]
+  merge_group:
+    branches: [main]
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
-  group: delivery-${{ github.event.pull_request.number }}
+  group: delivery-${{ github.event.pull_request.number || github.event.merge_group.head_sha }}
   cancel-in-progress: true
 
 jobs:
@@ -19,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha }}
           fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -34,6 +37,8 @@ jobs:
           python3 -m unittest discover -s scripts -p test_engineering_skills.py -v
           python3 scripts/check_engineering_skills.py
       - name: Verify identity, SPEC, TDD and design system
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: python3 scripts/aponta_delivery.py check --event "$GITHUB_EVENT_PATH"
       - name: Build affected Storybook
         env:
