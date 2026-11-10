@@ -362,6 +362,20 @@
       "epic": null,
       "title": "CI/CD: merge queue, CD aguarda CI, suporte merge_group",
       "note": "Transferência de repo para dmrepositorio + merge queue nativo habilitados fora do fluxo de manifest (ação de infra pelo operador). Escopo deste manifest: workflows YAML + scripts/aponta_delivery.py, scripts/publicar_qa.py, scripts/test_aponta_delivery.py."
+    },
+    "DMTE-463": {
+      "delivery": "DMTE-463",
+      "repository": "dmrepositorio/aponta",
+      "github_issue": 161,
+      "multica_id": "01a1be1b-486b-79bc-9070-376c7963c1cf",
+      "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-463",
+      "kind": "delivery",
+      "tier": 2,
+      "state": "Em revisão",
+      "cycle": "2026-11-09/2026-11-22",
+      "epic": null,
+      "title": "Apontamento do ticket: ocultar tipo de valorização do consultor; Garantia por permissão",
+      "note": "Permissão nova LAUNCH_WORKLOG_GUARANTEE aprovada pelo Alfredo, sem concessão padrão. Evidência de TDD refeita duas vezes (PR #158 e #174 substituídos pelo PR atual) por TDD com código revertido e por import duplicado no spec."
     }
   }
 }

@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "delivery": "DMTE-463",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 161,
+  "multica_id": "01a1be1b-486b-79bc-9070-376c7963c1cf",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 2,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "`LAUNCH_WORKLOG_GUARANTEE` existe no catálogo (categoria técnica) e nenhum grupo padrão a recebe.",
+      "tests": [
+        "apps/api/src/permission-groups/permission-groups.controller.spec.ts: getCatalog returns the static permission catalog"
+      ],
+      "tdd_required": false,
+      "reason": "Entrada estática no catálogo, sem comportamento próprio; o efeito é exercitado em AC-02. Sem RED retroativo e sem teste novo depois do RED."
+    },
+    {
+      "id": "AC-02",
+      "description": "API: `POST /tickets/:id/worklogs` com `valuationType=GUARANTEE` retorna 403 para não-ADMIN sem a permissão; ADMIN e quem tem a permissão lançam. Bonificação segue só ADMIN.",
+      "tests": [
+        "WorklogsService create rejects a guarantee from an agent without LAUNCH_WORKLOG_GUARANTEE",
+        "WorklogsService create answers 403 (not 400) for a guarantee without permission even when billable is true",
+        "WorklogsService create should zero the value and default billable to false when valuationType is GUARANTEE (com a permissão)"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "Web: o campo \"Tipo de Valorização\" e o rótulo do tipo na listagem e o detalhe expandido aparecem só para ADMIN ou quem tem a permissão.",
+      "tests": [
+        "TicketWorklogs hides the valuation type from an agent without LAUNCH_WORKLOG_GUARANTEE and submits CONTRACT",
+        "TicketWorklogs does not leak the valuation type in the expanded row of an agent without the permission",
+        "TicketWorklogs shows the valuation type and the Garantia option to an agent with LAUNCH_WORKLOG_GUARANTEE"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "Web: sem a permissão, o apontamento é enviado como `CONTRACT`; vale também com rascunho antigo e com as permissões ainda não carregadas ou com falha; o botão Salvar fica desabilitado enquanto elas carregam.",
+      "tests": [
+        "TicketWorklogs submits CONTRACT for an agent with a stale GUARANTEE draft when permissions never load",
+        "TicketWorklogs does not show the guarantee reason field for an agent with a stale GUARANTEE draft when permissions fail",
+        "TicketWorklogs keeps a GUARANTEE draft for an agent who has the permission once it loads",
+        "TicketWorklogs does not restore manual financial fields for an agent draft"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "Fora do escopo: Bonificação/Valor manual, modalidade de contrato no nome do contrato.",
+      "tests": [
+        "TicketWorklogs unchecks billable automatically when GUARANTEE is selected",
+        "valor por permissão VIEW_TICKET_VALUES (DMTE-464) AC-03: valor manual é recusado para ADMIN sem a permissão"
+      ],
+      "tdd_required": false,
+      "reason": "Critério de escopo (não alterar Bonificação e Valor manual); comportamento já existente, coberto por testes anteriores, sem comportamento novo."
+    }
+  ],
+  "spec": "docs/superpowers/specs/2026-11-09-worklog-valuation-visibility.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-463/red.json",
+    "green": ".delivery/evidence/DMTE-463/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzComboBox",
+      "EzTextInput"
+    ],
+    "stories": [
+      "apps/web/src/components/ds/EzComboBox.stories.tsx"
+    ]
+  }
+}
