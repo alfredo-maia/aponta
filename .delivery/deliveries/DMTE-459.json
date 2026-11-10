@@ -1,12 +1,12 @@
 {
   "version": 1,
   "delivery": "DMTE-459",
-  "repository": "alfredo-maia/aponta",
+  "repository": "dmrepositorio/aponta",
   "github_issue": 152,
   "multica_id": "01a1be18-e412-7df9-8210-10ab0211cf45",
   "cycle": "2026-10-26/2026-11-08",
   "tier": 2,
-  "base_sha": "d6a50d5aaa9a8b5fc266b8d6d6acec1c75c52588",
+  "base_sha": "7f7609e89c84df825e97e3d805626174d5d550dd",
   "criteria": [
     {
       "id": "AC-1",
