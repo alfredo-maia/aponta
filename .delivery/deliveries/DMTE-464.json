@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "delivery": "DMTE-464",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 156,
+  "multica_id": "01a1be1b-7ad8-77d2-9a23-28f480f952b3",
+  "cycle": "2026-10-26/2026-11-08",
+  "tier": 2,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "Sem VIEW_TICKET_VALUES, inclusive ADMIN, valores vêm nulos",
+      "tests": [
+        "valor por permissão VIEW_TICKET_VALUES (DMTE-464) AC-01: ADMIN sem a permissão não recebe valores na criação nem na listagem"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "Com a permissão (qualquer role) os valores são devolvidos",
+      "tests": [
+        "valor por permissão VIEW_TICKET_VALUES (DMTE-464) AC-02: agente com a permissão recebe os valores",
+        "valor por permissão VIEW_TICKET_VALUES (DMTE-464) AC-02: a tarifa de excesso do contrato só aparece com a permissão",
+        "canViewTicketValues (DMTE-464) é verdadeiro quando um grupo direto tem VIEW_TICKET_VALUES",
+        "canViewTicketValues (DMTE-464) é verdadeiro quando o grupo técnico do usuário tem a permissão"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "Valor manual só para ADMIN com a permissão",
+      "tests": [
+        "valor por permissão VIEW_TICKET_VALUES (DMTE-464) AC-03: valor manual é recusado para ADMIN sem a permissão",
+        "valor por permissão VIEW_TICKET_VALUES (DMTE-464) auditoria financeira é recusada para ADMIN sem a permissão"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "/auth/me devolve canViewTicketValues",
+      "tests": [
+        "AC-04: ADMIN com a permissão no grupo recebe canViewTicketValues verdadeiro"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "Tela só mostra valor com a permissão",
+      "tests": [
+        "AC-05: ADMIN sem VIEW_TICKET_VALUES não vê campo, valor da linha nem total",
+        "AC-05: agente com VIEW_TICKET_VALUES vê o valor da linha e o total"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "description": "Grupo padrão sem a chave; migração cria o grupo Valores de tickets",
+      "tests": [
+        "AC-06: nenhum grupo padrão por role traz a permissão"
+      ],
+      "tdd_required": true
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-464.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-464/red.json",
+    "green": ".delivery/evidence/DMTE-464/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzTextInput",
+      "EzComboBox"
+    ],
+    "reason": "Ajuste de visibilidade em TicketWorklogs.tsx; nenhum componente DS novo ou alterado."
+  }
+}
