@@ -8,8 +8,14 @@ type Layer = { handler: { current: () => void }; kind: EscapeLayerKind };
 // Pilha global: um único listener, só uma camada age a cada Esc.
 const stack: Layer[] = [];
 
-const isTextField = (el: EventTarget | null) =>
-  el instanceof HTMLElement && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
+// Checkbox, radio, range, file, button etc. não editam texto: não seguram o Esc.
+const NON_TEXT_INPUT = /^(checkbox|radio|range|file|button|submit|reset|image|color)$/;
+
+const isTextField = (el: EventTarget | null): el is HTMLElement =>
+  el instanceof HTMLElement &&
+  (el.isContentEditable ||
+    /^(TEXTAREA|SELECT)$/.test(el.tagName) ||
+    (el instanceof HTMLInputElement && !NON_TEXT_INPUT.test(el.type)));
 
 function onKeyDown(e: KeyboardEvent) {
   if (e.key !== 'Escape' || e.defaultPrevented || e.isComposing) return;
@@ -18,7 +24,7 @@ function onKeyDown(e: KeyboardEvent) {
   if (!top) return;
   // Em campo de texto o Esc pertence ao campo: só tira o foco dele; o próximo Esc age na camada.
   if (isTextField(e.target)) {
-    (e.target as HTMLElement).blur();
+    e.target.blur();
     return;
   }
   e.preventDefault();

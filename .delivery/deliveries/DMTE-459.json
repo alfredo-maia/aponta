@@ -15,7 +15,7 @@
         "EzModal + Esc AC-1: Esc fecha só o modal do topo"
       ],
       "tdd_required": false,
-      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r6/green-r6), que cobre AC-4. "
+      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r7/green-r7), que cobre AC-4; r6 (campo de texto) fica como histórico do ciclo anterior. "
     },
     {
       "id": "AC-2",
@@ -43,7 +43,8 @@
       "description": "Esc em campo em edição só cancela a edição",
       "tests": [
         "useEscapeLayer AC-4: Esc em campo em edição só cancela a edição e não fecha o modal",
-        "AC-4: Esc em campo de texto dentro de sobreposição"
+        "AC-4: Esc em campo de texto dentro de sobreposição",
+        "AC-4: Esc com foco em controle que não é campo de texto"
       ]
     },
     {
@@ -53,7 +54,7 @@
         "EzModal + Esc AC-5: com alterações não salvas, Esc pede confirmação; Esc na confirmação mantém a edição"
       ],
       "tdd_required": false,
-      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r6/green-r6), que cobre AC-4. "
+      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r7/green-r7), que cobre AC-4; r6 (campo de texto) fica como histórico do ciclo anterior. "
     },
     {
       "id": "AC-6",
@@ -62,7 +63,7 @@
         "useEscapeLayer AC-6: ignora defaultPrevented, IME e modificadores"
       ],
       "tdd_required": false,
-      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r6/green-r6), que cobre AC-4. "
+      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r7/green-r7), que cobre AC-4; r6 (campo de texto) fica como histórico do ciclo anterior. "
     },
     {
       "id": "AC-7",
@@ -71,7 +72,7 @@
         "EzModal + Esc AC-7: devolve o foco ao gatilho ao fechar"
       ],
       "tdd_required": false,
-      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r6/green-r6), que cobre AC-4. "
+      "reason": "Par genuíno anterior preservado como histórico (.delivery/evidence/DMTE-459/red.json e green.json: stub neutro, RED por asserção, implementação depois; auditado pelo dev_ultra_qa em f63a8e3). Como as fontes mudaram e a base do gate andou, o gate só exige o par vigente (red-r7/green-r7), que cobre AC-4; r6 (campo de texto) fica como histórico do ciclo anterior. "
     },
     {
       "id": "AC-8",
@@ -95,8 +96,8 @@
   "spec": "docs/superpowers/specs/2026-11-08-esc-padronizado.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-459/red-r6.json",
-    "green": ".delivery/evidence/DMTE-459/green-r6.json"
+    "red": ".delivery/evidence/DMTE-459/red-r7.json",
+    "green": ".delivery/evidence/DMTE-459/green-r7.json"
   },
   "design_system": {
     "applicable": true,
