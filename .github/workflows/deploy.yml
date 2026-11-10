@@ -20,47 +20,87 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
     # Guard clause: only deploy when the upstream CI run that triggered this
     # was itself triggered by a push to main (not a PR/merge_group run) AND
     # it actually succeeded. A failed/cancelled CI run must never reach the
     # SSH deploy step.
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
     steps:
+      # What ships is always the tip of main, never "the commit whose CI just
+      # finished". When several PRs leave the merge queue together their CI
+      # runs finish out of order, and deploying each run's own commit moved
+      # production backwards while the runs for the newest commits were
+      # dropped as superseded (DMTE-472). Any run may deploy the tip, but only
+      # once the tip's own CI is green; until then it skips, and the tip's CI
+      # triggers another run when it finishes.
+      - name: Resolve the commit to deploy
+        id: target
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TRIGGER_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          tip=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" -q .sha)
+          if [ "$tip" != "$TRIGGER_SHA" ]; then
+            green=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$tip&event=push&status=success" -q .total_count)
+            if [ "$green" = "0" ]; then
+              echo "CI de $TRIGGER_SHA passou, mas a ponta da main é $tip e o CI dela ainda não passou. Nada a publicar agora."
+              exit 0
+            fi
+          fi
+          echo "sha=$tip" >> "$GITHUB_OUTPUT"
+
       - name: Deploy to VPS using SSH
+        if: steps.target.outputs.sha != ''
         uses: appleboy/ssh-action@master
         env:
-          # The exact commit CI just validated — deploy pins to this SHA
-          # instead of trailing "origin/main" so what ships is provably
-          # identical to what passed CI, even if another merge lands on
-          # main microseconds later while this job is still running.
-          DEPLOY_SHA: ${{ github.event.workflow_run.head_sha }}
+          DEPLOY_SHA: ${{ steps.target.outputs.sha }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
           port: 2000
           envs: DEPLOY_SHA
-          # Não usa porta padronizada, assume 22 a não ser que exista overrides.
           script: |
             set -e
-            echo "Iniciando Deploy do Aponta via GitHub Actions (SHA validado pelo CI: $DEPLOY_SHA)..."
+            echo "Iniciando Deploy do Aponta via GitHub Actions (ponta da main validada pelo CI: $DEPLOY_SHA)..."
             cd /home/hermes/repos/aponta
 
-            # Baixa e fixa exatamente o commit que o CI acabou de aprovar —
-            # nunca "a main mais recente", para garantir que o que sobe é
-            # idêntico ao que passou nos testes.
-            git fetch origin main
-            git reset --hard "$DEPLOY_SHA"
-            
-            # Carrega credenciais locais do host (sudo) e sobe os containers
+            # Carrega credenciais locais do host (sudo)
             source ~/.hermes/.env 2>/dev/null
+            run() { echo "$SUDO_PASSWORD" | sudo -S -p '' "$@"; }
+            compose() { run docker compose -p aponta-prod --env-file .env.prod -f docker-compose.yml "$@"; }
 
-            # Remove containers órfãos (de deploys anteriores interrompidos) antes
-            # de recriar — evita "Conflict. The container name ... is already in
-            # use" quando o nome gerado pelo compose colide com um container
-            # parado que ficou pra trás. Não mexe no postgres (dado persistente).
-            echo "$SUDO_PASSWORD" | sudo -S -p '' docker rm -f aponta-prod-api-1 aponta-prod-web-1 aponta-prod-migrate-1 aponta-prod-storybook-1 2>/dev/null || true
+            # Já no ar: outro run publicou esta mesma ponta. Não derruba nada.
+            marker=~/.local/state/aponta/deployed-sha
+            if [ "$(cat "$marker" 2>/dev/null)" = "$DEPLOY_SHA" ] && [ -n "$(run docker ps -q -f name=aponta-prod-api-1 -f status=running)" ]; then
+              echo "$DEPLOY_SHA já está em produção. Nada a fazer."
+              exit 0
+            fi
 
-            echo "$SUDO_PASSWORD" | sudo -S -p '' -S docker compose -p aponta-prod --env-file .env.prod -f docker-compose.yml up -d --build
-            
+            # HEAD destacado no commit aprovado: `reset --hard` movia a branch
+            # que estivesse ativa neste checkout, inclusive a de um agente.
+            git fetch origin main
+            git checkout -q -f --detach "$DEPLOY_SHA"
+
+            # Constrói antes de tocar nos containers: a produção segue no ar
+            # durante o build e só para pelos segundos da troca.
+            compose build
+
+            # Remove só restos parados de deploys interrompidos, que causavam
+            # "Conflict. The container name ... is already in use". Container
+            # em execução é trocado pelo próprio compose. Não mexe no postgres.
+            for name in aponta-prod-api-1 aponta-prod-web-1 aponta-prod-migrate-1 aponta-prod-storybook-1; do
+              for state in exited created dead; do
+                ids=$(run docker ps -aq -f "name=^${name}$" -f "status=${state}")
+                [ -z "$ids" ] || run docker rm -f $ids
+              done
+            done
+
+            compose up -d
+
+            mkdir -p "$(dirname "$marker")"
+            echo "$DEPLOY_SHA" > "$marker"
             echo "Deploy concluído com sucesso!"

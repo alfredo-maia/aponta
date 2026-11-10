@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "delivery": "DMTE-472",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 175,
+  "multica_id": "01a1c7b1-b90a-7ccc-a0b0-98e8e4437311",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 2,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "com vários commits entrando na `main` juntos, a produção termina na ponta da `main` e nunca num commit anterior ao que já estava no ar.",
+      "tests": [
+        "Primeiro deploy real depois do merge: log do run CD (Produção) e docker ps na VPS"
+      ],
+      "tdd_required": false,
+      "reason": "Workflow do GitHub Actions executado contra a VPS; sem runner local que o reproduza"
+    },
+    {
+      "id": "AC-02",
+      "description": "um run disparado por CI de commit que não é a ponta não publica enquanto o CI da ponta não tiver passado.",
+      "tests": [
+        "Primeiro deploy real depois do merge: log do run CD (Produção) e docker ps na VPS"
+      ],
+      "tdd_required": false,
+      "reason": "Workflow do GitHub Actions executado contra a VPS; sem runner local que o reproduza"
+    },
+    {
+      "id": "AC-03",
+      "description": "um run para o commit que já está em produção termina sem recriar containers.",
+      "tests": [
+        "Primeiro deploy real depois do merge: log do run CD (Produção) e docker ps na VPS"
+      ],
+      "tdd_required": false,
+      "reason": "Workflow do GitHub Actions executado contra a VPS; sem runner local que o reproduza"
+    },
+    {
+      "id": "AC-04",
+      "description": "durante o build das imagens os containers de produção continuam em execução.",
+      "tests": [
+        "Primeiro deploy real depois do merge: log do run CD (Produção) e docker ps na VPS"
+      ],
+      "tdd_required": false,
+      "reason": "Workflow do GitHub Actions executado contra a VPS; sem runner local que o reproduza"
+    },
+    {
+      "id": "AC-05",
+      "description": "o deploy não move nenhuma branch local do checkout da VPS.",
+      "tests": [
+        "Primeiro deploy real depois do merge: log do run CD (Produção) e docker ps na VPS"
+      ],
+      "tdd_required": false,
+      "reason": "Workflow do GitHub Actions executado contra a VPS; sem runner local que o reproduza"
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-472.md",
+  "tdd": {
+    "mode": "not-applicable",
+    "reason": "Só muda .github/workflows/deploy.yml; nenhum código com comportamento testável por runner"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Workflow do GitHub Actions; nenhuma UI"
+  }
+}
