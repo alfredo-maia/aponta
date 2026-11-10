@@ -13,6 +13,9 @@ import uuid
 
 ROOT = Path(__file__).resolve().parent.parent
 STATE = Path.home() / '.local' / 'state' / 'aponta-qa'
+# Read from GITHUB_REPOSITORY (set automatically in Actions) so a repo/org
+# transfer never requires touching this script again.
+CANONICAL_REPOSITORY = os.environ.get('GITHUB_REPOSITORY', 'dmrepositorio/aponta')
 QA = '3501c5bf-c0eb-497b-9840-32ae3e9d9076'  # dev_qa (Squad Dev Aponta)
 RAPIDO_QA = 'a75c9214-2636-4c5d-8dbb-64a8927ff542'  # dev_rapido_qa (Squad Rápido)
 ULTRA_QA = '6cea4f83-0bf4-4652-a5fe-db283601ec53'  # dev_ultra_qa (Squad Ultra Rápido)
@@ -86,7 +89,7 @@ def main():
     proof = assess([json.loads(line) for line in p.stdout.splitlines() if line], args.sha, current)
     payload = {'state':'success','context':'Independent QA','description':'QA Multica independente aprovou este SHA',
         'target_url':'https://multica.dmtecnologia.cloud/dm-tecnologia/issues/'+source}
-    subprocess.run(['gh','api','-X','POST','repos/alfredo-maia/aponta/statuses/'+args.sha,'--input','-'],
+    subprocess.run(['gh','api','-X','POST','repos/'+CANONICAL_REPOSITORY+'/statuses/'+args.sha,'--input','-'],
         input=json.dumps(payload),capture_output=True,text=True,check=True)
     result = {'delivery':args.delivery,'sha':args.sha,'qa_issue':source,'source_task_id':proof['source_task_id'],'result':'success'}
     STATE.mkdir(parents=True, exist_ok=True)
