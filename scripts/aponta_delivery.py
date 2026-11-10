@@ -92,13 +92,73 @@ def tree_at(root: Path, commit: str):
         subprocess.run(['git', '-C', str(root), 'worktree', 'prune'], capture_output=True)
 
 
+def blob_sha(root: Path, commit: str, name: str) -> str | None:
+    """SHA-256 of a path at a commit, or None when the path does not exist there."""
+    shown = subprocess.run(['git', '-C', str(root), 'show', commit + ':' + name], capture_output=True)
+    return sha(shown.stdout) if shown.returncode == 0 else None
+
+
 def stale_sources(root: Path, base: str, head: str, tests, observed) -> list[str]:
-    return []
+    """Sources the delivery committed between base and head that a RED saw at an earlier version.
+
+    `observed(name)` is the SHA-256 the RED ran against, or None for a file that was absent or
+    identical to the base. A RED obtained by putting finished code back at a previous version says
+    nothing about the code under review, so it is told apart from Git alone: the content matches
+    the base or an earlier commit of the branch instead of `head`. A new uncommitted edit, such
+    as a neutral stub, matches no earlier version and is not stale.
+    """
+    try:
+        names = git(root, 'diff', '--no-renames', '--name-only', '-z', base, head).split('\0')
+    except subprocess.CalledProcessError:
+        return []  # commits this checkout cannot resolve are not judged here
+    stale = []
+    for name in names:
+        if not name or name in tests or not is_source_path(name):
+            continue
+        seen = observed(name)
+        if seen == blob_sha(root, head, name):
+            continue
+        commits = [base] + git(root, 'rev-list', base + '..' + head, '--', name).split()
+        if seen is None or seen in {blob_sha(root, commit, name) for commit in commits}:
+            stale.append(name)
+    return stale
 
 
 def init_manifest(root: Path, registry: dict, delivery: str, github_issue: int, multica_id: str,
-                  tier: int, spec: str, ds_reason: str | None = None):
-    return None
+                  tier: int, spec: str, ds_reason: str | None = None) -> Path:
+    """Write the manifest of a new delivery from its identity and the SPEC's numbered criteria.
+
+    Each criterion's tests are left empty on purpose: `check` fails until they are named.
+    """
+    manifest = {'version': 1, 'delivery': delivery, 'repository': CANONICAL_REPOSITORY,
+                'github_issue': github_issue, 'multica_id': multica_id,
+                'cycle': cycle_for(today_sao_paulo()), 'tier': tier}
+    errors = identity_errors(manifest)
+    if tier not in [1, 2, 3]:
+        errors.append('tier must be 1, 2 or 3.')
+    if errors:
+        raise ValueError(' '.join(errors))
+    criteria = {}
+    for key, text in re.findall(r'^\W*(AC-\d+)\b[^:\n]*:[ \t]*(\S.*)$', safe_path(root, spec).read_text(), re.M):
+        criteria.setdefault(key, text.strip())
+    if not criteria:
+        raise ValueError('SPEC has no numbered acceptance criteria (AC-NN: description).')
+    path = safe_path(root, '.delivery/deliveries/' + delivery + '.json')
+    if path.exists():
+        raise ValueError('Manifest already exists: ' + path.relative_to(root.resolve()).as_posix())
+    clash = validate_binding(manifest, None, other_identities(root, registry, delivery))
+    if clash:
+        raise ValueError(' '.join(clash))
+    evidence = '.delivery/evidence/' + delivery + '/'
+    manifest.update({
+        'criteria': [{'id': key, 'description': text, 'tests': []} for key, text in criteria.items()],
+        'spec': spec,
+        'tdd': {'mode': 'required', 'red': evidence + 'red.json', 'green': evidence + 'green.json'},
+        'design_system': {'applicable': False, 'reason': ds_reason} if ds_reason else {'applicable': True, 'reused': []},
+    })
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
+    return path
 
 
 def is_source_path(name: str) -> bool:
@@ -118,6 +178,13 @@ def capture(root: Path, destination: Path, phase: str, base: str,
         if not safe_path(root, name).is_file():
             raise ValueError('Test source is missing: ' + name)
     base = git(root, 'rev-parse', '--verify', '--end-of-options', base)
+    if phase == 'red':
+        stale = stale_sources(root, base, 'HEAD', tests,
+                              lambda name: sha((root / name).read_bytes()) if (root / name).is_file() else None)
+        if stale:
+            raise ValueError('RED must run against the committed code, but these files are at an earlier version '
+                             'or missing: ' + ', '.join(stale) + '. Restore them and write a test that fails '
+                             'against the current code.')
     started = dt.datetime.now(dt.timezone.utc).isoformat()
     # No bytecode cache: a source edited within the same second and with the same size would
     # otherwise run its stale .pyc, and a RED or GREEN would describe code that is no longer there.
@@ -280,6 +347,11 @@ def validate_evidence(root: Path, tdd: dict, criteria: set[str], base: str,
                     errors.append('Test source changed since evidence: ' + name)
             if phase == 'red' and not behavioral_red(output, value.get('exit_code', 0)):
                 errors.append('RED is not a behavioral assertion failure.')
+            commits = [observed_base, value.get('head_sha')]
+            if phase == 'red' and all(isinstance(c, str) and re.fullmatch(r'[0-9a-f]{7,40}', c) for c in commits):
+                recorded = value.get('source_hashes') or {}
+                errors += ['RED did not run against the committed code: ' + name
+                           for name in stale_sources(root, *commits, value.get('tests', {}), recorded.get)]
             if phase == 'green':
                 if value.get('exit_code') != 0:
                     errors.append('GREEN did not pass.')
@@ -588,6 +660,14 @@ def main() -> int:
     check.add_argument('--manifest', type=Path)
     check.add_argument('--event', type=Path)
     check.add_argument('--registry', type=Path, default=Path('.delivery/registry.json'))
+    init = sub.add_parser('init', help='write the manifest of a new delivery from its identity and SPEC')
+    init.add_argument('--delivery', required=True)
+    init.add_argument('--github-issue', type=int, required=True)
+    init.add_argument('--multica-id', required=True)
+    init.add_argument('--tier', type=int, required=True)
+    init.add_argument('--spec', required=True)
+    init.add_argument('--ds-reason', help='why the design system does not apply; omit for a delivery with UI')
+    init.add_argument('--registry', type=Path, default=Path('.delivery/registry.json'))
     cycle = sub.add_parser('cycle', help='print the automatic cycle id for a date (default: today, America/Sao_Paulo)')
     cycle.add_argument('--date', type=dt.date.fromisoformat)
     locked = sub.add_parser('with-lock')
@@ -601,6 +681,12 @@ def main() -> int:
         print(json.dumps({'phase': value['phase'], 'exit_code': value['exit_code'], 'evidence': str(args.out)}))
         valid = behavioral_red((root / value['log']).read_text(), value['exit_code']) if args.phase == 'red' else value['exit_code'] == 0
         return 0 if valid else 1
+    if args.action == 'init':
+        path = init_manifest(root, json.loads((root / args.registry).read_text()), args.delivery,
+                             args.github_issue, args.multica_id, args.tier, args.spec, args.ds_reason)
+        print('Manifest written: ' + path.relative_to(root).as_posix()
+              + '. Name the tests of each criterion, then run check.')
+        return 0
     if args.action == 'cycle':
         print(cycle_for(args.date or today_sao_paulo()))
         return 0

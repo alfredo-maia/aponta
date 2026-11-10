@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-10T22:13:05.425863+00:00",
+  "finished_at": "2026-11-10T22:13:19.810491+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_*.py"
+  ],
+  "base_sha": "172c0e2d05668f995ed9312f73f176c8fd5ea54c",
+  "head_sha": "77813a121d5f76aad2334e8d0b63425e13ba190f",
+  "exit_code": 0,
+  "tests": {
+    "scripts/test_aponta_delivery.py": "54413eda513b04fef8d2b3c03e889092fc13c4065bf9f3bac55220a8d4c214e4"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "source_hashes": {
+    "scripts/aponta_delivery.py": "6115aaf76a212f12666d50ad15505dfaff90970bc934d7e3b3d64561fbc909b0",
+    "scripts/test_aponta_delivery.py": "54413eda513b04fef8d2b3c03e889092fc13c4065bf9f3bac55220a8d4c214e4"
+  },
+  "log": ".delivery/evidence/DMTE-471/green.log",
+  "log_sha256": "fbc3c2d8275db0d5fcbd6933994414a2c08912fc71826c2a0feb07902ad2847f"
+}
