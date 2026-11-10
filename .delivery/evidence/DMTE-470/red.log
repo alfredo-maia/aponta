@@ -1,0 +1,185 @@
+/tmp/tmpw9hpfqdg/apps/web/src/pages/TicketDetailPage.tsx: classe de paleta fora do DS: teal-50
+FALHA: paleta fora do DS ou hex literal na aba Tickets (AC-01, DMTE-427).
+OK: nenhum hex literal ou classe de paleta fora do DS na aba Tickets (AC-01, DMTE-427).
+OK: nenhum hex literal ou classe de paleta fora do DS na aba Tickets (AC-01, DMTE-427).
+/tmp/tmpcfg42x5p/apps/web/src/components/tickets/TicketKanban.tsx: altura de controle fora da escala D6: h-[38px]
+FALHA: altura de controle ad hoc fora da escala D6 na aba Tickets (AC-02, DMTE-427).
+OK: alturas de controle seguem a escala D6 na aba Tickets (AC-02, DMTE-427).
+/tmp/tmp7vlsnyde/apps/web/src/pages/TicketDetailPage.tsx: found it
+FAIL
+OK
+.FFFF.FFFFF........................................................................................................F.FF.F.....FF......................
+======================================================================
+FAIL: test_delivery_absent_from_registry_is_bound_by_its_manifest (test_aponta_delivery.DeliveryGateTests.test_delivery_absent_from_registry_is_bound_by_its_manifest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix/scripts/test_aponta_delivery.py", line 468, in test_delivery_absent_from_registry_is_bound_by_its_manifest
+    self.assertNotIn('Delivery is absent from canonical registry.', self.check())
+AssertionError: 'Delivery is absent from canonical registry.' unexpectedly found in ['Evidence needs a full base SHA.', 'Changed files missing from delivery manifest: test_tool.py, tool.py', 'Manifest base_sha differs from the PR merge base.', 'Delivery is absent from canonical registry.']
+
+======================================================================
+FAIL: test_main_moving_does_not_require_a_manifest_commit (test_aponta_delivery.DeliveryGateTests.test_main_moving_does_not_require_a_manifest_commit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix/scripts/test_aponta_delivery.py", line 450, in test_main_moving_does_not_require_a_manifest_commit
+    self.assertEqual(self.check({'pull_request': self.pr(base=tip)}), [])
+AssertionError: Lists differ: ['GREEN did not pass.', 'GREEN source hash[133 chars]ry.'] != []
+
+First list contains 4 additional elements.
+First extra element 0:
+'GREEN did not pass.'
+
++ []
+- ['GREEN did not pass.',
+-  'GREEN source hashes differ from the reviewed sources.',
+-  'Manifest base_sha differs from the PR merge base.',
+-  'Delivery is absent from canonical registry.']
+
+======================================================================
+FAIL: test_manifest_needs_neither_base_sha_nor_changed_files (test_aponta_delivery.DeliveryGateTests.test_manifest_needs_neither_base_sha_nor_changed_files)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix/scripts/test_aponta_delivery.py", line 443, in test_manifest_needs_neither_base_sha_nor_changed_files
+    self.assertEqual(self.check(), [])
+AssertionError: Lists differ: ['Evidence needs a full base SHA.', 'Chang[159 chars]ry.'] != []
+
+First list contains 4 additional elements.
+First extra element 0:
+'Evidence needs a full base SHA.'
+
++ []
+- ['Evidence needs a full base SHA.',
+-  'Changed files missing from delivery manifest: test_tool.py, tool.py',
+-  'Manifest base_sha differs from the PR merge base.',
+-  'Delivery is absent from canonical registry.']
+
+======================================================================
+FAIL: test_merge_queue_validates_the_pr_head_tree (test_aponta_delivery.DeliveryGateTests.test_merge_queue_validates_the_pr_head_tree)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix/scripts/test_aponta_delivery.py", line 497, in test_merge_queue_validates_the_pr_head_tree
+    self.assertEqual(errors, [])
+AssertionError: Lists differ: ['Evidence needs a full base SHA.', 'Chang[159 chars]ry.'] != []
+
+First list contains 4 additional elements.
+First extra element 0:
+'Evidence needs a full base SHA.'
+
++ []
+- ['Evidence needs a full base SHA.',
+-  'Changed files missing from delivery manifest: test_tool.py, tool.py',
+-  'Manifest base_sha differs from the PR merge base.',
+-  'Delivery is absent from canonical registry.']
+
+======================================================================
+FAIL: test_source_changed_after_green_is_still_rejected (test_aponta_delivery.DeliveryGateTests.test_source_changed_after_green_is_still_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix/scripts/test_aponta_delivery.py", line 484, in test_source_changed_after_green_is_still_rejected
+    self.assertIn('GREEN source hashes differ from the reviewed sources.', self.check())
+AssertionError: 'GREEN source hashes differ from the reviewed sources.' not found in ['Evidence needs a full base SHA.', 'Changed files missing from delivery manifest: test_tool.py, tool.py', 'Manifest base_sha differs from the PR merge base.', 'Delivery is absent from canonical registry.']
+
+======================================================================
+FAIL: test_stale_event_base_does_not_inflate_the_delivery (test_aponta_delivery.DeliveryGateTests.test_stale_event_base_does_not_inflate_the_delivery)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix/scripts/test_aponta_delivery.py", line 456, in test_stale_event_base_does_not_inflate_the_delivery
+    self.assertEqual(self.check({'pull_request': self.pr(base=self.base)}), [])
+AssertionError: Lists differ: ['Evidence needs a full base SHA.', 'Chang[169 chars]ry.'] != []
+
+First list contains 4 additional elements.
+First extra element 0:
+'Evidence needs a full base SHA.'
+
++ []
+- ['Evidence needs a full base SHA.',
+-  'Changed files missing from delivery manifest: other.py, test_tool.py, '
+-  'tool.py',
+-  'Manifest base_sha differs from the PR merge base.',
+-  'Delivery is absent from canonical registry.']
+
+======================================================================
+FAIL: test_two_manifests_cannot_claim_the_same_identity (test_aponta_delivery.DeliveryGateTests.test_two_manifests_cannot_claim_the_same_identity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix/scripts/test_aponta_delivery.py", line 472, in test_two_manifests_cannot_claim_the_same_identity
+    self.assertTrue([e for e in self.check() if 'Duplicate canonical GitHub/Multica identity' in e])
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_ui_change_is_classified_from_the_diff_not_from_the_manifest (test_aponta_delivery.DeliveryGateTests.test_ui_change_is_classified_from_the_diff_not_from_the_manifest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix/scripts/test_aponta_delivery.py", line 465, in test_ui_change_is_classified_from_the_diff_not_from_the_manifest
+    self.assertIn('UI changes require a design system assessment.', self.check())
+AssertionError: 'UI changes require a design system assessment.' not found in ['GREEN did not pass.', 'GREEN source hashes differ from the reviewed sources.', 'Changed files missing from delivery manifest: apps/web/src/pages/Page.tsx', 'Delivery is absent from canonical registry.']
+
+======================================================================
+FAIL: test_undeclared_changed_file_is_not_an_error (test_aponta_delivery.DeliveryGateTests.test_undeclared_changed_file_is_not_an_error)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix/scripts/test_aponta_delivery.py", line 460, in test_undeclared_changed_file_is_not_an_error
+    self.assertEqual(self.check(), [])
+AssertionError: Lists differ: ['GREEN did not pass.', 'Changed files mis[85 chars]ry.'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'GREEN did not pass.'
+
++ []
+- ['GREEN did not pass.',
+-  'Changed files missing from delivery manifest: test_tool.py',
+-  'Delivery is absent from canonical registry.']
+
+======================================================================
+FAIL: test_governance_only_commit_carries_the_approval (test_publicar_qa.QaCarryTests.test_governance_only_commit_carries_the_approval)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix/scripts/test_publicar_qa.py", line 160, in test_governance_only_commit_carries_the_approval
+    self.assertEqual(self.carry(self.commit('manifest and docs only')), self.approved)
+AssertionError: None != 'd4ba27ab39eb454bf6c0544f64cb44c1a447e0dd'
+
+======================================================================
+FAIL: test_merging_main_without_touching_reviewed_files_carries (test_publicar_qa.QaCarryTests.test_merging_main_without_touching_reviewed_files_carries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix/scripts/test_publicar_qa.py", line 163, in test_merging_main_without_touching_reviewed_files_carries
+    self.assertEqual(self.carry(self.main_changes('other.py', 'x = 2\n')), self.approved)
+AssertionError: None != '5ed7c8e0553aebd0939d616e08ab8d18719b8311'
+
+======================================================================
+FAIL: test_most_recent_identical_approval_is_used (test_publicar_qa.QaCarryTests.test_most_recent_identical_approval_is_used)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix/scripts/test_publicar_qa.py", line 198, in test_most_recent_identical_approval_is_used
+    self.assertEqual(self.carry(self.commit('docs only')), second)
+AssertionError: None != 'b7c30ecb3e5dd99ac40a866abe69113f1654b50a'
+
+======================================================================
+FAIL: test_parent_comes_from_the_manifest_when_registry_has_no_entry (test_publicar_qa.QaCarryTests.test_parent_comes_from_the_manifest_when_registry_has_no_entry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix/scripts/test_publicar_qa.py", line 201, in test_parent_comes_from_the_manifest_when_registry_has_no_entry
+    self.assertEqual(parent_of(self.root, self.root / '.delivery/registry.json', 'DMTE-900'), self.PARENT)
+AssertionError: None != '01a17485-8de1-7e6d-950a-1e295fef336b'
+
+======================================================================
+FAIL: test_passes_with_a_successful_attestation_on_the_pr_head (test_publicar_qa.QaMergeQueueTests.test_passes_with_a_successful_attestation_on_the_pr_head)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix/scripts/test_publicar_qa.py", line 212, in test_passes_with_a_successful_attestation_on_the_pr_head
+    self.assertTrue(queue_verdict([{'context': 'Independent QA', 'state': 'success'}]))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_reads_the_pr_number_from_the_queue_ref (test_publicar_qa.QaMergeQueueTests.test_reads_the_pr_number_from_the_queue_ref)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-delivery-fix/scripts/test_publicar_qa.py", line 208, in test_reads_the_pr_number_from_the_queue_ref
+    self.assertEqual(pr_number('refs/heads/gh-readonly-queue/main/pr-163-d6a50d5aaa9a'), '163')
+AssertionError: None != '163'
+
+----------------------------------------------------------------------
+Ran 150 tests in 15.180s
+
+FAILED (failures=15)

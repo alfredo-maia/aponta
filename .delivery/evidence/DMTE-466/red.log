@@ -1,0 +1,92 @@
+test_approved_legacy_exception_checks_new_work_evidence (test_aponta_delivery.DeliveryTests.test_approved_legacy_exception_checks_new_work_evidence) ... ok
+test_arbitrary_error_is_not_red (test_aponta_delivery.DeliveryTests.test_arbitrary_error_is_not_red) ... ok
+test_behavioral_failure_is_red (test_aponta_delivery.DeliveryTests.test_behavioral_failure_is_red) ... ok
+test_criteria_must_exist_in_spec (test_aponta_delivery.DeliveryTests.test_criteria_must_exist_in_spec) ... ok
+test_criteria_require_tests (test_aponta_delivery.DeliveryTests.test_criteria_require_tests) ... ok
+test_cycle_command_prints_the_cycle_for_a_date (test_aponta_delivery.DeliveryTests.test_cycle_command_prints_the_cycle_for_a_date) ... ok
+test_cycle_is_computed_from_the_fortnight_anchor (test_aponta_delivery.DeliveryTests.test_cycle_is_computed_from_the_fortnight_anchor) ... ok
+test_duplicate_canonical_github_identity_rejected (test_aponta_delivery.DeliveryTests.test_duplicate_canonical_github_identity_rejected) ... ok
+test_foreign_repository_rejected (test_aponta_delivery.DeliveryTests.test_foreign_repository_rejected) ... ok
+test_green_for_other_source_rejected (test_aponta_delivery.DeliveryTests.test_green_for_other_source_rejected) ... ok
+test_invalid_uuid_rejected (test_aponta_delivery.DeliveryTests.test_invalid_uuid_rejected) ... ok
+test_irrelevant_ui_exemption_needs_reason (test_aponta_delivery.DeliveryTests.test_irrelevant_ui_exemption_needs_reason) ... ok
+test_legacy_approval_requires_canonical_issue_comment (test_aponta_delivery.DeliveryTests.test_legacy_approval_requires_canonical_issue_comment) ... ok
+test_legacy_exception_cannot_be_reused_for_another_delivery (test_aponta_delivery.DeliveryTests.test_legacy_exception_cannot_be_reused_for_another_delivery) ... ok
+test_legacy_exception_commit_must_be_in_current_history (test_aponta_delivery.DeliveryTests.test_legacy_exception_commit_must_be_in_current_history) ... ok
+test_legacy_exception_does_not_skip_evidence_for_new_changes (test_aponta_delivery.DeliveryTests.test_legacy_exception_does_not_skip_evidence_for_new_changes) ... ok
+test_legacy_exception_requires_full_commit_and_matching_base (test_aponta_delivery.DeliveryTests.test_legacy_exception_requires_full_commit_and_matching_base) ... ok
+test_manifest_cannot_use_epic_as_delivery (test_aponta_delivery.DeliveryTests.test_manifest_cannot_use_epic_as_delivery) ... ok
+test_manifest_canonical_binding_passes (test_aponta_delivery.DeliveryTests.test_manifest_canonical_binding_passes) ... ok
+test_manifest_cycle_must_match_registry (test_aponta_delivery.DeliveryTests.test_manifest_cycle_must_match_registry) ... ok
+test_manifest_tier_must_match_registry (test_aponta_delivery.DeliveryTests.test_manifest_tier_must_match_registry) ... ok
+test_mismatched_command_rejected (test_aponta_delivery.DeliveryTests.test_mismatched_command_rejected) ... ok
+test_missing_acceptance_coverage_rejected (test_aponta_delivery.DeliveryTests.test_missing_acceptance_coverage_rejected) ... ok
+test_new_ds_component_requires_story (test_aponta_delivery.DeliveryTests.test_new_ds_component_requires_story) ... ok
+test_passing_test_is_not_red (test_aponta_delivery.DeliveryTests.test_passing_test_is_not_red) ... ok
+test_pending_legacy_exception_is_blocked_even_without_evidence_check (test_aponta_delivery.DeliveryTests.test_pending_legacy_exception_is_blocked_even_without_evidence_check) ... ok
+test_pr_cannot_close_issue_before_delivery (test_aponta_delivery.DeliveryTests.test_pr_cannot_close_issue_before_delivery) ... ok
+test_pr_cannot_reference_different_primary (test_aponta_delivery.DeliveryTests.test_pr_cannot_reference_different_primary) ... ok
+test_pr_link_contract (test_aponta_delivery.DeliveryTests.test_pr_link_contract) ... ok
+test_production_behavior_cannot_silently_skip_tdd (test_aponta_delivery.DeliveryTests.test_production_behavior_cannot_silently_skip_tdd) ... ok
+test_registry_accepts_aligned_or_absent_cycle (test_aponta_delivery.DeliveryTests.test_registry_accepts_aligned_or_absent_cycle) ... ok
+test_registry_rejects_cycle_outside_the_automatic_cadence (test_aponta_delivery.DeliveryTests.test_registry_rejects_cycle_outside_the_automatic_cadence) ... ok
+test_reversed_time_rejected (test_aponta_delivery.DeliveryTests.test_reversed_time_rejected) ... ok
+test_secret_redaction (test_aponta_delivery.DeliveryTests.test_secret_redaction) ... ok
+test_setup_failure_cannot_hide_behind_assertion (test_aponta_delivery.DeliveryTests.test_setup_failure_cannot_hide_behind_assertion) ... ok
+test_setup_failure_is_not_red (test_aponta_delivery.DeliveryTests.test_setup_failure_is_not_red) ... ok
+test_spec_cannot_escape_checkout (test_aponta_delivery.DeliveryTests.test_spec_cannot_escape_checkout) ... ok
+test_tampered_log_rejected (test_aponta_delivery.DeliveryTests.test_tampered_log_rejected) ... ok
+test_tier_two_requires_spec (test_aponta_delivery.DeliveryTests.test_tier_two_requires_spec) ... ok
+test_ui_requires_ds_assessment (test_aponta_delivery.DeliveryTests.test_ui_requires_ds_assessment) ... ok
+test_valid_evidence_pair (test_aponta_delivery.DeliveryTests.test_valid_evidence_pair) ... ok
+test_valid_identity (test_aponta_delivery.DeliveryTests.test_valid_identity) ... ok
+test_writer_lock_rejects_competing_process (test_aponta_delivery.DeliveryTests.test_writer_lock_rejects_competing_process) ... ok
+test_evidence_on_ancestor_base_is_accepted_when_slice_files_did_not_move (test_aponta_delivery.EvidenceBaseMovedTests.test_evidence_on_ancestor_base_is_accepted_when_slice_files_did_not_move) ... ok
+test_evidence_on_ancestor_base_is_rejected_when_a_slice_file_moved (test_aponta_delivery.EvidenceBaseMovedTests.test_evidence_on_ancestor_base_is_rejected_when_a_slice_file_moved) ... ok
+test_evidence_on_descendant_of_manifest_base_is_rejected (test_aponta_delivery.EvidenceBaseMovedTests.test_evidence_on_descendant_of_manifest_base_is_rejected) ... ok
+test_evidence_on_unrelated_base_is_rejected (test_aponta_delivery.EvidenceBaseMovedTests.test_evidence_on_unrelated_base_is_rejected) ... ok
+test_file_deleted_by_the_slice_but_changed_on_main_is_rejected (test_aponta_delivery.EvidenceBaseMovedTests.test_file_deleted_by_the_slice_but_changed_on_main_is_rejected) ... ok
+test_governance_file_changed_on_both_sides_does_not_invalidate_evidence (test_aponta_delivery.EvidenceBaseMovedTests.test_governance_file_changed_on_both_sides_does_not_invalidate_evidence) ... ok
+test_slice_file_renamed_on_main_is_rejected (test_aponta_delivery.EvidenceBaseMovedTests.test_slice_file_renamed_on_main_is_rejected) ... ok
+test_slice_file_with_non_ascii_name_changed_on_main_is_rejected (test_aponta_delivery.EvidenceBaseMovedTests.test_slice_file_with_non_ascii_name_changed_on_main_is_rejected) ... ok
+test_merge_group_event_resolves_pr_via_fetch_pr (test_aponta_delivery.ResolvePrFromEventTests.test_merge_group_event_resolves_pr_via_fetch_pr) ... FAIL
+test_merge_group_with_unparseable_head_ref_reports_unresolved (test_aponta_delivery.ResolvePrFromEventTests.test_merge_group_with_unparseable_head_ref_reports_unresolved) ... FAIL
+test_no_event_returns_empty (test_aponta_delivery.ResolvePrFromEventTests.test_no_event_returns_empty) ... ok
+test_pull_request_event_reads_body_and_shas_directly (test_aponta_delivery.ResolvePrFromEventTests.test_pull_request_event_reads_body_and_shas_directly) ... ERROR
+
+======================================================================
+ERROR: test_pull_request_event_reads_body_and_shas_directly (test_aponta_delivery.ResolvePrFromEventTests.test_pull_request_event_reads_body_and_shas_directly)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/repos/aponta/scripts/test_aponta_delivery.py", line 387, in test_pull_request_event_reads_body_and_shas_directly
+    self.assertEqual((pr['body'], base, head, merge_group), ('Aponta-Delivery: DMTE-1', 'a' * 40, 'b' * 40, None))
+                      ~~^^^^^^^^
+KeyError: 'body'
+
+======================================================================
+FAIL: test_merge_group_event_resolves_pr_via_fetch_pr (test_aponta_delivery.ResolvePrFromEventTests.test_merge_group_event_resolves_pr_via_fetch_pr)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/repos/aponta/scripts/test_aponta_delivery.py", line 399, in test_merge_group_event_resolves_pr_via_fetch_pr
+    self.assertEqual(seen_numbers, ['7'])
+AssertionError: Lists differ: [] != ['7']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'7'
+
+- []
++ ['7']
+
+======================================================================
+FAIL: test_merge_group_with_unparseable_head_ref_reports_unresolved (test_aponta_delivery.ResolvePrFromEventTests.test_merge_group_with_unparseable_head_ref_reports_unresolved)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/repos/aponta/scripts/test_aponta_delivery.py", line 407, in test_merge_group_with_unparseable_head_ref_reports_unresolved
+    self.assertEqual(merge_group, event['merge_group'])
+AssertionError: None != {'head_ref': 'refs/heads/some-unexpected-[59 chars]fff'}
+
+----------------------------------------------------------------------
+Ran 55 tests in 2.433s
+
+FAILED (failures=2, errors=1)

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "repository": "alfredo-maia/aponta",
+  "repository": "dmrepositorio/aponta",
   "cycles": [
     {
       "id": "2026-10-26/2026-11-08",
@@ -15,7 +15,7 @@
   "deliveries": {
     "DMTE-427": {
       "delivery": "DMTE-427",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 120,
       "multica_id": "01a1a2ef-0513-7170-8abc-490e1d79dbfa",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-427",
@@ -29,7 +29,7 @@
     },
     "DMTE-159": {
       "delivery": "DMTE-159",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 92,
       "multica_id": "01a17485-8de1-7e6d-950a-1e295fef336b",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-159",
@@ -43,7 +43,7 @@
     },
     "DMTE-78": {
       "delivery": "DMTE-78",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 93,
       "multica_id": "01a15227-26cc-719a-810c-e7e86734481b",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-78",
@@ -57,7 +57,7 @@
     },
     "DMTE-84": {
       "delivery": "DMTE-84",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 94,
       "multica_id": "01a153ba-593c-710a-9a2d-f9c4e3e1cbea",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-84",
@@ -71,7 +71,7 @@
     },
     "DMTE-46": {
       "delivery": "DMTE-46",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 95,
       "multica_id": "01a13ade-e4c8-7c8b-a7d1-169269cac86a",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-46",
@@ -85,7 +85,7 @@
     },
     "DMTE-79": {
       "delivery": "DMTE-79",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 96,
       "multica_id": "01a1522b-6a15-711f-a10c-01c67c6e266f",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-79",
@@ -99,7 +99,7 @@
     },
     "DMTE-81": {
       "delivery": "DMTE-81",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 97,
       "multica_id": "01a1522c-4acd-786e-af34-54d28125a3f2",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-81",
@@ -113,7 +113,7 @@
     },
     "DMTE-82": {
       "delivery": "DMTE-82",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 98,
       "multica_id": "01a153ba-34d1-7cf8-8e9d-488760807cdc",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-82",
@@ -127,7 +127,7 @@
     },
     "DMTE-83": {
       "delivery": "DMTE-83",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 99,
       "multica_id": "01a153ba-486f-73dd-a932-c1275a36bcf6",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-83",
@@ -141,7 +141,7 @@
     },
     "DMTE-85": {
       "delivery": "DMTE-85",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 100,
       "multica_id": "01a153ba-68c5-79fb-a345-479b93c12b11",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-85",
@@ -155,7 +155,7 @@
     },
     "DMTE-86": {
       "delivery": "DMTE-86",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 101,
       "multica_id": "01a153ba-795c-76ac-91ed-31805cd1a354",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-86",
@@ -169,7 +169,7 @@
     },
     "DMTE-17": {
       "delivery": "DMTE-17",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 47,
       "multica_id": "01a12074-4ead-7a24-af8c-0139108b4394",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-17",
@@ -183,7 +183,7 @@
     },
     "DMTE-19": {
       "delivery": "DMTE-19",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 45,
       "multica_id": "01a12074-50dd-72cc-9650-087694cde49c",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-19",
@@ -197,7 +197,7 @@
     },
     "DMTE-15": {
       "delivery": "DMTE-15",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 59,
       "multica_id": "01a12074-4c9f-727d-9195-345ca3163ba6",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-15",
@@ -211,7 +211,7 @@
     },
     "DMTE-160": {
       "delivery": "DMTE-160",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 60,
       "multica_id": "01a17492-3f3a-7589-b153-2078f6eafb30",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-160",
@@ -225,7 +225,7 @@
     },
     "DMTE-90": {
       "delivery": "DMTE-90",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 102,
       "multica_id": "01a153ef-a152-77d5-982e-ab2ff57678c4",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-90",
@@ -239,7 +239,7 @@
     },
     "DMTE-104": {
       "delivery": "DMTE-104",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 103,
       "multica_id": "01a15f63-6964-72a3-8e17-8579d8431869",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-104",
@@ -253,7 +253,7 @@
     },
     "DMTE-105": {
       "delivery": "DMTE-105",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 104,
       "multica_id": "01a15f63-6a61-7735-9f40-6f00d17b5a3f",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-105",
@@ -267,7 +267,7 @@
     },
     "DMTE-106": {
       "delivery": "DMTE-106",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 105,
       "multica_id": "01a15f63-6b3f-7938-837e-dc644f3f65cc",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-106",
@@ -281,7 +281,7 @@
     },
     "DMTE-107": {
       "delivery": "DMTE-107",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 106,
       "multica_id": "01a15f63-6c04-76dc-8f77-b5cb48ad2fd3",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-107",
@@ -295,7 +295,7 @@
     },
     "DMTE-299": {
       "delivery": "DMTE-299",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 110,
       "multica_id": "01a1928c-58f1-7c5c-8387-be6799222a6b",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-299",
@@ -309,7 +309,7 @@
     },
     "DMTE-455": {
       "delivery": "DMTE-455",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 145,
       "multica_id": "01a1bbe1-ab78-757f-aeaa-f86044dd1069",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-455",
@@ -323,7 +323,7 @@
     },
     "DMTE-456": {
       "delivery": "DMTE-456",
-      "repository": "alfredo-maia/aponta",
+      "repository": "dmrepositorio/aponta",
       "github_issue": 147,
       "multica_id": "01a1bc30-4b2a-7251-8509-7e21475a663f",
       "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-456",
@@ -335,19 +335,19 @@
       "title": "Catálogo de atendimento: seed idempotente",
       "note": "Tier 1 (dados + script). Execução em produção pelo usuário."
     },
-    "DMTE-457": {
-      "delivery": "DMTE-457",
-      "repository": "alfredo-maia/aponta",
-      "github_issue": 157,
-      "multica_id": "01a1be12-3caf-77b5-9219-fb133dbee7cb",
-      "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-457",
+    "DMTE-466": {
+      "delivery": "DMTE-466",
+      "repository": "dmrepositorio/aponta",
+      "github_issue": 162,
+      "multica_id": "01a1c0d4-d758-718a-8322-781d5684a4d6",
+      "multica_url": "https://multica.dmtecnologia.cloud/dm-tecnologia/issues/DMTE-466",
       "kind": "delivery",
-      "tier": 1,
+      "tier": 2,
       "state": "Em implementação",
       "cycle": "2026-10-26/2026-11-08",
       "epic": null,
-      "title": "Nav bar: abrir nova aba ou focar aba existente ao selecionar opção (exceto Tickets)",
-      "note": "Tier 1, bug pequeno; Architect dispensado. Pendente decisão do Alfredo: botão Novo Ticket fora do escopo."
+      "title": "CI/CD: merge queue, CD aguarda CI, suporte merge_group",
+      "note": "Transferência de repo para dmrepositorio + merge queue nativo habilitados fora do fluxo de manifest (ação de infra pelo operador). Escopo deste manifest: workflows YAML + scripts/aponta_delivery.py, scripts/publicar_qa.py, scripts/test_aponta_delivery.py."
     }
-  }
+    }
 }

@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "delivery": "DMTE-466",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 162,
+  "multica_id": "01a1c0d4-d758-718a-8322-781d5684a4d6",
+  "cycle": "2026-10-26/2026-11-08",
+  "tier": 2,
+  "base_sha": "d6a50d5aaa9a8b5fc266b8d6d6acec1c75c52588",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "resolve_pr_from_event com evento pull_request retorna body/base/head exatamente como no payload original",
+      "tests": [
+        "ResolvePrFromEventTests.test_pull_request_event_reads_body_and_shas_directly"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "resolve_pr_from_event com evento merge_group e fetch_pr mockado extrai o numero da PR do head_ref e retorna os dados buscados",
+      "tests": [
+        "ResolvePrFromEventTests.test_merge_group_event_resolves_pr_via_fetch_pr"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "resolve_pr_from_event com head_ref de merge_group fora do formato esperado retorna falha tratavel, sem excecao nao capturada",
+      "tests": [
+        "ResolvePrFromEventTests.test_merge_group_with_unparseable_head_ref_reports_unresolved"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-466.md",
+  "changed_files": [
+    ".delivery/deliveries/DMTE-466.json",
+    ".delivery/registry.json",
+    ".github/workflows/ci.yml",
+    ".github/workflows/deploy.yml",
+    ".github/workflows/delivery.yml",
+    "scripts/aponta_delivery.py",
+    "scripts/publicar_qa.py",
+    "scripts/test_aponta_delivery.py",
+    "docs/delivery/specs/DMTE-466.md",
+    "AGENTS.md",
+    "docs/agents/issue-tracker.md",
+    "docs/delivery/WORKFLOW.md",
+    ".delivery/deliveries/DMTE-106.json",
+    ".delivery/deliveries/DMTE-159.json",
+    ".delivery/deliveries/DMTE-299.json",
+    ".delivery/deliveries/DMTE-427.json",
+    ".delivery/deliveries/DMTE-455.json",
+    ".delivery/deliveries/DMTE-456.json",
+    ".delivery/deliveries/DMTE-78.json",
+    ".delivery/deliveries/DMTE-84.json"
+  ],
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-466/red.json",
+    "green": ".delivery/evidence/DMTE-466/green.json"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Infra de CI/CD (YAML + scripts Python); sem TSX nem componente DS."
+  }
+}
