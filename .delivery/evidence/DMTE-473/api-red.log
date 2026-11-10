@@ -1,0 +1,183 @@
+
+> nx run api:test --testPathPatterns (feature-flags|health/version)
+
+api: [0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m api [39m[27m[0m [2msrc/health/[22m[1mversion.controller.spec.ts[22m
+api: [1m[31m  [1m● [22m[1mVersionController › answers the commit the image was built from[39m[22m
+api:     [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+api:     [32m- Expected  - 1[39m
+api:     [31m+ Received  + 1[39m
+api:     [2m  Object {[22m
+api:     [32m-   "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",[39m
+api:     [31m+   "commit": "",[39m
+api:     [2m  }[22m
+api: [2m    [0m [90m 10 |[39m   it([32m'answers the commit the image was built from'[39m[33m,[39m () [33m=>[39m {[22m
+api: [2m     [90m 11 |[39m     process[33m.[39menv[[32m'APONTA_COMMIT'[39m] [33m=[39m [32m'a'[39m[33m.[39mrepeat([35m40[39m)[33m;[39m[22m
+api: [2m    [31m[1m>[22m[2m[39m[90m 12 |[39m     expect([36mnew[39m [33mVersionController[39m()[33m.[39mversion())[33m.[39mtoEqual({ commit[33m:[39m [32m'a'[39m[33m.[39mrepeat([35m40[39m) })[33m;[39m[22m
+api: [2m     [90m    |[39m                                               [31m[1m^[22m[2m[39m[22m
+api: [2m     [90m 13 |[39m   })[33m;[39m[22m
+api: [2m     [90m 14 |[39m[22m
+api: [2m     [90m 15 |[39m   it([32m'answers "unknown" for a build without a commit'[39m[33m,[39m () [33m=>[39m {[0m[22m
+api: [2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/health/version.controller.spec.ts[39m[0m[2m:12:47)[22m[2m[22m
+api: [1m[31m  [1m● [22m[1mVersionController › answers "unknown" for a build without a commit[39m[22m
+api:     [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+api:     [32m- Expected  - 1[39m
+api:     [31m+ Received  + 1[39m
+api:     [2m  Object {[22m
+api:     [32m-   "commit": "unknown",[39m
+api:     [31m+   "commit": "",[39m
+api:     [2m  }[22m
+api: [2m    [0m [90m 15 |[39m   it([32m'answers "unknown" for a build without a commit'[39m[33m,[39m () [33m=>[39m {[22m
+api: [2m     [90m 16 |[39m     [36mdelete[39m process[33m.[39menv[[32m'APONTA_COMMIT'[39m][33m;[39m[22m
+api: [2m    [31m[1m>[22m[2m[39m[90m 17 |[39m     expect([36mnew[39m [33mVersionController[39m()[33m.[39mversion())[33m.[39mtoEqual({ commit[33m:[39m [32m'unknown'[39m })[33m;[39m[22m
+api: [2m     [90m    |[39m                                               [31m[1m^[22m[2m[39m[22m
+api: [2m     [90m 18 |[39m   })[33m;[39m[22m
+api: [2m     [90m 19 |[39m })[33m;[39m[22m
+api: [2m     [90m 20 |[39m[0m[22m
+api: [2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/health/version.controller.spec.ts[39m[0m[2m:17:47)[22m[2m[22m
+api: [0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m api [39m[27m[0m [2msrc/feature-flags/[22m[1mfeature-flags.spec.ts[22m
+api: [1m[31m  [1m● [22m[1mfeature flags › resolveFlags › uses the default when the environment says nothing[39m[22m
+api:     [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+api:     [32m- Expected  - 3[39m
+api:     [31m+ Received  + 1[39m
+api:     [32m- Object {[39m
+api:     [32m-   "new-board": false,[39m
+api:     [32m- }[39m
+api:     [31m+ Object {}[39m
+api: [2m    [0m [90m 14 |[39m   describe([32m'resolveFlags'[39m[33m,[39m () [33m=>[39m {[22m
+api: [2m     [90m 15 |[39m     it([32m'uses the default when the environment says nothing'[39m[33m,[39m () [33m=>[39m {[22m
+api: [2m    [31m[1m>[22m[2m[39m[90m 16 |[39m       expect(resolveFlags([flag()][33m,[39m {}))[33m.[39mtoEqual({ [32m'new-board'[39m[33m:[39m [36mfalse[39m })[33m;[39m[22m
+api: [2m     [90m    |[39m                                          [31m[1m^[22m[2m[39m[22m
+api: [2m     [90m 17 |[39m     })[33m;[39m[22m
+api: [2m     [90m 18 |[39m[22m
+api: [2m     [90m 19 |[39m     it([32m'lets the environment turn a flag on or off'[39m[33m,[39m () [33m=>[39m {[0m[22m
+api: [2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/feature-flags/feature-flags.spec.ts[39m[0m[2m:16:42)[22m[2m[22m
+api: [1m[31m  [1m● [22m[1mfeature flags › resolveFlags › lets the environment turn a flag on or off[39m[22m
+api:     [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+api:     [32m- Expected  - 3[39m
+api:     [31m+ Received  + 1[39m
+api:     [32m- Object {[39m
+api:     [32m-   "new-board": true,[39m
+api:     [32m- }[39m
+api:     [31m+ Object {}[39m
+api: [2m    [0m [90m 18 |[39m[22m
+api: [2m     [90m 19 |[39m     it([32m'lets the environment turn a flag on or off'[39m[33m,[39m () [33m=>[39m {[22m
+api: [2m    [31m[1m>[22m[2m[39m[90m 20 |[39m       expect(resolveFlags([flag()][33m,[39m { [33mFEATURE_NEW_BOARD[39m[33m:[39m [32m'true'[39m }))[33m.[39mtoEqual({ [32m'new-board'[39m[33m:[39m [36mtrue[39m })[33m;[39m[22m
+api: [2m     [90m    |[39m                                                                     [31m[1m^[22m[2m[39m[22m
+api: [2m     [90m 21 |[39m       expect(resolveFlags([flag({ defaultValue[33m:[39m [36mtrue[39m })][33m,[39m { [33mFEATURE_NEW_BOARD[39m[33m:[39m [32m'false'[39m }))[33m.[39mtoEqual({[22m
+api: [2m     [90m 22 |[39m         [32m'new-board'[39m[33m:[39m [36mfalse[39m[33m,[39m[22m
+api: [2m     [90m 23 |[39m       })[33m;[39m[0m[22m
+api: [2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/feature-flags/feature-flags.spec.ts[39m[0m[2m:20:69)[22m[2m[22m
+api: [1m[31m  [1m● [22m[1mfeature flags › resolveFlags › ignores a value that is neither true nor false[39m[22m
+api:     [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+api:     [32m- Expected  - 3[39m
+api:     [31m+ Received  + 1[39m
+api:     [32m- Object {[39m
+api:     [32m-   "new-board": true,[39m
+api:     [32m- }[39m
+api:     [31m+ Object {}[39m
+api: [2m    [0m [90m 25 |[39m[22m
+api: [2m     [90m 26 |[39m     it([32m'ignores a value that is neither true nor false'[39m[33m,[39m () [33m=>[39m {[22m
+api: [2m    [31m[1m>[22m[2m[39m[90m 27 |[39m       expect(resolveFlags([flag({ defaultValue[33m:[39m [36mtrue[39m })][33m,[39m { [33mFEATURE_NEW_BOARD[39m[33m:[39m [32m'yes'[39m }))[33m.[39mtoEqual({[22m
+api: [2m     [90m    |[39m                                                                                          [31m[1m^[22m[2m[39m[22m
+api: [2m     [90m 28 |[39m         [32m'new-board'[39m[33m:[39m [36mtrue[39m[33m,[39m[22m
+api: [2m     [90m 29 |[39m       })[33m;[39m[22m
+api: [2m     [90m 30 |[39m     })[33m;[39m[0m[22m
+api: [2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/feature-flags/feature-flags.spec.ts[39m[0m[2m:27:90)[22m[2m[22m
+api: [1m[31m  [1m● [22m[1mfeature flags › resolveFlags › ignores environment variables of flags that are not registered[39m[22m
+api:     [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+api:     [32m- Expected  - 3[39m
+api:     [31m+ Received  + 1[39m
+api:     [32m- Object {[39m
+api:     [32m-   "new-board": false,[39m
+api:     [32m- }[39m
+api:     [31m+ Object {}[39m
+api: [2m    [0m [90m 31 |[39m[22m
+api: [2m     [90m 32 |[39m     it([32m'ignores environment variables of flags that are not registered'[39m[33m,[39m () [33m=>[39m {[22m
+api: [2m    [31m[1m>[22m[2m[39m[90m 33 |[39m       expect(resolveFlags([flag()][33m,[39m { [33mFEATURE_OTHER[39m[33m:[39m [32m'true'[39m }))[33m.[39mtoEqual({ [32m'new-board'[39m[33m:[39m [36mfalse[39m })[33m;[39m[22m
+api: [2m     [90m    |[39m                                                                 [31m[1m^[22m[2m[39m[22m
+api: [2m     [90m 34 |[39m     })[33m;[39m[22m
+api: [2m     [90m 35 |[39m   })[33m;[39m[22m
+api: [2m     [90m 36 |[39m[0m[22m
+api: [2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/feature-flags/feature-flags.spec.ts[39m[0m[2m:33:65)[22m[2m[22m
+api: [1m[31m  [1m● [22m[1mfeature flags › flagProblems › reports a flag past its removal date[39m[22m
+api:     [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+api:     [32m- Expected  - 3[39m
+api:     [31m+ Received  + 1[39m
+api:     [32m- Array [[39m
+api:     [32m-   "new-board: passou da data de remoção (2026-11-09)",[39m
+api:     [32m- ][39m
+api:     [31m+ Array [][39m
+api: [2m    [0m [90m 43 |[39m[22m
+api: [2m     [90m 44 |[39m     it([32m'reports a flag past its removal date'[39m[33m,[39m () [33m=>[39m {[22m
+api: [2m    [31m[1m>[22m[2m[39m[90m 45 |[39m       expect(flagProblems([flag({ removeBy[33m:[39m [32m'2026-11-09'[39m })][33m,[39m today))[33m.[39mtoEqual([[22m
+api: [2m     [90m    |[39m                                                                       [31m[1m^[22m[2m[39m[22m
+api: [2m     [90m 46 |[39m         [32m'new-board: passou da data de remoção (2026-11-09)'[39m[33m,[39m[22m
+api: [2m     [90m 47 |[39m       ])[33m;[39m[22m
+api: [2m     [90m 48 |[39m     })[33m;[39m[0m[22m
+api: [2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/feature-flags/feature-flags.spec.ts[39m[0m[2m:45:71)[22m[2m[22m
+api: [1m[31m  [1m● [22m[1mfeature flags › flagProblems › reports a flag without owner or description, an invalid key and an invalid date[39m[22m
+api:     [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+api:     [32m- Expected  - 5[39m
+api:     [31m+ Received  + 1[39m
+api:     [32m- Array [[39m
+api:     [32m-   "new-board: sem responsável ou descrição",[39m
+api:     [32m-   "Bad_Key: chave fora do padrão kebab-case",[39m
+api:     [32m-   "other: data de remoção inválida (soon)",[39m
+api:     [32m- ][39m
+api:     [31m+ Array [][39m
+api: [2m    [0m [90m 53 |[39m         today[33m,[39m[22m
+api: [2m     [90m 54 |[39m       )[33m;[39m[22m
+api: [2m    [31m[1m>[22m[2m[39m[90m 55 |[39m       expect(problems)[33m.[39mtoEqual([[22m
+api: [2m     [90m    |[39m                        [31m[1m^[22m[2m[39m[22m
+api: [2m     [90m 56 |[39m         [32m'new-board: sem responsável ou descrição'[39m[33m,[39m[22m
+api: [2m     [90m 57 |[39m         [32m'Bad_Key: chave fora do padrão kebab-case'[39m[33m,[39m[22m
+api: [2m     [90m 58 |[39m         [32m'other: data de remoção inválida (soon)'[39m[33m,[39m[0m[22m
+api: [2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/feature-flags/feature-flags.spec.ts[39m[0m[2m:55:24)[22m[2m[22m
+api: [1m[31m  [1m● [22m[1mfeature flags › flagProblems › reports a key registered twice[39m[22m
+api:     [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+api:     [32m- Expected  - 3[39m
+api:     [31m+ Received  + 1[39m
+api:     [32m- Array [[39m
+api:     [32m-   "new-board: chave duplicada",[39m
+api:     [32m- ][39m
+api:     [31m+ Array [][39m
+api: [2m    [0m [90m 61 |[39m[22m
+api: [2m     [90m 62 |[39m     it([32m'reports a key registered twice'[39m[33m,[39m () [33m=>[39m {[22m
+api: [2m    [31m[1m>[22m[2m[39m[90m 63 |[39m       expect(flagProblems([flag()[33m,[39m flag()][33m,[39m today))[33m.[39mtoEqual([[32m'new-board: chave duplicada'[39m])[33m;[39m[22m
+api: [2m     [90m    |[39m                                                     [31m[1m^[22m[2m[39m[22m
+api: [2m     [90m 64 |[39m     })[33m;[39m[22m
+api: [2m     [90m 65 |[39m[22m
+api: [2m     [90m 66 |[39m     it([32m'the registered flags of this build have no problems today'[39m[33m,[39m () [33m=>[39m {[0m[22m
+api: [2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/feature-flags/feature-flags.spec.ts[39m[0m[2m:63:53)[22m[2m[22m
+api: [1m[31m  [1m● [22m[1mfeature flags › FeatureFlagsController › answers the resolved value of every registered flag[39m[22m
+api:     [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+api:     [32m- Expected  - 3[39m
+api:     [31m+ Received  + 1[39m
+api:     [32m- Object {[39m
+api:     [32m-   "new-board": true,[39m
+api:     [32m- }[39m
+api:     [31m+ Object {}[39m
+api: [2m    [0m [90m 72 |[39m     it([32m'answers the resolved value of every registered flag'[39m[33m,[39m () [33m=>[39m {[22m
+api: [2m     [90m 73 |[39m       [36mconst[39m controller [33m=[39m [36mnew[39m [33mFeatureFlagsController[39m([flag()][33m,[39m { [33mFEATURE_NEW_BOARD[39m[33m:[39m [32m'true'[39m })[33m;[39m[22m
+api: [2m    [31m[1m>[22m[2m[39m[90m 74 |[39m       expect(controller[33m.[39mlist())[33m.[39mtoEqual({ [32m'new-board'[39m[33m:[39m [36mtrue[39m })[33m;[39m[22m
+api: [2m     [90m    |[39m                                 [31m[1m^[22m[2m[39m[22m
+api: [2m     [90m 75 |[39m     })[33m;[39m[22m
+api: [2m     [90m 76 |[39m   })[33m;[39m[22m
+api: [2m     [90m 77 |[39m })[33m;[39m[0m[22m
+api: [2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/feature-flags/feature-flags.spec.ts[39m[0m[2m:74:33)[22m[2m[22m
+api: [1mTest Suites: [22m[1m[31m2 failed[39m[22m, 2 total
+api: [1mTests:       [22m[1m[31m10 failed[39m[22m, [1m[32m2 passed[39m[22m, 12 total
+api: [1mSnapshots:   [22m0 total
+api: [1mTime:[22m        1.243 s, estimated 2 s
+api: [2mRan all test suites[22m[2m matching [22m(feature-flags|health/version)[2m.[22m
+
+
+
+ NX   Running target test for project api failed
+
+Failed tasks:
+
+- api:test
+
+Hint: run the command with --verbose for more details.
+

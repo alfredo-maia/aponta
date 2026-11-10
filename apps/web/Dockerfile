@@ -74,6 +74,9 @@ FROM nginx:1.27-alpine AS production
 ENV NGINX_ENVSUBST_FILTER=API_PORT
 COPY apps/web/nginx.conf /etc/nginx/templates/default.conf.template
 COPY --from=build /workspace/dist/apps/web /usr/share/nginx/html
+# Commit de que esta imagem foi construída; o deploy confere /version.json contra o commit esperado.
+ARG APONTA_COMMIT=unknown
+RUN printf '{"commit":"%s"}\n' "${APONTA_COMMIT}" > /usr/share/nginx/html/version.json
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget -qO- http://127.0.0.1:3000/ || exit 1

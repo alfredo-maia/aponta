@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-10T23:28:13.103939+00:00",
+  "finished_at": "2026-11-10T23:28:22.104741+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "--root",
+    "apps/web",
+    "src/hooks/useFeatureFlag.test.tsx"
+  ],
+  "base_sha": "8f29c1f3beb85a0295ed6f4abedaf6abb9c98673",
+  "head_sha": "1ca046452043a48f85d7be58d0a97b9be665e84a",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/hooks/useFeatureFlag.test.tsx": "a75b3ff4071574c2c53f3b49218cfbaecb715094f8ca4cbfea357f6319131230"
+  },
+  "criteria": [
+    "AC-07"
+  ],
+  "source_hashes": {
+    "apps/api/src/feature-flags/feature-flags.controller.ts": "111d904a72602f18db986aa48d497207672550bc107482afb4e8286f1dccffc8",
+    "apps/api/src/feature-flags/feature-flags.spec.ts": "65d750003b158a563cfe7695384cb1399acc4b838b9d3ded1961ece55b29b086",
+    "apps/api/src/feature-flags/feature-flags.ts": "708fe334fdcfd06cdc7616bda67b4ec482919924e85fabf57edba4ef387e0ec2",
+    "apps/api/src/health/version.controller.spec.ts": "977b21f2221c0e70cee0916cc267fa7eaad91bb683c1164716a94636e0f65065",
+    "apps/api/src/health/version.controller.ts": "b370d13ab4b36a9eb80b30bf2fefaebaa01ee6551f5c739d890a0aeef4578dec",
+    "apps/web/src/hooks/useFeatureFlag.test.tsx": "a75b3ff4071574c2c53f3b49218cfbaecb715094f8ca4cbfea357f6319131230",
+    "apps/web/src/hooks/useFeatureFlag.ts": "fda92c73c1670c086e9989416f1f5f5f650cdba6a38fc418949a3ee9497d18c7",
+    "scripts/aponta_release.py": "7870cb0c1a0d2968fc544d28ac2c0df142253c933eafb3141e1006bd4f3e01f4",
+    "scripts/test_aponta_release.py": "913a914d4bc15c246634aa85c394879662e24c8d4d3f6d6b7abac81fef0bd56b"
+  },
+  "log": ".delivery/evidence/DMTE-473/web-red.log",
+  "log_sha256": "fff2b8b0ccc9a58b8e2fb77e4d50c4729a13aa454640b3d1cd9ade2875210931"
+}

@@ -128,6 +128,11 @@ ENV DATABASE_URL="postgresql://user:pass@localhost:5432/db?schema=public"
 RUN npx --no-install prisma generate --schema=./prisma/schema.prisma --config=./prisma.config.ts
 ENV DATABASE_URL=""
 
+# Commit de que esta imagem foi construída; GET /api/version o devolve e o deploy o confere.
+# Fica no fim para não invalidar o cache das camadas acima a cada commit.
+ARG APONTA_COMMIT=unknown
+ENV APONTA_COMMIT=${APONTA_COMMIT}
+
 USER aponta
 
 EXPOSE 3001

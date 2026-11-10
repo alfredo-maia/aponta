@@ -1,0 +1,92 @@
+
+ RUN  v4.1.11 /home/hermes/multica/aponta-cicd/apps/web
+
+ ❯ |web| src/hooks/useFeatureFlag.test.tsx (3 tests | 3 failed) 3084ms
+     × is on when the API says the flag is on 1056ms
+     × is off for a flag the API does not know 1009ms
+     × is off while loading and when the API fails 1010ms
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  20:28:17
+   Duration  4.51s (transform 134ms, setup 167ms, import 357ms, tests 3.08s, environment 650ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/hooks/useFeatureFlag.test.tsx > useFeatureFlag > is on when the API says the flag is on
+AssertionError: expected false to be true // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/hooks/useFeatureFlag.test.tsx:24:48
+     22|     vi.mocked(api.get).mockResolvedValueOnce({ data: { 'new-board': tr…
+     23|     const { result } = renderHook(() => useFeatureFlag('new-board'), {…
+     24|     await waitFor(() => expect(result.current).toBe(true));
+       |                                                ^
+     25|     expect(api.get).toHaveBeenCalledWith('/feature-flags');
+     26|   });
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |web| src/hooks/useFeatureFlag.test.tsx > useFeatureFlag > is off for a flag the API does not know
+AssertionError: expected "vi.fn()" to be called at least once
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ src/hooks/useFeatureFlag.test.tsx:31:41
+     29|     vi.mocked(api.get).mockResolvedValueOnce({ data: { 'new-board': tr…
+     30|     const { result } = renderHook(() => useFeatureFlag('other'), { wra…
+     31|     await waitFor(() => expect(api.get).toHaveBeenCalled());
+       |                                         ^
+     32|     expect(result.current).toBe(false);
+     33|   });
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |web| src/hooks/useFeatureFlag.test.tsx > useFeatureFlag > is off while loading and when the API fails
+AssertionError: expected "vi.fn()" to be called at least once
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ src/hooks/useFeatureFlag.test.tsx:39:41
+     37|     const { result } = renderHook(() => useFeatureFlag('new-board'), {…
+     38|     expect(result.current).toBe(false);
+     39|     await waitFor(() => expect(api.get).toHaveBeenCalled());
+       |                                         ^
+     40|     expect(result.current).toBe(false);
+     41|   });
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
