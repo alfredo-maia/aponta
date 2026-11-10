@@ -225,6 +225,18 @@ def mark_deployed(home: Path, environment: str, sha: str) -> None:
     path.write_text(json.dumps({'sha': sha, 'at': now()}) + '\n')
 
 
+def prune(home: Path, keep: int = 5) -> None:
+    """Drop exported trees and images of old commits; never the ones deployed in an environment."""
+    in_use = {deployed(home, name) for name in ENVIRONMENTS}
+    records = sorted((home / 'records').glob('*.json'), key=lambda path: path.stat().st_mtime, reverse=True)
+    for path in records[keep:]:
+        sha = path.stem
+        if sha in in_use:
+            continue
+        run('docker', 'image', 'rm', *['aponta-%s:%s' % (name, sha) for name in (*SERVICES, 'seed')], check=False)
+        run('rm', '-rf', '--', str(home / 'releases' / sha), check=False)
+
+
 def up(environment: str, sha: str, home: Path, config: Path) -> None:
     compose = compose_command(environment, sha, home, config)
     env = compose_env(environment, sha, config)
@@ -263,7 +275,8 @@ def stage(repo: Path, home: Path, config: Path, sha: str) -> int:
             up('staging', sha, home, config)
             seeded = run(*compose, '--profile', 'seed', 'run', '--rm', 'seed', env=env, check=False)
             base = 'http://127.0.0.1:' + env_values((config / '.env.staging').read_text())['WEB_PORT']
-            checks = [{'name': 'synthetic seed', 'ok': seeded.returncode == 0, 'detail': (seeded.stderr or '')[-200:]}]
+            checks = [{'name': 'synthetic seed', 'ok': seeded.returncode == 0,
+                       'detail': '' if seeded.returncode == 0 else (seeded.stderr or seeded.stdout)[-400:]}]
             checks += wait_and_smoke(base, sha) + critical_flows(base)
         except (ValueError, OSError, KeyError) as error:
             checks = [{'name': 'deploy', 'ok': False, 'detail': str(error)[-800:]}]
@@ -300,6 +313,7 @@ def promote(repo: Path, home: Path, config: Path, sha: str, rollback: bool) -> i
         save_record(home, record)
         if passed:
             mark_deployed(home, 'production', sha)
+            prune(home)
         print(json.dumps(record['production'], ensure_ascii=False, indent=2))
         return 0 if passed else 1
 

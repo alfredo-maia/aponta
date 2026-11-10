@@ -1,40 +1,47 @@
 name: CD (Produção)
 
+# Entrega em duas etapas, sempre do mesmo commit e das mesmas imagens:
+#   staging   constrói as imagens do commit uma vez, sobe o staging, roda seed sintético,
+#             smoke e fluxos críticos, e grava o registro do commit;
+#   produção  só sobe um commit cujo registro diz que o staging passou com aquelas imagens,
+#             e nunca um commit anterior ao que está no ar.
+# As regras estão em scripts/aponta_release.py (com testes) e em docs/delivery/RELEASE.md.
 on:
   # Never trigger directly on push — that let deploy race the CI workflow
-  # on the exact same commit (classic "deploy before tests finish" bug the
-  # push trigger alone can't prevent, even with a concurrency gate, since
-  # push and workflow_run are independent event streams). Deploy only after
-  # the CI workflow itself reports a conclusion for a push to main, and only
-  # proceeds if that conclusion was a real success (checked in the job
-  # below) — this is the standard "wait for CI, then CD" gate pattern.
+  # on the exact same commit. Deploy only after the CI workflow itself
+  # reports a conclusion for a push to main.
   workflow_run:
     workflows: ["CI"]
     types: [completed]
     branches: [main]
 
+# Um ciclo por vez no repositório inteiro: outro run não troca a versão do staging
+# enquanto ela é validada, e nenhum run em andamento é cancelado (uma migração
+# interrompida deixaria o banco pela metade). Isto não é uma fila: o GitHub mantém só
+# o run pendente mais novo, e por isso qualquer run publica a ponta da main.
 concurrency:
   group: deploy-production
   cancel-in-progress: false
 
+permissions: {}
+
 jobs:
-  deploy:
+  resolve:
+    name: Commit a publicar
     runs-on: ubuntu-latest
     permissions:
       actions: read
       contents: read
-    # Guard clause: only deploy when the upstream CI run that triggered this
-    # was itself triggered by a push to main (not a PR/merge_group run) AND
-    # it actually succeeded. A failed/cancelled CI run must never reach the
-    # SSH deploy step.
+    # Guard clause: only when the upstream CI run was a push to main AND it
+    # actually succeeded. A failed/cancelled CI run never reaches the deploy.
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    outputs:
+      sha: ${{ steps.target.outputs.sha }}
     steps:
       # What ships is always the tip of main, never "the commit whose CI just
-      # finished". When several PRs leave the merge queue together their CI
-      # runs finish out of order, and deploying each run's own commit moved
-      # production backwards while the runs for the newest commits were
-      # dropped as superseded (DMTE-472). Any run may deploy the tip, but only
-      # once the tip's own CI is green; until then it skips, and the tip's CI
+      # finished": CI runs of commits that leave the merge queue together finish
+      # out of order (DMTE-472). Any run may publish the tip, but only once the
+      # tip's own CI is green; until then it stops here, and the tip's CI
       # triggers another run when it finishes.
       - name: Resolve the commit to deploy
         id: target
@@ -52,55 +59,56 @@ jobs:
           fi
           echo "sha=$tip" >> "$GITHUB_OUTPUT"
 
-      - name: Deploy to VPS using SSH
-        if: steps.target.outputs.sha != ''
-        uses: appleboy/ssh-action@master
+  staging:
+    name: Staging (deploy, testes, registro)
+    needs: resolve
+    if: needs.resolve.outputs.sha != ''
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Build once, deploy to staging and test
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
         env:
-          DEPLOY_SHA: ${{ steps.target.outputs.sha }}
+          DEPLOY_SHA: ${{ needs.resolve.outputs.sha }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
           port: 2000
           envs: DEPLOY_SHA
+          command_timeout: 40m
           script: |
             set -e
-            echo "Iniciando Deploy do Aponta via GitHub Actions (ponta da main validada pelo CI: $DEPLOY_SHA)..."
             cd /home/hermes/repos/aponta
-
-            # Carrega credenciais locais do host (sudo)
-            source ~/.hermes/.env 2>/dev/null
-            run() { echo "$SUDO_PASSWORD" | sudo -S -p '' "$@"; }
-            compose() { run docker compose -p aponta-prod --env-file .env.prod -f docker-compose.yml "$@"; }
-
-            # Já no ar: outro run publicou esta mesma ponta. Não derruba nada.
-            marker=~/.local/state/aponta/deployed-sha
-            if [ "$(cat "$marker" 2>/dev/null)" = "$DEPLOY_SHA" ] && [ -n "$(run docker ps -q -f name=aponta-prod-api-1 -f status=running)" ]; then
-              echo "$DEPLOY_SHA já está em produção. Nada a fazer."
-              exit 0
-            fi
-
-            # HEAD destacado no commit aprovado: `reset --hard` movia a branch
-            # que estivesse ativa neste checkout, inclusive a de um agente.
             git fetch origin main
-            git checkout -q -f --detach "$DEPLOY_SHA"
+            # A ferramenta roda da árvore exportada do próprio commit, nunca do checkout,
+            # que pode estar em outra branch.
+            release="$HOME/deploy/aponta/releases/$DEPLOY_SHA"
+            mkdir -p "$release"
+            git archive "$DEPLOY_SHA" | tar -x -C "$release"
+            python3 "$release/scripts/aponta_release.py" init-staging
+            python3 "$release/scripts/aponta_release.py" stage --sha "$DEPLOY_SHA"
 
-            # Constrói antes de tocar nos containers: a produção segue no ar
-            # durante o build e só para pelos segundos da troca.
-            compose build
-
-            # Remove só restos parados de deploys interrompidos, que causavam
-            # "Conflict. The container name ... is already in use". Container
-            # em execução é trocado pelo próprio compose. Não mexe no postgres.
-            for name in aponta-prod-api-1 aponta-prod-web-1 aponta-prod-migrate-1 aponta-prod-storybook-1; do
-              for state in exited created dead; do
-                ids=$(run docker ps -aq -f "name=^${name}$" -f "status=${state}")
-                [ -z "$ids" ] || run docker rm -f $ids
-              done
-            done
-
-            compose up -d
-
-            mkdir -p "$(dirname "$marker")"
-            echo "$DEPLOY_SHA" > "$marker"
-            echo "Deploy concluído com sucesso!"
+  production:
+    name: Produção (promoção do commit validado)
+    needs: [resolve, staging]
+    runs-on: ubuntu-latest
+    # Para exigir aprovação humana antes de produção, configure revisores obrigatórios
+    # neste environment (Settings > Environments > production). Sem isso a promoção é
+    # automática quando o staging passa.
+    environment: production
+    steps:
+      - name: Promote the validated images to production
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+        env:
+          DEPLOY_SHA: ${{ needs.resolve.outputs.sha }}
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: 2000
+          envs: DEPLOY_SHA
+          command_timeout: 20m
+          script: |
+            set -e
+            python3 "$HOME/deploy/aponta/releases/$DEPLOY_SHA/scripts/aponta_release.py" promote --sha "$DEPLOY_SHA"
