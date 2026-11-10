@@ -58,6 +58,7 @@
     "apps/api/src/worklogs/worklogs.commercial.spec.ts",
     "apps/api/src/worklogs/worklogs.service.spec.ts",
     "apps/api/src/worklogs/worklogs.service.ts",
+    "apps/web-e2e/src/commercial-v2.spec.ts",
     "apps/web/src/components/tickets/TicketWorklogs.test.tsx",
     "apps/web/src/components/tickets/TicketWorklogs.tsx",
     "docs/superpowers/specs/2026-11-09-worklog-valuation-visibility.md"
@@ -65,7 +66,7 @@
   "tdd": {
     "mode": "required",
     "red": ".delivery/evidence/DMTE-463/red-r4.json",
-    "green": ".delivery/evidence/DMTE-463/green-r4.json"
+    "green": ".delivery/evidence/DMTE-463/green-r5.json"
   },
   "design_system": {
     "applicable": true,

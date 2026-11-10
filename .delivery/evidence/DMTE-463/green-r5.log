@@ -1,0 +1,10 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-467-3cccdc05c950/workdir/w158/apps/web
+
+ ✓ |web| src/components/tickets/TicketWorklogs.test.tsx (61 tests | 60 skipped) 290ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 60 skipped (61)
+   Start at  12:36:25
+   Duration  4.33s (transform 2.05s, setup 117ms, import 2.78s, tests 290ms, environment 778ms)
+

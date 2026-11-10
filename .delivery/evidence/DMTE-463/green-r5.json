@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-10T15:36:23.506704+00:00",
+  "finished_at": "2026-11-10T15:36:30.322394+00:00",
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "--root",
+    "apps/web",
+    "src/components/tickets/TicketWorklogs.test.tsx",
+    "-t",
+    "stale GUARANTEE draft when permissions fail"
+  ],
+  "base_sha": "d6a50d5aaa9a8b5fc266b8d6d6acec1c75c52588",
+  "head_sha": "b9d9fe6d6392e62f4a44c4b558340d0daea0f590",
+  "exit_code": 0,
+  "tests": {
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "2b8c6ba6c98d46d362066aa84db470d2c560dea834c93d8948a3254608e9f41b"
+  },
+  "criteria": [
+    "AC-04"
+  ],
+  "source_hashes": {
+    "apps/api/src/permission-groups/permission-catalog.ts": "b8fc73c5c4a9a0977f68453e698fd0144e971ec80e6a8b8b01f8e2206bbe68fb",
+    "apps/api/src/worklogs/worklogs.commercial.spec.ts": "3bf07235d247dd81d8f3054949ddf1553f3f39dbfef6a3f7988ba4ba9e42df33",
+    "apps/api/src/worklogs/worklogs.service.spec.ts": "79eaa8d31d86f51d71f46c62cda346abcb6a0e0ea92673ee6b8f68ad005695ec",
+    "apps/api/src/worklogs/worklogs.service.ts": "0d3cc85ab4e78e418809d19c026ee48bedfe1accce627b3990bbaf2050f68c93",
+    "apps/web-e2e/src/commercial-v2.spec.ts": "da88d929d68611e8b19035178cf2d9b14e95bc06ee7fbec1e3d8a3c93a84385f",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "2b8c6ba6c98d46d362066aa84db470d2c560dea834c93d8948a3254608e9f41b",
+    "apps/web/src/components/tickets/TicketWorklogs.tsx": "9c778d80a95506bc2cabc12af117c415f198a72a75d0323dbedf23f816dea43f"
+  },
+  "log": ".delivery/evidence/DMTE-463/green-r5.log",
+  "log_sha256": "53d8b5c890ac943105f6748ad2b34596fe5b94763c526c23ea874526afc4d3c7"
+}

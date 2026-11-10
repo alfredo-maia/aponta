@@ -44,6 +44,8 @@ test('commercial modalities, immutable costs, mandatory gate and stoppable timer
     ] as const) {
       await linkFixtureUserToDefaultPermissionGroup(db, userId, role);
     }
+    // DMTE-463: Garantia exige LAUNCH_WORKLOG_GUARANTEE, sem concessão padrão; só o agente deste cenário a recebe.
+    await db.permissionGroup.create({ data: { name: `E2E Garantia ${id.agent}`, permissions: ['LAUNCH_WORKLOG_GUARANTEE'], userMembers: { create: { userId: id.agent } } } });
     await db.serviceDesk.create({ data: { id: id.desk, name: `Comercial ${id.desk}`, agents: { connect: { id: id.agent } }, organizations: { connect: { id: id.org } } } });
     await db.ticket.create({ data: { id: id.ticket, protocol: `E2E-${id.ticket}`, title: 'Modalidades reais', description: 'Validação comercial local', requesterId: id.requester, commercialOrganizationId: id.org, serviceDeskId: id.desk } });
 
@@ -174,6 +176,7 @@ test('commercial modalities, immutable costs, mandatory gate and stoppable timer
     await db.technicianCostRate.deleteMany({ where: { userId: { in: [id.admin, id.agent] } } });
     await db.organizationDeskEvent.deleteMany({ where: { organizationId: id.org } });
     await db.serviceDesk.deleteMany({ where: { id: id.desk } });
+    await db.permissionGroup.deleteMany({ where: { name: `E2E Garantia ${id.agent}` } });
     await db.user.deleteMany({ where: { id: { in: [id.admin, id.agent, id.master, id.requester] } } });
     await db.organization.deleteMany({ where: { id: id.org } });
     await db.$disconnect();
