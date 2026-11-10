@@ -122,16 +122,13 @@ function installApiStubs() {
         data: {
           id: 'u-1',
           isAdmin: role === 'ADMIN',
-          permissions: [],
+          permissions: currentPermissions,
           canViewTicketValues: viewTicketValues ?? role === 'ADMIN',
         },
       });
     }
     if (path.includes('/pre-appointments')) {
       return Promise.resolve({ data: [...preStore] });
-    }
-    if (path.includes('/auth/me')) {
-      return Promise.resolve({ data: { id: 'u-1', isAdmin: false, permissions: currentPermissions } });
     }
     if (path.includes('/users/agents')) {
       return Promise.resolve({ data: [] });
