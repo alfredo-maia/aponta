@@ -1,0 +1,10 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-461-471c5398aed2/workdir/aponta/apps/web
+
+ ✓ |web| src/components/tickets/TicketKanbanCard.test.tsx (20 tests | 16 skipped) 184ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed | 16 skipped (20)
+   Start at  19:08:40
+   Duration  3.54s (transform 1.88s, setup 129ms, import 2.53s, tests 184ms, environment 476ms)
+
