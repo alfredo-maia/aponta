@@ -88,10 +88,9 @@ GOVERNANCE = ('.delivery/', 'docs/')
 
 
 def blob(root, commit, name):
-    try:
-        return git(root, 'rev-parse', '--verify', '-q', commit + ':' + name)
-    except subprocess.CalledProcessError:
-        return None  # deleted by the delivery
+    """Mode and content of a path at a commit, so a permission change also counts as a difference."""
+    entry = git(root, 'ls-tree', commit, '--', name)
+    return entry.split('\t')[0] if entry else None  # None: deleted by the delivery
 
 
 def reviewed(root, commit, delivery, main_ref):

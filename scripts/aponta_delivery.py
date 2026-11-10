@@ -435,7 +435,8 @@ def other_identities(root: Path, registry: dict, key: str) -> list[tuple]:
              for name, entry in registry.get('deliveries', {}).items() if isinstance(entry, dict)}
     for path in sorted((root / '.delivery/deliveries').glob('*.json')):
         try:
-            value = json.loads(path.read_text())
+            # safe_path: a symlink committed here must not make the check read outside the checkout.
+            value = json.loads(safe_path(root, path.relative_to(root).as_posix()).read_text())
             found.setdefault(value['delivery'], (value['delivery'], value.get('github_issue'), value.get('multica_id')))
         except (ValueError, TypeError, KeyError, OSError):
             continue
