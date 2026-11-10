@@ -60,6 +60,18 @@ describe('TicketKanbanCard (D7)', () => {
     expect(screen.getByText('Aberto')).toBeInTheDocument();
   });
 
+  it.each([
+    ['CRITICAL', 'bg-red-100', 'border-red-300'],
+    ['HIGH', 'bg-yellow-100', 'border-yellow-300'],
+    ['MEDIUM', 'bg-green-100', 'border-green-300'],
+    ['LOW', 'bg-petroleum-100', 'border-petroleum-300'],
+  ] as const)('tints the card by priority %s', (priority, bg, border) => {
+    renderCard({ ...baseTicket, priority });
+    const card = screen.getByRole('link', { name: /AP-2026-0001/ }).closest('li')!;
+    expect(card).toHaveClass(bg, border);
+    expect(card).not.toHaveClass('bg-white');
+  });
+
   it('shows Prioridade as the tag instead of Status when tagField="priority"', () => {
     render(
       <MemoryRouter>
