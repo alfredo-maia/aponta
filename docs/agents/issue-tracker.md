@@ -4,7 +4,7 @@ GitHub Issues em dmrepositorio/aponta, via gh CLI. Configuração do setup prese
 
 ## Identidade e publicação
 
-Uma entrega tem uma issue GitHub principal e um pai Multica em .delivery/registry.json. to-spec publica a SPEC na issue principal existente quando houver; criação nova só quando não existir uma origem canônica. O espelho docs/superpowers/specs/YYYY-MM-DD-<tema>.md contém o mesmo corpo, para verificação local.
+Uma entrega tem uma issue GitHub principal e um pai Multica, declarados no manifest .delivery/deliveries/DMTE-N.json (o .delivery/registry.json guarda épicos e entregas anteriores a DMTE-470). to-spec publica a SPEC na issue principal existente quando houver; criação nova só quando não existir uma origem canônica. O espelho docs/superpowers/specs/YYYY-MM-DD-<tema>.md contém o mesmo corpo, para verificação local.
 
 to-tickets publica UMA issue GitHub por ticket aprovado. Cada ticket é sub-issue da SPEC e herda a identidade da entrega; isso substitui a antiga proibição de outras issues técnicas para estes tickets de implementação. Triagem/Architect/Developer/QA/Delivery são etapas delegadas por menção no pai Multica, sem issue GitHub nem issue Multica por fase ou por ticket. O Architect publica os tickets no to-tickets, como sub-issues GitHub, antes de encerrar o planejamento; a etapa Developer recebe por menção o próximo ticket elegível, ou vários sequenciais. O briefing lista IDs reais de tickets e dependências; não criar um pai Multica de entrega nem uma issue filha Multica por ticket, nem triá-los novamente.
 

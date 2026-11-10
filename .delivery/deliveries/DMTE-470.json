@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "delivery": "DMTE-470",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 168,
+  "multica_id": "01a1c716-5405-76da-9600-09e74756b534",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 2,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "Manifest sem base_sha nem changed_files passa; evidência validada contra o merge-base calculado",
+      "tests": [
+        "DeliveryGateTests.test_manifest_needs_neither_base_sha_nor_changed_files"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "A main andar sem tocar nos arquivos da entrega não exige commit de manifest, mesmo com base do evento defasada",
+      "tests": [
+        "DeliveryGateTests.test_main_moving_does_not_require_a_manifest_commit",
+        "DeliveryGateTests.test_stale_event_base_does_not_inflate_the_delivery"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "Arquivo não declarado não é erro; UI e comportamento são classificados pelo diff real",
+      "tests": [
+        "DeliveryGateTests.test_undeclared_changed_file_is_not_an_error",
+        "DeliveryGateTests.test_ui_change_is_classified_from_the_diff_not_from_the_manifest"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "Entrega ausente do registro é identificada pelo manifest; identidade duplicada é recusada; entrada do registro continua valendo",
+      "tests": [
+        "DeliveryGateTests.test_delivery_absent_from_registry_is_bound_by_its_manifest",
+        "DeliveryGateTests.test_two_manifests_cannot_claim_the_same_identity",
+        "DeliveryGateTests.test_registry_entry_still_binds_when_present"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "Na fila de merge o contrato é validado na árvore do head do PR; fonte alterado depois do GREEN e checkout errado continuam recusados",
+      "tests": [
+        "DeliveryGateTests.test_merge_queue_validates_the_pr_head_tree",
+        "DeliveryGateTests.test_source_changed_after_green_is_still_rejected",
+        "DeliveryGateTests.test_checkout_must_be_the_reviewed_commit"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "description": "O atestado do QA só é reaproveitado quando código, critérios e SPEC são idênticos aos do SHA aprovado",
+      "tests": [
+        "QaCarryTests"
+      ]
+    },
+    {
+      "id": "AC-07",
+      "description": "Na fila, Independent QA passa só quando o head do PR tem o atestado mais recente em success",
+      "tests": [
+        "QaMergeQueueTests"
+      ]
+    },
+    {
+      "id": "AC-08",
+      "description": "Um PR real com atestado passa pela fila de merge sem bypass",
+      "tests": [
+        "Validação operacional na fila de merge do GitHub"
+      ],
+      "tdd_required": false,
+      "reason": "Depende de uma execução real da fila de merge do GitHub; não é reproduzível em teste unitário"
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-470.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-470/red.json",
+    "green": ".delivery/evidence/DMTE-470/green.json"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Scripts Python de governança, workflow do GitHub Actions e documentação; nenhuma UI"
+  }
+}

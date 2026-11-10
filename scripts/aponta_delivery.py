@@ -11,8 +11,10 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 import uuid
 
 
@@ -45,6 +47,51 @@ def source_hashes(root: Path, base: str) -> dict[str, str]:
             if is_source_path(name) and (root / name).is_file()}
 
 
+def changed_paths(root: Path, base: str) -> list[str]:
+    """Every path the checkout changes against base, including files not yet committed."""
+    changed = git(root, 'diff', '--name-only', base).splitlines()
+    changed += git(root, 'ls-files', '--others', '--exclude-standard').splitlines()
+    return sorted(set(changed))
+
+
+def merge_base(root: Path, head: str, candidates: list) -> str:
+    """The most recent point where head left the base branch.
+
+    The event's base SHA can be stale (GitHub records it when the PR is synchronized), so the base
+    branch itself is tried as well; a ref this checkout cannot resolve is skipped.
+    """
+    bases = []
+    for ref in candidates:
+        if isinstance(ref, str) and re.fullmatch(r'[\w./-]+', ref) and not ref.startswith('-'):
+            try:
+                bases.append(git(root, 'merge-base', ref, head))
+            except subprocess.CalledProcessError:
+                continue
+    if not bases:
+        raise ValueError('Cannot resolve the merge base of the delivery.')
+    best = bases[0]
+    for candidate in bases[1:]:
+        try:
+            git(root, 'merge-base', '--is-ancestor', best, candidate)
+            best = candidate
+        except subprocess.CalledProcessError:
+            pass
+    return best
+
+
+@contextlib.contextmanager
+def tree_at(root: Path, commit: str):
+    """A temporary checkout of commit, so a queue run validates the PR's own tree."""
+    path = Path(tempfile.mkdtemp(prefix='aponta-delivery-'))
+    try:
+        git(root, 'worktree', 'add', '--detach', '-q', str(path), commit)
+        yield path
+    finally:
+        subprocess.run(['git', '-C', str(root), 'worktree', 'remove', '--force', str(path)], capture_output=True)
+        shutil.rmtree(path, ignore_errors=True)
+        subprocess.run(['git', '-C', str(root), 'worktree', 'prune'], capture_output=True)
+
+
 def is_source_path(name: str) -> bool:
     """Governance, docs and build noise are not delivery sources."""
     return (not name.startswith(('.delivery/', 'docs/', '.github/')) and name != 'AGENTS.md'
@@ -63,7 +110,10 @@ def capture(root: Path, destination: Path, phase: str, base: str,
             raise ValueError('Test source is missing: ' + name)
     base = git(root, 'rev-parse', '--verify', '--end-of-options', base)
     started = dt.datetime.now(dt.timezone.utc).isoformat()
-    completed = subprocess.run(command, cwd=root, capture_output=True, text=True, shell=False)
+    # No bytecode cache: a source edited within the same second and with the same size would
+    # otherwise run its stale .pyc, and a RED or GREEN would describe code that is no longer there.
+    completed = subprocess.run(command, cwd=root, capture_output=True, text=True, shell=False,
+                               env={**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'})
     output = redact(completed.stdout + completed.stderr)
     destination.parent.mkdir(parents=True, exist_ok=True)
     log = destination.with_suffix('.log')
@@ -285,7 +335,10 @@ def validate_legacy_exception(root: Path, manifest: dict, tdd_ids: set[str],
         return ['Invalid legacy TDD exception: ' + str(error)]
 
 
-def validate_manifest(root: Path, manifest: dict, *, check_evidence: bool = True) -> list[str]:
+def validate_manifest(root: Path, manifest: dict, *, check_evidence: bool = True,
+                      base: str | None = None, changes: list[str] | None = None) -> list[str]:
+    """`base` and `changes` come from Git when the caller has them; the manifest's own
+    `base_sha`/`changed_files` are only the fallback for a manifest checked without Git context."""
     errors = identity_errors(manifest)
     if manifest.get('version') != 1 or manifest.get('tier') not in [1, 2, 3]:
         errors.append('Manifest version/tier is invalid.')
@@ -310,7 +363,8 @@ def validate_manifest(root: Path, manifest: dict, *, check_evidence: bool = True
                 errors.append('SPEC does not contain all acceptance criterion identifiers.')
         except (ValueError, TypeError, OSError):
             errors.append('Tier 2/3 requires an existing in-checkout SPEC.')
-    changes = manifest.get('changed_files') or []
+    if changes is None:
+        changes = manifest.get('changed_files') or []
     for name in changes:
         try:
             safe_path(root, name)
@@ -328,7 +382,7 @@ def validate_manifest(root: Path, manifest: dict, *, check_evidence: bool = True
     elif tdd.get('mode') != 'required':
         errors.append('TDD mode must be required, legacy-exception or justified not-applicable.')
     elif check_evidence:
-        base = manifest.get('base_sha')
+        base = base or manifest.get('base_sha')
         if not isinstance(base, str) or not re.fullmatch(r'[0-9a-f]{40}', base):
             errors.append('Evidence needs a full base SHA.')
         else:
@@ -375,9 +429,32 @@ def validate_pr(body: str, manifest: dict) -> list[str]:
     return errors
 
 
-def validate_binding(manifest: dict, entry: dict | None) -> list[str]:
+def other_identities(root: Path, registry: dict, key: str) -> list[tuple]:
+    """(delivery, github_issue, multica_id) of every other delivery: registry entries and manifests."""
+    found = {name: (name, entry.get('github_issue'), entry.get('multica_id'))
+             for name, entry in registry.get('deliveries', {}).items() if isinstance(entry, dict)}
+    for path in sorted((root / '.delivery/deliveries').glob('*.json')):
+        try:
+            value = json.loads(path.read_text())
+            found.setdefault(value['delivery'], (value['delivery'], value.get('github_issue'), value.get('multica_id')))
+        except (ValueError, TypeError, KeyError, OSError):
+            continue
+    found.pop(key, None)
+    return list(found.values())
+
+
+def validate_binding(manifest: dict, entry: dict | None, others: list[tuple] | None = None) -> list[str]:
+    """A delivery is bound by its registry entry or, without one, by its own manifest.
+
+    `others` lists the remaining deliveries; with it, a manifest absent from the registry is
+    accepted as long as no other delivery claims its GitHub issue or Multica parent.
+    """
     if not entry:
-        return ['Delivery is absent from canonical registry.']
+        if others is None:
+            return ['Delivery is absent from canonical registry.']
+        clash = sorted(name for name, issue, parent in others
+                       if issue == manifest.get('github_issue') or parent == manifest.get('multica_id'))
+        return ['Duplicate canonical GitHub/Multica identity: ' + ', '.join(clash)] if clash else []
     errors = []
     if entry.get('kind') != 'delivery':
         errors.append('Epics cannot be used as implementation deliveries.')
@@ -429,6 +506,32 @@ def resolve_pr_from_event(event: dict | None, fetch_pr) -> tuple[dict, str | Non
     return pr, pr.get('base', {}).get('sha'), pr.get('head', {}).get('sha'), None
 
 
+def delivery_errors(root: Path, registry: dict, manifest_path: Path, pr: dict | None, base: str | None,
+                    head: str | None) -> list[str]:
+    """Contract errors of one delivery, read from the tree at `root`."""
+    path = root / manifest_path
+    if not path.is_file():
+        return ['Delivery manifest is missing: ' + str(manifest_path)]
+    manifest = json.loads(path.read_text())
+    errors = []
+    if pr is not None and base and head:
+        # Base and changed files are facts of the PR, so they are read from Git on every run:
+        # a manifest that records them goes stale whenever main moves, and the commit that
+        # refreshes it changes the SHA the Independent QA approved.
+        fork = merge_base(root, head, [base, 'origin/' + str(pr.get('base', {}).get('ref')), pr.get('base', {}).get('ref')])
+        changes = [name for name in git(root, 'diff', '--name-only', fork, head).splitlines() if name]
+        errors += validate_manifest(root, manifest, base=fork, changes=changes)
+        errors += validate_pr(pr.get('body') or '', manifest)
+    elif 'base_sha' in manifest:
+        errors += validate_manifest(root, manifest)
+    else:
+        fork = merge_base(root, 'HEAD', ['origin/main', 'main'])
+        errors += validate_manifest(root, manifest, base=fork, changes=changed_paths(root, fork))
+    key = manifest.get('delivery')
+    entry = registry.get('deliveries', {}).get(key)
+    return errors + validate_binding(manifest, entry, other_identities(root, registry, key))
+
+
 def check_contract(root: Path, registry_path: Path, event: dict | None, fetch_pr,
                    manifest_path: Path | None = None) -> list[str]:
     """Every contract error for this checkout; `event` is the GitHub Actions payload when run by CI."""
@@ -441,35 +544,23 @@ def check_contract(root: Path, registry_path: Path, event: dict | None, fetch_pr
         matches = re.findall(r'^Aponta-Delivery:\s*(DMTE-\d+)\s*$', pr.get('body') or '', re.M)
         if len(matches) != 1:
             errors.append('PR must declare exactly one Aponta-Delivery: DMTE-N line.')
+            manifest_path = None
         else:
             manifest_path = Path('.delivery/deliveries') / (matches[0] + '.json')
-    if manifest_path:
-        path = root / manifest_path
-        if not path.is_file():
-            errors.append('Delivery manifest is missing: ' + str(manifest_path))
-        else:
-            manifest = json.loads(path.read_text())
-            errors += validate_manifest(root, manifest)
-            if event and base and head:
-                errors += validate_pr(pr.get('body') or '', manifest)
-                # In a merge_group run, HEAD is the queue's synthetic merge
-                # commit (main + this PR + anything ahead of it in the
-                # queue) — that commit's SHA is merge_group.head_sha, not
-                # the PR's own head_sha, so the checkout-identity check must
-                # compare against the right one per event type.
-                expected_checkout = merge_group['head_sha'] if merge_group else head
-                if git(root, 'rev-parse', 'HEAD') != expected_checkout:
-                    errors.append('Checkout is not the expected head SHA.')
-                changes = git(root, 'diff', '--name-only', base + '...' + head).splitlines()
-                declared = set(manifest.get('changed_files', []))
-                undeclared = [p for p in changes if p not in declared and not p.startswith('.delivery/')]
-                if undeclared:
-                    errors.append('Changed files missing from delivery manifest: ' + ', '.join(undeclared))
-                if manifest.get('base_sha') != git(root, 'merge-base', base, head):
-                    errors.append('Manifest base_sha differs from the PR merge base.')
-            entry = registry.get('deliveries', {}).get(manifest.get('delivery'))
-            errors += validate_binding(manifest, entry)
-    return errors
+    if not manifest_path:
+        return errors
+    if not (event and base and head):
+        return errors + delivery_errors(root, registry, manifest_path, None, None, None)
+    # In a merge_group run, HEAD is the queue's synthetic commit (main + this PR + anything
+    # ahead of it in the queue). The checkout must be that commit, but the contract belongs to
+    # the PR: it is validated on the PR head tree, which no other queued change can alter.
+    expected_checkout = merge_group['head_sha'] if merge_group else head
+    if git(root, 'rev-parse', 'HEAD') != expected_checkout:
+        errors.append('Checkout is not the expected head SHA.')
+    if merge_group:
+        with tree_at(root, head) as view:
+            return errors + delivery_errors(view, registry, manifest_path, pr, base, head)
+    return errors + delivery_errors(root, registry, manifest_path, pr, base, head)
 
 
 def main() -> int:

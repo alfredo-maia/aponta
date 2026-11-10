@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-10T20:17:33.139553+00:00",
+  "finished_at": "2026-11-10T20:17:44.400456+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_*.py"
+  ],
+  "base_sha": "7f7609e89c84df825e97e3d805626174d5d550dd",
+  "head_sha": "45fab8112389d644444563b1a47f8e77437d8804",
+  "exit_code": 0,
+  "tests": {
+    "scripts/test_aponta_delivery.py": "d3ddb35fd6f292ededfe921dbb0ca9e31b39638051256968ff36c797af798103",
+    "scripts/test_publicar_qa.py": "f925a6643432e69b041144ef683b816b15ac01a0cde0044281758e3518d90c50"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07"
+  ],
+  "source_hashes": {
+    "scripts/aponta_delivery.py": "ea1368293000ffd54b3308bc04f2d670b02d0dd649fedd5b3fc46bb8454746e2",
+    "scripts/publicar_qa.py": "53a3ed317a73b84d9e899d4b37275a49f7c014a6c33a4ef2fbc28acadb0b9e41",
+    "scripts/qa_merge_queue.py": "105b54ef81d05ecdad449d745d8710581e48e92825f56d1d17c38b43e1d40909",
+    "scripts/test_aponta_delivery.py": "d3ddb35fd6f292ededfe921dbb0ca9e31b39638051256968ff36c797af798103",
+    "scripts/test_publicar_qa.py": "f925a6643432e69b041144ef683b816b15ac01a0cde0044281758e3518d90c50"
+  },
+  "log": ".delivery/evidence/DMTE-470/green.log",
+  "log_sha256": "a27170d48b136ece0c1aa0f67f5b8207b45024df7a02915ddcdf7df1eaf7a7bf"
+}

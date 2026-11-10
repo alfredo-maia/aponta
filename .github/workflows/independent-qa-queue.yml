@@ -1,0 +1,29 @@
+name: Independent QA (merge queue)
+
+# The Independent QA attestation is a commit status on the PR head. The merge queue tests a
+# commit of its own, where that status does not exist, so the required check never reported
+# there and queued PRs waited until the timeout. This workflow reports it for the queue commit.
+# It must run ONLY on merge_group: on pull_request a skipped job would count as a pass and
+# replace the QA's own attestation.
+on:
+  merge_group:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: read
+
+jobs:
+  independent-qa:
+    name: Independent QA
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.merge_group.head_sha }}
+          persist-credentials: false
+      - name: Confirm the attestation on the queued PR head
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/qa_merge_queue.py --event "$GITHUB_EVENT_PATH"
