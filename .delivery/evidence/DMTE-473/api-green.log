@@ -1,0 +1,14 @@
+
+> nx run api:test --testPathPatterns (feature-flags|health/version)
+
+api: [1mTest Suites: [22m[1m[32m2 passed[39m[22m, 2 total
+api: [1mTests:       [22m[1m[32m12 passed[39m[22m, 12 total
+api: [1mSnapshots:   [22m0 total
+api: [1mTime:[22m        2.709 s
+api: [2mRan all test suites[22m[2m matching [22m(feature-flags|health/version)[2m.[22m
+
+
+
+ NX   Successfully ran target test for project api
+
+

@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-10T23:42:07.921133+00:00",
+  "finished_at": "2026-11-10T23:42:13.188604+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "--root",
+    "apps/web",
+    "src/hooks/useFeatureFlag.test.tsx"
+  ],
+  "base_sha": "8f29c1f3beb85a0295ed6f4abedaf6abb9c98673",
+  "head_sha": "0cd9461673ef7c6542fbd8007a9e9f98c218195b",
+  "exit_code": 0,
+  "tests": {
+    "apps/web/src/hooks/useFeatureFlag.test.tsx": "a75b3ff4071574c2c53f3b49218cfbaecb715094f8ca4cbfea357f6319131230"
+  },
+  "criteria": [
+    "AC-07"
+  ],
+  "source_hashes": {
+    ".agents/skills/aponta-delivery/SKILL.md": "de133ba5baad9e80c1411b5805fc89a74ae81076b7823755cd5e0a30c6830863",
+    ".agents/skills/aponta-deps/SKILL.md": "bd612f629d3c6d63e1e86d964c66480eed350c714ff9eba1976c6cdf97493c45",
+    ".agents/skills/aponta-flow/SKILL.md": "b99f90429248bb0b7cfe32ea315970bc4f75801ae6a40ee5f58f1f7f841fa82d",
+    ".agents/skills/aponta-review/SKILL.md": "5c9413d5283ff86f6b1426ca86a47e293c451f96ae0a6a2cd0492b89715255df",
+    ".agents/skills/aponta-tdd/SKILL.md": "88fa7f9ed612376f403389b78238aa6d6619f8e0226c49ffc02032fa798a78c0",
+    ".agents/skills/aponta-triage/SKILL.md": "f3cdc052879cf688dca5cdfcd8364f71099f6be41a57bbb329146c7050b2e991",
+    ".gitignore": "6e133cb3754666863a5cc75a8d9520b729b6ea8a7d8077caf234428879eeac30",
+    "apps/api/Dockerfile": "0598f691c64054bec0b5e7e6f099c2d48215706cfbe5cc8bedb7097b6f80997c",
+    "apps/api/src/app.module.ts": "a433b58d0721aa0638afd86812f492e6187a1fb9f543fffb24c9eb7f62752023",
+    "apps/api/src/feature-flags/feature-flags.controller.ts": "8f8d3887745bee63505e5775ef32d7c827b50a424874f899ea576b7984c9ee96",
+    "apps/api/src/feature-flags/feature-flags.module.ts": "2c5c8b8cfff1f7cd0cb20e0357a0f6228c579ebee9c6354c1938256650a4a390",
+    "apps/api/src/feature-flags/feature-flags.spec.ts": "65d750003b158a563cfe7695384cb1399acc4b838b9d3ded1961ece55b29b086",
+    "apps/api/src/feature-flags/feature-flags.ts": "54d3a13c528fe7b5af97f5b4b77cced1d7783567e99cd6224717e3057d9ce991",
+    "apps/api/src/health/health.module.ts": "eeacf016f41c19965213a05a37c2ebe5938841dcf6065a14856cbb081a9b94e2",
+    "apps/api/src/health/version.controller.spec.ts": "977b21f2221c0e70cee0916cc267fa7eaad91bb683c1164716a94636e0f65065",
+    "apps/api/src/health/version.controller.ts": "01c788057e38f861b94b66df3bf2a46ad6871427f0a85e74415775da6d5dba43",
+    "apps/web/Dockerfile": "ec09cd915f0ffa97d2db9d44742578ebd3f7df71661d1f753e9f7e92641b456d",
+    "apps/web/src/hooks/useFeatureFlag.test.tsx": "a75b3ff4071574c2c53f3b49218cfbaecb715094f8ca4cbfea357f6319131230",
+    "apps/web/src/hooks/useFeatureFlag.ts": "85cf42734eb6a54f09ba6eb25e04d6e1713e5d546929a936bdec02207cbdd4e8",
+    "docker-compose.staging.yml": "9cb42c6373bb1c36ff4335e48eff85aaa4303227a08b40c7eabddfd5b563b506",
+    "docker-compose.yml": "6f44ac5b1447d34f7d0375769623b4eab941a33033425a39bf0101044f4eb7de",
+    "scripts/aponta_release.py": "c91696585f40a556fa3f68d533f7053ddef559477871e91ff545745eb8996649",
+    "scripts/e2e_isolated.sh": "8208ee7c9853f385affe747fd7d109725d134578092a4391be897356c9116e8a",
+    "scripts/test_aponta_release.py": "913a914d4bc15c246634aa85c394879662e24c8d4d3f6d6b7abac81fef0bd56b"
+  },
+  "log": ".delivery/evidence/DMTE-473/web-green.log",
+  "log_sha256": "39ff1196996b2d65ca2f1fe8f0cd25bf6940c5a07354f0490c6c0c36192d5a65"
+}
