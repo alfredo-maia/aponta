@@ -60,9 +60,8 @@ describe('App', () => {
 
       render(<App />);
 
-      expect(
-        await screen.findByRole('heading', { name: 'Tickets' }),
-      ).toBeInTheDocument();
+      const heading = await screen.findByRole('heading', { name: 'Tickets' });
+      expect(heading).toBeInTheDocument();
     },
   );
 });
