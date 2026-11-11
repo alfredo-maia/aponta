@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-11T20:38:47.834866+00:00",
+  "finished_at": "2026-11-11T20:39:17.684364+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run",
+    "web:test",
+    "--skip-nx-cache",
+    "--output-style=stream",
+    "src/pages/CreateTicketPage.test.tsx"
+  ],
+  "base_sha": "00dbc0e9c4299d16e9efe9befb2a120a656aee45",
+  "head_sha": "22e8e9b517eb10cff5d63bb88c5e7f78e26e9de9",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/pages/CreateTicketPage.test.tsx": "53093a032777f6f03c5cb983e4f41ad6146e318189e9eb3b20248f47cefd5e1e"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/tickets/TicketForm.tsx": "71f90c2a9c7f1a7a80ba8105b4364834c139149be32013b9848a4d520444ee33",
+    "apps/web/src/pages/CreateTicketPage.test.tsx": "53093a032777f6f03c5cb983e4f41ad6146e318189e9eb3b20248f47cefd5e1e",
+    "apps/web/src/pages/CreateTicketPage.tsx": "b9b29bdcd17c25ae2db83cb41bb6c74227242737de4129f579eb31090b371d0e"
+  },
+  "log": ".delivery/evidence/DMTE-489/red-r2.log",
+  "log_sha256": "8e9146294351281657ec447f0895d8911d27fdc2da1bf96b4cee84bfb7a0dd59"
+}

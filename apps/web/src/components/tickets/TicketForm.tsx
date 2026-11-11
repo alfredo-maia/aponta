@@ -156,7 +156,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
       noValidate
       className="w-full space-y-6 bg-white p-6 md:p-8 rounded-card border border-gray-100 shadow-card"
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-gray-100">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 pb-6 border-b border-gray-100">
         <Controller
           name="organizationId"
           control={control}
@@ -195,7 +195,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
           )}
         />
         {selectedDesk?.catalogRequiredOnOpen && !catalogOverride && (
-          <p className="text-sm text-yellow-700 md:col-span-2">
+          <p className="text-sm text-yellow-700 md:col-span-2 xl:col-span-4">
             Esta mesa exige um item do catálogo. Selecione o catálogo antes de abrir o ticket.
           </p>
         )}
@@ -349,7 +349,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
         <EzAlert variant="error">{submitError}</EzAlert>
       )}
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap items-center justify-between gap-4 pt-2">
         <div>
           <EzButton
             type="button"
@@ -360,7 +360,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
           />
         </div>
         
-        <div className="flex items-center justify-end gap-3 w-full sm:w-auto">
+        <div className="flex sm:flex-wrap items-center justify-end gap-3 w-full sm:w-auto sm:ml-auto">
           <EzButton
             type="button"
             variant="secondary"
