@@ -490,7 +490,7 @@ describe('TicketWorklogs', () => {
     localStorage.setItem('aponta_worklog_draft_t-1', JSON.stringify({ valuationType: 'MANUAL', manualValue: '250', description: 'Rascunho anterior' }));
     const base = vi.mocked(api.get).getMockImplementation()!;
     vi.mocked(api.get).mockImplementation((url: string) =>
-      String(url).includes('/auth/me') ? new Promise(() => {}) : base(url),
+      String(url).includes('/auth/me') ? new Promise<never>(() => undefined) : base(url),
     );
     renderComponent('t-1', true);
     await screen.findByRole('option', { name: 'Suporte' });
