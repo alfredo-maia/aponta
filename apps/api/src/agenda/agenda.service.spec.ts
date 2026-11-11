@@ -315,6 +315,13 @@ describe('AgendaService', () => {
       await expect(service.create(dto, adminUser)).rejects.toThrow(ForbiddenException);
     });
 
+    it('AC-12: sem a permissão, alterar ou desmarcar um compromisso já marcado é recusado', async () => {
+      prisma.appointment.findFirst.mockResolvedValue({ ...mockAppointment, ignoresWorklogRule: true });
+      await expect(service.update('app-1', { title: 'Outro título' }, agentUser)).rejects.toThrow(ForbiddenException);
+      await expect(service.update('app-1', { ignoresWorklogRule: false }, agentUser)).rejects.toThrow(ForbiddenException);
+      expect(prisma.appointment.update).not.toHaveBeenCalled();
+    });
+
     it('AC-12: compromisso comum não consulta a permissão', async () => {
       await service.create({ title: 'Comum', startTime: dto.startTime, endTime: dto.endTime }, agentUser);
       expect(permissions.hasPermission).not.toHaveBeenCalled();

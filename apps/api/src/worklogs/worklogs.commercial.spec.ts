@@ -255,6 +255,17 @@ describe('mandatory commercial authorization', () => {
       expect(db.preAppointment.findFirst).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ appointmentId: 'ag', authorId: 'tech', ending: null }) }));
     });
 
+    it('AC-11: o PLAY trava a agenda (FOR UPDATE) antes de conferir cronômetro aberto e limite; quem tem a permissão não trava', async () => {
+      jest.useFakeTimers({ now: NOW });
+      db.appointment.findMany.mockResolvedValue([agendaDoTicket]);
+      await service.createPreAppointment('ticket', { contractId: 'contract' }, agent);
+      expect(db.$queryRaw).toHaveBeenCalledTimes(2);
+      db.$queryRaw.mockClear();
+      permissions.canEditWorklogStartTime.mockResolvedValue(true);
+      await service.createPreAppointment('ticket', { beginning: '2026-10-17T08:00:00Z', contractId: 'contract' }, agent);
+      expect(db.$queryRaw).toHaveBeenCalledTimes(1);
+    });
+
     it('AC-13: quem tem a permissão de hora inicial não consulta a agenda no PLAY nem no manual', async () => {
       permissions.canEditWorklogStartTime.mockResolvedValue(true);
       await service.createPreAppointment('ticket', { beginning: '2026-10-17T08:00:00Z', contractId: 'contract' }, agent);
