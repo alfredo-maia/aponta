@@ -15,5 +15,6 @@ export function isValidCron(expression: string): boolean {
 
 /** Próxima execução estritamente depois de `after`. */
 export function nextRun(expression: string, after: Date): Date {
-  return new CronTime(expression, TIME_ZONE).getNextDateFrom(after).toJSDate();
+  // O fuso vai também no cálculo: sem ele, o resultado depende do fuso do servidor.
+  return new CronTime(expression, TIME_ZONE).getNextDateFrom(after, TIME_ZONE).toJSDate();
 }
