@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "delivery": "DMTE-484",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 202,
+  "multica_id": "01a1ca20-3942-715b-925c-20c867b9e353",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "nenhuma descrição de item do JSON contém \"SAB\" nem \"Zydon\".",
+      "tests": [
+        "catalogo-atendimento.json (DMTE-484) AC-01: no item description mentions SAB or Zydon"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "o JSON mantém as 8 categorias e os 18 itens, com os mesmos títulos, prioridades e ícones de antes.",
+      "tests": [
+        "catalogo-atendimento.json (DMTE-484) AC-02: keeps the 18 items with the same titles, priorities and icons"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-484.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-484/red.json",
+    "green": ".delivery/evidence/DMTE-484/green.json"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Dados do seed do catálogo; sem TSX nem componente DS."
+  }
+}

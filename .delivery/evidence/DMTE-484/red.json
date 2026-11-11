@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-11T10:45:51.535425+00:00",
+  "finished_at": "2026-11-11T10:46:07.611632+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "test",
+    "api",
+    "--testPathPatterns=seed-catalog"
+  ],
+  "base_sha": "3abe1f097e2500dfb64db8f68635764b206d2255",
+  "head_sha": "b29658f7e9c6668fe8def78e0f4c5e3f59357fd1",
+  "exit_code": 1,
+  "tests": {
+    "apps/api/prisma/seed-catalog.spec.ts": "0eea8aef37b988cbc6fcd558ed7e2aaf582ccbfc5ca5861a931e14735a1cb578"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02"
+  ],
+  "source_hashes": {
+    "apps/api/prisma/seed-catalog.spec.ts": "0eea8aef37b988cbc6fcd558ed7e2aaf582ccbfc5ca5861a931e14735a1cb578"
+  },
+  "log": ".delivery/evidence/DMTE-484/red.log",
+  "log_sha256": "98e9bdf415065577c8866e4a13cfad8a4cbfbd85336ce7068cbae1ca888c0f64"
+}

@@ -97,3 +97,34 @@ describe('catalogo-atendimento.json (DMTE-456)', () => {
     }
   });
 });
+
+describe('catalogo-atendimento.json (DMTE-484)', () => {
+  it('AC-01: no item description mentions SAB or Zydon', () => {
+    for (const i of data.items) {
+      expect(i.item_description).not.toMatch(/\bSAB\b|zydon/i);
+    }
+  });
+
+  it('AC-02: keeps the 18 items with the same titles, priorities and icons', () => {
+    expect(data.items.map((i) => [i.macro_category, i.item_title, i.default_priority, i.icon])).toEqual([
+      ['Fiscal e Notas Fiscais', 'Nota Fiscal', 'HIGH', '🧾'],
+      ['Sistemas e Acessos', 'Acessos, Usuários, Permissões e Segurança', 'HIGH', '🔐'],
+      ['Sistemas e Acessos', 'Erros de Sistema / Bugs / Travamentos / Lentidão', 'HIGH', '🐞'],
+      ['Fiscal e Notas Fiscais', 'Fiscal / Contábil / Tributário', 'HIGH', '📑'],
+      ['Comercial e Vendas', 'Vendas / Pedido de Venda / Faturamento / Portal B2B', 'HIGH', '🛒'],
+      ['Apoio Geral', 'Ajustes / Configurações Gerais', 'MEDIUM', '⚙️'],
+      ['Sistemas e Acessos', 'Automação, Integração e APIs', 'MEDIUM', '🔌'],
+      ['Relatórios e Customizações', 'Relatórios, Dashboards e Impressões', 'MEDIUM', '📊'],
+      ['Relatórios e Customizações', 'Customização / Parametrização', 'MEDIUM', '🛠️'],
+      ['Operações e Estoque', 'Estoque / Inventário / Picking / Romaneio / PDV', 'MEDIUM', '📦'],
+      ['Financeiro', 'Financeiro', 'MEDIUM', '💰'],
+      ['Comercial e Vendas', 'Cadastros', 'MEDIUM', '🗂️'],
+      ['Comercial e Vendas', 'Compras / Pedido de Compra / Entrada de Nota', 'MEDIUM', '🛍️'],
+      ['Relatórios e Customizações', 'Importação de Dados / Planilhas', 'MEDIUM', '📥'],
+      ['Sistemas e Acessos', 'Infraestrutura / Atualização de Sistema', 'MEDIUM', '🖥️'],
+      ['Financeiro', 'Custo de Produto', 'MEDIUM', '🏷️'],
+      ['Atendimento e Treinamento', 'Atendimento Presencial / Visita / Agenda', 'MEDIUM', '📅'],
+      ['Atendimento e Treinamento', 'Treinamento', 'MEDIUM', '🎓'],
+    ]);
+  });
+});
