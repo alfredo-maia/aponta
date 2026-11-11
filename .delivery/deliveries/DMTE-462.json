@@ -46,7 +46,6 @@
     "applicable": true,
     "reused": [
       "EzPageLayout",
-      "EzPageHeader",
       "EzCardItem",
       "EzButton",
       "EzTextInput",
