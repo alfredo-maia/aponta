@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "delivery": "DMTE-458",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 183,
+  "multica_id": "01a1be16-6945-7c02-8801-7118c33d7605",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "o quadro é um contêiner de rolagem horizontal com snap, e as colunas não têm largura fixa de 290px.",
+      "tests": [
+        "DMTE-458: board is a snap-scroll container and columns are fluid (no fixed 290px)"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "em `lg` as colunas dividem a largura disponível (`lg:flex-1`) e nas telas menores alinham por snap (`snap-start`).",
+      "tests": [
+        "DMTE-458: board is a snap-scroll container and columns are fluid (no fixed 290px)"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-458.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-458/red.json",
+    "green": ".delivery/evidence/DMTE-458/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzAlert",
+      "EzTag",
+      "EzSpinner"
+    ]
+  }
+}
