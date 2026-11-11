@@ -20,7 +20,10 @@ interface Snapshot {
 /** Management estimate only: no cash receipts, taxes or net-profit claim. */
 @Injectable()
 export class CommercialReportsService {
-  constructor(private readonly prisma: PrismaService, private readonly permissions: PermissionsService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly permissions: PermissionsService,
+  ) {}
 
   async getCommercial(user: CurrentUserPayload, filters: { contractId?: string; month?: string } = {}) {
     if (user.role !== Role.ADMIN) throw new ForbiddenException('Resultado e custos são restritos ao administrador');

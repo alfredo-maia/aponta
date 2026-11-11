@@ -284,9 +284,13 @@ export function TicketWorklogs({
   // enquanto carrega ou se a consulta falhar) vale CONTRACT na tela e no envio;
   // o rascunho guarda a escolha e ela volta quando a permissão chega.
   // DMTE-479: valor manual também exige a permissão; o rascunho MANUAL de um
-  // ADMIN sem ela vale CONTRACT em vez de travar o envio.
+  // ADMIN sem ela vale CONTRACT em vez de travar o envio. Enquanto a permissão
+  // carrega, MANUAL fica e o envio é barrado pela validação do valor.
   const valuationType: ValuationType =
-    canSeeValuation && (selectedValuationType !== 'MANUAL' || canViewValues)
+    canSeeValuation &&
+    (selectedValuationType !== 'MANUAL' ||
+      canViewValues ||
+      effectivePermissions.isLoading)
       ? selectedValuationType
       : 'CONTRACT';
   const [manualValue, setManualValue] = useState<string>(
