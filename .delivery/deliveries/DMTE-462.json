@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "delivery": "DMTE-462",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 189,
+  "multica_id": "01a1be1a-a919-7054-8de1-b0dde9ccdfda",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 3,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "sem a permissão de edição de hora inicial (qualquer role), a API recusa lançamento manual de apontamento e a alteração de início ou fim de apontamento existente; descrição, tipo de atendimento e demais campos continuam editáveis.",
+      "tests": [
+        "apps/api/src/worklogs/worklogs.commercial.spec.ts",
+        "apps/api/src/permissions/permissions.service.spec.ts"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "com a permissão (grupo direto ou do grupo técnico), qualquer role lança e altera início e fim.",
+      "tests": [
+        "apps/api/src/worklogs/worklogs.commercial.spec.ts",
+        "apps/api/src/permissions/permissions.service.spec.ts"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "o PLAY de quem não tem a permissão ignora o início enviado pelo cliente e usa o relógio do servidor; com a permissão aceita o início informado.",
+      "tests": [
+        "apps/api/src/worklogs/worklogs.commercial.spec.ts"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "`/auth/me` informa se o usuário pode editar a hora inicial, e a tela mostra início e fim somente leitura e esconde o lançamento manual sem a permissão.",
+      "tests": [
+        "apps/api/src/auth/auth.controller.spec.ts",
+        "apps/web/src/components/tickets/TicketWorklogs.test.tsx"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "a chave existe no catálogo, o grupo padrão do administrador não a recebe, e a migração cria o grupo de edição de hora inicial sem membros.",
+      "tests": [
+        "apps/api/prisma/seed.spec.ts"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-462.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-462/red.json",
+    "green": ".delivery/evidence/DMTE-462/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": []
+  }
+}

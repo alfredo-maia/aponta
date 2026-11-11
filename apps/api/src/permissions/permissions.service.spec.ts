@@ -130,4 +130,30 @@ describe('PermissionsService', () => {
       await expect(service.canViewTicketValues('user-1')).resolves.toBe(false);
     });
   });
+
+  describe('canEditWorklogStartTime (DMTE-462 T1)', () => {
+    it('AC-02: é verdadeiro quando um grupo direto tem EDIT_WORKLOG_START_TIME', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({
+        permissionGroupLinks: [{ permissionGroup: { permissions: ['EDIT_WORKLOG_START_TIME'] } }],
+        technicalGroup: null,
+      });
+      await expect(service.canEditWorklogStartTime('user-1')).resolves.toBe(true);
+    });
+
+    it('AC-02: é verdadeiro quando o grupo técnico do usuário tem a permissão', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({
+        permissionGroupLinks: [],
+        technicalGroup: { permissionGroupLinks: [{ permissionGroup: { permissions: ['EDIT_WORKLOG_START_TIME'] } }] },
+      });
+      await expect(service.canEditWorklogStartTime('user-1')).resolves.toBe(true);
+    });
+
+    it('AC-01: é falso sem a permissão, mesmo com outras', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({
+        permissionGroupLinks: [{ permissionGroup: { permissions: ['VIEW_TICKET_VALUES'] } }],
+        technicalGroup: null,
+      });
+      await expect(service.canEditWorklogStartTime('user-1')).resolves.toBe(false);
+    });
+  });
 });

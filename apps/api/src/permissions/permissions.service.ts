@@ -61,4 +61,9 @@ export class PermissionsService {
   async canViewTicketValues(userId: string): Promise<boolean> {
     return this.hasPermission(userId, 'VIEW_TICKET_VALUES');
   }
+
+  /** DMTE-462 T1: stub neutro (sem o comportamento), substituído na implementação. */
+  async canEditWorklogStartTime(_userId: string): Promise<boolean> {
+    return false;
+  }
 }

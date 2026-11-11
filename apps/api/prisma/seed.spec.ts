@@ -1,5 +1,6 @@
 import { Role } from '@prisma/client';
 import { DEFAULT_PERMISSION_GROUPS } from './seed';
+import { PERMISSION_KEYS } from '../src/permission-groups/permission-catalog';
 
 /**
  * DMTE-126 (retrabalho da Tarefa 2, DMTE-84): o QA rejeitou a primeira
@@ -117,6 +118,15 @@ describe('DMTE-464 VIEW_TICKET_VALUES', () => {
   it('AC-06: nenhum grupo padrão por role traz a permissão; quem vê valor é decidido pelo grupo "Valores de tickets"', () => {
     for (const role of Object.values(Role)) {
       expect(DEFAULT_PERMISSION_GROUPS[role].permissions).not.toContain('VIEW_TICKET_VALUES');
+    }
+  });
+});
+
+describe('DMTE-462 T1 EDIT_WORKLOG_START_TIME', () => {
+  it('AC-05: a chave existe no catálogo e nenhum grupo padrão por role a traz', () => {
+    expect(PERMISSION_KEYS).toContain('EDIT_WORKLOG_START_TIME');
+    for (const role of Object.values(Role)) {
+      expect(DEFAULT_PERMISSION_GROUPS[role].permissions).not.toContain('EDIT_WORKLOG_START_TIME');
     }
   });
 });

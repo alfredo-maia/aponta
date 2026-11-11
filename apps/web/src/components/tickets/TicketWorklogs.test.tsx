@@ -113,6 +113,9 @@ let currentPermissions: string[] = [];
 // DMTE-464: null = segue o role (ADMIN vê valor), como o servidor fazia antes.
 let viewTicketValues: boolean | null = null;
 
+// DMTE-462 T1: quem pode digitar hora inicial e final (padrão do harness: pode).
+let editWorklogStartTime = true;
+
 function installApiStubs() {
   vi.mocked(api.get).mockImplementation((url: string) => {
     const path = String(url);
@@ -124,6 +127,7 @@ function installApiStubs() {
           isAdmin: role === 'ADMIN',
           permissions: currentPermissions,
           canViewTicketValues: viewTicketValues ?? role === 'ADMIN',
+          canEditWorklogStartTime: editWorklogStartTime,
         },
       });
     }
@@ -215,6 +219,7 @@ describe('TicketWorklogs', () => {
     currentWorklogs = [];
     preStore = [];
     viewTicketValues = null;
+    editWorklogStartTime = true;
     currentPermissions = [];
     installApiStubs();
     useAuthStore.setState({ token: null, user: null });
@@ -1286,6 +1291,39 @@ describe('TicketWorklogs', () => {
       const item = await screen.findByTestId('worklog-item-wl-1');
       expect(await within(item).findByText('R$ 100,00')).toBeInTheDocument();
       expect(await screen.findByTestId('worklog-footer-value')).toHaveTextContent('R$ 100,00');
+    });
+  });
+
+  describe('hora inicial por permissão (DMTE-462 T1)', () => {
+    const stoppedPre: PreRow = { id: 'stopped-pre', contractId: 'contract-1', beginning: '2026-10-14T12:00:00Z', ending: '2026-10-14T13:00:00Z', initTime: '09:00', endTime: '10:00', ticketId: 't-1', authorId: 'u-1', createdAt: '2026-10-14T12:00:00Z', author: { id: 'u-1', name: 'Técnico', email: 'agent@example.com' } };
+
+    it('AC-04: sem a permissão, o botão Apontamento (lançamento manual) fica desativado', async () => {
+      editWorklogStartTime = false;
+      loginAs('AGENT', 'u-1');
+      renderComponent('t-1', false);
+      await waitFor(() => expect(screen.getByTestId('open-worklog-modal-btn')).toBeDisabled());
+    });
+
+    it('AC-04: sem a permissão, converter o cronômetro abre início e fim somente leitura', async () => {
+      editWorklogStartTime = false;
+      loginAs('AGENT', 'u-1');
+      preStore = [stoppedPre];
+      renderComponent('t-1', false);
+      fireEvent.click(await screen.findByTestId('worklog-pre-convert-btn'));
+      await waitFor(() => expect(screen.getByTestId('worklog-start-time-input')).toHaveAttribute('readonly'));
+      expect(screen.getByTestId('worklog-end-time-input')).toHaveAttribute('readonly');
+    });
+
+    it('AC-04: com a permissão, o botão Apontamento abre o modal com início e fim editáveis', async () => {
+      editWorklogStartTime = true;
+      loginAs('AGENT', 'u-1');
+      renderComponent('t-1', false);
+      await waitFor(() => expect(api.get).toHaveBeenCalledWith('/auth/me'));
+      const openBtn = screen.getByTestId('open-worklog-modal-btn');
+      expect(openBtn).toBeEnabled();
+      fireEvent.click(openBtn);
+      expect(screen.getByTestId('worklog-start-time-input')).not.toHaveAttribute('readonly');
+      expect(screen.getByTestId('worklog-end-time-input')).not.toHaveAttribute('readonly');
     });
   });
 });
