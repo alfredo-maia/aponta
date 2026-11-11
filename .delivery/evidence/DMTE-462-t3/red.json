@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-11T20:29:59.645391+00:00",
+  "finished_at": "2026-11-11T20:36:29.368427+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run-many",
+    "-t",
+    "test",
+    "-p",
+    "api,web",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "00dbc0e9c4299d16e9efe9befb2a120a656aee45",
+  "head_sha": "959a3fdd5e1cb35ad2d56467e02a28b43ff07da4",
+  "exit_code": 1,
+  "tests": {
+    "apps/api/src/jobs/jobs.service.spec.ts": "2c4e18bec667589d7fb6fd9091ebbda01cc189b95bd4c7727f8e1be309cb732b",
+    "apps/api/src/jobs/cron.spec.ts": "7b69664515298323b41e68af0d43721dbd8805f0665a0bc2a464348ee42579dd",
+    "apps/api/src/jobs/jobs.controller.spec.ts": "8a06566fd78203c93dd378dba949fa72b3626b0842be47a577c610f52bee323f",
+    "apps/api/prisma/seed.spec.ts": "01a77287678079551087af82e6c132ca2016976ca4fb2aceb877e93822a604ba",
+    "apps/web/src/pages/ScheduledJobsPage.test.tsx": "989bb20cd7dabf7343edbd159e33f8623540633ef8c72908b0d7f5c58fe06fb5",
+    "apps/web/src/pages/SettingsPage.test.tsx": "199c06f51fe29159510638349cbc0d6aea355f40bed5ac2743f5ae588d011e43"
+  },
+  "criteria": [
+    "AC-14",
+    "AC-15",
+    "AC-16"
+  ],
+  "source_hashes": {
+    "apps/api/prisma/seed.spec.ts": "01a77287678079551087af82e6c132ca2016976ca4fb2aceb877e93822a604ba",
+    "apps/api/src/jobs/cron.spec.ts": "7b69664515298323b41e68af0d43721dbd8805f0665a0bc2a464348ee42579dd",
+    "apps/api/src/jobs/cron.ts": "8c6fbf439f710e83e47c261c891fe8d55515ee0114d4f1255fc2865d97e8996a",
+    "apps/api/src/jobs/jobs.controller.spec.ts": "8a06566fd78203c93dd378dba949fa72b3626b0842be47a577c610f52bee323f",
+    "apps/api/src/jobs/jobs.controller.ts": "7c599edcb642018301617e0dc5ec977d6921774060ec2d4c0c7d8bd375f609df",
+    "apps/api/src/jobs/jobs.service.spec.ts": "2c4e18bec667589d7fb6fd9091ebbda01cc189b95bd4c7727f8e1be309cb732b",
+    "apps/api/src/jobs/jobs.service.ts": "63a4474f852d4cb839f90791d39d0ba4a78d5859b7aa01ffac50a13a98f578f9",
+    "apps/web/src/pages/ScheduledJobsPage.test.tsx": "989bb20cd7dabf7343edbd159e33f8623540633ef8c72908b0d7f5c58fe06fb5",
+    "apps/web/src/pages/ScheduledJobsPage.tsx": "44981c37a4e83fd4ffe9f3663392c395faf125bb6e1003b1462fabdb2305181c",
+    "apps/web/src/pages/SettingsPage.test.tsx": "199c06f51fe29159510638349cbc0d6aea355f40bed5ac2743f5ae588d011e43"
+  },
+  "log": ".delivery/evidence/DMTE-462-t3/red.log",
+  "log_sha256": "2db616758c2528d55ab079b3f956bdd0c91e4d74913bdff48fcf69f539c1b145"
+}
