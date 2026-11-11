@@ -70,9 +70,11 @@ export function ReportsPage() {
           setActiveTab(id as 'WORKLOAD' | 'BILLING' | 'COMMERCIAL')
         }
       />
-      {activeTab === 'COMMERCIAL' && user?.role === 'ADMIN' && (
-        <CommercialReport contracts={contractsQ.data || []} />
-      )}
+      {activeTab === 'COMMERCIAL' &&
+        canViewValues &&
+        user?.role === 'ADMIN' && (
+          <CommercialReport contracts={contractsQ.data || []} />
+        )}
 
       {activeTab === 'WORKLOAD' && (
         <>
