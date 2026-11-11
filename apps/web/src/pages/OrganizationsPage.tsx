@@ -261,6 +261,7 @@ export function OrganizationsPage() {
   const [isScreenConfigModalOpen, setIsScreenConfigModalOpen] = useState(false);
   const [screenConfigInitialTab, setScreenConfigInitialTab] = useState<'grid' | 'form'>('grid');
   const [selectedOrgs, setSelectedOrgs] = useState<Organization[]>([]);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [focusedIndex, setFocusedIndex] = useState(0);
 
   // Modal para cadastro automático via CNPJ (Sankhya / Receita Federal)
@@ -831,16 +832,24 @@ export function OrganizationsPage() {
     }
   };
 
-  const handleDelete = () => {
+  // DMTE-481: "excluir" só inativa; a API recusa (409) com contrato ativo ou ticket aberto.
+  const handleDelete = async () => {
     const targets = selectedOrgs.length > 0 ? selectedOrgs : (detailOrgId && orgDetail ? [orgDetail] : []);
     if (targets.length === 0) return;
-    const confirmMsg = `Deseja inativar ${targets.length} empresa(s) selecionada(s)?`;
-    if (window.confirm(confirmMsg)) {
-      targets.forEach((o) => {
-        updateOrgMutation.mutate({ active: false });
-      });
-      setSelectedOrgs([]);
+    const confirmMsg = `O cliente será apenas inativado, não apagado (${targets.length} selecionado(s)). Contrato ativo ou ticket aberto impedem a ação. Deseja continuar?`;
+    if (!window.confirm(confirmMsg)) return;
+    const errors: string[] = [];
+    for (const org of targets) {
+      try {
+        await api.delete(`/organizations/${org.id}`);
+      } catch (err) {
+        const message = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
+        errors.push(`${org.name}: ${message ?? 'não foi possível excluir o cliente.'}`);
+      }
     }
+    setDeleteError(errors.length > 0 ? errors.join(' ') : null);
+    setSelectedOrgs([]);
+    void queryClient.invalidateQueries({ queryKey: ['organizations'] });
   };
 
   const handleClone = () => {
@@ -979,6 +988,12 @@ export function OrganizationsPage() {
               }
               actions={toolbarActions}
             />
+
+            {deleteError && (
+              <EzAlert variant="error" onClose={() => setDeleteError(null)}>
+                {deleteError}
+              </EzAlert>
+            )}
 
             {mode === 'list' && (
               <div className="flex flex-1 overflow-hidden min-h-[420px]">

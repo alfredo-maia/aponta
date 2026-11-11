@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-11T10:16:29.376488+00:00",
+  "finished_at": "2026-11-11T10:19:09.892512+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run-many",
+    "-t",
+    "test",
+    "-p",
+    "api,web",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "3abe1f097e2500dfb64db8f68635764b206d2255",
+  "head_sha": "6f4a33846edc83fd07b6053a0ff82ca6f741ab5b",
+  "exit_code": 1,
+  "tests": {
+    "apps/api/src/organizations/organizations.service.spec.ts": "9e643b95a5934077c74e733873e9e137328561eafa9475d4c83be7b44bec0f63",
+    "apps/web/src/pages/OrganizationsPage.test.tsx": "754251f5e2b300885c27b38beec05c69411c63b0b526ed3f0c3e6ee281e3671f"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04"
+  ],
+  "source_hashes": {
+    "apps/api/src/organizations/organizations.service.spec.ts": "9e643b95a5934077c74e733873e9e137328561eafa9475d4c83be7b44bec0f63",
+    "apps/web/src/pages/OrganizationsPage.test.tsx": "754251f5e2b300885c27b38beec05c69411c63b0b526ed3f0c3e6ee281e3671f"
+  },
+  "log": ".delivery/evidence/DMTE-481/red.log",
+  "log_sha256": "efa37eb075fdd117c9a3785d1fdc4d40d68ad57a19e984a2baba3d039bcbe2a5"
+}
