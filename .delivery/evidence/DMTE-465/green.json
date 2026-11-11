@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-11T01:57:35.229391+00:00",
+  "finished_at": "2026-11-11T01:57:57.508643+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run",
+    "web:test",
+    "--skip-nx-cache",
+    "--output-style=stream",
+    "src/pages/CreateTicketPage.test.tsx"
+  ],
+  "base_sha": "48da36f1e03a6a3f5d88153b90d910f0a9ca3ba7",
+  "head_sha": "44d32dc7faa6bdb5791070880faa4e7eda9f1372",
+  "exit_code": 0,
+  "tests": {
+    "apps/web/src/pages/CreateTicketPage.test.tsx": "95928ba43f1d3191359155b220d0b7d6f75ff53d455b7fcf856aaa23808e0c77"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02"
+  ],
+  "source_hashes": {
+    "apps/web/src/pages/CreateTicketPage.test.tsx": "95928ba43f1d3191359155b220d0b7d6f75ff53d455b7fcf856aaa23808e0c77",
+    "apps/web/src/pages/CreateTicketPage.tsx": "7b6cadc3cee7bd8e1434b242429daf85f7cdd0b5e32b68356fa4f6ea5c7de5ba"
+  },
+  "log": ".delivery/evidence/DMTE-465/green.log",
+  "log_sha256": "ba6a72ee4f4311a4660ebf097ad9e7c0e9010df3f078da18562a36afff72c3d7"
+}

@@ -66,7 +66,7 @@ export function CreateTicketPage() {
         priority: values.priority,
         attachmentCount: values.attachments?.length ?? 0,
       };
-      if (selectedCatalogItem) {
+      if (selectedCatalogItem && selectedCatalogItem.id !== 'custom') {
         payload.catalogItemId = selectedCatalogItem.id;
         payload.serviceDeskId = selectedCatalogItem.defaultServiceDeskId;
         payload.priority = selectedCatalogItem.defaultPriority;
