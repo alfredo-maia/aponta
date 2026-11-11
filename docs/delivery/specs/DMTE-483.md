@@ -11,12 +11,10 @@ Formulário e catálogo na mesma largura máxima; enquanto o catálogo carrega, 
 
 ## Acceptance criteria
 - AC-01: com a consulta de catálogo pendente, a página mostra um estado de carregamento e não renderiza o formulário.
-- AC-02: com a consulta de catálogo falhando, a página mostra o formulário em branco.
-- AC-03: com catálogo preenchido, a página mostra o catálogo; escolher um item mostra o formulário com o banner do serviço, e Escape ou voltar retorna ao catálogo.
 - AC-04: o contêiner do formulário usa a mesma largura máxima do contêiner do catálogo.
 
-## Regressões existentes
-AC-02 (parte de catálogo vazio) e AC-03 já passam hoje e continuam cobertos pelos testes existentes do arquivo; sem RED novo para eles. O RED real é AC-01 e AC-04.
+## Comportamento preservado (sem RED novo)
+Com a consulta de catálogo falhando ou vazia, a página abre o formulário em branco (teste "DMTE-483 AC-02: …" e testes existentes); com catálogo preenchido, mostra o catálogo, escolher um item mostra o formulário com o banner do serviço, e Escape ou voltar retorna ao catálogo (testes existentes). Esses comportamentos passam antes e depois, então não são critérios com RED. O RED real é AC-01 e AC-04.
 
 ## Testes
 `apps/web/src/pages/CreateTicketPage.test.tsx`, seam: a página renderizada com `api.get` mockado. Comando: `pnpm --filter @aponta/web exec vitest run src/pages/CreateTicketPage.test.tsx` (ajustar ao script real do app). jsdom não calcula layout; AC-04 compara a classe de largura máxima dos dois contêineres.

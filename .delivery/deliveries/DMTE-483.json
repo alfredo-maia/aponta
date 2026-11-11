@@ -15,22 +15,6 @@
       ]
     },
     {
-      "id": "AC-02",
-      "description": "com a consulta de catálogo falhando, a página mostra o formulário em branco.",
-      "tests": [
-        "DMTE-483 AC-02: com a consulta de catálogo falhando, abre o formulário em branco"
-      ]
-    },
-    {
-      "id": "AC-03",
-      "description": "com catálogo preenchido, a página mostra o catálogo; escolher um item mostra o formulário com o banner do serviço, e Escape ou voltar retorna ao catálogo.",
-      "tests": [
-        "shows the service catalog when the API returns categories, and lets the user pick an item",
-        "AC-3: Esc no formulário volta para o catálogo",
-        "lets the user go back from the form to the catalog view"
-      ]
-    },
-    {
       "id": "AC-04",
       "description": "o contêiner do formulário usa a mesma largura máxima do contêiner do catálogo.",
       "tests": [
