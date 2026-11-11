@@ -35,7 +35,11 @@ export function evaluateWorklogWindow(
       a.type === AppointmentType.AGENDA &&
       (a.ticketId === ticketId || a.ignoresWorklogRule) &&
       a.startTime.getTime() - WINDOW_LEAD_MS <= t && t <= a.endTime.getTime())
-    .sort((a, b) => Number(!covers(a)) - Number(!covers(b)) || a.startTime.getTime() - b.startTime.getTime());
+    // A agenda do ticket vale antes do compromisso que ignora a regra (o limite continua valendo); depois, a que inclui o instante; depois, a que começa primeiro.
+    .sort((a, b) =>
+      Number(a.ticketId !== ticketId) - Number(b.ticketId !== ticketId) ||
+      Number(!covers(a)) - Number(!covers(b)) ||
+      a.startTime.getTime() - b.startTime.getTime());
   if (!pick) return { ok: false, reason: 'NO_AGENDA' };
   return {
     ok: true,

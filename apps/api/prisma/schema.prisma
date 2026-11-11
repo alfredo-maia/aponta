@@ -817,9 +817,8 @@ model PreAppointment {
   ticket    Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   authorId  String
   author    User      @relation(fields: [authorId], references: [id])
-  /// DMTE-462 T2: agenda e limite de horas congelados no PLAY (apagar a agenda não muda o limite).
+  /// DMTE-462 T2: agenda e limite de horas congelados no PLAY. Sem FK de propósito: apagar a agenda não muda o limite.
   appointmentId String?
-  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
   limitMinutes  Int?
   createdAt DateTime  @default(now())
 
@@ -849,9 +848,8 @@ model Worklog {
   ticket         Ticket         @relation(fields: [ticketId], references: [id])
   authorId       String
   author         User           @relation(fields: [authorId], references: [id])
-  /// DMTE-462 T2: agenda a que o apontamento foi debitado (soma por agenda).
+  /// DMTE-462 T2: agenda a que o apontamento foi debitado (soma por agenda). Sem FK, como no cronômetro.
   appointmentId  String?
-  appointment    Appointment?   @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
   createdAt      DateTime       @default(now())
 
   @@index([contractId, startTime])
@@ -892,8 +890,6 @@ model Appointment {
   ticket         Ticket?         @relation(fields: [ticketId], references: [id])
   /// DMTE-462 T2: libera apontamento fora de uma agenda do ticket, sem limite de horas.
   ignoresWorklogRule Boolean     @default(false)
-  preAppointments PreAppointment[]
-  worklogs       Worklog[]
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 

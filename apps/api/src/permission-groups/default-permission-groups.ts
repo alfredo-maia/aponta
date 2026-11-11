@@ -1,6 +1,8 @@
 import { Role } from '@prisma/client';
 import { PERMISSION_KEYS } from './permission-catalog';
 
+const GROUP_ONLY_KEYS = ['VIEW_TICKET_VALUES', 'EDIT_WORKLOG_START_TIME', 'RELEASE_WORKLOG_WITHOUT_SCHEDULE'];
+
 /**
  * DMTE-84 (Tarefa 1): one default PermissionGroup per legacy Role enum
  * value, so every existing user has a real, visible permission group the
@@ -73,8 +75,6 @@ import { PERMISSION_KEYS } from './permission-catalog';
  * (todo usuário novo, não só os 2 usuários fixos do seed) possa linkar ao
  * mesmo grupo padrão — ver `ROLE_GROUP_NAME` abaixo.
  */
-const GROUP_ONLY_KEYS = ['VIEW_TICKET_VALUES', 'EDIT_WORKLOG_START_TIME', 'RELEASE_WORKLOG_WITHOUT_SCHEDULE'];
-
 export const DEFAULT_PERMISSION_GROUPS: Record<Role, { description: string; permissions: string[] }> = {
   [Role.ADMIN]: {
     description: 'Acesso administrativo completo (grupo padrão migrado do papel ADMIN)',

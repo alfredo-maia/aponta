@@ -1,10 +1,9 @@
--- DMTE-462 T2: janela da agenda para apontamento.
+-- DMTE-462 T2: janela da agenda para apontamento. Sem FK em PreAppointment e Worklog:
+-- apagar a agenda não pode soltar o limite congelado nem a soma por agenda.
 ALTER TABLE "Appointment" ADD COLUMN "ignoresWorklogRule" BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE "PreAppointment" ADD COLUMN "appointmentId" TEXT, ADD COLUMN "limitMinutes" INTEGER;
 ALTER TABLE "Worklog" ADD COLUMN "appointmentId" TEXT;
 CREATE INDEX "Worklog_appointmentId_idx" ON "Worklog"("appointmentId");
-ALTER TABLE "PreAppointment" ADD CONSTRAINT "PreAppointment_appointmentId_fkey" FOREIGN KEY ("appointmentId") REFERENCES "Appointment"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-ALTER TABLE "Worklog" ADD CONSTRAINT "Worklog_appointmentId_fkey" FOREIGN KEY ("appointmentId") REFERENCES "Appointment"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- Marcar um compromisso como "ignora a regra" depende só de um grupo explícito, sem membros;
 -- quem entra nele é decidido em Configurações > Grupos de permissões.

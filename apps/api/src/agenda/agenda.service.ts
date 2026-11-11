@@ -204,7 +204,7 @@ export class AgendaService {
     };
   }
 
-  /** DMTE-462 T2: sem desvio por role; só a permissão do grupo marca o compromisso. */
+  /** DMTE-462 T2: sem desvio por role; só a permissão do grupo marca, altera ou desmarca o compromisso que ignora a regra. */
   private async assertMayMarkIgnoresRule(marked: boolean | undefined, user: CurrentUserPayload) {
     if (marked && !(await this.permissions.hasPermission(user.id, 'RELEASE_WORKLOG_WITHOUT_SCHEDULE'))) {
       throw new ForbiddenException('Sem permissão para liberar apontamento sem agenda');
@@ -218,7 +218,7 @@ export class AgendaService {
       throw new ForbiddenException('Sem permissão para alterar este compromisso');
     }
 
-    await this.assertMayMarkIgnoresRule(dto.ignoresWorklogRule, user);
+    await this.assertMayMarkIgnoresRule(dto.ignoresWorklogRule === true || existing.ignoresWorklogRule, user);
 
     const start = dto.startTime ? new Date(dto.startTime) : existing.startTime;
     const end = dto.endTime ? new Date(dto.endTime) : existing.endTime;
