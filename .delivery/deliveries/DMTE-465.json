@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "delivery": "DMTE-465",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 182,
+  "multica_id": "01a1be1b-a6fb-79a2-90c3-36d23483508f",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "ao abrir um chamado em branco pelo catálogo, o payload de `POST /tickets` não contém `catalogItemId` e leva a mesa e a prioridade do formulário.",
+      "tests": [
+        "CreateTicketPage submits a blank ticket from the catalog without the synthetic custom item or an empty desk"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "itens reais do catálogo continuam enviando `catalogItemId`, mesa e prioridade do item.",
+      "tests": [
+        "CreateTicketPage forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-465.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-465/red.json",
+    "green": ".delivery/evidence/DMTE-465/green.json"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Correção de payload no submit; sem mudança visual nem componente DS."
+  }
+}
