@@ -57,6 +57,8 @@ Decisões:
 - [Proposta] Datas e janelas em America/Sao_Paulo, com os utilitários de horário de Brasília existentes. Permissões novas: edição de hora inicial, liberar apontamento sem agenda, aprovar fora da agenda, receber aviso de encerramento, gerenciar tarefas. A chave de edição não entra no grupo padrão do administrador (a chave é nova, então a migração não remove nada) e a migração cria o grupo de edição sem membros (como na DMTE-464); quem entra é decisão do Alfredo.
 - [Proposta] Apontamentos que já existem não mudam retroativamente; só ficam com início e fim travados para quem não tem a permissão.
 - [Proposta] Entre T1 e T2, quem não tem a permissão só lança pelo PLAY (manual recusado). T2 reabre o manual dentro da janela.
+- [Proposta, T2] A permissão de marcar compromisso que ignora a regra chama-se `RELEASE_WORKLOG_WITHOUT_SCHEDULE` (nome em inglês, como o catálogo). Quando uma agenda do ticket e um compromisso que ignora a regra cobrem o mesmo instante, vale a agenda do ticket (o limite continua valendo). Alterar ou desmarcar um compromisso já marcado exige a mesma permissão.
+- [Proposta, T2] `PreAppointment.appointmentId`, `PreAppointment.limitMinutes` e `Worklog.appointmentId` ficam sem chave estrangeira: apagar a agenda não solta o limite congelado nem a soma. A conferência de cronômetro aberto e de limite roda na transação, com a linha da agenda travada (`FOR UPDATE`).
 
 ## Acceptance criteria
 
@@ -121,6 +123,7 @@ Riscos:
 - Depois do deploy do T1, ninguém edita hora inicial até o Alfredo montar o grupo (efeito igual ao da DMTE-464).
 - RBAC e tenant: bloqueios no servidor, nunca só na tela; QA confere administrador sem a permissão e usuário com a permissão fora do administrador; notificações isoladas por usuário.
 - Concorrência: tarefas com trava e idempotência para mais de uma instância da API.
+- T2, riscos aceitos: cronômetro anterior ao T2 ou criado por quem tem a permissão de hora inicial não tem agenda e converte sem checar janela nem limite (só com os horários dele); quem tem a permissão de hora inicial também não é barrado por ausência ou férias; o cronômetro que passa do limite só é recusado na conversão, e quem não tem a permissão não ajusta os horários até o fechamento automático (T4) e a aprovação (T5); o consultor que cria a própria agenda a usa como janela, porque a permissão de agendar é a que já existe.
 - DS: reutilizar os componentes do DS do Aponta; componente novo do sino exige story ou exceção documentada.
 
 Fatias (cada uma com PR e QA próprios, em sequência): T1 → T2 → T3 → T4 → T5 → T6. T4 depende de T2 e T3; T5 de T2 e T4; T6 de T4 e T5. Glossário em `GLOSSARY.md`.

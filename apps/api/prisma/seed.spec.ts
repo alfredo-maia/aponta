@@ -130,3 +130,12 @@ describe('DMTE-462 T1 EDIT_WORKLOG_START_TIME', () => {
     }
   });
 });
+
+describe('DMTE-462 T2 RELEASE_WORKLOG_WITHOUT_SCHEDULE', () => {
+  it('AC-12: a chave existe no catálogo e nenhum grupo padrão por role a traz', () => {
+    expect(PERMISSION_KEYS).toContain('RELEASE_WORKLOG_WITHOUT_SCHEDULE');
+    for (const role of Object.values(Role)) {
+      expect(DEFAULT_PERMISSION_GROUPS[role].permissions).not.toContain('RELEASE_WORKLOG_WITHOUT_SCHEDULE');
+    }
+  });
+});

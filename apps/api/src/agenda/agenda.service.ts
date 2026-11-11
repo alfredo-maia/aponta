@@ -11,10 +11,14 @@ import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { QueryAppointmentDto } from './dto/query-appointment.dto';
+import { PermissionsService } from '../permissions/permissions.service';
 
 @Injectable()
 export class AgendaService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly permissions: PermissionsService,
+  ) {}
 
   async findAll(query: QueryAppointmentDto, user: CurrentUserPayload) {
     const baseWhere = TenantHelper.getAppointmentWhere(user);
@@ -136,8 +140,11 @@ export class AgendaService {
       description = description ?? link.descriptionSummary;
     }
 
+    await this.assertMayMarkIgnoresRule(dto.ignoresWorklogRule, user);
+
     return this.prisma.appointment.create({
       data: {
+        ignoresWorklogRule: dto.ignoresWorklogRule ?? false,
         title,
         description,
         startTime: start,
@@ -197,12 +204,21 @@ export class AgendaService {
     };
   }
 
+  /** DMTE-462 T2: sem desvio por role; só a permissão do grupo marca, altera ou desmarca o compromisso que ignora a regra. */
+  private async assertMayMarkIgnoresRule(marked: boolean | undefined, user: CurrentUserPayload) {
+    if (marked && !(await this.permissions.hasPermission(user.id, 'RELEASE_WORKLOG_WITHOUT_SCHEDULE'))) {
+      throw new ForbiddenException('Sem permissão para liberar apontamento sem agenda');
+    }
+  }
+
   async update(id: string, dto: UpdateAppointmentDto, user: CurrentUserPayload) {
     const existing = await this.findOne(id, user);
 
     if (user.role !== Role.ADMIN && existing.userId !== user.id) {
       throw new ForbiddenException('Sem permissão para alterar este compromisso');
     }
+
+    await this.assertMayMarkIgnoresRule(dto.ignoresWorklogRule === true || existing.ignoresWorklogRule, user);
 
     const start = dto.startTime ? new Date(dto.startTime) : existing.startTime;
     const end = dto.endTime ? new Date(dto.endTime) : existing.endTime;
@@ -228,6 +244,7 @@ export class AgendaService {
     return this.prisma.appointment.update({
       where: { id },
       data: {
+        ignoresWorklogRule: dto.ignoresWorklogRule,
         title,
         description,
         startTime: dto.startTime ? start : undefined,

@@ -1,4 +1,4 @@
-import { IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { AppointmentType } from '@prisma/client';
 
@@ -46,4 +46,9 @@ export class CreateAppointmentDto {
   @IsOptional()
   @IsString()
   ticketId?: string;
+
+  @ApiPropertyOptional({ description: 'Libera apontamento sem agenda do ticket (exige permissão própria)' })
+  @IsOptional()
+  @IsBoolean()
+  ignoresWorklogRule?: boolean;
 }

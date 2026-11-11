@@ -4,8 +4,9 @@ import { api } from '../../lib/api';
 import { Appointment, AppointmentType, CreateAppointmentInput, UpdateAppointmentInput } from '../../hooks/useAppointments';
 import { Ticket } from '../../hooks/useTickets';
 import { useAuthStore } from '../../stores/authStore';
+import { useCanReleaseWorklogWithoutSchedule } from '../../hooks/usePermissions';
 import { TicketSearchModal } from './TicketSearchModal';
-import { EzButton, EzModal, EzTextInput, EzBadge, EzSearch, EzDateInput, EzTimeInput } from '../ds';
+import { EzButton, EzCheck, EzModal, EzTextInput, EzBadge, EzSearch, EzDateInput, EzTimeInput } from '../ds';
 import { Search, Trash2, Unlink, User as UserIcon } from 'lucide-react';
 
 interface OrganizationOption {
@@ -61,6 +62,8 @@ export function AppointmentModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const userRole = useAuthStore((state) => state.user?.role);
+  const canRelease = useCanReleaseWorklogWithoutSchedule();
+  const [ignoresWorklogRule, setIgnoresWorklogRule] = useState(false);
 
   const organizationsQuery = useQuery({
     queryKey: ['organizations', 'appointment-picker'],
@@ -80,6 +83,7 @@ export function AppointmentModal({
       setTitle(appointment.title);
       setDescription(appointment.description || '');
       setType(appointment.type);
+      setIgnoresWorklogRule(appointment.ignoresWorklogRule === true);
       setOrganizationId(appointment.organizationId || '');
       setOrganizationName(appointment.organization?.name || '');
       setLinkedTicket(
@@ -104,6 +108,7 @@ export function AppointmentModal({
       setTitle('');
       setDescription('');
       setType(initialType);
+      setIgnoresWorklogRule(false);
       setStartDate(defaultDate);
       setStartTime('09:00');
       setEndDate(defaultDate);
@@ -157,6 +162,7 @@ export function AppointmentModal({
       type,
       organizationId: linkedTicket ? undefined : organizationId || undefined,
       ticketId: linkedTicket?.id || undefined,
+      ignoresWorklogRule: canRelease ? ignoresWorklogRule : undefined,
     };
 
     try {
@@ -331,6 +337,15 @@ export function AppointmentModal({
             />
           )}
         </div>
+
+        {canRelease && (
+          <EzCheck
+            label="Ignora a regra de apontamento"
+            checked={ignoresWorklogRule}
+            onChange={(e) => setIgnoresWorklogRule(e.target.checked)}
+            disabled={!canEdit || isSubmitting}
+          />
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>

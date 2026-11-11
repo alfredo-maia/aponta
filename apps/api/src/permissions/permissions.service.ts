@@ -62,6 +62,11 @@ export class PermissionsService {
     return this.hasPermission(userId, 'VIEW_TICKET_VALUES');
   }
 
+  /** DMTE-462 T2: só quem tem a chave marca compromisso que ignora a regra de apontamento. */
+  async canReleaseWorklogWithoutSchedule(userId: string): Promise<boolean> {
+    return this.hasPermission(userId, 'RELEASE_WORKLOG_WITHOUT_SCHEDULE');
+  }
+
   /** DMTE-462 T1: sem desvio por role; só o grupo de permissões libera digitar hora inicial e final. */
   async canEditWorklogStartTime(userId: string): Promise<boolean> {
     return this.hasPermission(userId, 'EDIT_WORKLOG_START_TIME');

@@ -1,6 +1,8 @@
 import { Role } from '@prisma/client';
 import { PERMISSION_KEYS } from './permission-catalog';
 
+const GROUP_ONLY_KEYS = ['VIEW_TICKET_VALUES', 'EDIT_WORKLOG_START_TIME', 'RELEASE_WORKLOG_WITHOUT_SCHEDULE'];
+
 /**
  * DMTE-84 (Tarefa 1): one default PermissionGroup per legacy Role enum
  * value, so every existing user has a real, visible permission group the
@@ -76,8 +78,8 @@ import { PERMISSION_KEYS } from './permission-catalog';
 export const DEFAULT_PERMISSION_GROUPS: Record<Role, { description: string; permissions: string[] }> = {
   [Role.ADMIN]: {
     description: 'Acesso administrativo completo (grupo padrão migrado do papel ADMIN)',
-    // DMTE-464 e DMTE-462: valores de tickets e edição de hora inicial só por grupo explícito, nunca por role.
-    permissions: PERMISSION_KEYS.filter((key) => key !== 'VIEW_TICKET_VALUES' && key !== 'EDIT_WORKLOG_START_TIME'),
+    // DMTE-464 e DMTE-462: chaves que só valem por grupo explícito, nunca por role.
+    permissions: PERMISSION_KEYS.filter((key) => !GROUP_ONLY_KEYS.includes(key)),
   },
   [Role.AGENT_MASTER]: {
     description: 'Gestão de atendimento (grupo padrão migrado do papel AGENT_MASTER)',

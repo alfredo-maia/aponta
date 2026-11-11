@@ -17,6 +17,7 @@ import { TenantHelper } from '../core/security/tenant.helper';
 import { TicketsService } from '../tickets/tickets.service';
 import { PermissionsService } from '../permissions/permissions.service';
 import { allocateCommercialSegments, isCompleteCommercialTerm } from './commercial-valuation';
+import { evaluateWorklogWindow, WINDOW_LEAD_MS } from './agenda-window';
 
 const BRASILIA_TZ = 'America/Sao_Paulo';
 const AUTHOR_SELECT = { select: { id: true, name: true, email: true } } as const;
@@ -164,13 +165,17 @@ export class WorklogsService {
        Math.round(dto.value * 100) > 2147483647 || (!billable && dto.value > 0))) {
       throw new BadRequestException('Informe um valor manual válido e faturável');
     }
-    // DMTE-462: sem a permissão não há lançamento manual; só o cronômetro, com os horários dele.
+    // DMTE-462: sem a permissão, o cronômetro só converte com os horários dele e o manual precisa de uma agenda.
     const canEditStart = await this.permissions.canEditWorklogStartTime(currentUser.id);
-    if (!canEditStart && !dto.preAppointmentId) {
-      throw new ForbiddenException('Sem permissão para informar a hora inicial; inicie pelo cronômetro (PLAY)');
-    }
+    let appointmentId: string | null = null;
     const afterCommit: Array<() => void> = [];
     const worklog = await this.prisma.$transaction(async (database) => {
+      if (!canEditStart && !dto.preAppointmentId) {
+        const window = await this.windowFor(database, authorId, ticketId, start);
+        await this.lockAppointment(database, window.appointmentId);
+        await this.assertWithinLimit(database, window.appointmentId, window.limitMinutes, minutes);
+        appointmentId = window.appointmentId;
+      }
       const valuation = await this.computeValuation(database, dto, valuationType, billable, start, end, ticketId, currentUser, authorId);
       let source: Prisma.InputJsonObject = {};
       if (dto.preAppointmentId) {
@@ -188,6 +193,10 @@ export class WorklogsService {
         if (!canEditStart && (!sameMinute(start, pre.beginning) || !sameMinute(end, pre.ending))) {
           throw new ForbiddenException('Sem permissão para alterar a hora inicial ou final do cronômetro');
         }
+        if (pre.appointmentId) {
+          if (!canEditStart) await this.assertWithinLimit(database, pre.appointmentId, pre.limitMinutes, minutes);
+          appointmentId = pre.appointmentId;
+        }
         source = { sourcePreAppointmentId: pre.id, sourceBeginning: pre.beginning.toISOString(), sourceEnding: pre.ending.toISOString(),
           sourceContractId: pre.contractId, sourceContractChanged: pre.contractId !== valuation.contractId };
       }
@@ -204,6 +213,7 @@ export class WorklogsService {
       bonusReason: courtesy ? dto.bonusReason!.trim() : null,
       ...valuation,
       sourcePreAppointmentId: dto.preAppointmentId ?? null,
+      ...(appointmentId ? { appointmentId } : {}),
       valuationSnapshot: { ...valuation.valuationSnapshot, ...source },
     };
 
@@ -453,6 +463,34 @@ export class WorklogsService {
     return ticket;
   }
 
+  /** DMTE-462 T2: agenda que vale para o autor, o ticket e o instante; recusa sem agenda ou em ausência/férias. */
+  private async windowFor(db: Pick<Prisma.TransactionClient, 'appointment'>, userId: string, ticketId: string, at: Date) {
+    const appointments = await db.appointment.findMany({
+      where: { userId, endTime: { gte: at }, startTime: { lte: new Date(at.getTime() + WINDOW_LEAD_MS) } },
+    });
+    const decision = evaluateWorklogWindow(appointments, ticketId, at);
+    if (!decision.ok) {
+      throw new ForbiddenException(decision.reason === 'ABSENCE'
+        ? 'Ausência ou férias neste período: não é possível apontar'
+        : 'Sem agenda deste ticket neste horário. Peça ao gerente para agendar ou liberar o apontamento');
+    }
+    return decision;
+  }
+
+  /** Serializa PLAYs e lançamentos da mesma agenda: a soma e o cronômetro aberto são conferidos com a linha travada. */
+  private async lockAppointment(db: Prisma.TransactionClient, appointmentId: string) {
+    await db.$queryRaw(Prisma.sql`SELECT id FROM "Appointment" WHERE id = ${appointmentId} FOR UPDATE`);
+  }
+
+  /** Soma por agenda não passa do limite; `null` = sem limite (compromisso que ignora a regra). */
+  private async assertWithinLimit(db: Pick<Prisma.TransactionClient, 'worklog'>, appointmentId: string, limitMinutes: number | null, minutes: number) {
+    if (limitMinutes === null) return;
+    const { _sum } = await db.worklog.aggregate({ _sum: { minutes: true }, where: { appointmentId, voidedAt: null } });
+    if ((_sum.minutes ?? 0) + minutes > limitMinutes) {
+      throw new BadRequestException('Limite de horas da agenda excedido');
+    }
+  }
+
   async createPreAppointment(
     ticketId: string,
     dto: CreatePreAppointmentDto,
@@ -469,12 +507,27 @@ export class WorklogsService {
 
     const initTime = (canEditStart && dto.initTime) || brasiliaHhMm(beginning);
 
+
     return this.prisma.$transaction(async database => {
       const { ticket: context, contracts } = await this.commercialContext(database, ticketId, currentUser, beginning, new Date(beginning.getTime() + 60000), dto.contractId);
       if (contracts.length !== 1) throw new BadRequestException(contracts.length ? 'Selecione o contrato para o cronômetro' : 'Nenhum contrato aprovado e vigente cobre esta empresa e mesa');
       await database.$queryRaw(Prisma.sql`SELECT id FROM "Contract" WHERE id = ${contracts[0].id} FOR UPDATE`);
       const current = await database.contract.findUniqueOrThrow({ where: { id: contracts[0].id }, include: { terms: true, lifecycleEvents: { orderBy: [{ effectiveFrom: 'asc' }, { createdAt: 'asc' }] }, serviceDesks: { select: { id: true } } } });
       if (!context.commercialOrganizationId || !this.contractCovers(current, context.commercialOrganizationId, context.serviceDeskId, beginning, new Date(beginning.getTime() + 60000))) throw new BadRequestException('Contrato não está mais elegível');
+      // DMTE-462 T2: sem a permissão, o PLAY exige agenda livre e congela agenda e limite no cronômetro.
+      let frozen: { appointmentId: string; limitMinutes: number | null } | undefined;
+      if (!canEditStart) {
+        const window = await this.windowFor(database, currentUser.id, ticketId, beginning);
+        await this.lockAppointment(database, window.appointmentId);
+        if (await database.preAppointment.findFirst({
+          where: { authorId: currentUser.id, appointmentId: window.appointmentId, ending: null },
+          select: { id: true },
+        })) {
+          throw new BadRequestException('Já há um cronômetro aberto nesta agenda');
+        }
+        await this.assertWithinLimit(database, window.appointmentId, window.limitMinutes, 1);
+        frozen = { appointmentId: window.appointmentId, limitMinutes: window.limitMinutes };
+      }
       return database.preAppointment.create({
       data: {
         ticketId,
@@ -482,6 +535,7 @@ export class WorklogsService {
         beginning,
         initTime,
         contractId: current.id,
+        ...frozen,
       },
       include: { author: AUTHOR_SELECT },
       });

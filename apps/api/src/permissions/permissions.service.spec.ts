@@ -156,4 +156,19 @@ describe('PermissionsService', () => {
       await expect(service.canEditWorklogStartTime('user-1')).resolves.toBe(false);
     });
   });
+
+  describe('canReleaseWorklogWithoutSchedule (DMTE-462 T2)', () => {
+    it('AC-12: é verdadeiro com a chave num grupo direto e falso sem ela', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({
+        permissionGroupLinks: [{ permissionGroup: { permissions: ['RELEASE_WORKLOG_WITHOUT_SCHEDULE'] } }],
+        technicalGroup: null,
+      });
+      await expect(service.canReleaseWorklogWithoutSchedule('user-1')).resolves.toBe(true);
+      mockPrisma.user.findUnique.mockResolvedValue({
+        permissionGroupLinks: [{ permissionGroup: { permissions: ['EDIT_WORKLOG_START_TIME'] } }],
+        technicalGroup: null,
+      });
+      await expect(service.canReleaseWorklogWithoutSchedule('user-1')).resolves.toBe(false);
+    });
+  });
 });

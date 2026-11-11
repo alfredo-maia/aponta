@@ -9,6 +9,8 @@ interface EffectivePermissions {
   canViewTicketValues: boolean;
   /** DMTE-462: sem desvio por role; só o grupo de permissões libera digitar hora inicial e final. */
   canEditWorklogStartTime: boolean;
+  /** DMTE-462 T2: só o grupo de permissões libera marcar compromisso que ignora a regra de apontamento. */
+  canReleaseWorklogWithoutSchedule: boolean;
 }
 
 interface MeResponse extends EffectivePermissions {
@@ -31,6 +33,7 @@ export function useEffectivePermissions() {
         permissions: data.permissions ?? [],
         canViewTicketValues: data.canViewTicketValues === true,
         canEditWorklogStartTime: data.canEditWorklogStartTime === true,
+        canReleaseWorklogWithoutSchedule: data.canReleaseWorklogWithoutSchedule === true,
       };
     },
     enabled: !!token,
@@ -54,4 +57,9 @@ export function useCanViewTicketValues(): boolean {
 export function useCanEditWorklogStartTime(): boolean {
   const { data } = useEffectivePermissions();
   return data ? data.canEditWorklogStartTime : true;
+}
+
+export function useCanReleaseWorklogWithoutSchedule(): boolean {
+  const { data } = useEffectivePermissions();
+  return data?.canReleaseWorklogWithoutSchedule === true;
 }
