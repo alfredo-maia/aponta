@@ -11,10 +11,11 @@ Formulário e catálogo na mesma largura máxima; enquanto o catálogo carrega, 
 
 ## Acceptance criteria
 - AC-01: com a consulta de catálogo pendente, a página mostra um estado de carregamento e não renderiza o formulário.
+- AC-02: com a consulta de catálogo falhando, a página mostra o formulário em branco sem esperar as retentativas do React Query (o `QueryClient` do App usa as 3 retentativas padrão, ~7s de espera).
 - AC-04: o contêiner do formulário usa a mesma largura máxima do contêiner do catálogo.
 
 ## Comportamento preservado (sem RED novo)
-Com a consulta de catálogo falhando ou vazia, a página abre o formulário em branco (teste "DMTE-483 AC-02: …" e testes existentes); com catálogo preenchido, mostra o catálogo, escolher um item mostra o formulário com o banner do serviço, e Escape ou voltar retorna ao catálogo (testes existentes). Esses comportamentos passam antes e depois, então não são critérios com RED. O RED real é AC-01 e AC-04.
+Com o catálogo vazio, a página abre o formulário em branco (testes existentes); com catálogo preenchido, mostra o catálogo, escolher um item mostra o formulário com o banner do serviço, e Escape ou voltar retorna ao catálogo (testes existentes). Esses comportamentos passam antes e depois, então não são critérios com RED. O RED real é AC-01 e AC-04, mais AC-02 achado no code-review (ciclo r2: RED contra o código já com AC-01/AC-04, evidência em `red-r2.json`/`green-r2.json`; a primeira evidência `red.json`/`green.json` fica como histórico).
 
 ## Testes
 `apps/web/src/pages/CreateTicketPage.test.tsx`, seam: a página renderizada com `api.get` mockado. Comando: `pnpm --filter @aponta/web exec vitest run src/pages/CreateTicketPage.test.tsx` (ajustar ao script real do app). jsdom não calcula layout; AC-04 compara a classe de largura máxima dos dois contêineres.

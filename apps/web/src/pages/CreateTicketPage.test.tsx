@@ -87,11 +87,13 @@ describe('CreateTicketPage', () => {
     expect(screen.queryByText('Abrir Chamado')).not.toBeInTheDocument();
   });
 
-  it('DMTE-483 AC-02: com a consulta de catálogo falhando, abre o formulário em branco', async () => {
+  it('DMTE-483 AC-02: com a consulta de catálogo falhando, abre o formulário em branco sem esperar retentativas', async () => {
     vi.mocked(api.get).mockImplementation((url) => {
       if (url === '/catalog') return Promise.reject(new Error('boom'));
       return Promise.resolve({ data: [] });
     });
+    // Mesmo QueryClient do App (retentativas padrão): o formulário não pode esperar o backoff.
+    queryClient = new QueryClient();
     renderPage();
 
     expect(await screen.findByLabelText(/título \(assunto\)/i)).toBeInTheDocument();

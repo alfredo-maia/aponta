@@ -15,6 +15,13 @@
       ]
     },
     {
+      "id": "AC-02",
+      "description": "com a consulta de catálogo falhando, a página mostra o formulário em branco sem esperar as retentativas do React Query (o `QueryClient` do App usa as 3 retentativas padrão, ~7s de espera).",
+      "tests": [
+        "DMTE-483 AC-02: com a consulta de catálogo falhando, abre o formulário em branco sem esperar retentativas"
+      ]
+    },
+    {
       "id": "AC-04",
       "description": "o contêiner do formulário usa a mesma largura máxima do contêiner do catálogo.",
       "tests": [
@@ -25,8 +32,8 @@
   "spec": "docs/delivery/specs/DMTE-483.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-483/red.json",
-    "green": ".delivery/evidence/DMTE-483/green.json"
+    "red": ".delivery/evidence/DMTE-483/red-r2.json",
+    "green": ".delivery/evidence/DMTE-483/green-r2.json"
   },
   "design_system": {
     "applicable": true,
