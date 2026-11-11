@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "delivery": "DMTE-474",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 180,
+  "multica_id": "01a1c83a-38b6-7834-bbbc-13bf835c0462",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "`aponta-triage` e `aponta-deps` não existem em `.agents/skills`, e nenhum documento do repositório os cita como skill em uso.",
+      "tests": [
+        "Busca por referências e verificadores de skills"
+      ],
+      "tdd_required": false,
+      "reason": "Documentação e remoção de arquivos de skill; sem comportamento"
+    },
+    {
+      "id": "AC-02",
+      "description": "`docs/agents/akita-mapping.md` aponta cada princípio para a skill genérica que o agente carrega e explica onde as skills vivem.",
+      "tests": [
+        "Busca por referências e verificadores de skills"
+      ],
+      "tdd_required": false,
+      "reason": "Documentação e remoção de arquivos de skill; sem comportamento"
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-474.md",
+  "tdd": {
+    "mode": "not-applicable",
+    "reason": "Só documentação e arquivos de skill; nenhum código com comportamento"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Só documentação e skills; nenhuma UI"
+  }
+}
