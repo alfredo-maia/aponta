@@ -1018,12 +1018,8 @@ describe('TicketsService', () => {
 
       expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
         where: {
-          requester: {
-            AND: [
-              { organizationId: 'my-org' },
-              { organizationId: 'org-not-mine' },
-            ],
-          },
+          AND: [{ OR: [{ requester: { organizationId: 'my-org' } }, { commercialOrganizationId: 'my-org' }] }],
+          requester: { organizationId: 'org-not-mine' },
         },
         skip: 0,
         take: 20,
@@ -1051,17 +1047,39 @@ describe('TicketsService', () => {
 
       expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
         where: {
+          AND: [{ OR: [{ requester: { organizationId: 'my-org' } }, { commercialOrganizationId: 'my-org' }] }],
           requester: {
-            AND: [
-              { organizationId: 'my-org' },
-              {
-                OR: [
-                  { name: { contains: 'maria', mode: 'insensitive' } },
-                  { email: { contains: 'maria', mode: 'insensitive' } },
-                ],
-              },
+            OR: [
+              { name: { contains: 'maria', mode: 'insensitive' } },
+              { email: { contains: 'maria', mode: 'insensitive' } },
             ],
           },
+        },
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+        include: expect.any(Object),
+      });
+    });
+  });
+
+  describe('findAll: CLIENT_MASTER e Cliente comercial (DMTE-485 AC-16)', () => {
+    it('DMTE-485 AC-16: search de CLIENT_MASTER não derruba o recorte da organização', async () => {
+      mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+      await service.findAll(
+        { search: 'impressora' },
+        { id: 'client-master-1', role: Role.CLIENT_MASTER, organizationId: 'my-org' },
+      );
+
+      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
+        where: {
+          AND: [{ OR: [{ requester: { organizationId: 'my-org' } }, { commercialOrganizationId: 'my-org' }] }],
+          OR: [
+            { title: { contains: 'impressora', mode: 'insensitive' } },
+            { protocol: { contains: 'impressora', mode: 'insensitive' } },
+            { description: { contains: 'impressora', mode: 'insensitive' } },
+          ],
         },
         skip: 0,
         take: 20,

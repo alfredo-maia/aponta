@@ -12,8 +12,9 @@ describe('TenantHelper', () => {
   it('DMTE-485 AC-16: CLIENT_MASTER enxerga o ticket da própria organização pelo solicitante ou pelo Cliente comercial', () => {
     const user: CurrentUserPayload = { id: 'u2', role: Role.CLIENT_MASTER, organizationId: 'org1' };
     const where = TenantHelper.getTicketWhere(user);
+    // Dentro de AND: o findAll sobrescreve `where.OR` quando há `search`, e isso derrubaria o recorte.
     expect(where).toEqual({
-      OR: [{ requester: { organizationId: 'org1' } }, { commercialOrganizationId: 'org1' }],
+      AND: [{ OR: [{ requester: { organizationId: 'org1' } }, { commercialOrganizationId: 'org1' }] }],
     });
   });
 
