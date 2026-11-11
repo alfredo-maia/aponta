@@ -164,6 +164,11 @@ export class WorklogsService {
        Math.round(dto.value * 100) > 2147483647 || (!billable && dto.value > 0))) {
       throw new BadRequestException('Informe um valor manual válido e faturável');
     }
+    // DMTE-462: sem a permissão não há lançamento manual; só o cronômetro, com os horários dele.
+    const canEditStart = await this.permissions.canEditWorklogStartTime(currentUser.id);
+    if (!canEditStart && !dto.preAppointmentId) {
+      throw new ForbiddenException('Sem permissão para informar a hora inicial; inicie pelo cronômetro (PLAY)');
+    }
     const afterCommit: Array<() => void> = [];
     const worklog = await this.prisma.$transaction(async (database) => {
       const valuation = await this.computeValuation(database, dto, valuationType, billable, start, end, ticketId, currentUser, authorId);
@@ -177,6 +182,11 @@ export class WorklogsService {
         }
         if (await database.worklog.findUnique({ where: { sourcePreAppointmentId: pre.id } })) {
           throw new BadRequestException('Este pré-apontamento já foi convertido');
+        }
+        // O formulário trabalha em HH:mm, então a comparação é no minuto.
+        const sameMinute = (a: Date, b: Date) => Math.floor(a.getTime() / 60000) === Math.floor(b.getTime() / 60000);
+        if (!canEditStart && (!sameMinute(start, pre.beginning) || !sameMinute(end, pre.ending))) {
+          throw new ForbiddenException('Sem permissão para alterar a hora inicial ou final do cronômetro');
         }
         source = { sourcePreAppointmentId: pre.id, sourceBeginning: pre.beginning.toISOString(), sourceEnding: pre.ending.toISOString(),
           sourceContractId: pre.contractId, sourceContractChanged: pre.contractId !== valuation.contractId };
@@ -450,12 +460,14 @@ export class WorklogsService {
   ) {
     await this.assertTicketForPreAppointments(ticketId, currentUser);
 
-    const beginning = dto.beginning ? new Date(dto.beginning) : new Date();
+    // DMTE-462: sem a permissão o início é o relógio do servidor, nunca o enviado pelo navegador.
+    const canEditStart = await this.permissions.canEditWorklogStartTime(currentUser.id);
+    const beginning = canEditStart && dto.beginning ? new Date(dto.beginning) : new Date();
     if (isNaN(beginning.getTime())) {
       throw new BadRequestException('Horário de início inválido');
     }
 
-    const initTime = dto.initTime || brasiliaHhMm(beginning);
+    const initTime = (canEditStart && dto.initTime) || brasiliaHhMm(beginning);
 
     return this.prisma.$transaction(async database => {
       const { ticket: context, contracts } = await this.commercialContext(database, ticketId, currentUser, beginning, new Date(beginning.getTime() + 60000), dto.contractId);
@@ -505,7 +517,8 @@ export class WorklogsService {
       throw new ForbiddenException('Você não tem permissão para encerrar o pré-apontamento de outro usuário');
     }
 
-    const ending = dto.ending ? new Date(dto.ending) : new Date();
+    const canEditStart = await this.permissions.canEditWorklogStartTime(currentUser.id);
+    const ending = canEditStart && dto.ending ? new Date(dto.ending) : new Date();
     if (isNaN(ending.getTime())) {
       throw new BadRequestException('Horário de término inválido');
     }
@@ -514,7 +527,7 @@ export class WorklogsService {
       throw new BadRequestException('O horário de término deve ser posterior ao início');
     }
 
-    const endTime = dto.endTime || brasiliaHhMm(ending);
+    const endTime = (canEditStart && dto.endTime) || brasiliaHhMm(ending);
 
     return this.prisma.preAppointment.update({
       where: { id: preAppointmentId },

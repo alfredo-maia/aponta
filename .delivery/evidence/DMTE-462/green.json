@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-11T04:21:55.084485+00:00",
+  "finished_at": "2026-11-11T04:26:58.672341+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run-many",
+    "-t",
+    "test",
+    "-p",
+    "api,web",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "d15fbcc3eef71591df9e81d381c3ff7e9cf09024",
+  "head_sha": "add45d9b3b7d1b576d684657a69d7261f9c3cbd8",
+  "exit_code": 0,
+  "tests": {
+    "apps/api/src/worklogs/worklogs.commercial.spec.ts": "382c4edb60d755decedf687805c6647f9ad6535204bf3f3291d1006b536ee134",
+    "apps/api/src/permissions/permissions.service.spec.ts": "dde1f181115f72b1560fb9f79d8dde4f53e85802239fb12f22eff204ab79879b",
+    "apps/api/src/auth/auth.controller.spec.ts": "c6e1621bfd6740cb09115335e916056b0e8e2998cc740095589c9a3781d026f7",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "292ab05661946b9a65fcbce0a3f9306509bfac82f4413d632bbcdf3d5ce5509e",
+    "apps/api/prisma/seed.spec.ts": "0107484d45ef059d83c30c9e2725f43b06585c3720d9a77223efd40e6bbea915"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "source_hashes": {
+    "GLOSSARY.md": "260beef4798820da5b01db0d9d95e884c6163e38d59d7002ea48cb814e05937b",
+    "apps/api/prisma/migrations/20261111130000_edit_worklog_start_time_group/migration.sql": "80ee30bc3c15afd7abec226ff465d3666252777a66cac355264b47bc82ad34c2",
+    "apps/api/prisma/seed.spec.ts": "0107484d45ef059d83c30c9e2725f43b06585c3720d9a77223efd40e6bbea915",
+    "apps/api/src/auth/auth.controller.spec.ts": "c6e1621bfd6740cb09115335e916056b0e8e2998cc740095589c9a3781d026f7",
+    "apps/api/src/auth/auth.controller.ts": "9b1aa1cee6d754e9c5f9d85536e3268b22d88f00e2a60a5c65b33e663938cd1f",
+    "apps/api/src/permission-groups/default-permission-groups.ts": "3c756cc2367405b8cab558802f2567dfcf299cdeded976d4a8a986e48b53eac6",
+    "apps/api/src/permission-groups/permission-catalog.ts": "de0c17c432a3239d13a5ff9f6da0389ede66f6b8df92c3a2e52c898026d6a450",
+    "apps/api/src/permissions/permissions.service.spec.ts": "dde1f181115f72b1560fb9f79d8dde4f53e85802239fb12f22eff204ab79879b",
+    "apps/api/src/permissions/permissions.service.ts": "d96690b97819ef8590e16949fb08977ce570d39f356ee34aab894cf78bf9ff42",
+    "apps/api/src/worklogs/worklogs.commercial.spec.ts": "382c4edb60d755decedf687805c6647f9ad6535204bf3f3291d1006b536ee134",
+    "apps/api/src/worklogs/worklogs.service.spec.ts": "44528c5db9cfb14657b35366645b9a72ec73a8d995fdd3bdc4a2adcafbb0977e",
+    "apps/api/src/worklogs/worklogs.service.ts": "501d3664022d1a529d3ac9eded94e9ec88fdf64721c513162f64cd7ae7b2f425",
+    "apps/web-e2e/src/support/permission-groups.ts": "2064b7c6057bcf24df4478745a2b0c2adc6f76766faba92cc1d97cab7afe5a65",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "292ab05661946b9a65fcbce0a3f9306509bfac82f4413d632bbcdf3d5ce5509e",
+    "apps/web/src/components/tickets/TicketWorklogs.tsx": "235cb7d9aedfbec860d9142e4368bb5dcffdb0fe73c88b19867b8c201c1322b9",
+    "apps/web/src/hooks/usePermissions.ts": "808a8e4b99f329d4101d710d8d81867a4fbeb886794fb2ce1cc036e393a870c8"
+  },
+  "log": ".delivery/evidence/DMTE-462/green.log",
+  "log_sha256": "6746c82ce11b7fb912444ee52fc73363c6da5c8e4a8e5ad10824cb4412113566"
+}

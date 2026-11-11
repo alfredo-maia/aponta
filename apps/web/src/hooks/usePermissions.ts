@@ -7,6 +7,8 @@ interface EffectivePermissions {
   permissions: string[];
   /** DMTE-464: sem bypass de ADMIN; só o grupo de permissões decide. */
   canViewTicketValues: boolean;
+  /** DMTE-462: sem desvio por role; só o grupo de permissões libera digitar hora inicial e final. */
+  canEditWorklogStartTime: boolean;
 }
 
 interface MeResponse extends EffectivePermissions {
@@ -28,6 +30,7 @@ export function useEffectivePermissions() {
         isAdmin: data.isAdmin,
         permissions: data.permissions ?? [],
         canViewTicketValues: data.canViewTicketValues === true,
+        canEditWorklogStartTime: data.canEditWorklogStartTime === true,
       };
     },
     enabled: !!token,
@@ -43,4 +46,12 @@ export function useHasPermission(key: string): boolean {
 export function useCanViewTicketValues(): boolean {
   const { data } = useEffectivePermissions();
   return data?.canViewTicketValues === true;
+}
+
+/**
+ * shortcut: permissivo enquanto /auth/me carrega, para o botão não piscar desativado; o servidor é quem bloqueia.
+ */
+export function useCanEditWorklogStartTime(): boolean {
+  const { data } = useEffectivePermissions();
+  return data ? data.canEditWorklogStartTime : true;
 }

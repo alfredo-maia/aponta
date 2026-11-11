@@ -54,6 +54,11 @@
   },
   "design_system": {
     "applicable": true,
-    "reused": []
+    "reused": [
+      "EzButton",
+      "EzDateInput",
+      "EzTimeInput"
+    ],
+    "reason": "T1: somente leitura e botão desativado em TicketWorklogs.tsx; nenhum componente DS novo ou alterado."
   }
 }
