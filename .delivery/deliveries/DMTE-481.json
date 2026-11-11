@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "delivery": "DMTE-481",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 199,
+  "multica_id": "01a1ca18-b4c4-7511-afe9-043979a5bd73",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "`OrganizationsService.remove` lança `ConflictException` com mensagem quando o cliente tem contrato com `active=true`, sem alterar o cliente.",
+      "tests": [
+        "OrganizationsService > remove > DMTE-481 AC-01: recusa com 409 quando o cliente tem contrato ativo, sem alterar o cliente"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "`OrganizationsService.remove` lança `ConflictException` com mensagem quando há ticket aberto do cliente (solicitante ou cliente comercial), sem alterar o cliente.",
+      "tests": [
+        "OrganizationsService > remove > DMTE-481 AC-02: recusa com 409 quando há ticket aberto do cliente (solicitante ou cliente comercial)"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "sem restrições, `OrganizationsService.remove` define `active=false`, não chama `organization.delete` e devolve o cliente inativado.",
+      "tests": [
+        "OrganizationsService > remove > DMTE-481 AC-03: sem restrições apenas inativa o cliente, sem apagar o registro"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "na tela Clientes, a lixeira com cliente selecionado confirma avisando que será apenas inativado, chama `DELETE /organizations/:id` e mostra a mensagem de erro da API quando a exclusão é recusada.",
+      "tests": [
+        "OrganizationsPage > DMTE-481 AC-04: a lixeira avisa que o cliente será apenas inativado e chama DELETE /organizations/:id",
+        "OrganizationsPage > DMTE-481 AC-04: mostra a mensagem da API quando a exclusão é recusada (contrato ativo/ticket aberto)"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-481.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-481/red.json",
+    "green": ".delivery/evidence/DMTE-481/green.json"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Sem componente DS novo ou alterado: só lógica de handler e mensagem na OrganizationsPage existente."
+  }
+}
