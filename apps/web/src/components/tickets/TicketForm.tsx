@@ -349,7 +349,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
         <EzAlert variant="error">{submitError}</EzAlert>
       )}
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap items-center justify-between gap-4 pt-2">
         <div>
           <EzButton
             type="button"
@@ -360,7 +360,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
           />
         </div>
         
-        <div className="flex items-center justify-end gap-3 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center justify-end gap-3 w-full sm:w-auto sm:ml-auto">
           <EzButton
             type="button"
             variant="secondary"
