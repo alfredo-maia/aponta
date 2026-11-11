@@ -208,7 +208,7 @@ export function CreateTicketPage() {
                         <button
                           type="button"
                           onClick={() => setSelectedCatalogItem(item)}
-                          className="w-full cursor-pointer rounded-card p-2 text-left hover:bg-gray-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-200"
+                          className="w-full cursor-pointer rounded-card p-2 text-left hover:bg-gray-100 focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-200"
                         >
                           <span className="block break-words font-medium text-brand-600">
                             {item.icon || '📄'} {item.title}
