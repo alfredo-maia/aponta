@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, TicketStatus } from '@prisma/client';
 import { CreateOrganizationAddressDto } from './dto/create-organization-address.dto';
 import { CreateOrganizationContactDto } from './dto/create-organization-contact.dto';
 
@@ -75,11 +75,23 @@ export class OrganizationsService {
     });
   }
 
+  /** DMTE-481: "excluir" só inativa; contrato ativo ou ticket aberto bloqueiam (409). */
   async remove(id: string) {
     await this.findOne(id); // Check exists
-    return this.prisma.organization.delete({
-      where: { id },
+    if (await this.prisma.contract.findFirst({ where: { organizationId: id, active: true }, select: { id: true } })) {
+      throw new ConflictException('Não é possível excluir o cliente: há contrato ativo. Encerre o contrato antes.');
+    }
+    const openTicket = await this.prisma.ticket.findFirst({
+      where: {
+        status: { notIn: [TicketStatus.RESOLVED, TicketStatus.CLOSED] },
+        OR: [{ commercialOrganizationId: id }, { requester: { organizationId: id } }],
+      },
+      select: { id: true },
     });
+    if (openTicket) {
+      throw new ConflictException('Não é possível excluir o cliente: há ticket aberto. Resolva ou feche os tickets antes.');
+    }
+    return this.prisma.organization.update({ where: { id }, data: { active: false } });
   }
 
   async addAddress(organizationId: string, dto: CreateOrganizationAddressDto) {

@@ -843,6 +843,42 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     expect(screen.getByLabelText(/nome fantasia/i)).toHaveValue('Empresa A (Cópia)');
   });
 
+  it('DMTE-481 AC-04: a lixeira avisa que o cliente será apenas inativado e chama DELETE /organizations/:id', async () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    vi.mocked(api.delete).mockResolvedValue({ data: { id: 'org-1', active: false } });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByText('Empresa A');
+    await user.click(screen.getAllByRole('checkbox')[1]); // "Empresa A"
+    await user.click(screen.getByTestId('ez-toolbar-delete-button'));
+
+    expect(confirmSpy).toHaveBeenCalledWith(expect.stringMatching(/apenas inativad/i));
+    await waitFor(() => {
+      expect(api.delete).toHaveBeenCalledWith('/organizations/org-1');
+    });
+    expect(api.patch).not.toHaveBeenCalled();
+    confirmSpy.mockRestore();
+  });
+
+  it('DMTE-481 AC-04: mostra a mensagem da API quando a exclusão é recusada (contrato ativo/ticket aberto)', async () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    vi.mocked(api.delete).mockRejectedValue({
+      response: { data: { message: 'Cliente com contrato ativo não pode ser excluído' } },
+    });
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByText('Empresa A');
+    await user.click(screen.getAllByRole('checkbox')[1]);
+    await user.click(screen.getByTestId('ez-toolbar-delete-button'));
+
+    expect(await screen.findByText(/cliente com contrato ativo não pode ser excluído/i)).toBeInTheDocument();
+    confirmSpy.mockRestore();
+  });
+
   it('persists column visibility toggles to the per-user screen config (localStorage)', async () => {
     loginAs('ADMIN');
     const user = userEvent.setup();

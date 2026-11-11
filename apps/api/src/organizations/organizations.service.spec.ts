@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { OrganizationsService } from './organizations.service';
 
 describe('OrganizationsService', () => {
@@ -20,6 +20,8 @@ describe('OrganizationsService', () => {
       article: {
         findMany: jest.fn().mockResolvedValue([]),
       },
+      contract: { findFirst: jest.fn().mockResolvedValue(null) },
+      ticket: { findFirst: jest.fn().mockResolvedValue(null) },
       organizationAddress: {
         create: jest.fn(),
         findUnique: jest.fn(),
@@ -231,14 +233,49 @@ describe('OrganizationsService', () => {
       expect(mockPrisma.organization.delete).not.toHaveBeenCalled();
     });
 
-    it('deletes the organization when it exists', async () => {
+    it('DMTE-481 AC-01: recusa com 409 quando o cliente tem contrato ativo, sem alterar o cliente', async () => {
       mockPrisma.organization.findUnique.mockResolvedValue({ id: 'org-1', users: [] });
-      mockPrisma.organization.delete.mockResolvedValue({ id: 'org-1' });
+      mockPrisma.contract.findFirst.mockResolvedValue({ id: 'ct-1' });
+
+      await expect(service.remove('org-1')).rejects.toThrow(ConflictException);
+      await expect(service.remove('org-1')).rejects.toThrow(/contrato ativo/i);
+      expect(mockPrisma.contract.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { organizationId: 'org-1', active: true } }),
+      );
+      expect(mockPrisma.organization.update).not.toHaveBeenCalled();
+      expect(mockPrisma.organization.delete).not.toHaveBeenCalled();
+    });
+
+    it('DMTE-481 AC-02: recusa com 409 quando há ticket aberto do cliente (solicitante ou cliente comercial)', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue({ id: 'org-1', users: [] });
+      mockPrisma.ticket.findFirst.mockResolvedValue({ id: 'tk-1' });
+
+      await expect(service.remove('org-1')).rejects.toThrow(ConflictException);
+      await expect(service.remove('org-1')).rejects.toThrow(/ticket aberto/i);
+      expect(mockPrisma.ticket.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            status: { notIn: ['RESOLVED', 'CLOSED'] },
+            OR: [{ commercialOrganizationId: 'org-1' }, { requester: { organizationId: 'org-1' } }],
+          },
+        }),
+      );
+      expect(mockPrisma.organization.update).not.toHaveBeenCalled();
+      expect(mockPrisma.organization.delete).not.toHaveBeenCalled();
+    });
+
+    it('DMTE-481 AC-03: sem restrições apenas inativa o cliente, sem apagar o registro', async () => {
+      mockPrisma.organization.findUnique.mockResolvedValue({ id: 'org-1', users: [] });
+      mockPrisma.organization.update.mockResolvedValue({ id: 'org-1', active: false });
 
       const result = await service.remove('org-1');
 
-      expect(mockPrisma.organization.delete).toHaveBeenCalledWith({ where: { id: 'org-1' } });
-      expect(result).toEqual({ id: 'org-1' });
+      expect(mockPrisma.organization.update).toHaveBeenCalledWith({
+        where: { id: 'org-1' },
+        data: { active: false },
+      });
+      expect(mockPrisma.organization.delete).not.toHaveBeenCalled();
+      expect(result).toEqual({ id: 'org-1', active: false });
     });
   });
 
