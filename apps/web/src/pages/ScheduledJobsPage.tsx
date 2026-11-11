@@ -35,12 +35,12 @@ function JobCard({ job }: { job: ScheduledJob }) {
       <div className="flex flex-wrap items-end gap-2">
         <EzTextInput
           id={`cron-${job.type}`}
-          label="Cron (minuto hora dia mês dia-da-semana)"
-          aria-label={`Cron de ${label}`}
+          label={`Cron de ${label}`}
+          message="Minuto hora dia mês dia-da-semana"
           value={cron}
           onChange={(e) => setCron(e.target.value)}
         />
-        <EzButton size="small" aria-label={`Salvar cron de ${label}`} onClick={() => save({ cron })}>
+        <EzButton size="small" aria-label={`Salvar cron de ${label}`} disabled={update.isPending} onClick={() => save({ cron })}>
           Salvar
         </EzButton>
       </div>
@@ -75,13 +75,15 @@ function JobCard({ job }: { job: ScheduledJob }) {
 }
 
 export function ScheduledJobsPage() {
-  const { data: jobs, isLoading } = useScheduledJobs();
+  const { data: jobs, isLoading, isError } = useScheduledJobs();
   return (
     <EzPageLayout header={<EzPageHeader title="Tarefas agendadas" />}>
       {isLoading ? (
         <div className="p-8">
           <EzSpinner label="Carregando tarefas…" />
         </div>
+      ) : isError ? (
+        <p role="alert" className="p-4 text-[13px] text-red-600">Erro ao carregar as tarefas agendadas.</p>
       ) : !jobs || jobs.length === 0 ? (
         <EzEmptyCard title="Nenhuma tarefa agendada." />
       ) : (
