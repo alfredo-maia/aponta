@@ -37,6 +37,7 @@ function mockApiGet() {
     if (url === '/reports/workload') return Promise.resolve({ data: workload });
     if (url === '/reports/billing') return Promise.resolve({ data: billing });
     if (url === '/contracts') return Promise.resolve({ data: [{ id: 'c1', name: 'Suporte' }] });
+    if (url === '/reports/commercial' || url === '/contracts/cost-rates' || url === '/users/agents') return Promise.resolve({ data: [] });
     return Promise.reject(new Error(`Unexpected GET ${url}`));
   });
 }
@@ -45,15 +46,18 @@ function renderPage() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={['/reports']}>
-        <Routes>
-          <Route path="/reports" element={<ReportsPage />} />
-        </Routes>
-      </MemoryRouter>
-    </QueryClientProvider>,
-  );
+  return {
+    queryClient,
+    ...render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/reports']}>
+          <Routes>
+            <Route path="/reports" element={<ReportsPage />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    ),
+  };
 }
 
 function loginAs(role: 'ADMIN' | 'AGENT' | 'CLIENT_MASTER') {
@@ -159,6 +163,23 @@ describe('ReportsPage', () => {
     renderPage();
 
     expect(await screen.findByRole('tab', { name: /resultado gerencial/i })).toBeInTheDocument();
+  });
+
+  it('DMTE-479 AC-03: Resultado gerencial aberto some e para de consultar quando a permissão é revogada', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    const { queryClient } = renderPage();
+
+    await user.click(await screen.findByRole('tab', { name: /resultado gerencial/i }));
+    await screen.findByText('Custo por técnico e vigência');
+
+    canViewTicketValues = false;
+    await act(async () => {
+      await queryClient.invalidateQueries({ queryKey: ['auth', 'me', 'permissions'] });
+    });
+    await waitFor(() => expect(screen.queryByRole('tab', { name: /resultado gerencial/i })).not.toBeInTheDocument());
+
+    expect(screen.queryByText('Custo por técnico e vigência')).not.toBeInTheDocument();
   });
 
   it('shows an empty state when there is no workload data', async () => {

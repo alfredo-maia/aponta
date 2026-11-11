@@ -30,7 +30,8 @@
       "tests": [
         "DMTE-479 AC-03: hides Faturamento and Resultado gerencial for an ADMIN without canViewTicketValues",
         "DMTE-479 AC-03: shows Resultado gerencial for an ADMIN with canViewTicketValues",
-        "DMTE-479 AC-03: hides Faturamento for a CLIENT_MASTER without canViewTicketValues"
+        "DMTE-479 AC-03: hides Faturamento for a CLIENT_MASTER without canViewTicketValues",
+        "DMTE-479 AC-03: Resultado gerencial aberto some e para de consultar quando a permissão é revogada"
       ]
     },
     {
