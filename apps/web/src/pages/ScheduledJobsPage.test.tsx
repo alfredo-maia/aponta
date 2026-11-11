@@ -52,6 +52,13 @@ describe('ScheduledJobsPage (DMTE-462 T3)', () => {
     expect(api.get).toHaveBeenCalledWith('/scheduled-jobs');
   });
 
+  it('AC-16: falha ao carregar não aparece como lista vazia', async () => {
+    vi.mocked(api.get).mockRejectedValue(new Error('403'));
+    renderPage();
+    expect(await screen.findByRole('alert')).toHaveTextContent(/erro ao carregar/i);
+    expect(screen.queryByText('Nenhuma tarefa agendada.')).not.toBeInTheDocument();
+  });
+
   it('AC-16: mostra as execuções recentes com estado, tentativa e erro', async () => {
     renderPage();
     await screen.findByText('Verificação do agendador');

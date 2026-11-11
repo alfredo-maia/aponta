@@ -34,6 +34,11 @@ function fakeDatabase(jobs: FakeJob[]) {
         return Promise.resolve(run);
       }),
       deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
+      updateMany: jest.fn(({ where, data }) => {
+        const stuck = store.runs.filter((r) => r.status === where.status && r.startedAt < where.startedAt.lt);
+        stuck.forEach((r) => Object.assign(r, data));
+        return Promise.resolve({ count: stuck.length });
+      }),
     },
   };
   return { db, store };
@@ -102,6 +107,34 @@ describe('JobsService (DMTE-462 T3)', () => {
     await new JobsService(db, { HEARTBEAT: handler }).runDue(NOW);
     expect(handler).toHaveBeenCalledTimes(1);
     expect(store.runs.find((r) => r.jobType === 'SEM_CODIGO')).toMatchObject({ status: 'FAILED', error: expect.stringMatching(/sem código|handler/i) });
+  });
+
+  it('AC-14: um cron inválido no banco desativa só aquela tarefa e registra a falha; as outras seguem', async () => {
+    const { db, store } = fakeDatabase([job({ type: 'RUIM', cron: '0 0 31 2 *' }), job({ type: 'HEARTBEAT' })]);
+    const handler = jest.fn().mockResolvedValue(undefined);
+    await expect(new JobsService(db, { HEARTBEAT: handler, RUIM: jest.fn() }).runDue(NOW)).resolves.toEqual(['HEARTBEAT']);
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(store.jobs.find((j) => j.type === 'RUIM')).toMatchObject({ enabled: false, failures: 1 });
+    expect(store.runs.find((r) => r.jobType === 'RUIM')).toMatchObject({ status: 'FAILED', error: expect.stringMatching(/cron/i) });
+  });
+
+  it('AC-14: erro ao gravar o resultado de uma tarefa não impede as seguintes', async () => {
+    const { db } = fakeDatabase([job({ type: 'A' }), job({ type: 'B' })]);
+    db.jobRun.update.mockRejectedValueOnce(new Error('banco caiu'));
+    const a = jest.fn().mockResolvedValue(undefined);
+    const b = jest.fn().mockResolvedValue(undefined);
+    await expect(new JobsService(db, { A: a, B: b }).runDue(NOW)).resolves.toEqual(['A', 'B']);
+    expect(a).toHaveBeenCalledTimes(1);
+    expect(b).toHaveBeenCalledTimes(1);
+  });
+
+  it('AC-14: execução que ficou RUNNING por mais de 15 minutos (instância caiu) vira FAILED com a causa', async () => {
+    const { db, store } = fakeDatabase([job({ nextRunAt: new Date('2026-11-12T00:00:00Z') })]);
+    store.runs.push({ id: 'velha', jobType: 'HEARTBEAT', status: 'RUNNING', attempt: 1, startedAt: new Date('2026-11-11T10:00:00Z'), finishedAt: null, error: null });
+    store.runs.push({ id: 'recente', jobType: 'HEARTBEAT', status: 'RUNNING', attempt: 1, startedAt: new Date('2026-11-11T11:55:00Z'), finishedAt: null, error: null });
+    await new JobsService(db, { HEARTBEAT: jest.fn() }).runDue(NOW);
+    expect(store.runs.find((r) => r.id === 'velha')).toMatchObject({ status: 'FAILED', error: expect.stringMatching(/interrompida/i) });
+    expect(store.runs.find((r) => r.id === 'recente')).toMatchObject({ status: 'RUNNING' });
   });
 
   it('AC-14: tarefa desativada não roda', async () => {

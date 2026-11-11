@@ -5,7 +5,7 @@ describe('cron (DMTE-462 T3)', () => {
     expect(isValidCron(expression)).toBe(true);
   });
 
-  it.each(['', 'abc', '61 * * * *', '* * * *', '*/0 * * * *'])('AC-15: recusa "%s"', (expression) => {
+  it.each(['', 'abc', '61 * * * *', '* * * *', '*/0 * * * *', '0 0 31 2 *'])('AC-15: recusa "%s"', (expression) => {
     expect(isValidCron(expression)).toBe(false);
   });
 
