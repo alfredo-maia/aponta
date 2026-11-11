@@ -58,6 +58,7 @@ Decisões:
 - [Proposta] Apontamentos que já existem não mudam retroativamente; só ficam com início e fim travados para quem não tem a permissão.
 - [Proposta] Entre T1 e T2, quem não tem a permissão só lança pelo PLAY (manual recusado). T2 reabre o manual dentro da janela.
 - [Proposta, T2] A permissão de marcar compromisso que ignora a regra chama-se `RELEASE_WORKLOG_WITHOUT_SCHEDULE` (nome em inglês, como o catálogo). Quando uma agenda do ticket e um compromisso que ignora a regra cobrem o mesmo instante, vale a agenda do ticket (o limite continua valendo). Alterar ou desmarcar um compromisso já marcado exige a mesma permissão.
+- [Proposta, T3] A permissão `MANAGE_SCHEDULED_JOBS` segue o padrão das demais configurações (o ADMIN passa pelo guard de permissões). Tabelas `ScheduledJob` (uma linha por tipo, com cron, estado e próxima execução) e `JobRun` (execuções com estado, tentativa e erro). O executor roda a cada 30 s, pega as vencidas com `FOR UPDATE SKIP LOCKED` e agenda a próxima na mesma transação (uma tarefa atrasada roda uma vez, sem repor as perdidas); cron de 5 campos no fuso America/Sao_Paulo, validado pelo cálculo da próxima data; cron ruim no banco desativa só aquela tarefa; execução `RUNNING` há mais de 15 minutos vira `FAILED`; execuções com mais de 30 dias são apagadas. A tarefa de demonstração é `HEARTBEAT` (sem efeito), com cron inicial de 1 minuto. `attempt` é a contagem de falhas seguidas mais um.
 - [Proposta, T2] `PreAppointment.appointmentId`, `PreAppointment.limitMinutes` e `Worklog.appointmentId` ficam sem chave estrangeira: apagar a agenda não solta o limite congelado nem a soma. A conferência de cronômetro aberto e de limite roda na transação, com a linha da agenda travada (`FOR UPDATE`).
 
 ## Acceptance criteria
@@ -123,6 +124,7 @@ Riscos:
 - Depois do deploy do T1, ninguém edita hora inicial até o Alfredo montar o grupo (efeito igual ao da DMTE-464).
 - RBAC e tenant: bloqueios no servidor, nunca só na tela; QA confere administrador sem a permissão e usuário com a permissão fora do administrador; notificações isoladas por usuário.
 - Concorrência: tarefas com trava e idempotência para mais de uma instância da API.
+- T3, risco aceito: uma tarefa mais longa que o intervalo do cron pode rodar em paralelo consigo mesma, porque a trava vale só no claim; hoje só existe `HEARTBEAT`, e o T4 deve rodar rápido ou ganhar uma trava própria.
 - T2, riscos aceitos: cronômetro anterior ao T2 ou criado por quem tem a permissão de hora inicial não tem agenda e converte sem checar janela nem limite (só com os horários dele); quem tem a permissão de hora inicial também não é barrado por ausência ou férias; o cronômetro que passa do limite só é recusado na conversão, e quem não tem a permissão não ajusta os horários até o fechamento automático (T4) e a aprovação (T5); o consultor que cria a própria agenda a usa como janela, porque a permissão de agendar é a que já existe.
 - DS: reutilizar os componentes do DS do Aponta; componente novo do sino exige story ou exceção documentada.
 
