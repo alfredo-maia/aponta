@@ -195,7 +195,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
           )}
         />
         {selectedDesk?.catalogRequiredOnOpen && !catalogOverride && (
-          <p className="text-sm text-yellow-700 md:col-span-2">
+          <p className="text-sm text-yellow-700 md:col-span-2 xl:col-span-4">
             Esta mesa exige um item do catálogo. Selecione o catálogo antes de abrir o ticket.
           </p>
         )}
@@ -360,7 +360,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
           />
         </div>
         
-        <div className="flex flex-wrap items-center justify-end gap-3 w-full sm:w-auto sm:ml-auto">
+        <div className="flex sm:flex-wrap items-center justify-end gap-3 w-full sm:w-auto sm:ml-auto">
           <EzButton
             type="button"
             variant="secondary"

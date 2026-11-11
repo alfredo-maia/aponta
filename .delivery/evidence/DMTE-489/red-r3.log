@@ -1,0 +1,105 @@
+
+> nx run web:test src/pages/CreateTicketPage.test.tsx
+
+web:  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-483-2e65a9ae11ff/workdir/aponta/apps/web
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should render ticket form with new DS components
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-483 AC-02: com a consulta de catálogo falhando, abre o formulário em branco sem esperar retentativas
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-489 AC-01: formulário e catálogo usam o teto max-w-7xl
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-489 AC-02: cliente, mesa, solicitante e prioridade em 1, 2 e 4 colunas por largura
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-489 AC-04: ações do formulário quebram de linha em vez de vazar do cartão
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-489 AC-05: aviso de catálogo obrigatório ocupa a linha inteira da grade de 4 colunas
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-483 AC-04: formulário e catálogo usam a mesma largura máxima
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should populate the service desk dropdown from the API
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should not submit when required fields are empty
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should submit the form and navigate to the new ticket detail page
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows the service catalog when the API returns categories, and lets the user pick an item
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > AC-3: Esc no formulário volta para o catálogo
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user open a blank ticket from the catalog via "não está catalogado"
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > submits a blank ticket from the catalog without the synthetic custom item or an empty desk
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user go back from the form to the catalog view
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows a submit error message and does not navigate when the API call fails
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > patches the parent ticket and uploads attachments after creating the ticket
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web:  ❯ |web| src/pages/CreateTicketPage.test.tsx (20 tests | 2 failed) 13519ms
+web:      ✓ should render ticket form with new DS components  1037ms
+web:      ✓ DMTE-483 AC-01: mostra carregamento e não renderiza o formulário enquanto o catálogo carrega 195ms
+web:      ✓ DMTE-483 AC-02: com a consulta de catálogo falhando, abre o formulário em branco sem esperar retentativas  453ms
+web:      ✓ DMTE-489 AC-01: formulário e catálogo usam o teto max-w-7xl  648ms
+web:      ✓ DMTE-489 AC-02: cliente, mesa, solicitante e prioridade em 1, 2 e 4 colunas por largura  338ms
+web:      ✓ DMTE-489 AC-03: cartões do catálogo em 1, 2, 3 e 4 colunas por largura 76ms
+web:      × DMTE-489 AC-04: ações do formulário quebram de linha em vez de vazar do cartão 652ms
+web:      × DMTE-489 AC-05: aviso de catálogo obrigatório ocupa a linha inteira da grade de 4 colunas 642ms
+web:      ✓ DMTE-483 AC-04: formulário e catálogo usam a mesma largura máxima  590ms
+web:      ✓ should populate the service desk dropdown from the API  368ms
+web:      ✓ should not submit when required fields are empty  612ms
+web:      ✓ should submit the form and navigate to the new ticket detail page  1266ms
+web:      ✓ shows the service catalog when the API returns categories, and lets the user pick an item  589ms
+web:      ✓ AC-3: Esc no formulário volta para o catálogo  643ms
+web:      ✓ lets the user open a blank ticket from the catalog via "não está catalogado"  424ms
+web:      ✓ submits a blank ticket from the catalog without the synthetic custom item or an empty desk  1571ms
+web:      ✓ lets the user go back from the form to the catalog view  388ms
+web:      ✓ shows a submit error message and does not navigate when the API call fails  1148ms
+web:      ✓ forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit  753ms
+web:      ✓ patches the parent ticket and uploads attachments after creating the ticket  1110ms
+web: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+web:  FAIL  |web| src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-489 AC-04: ações do formulário quebram de linha em vez de vazar do cartão
+web: Error: [2mexpect([22m[31melement[39m[2m).toHaveClass([22m[32m[32m"sm:flex-wrap sm:ml-auto"[32m[39m[2m)[22m
+web: Expected the element to have class:
+web: [32m  sm:flex-wrap sm:ml-auto[39m
+web: Received:
+web: [31m  flex flex-wrap items-center justify-end gap-3 w-full sm:w-auto sm:ml-auto[39m
+web:  ❯ src/pages/CreateTicketPage.test.tsx:160:34
+web:     158|     const actions = submit.closest('form')?.lastElementChild as HTMLEl…
+web:     159|     expect(actions).toHaveClass('sm:flex-wrap');
+web:     160|     expect(submit.parentElement).toHaveClass('sm:flex-wrap', 'sm:ml-au…
+web:        |                                  ^
+web:     161|     // Abaixo de sm os botões seguem lado a lado como antes: sem quebr…
+web:     162|     expect(submit.parentElement).not.toHaveClass('flex-wrap');
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+web:  FAIL  |web| src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-489 AC-05: aviso de catálogo obrigatório ocupa a linha inteira da grade de 4 colunas
+web: Error: [2mexpect([22m[31melement[39m[2m).toHaveClass([22m[32m[32m"md:col-span-2 xl:col-span-4"[32m[39m[2m)[22m
+web: Expected the element to have class:
+web: [32m  md:col-span-2 xl:col-span-4[39m
+web: Received:
+web: [31m  text-sm text-yellow-700 md:col-span-2[39m
+web:  ❯ src/pages/CreateTicketPage.test.tsx:178:67
+web:     176|     await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
+web:     177|
+web:     178|     expect(await screen.findByText(/exige um item do catálogo/i)).toHa…
+web:        |                                                                   ^
+web:     179|   });
+web:     180|
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+web:  Test Files  1 failed (1)
+web:       Tests  2 failed | 18 passed (20)
+web:    Start at  18:08:00
+web:    Duration  24.70s (transform 4.15s, setup 425ms, import 7.16s, tests 13.52s, environment 2.85s)
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
