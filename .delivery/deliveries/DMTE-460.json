@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "delivery": "DMTE-460",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 186,
+  "multica_id": "01a1be1a-1cd8-79f0-959e-e6d6c85fc1c2",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "`/tickets` renderiza a lista de tickets (heading \"Tickets\") em vez de tela em branco.",
+      "tests": [
+        "App DMTE-460 AC-01: renders the tickets list at /tickets"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "`/tickets?mine=true` renderiza a lista de tickets.",
+      "tests": [
+        "App DMTE-460 AC-02: renders the tickets list at /tickets?mine=true"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-460.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-460/red.json",
+    "green": ".delivery/evidence/DMTE-460/green.json"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Só adiciona uma rota; sem TSX de componente novo nem DS."
+  }
+}
