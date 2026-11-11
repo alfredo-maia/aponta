@@ -135,7 +135,7 @@ describe('ReportsPage', () => {
       expect(screen.getByText('Alice')).toBeInTheDocument();
     });
     await waitFor(() => expect(meResolved).toBe(true));
-    await act(async () => {});
+    await act(async () => undefined);
 
     expect(screen.queryByRole('tab', { name: /faturamento base/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('tab', { name: /resultado gerencial/i })).not.toBeInTheDocument();
@@ -148,7 +148,7 @@ describe('ReportsPage', () => {
     renderPage();
 
     await waitFor(() => expect(meResolved).toBe(true));
-    await act(async () => {});
+    await act(async () => undefined);
 
     expect(screen.queryByRole('tab', { name: /faturamento base/i })).not.toBeInTheDocument();
     expect(vi.mocked(api.get).mock.calls.some(([url]) => url === '/reports/billing')).toBe(false);
