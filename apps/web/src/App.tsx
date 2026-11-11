@@ -46,6 +46,7 @@ export function App() {
             <Route element={<AppLayout />}>
               <Route path="/" element={<TicketsPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/tickets" element={<TicketsPage />} />
               <Route path="/tickets/search" element={<TicketAdvancedSearchPage />} />
               <Route path="/tickets/new" element={<CreateTicketPage />} />
               <Route path="/tickets/:id" element={<TicketDetailPage />} />

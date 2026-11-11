@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-11T02:03:11.815037+00:00",
+  "finished_at": "2026-11-11T02:03:35.619224+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run",
+    "web:test",
+    "--skip-nx-cache",
+    "src/App.test.tsx"
+  ],
+  "base_sha": "48da36f1e03a6a3f5d88153b90d910f0a9ca3ba7",
+  "head_sha": "1ed3d9492bf37eecfba2a62171019498ecddd547",
+  "exit_code": 0,
+  "tests": {
+    "apps/web/src/App.test.tsx": "a9fab78b10c73e4837b107b7723c3a847902f15c2be79e96d4d21d15bcf48046"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02"
+  ],
+  "source_hashes": {
+    "apps/web/src/App.test.tsx": "a9fab78b10c73e4837b107b7723c3a847902f15c2be79e96d4d21d15bcf48046",
+    "apps/web/src/App.tsx": "cf4d8a35783a10e2a5ab850f0f17908f6cfd3103271ff8fcd7700941698ef758"
+  },
+  "log": ".delivery/evidence/DMTE-460/green.log",
+  "log_sha256": "f7653df51fffc848adc109b2a9fd7020ecee8ff0c82afdd8434fa59dea10015d"
+}

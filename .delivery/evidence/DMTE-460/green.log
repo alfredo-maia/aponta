@@ -1,0 +1,22 @@
+
+> nx run web:test src/App.test.tsx
+
+> vitest src/App.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-460-8eb6c8ca4165/workdir/aponta/apps/web
+
+ ✓ |web| src/App.test.tsx (4 tests) 723ms
+     ✓ redirects unauthenticated users to the login page  376ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  23:03:23
+   Duration  11.52s (transform 7.16s, setup 166ms, import 9.53s, tests 723ms, environment 805ms)
+
+
+
+
+ NX   Successfully ran target test for project web
+
+

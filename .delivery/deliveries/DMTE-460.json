@@ -29,7 +29,8 @@
     "green": ".delivery/evidence/DMTE-460/green.json"
   },
   "design_system": {
-    "applicable": false,
-    "reason": "Só adiciona uma rota; sem TSX de componente novo nem DS."
+    "applicable": true,
+    "reused": [],
+    "exception": "Só registra a rota /tickets em App.tsx para o componente TicketsPage já existente; nenhum componente, token ou estilo novo, então não há reuso nem lacuna de DS a tratar."
   }
 }

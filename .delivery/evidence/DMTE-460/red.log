@@ -1,0 +1,65 @@
+
+> nx run web:test src/App.test.tsx
+
+> vitest src/App.test.tsx
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-460-8eb6c8ca4165/workdir/w2/apps/web
+
+ ❯ |web| src/App.test.tsx (4 tests | 2 failed) 2601ms
+     ✓ redirects unauthenticated users to the login page 290ms
+     ✓ renders the dashboard page for authenticated users 231ms
+     × DMTE-460 AC-01: renders the tickets list at /tickets 1041ms
+     × DMTE-460 AC-02: renders the tickets list at /tickets?mine=true 1029ms
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  23:02:39
+   Duration  12.87s (transform 6.51s, setup 262ms, import 8.52s, tests 2.60s, environment 1.15s)
+
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
+stderr | src/App.test.tsx > App > DMTE-460 AC-01: renders the tickets list at /tickets
+No routes matched location "/tickets" 
+
+stderr | src/App.test.tsx > App > DMTE-460 AC-02: renders the tickets list at /tickets?mine=true
+No routes matched location "/tickets?mine=true" 
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/App.test.tsx > App > DMTE-460 AC-01: renders the tickets list at /tickets
+ FAIL  |web| src/App.test.tsx > App > DMTE-460 AC-02: renders the tickets list at /tickets?mine=true
+TestingLibraryElementError: Unable to find role="heading" and name "Tickets"
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/App.test.tsx:63:36
+     61|       render(<App />);
+     62|
+     63|       const heading = await screen.findByRole('heading', { name: 'Tick…
+       |                                    ^
+     64|       expect(heading).toBeInTheDocument();
+     65|     },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+Warning: command "vitest src/App.test.tsx" exited with non-zero status code
