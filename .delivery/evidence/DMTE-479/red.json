@@ -1,8 +1,8 @@
 {
   "version": 1,
   "phase": "red",
-  "started_at": "2026-11-11T04:08:56.386673+00:00",
-  "finished_at": "2026-11-11T04:14:30.423437+00:00",
+  "started_at": "2026-11-11T04:21:39.650071+00:00",
+  "finished_at": "2026-11-11T04:26:47.980375+00:00",
   "command": [
     "pnpm",
     "exec",
@@ -14,8 +14,8 @@
     "api,web",
     "--skip-nx-cache"
   ],
-  "base_sha": "3420ea15b90d9bbe0913a724012c2de93f63bc8a",
-  "head_sha": "e25e58a21d30749566faa5167e97cf050249b688",
+  "base_sha": "d15fbcc3eef71591df9e81d381c3ff7e9cf09024",
+  "head_sha": "ad4c6896fc12cc1102019dbd5c56059a76c3e681",
   "exit_code": 1,
   "tests": {
     "apps/api/src/reports/reports.billing.spec.ts": "ef03eede890bdc39d27de6eb6d68e189462c3403f5e13bfd24f386c36792642f",
@@ -39,5 +39,5 @@
     "apps/web/src/pages/ReportsPage.test.tsx": "c4cc47f8a152ff9c3bd16f139e1f53ea092faa51312344a614b6f0c484269f9c"
   },
   "log": ".delivery/evidence/DMTE-479/red.log",
-  "log_sha256": "8ed2b081584690c4a7dc237bc9abeb2fc0ccea12871cdaa5e74da3027faef368"
+  "log_sha256": "9a9477c093c8b1020f642c4b7e296182c9455bc2239393eac45624dcbd13b412"
 }

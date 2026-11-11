@@ -46,7 +46,12 @@
     "green": ".delivery/evidence/DMTE-479/green.json"
   },
   "design_system": {
-    "applicable": false,
+    "applicable": true,
+    "reused": [
+      "EzTabs",
+      "EzTextInput",
+      "EzComboBox"
+    ],
     "reason": "Só condição de visibilidade em ReportsPage e TicketWorklogs; nenhum componente DS novo ou alterado."
   }
 }

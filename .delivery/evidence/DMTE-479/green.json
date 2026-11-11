@@ -1,8 +1,8 @@
 {
   "version": 1,
   "phase": "green",
-  "started_at": "2026-11-11T04:15:40.217940+00:00",
-  "finished_at": "2026-11-11T04:20:44.678790+00:00",
+  "started_at": "2026-11-11T04:41:40.532567+00:00",
+  "finished_at": "2026-11-11T04:45:19.097857+00:00",
   "command": [
     "pnpm",
     "exec",
@@ -14,8 +14,8 @@
     "api,web",
     "--skip-nx-cache"
   ],
-  "base_sha": "3420ea15b90d9bbe0913a724012c2de93f63bc8a",
-  "head_sha": "ad4c6896fc12cc1102019dbd5c56059a76c3e681",
+  "base_sha": "d15fbcc3eef71591df9e81d381c3ff7e9cf09024",
+  "head_sha": "0ca081fec153a7432c8d6aeda4c9f266ed7f5f7b",
   "exit_code": 0,
   "tests": {
     "apps/api/src/reports/reports.billing.spec.ts": "ef03eede890bdc39d27de6eb6d68e189462c3403f5e13bfd24f386c36792642f",
@@ -41,5 +41,5 @@
     "apps/web/src/pages/ReportsPage.tsx": "c542379818d68e97c5e4a16dcf6df722608dbbe4e36a8ae3f19756fdef4c34ec"
   },
   "log": ".delivery/evidence/DMTE-479/green.log",
-  "log_sha256": "d26f56dda6771b8e9d6f674fabdfee69f5db8a6e45a09c6468e735a0235ad176"
+  "log_sha256": "b756d98cffbdfe67bef63aee4edb9deab7b2a61fcb7202eae7857394d704d2d0"
 }
