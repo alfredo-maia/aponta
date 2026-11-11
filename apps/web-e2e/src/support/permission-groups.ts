@@ -62,4 +62,17 @@ export async function linkFixtureUserToDefaultPermissionGroup(
       data: { permissionGroupId: values.id, userId },
     });
   }
+
+  // DMTE-462: lançar apontamento manual exige EDIT_WORKLOG_START_TIME (grupo criado pela migração, sem membros).
+  // Os specs lançam apontamento como ADMIN, AGENT_MASTER e AGENT, então os três fixtures entram no grupo.
+  if (role === 'ADMIN' || role === 'AGENT_MASTER' || role === 'AGENT') {
+    const startTime =
+      (await prisma.permissionGroup.findFirst({ where: { name: 'Edição de hora inicial' } })) ??
+      (await prisma.permissionGroup.create({
+        data: { name: 'Edição de hora inicial', permissions: ['EDIT_WORKLOG_START_TIME'] },
+      }));
+    await prisma.permissionGroupUser.create({
+      data: { permissionGroupId: startTime.id, userId },
+    });
+  }
 }

@@ -30,6 +30,7 @@ import { brasiliaWallClockIso } from '../../lib/billingTime';
 import { preparePastedImage } from '../../lib/preparePastedImage';
 import { useAuthStore } from '../../stores/authStore';
 import {
+  useCanEditWorklogStartTime,
   useCanViewTicketValues,
   useEffectivePermissions,
 } from '../../hooks/usePermissions';
@@ -160,6 +161,8 @@ export function TicketWorklogs({
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.role === 'ADMIN';
   const canViewValues = useCanViewTicketValues();
+  /** DMTE-462: sem a permissão, só o cronômetro gera apontamento e dia, início e fim ficam travados. */
+  const canEditStart = useCanEditWorklogStartTime();
   const effectivePermissions = useEffectivePermissions();
   // DMTE-463: só admin ou grupo com LAUNCH_WORKLOG_GUARANTEE vê o tipo de valorização.
   const canSeeValuation =
@@ -835,6 +838,8 @@ export function TicketWorklogs({
               size="small"
               leftIcon={Plus}
               label="Apontamento"
+              disabled={!canEditStart}
+              title={canEditStart ? undefined : 'Sem permissão para lançar horas manualmente. Use o cronômetro (PLAY).'}
               onClick={() => {
                 if (running) applyPreToForm();
                 setIsModalOpen(true);
@@ -909,6 +914,7 @@ export function TicketWorklogs({
                 data-testid="worklog-day-input"
                 value={day}
                 onChange={(e) => setDay(e.target.value)}
+                readOnly={!canEditStart}
               />
 
               {/* Horário (início - fim) + chips */}
@@ -921,6 +927,7 @@ export function TicketWorklogs({
                     data-testid="worklog-start-time-input"
                     value={startTimeOfDay}
                     onChange={(e) => setStartTimeOfDay(e.target.value)}
+                    readOnly={!canEditStart}
                     required
                     aria-label="Horário de início"
                   />
@@ -929,6 +936,7 @@ export function TicketWorklogs({
                     data-testid="worklog-end-time-input"
                     value={endTimeOfDay}
                     onChange={(e) => setEndTimeOfDay(e.target.value)}
+                    readOnly={!canEditStart}
                     required
                     aria-label="Horário de término"
                   />
@@ -945,6 +953,7 @@ export function TicketWorklogs({
                   <button
                     type="button"
                     onClick={() => handleSetDuration(30)}
+                    disabled={!canEditStart}
                     className="px-1.5 py-0.5 text-[10px] bg-white border border-gray-300 hover:bg-gray-100 rounded text-gray-700 font-medium cursor-pointer"
                   >
                     30m
@@ -952,6 +961,7 @@ export function TicketWorklogs({
                   <button
                     type="button"
                     onClick={() => handleSetDuration(60)}
+                    disabled={!canEditStart}
                     className="px-1.5 py-0.5 text-[10px] bg-white border border-gray-300 hover:bg-gray-100 rounded text-gray-700 font-medium cursor-pointer"
                   >
                     1h
@@ -959,6 +969,7 @@ export function TicketWorklogs({
                   <button
                     type="button"
                     onClick={() => handleExtendEnd(15)}
+                    disabled={!canEditStart}
                     className="px-1.5 py-0.5 text-[10px] bg-brand-50 border border-brand-200 hover:bg-brand-100 rounded text-brand-700 font-medium ml-auto cursor-pointer"
                   >
                     +15m

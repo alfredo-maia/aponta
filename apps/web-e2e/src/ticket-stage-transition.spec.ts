@@ -38,7 +38,8 @@ test.describe('worklog advances the ticket through desk-configured stages (real 
         { id: ids.requester, role: Role.CLIENT, organizationId: ids.org },
       ].map((user) => ({ ...user, name: `E2E ${user.role}`, email: `${user.id}@e2e.invalid`, password: 'unused-jwt-fixture' })) });
       for (const [userId, role] of [
-        [ids.agent, Role.AGENT], [ids.requester, Role.CLIENT],
+        // DMTE-462: o ADMIN também precisa do grupo de hora inicial para lançar apontamento manual.
+        [ids.admin, Role.ADMIN], [ids.agent, Role.AGENT], [ids.requester, Role.CLIENT],
       ] as const) {
         await linkFixtureUserToDefaultPermissionGroup(prisma, userId, role);
       }

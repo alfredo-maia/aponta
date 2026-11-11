@@ -76,8 +76,8 @@ import { PERMISSION_KEYS } from './permission-catalog';
 export const DEFAULT_PERMISSION_GROUPS: Record<Role, { description: string; permissions: string[] }> = {
   [Role.ADMIN]: {
     description: 'Acesso administrativo completo (grupo padrão migrado do papel ADMIN)',
-    // DMTE-464: valores de tickets só por grupo explícito ("Valores de tickets"), nunca por role.
-    permissions: PERMISSION_KEYS.filter((key) => key !== 'VIEW_TICKET_VALUES'),
+    // DMTE-464 e DMTE-462: valores de tickets e edição de hora inicial só por grupo explícito, nunca por role.
+    permissions: PERMISSION_KEYS.filter((key) => key !== 'VIEW_TICKET_VALUES' && key !== 'EDIT_WORKLOG_START_TIME'),
   },
   [Role.AGENT_MASTER]: {
     description: 'Gestão de atendimento (grupo padrão migrado do papel AGENT_MASTER)',

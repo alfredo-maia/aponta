@@ -61,4 +61,9 @@ export class PermissionsService {
   async canViewTicketValues(userId: string): Promise<boolean> {
     return this.hasPermission(userId, 'VIEW_TICKET_VALUES');
   }
+
+  /** DMTE-462 T1: sem desvio por role; só o grupo de permissões libera digitar hora inicial e final. */
+  async canEditWorklogStartTime(userId: string): Promise<boolean> {
+    return this.hasPermission(userId, 'EDIT_WORKLOG_START_TIME');
+  }
 }

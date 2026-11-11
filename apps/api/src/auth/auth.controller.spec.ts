@@ -15,7 +15,7 @@ describe('AuthController', () => {
     findById: jest.Mock;
     toSafeUser: jest.Mock;
   };
-  let permissionsService: { getEffectivePermissions: jest.Mock; canViewTicketValues: jest.Mock };
+  let permissionsService: { getEffectivePermissions: jest.Mock; canViewTicketValues: jest.Mock; canEditWorklogStartTime: jest.Mock };
 
   const mockSafeUser = {
     id: 'user-1',
@@ -39,6 +39,7 @@ describe('AuthController', () => {
     permissionsService = {
       getEffectivePermissions: jest.fn().mockResolvedValue(new Set(['MANAGE_USERS'])),
       canViewTicketValues: jest.fn().mockResolvedValue(false),
+      canEditWorklogStartTime: jest.fn().mockResolvedValue(false),
     };
 
     const moduleRef = await Test.createTestingModule({
@@ -135,6 +136,7 @@ describe('AuthController', () => {
         isAdmin: false,
         permissions: ['MANAGE_USERS'],
         canViewTicketValues: false,
+        canEditWorklogStartTime: false,
       });
     });
 
@@ -146,7 +148,7 @@ describe('AuthController', () => {
       const result = await controller.getProfile(req as never);
 
       expect(permissionsService.getEffectivePermissions).not.toHaveBeenCalled();
-      expect(result).toEqual({ ...adminUser, isAdmin: true, permissions: [], canViewTicketValues: false });
+      expect(result).toEqual({ ...adminUser, isAdmin: true, permissions: [], canViewTicketValues: false, canEditWorklogStartTime: false });
     });
 
     it('AC-04: ADMIN com a permissão no grupo recebe canViewTicketValues verdadeiro', async () => {
@@ -158,6 +160,17 @@ describe('AuthController', () => {
 
       expect(permissionsService.canViewTicketValues).toHaveBeenCalledWith('admin-1');
       expect(result).toMatchObject({ isAdmin: true, canViewTicketValues: true });
+    });
+
+    it('DMTE-462 AC-04: devolve canEditWorklogStartTime verdadeiro quando o grupo concede, inclusive ao ADMIN', async () => {
+      const adminUser = { ...mockSafeUser, id: 'admin-1', role: 'ADMIN' };
+      usersService.findById = jest.fn().mockResolvedValue(adminUser);
+      permissionsService.canEditWorklogStartTime.mockResolvedValue(true);
+
+      const result = await controller.getProfile({ user: adminUser } as never);
+
+      expect(permissionsService.canEditWorklogStartTime).toHaveBeenCalledWith('admin-1');
+      expect(result).toMatchObject({ isAdmin: true, canEditWorklogStartTime: true });
     });
   });
 

@@ -59,7 +59,7 @@ describe('WorklogsService', () => {
     terms: [{ id: 'term-1', effectiveFrom: new Date('2026-01-01T03:00:00Z'), approved: true, active: true, startsAt: new Date('2026-01-01T03:00:00Z'), endsAt: null, type: 'MONTHLY_HOURS', includedMinutes: 600, monthlyFeeCents: 10000, excessHourlyRateCents: 12000, serviceDeskIds: ['desk-1'] }],
   };
 
-  let mockPermissions: { canViewTicketValues: jest.Mock; hasPermission: jest.Mock };
+  let mockPermissions: { canViewTicketValues: jest.Mock; canEditWorklogStartTime: jest.Mock; hasPermission: jest.Mock };
 
   beforeEach(async () => {
     mockPrisma = {
@@ -93,7 +93,7 @@ describe('WorklogsService', () => {
         delete: jest.fn(),
       },
     };
-    mockPermissions = { canViewTicketValues: jest.fn().mockResolvedValue(true), hasPermission: jest.fn().mockResolvedValue(false) };
+    mockPermissions = { canViewTicketValues: jest.fn().mockResolvedValue(true), canEditWorklogStartTime: jest.fn().mockResolvedValue(true), hasPermission: jest.fn().mockResolvedValue(false) };
     mockCommentsService = { create: jest.fn(), withTransaction: jest.fn(() => mockCommentsService) };
     mockTicketsService = { changeStage: jest.fn(), withTransaction: jest.fn(() => mockTicketsService) };
 
