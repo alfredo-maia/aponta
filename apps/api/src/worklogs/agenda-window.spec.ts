@@ -1,7 +1,6 @@
 import { AppointmentType } from '@prisma/client';
 import { evaluateWorklogWindow, WindowAppointment } from './agenda-window';
 
-const H = 3600_000;
 const agenda = (over: Partial<WindowAppointment> = {}): WindowAppointment => ({
   id: 'ag-1', type: AppointmentType.AGENDA, ticketId: 'ticket-1', ignoresWorklogRule: false,
   startTime: new Date('2026-11-12T11:00:00Z'), endTime: new Date('2026-11-12T15:00:00Z'), ...over,
