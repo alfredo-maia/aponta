@@ -32,6 +32,17 @@ const statusColumns: TicketStatus[] = [
   'CLOSED',
 ];
 
+/**
+ * Responsive board (DMTE-458): the board scrolls horizontally with snap on
+ * phones/tablets (columns ~80vw / 260px) and, from `lg`, columns share the
+ * available width (flex-1, min 220px) so the board fits the viewport and only
+ * scrolls when there are more columns than fit.
+ */
+const KANBAN_BOARD_CLASS =
+  'flex items-start gap-3 overflow-x-auto pb-4 snap-x snap-mandatory lg:snap-none lg:gap-4';
+const KANBAN_COLUMN_CLASS =
+  'flex w-[80vw] max-w-[320px] shrink-0 snap-start sm:w-[260px] lg:w-auto lg:min-w-[220px] lg:max-w-none lg:flex-1';
+
 /** "Ordenar" fields (D6b) — only fields that exist in the Aponta ticket model. */
 const SORT_FIELDS: { id: string; label: string }[] = [
   { id: 'title', label: 'Título' },
@@ -621,11 +632,11 @@ export function TicketKanban({
     return (
       <div className="space-y-3">
         {mesaSelector}
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        <div data-testid="kanban-board" className={KANBAN_BOARD_CLASS}>
           {statusColumns.map((col) => (
             <div
               key={col}
-              className="w-[290px] shrink-0 space-y-4 rounded-lg border border-gray-100 bg-gray-80 p-4"
+              className={`${KANBAN_COLUMN_CLASS} space-y-4 rounded-lg border border-gray-100 bg-gray-80 p-4`}
             >
               <h3 className="text-sm font-semibold text-gray-600">
                 {statusLabels[col]}
@@ -707,7 +718,7 @@ export function TicketKanban({
           </EzAlert>
         )}
         <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-          <div className="flex items-start gap-4 overflow-x-auto pb-4">
+          <div data-testid="kanban-board" className={KANBAN_BOARD_CLASS}>
             {stageColumns.map((col) => {
               const isCollapsed = collapsedColumnIds.has(col.id);
               const isUnreachableWhileDragging =
@@ -739,8 +750,10 @@ export function TicketKanban({
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
+                        data-testid="kanban-column"
                         className={cn(
-                          'flex w-[290px] shrink-0 flex-col gap-3 rounded-lg border p-4 min-h-[500px] transition-colors',
+                          KANBAN_COLUMN_CLASS,
+                          'flex-col gap-3 rounded-lg border p-4 min-h-[500px] transition-colors',
                           snapshot.isDraggingOver && !dropDisabled
                             ? 'border-brand-500 bg-brand-100/30 ring-1 ring-brand-200'
                             : 'border-gray-200 bg-gray-80',
@@ -825,7 +838,7 @@ export function TicketKanban({
     <div className="space-y-3">
       {toolbar}
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex items-start gap-4 overflow-x-auto pb-4">
+        <div data-testid="kanban-board" className={KANBAN_BOARD_CLASS}>
           {statusColumns.map((col) => {
             const isCollapsed = collapsedColumnIds.has(col);
             return (
@@ -848,7 +861,8 @@ export function TicketKanban({
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className={`flex w-[290px] shrink-0 flex-col gap-3 rounded-lg border p-4 min-h-[500px] transition-colors ${
+                      data-testid="kanban-column"
+                      className={`${KANBAN_COLUMN_CLASS} flex-col gap-3 rounded-lg border p-4 min-h-[500px] transition-colors ${
                         snapshot.isDraggingOver
                           ? 'border-brand-500 bg-brand-100/30 ring-1 ring-brand-200'
                           : 'border-gray-200 bg-gray-80'
@@ -946,11 +960,12 @@ export function TicketKanban({
   return (
     <div className="space-y-3">
       {toolbar}
-      <div className="flex items-start gap-4 overflow-x-auto pb-4">
+      <div data-testid="kanban-board" className={KANBAN_BOARD_CLASS}>
         {dynamicColumns.map((col) => (
           <div
             key={col.id}
-            className="flex w-[290px] shrink-0 flex-col gap-3 rounded-lg border border-gray-200 bg-gray-80 p-4 min-h-[500px]"
+            data-testid="kanban-column"
+            className={`${KANBAN_COLUMN_CLASS} flex-col gap-3 rounded-lg border border-gray-200 bg-gray-80 p-4 min-h-[500px]`}
           >
             <div className="flex items-center justify-between">
               <h3 className="flex-1 text-sm font-semibold text-gray-900">{col.label}</h3>
