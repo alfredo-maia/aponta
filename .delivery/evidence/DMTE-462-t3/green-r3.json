@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-11T21:45:29.372274+00:00",
+  "finished_at": "2026-11-11T21:48:51.071377+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run-many",
+    "-t",
+    "test",
+    "-p",
+    "api,web",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "00dbc0e9c4299d16e9efe9befb2a120a656aee45",
+  "head_sha": "f7c3f812c719ef1130a786b3d6bda91d8cdce16b",
+  "exit_code": 0,
+  "tests": {
+    "apps/api/src/jobs/jobs.service.spec.ts": "9a11d87a5ec50aa3442c98733cc7ee34f7720c9da3567aa847947ddfa123d67a",
+    "apps/api/src/jobs/cron.spec.ts": "967005ea263987dfbfd169a46dc18924d28b345115f83755b01c87666180b3be",
+    "apps/api/src/jobs/jobs.controller.spec.ts": "8a06566fd78203c93dd378dba949fa72b3626b0842be47a577c610f52bee323f",
+    "apps/api/prisma/seed.spec.ts": "01a77287678079551087af82e6c132ca2016976ca4fb2aceb877e93822a604ba",
+    "apps/web/src/pages/ScheduledJobsPage.test.tsx": "028023c76f40b0e5617f4a36636dc78412856fd3f8a3675747f62df4985e6d2a",
+    "apps/web/src/pages/SettingsPage.test.tsx": "199c06f51fe29159510638349cbc0d6aea355f40bed5ac2743f5ae588d011e43"
+  },
+  "criteria": [
+    "AC-14",
+    "AC-15",
+    "AC-16"
+  ],
+  "source_hashes": {
+    "apps/api/prisma/migrations/20261111180000_scheduled_jobs/migration.sql": "c75e4e24ce476b21775d49ed28ead2364cb6d3337ea49a7b33edc855445500f0",
+    "apps/api/prisma/schema.prisma": "2fff9fd6ab0940d634a182f580f30528f4e3ffabb8b40c59dbd10ef2fd4c0470",
+    "apps/api/prisma/seed.spec.ts": "01a77287678079551087af82e6c132ca2016976ca4fb2aceb877e93822a604ba",
+    "apps/api/src/app.module.ts": "1f00a903a6e2e86a3e42cc3070629fb6feef273eb95e6ee4c8b73a33372a726f",
+    "apps/api/src/jobs/cron.spec.ts": "967005ea263987dfbfd169a46dc18924d28b345115f83755b01c87666180b3be",
+    "apps/api/src/jobs/cron.ts": "002577d7ff6e8f9b697febd1c879aaa69338f673b24391453cce88902eb6a140",
+    "apps/api/src/jobs/dto/update-scheduled-job.dto.ts": "47202e24784dace8d1db979a8eacb1d0920a2ff527642eb2b5b54bef50ec4d42",
+    "apps/api/src/jobs/jobs.controller.spec.ts": "8a06566fd78203c93dd378dba949fa72b3626b0842be47a577c610f52bee323f",
+    "apps/api/src/jobs/jobs.controller.ts": "b4a86fbfd4cb951ce8602f3694db0e0bd9c5bcbe0245e6f86d063b241adb803b",
+    "apps/api/src/jobs/jobs.module.ts": "7d8b7c60cc5ff7ae0fd33835cfa6d391c8eb5bc0f2ec0eee5256e49bacdd0710",
+    "apps/api/src/jobs/jobs.runner.ts": "f1c630845969474de2a8aaa23f7ee4eccb9c72cd58e9ea7957843d8f4324eb89",
+    "apps/api/src/jobs/jobs.service.spec.ts": "9a11d87a5ec50aa3442c98733cc7ee34f7720c9da3567aa847947ddfa123d67a",
+    "apps/api/src/jobs/jobs.service.ts": "1f716d82403dfdf587048ee4b2b581956900c1f24f5f08f6e726e17c255bdc01",
+    "apps/api/src/permission-groups/permission-catalog.ts": "2b1d93c28f64f3527c1fe4ad5a15e74ddc93f22350b9820d5cc1fc58c20b022b",
+    "apps/web/src/App.tsx": "95e7a649f5f81bd7d4fa56b3610b2021798a858f270d61f268cecc0291f19d9c",
+    "apps/web/src/hooks/useScheduledJobs.ts": "9c8d2dd1ed071c73d9b03e07d915d0a55b286bfecb247835a6a7cb825f5fe248",
+    "apps/web/src/pages/ScheduledJobsPage.test.tsx": "028023c76f40b0e5617f4a36636dc78412856fd3f8a3675747f62df4985e6d2a",
+    "apps/web/src/pages/ScheduledJobsPage.tsx": "59123833db0f8a5abf28c25513a4c978278163818d2a2e69daca04c4b28284be",
+    "apps/web/src/pages/SettingsPage.test.tsx": "199c06f51fe29159510638349cbc0d6aea355f40bed5ac2743f5ae588d011e43",
+    "apps/web/src/pages/SettingsPage.tsx": "eaccc76e5736b75ebc75d83605b398b2e2e09e03973ccb6866c16a89bc364f68"
+  },
+  "log": ".delivery/evidence/DMTE-462-t3/green-r3.log",
+  "log_sha256": "b629259ee4ba1d07877cd9f5b00bc368bd7ff9b5e61f9a29889f6c0db24ac01a"
+}
