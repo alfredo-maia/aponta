@@ -1,0 +1,388 @@
+
+> nx run web:test src/pages/CreateTicketPage.test.tsx
+
+web:  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-483-2e65a9ae11ff/workdir/aponta/apps/web
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should render ticket form with new DS components
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-483 AC-01: mostra carregamento e não renderiza o formulário enquanto o catálogo carrega
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-483 AC-02: com a consulta de catálogo falhando, abre o formulário em branco
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-483 AC-04: formulário e catálogo usam a mesma largura máxima
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-483 AC-04: formulário e catálogo usam a mesma largura máxima
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should populate the service desk dropdown from the API
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should not submit when required fields are empty
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should submit the form and navigate to the new ticket detail page
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows the service catalog when the API returns categories, and lets the user pick an item
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows the service catalog when the API returns categories, and lets the user pick an item
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > AC-3: Esc no formulário volta para o catálogo
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > AC-3: Esc no formulário volta para o catálogo
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user open a blank ticket from the catalog via "não está catalogado"
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user open a blank ticket from the catalog via "não está catalogado"
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > submits a blank ticket from the catalog without the synthetic custom item or an empty desk
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > submits a blank ticket from the catalog without the synthetic custom item or an empty desk
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user go back from the form to the catalog view
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user go back from the form to the catalog view
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows a submit error message and does not navigate when the API call fails
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > patches the parent ticket and uploads attachments after creating the ticket
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web:  ❯ |web| src/pages/CreateTicketPage.test.tsx (15 tests | 2 failed) 4982ms
+web:      ✓ should render ticket form with new DS components 290ms
+web:      × DMTE-483 AC-01: mostra carregamento e não renderiza o formulário enquanto o catálogo carrega 1109ms
+web:      ✓ DMTE-483 AC-02: com a consulta de catálogo falhando, abre o formulário em branco 101ms
+web:      × DMTE-483 AC-04: formulário e catálogo usam a mesma largura máxima 281ms
+web:      ✓ should populate the service desk dropdown from the API 162ms
+web:      ✓ should not submit when required fields are empty 224ms
+web:      ✓ should submit the form and navigate to the new ticket detail page  422ms
+web:      ✓ shows the service catalog when the API returns categories, and lets the user pick an item 206ms
+web:      ✓ AC-3: Esc no formulário volta para o catálogo 261ms
+web:      ✓ lets the user open a blank ticket from the catalog via "não está catalogado" 298ms
+web:      ✓ submits a blank ticket from the catalog without the synthetic custom item or an empty desk  449ms
+web:      ✓ lets the user go back from the form to the catalog view 190ms
+web:      ✓ shows a submit error message and does not navigate when the API call fails  308ms
+web:      ✓ forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit  322ms
+web:      ✓ patches the parent ticket and uploads attachments after creating the ticket  353ms
+web: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+web:  FAIL  |web| src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-483 AC-01: mostra carregamento e não renderiza o formulário enquanto o catálogo carrega
+web: TestingLibraryElementError: Unable to find role="status"
+web: Ignored nodes: comments, script, style
+web: [36m<body>[39m
+web:   [36m<div>[39m
+web:     [36m<div[39m
+web:       [33mclass[39m=[32m"space-y-4 pt-4 max-w-lg"[39m
+web:     [36m>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex items-center gap-3"[39m
+web:       [36m>[39m
+web:         [36m<h1[39m
+web:           [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:         [36m>[39m
+web:           [0mAbrir Chamado[0m
+web:         [36m</h1>[39m
+web:       [36m</div>[39m
+web:       [36m<form[39m
+web:         [33mclass[39m=[32m"w-full space-y-6 bg-white p-6 md:p-8 rounded-card border border-gray-100 shadow-card"[39m
+web:         [33mnovalidate[39m=[32m""[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-gray-100"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"flex flex-col w-full gap-1.5 relative"[39m
+web:           [36m>[39m
+web:             [36m<label[39m
+web:               [33mclass[39m=[32m"text-[14px] font-medium leading-none mb-0.5 select-none text-gray-900"[39m
+web:               [33mfor[39m=[32m"ticket-organization"[39m
+web:             [36m>[39m
+web:               [0mCliente[0m
+web:             [36m</label>[39m
+web:             [36m<div[39m
+web:               [33mclass[39m=[32m"relative flex items-center w-full overflow-hidden transition-colors border rounded-[12px] bg-white group h-[42px] border-gray-200 hover:border-gray-300"[39m
+web:             [36m>[39m
+web:               [36m<div[39m
+web:                 [33mclass[39m=[32m"flex items-center justify-center shrink-0 pl-3 pr-2 text-gray-500"[39m
+web:               [36m>[39m
+web:                 [36m<svg[39m
+web:                   [33maria-hidden[39m=[32m"true"[39m
+web:                   [33mclass[39m=[32m"lucide lucide-search w-4 h-4"[39m
+web:                   [33mfill[39m=[32m"none"[39m
+web:                   [33mheight[39m=[32m"24"[39m
+web:                   [33mstroke[39m=[32m"currentColor"[39m
+web:                   [33mstroke-linecap[39m=[32m"round"[39m
+web:                   [33mstroke-linejoin[39m=[32m"round"[39m
+web:                   [33mstroke-width[39m=[32m"2"[39m
+web:                   [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:                   [33mwidth[39m=[32m"24"[39m
+web:                   [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:                 [36m>[39m
+web:                   [36m<path[39m
+web:                     [33md[39m=[32m"m21 21-4.34-4.34"[39m
+web:                   [36m/>[39m
+web:                   [36m<circle[39m
+web:                     [33mcx[39m=[32m"11"[39m
+web:                     [33mcy[39m=[32m"11"[39m
+web:                     [33mr[39m=[32m"8"[39m
+web:                   [36m/>[39m
+web:                 [36m</svg>[39m
+web:               [36m</div>[39m
+web:               [36m<input[39m
+web:                 [33mautocomplete[39m=[32m"off"[39m
+web:                 [33mclass[39m=[32m"flex-1 w-full bg-transparent border-none outline-none text-[14px] text-gray-900 placeholder:text-gray-400 h-full"[39m
+web:                 [33mid[39m=[32m"ticket-organization"[39m
+web:                 [33mplaceholder[39m=[32m"Buscar cliente..."[39m
+web:                 [33mtype[39m=[32m"text"[39m
+web:                 [33mvalue[39m=[32m""[39m
+web:               [36m/>[39m
+web:               [36m<div[39m
+web:                 [33mclass[39m=[32m"flex items-center justify-center shrink-0 pr-2 pl-1 text-gray-500 gap-1 opacity-70"[39m
+web:               [36m>[39m
+web:                 [36m<button[39m
+web:                   [33mclass[39m=[32m"p-1 rounded-full hover:bg-gray-100 transition-colors"[39m
+web:                   [33mtitle[39m=[32m"Limpar seleção"[39m
+web:                   [33mtype[39m=[32m"button"[39m
+web:                 [36m>[39m
+web:                   [36m<svg[39m
+web:                     [33maria-hidden[39m=[32m"true"[39m
+web:                     [33mclass[39m=[32m"lucide lucide-x w-3.5 h-3.5"[39m
+web:                     [33mfill[39m=[32m"none"[39m
+web:                     [33mheight[39m=[32m"24"[39m
+web:                     [33mstroke[39m=[32m"currentColor"[39m
+web:                     [33mstroke-linecap[39m=[32m"round"[39m
+web:                     [33mstroke-linejoin[39m=[32m"round"[39m
+web:                     [33mstroke-width[39m=[32m"2"[39m
+web:                     [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:                     [33mwidth[39m=[32m"24"[39m
+web:                     [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:                   [36m>[39m
+web:                     [36m<path[39m
+web:                       [33md[39m=[32m"M18 6 6 18"[39m
+web:                     [36m/>[39m
+web:                     [36m<path[39m
+web:                       [33md[39m=[32m"m6 6 12 12"[39m
+web:                     [36m/>[39m
+web:                   [36m</svg>[39m
+web:                 [36m</button>[39m
+web:                 [36m<svg[39m
+web:                   [33maria-hidden[39m=[32m"true"[39m
+web:                   [33mclass[39m=[32m"lucide lucide-chevron-down w-4 h-4 transition-transform"[39m
+web:                   [33mfill[39m=[32m"none"[39m
+web:                   [33mheight[39m=[32m"24"[39m
+web:                   [33mstroke[39m=[32m"currentColor"[39m
+web:                   [33mstroke-linecap[39m=[32m"round"[39m
+web:                   [33mstroke-linejoin[39m=[32m"round"[39m
+web:                   [33mstroke-width[39m=[32m"2"[39m
+web:                   [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:                   [33mwidth[39m=[32m"24"[39m
+web:                   [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:                 [36m>[39m
+web:                   [36m<path[39m
+web:                     [33md[39m=[32m"m6 9 6 6 6-6"[39m
+web:                   [36m/>[39m
+web:                 [36m</svg>[39m
+web:               [36m</div>[39m
+web:             [36m</div>[39m
+web:           [36m</div>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"flex flex-col w-full gap-1.5"[39m
+web:           [36m>[39m
+web:             [36m<label[39m
+web:               [33mclass[39m=[32m"text-[14px] font-medium leading-none mb-0.5 select-none text-gray-900"[39m
+web:               [33mfor[39m=[32m"ticket-service-desk"[39m
+web:             [36m>[39m
+web:               [0mMesa[0m
+web:               [36m<span[39m
+web:                 [33mclass[39m=[32m"ml-1 text-red-600"[39m
+web:               [36m>[39m
+web:                 [0m*[0m
+web:               [36m</span>[39m
+web:             [36m</label>[39m
+web:             [36m<div[39m
+web:               [33mclass[39m=[32m"relative flex items-center w-full overflow-hidden transition-colors border rounded-[12px] bg-white group h-[42px] focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300"[39m
+web:             [36m>[39m
+web:               [36m<select[39m
+web:                 [33mclass[39m=[32m"flex-1 w-full bg-transparent border-none outline-none text-[14px] text-gray-900 h-full pl-4 pr-10 appearance-none"[39m
+web:                 [33mid[39m=[32m"ticket-service-desk"[39m
+web:                 [33mrequired[39m=[32m""[39m
+web:               [36m>[39m
+web:                 [36m<option[39m
+web:                   [33mvalue[39m=[32m""[39m
+web:       ...
+web: Ignored nodes: comments, script, style
+web: [36m<body>[39m
+web:   [36m<div>[39m
+web:     [36m<div[39m
+web:       [33mclass[39m=[32m"space-y-4 pt-4 max-w-lg"[39m
+web:     [36m>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex items-center gap-3"[39m
+web:       [36m>[39m
+web:         [36m<h1[39m
+web:           [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:         [36m>[39m
+web:           [0mAbrir Chamado[0m
+web:         [36m</h1>[39m
+web:       [36m</div>[39m
+web:       [36m<form[39m
+web:         [33mclass[39m=[32m"w-full space-y-6 bg-white p-6 md:p-8 rounded-card border border-gray-100 shadow-card"[39m
+web:         [33mnovalidate[39m=[32m""[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-gray-100"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"flex flex-col w-full gap-1.5 relative"[39m
+web:           [36m>[39m
+web:             [36m<label[39m
+web:               [33mclass[39m=[32m"text-[14px] font-medium leading-none mb-0.5 select-none text-gray-900"[39m
+web:               [33mfor[39m=[32m"ticket-organization"[39m
+web:             [36m>[39m
+web:               [0mCliente[0m
+web:             [36m</label>[39m
+web:             [36m<div[39m
+web:               [33mclass[39m=[32m"relative flex items-center w-full overflow-hidden transition-colors border rounded-[12px] bg-white group h-[42px] border-gray-200 hover:border-gray-300"[39m
+web:             [36m>[39m
+web:               [36m<div[39m
+web:                 [33mclass[39m=[32m"flex items-center justify-center shrink-0 pl-3 pr-2 text-gray-500"[39m
+web:               [36m>[39m
+web:                 [36m<svg[39m
+web:                   [33maria-hidden[39m=[32m"true"[39m
+web:                   [33mclass[39m=[32m"lucide lucide-search w-4 h-4"[39m
+web:                   [33mfill[39m=[32m"none"[39m
+web:                   [33mheight[39m=[32m"24"[39m
+web:                   [33mstroke[39m=[32m"currentColor"[39m
+web:                   [33mstroke-linecap[39m=[32m"round"[39m
+web:                   [33mstroke-linejoin[39m=[32m"round"[39m
+web:                   [33mstroke-width[39m=[32m"2"[39m
+web:                   [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:                   [33mwidth[39m=[32m"24"[39m
+web:                   [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:                 [36m>[39m
+web:                   [36m<path[39m
+web:                     [33md[39m=[32m"m21 21-4.34-4.34"[39m
+web:                   [36m/>[39m
+web:                   [36m<circle[39m
+web:                     [33mcx[39m=[32m"11"[39m
+web:                     [33mcy[39m=[32m"11"[39m
+web:                     [33mr[39m=[32m"8"[39m
+web:                   [36m/>[39m
+web:                 [36m</svg>[39m
+web:               [36m</div>[39m
+web:               [36m<input[39m
+web:                 [33mautocomplete[39m=[32m"off"[39m
+web:                 [33mclass[39m=[32m"flex-1 w-full bg-transparent border-none outline-none text-[14px] text-gray-900 placeholder:text-gray-400 h-full"[39m
+web:                 [33mid[39m=[32m"ticket-organization"[39m
+web:                 [33mplaceholder[39m=[32m"Buscar cliente..."[39m
+web:                 [33mtype[39m=[32m"text"[39m
+web:                 [33mvalue[39m=[32m""[39m
+web:               [36m/>[39m
+web:               [36m<div[39m
+web:                 [33mclass[39m=[32m"flex items-center justify-center shrink-0 pr-2 pl-1 text-gray-500 gap-1 opacity-70"[39m
+web:               [36m>[39m
+web:                 [36m<button[39m
+web:                   [33mclass[39m=[32m"p-1 rounded-full hover:bg-gray-100 transition-colors"[39m
+web:                   [33mtitle[39m=[32m"Limpar seleção"[39m
+web:                   [33mtype[39m=[32m"button"[39m
+web:                 [36m>[39m
+web:                   [36m<svg[39m
+web:                     [33maria-hidden[39m=[32m"true"[39m
+web:                     [33mclass[39m=[32m"lucide lucide-x w-3.5 h-3.5"[39m
+web:                     [33mfill[39m=[32m"none"[39m
+web:                     [33mheight[39m=[32m"24"[39m
+web:                     [33mstroke[39m=[32m"currentColor"[39m
+web:                     [33mstroke-linecap[39m=[32m"round"[39m
+web:                     [33mstroke-linejoin[39m=[32m"round"[39m
+web:                     [33mstroke-width[39m=[32m"2"[39m
+web:                     [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:                     [33mwidth[39m=[32m"24"[39m
+web:                     [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:                   [36m>[39m
+web:                     [36m<path[39m
+web:                       [33md[39m=[32m"M18 6 6 18"[39m
+web:                     [36m/>[39m
+web:                     [36m<path[39m
+web:                       [33md[39m=[32m"m6 6 12 12"[39m
+web:                     [36m/>[39m
+web:                   [36m</svg>[39m
+web:                 [36m</button>[39m
+web:                 [36m<svg[39m
+web:                   [33maria-hidden[39m=[32m"true"[39m
+web:                   [33mclass[39m=[32m"lucide lucide-chevron-down w-4 h-4 transition-transform"[39m
+web:                   [33mfill[39m=[32m"none"[39m
+web:                   [33mheight[39m=[32m"24"[39m
+web:                   [33mstroke[39m=[32m"currentColor"[39m
+web:                   [33mstroke-linecap[39m=[32m"round"[39m
+web:                   [33mstroke-linejoin[39m=[32m"round"[39m
+web:                   [33mstroke-width[39m=[32m"2"[39m
+web:                   [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:                   [33mwidth[39m=[32m"24"[39m
+web:                   [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:                 [36m>[39m
+web:                   [36m<path[39m
+web:                     [33md[39m=[32m"m6 9 6 6 6-6"[39m
+web:                   [36m/>[39m
+web:                 [36m</svg>[39m
+web:               [36m</div>[39m
+web:             [36m</div>[39m
+web:           [36m</div>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"flex flex-col w-full gap-1.5"[39m
+web:           [36m>[39m
+web:             [36m<label[39m
+web:               [33mclass[39m=[32m"text-[14px] font-medium leading-none mb-0.5 select-none text-gray-900"[39m
+web:               [33mfor[39m=[32m"ticket-service-desk"[39m
+web:             [36m>[39m
+web:               [0mMesa[0m
+web:               [36m<span[39m
+web:                 [33mclass[39m=[32m"ml-1 text-red-600"[39m
+web:               [36m>[39m
+web:                 [0m*[0m
+web:               [36m</span>[39m
+web:             [36m</label>[39m
+web:             [36m<div[39m
+web:               [33mclass[39m=[32m"relative flex items-center w-full overflow-hidden transition-colors border rounded-[12px] bg-white group h-[42px] focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300"[39m
+web:             [36m>[39m
+web:               [36m<select[39m
+web:                 [33mclass[39m=[32m"flex-1 w-full bg-transparent border-none outline-none text-[14px] text-gray-900 h-full pl-4 pr-10 appearance-none"[39m
+web:                 [33mid[39m=[32m"ticket-service-desk"[39m
+web:                 [33mrequired[39m=[32m""[39m
+web:               [36m>[39m
+web:                 [36m<option[39m
+web:                   [33mvalue[39m=[32m""[39m
+web:       ...
+web:  ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+web:  ❯ src/pages/CreateTicketPage.test.tsx:85:25
+web:      83|     renderPage();
+web:      84|
+web:      85|     expect(await screen.findByRole('status')).toHaveTextContent(/carre…
+web:        |                         ^
+web:      86|     expect(screen.queryByLabelText(/título \(assunto\)/i)).not.toBeInT…
+web:      87|     expect(screen.queryByText('Abrir Chamado')).not.toBeInTheDocument(…
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+web:  FAIL  |web| src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-483 AC-04: formulário e catálogo usam a mesma largura máxima
+web: AssertionError: expected 'max-w-lg' to be 'max-w-4xl' // Object.is equality
+web: Expected: "max-w-4xl"
+web: Received: "max-w-lg"
+web:  ❯ src/pages/CreateTicketPage.test.tsx:120:23
+web:     118|     const formWidth = maxWidth(await screen.findByText('Abrir Chamado'…
+web:     119|
+web:     120|     expect(formWidth).toBe(catalogWidth);
+web:        |                       ^
+web:     121|   });
+web:     122|
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+web:  Test Files  1 failed (1)
+web:       Tests  2 failed | 13 passed (15)
+web:    Start at  08:03:43
+web:    Duration  8.59s (transform 1.52s, setup 153ms, import 2.63s, tests 4.98s, environment 615ms)
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
