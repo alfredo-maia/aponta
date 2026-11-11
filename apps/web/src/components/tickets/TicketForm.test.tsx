@@ -280,13 +280,12 @@ describe('TicketForm', () => {
     expect(within(mesa).queryByRole('option', { name: 'Mesa interna' })).not.toBeInTheDocument();
   });
 
-  it('warns and blocks submit when the desk requires catalog or attachments', async () => {
+  it('warns and blocks submit when the desk requires attachments', async () => {
     mockApiGet({
       serviceDesks: [
         {
           id: 'sd-1',
           name: 'Suporte N1',
-          catalogRequiredOnOpen: true,
           requireAttachments: true,
         },
       ],
@@ -296,11 +295,25 @@ describe('TicketForm', () => {
     await waitFor(() => expect(api.get).toHaveBeenCalledWith('/service-desks'));
 
     await fillRequiredFields(user);
-    expect(screen.getByText(/exige um item do catálogo/i)).toBeInTheDocument();
     expect(screen.getByText(/anexos \(obrigatório nesta mesa\)/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /abrir ticket/i }));
     expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('DMTE-485 AC-12: mesa com catalogRequiredOnOpen não mostra aviso nem bloqueia o envio', async () => {
+    mockApiGet({
+      serviceDesks: [{ id: 'sd-1', name: 'Suporte N1', catalogRequiredOnOpen: true }],
+    });
+    const user = userEvent.setup();
+    const { onSubmit } = renderForm();
+    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/service-desks'));
+
+    await fillRequiredFields(user);
+    expect(screen.queryByText(/exige um item do catálogo/i)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /abrir ticket/i }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
   });
 
   it('lets the user add followers via the multi-select', async () => {

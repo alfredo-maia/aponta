@@ -7,6 +7,7 @@ import { PermissionsService } from '../permissions/permissions.service';
 
 const mockCatalogService = {
   findAllCategories: jest.fn(),
+  findActiveCatalog: jest.fn(),
   createCategory: jest.fn(),
   updateCategory: jest.fn(),
   deleteCategory: jest.fn(),
@@ -57,12 +58,13 @@ describe('CatalogController', () => {
   });
 
   describe('getActiveCatalog', () => {
-    it('delegates to findAllCategories(includeItems=true, onlyActive=true)', async () => {
-      mockCatalogService.findAllCategories.mockResolvedValue([{ id: 'cat-1' }]);
+    it('DMTE-485: delega ao catálogo do usuário com o organizationId informado', async () => {
+      mockCatalogService.findActiveCatalog.mockResolvedValue([{ id: 'cat-1' }]);
+      const user = { id: 'agent-1', role: 'AGENT' } as never;
 
-      const result = await controller.getActiveCatalog();
+      const result = await controller.getActiveCatalog(user, 'org-9');
 
-      expect(mockCatalogService.findAllCategories).toHaveBeenCalledWith(true, true);
+      expect(mockCatalogService.findActiveCatalog).toHaveBeenCalledWith(user, 'org-9');
       expect(result).toEqual([{ id: 'cat-1' }]);
     });
   });

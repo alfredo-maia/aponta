@@ -35,6 +35,7 @@ export function assertDeskAllowsOpen(params: {
   user: CurrentUserPayload;
   requester: Pick<User, 'name' | 'email' | 'phone' | 'extension'>;
   catalogItemId?: string;
+  semCatalogo?: boolean;
   priority?: TicketPriority;
   resourceGroup?: string;
   attachmentCount: number;

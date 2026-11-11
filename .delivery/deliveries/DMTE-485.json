@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "delivery": "DMTE-485",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 204,
+  "multica_id": "01a1ca22-3c31-7b5c-9bc2-6fee80eacf9a",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 2,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "`GET /catalog` devolve só itens ativos, de categoria ativa, cuja mesa está ativa e recebendo chamados e é utilizável pelo papel do usuário: CLIENT e CLIENT_MASTER não recebem item de mesa de uso interno nem só de atendentes; atendente de mesa listada-apenas não recebe item de mesa onde não está listado quando `unlistedCanCreateTicket` é falso.",
+      "tests": [
+        "AC-01: pede ao banco só categorias e itens ativos, ordenados",
+        "AC-01: ADMIN recebe item de mesa aberta e não recebe mesa inativa nem mesa fora de recebimento",
+        "AC-01: CLIENT não recebe item de mesa de uso interno nem só de atendentes",
+        "AC-01: atendente de mesa listada-apenas só recebe o item onde está listado ou onde não listados podem criar",
+        "AC-01: atendente não recebe item de mesa que não enxerga (nem listado, nem interação entre mesas)",
+        "AC-01: a resposta não vaza os dados internos da mesa",
+        "DMTE-485: delega ao catálogo do usuário com o organizationId informado"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "`GET /catalog` omite a categoria cujos itens ficaram todos fora da resposta.",
+      "tests": [
+        "AC-02: omite a categoria cujos itens ficaram todos fora e mantém as demais"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "`GET /catalog?organizationId=<id>` por ADMIN, AGENT ou AGENT_MASTER devolve só itens cuja mesa tem esse Cliente vinculado ou nenhum Cliente vinculado; sem o parâmetro, não filtra por Cliente.",
+      "tests": [
+        "AC-03: atendente com organizationId recebe itens da mesa do Cliente e de mesa global, e não de mesa de outro Cliente",
+        "AC-03: sem organizationId o atendente não é filtrado por Cliente"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "para CLIENT e CLIENT_MASTER, `GET /catalog` ignora `organizationId` e usa a organização do usuário (nunca devolve item de mesa só de outra empresa).",
+      "tests": [
+        "AC-04: CLIENT ignora o organizationId recebido e fica na própria organização",
+        "AC-04: CLIENT sem organização só recebe itens de mesa global"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "`POST /tickets` de atendente com `organizationId` grava o Cliente em `commercialOrganizationId`; de CLIENT ou CLIENT_MASTER, o valor enviado é ignorado e vale a organização do solicitante.",
+      "tests": [
+        "AC-05: atendente com organizationId grava o Cliente em commercialOrganizationId",
+        "AC-05: CLIENT tem o organizationId enviado ignorado e fica na organização do solicitante",
+        "AC-05 e AC-11: aceita organizationId (UUID) e semCatalogo (booleano)"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "description": "`POST /tickets` responde 400 quando o Cliente não existe ou está inativo, e quando a mesa efetiva não serve o Cliente informado nem é global.",
+      "tests": [
+        "AC-06: recusa Cliente que não existe",
+        "AC-06: recusa Cliente inativo",
+        "AC-06: recusa mesa que não serve o Cliente e aceita mesa vinculada a ele",
+        "AC-06: a mesa avaliada é a do item do catálogo, não a enviada no corpo"
+      ]
+    },
+    {
+      "id": "AC-07",
+      "description": "na tela de novo chamado, o atendente vê o seletor de Cliente acima do catálogo e o usuário CLIENT não; ao escolher um Cliente, a tela consulta o catálogo com `organizationId` e mostra o resultado.",
+      "tests": [
+        "AC-07: o atendente vê o seletor de Cliente acima das categorias",
+        "AC-07: o usuário CLIENT não vê o seletor e consulta o catálogo sem organizationId",
+        "AC-07: ao escolher um Cliente consulta o catálogo com organizationId e mostra o resultado"
+      ]
+    },
+    {
+      "id": "AC-08",
+      "description": "o Cliente escolhido no catálogo chega ao formulário preenchido e travado, e o envio leva `organizationId`; no fluxo em branco, a lista de mesas só mostra mesas que servem o Cliente escolhido.",
+      "tests": [
+        "AC-08: o Cliente escolhido no catálogo chega ao formulário travado e o envio leva organizationId",
+        "AC-08: no fluxo em branco a lista de mesas só mostra mesas que servem o Cliente escolhido"
+      ]
+    },
+    {
+      "id": "AC-09",
+      "description": "quando o filtro não deixa nenhum item, a tela mostra mensagem de catálogo vazio e mantém o botão de chamado em branco.",
+      "tests": [
+        "AC-09: sem itens para o Cliente mostra o catálogo vazio e mantém o botão de chamado em branco"
+      ]
+    },
+    {
+      "id": "AC-10",
+      "description": "o botão \"Meu problema não está catalogado\" aparece no cabeçalho, ao lado do título \"Catálogo de Serviços\", e não mais depois das categorias; ao clicar, abre o formulário em branco.",
+      "tests": [
+        "AC-10: o botão \"não catalogado\" fica no cabeçalho ao lado do título, antes das categorias"
+      ]
+    },
+    {
+      "id": "AC-11",
+      "description": "`POST /tickets` com `semCatalogo: true` e sem `catalogItemId` é aceito em mesa com `catalogRequiredOnOpen`; sem `semCatalogo` e sem item continua 400; `semCatalogo: true` com `catalogItemId` dá 400; `semCatalogo` não é gravado no chamado.",
+      "tests": [
+        "DMTE-485 AC-11: aceita chamado sem item em mesa com catálogo exigido quando declara semCatalogo",
+        "DMTE-485 AC-11: recusa semCatalogo junto de um catalogItemId",
+        "AC-11: semCatalogo abre o chamado em mesa com catálogo exigido e não é gravado",
+        "AC-11: sem semCatalogo e sem item a mesa com catálogo exigido continua recusando"
+      ]
+    },
+    {
+      "id": "AC-12",
+      "description": "o fluxo em branco envia `semCatalogo: true` e nenhum `catalogItemId`, o formulário não bloqueia o envio por `catalogRequiredOnOpen` e não mostra o aviso \"Esta mesa exige um item do catálogo\".",
+      "tests": [
+        "AC-12: o fluxo em branco envia semCatalogo, sem catalogItemId, e não bloqueia por catalogRequiredOnOpen",
+        "DMTE-485 AC-12: mesa com catalogRequiredOnOpen não mostra aviso nem bloqueia o envio"
+      ]
+    },
+    {
+      "id": "AC-13",
+      "description": "em Mesas, a opção `catalogRequiredOnOpen` aparece com o rótulo \"Mostrar o catálogo ao abrir (permite 'não catalogado')\".",
+      "tests": [
+        "DMTE-485 AC-13: a opção de catálogo da mesa aparece como \"Mostrar o catálogo ao abrir (permite 'não catalogado')\""
+      ]
+    },
+    {
+      "id": "AC-14",
+      "description": "o catálogo renderiza um cartão por categoria com itens, com o nome da categoria como título e os serviços dentro; categoria sem itens não renderiza; o card do serviço não mostra a mesa; categorias e itens seguem em ordem alfabética.",
+      "tests": [
+        "AC-14: um cartão por categoria com itens, na ordem recebida, sem categoria vazia e sem a mesa no card"
+      ]
+    },
+    {
+      "id": "AC-15",
+      "description": "o contêiner dos cartões usa 1 coluna abaixo de 640 px, 2 a partir de 640 px e 3 a partir de 1024 px, e o cartão não se parte entre colunas; cada serviço é um botão com nome acessível e cada cartão uma região rotulada pelo título.",
+      "tests": [
+        "AC-15: os cartões fluem em 1, 2 e 3 colunas sem se partir entre colunas"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-485.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-485/red.json",
+    "green": ".delivery/evidence/DMTE-485/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzCardItem",
+      "EzButton",
+      "EzSearch",
+      "EzComboBox",
+      "EzAlert",
+      "EzSpinner"
+    ],
+    "reason": "Cartões de categoria e seletor de Cliente com componentes do DS existente; nenhum componente DS novo ou alterado."
+  }
+}

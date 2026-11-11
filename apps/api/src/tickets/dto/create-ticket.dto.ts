@@ -1,4 +1,4 @@
-import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, Min } from 'class-validator';
 import { TicketPriority } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -44,4 +44,14 @@ export class CreateTicketDto {
   @IsInt()
   @Min(0)
   attachmentCount?: number;
+
+  @ApiPropertyOptional({ description: 'Cliente (organização) para quem o atendente abre o chamado. Ignorado para usuários CLIENT.' })
+  @IsOptional()
+  @IsUUID()
+  organizationId?: string;
+
+  @ApiPropertyOptional({ description: 'Declara que o chamado não está catalogado; só isso abre chamado sem item em mesa que pede catálogo.' })
+  @IsOptional()
+  @IsBoolean()
+  semCatalogo?: boolean;
 }

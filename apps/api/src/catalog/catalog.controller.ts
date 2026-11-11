@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CatalogService } from './catalog.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -7,6 +7,7 @@ import { UpdateCatalogItemDto } from './dto/update-catalog-item.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { RequirePermission } from '../auth/decorators/require-permission.decorator';
+import { CurrentUser, CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 @Controller('catalog')
 @UseGuards(JwtAuthGuard)
@@ -15,7 +16,8 @@ export class CatalogController {
 
   // Public/All users endpoint to see the active catalog
   @Get()
-  async getActiveCatalog() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getActiveCatalog(@CurrentUser() _user: CurrentUserPayload, @Query('organizationId', new ParseUUIDPipe({ optional: true })) _organizationId?: string) {
     return this.catalogService.findAllCategories(true, true);
   }
 

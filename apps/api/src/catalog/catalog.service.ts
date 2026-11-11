@@ -4,6 +4,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CreateCatalogItemDto } from './dto/create-catalog-item.dto';
 import { UpdateCatalogItemDto } from './dto/update-catalog-item.dto';
+import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 
 @Injectable()
 export class CatalogService {
@@ -17,6 +18,11 @@ export class CatalogService {
       } : undefined,
       orderBy: { name: 'asc' }
     });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async findActiveCatalog(_user: CurrentUserPayload, _organizationId?: string): Promise<any[]> {
+    return [];
   }
 
   async createCategory(dto: CreateCategoryDto) {
