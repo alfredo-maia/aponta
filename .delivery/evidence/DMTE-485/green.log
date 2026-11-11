@@ -1,0 +1,1293 @@
+
+ NX   Running target test for 2 projects:
+
+- api
+- web
+
+
+
+> nx run api:test
+
+> jest --passWithNoTests=true
+
+[33mA worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.[39m
+
+[1mTest Suites: [22m[1m[32m84 passed[39m[22m, 84 total
+[1mTests:       [22m[1m[32m1167 passed[39m[22m, 1167 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        30.67 s
+[2mRan all test suites[22m[2m.[22m
+
+> nx run web:test
+
+> vitest
+
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-485-bca7e4abf63b/workdir/aponta/apps/web
+
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > defaults a new article to "Público" and hides the Compartilhar button
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > shows the Compartilhar button once "Privado" is selected, and opens the sharing dialog
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > shows the new-article form to an AGENT and creates a PUBLIC article inside the open folder
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > selects an agent group and a client in the share dialog, and sends them (plus auto-share) in the create payload
+An update to KnowledgePage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > selects an agent group and a client in the share dialog, and sends them (plus auto-share) in the create payload
+An update to EzModal inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to EzModal inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > selects an agent group and a client in the share dialog, and sends them (plus auto-share) in the create payload
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/VaultPage.test.tsx (21 tests) 11748ms
+     ✓ renders the folder tree and masks every password/username by default (acceptance criterion #1)  343ms
+     ✓ allows ADMIN to delete a credential after confirming  302ms
+     ✓ creates a folder via "Nova pasta" and edits a selected folder's name  2294ms
+     ✓ does not delete the folder when confirm is cancelled, but does when confirmed  553ms
+     ✓ creates a credential via "Nova senha" and edits one without touching blank username/password  2919ms
+     ✓ does not save a new credential with a blank/whitespace-only name, nor without a password  2067ms
+     ✓ closes folder and credential modals via "Cancelar" without calling the API  725ms
+stderr | src/pages/TicketsPage.test.tsx > TicketsPage > navigates to /tickets/search when "Busca avançada" is clicked (AC3)
+No routes matched location "/tickets/search" 
+
+ ✓ |web| src/pages/TicketsPage.test.tsx (24 tests) 11046ms
+     ✓ should render ticket list  599ms
+     ✓ defaults non-CLIENT users to the Kanban view and lets them switch to List  2111ms
+     ✓ renders pagination controls in List view and navigates between pages  866ms
+     ✓ disables the "Anterior" button on page 1 and "Próxima" on the last page  692ms
+     ✓ does not render pagination controls when there is only a single page  632ms
+     ✓ navigates to the previous page when "Anterior" is clicked  876ms
+     ✓ never renders a Grade view button or grid testid (AC1: Grade mode removed)  471ms
+     ✓ never renders the old TicketFilters panel (AC5: migrated to Busca avançada, not duplicated)  326ms
+     ✓ seeds filters from the URL query string, e.g. a dashboard KPI link (?mine=true)  488ms
+     ✓ AC-10: shows the active filters in the list and "Redefinir filtros" clears them and refetches  438ms
+     ✓ RODADA 2: stays at "/" on initial load (no ?view=) and only writes ?view= once the user switches views  398ms
+     ✓ reflects a search typed in the header back into the URL (bookmarkable/shareable)  908ms
+     ✓ navigates to /tickets/search when "Busca avançada" is clicked (AC3)  374ms
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > allows an AGENT to update an existing article, pre-populating the access type and sharing lists
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > loads the edit form with EzRichText pre-filled with the existing article content
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ❯ |web| src/pages/KnowledgePage.test.tsx (22 tests | 1 failed) 16879ms
+     ✓ shows the folders grid first, not the article list 240ms
+     ✓ opens a folder and lists only its articles, filtered by folderId  410ms
+     ✓ shows a breadcrumb back to the folders grid once inside a folder 229ms
+     ✓ does not show the new-article form or edit/delete buttons to a CLIENT 294ms
+     ✓ shows the Interno badge only for a PRIVATE article (visibility-based, not the old isPublic) 283ms
+     ✓ defaults a new article to "Público" and hides the Compartilhar button  987ms
+     ✓ shows the Compartilhar button once "Privado" is selected, and opens the sharing dialog  2669ms
+     × shows the new-article form to an AGENT and creates a PUBLIC article inside the open folder 5096ms
+     ✓ selects an agent group and a client in the share dialog, and sends them (plus auto-share) in the create payload  2987ms
+     ✓ allows an AGENT to update an existing article, pre-populating the access type and sharing lists  1999ms
+     ✓ allows filtering by search keyword and tag inside a folder 217ms
+     ✓ allows selecting more than one tag at once (OR filter) 269ms
+     ✓ shows the author and last-updated date on each article 79ms
+     ✓ sends the chosen sort order to the API 104ms
+     ✓ toggles between list and grid view modes 179ms
+     ✓ paginates articles beyond the first page 191ms
+     ✓ allows deleting an article 214ms
+     ✓ renders article content as real HTML, not escaped text 60ms
+     ✓ shows the attachment count for each article 61ms
+     ✓ only shows attachment upload controls to users who can author articles 58ms
+     ✓ shows attachment upload controls to an AGENT and allows removing an attachment 76ms
+     ✓ loads the edit form with EzRichText pre-filled with the existing article content 171ms
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > renders the label and a contenteditable surface tagged with testId
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > renders the formatting toolbar (bold, italic, underline, lists, link, image)
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > toggles preview mode via the toolbar eye button
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > renders a custom preview when renderPreview is provided
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > shows the error message when hasError is set
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > disables all toolbar buttons when disabled
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > toggles bold/italic/underline/list formatting without throwing when clicked
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > prompts for a URL and inserts a link when "Inserir Link" is clicked
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > removes the link when the URL prompt is answered with an empty string
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > does nothing when the link prompt is cancelled (returns null)
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > prompts for a URL and inserts an image when "Inserir Imagem (URL)" is clicked
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > skips inserting an image when the prompt is cancelled
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > disables toolbar buttons (not just typing) while in preview mode
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > renders without a label and without a testId when they are omitted
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > enables Portuguese spellcheck on the contenteditable surface
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > toggles strikethrough and blockquote without throwing
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > enables undo after a change and disables redo until an undo happens
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > toggles highlight without emitting a style attribute (mark-only HTML)
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > applies and removes a text color from the color palette dropdown
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > applies each text alignment option
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > inserts a table and shows row/column controls while inside it
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > toggles source-code mode and applies edited raw HTML back to the editor
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzRichText.test.tsx > EzRichText > disables the new formatting buttons while in preview mode
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/components/ds/EzRichText.test.tsx (25 tests) 3892ms
+     ✓ renders the label and a contenteditable surface tagged with testId  388ms
+     ✓ toggles bold/italic/underline/list formatting without throwing when clicked  321ms
+     ✓ toggles source-code mode and applies edited raw HTML back to the editor  788ms
+ ✓ |web| src/components/tickets/TicketWorklogs.test.tsx (69 tests) 13498ms
+     ✓ renders worklogs list and summary header correctly  574ms
+     ✓ allows filling the form and submitting a new worklog  1306ms
+     ✓ allows choosing attendance type and a custom time range, sending them on submit  788ms
+     ✓ blocks submission when the end time is not after the start time  500ms
+     ✓ sends valuationType MANUAL with the entered value  465ms
+     ✓ blocks submission when valuationType is MANUAL without a value  345ms
+     ✓ sends nextStageId when a next stage is chosen  695ms
+     ✓ does not send nextStageId when "Não alterar" stays selected  406ms
+     ✓ sends sendAsReply when the checkbox is checked  372ms
+     ✓ submits with the final next stage when "Salvar e fechar ticket" is clicked  403ms
+     ✓ saves worklog draft in localStorage and restores it automatically  548ms
+     ✓ keeps filled fields after closing the modal with X and reopening  711ms
+     ✓ requires a bonus reason and records its eligible contract without quota consumption  313ms
+ ✓ |web| src/pages/ContractsPage.test.tsx (22 tests) 5319ms
+     ✓ lets admins create with explicit excess rate and minute allowance  348ms
+     ✓ filters contracts by name or company on the client side via the filter drawer  805ms
+     ✓ filters dynamically by modality using the rule builder (Sankhya Filtros parity)  437ms
+     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  630ms
+ ✓ |web| src/pages/OrganizationsPage.test.tsx (33 tests) 14846ms
+     ✓ keeps the grid scrollable by touch in both axes on phones (DMTE-455)  376ms
+     ✓ shows the list view by default with a mode toggle (Tiflux/Sankhya-parity, issue #57)  769ms
+     ✓ switches to the full-page form via Ações > Cadastrar manualmente and validates it  560ms
+     ✓ switches between Grid Mode and Form Mode via the toolbar toggle  544ms
+     ✓ creates a new organization with rich fields  1340ms
+     ✓ looks up a CNPJ and autofills legal name / trade name  348ms
+     ✓ locks CNPJ and Razão Social after a Receita lookup, standardizing form-mode editability (Sankhya parity)  404ms
+     ✓ opens the full-page detail with the Tiflux-parity 3-column panel  318ms
+     ✓ shows the "Cliente ativo" toggle and inactivates the organization  316ms
+     ✓ defaults to the Usuários tab, lists only CLIENT/CLIENT_MASTER users and allows linking  495ms
+     ✓ updates organization name and legal name on blur in Usuários tab  663ms
+     ✓ toggles visibility and quarterly billing from the detail header  301ms
+     ✓ adds a new contact from the Usuários tab  422ms
+     ✓ saves serviceType/healthStatus from the Usuários tab (Perfil do Cliente, issue #56)  437ms
+     ✓ manages Mesas (N:N) and Grupo de Atendentes in the Relacionamentos tab (Tiflux-parity, issue #57)  525ms
+     ✓ renders billing preferences and updates quarterly billing in Faturamento tab (issue #58)  1116ms
+     ✓ supports inline editing of cells and Cadastrar por CNPJ via toolbar actions (Sankhya parity)  640ms
+     ✓ renders Sankhya standard entity toolbar, filter drawer, and screen config modal (br.com.sankhya.core.cad.parceiros parity)  307ms
+     ✓ filters the grid by search text, status, and document type (Sankhya filter drawer)  892ms
+     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  711ms
+     ✓ edits the optional grid columns (IE, IM, Pasta, Perfil, Saúde) once made visible via screen config  976ms
+     ✓ filters dynamically by any column using the rule builder (Sankhya Filtros parity)  455ms
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should render ticket form with new DS components
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/DashboardPage.test.tsx (16 tests) 4034ms
+     ✓ shows the "Modo TV" control and a working "Ações" menu with Novo Ticket  450ms
+     ✓ shows an empty message when there are no open tickets  336ms
+     ✓ renders a real pie chart (not a donut) for Tickets em andamento and switches grouping via plain tabs  829ms
+     ✓ scales the "Minhas horas apontadas" line chart with responsive height classes instead of a fixed pixel height  396ms
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-483 AC-02: com a consulta de catálogo falhando, abre o formulário em branco sem esperar retentativas
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-483 AC-04: formulário e catálogo usam a mesma largura máxima
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should populate the service desk dropdown from the API
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should not submit when required fields are empty
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should submit the form and navigate to the new ticket detail page
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows the service catalog when the API returns categories, and lets the user pick an item
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > AC-3: Esc no formulário volta para o catálogo
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders a header cell for each column and a row for each data entry
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user open a blank ticket from the catalog via "não está catalogado"
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/TicketDetailPage.test.tsx (24 tests) 6331ms
+     ✓ should render ticket details with status, priority and SLA deadlines  686ms
+     ✓ AC-3: Esc volta para a tela inicial  312ms
+     ✓ should render the comment timeline with an internal-note indicator only on internal comments  947ms
+     ✓ should show the comment form and post a new comment  926ms
+     ✓ should show the isInternal checkbox for agents  339ms
+     ✓ starts a TiFlux-style pré-apontamento from the header play on any tab  400ms
+       ✓ switches between tabs and shows respective tab panels for agents  304ms
+       ✓ Apontamentos tab activates tab-panel-apontamentos when clicked  308ms
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > submits a blank ticket from the catalog without the synthetic custom item or an empty desk
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders the EzFilterBar above the grid when filters is provided
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders a footer row with the sum of numeric columns when footerAggregations is provided
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > does not render a footer row when footerAggregations is not provided
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > keeps the footer row empty for a column id that does not exist in the data
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > sums the full dataset (not just the current page) when footerAggregations and pageSize are both set
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders a left-pinned column before the other columns, marked with data-pinned="left"
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders a right-pinned column after the other columns, marked with data-pinned="right"
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > keeps the original column order when pinnedColumns is not provided
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > gives a 2nd left-pinned column a cumulative offset so it does not overlap the 1st
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > ignores a pinned column id that does not exist in the data without crashing
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user go back from the form to the catalog view
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid grouping > renders one collapsed group header row per distinct value when groupBy is set
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid grouping > does not render group rows when groupBy is omitted
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid grouping > ignores a groupBy column id that does not exist in the data without crashing
+[Table] Column with id 'doesNotExist' does not exist.
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows a submit error message and does not navigate when the API call fails
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid grouping > shows a fallback label instead of the literal string "undefined" when the grouping value is missing
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid visual tokens (Sankhya ERP parity) > applies compact row density by default (~25px line height with py-1 on cells and py-1.5 on headers)
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid visual tokens (Sankhya ERP parity) > applies comfortable density (py-3) when density="comfortable" is passed
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid visual tokens (Sankhya ERP parity) > applies hover:bg-grid-row-hover to body rows
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid visual tokens (Sankhya ERP parity) > adds border-r border-gray-100 vertical grade between header columns except on the last column
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid rich pagination and horizontal scrollbar (Sankhya parity) > renders persistent horizontal scrollbar when alwaysShowHorizontalScrollbar is enabled
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid rich pagination and horizontal scrollbar (Sankhya parity) > does not render horizontal scrollbar when showHorizontalScrollbar is false
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > patches the parent ticket and uploads attachments after creating the ticket
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Excel-style column filters and status bar counters > does not render column filter buttons when enableColumnFilters is false
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Excel-style column filters and status bar counters > does not render status bar when showStatusBar is false
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > renders zebra striping and vertical dividers on body cells
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-485: catálogo por Cliente > AC-08: o Cliente escolhido no catálogo chega ao formulário travado e o envio leva organizationId
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-485: catálogo por Cliente > AC-08: o Cliente escolhido no catálogo chega ao formulário travado e o envio leva organizationId
+An update to EzRichText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to Controller inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-485: catálogo por Cliente > AC-08: no fluxo em branco a lista de mesas só mostra mesas que servem o Cliente escolhido
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-485: catálogo por Cliente > AC-10: o botão "não catalogado" fica no cabeçalho ao lado do título, antes das categorias
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > renders sequential row numbers when showRowNumbers is true
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > respects initialColumnVisibility prop to hide specified columns on mount
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-485: catálogo por Cliente > AC-12: o fluxo em branco envia semCatalogo, sem catalogItemId, e não bloqueia por catalogRequiredOnOpen
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > supports custom columnOrder and drag-and-drop reordering (Sankhya AG Grid parity)
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-485: catálogo por Cliente > AC-12: o fluxo em branco envia semCatalogo, sem catalogItemId, e não bloqueia por catalogRequiredOnOpen
+An update to EzRichText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to Controller inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > renders a resize handle for each resizable column, never for special columns (Sankhya AG Grid parity)
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > hides the resize handle when enableColumnResize is false
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > resizes a column by dragging its resize handle (mousedown + mousemove + mouseup)
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid Sankhya JS AG Grid parity features > supports controlled columnSizing and onColumnSizingChange when dragging the resize handle
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/components/ds/EzEntityGrid.test.tsx (51 tests) 4514ms
+     ✓ renders a header cell for each column and a row for each data entry  510ms
+ ✓ |web| src/pages/CreateTicketPage.test.tsx (25 tests) 7501ms
+     ✓ should render ticket form with new DS components  908ms
+     ✓ should populate the service desk dropdown from the API  358ms
+     ✓ should submit the form and navigate to the new ticket detail page  687ms
+     ✓ AC-3: Esc no formulário volta para o catálogo  409ms
+     ✓ submits a blank ticket from the catalog without the synthetic custom item or an empty desk  579ms
+     ✓ shows a submit error message and does not navigate when the API call fails  575ms
+     ✓ forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit  425ms
+     ✓ patches the parent ticket and uploads attachments after creating the ticket  483ms
+       ✓ AC-08: o Cliente escolhido no catálogo chega ao formulário travado e o envio leva organizationId  353ms
+       ✓ AC-12: o fluxo em branco envia semCatalogo, sem catalogItemId, e não bloqueia por catalogRequiredOnOpen  463ms
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > renders all core fields
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > shows the submit error banner when submitError is set
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > AC-12: announces the submit error as an alert (DS EzAlert)
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > AC-12: shows no alert when there is no submit error
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > disables submit buttons while isSubmitting is true
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > disables the Cliente and Solicitante fields for CLIENT role users
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > keeps the Cliente and Solicitante fields enabled for ADMIN/AGENT role users
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > locks title, service desk and priority when a catalogOverride is supplied
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > toggles the schedule date field on and off via the "Agendar Ticket" button
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > shows a validation error and blocks submit when title/description/service desk are empty
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/ServiceDesksPage.test.tsx (14 tests) 4856ms
+     ✓ should enable Excluir and Duplicar once a row is selected, and call the delete endpoint on confirmation  337ms
+     ✓ should open the create form only after clicking Incluir, and create a new service desk  417ms
+     ✓ should link a service desk to a client and save its SLA overrides  480ms
+     ✓ filters the grid by search text and status (Sankhya filter drawer)  645ms
+     ✓ filters dynamically by any column using the rule builder (Sankhya Filtros parity)  906ms
+     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  517ms
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits with saveAndNew: true when "Salvar e criar novo" is clicked
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits with saveAndNew: true when "Salvar e criar novo" is clicked
+An update to EzRichText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to Controller inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits without saveAndNew when the primary "Abrir Ticket" button is clicked
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/components/tickets/TicketKanban.test.tsx (35 tests) 2586ms
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits without saveAndNew when the primary "Abrir Ticket" button is clicked
+An update to EzRichText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to Controller inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > attaches a file via EzUpload and removes it again via the file item remove button
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > filters available requesters down to the selected organization once Cliente is chosen
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > lets the user search and attach a parent ticket
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > hides inactive, closed and internal desks from the Mesa options
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > warns and blocks submit when the desk requires attachments
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > warns and blocks submit when the desk requires attachments
+An update to EzRichText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to Controller inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > DMTE-485 AC-12: mesa com catalogRequiredOnOpen não mostra aviso nem bloqueia o envio
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > DMTE-485 AC-12: mesa com catalogRequiredOnOpen não mostra aviso nem bloqueia o envio
+An update to EzRichText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to Controller inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > lets the user add followers via the multi-select
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/components/tickets/TicketForm.test.tsx (19 tests) 4205ms
+     ✓ renders all core fields  373ms
+     ✓ toggles the schedule date field on and off via the "Agendar Ticket" button  319ms
+     ✓ submits with saveAndNew: true when "Salvar e criar novo" is clicked  379ms
+     ✓ submits without saveAndNew when the primary "Abrir Ticket" button is clicked  319ms
+     ✓ filters available requesters down to the selected organization once Cliente is chosen  313ms
+stderr | src/components/layout/AppLayout.test.tsx > AppLayout > AC-17: menu retrátil no celular > when the viewport grows to the desktop width > closes the drawer, so the fixed sidebar and the drawer never coexist
+An update to AppLayout inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/components/layout/AppLayout.test.tsx (17 tests) 2169ms
+       ✓ opens the navigation as a named dialog and flips aria-expanded  301ms
+ ✓ |web| src/pages/SchedulePage.test.tsx (11 tests) 1548ms
+ ✓ |web| src/pages/TicketAdvancedSearchPage.test.tsx (10 tests) 2342ms
+     ✓ RODADA 2: "Fechados" shortcut maps to closedOnly  321ms
+     ✓ AC-12: the "Filtros adicionais" checkboxes map to mine/unassigned/paused/overdue and "Limpar" unchecks them  775ms
+ ✓ |web| src/components/contracts/CommercialReport.test.tsx (17 tests) 1093ms
+ ✓ |web| src/components/BusinessHoursEditor.test.tsx (9 tests) 1252ms
+     ✓ adds a new window and saves the full config via PUT  465ms
+stderr | src/pages/MyAccountPage.test.tsx > MyAccountPage > renders tabs for Minha Conta and Segurança, defaulting to Minha Conta
+An update to ProfileTab inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/schedule/AppointmentModal.test.tsx > compromisso que ignora a regra de apontamento (DMTE-462 T2) > AC-12: com a permissão, o campo aparece e a marca vai no que é salvo
+An update to AppointmentModal inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to AppointmentModal inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to AppointmentModal inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to AppointmentModal inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/schedule/AppointmentModal.test.tsx > compromisso que ignora a regra de apontamento (DMTE-462 T2) > AC-12: sem a permissão, o campo não aparece
+An update to AppointmentModal inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to AppointmentModal inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/components/schedule/AppointmentModal.test.tsx (10 tests) 1390ms
+     ✓ opens the ticket search modal with Cliente/Mesa filters and links the selected ticket  454ms
+ ✓ |web| src/pages/RegisterPage.test.tsx (4 tests) 1187ms
+     ✓ should register and log in the user on success (happy path)  347ms
+     ✓ should show a generic/conflict error when registration itself fails (409)  321ms
+ ✓ |web| src/pages/MyAccountPage.test.tsx (9 tests) 1759ms
+       ✓ submits updated name and email via PATCH /auth/me  470ms
+stderr | src/components/ds/EzSimpleCrud.test.tsx > EzSimpleCrud > renders the grid by default with the IN_MEMORY data
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/components/ds/EzSimpleCrud.test.tsx (8 tests) 2057ms
+     ✓ SAVE in IN_MEMORY mode updates the dataset and returns to the grid  389ms
+     ✓ CANCEL returns to the grid without changing the dataset  427ms
+     ✓ SERVER mode SAVE calls onSave and adds the returned item to the grid  396ms
+ ✓ |web| src/components/tickets/TicketFormMode.test.tsx (5 tests) 1027ms
+     ✓ allows editing title, status, priority, and saving  533ms
+ ✓ |web| src/pages/PermissionGroupsPage.test.tsx (4 tests) 1028ms
+     ✓ renders the permission matrix grouped by category from the catalog  496ms
+ ✓ |web| src/pages/VaultAuditPage.test.tsx (4 tests) 584ms
+ ✓ |web| src/components/layout/Sidebar.test.tsx (15 tests) 1065ms
+ ✓ |web| src/components/tickets/TicketList.test.tsx (11 tests) 1013ms
+ ✓ |web| src/components/tickets/TicketChecklist.test.tsx (6 tests) 574ms
+ ✓ |web| src/pages/UsersPage.test.tsx (4 tests) 557ms
+ ✓ |web| src/components/ServiceDeskEditor.test.tsx (7 tests) 566ms
+ ✓ |web| src/components/ds/EzDataExporter.test.tsx (9 tests) 761ms
+ ✓ |web| src/pages/TechnicalGroupsPage.test.tsx (6 tests) 1142ms
+     ✓ adds a member on the Equipe tab via POST /technical-groups/:id/members/:userId  362ms
+ ✓ |web| src/components/knowledge/KnowledgeFoldersGrid.test.tsx (6 tests) 998ms
+     ✓ allows a canAuthor user to create a new folder  555ms
+ ✓ |web| src/components/tickets/TicketCsat.test.tsx (9 tests) 1024ms
+     ✓ submits a star rating and optional comment via PATCH  383ms
+ ✓ |web| src/components/ds/EzSimpleFormConfig.test.tsx (8 tests) 971ms
+ ✓ |web| src/components/contracts/CommercialContract.test.tsx (4 tests) 958ms
+     ✓ approves a monthly contract with explicit zero allowance and zero fee  428ms
+     ✓ saves fixed-project scope, total estimate and explicit desks without a monthly allowance  369ms
+ ✓ |web| src/components/ds/EzPrintSelector.test.tsx (7 tests) 561ms
+ ✓ |web| src/components/tickets/TicketAttachments.test.tsx (7 tests) 561ms
+ ✓ |web| src/pages/DocsPage.test.tsx (5 tests) 752ms
+ ✓ |web| src/components/ds/EzCalendar.test.tsx (4 tests) 219ms
+ ✓ |web| src/pages/TicketAdvancedSearchPage.collapsible.test.tsx (1 test) 480ms
+     ✓ a checkbox marked before collapsing is still checked after reopening (the state lives in the form)  475ms
+ ✓ |web| src/pages/ReportsPage.test.tsx (9 tests) 689ms
+ ✓ |web| src/components/ds/EzTabs.test.tsx (4 tests) 247ms
+ ✓ |web| src/pages/LoginPage.test.tsx (4 tests) 816ms
+     ✓ should call login on submit and store the token  343ms
+ ✓ |web| src/components/tickets/TicketKanbanCard.test.tsx (20 tests) 701ms
+ ✓ |web| src/components/ds/EzTaskbar.test.tsx (7 tests) 346ms
+stderr | src/components/ds/EzGrid.mobile.test.tsx > EzEntityGrid paginação no celular > empilha a paginação e dá alvos de toque de 44px aos botões de página
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzGrid.mobile.test.tsx > EzEntityGrid paginação no celular > aumenta o alvo do botão de opções da grade em ponteiro grosso
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzGrid.mobile.test.tsx > EzTaskbar e seletor de linhas no celular (revisão interna) > seletor de linhas por página tem 44px de altura abaixo de sm
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/components/ds/EzGrid.mobile.test.tsx (7 tests) 238ms
+ ✓ |web| src/components/MesaStagesEditor.test.tsx (2 tests) 628ms
+     ✓ lists stages and creates a new one  304ms
+     ✓ edits name and allowed transitions  318ms
+ ✓ |web| src/components/ds/EzFilterBar.test.tsx (6 tests) 536ms
+ ✓ |web| src/components/knowledge/KnowledgeArticleAttachments.test.tsx (8 tests) 404ms
+ ✓ |web| src/components/tickets/TicketsHeader.test.tsx (6 tests) 727ms
+     ✓ debounces typed search text before calling onSearchChange  487ms
+ ✓ |web| src/components/ds/EzMultiSelect.test.tsx (9 tests) 599ms
+ ✓ |web| src/components/ds/EzDoubleList.test.tsx (8 tests) 297ms
+ ✓ |web| src/components/contracts/CommercialTicketContext.test.tsx (6 tests) 440ms
+ ✓ |web| src/components/ds/EzSearchPlus.test.tsx (4 tests) 207ms
+ ✓ |web| src/components/ds/EzRadioButton.test.tsx (5 tests) 153ms
+ ✓ |web| src/pages/SettingsPage.test.tsx (7 tests) 594ms
+ ✓ |web| src/contexts/TabsContext.test.tsx (6 tests) 387ms
+ ✓ |web| src/components/ds/EzFilterDrawer.test.tsx (5 tests) 324ms
+ ✓ |web| src/components/ds/EzEntityForm.test.tsx (10 tests) 642ms
+ ✓ |web| src/components/contracts/ContractForm.test.tsx (3 tests) 507ms
+     ✓ preserves exact stored dates during an unrelated edit and sends minutes without legacy fractional hours  397ms
+ ✓ |web| src/pages/PublicCsatPage.test.tsx (5 tests) 673ms
+ ✓ |web| src/components/ds/EzEntityScreenConfigModal.test.tsx (4 tests) 305ms
+ ✓ |web| src/components/layout/TabBar.test.tsx (5 tests) 397ms
+ ✓ |web| src/components/ds/EzDropdown.test.tsx (8 tests) 654ms
+ ✓ |web| src/components/ds/EzAdvancedSearch.test.tsx (9 tests) 919ms
+ ✓ |web| src/hooks/useActivityTimer.test.ts (11 tests) 1048ms
+ ✓ |web| src/components/ds/EzSearch.test.tsx (8 tests) 505ms
+ ✓ |web| src/components/ds/EzEntityToolbar.test.tsx (4 tests) 509ms
+ ✓ |web| src/components/tickets/TicketParent.test.tsx (5 tests) 425ms
+ ✓ |web| src/components/ds/EzSplitPanel.test.tsx (4 tests) 192ms
+ ✓ |web| src/components/ds/EzClassicTextArea.test.tsx (5 tests) 278ms
+ ✓ |web| src/hooks/useEscapeLayer.revert.test.tsx (4 tests) 383ms
+ ✓ |web| src/components/ds/EzSidebar.test.tsx (10 tests) 201ms
+ ✓ |web| src/hooks/useEscapeLayer.test.tsx (7 tests) 246ms
+ ✓ |web| src/components/ds/EzEntityList.test.tsx (5 tests) 354ms
+ ✓ |web| src/components/ds/EzModalContainer.test.tsx (4 tests) 340ms
+ ✓ |web| src/components/ds/EzActionsButton.test.tsx (4 tests) 307ms
+ ✓ |web| src/components/ds/EzListItem.test.tsx (4 tests) 147ms
+ ✓ |web| src/hooks/useEscapeLayer.fields.test.tsx (4 tests) 261ms
+ ✓ |web| src/components/layout/UserMenu.test.tsx (3 tests) 327ms
+ ✓ |web| src/components/ds/EzPagination.test.tsx (6 tests) 310ms
+ ✓ |web| src/components/schedule/CompromissoDetailModal.test.tsx (4 tests) 257ms
+ ✓ |web| src/components/ds/EzTextEdit.test.tsx (4 tests) 455ms
+ ✓ |web| src/components/tickets/TicketActiveFilters.test.tsx (4 tests) 175ms
+ ✓ |web| src/components/ds/EzAlertList.test.tsx (4 tests) 165ms
+ ✓ |web| src/components/ds/EzSplitButton.test.tsx (4 tests) 253ms
+ ✓ |web| src/hooks/useEscapeLayer.baseline.test.tsx (3 tests) 300ms
+ ✓ |web| src/components/MesaFlagEditor.test.tsx (2 tests) 285ms
+ ✓ |web| src/hooks/useEscapeLayer.review.test.tsx (4 tests) 259ms
+ ✓ |web| src/components/ds/EzDesignTokens.test.tsx (3 tests) 140ms
+ ✓ |web| src/components/ds/EzModal.test.tsx (7 tests) 275ms
+ ✓ |web| src/App.test.tsx (4 tests) 553ms
+ ✓ |web| src/components/ds/EzGuideNavigator.test.tsx (3 tests) 132ms
+stderr | src/components/ds/EzGrid.test.tsx > EzGridWrapper > observes container resize via ResizeObserver
+An update to EzGridWrapper inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to EzGridWrapper inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/components/ds/EzGrid.test.tsx (9 tests) 125ms
+stderr | src/components/ds/EzLayoutFormConfig.test.tsx > EzLayoutFormConfig > calls onChange with the correct value when clicking the other option
+An update to EzLayoutFormConfig inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/ds/EzLayoutFormConfig.test.tsx > EzLayoutFormConfig > calls onChange with CASCADE when clicking it while SIDE_BY_SIDE is selected
+An update to EzLayoutFormConfig inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/components/ds/EzLayoutFormConfig.test.tsx (6 tests) 329ms
+ ✓ |web| src/components/ds/EzComboBox.test.tsx (7 tests) 160ms
+ ✓ |web| src/components/ds/EzTree.test.tsx (4 tests) 146ms
+ ✓ |web| src/components/ds/EzAttachmentList.test.tsx (8 tests) 162ms
+ ✓ |web| src/components/ds/EzSimpleBar.test.tsx (7 tests) 294ms
+ ✓ |web| src/components/ds/EzToast.test.tsx (6 tests) 301ms
+ ✓ |web| src/components/ds/EzFilter.test.tsx (3 tests) 96ms
+ ✓ |web| src/components/ds/EzAlert.test.tsx (6 tests) 187ms
+ ✓ |web| src/components/ds/EzNumberInput.test.tsx (5 tests) 257ms
+ ✓ |web| src/components/ds/EzTagInput.test.tsx (4 tests) 282ms
+ ✓ |web| src/components/ds/EzCardItem.test.tsx (6 tests) 338ms
+ ✓ |web| src/components/ds/EzCollapsibleBox.test.tsx (4 tests) 416ms
+ ✓ |web| src/hooks/useEscapeLayer.controls.test.tsx (5 tests) 208ms
+ ✓ |web| src/components/ds/EzList.test.tsx (5 tests) 113ms
+ ✓ |web| src/components/tickets/RichContentView.test.tsx (9 tests) 144ms
+ ✓ |web| src/hooks/usePreAppointments.test.ts (7 tests) 127ms
+ ✓ |web| src/components/ds/EzTileMedium.test.tsx (10 tests) 216ms
+ ✓ |web| src/components/ds/EzMultiSelectionList.test.tsx (4 tests) 553ms
+     ✓ renders all item labels  319ms
+ ✓ |web| src/components/ds/EzClassicInput.test.tsx (5 tests) 313ms
+ ✓ |web| src/components/ds/EzSegmented.test.tsx (5 tests) 349ms
+ ✓ |web| src/components/ds/EzUpload.test.tsx (6 tests) 329ms
+ ✓ |web| src/components/ds/EzPageLayout.test.tsx (5 tests) 349ms
+ ✓ |web| src/components/ds/EzChip.test.tsx (5 tests) 142ms
+ ✓ |web| src/components/ds/EzPopover.test.tsx (6 tests) 441ms
+ ✓ |web| src/components/ds/EzScrim.test.tsx (4 tests) 172ms
+ ✓ |web| src/hooks/useTickets.test.tsx (4 tests) 296ms
+ ✓ |web| src/components/ds/EzClassicComboBox.test.tsx (4 tests) 249ms
+ ✓ |web| src/components/ds/EzDateInput.test.tsx (8 tests) 334ms
+ ✓ |web| src/components/ds/EzFormView.test.tsx (3 tests) 133ms
+ ✓ |web| src/components/ds/EzTextArea.test.tsx (5 tests) 1293ms
+     ✓ allows user input  697ms
+ ✓ |web| src/components/ds/EzSpinner.test.tsx (4 tests) 658ms
+     ✓ renders correctly with default size and classes  411ms
+ ✓ |web| src/components/ds/EzProgressBar.test.tsx (6 tests) 80ms
+ ✓ |web| src/components/ds/EzPopup.test.tsx (4 tests) 117ms
+ ✓ |web| src/components/ds/EzFileItem.test.tsx (3 tests) 121ms
+ ✓ |web| src/components/ds/EzBreadcrumb.test.tsx (5 tests) 317ms
+ ✓ |web| src/components/ds/EzTimeInput.test.tsx (3 tests) 136ms
+ ✓ |web| src/components/ds/EzDialog.test.tsx (3 tests) 152ms
+ ✓ |web| src/components/ds/EzChart.test.tsx (4 tests) 285ms
+ ✓ |web| src/components/ds/EzPopoverPlus.test.tsx (4 tests) 448ms
+ ✓ |web| src/components/ds/EzIcon.test.tsx (4 tests) 361ms
+ ✓ |web| src/components/ds/EzBadge.test.tsx (3 tests) 154ms
+ ✓ |web| src/components/ds/EzFilterInput.test.tsx (3 tests) 227ms
+ ✓ |web| src/hooks/useAppointments.test.tsx (4 tests) 390ms
+ ✓ |web| src/components/ds/EzButton.test.tsx (5 tests) 306ms
+ ✓ |web| src/components/ds/EzSlaChip.test.tsx (6 tests) 359ms
+ ✓ |web| src/components/ds/EzCheck.test.tsx (6 tests) 302ms
+ ✓ |web| src/components/ds/EzSortableList.test.tsx (3 tests) 138ms
+ ✓ |web| src/components/ds/EzUnderface.test.tsx (3 tests) 95ms
+ ✓ |web| src/components/ds/EzTooltip.test.tsx (4 tests) 96ms
+ ✓ |web| src/components/ds/escapeBack.test.tsx (4 tests) 117ms
+ ✓ |web| src/components/ds/escapeOverlays.test.tsx (9 tests) 165ms
+ ✓ |web| src/components/ds/EzTag.test.tsx (4 tests) 178ms
+ ✓ |web| src/components/ds/EzSkeleton.test.tsx (5 tests) 110ms
+ ✓ |web| src/components/tickets/SlaBadge.test.tsx (5 tests) 195ms
+ ✓ |web| src/components/ds/EzAvatar.test.tsx (5 tests) 222ms
+ ✓ |web| src/components/ds/EzDateTimeInput.test.tsx (3 tests) 161ms
+ ✓ |web| src/components/ds/EzTextInput.test.tsx (5 tests) 185ms
+ ✓ |web| src/hooks/useFeatureFlag.test.tsx (3 tests) 176ms
+ ✓ |web| src/components/ds/EzTile.test.tsx (4 tests) 119ms
+ ✓ |web| src/components/ds/EzGridView.test.tsx (3 tests) 72ms
+ ✓ |web| src/components/ds/EzScroller.test.tsx (4 tests) 119ms
+ ✓ |web| src/hooks/usePermissions.test.tsx (2 tests) 204ms
+ ✓ |web| src/components/ds/EzForm.test.tsx (3 tests) 336ms
+ ✓ |web| src/components/ds/EzEmptyCard.test.tsx (3 tests) 100ms
+ ✓ |web| src/components/tickets/TicketComments.test.tsx (1 test) 117ms
+ ✓ |web| src/lib/billingTime.test.ts (3 tests) 126ms
+ ✓ |web| src/hooks/useUserScreenConfig.test.ts (7 tests) 112ms
+ ✓ |web| src/lib/brasiliaTime.test.ts (6 tests) 105ms
+ ✓ |web| src/lib/mesaLabels.test.ts (1 test) 77ms
+ ✓ |web| src/lib/preparePastedImage.test.ts (7 tests) 126ms
+ ✓ |web| src/stores/authStore.test.ts (8 tests) 113ms
+ ✓ |web| src/lib/ticketFilterParams.test.ts (2 tests) 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/pages/KnowledgePage.test.tsx > KnowledgePage > shows the new-article form to an AGENT and creates a PUBLIC article inside the open folder
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/pages/KnowledgePage.test.tsx:231:3
+    229|   });
+    230|
+    231|   it('shows the new-article form to an AGENT and creates a PUBLIC arti…
+       |   ^
+    232|     loginAs('AGENT');
+    233|     vi.mocked(api.post).mockResolvedValue({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 167 passed (168)
+      Tests  1 failed | 1266 passed (1267)
+   Start at  17:52:17
+   Duration  194.25s (transform 45.42s, setup 27.93s, import 164.78s, tests 179.25s, environment 148.58s)
+
+Warning: command "vitest" exited with non-zero status code
+
+
+ NX   Running target test for 2 projects failed
+
+Failed tasks:
+
+- web:test
+

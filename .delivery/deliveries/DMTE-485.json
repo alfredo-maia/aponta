@@ -137,7 +137,7 @@
   "tdd": {
     "mode": "required",
     "red": ".delivery/evidence/DMTE-485/red.json",
-    "green": ".delivery/evidence/DMTE-485/green.json"
+    "green": ".delivery/evidence/DMTE-485/green-r4.json"
   },
   "design_system": {
     "applicable": true,
