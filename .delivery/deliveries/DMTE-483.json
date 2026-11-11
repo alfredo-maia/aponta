@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "delivery": "DMTE-483",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 200,
+  "multica_id": "01a1ca1d-2ff0-7e38-bccf-589308ebdcef",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "com a consulta de catálogo pendente, a página mostra um estado de carregamento e não renderiza o formulário.",
+      "tests": [
+        "DMTE-483 AC-01: mostra carregamento e não renderiza o formulário enquanto o catálogo carrega"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "o contêiner do formulário usa a mesma largura máxima do contêiner do catálogo.",
+      "tests": [
+        "DMTE-483 AC-04: formulário e catálogo usam a mesma largura máxima"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-483.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-483/red.json",
+    "green": ".delivery/evidence/DMTE-483/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzSpinner",
+      "EzCardItem",
+      "EzAlert",
+      "EzButton"
+    ],
+    "reason": "Mudança de largura do contêiner e estado de carregamento em CreateTicketPage.tsx com EzSpinner existente; nenhum componente DS novo ou alterado."
+  }
+}
