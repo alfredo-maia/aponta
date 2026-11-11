@@ -1314,6 +1314,26 @@ describe('TicketWorklogs', () => {
       expect(screen.getByTestId('worklog-end-time-input')).toHaveAttribute('readonly');
     });
 
+    it('AC-04 (r2, achado do code-review): os atalhos de duração só ficam ativos com a permissão', async () => {
+      loginAs('AGENT', 'u-1');
+      preStore = [stoppedPre];
+      editWorklogStartTime = false;
+      const semPermissao = renderComponent('t-1', false);
+      fireEvent.click(await screen.findByTestId('worklog-pre-convert-btn'));
+      await waitFor(() => expect(screen.getByRole('button', { name: '30m' })).toBeDisabled());
+      expect(screen.getByRole('button', { name: '1h' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: '+15m' })).toBeDisabled();
+      semPermissao.unmount();
+
+      editWorklogStartTime = true;
+      renderComponent('t-1', false);
+      fireEvent.click(await screen.findByTestId('worklog-pre-convert-btn'));
+      await waitFor(() => expect(api.get).toHaveBeenCalledWith('/auth/me'));
+      expect(screen.getByRole('button', { name: '30m' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: '1h' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: '+15m' })).toBeEnabled();
+    });
+
     it('AC-04: com a permissão, o botão Apontamento abre o modal com início e fim editáveis', async () => {
       editWorklogStartTime = true;
       loginAs('AGENT', 'u-1');

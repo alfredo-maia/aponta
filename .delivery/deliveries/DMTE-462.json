@@ -49,8 +49,8 @@
   "spec": "docs/delivery/specs/DMTE-462.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-462/red.json",
-    "green": ".delivery/evidence/DMTE-462/green.json"
+    "red": ".delivery/evidence/DMTE-462/red-r2.json",
+    "green": ".delivery/evidence/DMTE-462/green-r2.json"
   },
   "design_system": {
     "applicable": true,

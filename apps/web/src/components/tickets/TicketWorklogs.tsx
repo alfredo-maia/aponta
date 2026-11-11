@@ -953,6 +953,7 @@ export function TicketWorklogs({
                   <button
                     type="button"
                     onClick={() => handleSetDuration(30)}
+                    disabled={!canEditStart}
                     className="px-1.5 py-0.5 text-[10px] bg-white border border-gray-300 hover:bg-gray-100 rounded text-gray-700 font-medium cursor-pointer"
                   >
                     30m
@@ -960,6 +961,7 @@ export function TicketWorklogs({
                   <button
                     type="button"
                     onClick={() => handleSetDuration(60)}
+                    disabled={!canEditStart}
                     className="px-1.5 py-0.5 text-[10px] bg-white border border-gray-300 hover:bg-gray-100 rounded text-gray-700 font-medium cursor-pointer"
                   >
                     1h
@@ -967,6 +969,7 @@ export function TicketWorklogs({
                   <button
                     type="button"
                     onClick={() => handleExtendEnd(15)}
+                    disabled={!canEditStart}
                     className="px-1.5 py-0.5 text-[10px] bg-brand-50 border border-brand-200 hover:bg-brand-100 rounded text-brand-700 font-medium ml-auto cursor-pointer"
                   >
                     +15m
