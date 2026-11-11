@@ -44,7 +44,11 @@
     "green": ".delivery/evidence/DMTE-481/green.json"
   },
   "design_system": {
-    "applicable": false,
-    "reason": "Sem componente DS novo ou alterado: só lógica de handler e mensagem na OrganizationsPage existente."
+    "applicable": true,
+    "reused": [
+      "EzAlert",
+      "EzEntityToolbar"
+    ],
+    "reason": "Só handler e mensagem de erro na OrganizationsPage; reutiliza EzAlert e a lixeira do EzEntityToolbar; nenhum componente DS novo ou alterado."
   }
 }
