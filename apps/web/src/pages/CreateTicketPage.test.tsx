@@ -243,6 +243,46 @@ describe('CreateTicketPage', () => {
     expect(screen.getByLabelText('Voltar para o catálogo')).toBeInTheDocument();
   });
 
+  it('submits a blank ticket from the catalog without the synthetic custom item or an empty desk', async () => {
+    vi.mocked(api.get).mockImplementation((url) => {
+      if (url === '/catalog') {
+        return Promise.resolve({
+          data: [{ id: 'cat-1', name: 'Hardware', description: null, items: [] }],
+        });
+      }
+      if (url === '/service-desks') {
+        return Promise.resolve({ data: [{ id: 'sd-1', name: 'Suporte N1' }] });
+      }
+      return Promise.resolve({ data: [] });
+    });
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByText('Catálogo de Serviços');
+    await user.click(screen.getByRole('button', { name: /meu problema não está catalogado/i }));
+    await screen.findByText('Abrir Chamado');
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'Suporte N1' })).toBeInTheDocument();
+    });
+
+    await user.type(screen.getByLabelText(/título \(assunto\)/i), 'Impressora não liga');
+    await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
+    const editable = screen
+      .getByTestId('ticket-description')
+      .querySelector('[contenteditable="true"]') as HTMLElement;
+    editable.innerHTML = '<p>Não acende ao ligar na tomada.</p>';
+    editable.dispatchEvent(new Event('input', { bubbles: true }));
+
+    await user.click(screen.getByRole('button', { name: /abrir ticket/i }));
+
+    await waitFor(() => expect(api.post).toHaveBeenCalled());
+    const sent = vi.mocked(api.post).mock.calls[0][1] as Record<string, unknown>;
+    expect(sent).not.toHaveProperty('catalogItemId');
+    expect(sent.serviceDeskId).toBe('sd-1');
+    expect(sent.priority).toBe('MEDIUM');
+  });
+
   it('lets the user go back from the form to the catalog view', async () => {
     vi.mocked(api.get).mockImplementation((url) => {
       if (url === '/catalog') {
