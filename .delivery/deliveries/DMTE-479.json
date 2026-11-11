@@ -12,7 +12,8 @@
       "description": "`getBilling` recusa com `ForbiddenException` usuário sem `VIEW_TICKET_VALUES`, ADMIN e CLIENT_MASTER inclusive; com a permissão mantém o resultado e o recorte por organização atuais.",
       "tests": [
         "DMTE-479 AC-01: recusa faturamento sem VIEW_TICKET_VALUES, ADMIN e CLIENT_MASTER inclusive",
-        "DMTE-479 AC-01: com VIEW_TICKET_VALUES o CLIENT_MASTER segue limitado à própria organização"
+        "DMTE-479 AC-01: com VIEW_TICKET_VALUES o CLIENT_MASTER segue limitado à própria organização",
+        "DMTE-479 AC-01: AGENT com VIEW_TICKET_VALUES continua recusado pelo recorte de role"
       ]
     },
     {
@@ -28,14 +29,16 @@
       "description": "na tela de Relatórios, sem `canViewTicketValues` as abas Faturamento Base e Resultado gerencial não aparecem e a consulta de faturamento não é feita; com a permissão e o role atual elas aparecem como hoje.",
       "tests": [
         "DMTE-479 AC-03: hides Faturamento and Resultado gerencial for an ADMIN without canViewTicketValues",
-        "DMTE-479 AC-03: shows Resultado gerencial for an ADMIN with canViewTicketValues"
+        "DMTE-479 AC-03: shows Resultado gerencial for an ADMIN with canViewTicketValues",
+        "DMTE-479 AC-03: hides Faturamento for a CLIENT_MASTER without canViewTicketValues"
       ]
     },
     {
       "id": "AC-04",
       "description": "com rascunho `MANUAL` e `manualValue` e usuário ADMIN sem a permissão, o envio sai como `CONTRACT` sem `value`, em vez de ficar bloqueado por um erro de valor manual que a tela não mostra.",
       "tests": [
-        "DMTE-479 AC-04: o envio de ADMIN sem a permissão não leva o valor manual do rascunho"
+        "DMTE-479 AC-04: o envio de ADMIN sem a permissão não leva o valor manual do rascunho",
+        "DMTE-479 AC-04: enquanto a permissão carrega, o rascunho MANUAL de ADMIN não vira CONTRACT em silêncio"
       ]
     }
   ],

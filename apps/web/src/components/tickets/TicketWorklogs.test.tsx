@@ -485,6 +485,21 @@ describe('TicketWorklogs', () => {
     expect(vi.mocked(api.post).mock.calls[0][1]).not.toHaveProperty('value');
   });
 
+  it('DMTE-479 AC-04: enquanto a permissão carrega, o rascunho MANUAL de ADMIN não vira CONTRACT em silêncio', async () => {
+    loginAs('ADMIN');
+    localStorage.setItem('aponta_worklog_draft_t-1', JSON.stringify({ valuationType: 'MANUAL', manualValue: '250', description: 'Rascunho anterior' }));
+    const base = vi.mocked(api.get).getMockImplementation()!;
+    vi.mocked(api.get).mockImplementation((url: string) =>
+      String(url).includes('/auth/me') ? new Promise(() => {}) : base(url),
+    );
+    renderComponent('t-1', true);
+    await screen.findByRole('option', { name: 'Suporte' });
+    await waitFor(() => expect(vi.mocked(api.get).mock.calls.some(([u]) => String(u).includes('/auth/me'))).toBe(true));
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+    await screen.findByText('Informe um valor manual válido.');
+    expect(api.post).not.toHaveBeenCalled();
+  });
+
   it('submits CONTRACT for an agent with a stale GUARANTEE draft when permissions never load', async () => {
     loginAs('AGENT');
     localStorage.setItem('aponta_worklog_draft_t-1', JSON.stringify({ valuationType: 'GUARANTEE', billable: false, bonusReason: 'Antigo', description: 'Rascunho antigo' }));

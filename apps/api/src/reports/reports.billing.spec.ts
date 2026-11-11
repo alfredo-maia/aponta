@@ -25,6 +25,10 @@ describe('Billing valuation snapshots', () => {
     expect(canViewTicketValues).toHaveBeenCalledWith('master');
     expect(findMany).not.toHaveBeenCalled();
   });
+  it('DMTE-479 AC-01: AGENT com VIEW_TICKET_VALUES continua recusado pelo recorte de role', async () => {
+    await expect(service.getBilling({ id: 'agent', role: Role.AGENT })).rejects.toThrow(ForbiddenException);
+    expect(findMany).not.toHaveBeenCalled();
+  });
   it('DMTE-479 AC-01: com VIEW_TICKET_VALUES o CLIENT_MASTER segue limitado à própria organização', async () => {
     findMany.mockResolvedValue([
       { ...row({ valueCents: 500 }), ticket: { requester: { organization: { id: 'other', name: 'Outra' } } } },

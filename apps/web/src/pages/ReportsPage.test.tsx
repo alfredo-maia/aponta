@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -29,10 +29,11 @@ const billing = [
 ];
 
 let canViewTicketValues = true;
+let meResolved = false;
 
 function mockApiGet() {
   vi.mocked(api.get).mockImplementation((url: string) => {
-    if (url === '/auth/me') return Promise.resolve({ data: { id: 'u-1', isAdmin: false, permissions: [], canViewTicketValues } });
+    if (url === '/auth/me') return Promise.resolve({ data: { id: 'u-1', isAdmin: false, permissions: [], canViewTicketValues } }).then((response) => { meResolved = true; return response; });
     if (url === '/reports/workload') return Promise.resolve({ data: workload });
     if (url === '/reports/billing') return Promise.resolve({ data: billing });
     if (url === '/contracts') return Promise.resolve({ data: [{ id: 'c1', name: 'Suporte' }] });
@@ -66,6 +67,7 @@ describe('ReportsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     canViewTicketValues = true;
+    meResolved = false;
     mockApiGet();
     useAuthStore.setState({ token: null, user: null });
   });
@@ -132,12 +134,23 @@ describe('ReportsPage', () => {
     await waitFor(() => {
       expect(screen.getByText('Alice')).toBeInTheDocument();
     });
-    await waitFor(() => {
-      expect(vi.mocked(api.get).mock.calls.some(([url]) => url === '/auth/me')).toBe(true);
-    });
+    await waitFor(() => expect(meResolved).toBe(true));
+    await act(async () => {});
 
     expect(screen.queryByRole('tab', { name: /faturamento base/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('tab', { name: /resultado gerencial/i })).not.toBeInTheDocument();
+    expect(vi.mocked(api.get).mock.calls.some(([url]) => url === '/reports/billing')).toBe(false);
+  });
+
+  it('DMTE-479 AC-03: hides Faturamento for a CLIENT_MASTER without canViewTicketValues', async () => {
+    canViewTicketValues = false;
+    loginAs('CLIENT_MASTER');
+    renderPage();
+
+    await waitFor(() => expect(meResolved).toBe(true));
+    await act(async () => {});
+
+    expect(screen.queryByRole('tab', { name: /faturamento base/i })).not.toBeInTheDocument();
     expect(vi.mocked(api.get).mock.calls.some(([url]) => url === '/reports/billing')).toBe(false);
   });
 
