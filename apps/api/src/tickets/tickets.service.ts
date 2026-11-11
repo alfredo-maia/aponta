@@ -552,17 +552,10 @@ export class TicketsService {
   }> {
     const baseWhere = TenantHelper.getTicketWhere(currentUser);
     const where: Prisma.TicketWhereInput = { ...baseWhere };
-    // `requester` is the one key both TenantHelper (CLIENT_MASTER's org
-    // scope) and the Busca avançada filters (organizationId, requesterQuery)
-    // can write to. Collecting every condition here and ANDing them —
-    // instead of letting a later `where.requester = {...}` assignment
-    // silently replace the TenantHelper scope — is what stops a
-    // CLIENT_MASTER from reading another organization's tickets by sending
-    // `organizationId`/`requesterQuery` in the query string.
+    // The CLIENT_MASTER org scope lives in baseWhere.AND, which nothing below
+    // overwrites; `requester` carries only the Busca avançada filters
+    // (organizationId, requesterQuery), ANDed together so one never replaces the other.
     const requesterConditions: Prisma.UserWhereInput[] = [];
-    if (baseWhere.requester) {
-      requesterConditions.push(baseWhere.requester as Prisma.UserWhereInput);
-    }
     if (query.serviceDeskId) {
       where.serviceDeskId = query.serviceDeskId;
     }

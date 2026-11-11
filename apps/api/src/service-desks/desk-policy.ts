@@ -49,13 +49,10 @@ export function assertDeskAllowsOpen(params: {
   if (!desk.acceptingNewTickets) {
     throw new BadRequestException('Esta mesa não está recebendo novos tickets.');
   }
-  if (desk.internalUse && (user.role === Role.CLIENT || user.role === Role.CLIENT_MASTER)) {
+  if (desk.internalUse && isClientRole(user)) {
     throw new ForbiddenException('Esta mesa é de uso interno.');
   }
-  if (
-    desk.openByAgentsOnly &&
-    (user.role === Role.CLIENT || user.role === Role.CLIENT_MASTER)
-  ) {
+  if (desk.openByAgentsOnly && isClientRole(user)) {
     throw new ForbiddenException('Somente atendentes podem abrir tickets nesta mesa.');
   }
   if (params.semCatalogo && params.catalogItemId) {

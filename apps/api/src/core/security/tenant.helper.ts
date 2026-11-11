@@ -6,8 +6,20 @@ export class TenantHelper {
     if (user.role === Role.ADMIN) return {};
     if (user.role === Role.CLIENT) return { requesterId: user.id };
     if (user.role === Role.CLIENT_MASTER) {
+      // Chamado aberto por atendente para o Cliente fica com o solicitante de outra
+      // organização; o Cliente comercial também conta. Dentro de AND porque o findAll
+      // sobrescreve `where.OR` quando há `search`.
       return user.organizationId
-        ? { requester: { organizationId: user.organizationId } }
+        ? {
+            AND: [
+              {
+                OR: [
+                  { requester: { organizationId: user.organizationId } },
+                  { commercialOrganizationId: user.organizationId },
+                ],
+              },
+            ],
+          }
         : { requesterId: user.id };
     }
     if (user.role === Role.AGENT || user.role === Role.AGENT_MASTER) {
