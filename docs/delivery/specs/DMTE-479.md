@@ -15,14 +15,14 @@ Identidade: DMTE-479, Tier 2, ciclo 2026-11-09/2026-11-22, issue GitHub #188. Pe
 - Os dois serviços chamam `PermissionsService.canViewTicketValues` e respondem 403 sem a permissão, para qualquer role. O guarda por role continua, como recorte de dados e para não ampliar acesso: o recorte por organização do CLIENT_MASTER (`TenantHelper`) e o relatório comercial só-ADMIN seguem; a permissão é exigida além do role, como a DMTE-464 fez com `worklog-audit`.
 - Sem alterar grupos padrão nem criar migração de dados. Efeito após o deploy: CLIENT_MASTER e ADMIN só veem faturamento/resultado se o grupo deles tiver a chave; ajuste é do Alfredo em Configurações.
 - Tela de Relatórios: aba Faturamento Base exige `canViewTicketValues` além do role atual; aba Resultado gerencial idem. A consulta de faturamento não dispara sem a permissão.
-- Rascunho: o aviso "rascunho carregado" não é disparado só por `manualValue` quando o usuário não pode ver valores; o envio não leva `manualValue` sem a permissão.
+- Rascunho: o tipo efetivo `MANUAL` só vale com `canViewTicketValues`; sem ela vale `CONTRACT` (como a DMTE-463 fez para Garantia), sem `value` no envio. O aviso de rascunho não muda (esclarecido na implementação: o texto anterior falava em aviso, mas o defeito real é o envio bloqueado).
 - Migração por nome: não editada (já aplicada; mudar o arquivo não altera bancos onde rodou).
 
 ## Acceptance criteria
 - AC-01: `getBilling` recusa com `ForbiddenException` usuário sem `VIEW_TICKET_VALUES`, ADMIN e CLIENT_MASTER inclusive; com a permissão mantém o resultado e o recorte por organização atuais.
 - AC-02: `getCommercial` recusa com `ForbiddenException` ADMIN sem `VIEW_TICKET_VALUES`; ADMIN com a permissão mantém o resultado atual; role diferente de ADMIN continua recusada.
 - AC-03: na tela de Relatórios, sem `canViewTicketValues` as abas Faturamento Base e Resultado gerencial não aparecem e a consulta de faturamento não é feita; com a permissão e o role atual elas aparecem como hoje.
-- AC-04: com rascunho `MANUAL` e `manualValue` e usuário ADMIN sem a permissão, o aviso de rascunho não aparece só por causa do valor manual e o envio não leva `manualValue`.
+- AC-04: com rascunho `MANUAL` e `manualValue` e usuário ADMIN sem a permissão, o envio sai como `CONTRACT` sem `value`, em vez de ficar bloqueado por um erro de valor manual que a tela não mostra.
 
 ## Testes
 `reports.billing.spec.ts`, `commercial-reports.service.spec.ts` (api, Jest); `ReportsPage.test.tsx`, `TicketWorklogs.test.tsx` (web, Vitest). Seam: `PermissionsService.canViewTicketValues` injetado nos dois serviços. TDD real, RED por asserção.

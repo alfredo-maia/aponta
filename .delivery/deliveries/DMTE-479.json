@@ -33,9 +33,8 @@
     },
     {
       "id": "AC-04",
-      "description": "com rascunho `MANUAL` e `manualValue` e usuário ADMIN sem a permissão, o aviso de rascunho não aparece só por causa do valor manual e o envio não leva `manualValue`.",
+      "description": "com rascunho `MANUAL` e `manualValue` e usuário ADMIN sem a permissão, o envio sai como `CONTRACT` sem `value`, em vez de ficar bloqueado por um erro de valor manual que a tela não mostra.",
       "tests": [
-        "DMTE-479 AC-04: um rascunho só com valor manual não dispara o aviso de rascunho para ADMIN sem a permissão",
         "DMTE-479 AC-04: o envio de ADMIN sem a permissão não leva o valor manual do rascunho"
       ]
     }

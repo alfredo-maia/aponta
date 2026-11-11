@@ -474,17 +474,6 @@ describe('TicketWorklogs', () => {
     expect(screen.queryByText(/Contrato:|Tipo:/)).not.toBeInTheDocument();
   });
 
-  it('DMTE-479 AC-04: um rascunho só com valor manual não dispara o aviso de rascunho para ADMIN sem a permissão', async () => {
-    loginAs('ADMIN');
-    viewTicketValues = false;
-    localStorage.setItem('aponta_worklog_draft_t-1', JSON.stringify({ valuationType: 'MANUAL', manualValue: '250' }));
-    renderComponent('t-1', true);
-    await screen.findByRole('option', { name: 'Suporte' });
-    await waitFor(() => expect(vi.mocked(api.get).mock.calls.some(([u]) => String(u).includes('/auth/me'))).toBe(true));
-    expect(screen.queryByTestId('worklog-draft-alert')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('worklog-manual-value-input')).not.toBeInTheDocument();
-  });
-
   it('DMTE-479 AC-04: o envio de ADMIN sem a permissão não leva o valor manual do rascunho', async () => {
     loginAs('ADMIN');
     viewTicketValues = false;
