@@ -16,9 +16,11 @@ export class CatalogController {
 
   // Public/All users endpoint to see the active catalog
   @Get()
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async getActiveCatalog(@CurrentUser() _user: CurrentUserPayload, @Query('organizationId', new ParseUUIDPipe({ optional: true })) _organizationId?: string) {
-    return this.catalogService.findAllCategories(true, true);
+  async getActiveCatalog(
+    @CurrentUser() user: CurrentUserPayload,
+    @Query('organizationId', new ParseUUIDPipe({ optional: true })) organizationId?: string,
+  ) {
+    return this.catalogService.findActiveCatalog(user, organizationId);
   }
 
   // --- ADMIN endpoints below ---

@@ -57,7 +57,10 @@ export function assertDeskAllowsOpen(params: {
   ) {
     throw new ForbiddenException('Somente atendentes podem abrir tickets nesta mesa.');
   }
-  if (desk.catalogRequiredOnOpen && !params.catalogItemId) {
+  if (params.semCatalogo && params.catalogItemId) {
+    throw new BadRequestException('semCatalogo não pode ser combinado com um item do catálogo.');
+  }
+  if (desk.catalogRequiredOnOpen && !params.catalogItemId && !params.semCatalogo) {
     throw new BadRequestException('O item do catálogo é obrigatório nesta mesa.');
   }
   if (params.priority && desk.priorities) {
@@ -171,4 +174,44 @@ export function assertListedAgentMayMutate(params: {
       'Somente grupos ou agentes vinculados a esta mesa podem manipular o ticket.',
     );
   }
+}
+
+export type DeskCatalogContext = Pick<
+  ServiceDesk,
+  | 'active'
+  | 'acceptingNewTickets'
+  | 'internalUse'
+  | 'openByAgentsOnly'
+  | 'listedGroupsOnly'
+  | 'unlistedCanCreateTicket'
+  | 'allowCrossDeskInteraction'
+> &
+  Pick<DeskOpenContext, 'agents' | 'agentGroups'> & { organizations?: { id: string }[] };
+
+/** Mesa sem Cliente vinculado é global; senão precisa listar o Cliente. */
+export function deskServesOrganization(
+  desk: { organizations?: { id: string }[] },
+  organizationId?: string | null,
+): boolean {
+  const organizations = desk.organizations ?? [];
+  return organizations.length === 0 || organizations.some((org) => org.id === organizationId);
+}
+
+/**
+ * A mesa aparece para o usuário no catálogo de abertura: espelha as regras de
+ * visibilidade de mesas (TenantHelper.getServiceDeskWhere) e de abertura
+ * (assertDeskAllowsOpen), sem o que depende do chamado em si.
+ */
+export function isDeskUsableBy(desk: DeskCatalogContext, user: CurrentUserPayload): boolean {
+  if (!desk.active || !desk.acceptingNewTickets) return false;
+  if (user.role === Role.ADMIN) return true;
+  if (user.role === Role.CLIENT || user.role === Role.CLIENT_MASTER) {
+    return !desk.internalUse && !desk.openByAgentsOnly && deskServesOrganization(desk, user.organizationId);
+  }
+  if (user.role === Role.AGENT || user.role === Role.AGENT_MASTER) {
+    const listed = isUserListedOnDesk(desk, user.id);
+    if (!listed && !desk.allowCrossDeskInteraction) return false;
+    return !(desk.listedGroupsOnly && !listed && !desk.unlistedCanCreateTicket);
+  }
+  return false;
 }

@@ -29,6 +29,7 @@ import {
   assertDeskAllowsReopen,
   assertListedAgentMayMutate,
   isTicketBilled,
+  deskServesOrganization,
 } from '../service-desks/desk-policy';
 
 const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
@@ -348,6 +349,7 @@ export class TicketsService {
             priorities: true,
             agents: { select: { id: true } },
             agentGroups: { include: { members: { select: { id: true } } } },
+            organizations: { select: { id: true } },
             stages: {
               where: { isInitial: true },
               take: 1,
@@ -388,10 +390,29 @@ export class TicketsService {
         extension: null,
       },
       catalogItemId: dto.catalogItemId,
+      semCatalogo: dto.semCatalogo,
       priority,
       resourceGroup: dto.resourceGroup,
       attachmentCount: dto.attachmentCount ?? 0,
     });
+    // Atendente abre o chamado para um Cliente: valida o Cliente e se a mesa o atende.
+    // CLIENT/CLIENT_MASTER ficam na organização do solicitante e o valor enviado é ignorado.
+    let commercialOrganizationId = requester?.organizationId ?? null;
+    const isClientUser =
+      user.role === Role.CLIENT || user.role === Role.CLIENT_MASTER;
+    if (dto.organizationId && !isClientUser) {
+      const organization = await this.prisma.organization.findUnique({
+        where: { id: dto.organizationId },
+        select: { id: true, active: true },
+      });
+      if (!organization || !organization.active) {
+        throw new BadRequestException('Cliente inexistente ou inativo.');
+      }
+      if (!deskServesOrganization(serviceDesk, organization.id)) {
+        throw new BadRequestException('Esta mesa não atende o Cliente informado.');
+      }
+      commercialOrganizationId = organization.id;
+    }
     const slaEnabled = serviceDesk.slaControlEnabled !== false;
     const { responseDeadline, resolveDeadline } = slaEnabled
       ? calculateSla(
@@ -426,7 +447,7 @@ export class TicketsService {
               description: dto.description,
               serviceDeskId: serviceDeskId,
               requesterId,
-              commercialOrganizationId: requester?.organizationId ?? null,
+              commercialOrganizationId,
               status: serviceDesk.defaultOpenStatus ?? TicketStatus.OPEN,
               stageId: serviceDesk.stages[0]?.id,
               priority,

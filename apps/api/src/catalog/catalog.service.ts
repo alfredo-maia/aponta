@@ -4,7 +4,9 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CreateCatalogItemDto } from './dto/create-catalog-item.dto';
 import { UpdateCatalogItemDto } from './dto/update-catalog-item.dto';
+import { Role } from '@prisma/client';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
+import { deskServesOrganization, isDeskUsableBy } from '../service-desks/desk-policy';
 
 @Injectable()
 export class CatalogService {
@@ -20,9 +22,50 @@ export class CatalogService {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async findActiveCatalog(_user: CurrentUserPayload, _organizationId?: string): Promise<any[]> {
-    return [];
+  /**
+   * Catálogo da abertura de chamados para o usuário: só itens ativos cuja mesa ele pode usar.
+   * Atendente pode restringir ao Cliente; CLIENT fica sempre na própria organização.
+   */
+  async findActiveCatalog(user: CurrentUserPayload, organizationId?: string) {
+    const categories = await this.prisma.serviceCatalogCategory.findMany({
+      where: { isActive: true },
+      include: {
+        items: {
+          where: { isActive: true },
+          orderBy: { title: 'asc' },
+          include: {
+            defaultServiceDesk: {
+              select: {
+                active: true,
+                acceptingNewTickets: true,
+                internalUse: true,
+                openByAgentsOnly: true,
+                listedGroupsOnly: true,
+                unlistedCanCreateTicket: true,
+                allowCrossDeskInteraction: true,
+                agents: { select: { id: true } },
+                agentGroups: { select: { members: { select: { id: true } } } },
+                organizations: { select: { id: true } },
+              },
+            },
+          },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+    const isClient = user.role === Role.CLIENT || user.role === Role.CLIENT_MASTER;
+    return categories
+      .map((category) => ({
+        ...category,
+        items: category.items
+          .filter(
+            ({ defaultServiceDesk: desk }) =>
+              isDeskUsableBy(desk, user) &&
+              (isClient || !organizationId || deskServesOrganization(desk, organizationId)),
+          )
+          .map(({ defaultServiceDesk: _desk, ...item }) => item),
+      }))
+      .filter((category) => category.items.length > 0);
   }
 
   async createCategory(dto: CreateCategoryDto) {
