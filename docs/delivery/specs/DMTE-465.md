@@ -10,7 +10,9 @@ O fluxo em branco envia a mesa e a prioridade escolhidas no formulário e nenhum
 
 ## Acceptance criteria
 - AC-01: ao abrir um chamado em branco pelo catálogo, o payload de `POST /tickets` não contém `catalogItemId` e leva a mesa e a prioridade do formulário.
-- AC-02: itens reais do catálogo continuam enviando `catalogItemId`, mesa e prioridade do item.
+
+## Regressão existente
+Itens reais do catálogo continuam enviando `catalogItemId`, mesa e prioridade do item: coberto pelo teste já existente "forwards catalogItemId/serviceDeskId/priority overrides…", que passa antes e depois (não é critério novo, sem RED).
 
 ## Testes
 `apps/web/src/pages/CreateTicketPage.test.tsx`, seam: payload enviado a `api.post('/tickets')`. Comando: `npx vitest run src/pages/CreateTicketPage.test.tsx` em `apps/web`.

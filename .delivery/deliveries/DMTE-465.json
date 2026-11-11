@@ -13,13 +13,6 @@
       "tests": [
         "CreateTicketPage submits a blank ticket from the catalog without the synthetic custom item or an empty desk"
       ]
-    },
-    {
-      "id": "AC-02",
-      "description": "itens reais do catálogo continuam enviando `catalogItemId`, mesa e prioridade do item.",
-      "tests": [
-        "CreateTicketPage forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit"
-      ]
     }
   ],
   "spec": "docs/delivery/specs/DMTE-465.md",
@@ -29,7 +22,12 @@
     "green": ".delivery/evidence/DMTE-465/green.json"
   },
   "design_system": {
-    "applicable": false,
-    "reason": "Correção de payload no submit; sem mudança visual nem componente DS."
+    "applicable": true,
+    "reused": [
+      "EzCardItem",
+      "EzAlert",
+      "EzButton"
+    ],
+    "reason": "Correção de payload no submit de CreateTicketPage.tsx; nenhum componente DS novo ou alterado, sem mudança visual."
   }
 }
