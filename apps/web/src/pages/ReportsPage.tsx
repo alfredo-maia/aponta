@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { BarChart, Users, DollarSign, Clock } from 'lucide-react';
 import { useReportWorkload, useReportBilling } from '../hooks/useReports';
 import { useAuthStore } from '../stores/authStore';
+import { useCanViewTicketValues } from '../hooks/usePermissions';
 import {
   EzComboBox,
   EzEmptyCard,
@@ -20,9 +21,12 @@ export function ReportsPage() {
     'WORKLOAD' | 'BILLING' | 'COMMERCIAL'
   >('WORKLOAD');
 
-  const canSeeBilling = user
-    ? ['ADMIN', 'CLIENT_MASTER'].includes(user.role)
-    : false;
+  // DMTE-479: valor só com VIEW_TICKET_VALUES; o role continua como recorte.
+  const canViewValues = useCanViewTicketValues();
+  const canSeeBilling =
+    canViewValues && user
+      ? ['ADMIN', 'CLIENT_MASTER'].includes(user.role)
+      : false;
   const [contractId, setContractId] = useState('');
   const [startMonth, setStartMonth] = useState('');
   const [endMonth, setEndMonth] = useState('');
@@ -46,7 +50,7 @@ export function ReportsPage() {
     ...(canSeeBilling
       ? [{ id: 'BILLING' as const, label: 'Faturamento Base' }]
       : []),
-    ...(user?.role === 'ADMIN'
+    ...(canViewValues && user?.role === 'ADMIN'
       ? [{ id: 'COMMERCIAL' as const, label: 'Resultado gerencial' }]
       : []),
   ];
@@ -66,9 +70,11 @@ export function ReportsPage() {
           setActiveTab(id as 'WORKLOAD' | 'BILLING' | 'COMMERCIAL')
         }
       />
-      {activeTab === 'COMMERCIAL' && user?.role === 'ADMIN' && (
-        <CommercialReport contracts={contractsQ.data || []} />
-      )}
+      {activeTab === 'COMMERCIAL' &&
+        canViewValues &&
+        user?.role === 'ADMIN' && (
+          <CommercialReport contracts={contractsQ.data || []} />
+        )}
 
       {activeTab === 'WORKLOAD' && (
         <>

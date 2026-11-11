@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -28,11 +28,16 @@ const billing = [
   },
 ];
 
+let canViewTicketValues = true;
+let meResolved = false;
+
 function mockApiGet() {
   vi.mocked(api.get).mockImplementation((url: string) => {
+    if (url === '/auth/me') return Promise.resolve({ data: { id: 'u-1', isAdmin: false, permissions: [], canViewTicketValues } }).then((response) => { meResolved = true; return response; });
     if (url === '/reports/workload') return Promise.resolve({ data: workload });
     if (url === '/reports/billing') return Promise.resolve({ data: billing });
     if (url === '/contracts') return Promise.resolve({ data: [{ id: 'c1', name: 'Suporte' }] });
+    if (url === '/reports/commercial' || url === '/contracts/cost-rates' || url === '/users/agents') return Promise.resolve({ data: [] });
     return Promise.reject(new Error(`Unexpected GET ${url}`));
   });
 }
@@ -41,15 +46,18 @@ function renderPage() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={['/reports']}>
-        <Routes>
-          <Route path="/reports" element={<ReportsPage />} />
-        </Routes>
-      </MemoryRouter>
-    </QueryClientProvider>,
-  );
+  return {
+    queryClient,
+    ...render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/reports']}>
+          <Routes>
+            <Route path="/reports" element={<ReportsPage />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    ),
+  };
 }
 
 function loginAs(role: 'ADMIN' | 'AGENT' | 'CLIENT_MASTER') {
@@ -62,6 +70,8 @@ function loginAs(role: 'ADMIN' | 'AGENT' | 'CLIENT_MASTER') {
 describe('ReportsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    canViewTicketValues = true;
+    meResolved = false;
     mockApiGet();
     useAuthStore.setState({ token: null, user: null });
   });
@@ -88,7 +98,7 @@ describe('ReportsPage', () => {
       expect(screen.getByText('Alice')).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole('tab', { name: /faturamento base/i }));
+    await user.click(await screen.findByRole('tab', { name: /faturamento base/i }));
 
     await waitFor(() => {
       expect(screen.getByText('Empresa A')).toBeInTheDocument();
@@ -118,6 +128,58 @@ describe('ReportsPage', () => {
     expect(screen.queryByRole('tab', { name: /faturamento base/i })).not.toBeInTheDocument();
     // AGENT must never trigger the billing request at all
     expect(vi.mocked(api.get).mock.calls.some(([url]) => url === '/reports/billing')).toBe(false);
+  });
+
+  it('DMTE-479 AC-03: hides Faturamento and Resultado gerencial for an ADMIN without canViewTicketValues', async () => {
+    canViewTicketValues = false;
+    loginAs('ADMIN');
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+    });
+    await waitFor(() => expect(meResolved).toBe(true));
+    await act(async () => undefined);
+
+    expect(screen.queryByRole('tab', { name: /faturamento base/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: /resultado gerencial/i })).not.toBeInTheDocument();
+    expect(vi.mocked(api.get).mock.calls.some(([url]) => url === '/reports/billing')).toBe(false);
+  });
+
+  it('DMTE-479 AC-03: hides Faturamento for a CLIENT_MASTER without canViewTicketValues', async () => {
+    canViewTicketValues = false;
+    loginAs('CLIENT_MASTER');
+    renderPage();
+
+    await waitFor(() => expect(meResolved).toBe(true));
+    await act(async () => undefined);
+
+    expect(screen.queryByRole('tab', { name: /faturamento base/i })).not.toBeInTheDocument();
+    expect(vi.mocked(api.get).mock.calls.some(([url]) => url === '/reports/billing')).toBe(false);
+  });
+
+  it('DMTE-479 AC-03: shows Resultado gerencial for an ADMIN with canViewTicketValues', async () => {
+    loginAs('ADMIN');
+    renderPage();
+
+    expect(await screen.findByRole('tab', { name: /resultado gerencial/i })).toBeInTheDocument();
+  });
+
+  it('DMTE-479 AC-03: Resultado gerencial aberto some e para de consultar quando a permissão é revogada', async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    const { queryClient } = renderPage();
+
+    await user.click(await screen.findByRole('tab', { name: /resultado gerencial/i }));
+    await screen.findByText('Custo por técnico e vigência');
+
+    canViewTicketValues = false;
+    await act(async () => {
+      await queryClient.invalidateQueries({ queryKey: ['auth', 'me', 'permissions'] });
+    });
+    await waitFor(() => expect(screen.queryByRole('tab', { name: /resultado gerencial/i })).not.toBeInTheDocument());
+
+    expect(screen.queryByText('Custo por técnico e vigência')).not.toBeInTheDocument();
   });
 
   it('shows an empty state when there is no workload data', async () => {

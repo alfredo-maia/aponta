@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-11T04:21:39.650071+00:00",
+  "finished_at": "2026-11-11T04:26:47.980375+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run-many",
+    "-t",
+    "test",
+    "-p",
+    "api,web",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "d15fbcc3eef71591df9e81d381c3ff7e9cf09024",
+  "head_sha": "ad4c6896fc12cc1102019dbd5c56059a76c3e681",
+  "exit_code": 1,
+  "tests": {
+    "apps/api/src/reports/reports.billing.spec.ts": "ef03eede890bdc39d27de6eb6d68e189462c3403f5e13bfd24f386c36792642f",
+    "apps/api/src/reports/commercial-reports.service.spec.ts": "e7509329e10c5d8f2f9c0ca72619832f6b9aebb12782ee121e0658f18ac8945a",
+    "apps/web/src/pages/ReportsPage.test.tsx": "c4cc47f8a152ff9c3bd16f139e1f53ea092faa51312344a614b6f0c484269f9c",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "70a09dc441a24c280126206f150962426489ffe7fffdfdbde0ae2be1c996f393"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04"
+  ],
+  "source_hashes": {
+    "apps/api/src/reports/commercial-reports.service.spec.ts": "e7509329e10c5d8f2f9c0ca72619832f6b9aebb12782ee121e0658f18ac8945a",
+    "apps/api/src/reports/commercial-reports.service.ts": "8ad81f84897f7acc4363e0695757838c96031cdac5612b6d276579430d9bd2d6",
+    "apps/api/src/reports/reports.billing.spec.ts": "ef03eede890bdc39d27de6eb6d68e189462c3403f5e13bfd24f386c36792642f",
+    "apps/api/src/reports/reports.service.spec.ts": "be1a314483fa0aff90e936361ab214f077475cdbef9cbb3051317e10d917826b",
+    "apps/api/src/reports/reports.service.ts": "4d66dc47ec266b8cce49a2a61f48b697d1f661e60988df080598f37c03a2b309",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "70a09dc441a24c280126206f150962426489ffe7fffdfdbde0ae2be1c996f393",
+    "apps/web/src/pages/ReportsPage.test.tsx": "c4cc47f8a152ff9c3bd16f139e1f53ea092faa51312344a614b6f0c484269f9c"
+  },
+  "log": ".delivery/evidence/DMTE-479/red.log",
+  "log_sha256": "9a9477c093c8b1020f642c4b7e296182c9455bc2239393eac45624dcbd13b412"
+}

@@ -50,9 +50,10 @@ export async function linkFixtureUserToDefaultPermissionGroup(
     data: { permissionGroupId: group.id, userId },
   });
 
-  // DMTE-464: ADMIN não vê valores por role; só pelo grupo "Valores de tickets"
-  // (criado pela migração DMTE-464, sem membros). Fixture ADMIN entra nele.
-  if (role === 'ADMIN') {
+  // DMTE-464/479: valores (inclusive os relatórios de faturamento) só pelo grupo
+  // "Valores de tickets" (criado pela migração DMTE-464, sem membros), nunca por
+  // role. Fixture ADMIN e CLIENT_MASTER entram nele.
+  if (role === 'ADMIN' || role === 'CLIENT_MASTER') {
     const values =
       (await prisma.permissionGroup.findFirst({ where: { name: 'Valores de tickets' } })) ??
       (await prisma.permissionGroup.create({

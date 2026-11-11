@@ -12,9 +12,29 @@ describe('Billing valuation snapshots', () => {
   const october = { cycleStart: '2026-10-01T03:00:00Z', cycleEnd: '2026-11-01T03:00:00Z', minutes: 60, coveredMinutes: 30, excessMinutes: 30, rateCents: 12000, amountCents: 6000 };
   let findMany: jest.Mock;
   let service: ReportsService;
+  let canViewTicketValues: jest.Mock;
   beforeEach(() => {
     findMany = jest.fn().mockResolvedValue([]);
-    service = new ReportsService({ worklog: { findMany } } as any);
+    canViewTicketValues = jest.fn().mockResolvedValue(true);
+    service = new ReportsService({ worklog: { findMany } } as any, { canViewTicketValues } as any);
+  });
+  it('DMTE-479 AC-01: recusa faturamento sem VIEW_TICKET_VALUES, ADMIN e CLIENT_MASTER inclusive', async () => {
+    canViewTicketValues.mockResolvedValue(false);
+    await expect(service.getBilling(admin)).rejects.toThrow(ForbiddenException);
+    await expect(service.getBilling({ id: 'master', role: Role.CLIENT_MASTER, organizationId: 'org' })).rejects.toThrow(ForbiddenException);
+    expect(canViewTicketValues).toHaveBeenCalledWith('master');
+    expect(findMany).not.toHaveBeenCalled();
+  });
+  it('DMTE-479 AC-01: AGENT com VIEW_TICKET_VALUES continua recusado pelo recorte de role', async () => {
+    await expect(service.getBilling({ id: 'agent', role: Role.AGENT })).rejects.toThrow(ForbiddenException);
+    expect(findMany).not.toHaveBeenCalled();
+  });
+  it('DMTE-479 AC-01: com VIEW_TICKET_VALUES o CLIENT_MASTER segue limitado à própria organização', async () => {
+    findMany.mockResolvedValue([
+      { ...row({ valueCents: 500 }), ticket: { requester: { organization: { id: 'other', name: 'Outra' } } } },
+      row({ valueCents: 700, valuationSnapshot: { organizationId: 'org', organizationName: 'Cliente' } }),
+    ]);
+    expect(await service.getBilling({ id: 'master', role: Role.CLIENT_MASTER, organizationId: 'org' })).toEqual([expect.objectContaining({ organizationId: 'org', totalValueCents: 700 })]);
   });
   it('reconciles known zero, unknown legacy and excess snapshots without repricing', async () => {
     findMany.mockResolvedValue([

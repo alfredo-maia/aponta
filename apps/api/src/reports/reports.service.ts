@@ -6,12 +6,16 @@ import { TenantHelper } from '../core/security/tenant.helper';
 import { Role, TicketStatus } from '@prisma/client';
 import { WorkloadReportItemDto, BillingReportItemDto, DashboardSummaryDto } from './dto/report.dto';
 import { getSlaStatus } from '../scheduling/sla-status';
+import { PermissionsService } from '../permissions/permissions.service';
 
 const CLOSED_STATUSES: TicketStatus[] = [TicketStatus.RESOLVED, TicketStatus.CLOSED];
 
 @Injectable()
 export class ReportsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly permissions: PermissionsService,
+  ) {}
 
   async getWorkload(user: CurrentUserPayload, targetAgentId?: string): Promise<WorkloadReportItemDto[]> {
     // AGENT can only see their own workload
@@ -51,6 +55,9 @@ export class ReportsService {
     if (!([Role.ADMIN, Role.CLIENT_MASTER] as Role[]).includes(user.role) ||
       (user.role === Role.CLIENT_MASTER && !user.organizationId)) {
       throw new ForbiddenException('Restrito a visualização de faturamento');
+    }
+    if (!(await this.permissions.canViewTicketValues(user.id))) {
+      throw new ForbiddenException('Valores de tickets exigem a permissão VIEW_TICKET_VALUES');
     }
 
     const baseWhere = TenantHelper.getTicketWhere(user);

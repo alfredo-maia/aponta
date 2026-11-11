@@ -5,11 +5,23 @@ describe('CommercialReportsService', () => {
   const admin = { id: 'admin', role: Role.ADMIN };
   let db: any;
   let service: CommercialReportsService;
+  let canViewTicketValues: jest.Mock;
   const contract = (extra: Record<string, unknown> = {}) => ({ id: 'c', name: 'Contrato', organizationId: 'o', organization: { name: 'Empresa' }, type: 'MONTHLY_HOURS', active: true, approved: true, startsAt: new Date('2026-01-01T03:00:00Z'), endsAt: null, monthlyFeeCents: 10000, terms: [], lifecycleEvents: [{ effectiveFrom: new Date('2026-01-01T03:00:00Z'), active: extra.active ?? true, approved: extra.approved ?? true, startsAt: extra.startsAt ?? new Date('2026-01-01T03:00:00Z'), endsAt: extra.endsAt ?? null }], ...extra });
   const term = (extra = {}) => ({ approved: true, active: true, startsAt: new Date('2026-01-01T03:00:00Z'), endsAt: null, ...extra });
   beforeEach(() => {
     db = { contract: { findMany: jest.fn().mockResolvedValue([]) }, worklog: { findMany: jest.fn().mockResolvedValue([]) } };
-    service = new CommercialReportsService(db);
+    canViewTicketValues = jest.fn().mockResolvedValue(true);
+    service = new CommercialReportsService(db, { canViewTicketValues } as any);
+  });
+  it('DMTE-479 AC-02: recusa ADMIN sem VIEW_TICKET_VALUES antes de ler contratos', async () => {
+    canViewTicketValues.mockResolvedValue(false);
+    await expect(service.getCommercial(admin, {})).rejects.toMatchObject({ status: 403 });
+    expect(canViewTicketValues).toHaveBeenCalledWith('admin');
+    expect(db.contract.findMany).not.toHaveBeenCalled();
+  });
+  it('DMTE-479 AC-02: ADMIN com VIEW_TICKET_VALUES continua recebendo o relatório', async () => {
+    db.contract.findMany.mockResolvedValue([contract()]);
+    expect(await service.getCommercial(admin, { month: '2026-09' })).toHaveLength(1);
   });
   it('rejects every non administrator, including master agents and clients', async () => {
     for (const role of [Role.AGENT_MASTER, Role.AGENT, Role.CLIENT_MASTER, Role.CLIENT]) {
