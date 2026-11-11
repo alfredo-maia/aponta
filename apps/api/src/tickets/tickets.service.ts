@@ -800,11 +800,13 @@ export class TicketsService {
     } else if (currentUser.role === Role.CLIENT) {
       isAuthorized = ticket.requesterId === currentUser.id;
     } else if (currentUser.role === Role.CLIENT_MASTER) {
+      // Mesma regra de TenantHelper.getTicketWhere: solicitante da organização ou Cliente comercial.
       isAuthorized =
         ticket.requesterId === currentUser.id ||
         (!!currentUser.organizationId &&
-          (ticket as Ticket & { requester?: any; serviceDesk?: any }).requester
-            ?.organizationId === currentUser.organizationId);
+          ((ticket as Ticket & { requester?: any; serviceDesk?: any }).requester
+            ?.organizationId === currentUser.organizationId ||
+            ticket.commercialOrganizationId === currentUser.organizationId));
     } else if (
       currentUser.role === Role.AGENT ||
       currentUser.role === Role.AGENT_MASTER
