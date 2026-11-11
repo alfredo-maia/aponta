@@ -105,7 +105,7 @@ export function CreateTicketPage() {
 
   if (catalogLoading) {
     return (
-      <div className="max-w-4xl pt-4">
+      <div className="max-w-7xl pt-4">
         <EzSpinner label="Carregando catálogo…" />
       </div>
     );
@@ -113,7 +113,7 @@ export function CreateTicketPage() {
 
   if (catalog.length > 0 && !selectedCatalogItem) {
     return (
-      <div className="space-y-6 max-w-4xl pt-4">
+      <div className="space-y-6 max-w-7xl pt-4">
         <div className="space-y-1">
           <h1 className="text-[20px] font-semibold text-gray-900">Catálogo de Serviços</h1>
           <p className="text-gray-500 text-sm">
@@ -126,7 +126,7 @@ export function CreateTicketPage() {
             <h2 className="text-[16px] font-semibold text-gray-900 border-b border-gray-200 pb-1">
               {category.name}
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
               {category.items.map((item) => (
                 <button
                   key={item.id}
@@ -168,7 +168,7 @@ export function CreateTicketPage() {
   }
 
   return (
-    <div className="space-y-4 pt-4 max-w-4xl">
+    <div className="space-y-4 pt-4 max-w-7xl">
       <div className="flex items-center gap-3">
         {catalog.length > 0 && (
           <EzButton

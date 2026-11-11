@@ -156,7 +156,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
       noValidate
       className="w-full space-y-6 bg-white p-6 md:p-8 rounded-card border border-gray-100 shadow-card"
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-gray-100">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 pb-6 border-b border-gray-100">
         <Controller
           name="organizationId"
           control={control}
