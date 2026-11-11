@@ -53,6 +53,9 @@ export class ReportsService {
       (user.role === Role.CLIENT_MASTER && !user.organizationId)) {
       throw new ForbiddenException('Restrito a visualização de faturamento');
     }
+    if (!(await this.permissions.canViewTicketValues(user.id))) {
+      throw new ForbiddenException('Valores de tickets exigem a permissão VIEW_TICKET_VALUES');
+    }
 
     const baseWhere = TenantHelper.getTicketWhere(user);
     if (baseWhere.id === '00000000-0000-0000-0000-000000000000') {

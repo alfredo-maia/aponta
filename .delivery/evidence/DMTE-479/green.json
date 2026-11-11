@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-11T04:15:40.217940+00:00",
+  "finished_at": "2026-11-11T04:20:44.678790+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run-many",
+    "-t",
+    "test",
+    "-p",
+    "api,web",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "3420ea15b90d9bbe0913a724012c2de93f63bc8a",
+  "head_sha": "ad4c6896fc12cc1102019dbd5c56059a76c3e681",
+  "exit_code": 0,
+  "tests": {
+    "apps/api/src/reports/reports.billing.spec.ts": "ef03eede890bdc39d27de6eb6d68e189462c3403f5e13bfd24f386c36792642f",
+    "apps/api/src/reports/commercial-reports.service.spec.ts": "e7509329e10c5d8f2f9c0ca72619832f6b9aebb12782ee121e0658f18ac8945a",
+    "apps/web/src/pages/ReportsPage.test.tsx": "c4cc47f8a152ff9c3bd16f139e1f53ea092faa51312344a614b6f0c484269f9c",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "70a09dc441a24c280126206f150962426489ffe7fffdfdbde0ae2be1c996f393"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04"
+  ],
+  "source_hashes": {
+    "apps/api/src/reports/commercial-reports.service.spec.ts": "e7509329e10c5d8f2f9c0ca72619832f6b9aebb12782ee121e0658f18ac8945a",
+    "apps/api/src/reports/commercial-reports.service.ts": "c8a023712966c145ff45e5de3030ade030711cb1862cd61cfc2ddf1ae3244ed8",
+    "apps/api/src/reports/reports.billing.spec.ts": "ef03eede890bdc39d27de6eb6d68e189462c3403f5e13bfd24f386c36792642f",
+    "apps/api/src/reports/reports.service.spec.ts": "be1a314483fa0aff90e936361ab214f077475cdbef9cbb3051317e10d917826b",
+    "apps/api/src/reports/reports.service.ts": "74b50857ca728ef225b4f8da188c8e43d0337b5031de233f4cc51318aa0090b0",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "70a09dc441a24c280126206f150962426489ffe7fffdfdbde0ae2be1c996f393",
+    "apps/web/src/components/tickets/TicketWorklogs.tsx": "ce193e557e08ad49ee0be92910fa6331eb0d163ba293517591f0091d87e9b9ce",
+    "apps/web/src/pages/ReportsPage.test.tsx": "c4cc47f8a152ff9c3bd16f139e1f53ea092faa51312344a614b6f0c484269f9c",
+    "apps/web/src/pages/ReportsPage.tsx": "c542379818d68e97c5e4a16dcf6df722608dbbe4e36a8ae3f19756fdef4c34ec"
+  },
+  "log": ".delivery/evidence/DMTE-479/green.log",
+  "log_sha256": "d26f56dda6771b8e9d6f674fabdfee69f5db8a6e45a09c6468e735a0235ad176"
+}
