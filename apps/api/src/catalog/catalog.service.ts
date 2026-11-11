@@ -57,13 +57,13 @@ export class CatalogService {
     return categories
       .map((category) => ({
         ...category,
-        items: category.items
-          .filter(
-            ({ defaultServiceDesk: desk }) =>
-              isDeskUsableBy(desk, user) &&
-              (isClient || !organizationId || deskServesOrganization(desk, organizationId)),
-          )
-          .map(({ defaultServiceDesk: _desk, ...item }) => item),
+        // flatMap tira a mesa da resposta: ela carrega ids de atendentes e grupos.
+        items: category.items.flatMap(({ defaultServiceDesk: desk, ...item }) =>
+          isDeskUsableBy(desk, user) &&
+          (isClient || !organizationId || deskServesOrganization(desk, organizationId))
+            ? [item]
+            : [],
+        ),
       }))
       .filter((category) => category.items.length > 0);
   }
