@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "delivery": "DMTE-479",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 188,
+  "multica_id": "01a1c8aa-3b30-759d-a3dd-db96d6cabfae",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 2,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "`getBilling` recusa com `ForbiddenException` usuário sem `VIEW_TICKET_VALUES`, ADMIN e CLIENT_MASTER inclusive; com a permissão mantém o resultado e o recorte por organização atuais.",
+      "tests": []
+    },
+    {
+      "id": "AC-02",
+      "description": "`getCommercial` recusa com `ForbiddenException` ADMIN sem `VIEW_TICKET_VALUES`; ADMIN com a permissão mantém o resultado atual; role diferente de ADMIN continua recusada.",
+      "tests": []
+    },
+    {
+      "id": "AC-03",
+      "description": "na tela de Relatórios, sem `canViewTicketValues` as abas Faturamento Base e Resultado gerencial não aparecem e a consulta de faturamento não é feita; com a permissão e o role atual elas aparecem como hoje.",
+      "tests": []
+    },
+    {
+      "id": "AC-04",
+      "description": "com rascunho `MANUAL` e `manualValue` e usuário ADMIN sem a permissão, o aviso de rascunho não aparece só por causa do valor manual e o envio não leva `manualValue`.",
+      "tests": []
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-479.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-479/red.json",
+    "green": ".delivery/evidence/DMTE-479/green.json"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Só condição de visibilidade em ReportsPage e TicketWorklogs; nenhum componente DS novo ou alterado."
+  }
+}
