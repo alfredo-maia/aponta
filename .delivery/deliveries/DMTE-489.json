@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "delivery": "DMTE-489",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 212,
+  "multica_id": "01a1cc51-4333-7bfc-b62a-1e724ca0fa7b",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "o contêiner do formulário e o do catálogo usam o teto `max-w-7xl`, o mesmo para os dois.",
+      "tests": [
+        "DMTE-489 AC-01: formulário e catálogo usam o teto max-w-7xl"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "o bloco com cliente, mesa, solicitante e prioridade usa 1 coluna no celular, 2 a partir de `md` e 4 a partir de `xl`.",
+      "tests": [
+        "DMTE-489 AC-02: cliente, mesa, solicitante e prioridade em 1, 2 e 4 colunas por largura"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "a grade de cartões do catálogo passa a 4 colunas a partir de `xl`, mantendo 1, 2 e 3 nos tamanhos menores.",
+      "tests": [
+        "DMTE-489 AC-03: cartões do catálogo em 1, 2, 3 e 4 colunas por largura"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-489.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-489/red.json",
+    "green": ".delivery/evidence/DMTE-489/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzSpinner",
+      "EzCardItem",
+      "EzAlert",
+      "EzButton"
+    ],
+    "reason": "Só classes responsivas do Tailwind em CreateTicketPage.tsx e TicketForm.tsx; nenhum componente DS novo ou alterado."
+  }
+}

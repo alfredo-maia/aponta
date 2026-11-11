@@ -100,6 +100,57 @@ describe('CreateTicketPage', () => {
     expect(screen.queryByLabelText('Voltar para o catálogo')).not.toBeInTheDocument();
   });
 
+  it('DMTE-489 AC-01: formulário e catálogo usam o teto max-w-7xl', async () => {
+    vi.mocked(api.get).mockImplementation((url) => {
+      if (url === '/catalog') {
+        return Promise.resolve({
+          data: [{ id: 'cat-1', name: 'Hardware', description: null, items: [] }],
+        });
+      }
+      return Promise.resolve({ data: [] });
+    });
+    const user = userEvent.setup();
+    renderPage();
+
+    const catalogWrapper = (await screen.findByText('Catálogo de Serviços')).closest('[class*="max-w-"]');
+    expect(catalogWrapper).toHaveClass('max-w-7xl');
+    await user.click(screen.getByRole('button', { name: /meu problema não está catalogado/i }));
+    const formWrapper = (await screen.findByText('Abrir Chamado')).closest('[class*="max-w-"]');
+    expect(formWrapper).toHaveClass('max-w-7xl');
+  });
+
+  it('DMTE-489 AC-02: cliente, mesa, solicitante e prioridade em 1, 2 e 4 colunas por largura', async () => {
+    renderPage();
+
+    const form = (await screen.findByLabelText(/título \(assunto\)/i)).closest('form') as HTMLElement;
+    const identification = form.firstElementChild as HTMLElement;
+    expect(identification).toHaveClass('grid-cols-1', 'md:grid-cols-2', 'xl:grid-cols-4');
+  });
+
+  it('DMTE-489 AC-03: cartões do catálogo em 1, 2, 3 e 4 colunas por largura', async () => {
+    vi.mocked(api.get).mockImplementation((url) => {
+      if (url === '/catalog') {
+        return Promise.resolve({
+          data: [
+            {
+              id: 'cat-1',
+              name: 'Hardware',
+              description: null,
+              items: [
+                { id: 'item-1', title: 'Troca de Impressora', description: null, icon: null, defaultServiceDeskId: 'sd-1', defaultPriority: 'HIGH' },
+              ],
+            },
+          ],
+        });
+      }
+      return Promise.resolve({ data: [] });
+    });
+    renderPage();
+
+    const card = await screen.findByRole('button', { name: /troca de impressora/i });
+    expect(card.parentElement).toHaveClass('grid-cols-1', 'sm:grid-cols-2', 'md:grid-cols-3', 'xl:grid-cols-4');
+  });
+
   it('DMTE-483 AC-04: formulário e catálogo usam a mesma largura máxima', async () => {
     vi.mocked(api.get).mockImplementation((url) => {
       if (url === '/catalog') {
