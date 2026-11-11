@@ -142,3 +142,23 @@ describe('SettingsPage', () => {
     expect(screen.queryByRole('link', { name: /^mesa$/i })).not.toBeInTheDocument();
   });
 });
+
+describe('SettingsPage: tarefas agendadas (DMTE-462 T3)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    useAuthStore.setState({ token: 'fake-token', user: { sub: 'u-1', email: 'agent@aponta.com', role: 'AGENT' } });
+  });
+
+  it('AC-16: o link Tarefas agendadas aparece só com MANAGE_SCHEDULED_JOBS', async () => {
+    mockMe({ permissions: ['MANAGE_SCHEDULED_JOBS'] });
+    renderSettingsPage();
+    expect(await screen.findByRole('link', { name: /tarefas agendadas/i })).toHaveAttribute('href', '/settings/scheduled-jobs');
+  });
+
+  it('AC-16: sem a permissão o link não aparece', async () => {
+    mockMe({ permissions: [] });
+    renderSettingsPage();
+    await screen.findByRole('link', { name: /minha conta/i });
+    expect(screen.queryByRole('link', { name: /tarefas agendadas/i })).not.toBeInTheDocument();
+  });
+});
