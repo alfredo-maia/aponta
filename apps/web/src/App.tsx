@@ -23,6 +23,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { UsersPage } from './pages/UsersPage';
 import { TechnicalGroupsPage } from './pages/TechnicalGroupsPage';
 import { PermissionGroupsPage } from './pages/PermissionGroupsPage';
+import { ScheduledJobsPage } from './pages/ScheduledJobsPage';
 import { SchedulePage } from './pages/SchedulePage';
 
 /**
@@ -63,6 +64,7 @@ export function App() {
               <Route path="/settings/users" element={<UsersPage />} />
               <Route path="/settings/technical-groups" element={<TechnicalGroupsPage />} />
               <Route path="/settings/permission-groups" element={<PermissionGroupsPage />} />
+              <Route path="/settings/scheduled-jobs" element={<ScheduledJobsPage />} />
               <Route path="/schedule" element={<SchedulePage />} />
             </Route>
           </Route>
