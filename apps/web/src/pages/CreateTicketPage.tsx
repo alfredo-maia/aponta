@@ -143,7 +143,7 @@ export function CreateTicketPage() {
     return (
       <div className="space-y-6 max-w-4xl pt-4">
         <div data-testid="catalog-header" className="flex flex-wrap items-start justify-between gap-3">
-          <div className="space-y-1">
+          <div className="min-w-[16rem] flex-1 space-y-1">
             <h1 className="text-[20px] font-semibold text-gray-900">Catálogo de Serviços</h1>
             <p className="text-gray-500 text-sm">
               Selecione o tipo de solicitação abaixo para direcionamentos automáticos.
@@ -151,6 +151,7 @@ export function CreateTicketPage() {
           </div>
           <EzButton
             variant="tertiary"
+            className="h-auto max-w-full whitespace-normal py-2 text-left"
             onClick={() =>
               setSelectedCatalogItem({
                 id: 'custom',
@@ -171,6 +172,7 @@ export function CreateTicketPage() {
               id="catalog-organization"
               label="Cliente"
               placeholder="Buscar cliente…"
+              autoComplete="off"
               options={organizations.map((org) => ({ label: org.name, value: org.id }))}
               value={organizationId || null}
               onChange={(value) => setOrganizationId(value ? String(value) : '')}
