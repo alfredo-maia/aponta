@@ -1,3 +1,8 @@
+# Imagens identificadas pelo commit: APONTA_TAG=<sha> constrói e usa aponta-api:<sha>,
+# aponta-web:<sha> e aponta-storybook:<sha>. O deploy constrói uma vez, valida em staging e
+# sobe produção com `--no-build`, a partir das mesmas imagens (scripts/aponta_release.py,
+# docs/delivery/RELEASE.md). Sem APONTA_TAG vale `local`, para uso manual.
+# APONTA_ENV_FILE é o arquivo de ambiente dos serviços; cada ambiente tem o seu.
 services:
   postgres:
     image: postgres:16-alpine
@@ -28,13 +33,16 @@ services:
   # keeps it from looping if it ever fails (surface the real error in logs
   # instead of restart-crash-looping silently).
   migrate:
+    image: aponta-api:${APONTA_TAG:-local}
     build:
       context: .
       dockerfile: apps/api/Dockerfile
       target: production
+      args:
+        APONTA_COMMIT: ${APONTA_COMMIT:-unknown}
     restart: 'no'
     env_file:
-      - .env
+      - ${APONTA_ENV_FILE:-.env}
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-aponta}?schema=public
     command:
@@ -62,13 +70,16 @@ services:
   # the simplest actual one-off invocation against this compose file.)
 
   api:
+    image: aponta-api:${APONTA_TAG:-local}
     build:
       context: .
       dockerfile: apps/api/Dockerfile
       target: production
+      args:
+        APONTA_COMMIT: ${APONTA_COMMIT:-unknown}
     restart: unless-stopped
     env_file:
-      - .env
+      - ${APONTA_ENV_FILE:-.env}
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-aponta}?schema=public
       NODE_ENV: production
@@ -100,11 +111,13 @@ services:
       retries: 3
 
   web:
+    image: aponta-web:${APONTA_TAG:-local}
     build:
       context: .
       dockerfile: apps/web/Dockerfile
       target: production
       args:
+        APONTA_COMMIT: ${APONTA_COMMIT:-unknown}
         # Baked into the static bundle at build time (Vite/import.meta.env
         # semantics — this is NOT re-readable at container runtime). Left
         # as the same-origin default so nginx's own `/api/` reverse proxy
@@ -140,6 +153,7 @@ services:
   # esta porta (ver README.md). Não depende de `api`/`postgres`: é só
   # documentação estática de componentes, não precisa de backend.
   storybook:
+    image: aponta-storybook:${APONTA_TAG:-local}
     build:
       context: .
       dockerfile: apps/web/Dockerfile

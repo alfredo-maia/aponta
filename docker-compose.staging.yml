@@ -1,0 +1,37 @@
+# Sobreposição do ambiente de staging. Usada junto com docker-compose.yml, no projeto
+# `aponta-staging`: volumes, rede, containers e portas próprios, sem tocar em `aponta-prod`.
+#   docker compose -p aponta-staging --env-file .env.staging -f docker-compose.yml -f docker-compose.staging.yml ...
+# Quem monta esse comando é scripts/aponta_release.py; veja docs/delivery/RELEASE.md.
+services:
+  api:
+    environment:
+      APP_ENV: staging
+      # Staging nunca fala com o mundo real: sem SMTP o MailService não cria transporte
+      # e aborta todo envio; a caixa de entrada IMAP fica desligada. Os valores vazios
+      # aqui vencem qualquer coisa que apareça no arquivo de ambiente.
+      SMTP_HOST: ''
+      SMTP_PORT: ''
+      SMTP_USER: ''
+      SMTP_PASS: ''
+      SMTP_FROM: ''
+      IMAP_ENABLED: 'false'
+
+  # Dados sintéticos: o seed do projeto (usuários e mesas de demonstração), nunca cópia
+  # de produção. Roda sob demanda (`--profile seed run --rm seed`) depois das migrações.
+  # Usa o estágio `build`, que tem o workspace completo; a imagem de produção não tem ts-node.
+  seed:
+    profiles: ['seed']
+    image: aponta-seed:${APONTA_TAG:-local}
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: build
+    restart: 'no'
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-aponta}?schema=public
+    command: ['pnpm', 'exec', 'nx', 'run', 'api:prisma-seed']
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully

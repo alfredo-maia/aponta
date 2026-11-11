@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "delivery": "DMTE-473",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 177,
+  "multica_id": "01a1c7c7-c594-75f3-8312-faee8951fdb2",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 3,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "`promotion_errors` recusa commit sem registro de staging, com staging reprovado, com registro de outro commit ou com imagem diferente da validada, e aceita commit e imagens validados.",
+      "tests": [
+        "PromotionGateTests"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "`ordering_errors` aceita o primeiro deploy e commit mais novo; recusa commit mais antigo e commit fora do histórico do que está no ar; com rollback, aceita só ancestral do commit no ar.",
+      "tests": [
+        "OrderingTests"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "staging e produção ficam em projetos, arquivos de ambiente e sobreposições Compose distintos; o arquivo de ambiente gerado para o staging tem segredos próprios, porta diferente e nenhuma configuração de e-mail; ambiente desconhecido é recusado.",
+      "tests": [
+        "EnvironmentTests"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "`smoke` passa só quando a página, a saúde da API e o commit da API e do front correspondem ao commit esperado; página inacessível vira verificação reprovada, não exceção.",
+      "tests": [
+        "SmokeTests"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "o registro é gravado e lido por commit.",
+      "tests": [
+        "RecordTests"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "description": "`GET /api/version` devolve o commit de `APONTA_COMMIT`, ou `unknown` sem ele.",
+      "tests": [
+        "VersionController (apps/api/src/health/version.controller.spec.ts)"
+      ],
+      "tdd_required": false,
+      "reason": "O coletor aceita um comando por par e o manifest um par; RED/GREEN deste critério gravados pelo mesmo coletor em .delivery/evidence/DMTE-473/{api,web}-{red,green}.json"
+    },
+    {
+      "id": "AC-07",
+      "description": "as feature flags resolvem o padrão e a variável de ambiente, ignoram valor inválido e flag não registrada; o validador acusa flag vencida, sem responsável, com chave inválida, com data inválida e duplicada; o controller devolve os valores; `useFeatureFlag` fica desligado enquanto carrega, quando a API falha e para flag desconhecida.",
+      "tests": [
+        "feature flags (apps/api/src/feature-flags/feature-flags.spec.ts)",
+        "useFeatureFlag (apps/web/src/hooks/useFeatureFlag.test.tsx)"
+      ],
+      "tdd_required": false,
+      "reason": "O coletor aceita um comando por par e o manifest um par; RED/GREEN deste critério gravados pelo mesmo coletor em .delivery/evidence/DMTE-473/{api,web}-{red,green}.json"
+    },
+    {
+      "id": "AC-08",
+      "description": "o staging sobe na VPS a partir das imagens de um commit, com seed sintético, e o registro desse commit sai `passed` com as verificações de saúde, commit e fluxos críticos.",
+      "tests": [
+        "aponta_release.py stage na VPS: registro passed do commit 6ca1a34"
+      ],
+      "tdd_required": false,
+      "reason": "Execução real na VPS, registrada no PR; não reproduzível em runner de teste"
+    },
+    {
+      "id": "AC-09",
+      "description": "com o registro aprovado, `promote` recusa um commit sem registro e um commit mais antigo; a promoção real para produção fica para o primeiro deploy depois do merge.",
+      "tests": [
+        "aponta_release.py promote contra estado simulado: quatro recusas"
+      ],
+      "tdd_required": false,
+      "reason": "Execução real na VPS, registrada no PR; não reproduzível em runner de teste"
+    },
+    {
+      "id": "AC-10",
+      "description": "`scripts/e2e_isolated.sh` usa banco e portas próprios da execução e remove só os recursos dela.",
+      "tests": [
+        "Duas execuções simultâneas de scripts/e2e_isolated.sh"
+      ],
+      "tdd_required": false,
+      "reason": "Execução real na VPS, registrada no PR; não reproduzível em runner de teste"
+    },
+    {
+      "id": "AC-11",
+      "description": "contrato com os seis estados, validade das evidências, guia de release com diagrama e mapeamento das skills de referência.",
+      "tests": [
+        "Leitura de docs/delivery/WORKFLOW.md, RELEASE.md e docs/agents/akita-mapping.md"
+      ],
+      "tdd_required": false,
+      "reason": "Documentação"
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-473.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-473/red.json",
+    "green": ".delivery/evidence/DMTE-473/green.json"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Hook sem tela, API, scripts, Compose, workflows e documentação; nenhum componente de UI"
+  }
+}

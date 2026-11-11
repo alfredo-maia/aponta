@@ -19,4 +19,6 @@ No resultado registre: critério `AC`, arquivo/teste, comando, horário e saída
 
 QA verifica a evidência de RED/GREEN, confere que o teste cobre o critério e reproduz GREEN no SHA entregue. RED por import/setup deve ser explicitamente REJEITADO como prova de TDD, mesmo que o GREEN final passe. Sem evidência comportamental, declare `TDD não comprovado` e peça a prova ou uma exceção explícita adequada ao escopo. Não fabrique prova retroativa nem trate presença de testes ou cobertura como prova de TDD.
 
+Bug reproduzível ganha um teste de regressão antes da correção, e a correção cobre a classe do defeito: procure os outros pontos com o mesmo padrão em vez de consertar só o que foi relatado. Implemente o item aprovado e nada além dele: sem refatoração de carona, sem abstração para uso futuro, sem código morto ou comentado, sem TODO, sem formatação ampla. Não enfraqueça, pule nem apague teste para chegar ao GREEN; teste errado é corrigido com a justificativa registrada, antes do RED. Limpeza maior que a entrega vira entrega própria.
+
 Documentação sem comportamento e alterações puramente mecânicas podem justificar `TDD não aplicável`, com validação proporcional ao risco. Não crie testes sem valor só para preencher o relatório.

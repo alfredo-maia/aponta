@@ -78,9 +78,35 @@ python3 scripts/publicar_qa.py --delivery DMTE-N --sha SHA40
 
 Ele lê o pai canônico no `.delivery/registry.json` ou, sem entrada lá, no manifest da entrega, e procura, entre os comentários dos agentes de QA no pai (`dev_qa`, `dev_rapido_qa` e `dev_ultra_qa`), o mais recente que cita o SHA40. Esse comentário precisa vir de uma execução concluída do próprio QA sobre o pai, ou da execução em andamento que está publicando, quando é a mesma tarefa e o mesmo agente QA, e ter uma única linha `RESULTADO=APROVADO`. Por isso o `dev_rapido_qa` e o `dev_ultra_qa` rodam o verificador logo depois do comentário de aprovação e antes de qualquer outro comentário com o mesmo SHA. Um resultado mais novo para o mesmo SHA, como uma rejeição, invalida a aprovação anterior. Status de issue não entra na conta. `--qa-issue UUID` mantém o modo anterior, para entregas antigas cujo QA rodou numa issue filha `done`. Delivery executa o verificador depois de conferir que QA, PR e CI se referem ao mesmo SHA, antes de registrar a espera pelo merge. Nunca criar status manual. Commit novo que muda código, critérios de aceite ou SPEC exige novo QA. Quando o commit novo só registra governança (`.delivery/`, `docs/`) ou traz a `main` sem tocar nos arquivos da entrega, o código revisado é o mesmo: rode o verificador de novo com o SHA novo e ele republica o atestado, citando o SHA que o QA aprovou; se houver qualquer diferença em código, critérios ou SPEC, ele recusa. Na fila de merge, o job `Independent QA` confirma que o head do PR tem o atestado, porque o commit da fila não recebe o status do QA.
 
+## Estados da entrega
+
+Uma entrega passa por seis estados. Cada um tem evidência própria e nenhum é presumido a partir de outro. Os três primeiros acontecem no PR; os três últimos, depois do merge. O detalhe técnico de fila, staging e produção está em `docs/delivery/RELEASE.md`.
+
+| Estado | Responsável | Pré-condições | Evidência | Concluído quando | Se falhar | Próximo |
+|---|---|---|---|---|---|---|
+| **Implementado** | Developer (`dev_ultra_lider` no Ultra) | Issue GitHub, pai Multica, manifest e SPEC quando o Tier exige | Commits na branch, RED/GREEN do coletor, PR com `Aponta-Delivery` e `Refs` | `check --manifest` e os verificadores do projeto passam no SHA final | Corrige na mesma branch; RED impossível vira BLOQUEADO para o humano | QA |
+| **Revisado** | QA independente | SHA final, base, SPEC e pedido de revisão | Parecer no pai com `RESULTADO=` e o SHA40; status `Independent QA` publicado por `publicar_qa.py` | `RESULTADO=APROVADO` no SHA exato | REJEITADO volta ao Developer com o achado; BLOQUEADO diz o que falta | Líder |
+| **Apto para integração** | Líder | Revisado | Os quatro checks obrigatórios verdes no head do PR (`gh pr view`), sem commit depois da aprovação | `mergeStateStatus` limpo | Check vermelho volta ao Developer; pendente espera | Usuário (merge) |
+| **Integrado** | Fila de merge | Usuário colocou o PR na fila | Commit de merge na `main`; os quatro checks no candidato da fila; CI do push | CI do push verde no commit de merge | Candidato que falha sai da fila e volta ao PR | Workflow de CD |
+| **Validado em staging** | Workflow `CD (Produção)`, job Staging | Integrado; commit é a ponta da `main` com CI verde | Registro `records/<sha>.json` com as imagens e cada verificação; log do job | `staging.result = passed` | Registro `failed`; produção não recebe o commit; o líder separa defeito de ambiente | Job Produção |
+| **Publicado em produção** | Workflow `CD (Produção)`, job Produção | Validado em staging com as mesmas imagens; commit contém o que está no ar | `production.result = passed` no registro; `/api/version` e `/version.json` com o commit | Smoke de produção passa | Fica na versão anterior ou o usuário faz rollback | Delivery (confere o comportamento) e usuário (aceite) |
+
+Aceite é do usuário e vem depois de Publicado. Funcionalidade atrás de feature flag desligada está publicada, mas não exposta; o registro da entrega diz o estado da flag.
+
+### Quando a evidência perde a validade
+
+- **RED/GREEN**: quando um fonte ou teste da entrega muda depois do GREEN, ou quando a `main` altera um arquivo que a entrega toca.
+- **Parecer do QA e `Independent QA`**: valem para um SHA. Commit novo que muda código, critérios ou SPEC exige nova revisão; commit que só mexe em `.delivery/` e `docs/`, ou traz a `main` sem tocar nos arquivos revisados, mantém o parecer e o verificador republica o atestado.
+- **Checks do PR**: valem para o head. Qualquer push os refaz.
+- **Validação da combinação**: vale para o candidato da fila. A `main` andar cria outro candidato, validado de novo.
+- **Registro de staging**: vale para um commit e para aquelas imagens. Imagem reconstruída ou outro commit exigem novo ciclo de staging.
+- **Publicação**: vale até o próximo deploy. O que está no ar se lê em `/api/version`, não em relatório.
+
+Onde o CI, o registro do deploy ou a API já guardam a evidência, cite o link ou o SHA em vez de copiar o conteúdo para um relatório.
+
 ## Entrega e situação real
 
-O usuário gerencia deploy. O agente de Delivery recebe o SHA aprovado, confirma o que foi realmente implantado e registra a validação; não presume que merge é produção nem altera o CD. A issue GitHub fecha após evidência de entrega, e o pai Multica é consolidado com os mesmos fatos. O uso de `Refs` evita fechamento automático no merge.
+O usuário decide o merge, colocando o PR na fila. O workflow `CD (Produção)` valida no staging e promove para produção; nenhum agente o aciona, faz merge ou roda deploy à mão. O agente de Delivery recebe o SHA aprovado, lê nos runs e no registro o que foi realmente implantado e registra a validação; não presume que merge é produção nem altera o CD. A issue GitHub fecha após evidência de entrega, e o pai Multica é consolidado com os mesmos fatos. O uso de `Refs` evita fechamento automático no merge.
 
 ## Medição
 

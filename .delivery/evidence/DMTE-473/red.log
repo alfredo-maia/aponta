@@ -1,0 +1,168 @@
+FFFFF..FFFFFF.FFFFFF
+======================================================================
+FAIL: test_compose_command_keeps_each_environment_in_its_own_project (test_aponta_release.EnvironmentTests.test_compose_command_keeps_each_environment_in_its_own_project)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-cicd/scripts/test_aponta_release.py", line 104, in test_compose_command_keeps_each_environment_in_its_own_project
+    self.assertEqual(staging[staging.index('-p') + 1], 'aponta-staging')
+AssertionError: '' != 'aponta-staging'
++ aponta-staging
+
+
+======================================================================
+FAIL: test_env_file_values_are_read_without_comments (test_aponta_release.EnvironmentTests.test_env_file_values_are_read_without_comments)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-cicd/scripts/test_aponta_release.py", line 89, in test_env_file_values_are_read_without_comments
+    self.assertEqual(release.env_values('# c\nWEB_PORT=8190\n\nA="x y"\n'), {'WEB_PORT': '8190', 'A': 'x y'})
+AssertionError: {} != {'WEB_PORT': '8190', 'A': 'x y'}
+- {}
++ {'A': 'x y', 'WEB_PORT': '8190'}
+
+======================================================================
+FAIL: test_new_staging_env_has_its_own_secrets_and_no_mail (test_aponta_release.EnvironmentTests.test_new_staging_env_has_its_own_secrets_and_no_mail)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-cicd/scripts/test_aponta_release.py", line 95, in test_new_staging_env_has_its_own_secrets_and_no_mail
+    self.assertTrue(values.get(key), key)
+AssertionError: None is not true : POSTGRES_USER
+
+======================================================================
+FAIL: test_unknown_environment_is_refused (test_aponta_release.EnvironmentTests.test_unknown_environment_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-cicd/scripts/test_aponta_release.py", line 112, in test_unknown_environment_is_refused
+    with self.assertRaises(ValueError):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_commit_outside_the_deployed_history_is_refused (test_aponta_release.OrderingTests.test_commit_outside_the_deployed_history_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-cicd/scripts/test_aponta_release.py", line 75, in test_commit_outside_the_deployed_history_is_refused
+    self.assertIn('Commit does not contain the one deployed.',
+AssertionError: 'Commit does not contain the one deployed.' not found in []
+
+======================================================================
+FAIL: test_older_commit_does_not_replace_newer (test_aponta_release.OrderingTests.test_older_commit_does_not_replace_newer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-cicd/scripts/test_aponta_release.py", line 71, in test_older_commit_does_not_replace_newer
+    self.assertIn('Commit is older than the one deployed; use --rollback to go back on purpose.',
+AssertionError: 'Commit is older than the one deployed; use --rollback to go back on purpose.' not found in []
+
+======================================================================
+FAIL: test_rollback_accepts_only_an_ancestor_of_the_deployed_commit (test_aponta_release.OrderingTests.test_rollback_accepts_only_an_ancestor_of_the_deployed_commit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-cicd/scripts/test_aponta_release.py", line 80, in test_rollback_accepts_only_an_ancestor_of_the_deployed_commit
+    self.assertIn('Rollback target is not an ancestor of the deployed commit.',
+AssertionError: 'Rollback target is not an ancestor of the deployed commit.' not found in []
+
+======================================================================
+FAIL: test_commit_whose_staging_failed_is_refused (test_aponta_release.PromotionGateTests.test_commit_whose_staging_failed_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-cicd/scripts/test_aponta_release.py", line 28, in test_commit_whose_staging_failed_is_refused
+    self.assertIn('Staging did not pass for this commit.', release.promotion_errors(record, SHA, IMAGES))
+AssertionError: 'Staging did not pass for this commit.' not found in []
+
+======================================================================
+FAIL: test_commit_without_a_staging_record_is_refused (test_aponta_release.PromotionGateTests.test_commit_without_a_staging_record_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-cicd/scripts/test_aponta_release.py", line 24, in test_commit_without_a_staging_record_is_refused
+    self.assertIn('No staging record for this commit.', release.promotion_errors(None, SHA, IMAGES))
+AssertionError: 'No staging record for this commit.' not found in []
+
+======================================================================
+FAIL: test_images_rebuilt_after_staging_are_refused (test_aponta_release.PromotionGateTests.test_images_rebuilt_after_staging_are_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-cicd/scripts/test_aponta_release.py", line 36, in test_images_rebuilt_after_staging_are_refused
+    self.assertIn('Image differs from the one validated in staging: api',
+AssertionError: 'Image differs from the one validated in staging: api' not found in []
+
+======================================================================
+FAIL: test_record_of_another_commit_is_refused (test_aponta_release.PromotionGateTests.test_record_of_another_commit_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-cicd/scripts/test_aponta_release.py", line 31, in test_record_of_another_commit_is_refused
+    self.assertIn('Staging record belongs to another commit.',
+AssertionError: 'Staging record belongs to another commit.' not found in []
+
+======================================================================
+FAIL: test_record_is_stored_per_commit (test_aponta_release.RecordTests.test_record_is_stored_per_commit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-cicd/scripts/test_aponta_release.py", line 152, in test_record_is_stored_per_commit
+    self.assertEqual(release.load_record(Path(tmp), SHA)['images'], IMAGES)
+AssertionError: {} != {'api': 'sha256:1', 'web': 'sha256:2', 'storybook': 'sha256:3'}
+- {}
++ {'api': 'sha256:1', 'storybook': 'sha256:3', 'web': 'sha256:2'}
+
+======================================================================
+FAIL: test_api_answering_from_another_commit_fails (test_aponta_release.SmokeTests.test_api_answering_from_another_commit_fails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-cicd/scripts/test_aponta_release.py", line 134, in test_api_answering_from_another_commit_fails
+    self.assertEqual(self.failed(release.smoke(SHA, self.fetch(commit='b' * 40))), ['api commit', 'web commit'])
+AssertionError: Lists differ: [] != ['api commit', 'web commit']
+
+Second list contains 2 additional elements.
+First extra element 0:
+'api commit'
+
+- []
++ ['api commit', 'web commit']
+
+======================================================================
+FAIL: test_matching_commit_and_health_pass (test_aponta_release.SmokeTests.test_matching_commit_and_health_pass)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-cicd/scripts/test_aponta_release.py", line 130, in test_matching_commit_and_health_pass
+    self.assertEqual(len(checks), 4)
+AssertionError: 0 != 4
+
+======================================================================
+FAIL: test_unhealthy_api_fails (test_aponta_release.SmokeTests.test_unhealthy_api_fails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-cicd/scripts/test_aponta_release.py", line 140, in test_unhealthy_api_fails
+    self.assertEqual(self.failed(release.smoke(SHA, self.fetch(health='error'))), ['api health'])
+AssertionError: Lists differ: [] != ['api health']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'api health'
+
+- []
++ ['api health']
+
+======================================================================
+FAIL: test_unreachable_page_is_a_failed_check_not_a_crash (test_aponta_release.SmokeTests.test_unreachable_page_is_a_failed_check_not_a_crash)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-cicd/scripts/test_aponta_release.py", line 145, in test_unreachable_page_is_a_failed_check_not_a_crash
+    self.assertEqual(len(self.failed(release.smoke(SHA, fetch))), 4)
+AssertionError: 0 != 4
+
+======================================================================
+FAIL: test_web_bundle_from_another_commit_fails (test_aponta_release.SmokeTests.test_web_bundle_from_another_commit_fails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica/aponta-cicd/scripts/test_aponta_release.py", line 137, in test_web_bundle_from_another_commit_fails
+    self.assertEqual(self.failed(release.smoke(SHA, self.fetch(web_commit='c' * 40))), ['web commit'])
+AssertionError: Lists differ: [] != ['web commit']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'web commit'
+
+- []
++ ['web commit']
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.287s
+
+FAILED (failures=17)

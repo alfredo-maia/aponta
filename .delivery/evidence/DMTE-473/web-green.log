@@ -1,0 +1,10 @@
+
+ RUN  v4.1.11 /home/hermes/multica/aponta-cicd/apps/web
+
+ ✓ |web| src/hooks/useFeatureFlag.test.tsx (3 tests) 88ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  20:42:11
+   Duration  2.09s (transform 92ms, setup 189ms, import 394ms, tests 88ms, environment 1.13s)
+
