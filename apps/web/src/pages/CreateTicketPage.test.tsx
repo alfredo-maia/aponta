@@ -69,10 +69,55 @@ describe('CreateTicketPage', () => {
     );
   };
 
-  it('should render ticket form with new DS components', () => {
+  it('should render ticket form with new DS components', async () => {
     renderPage();
-    expect(screen.getByLabelText(/título \(assunto\)/i)).toBeInTheDocument();
+    expect(await screen.findByLabelText(/título \(assunto\)/i)).toBeInTheDocument();
     expect(screen.getByText(/descrição detalhada/i)).toBeInTheDocument();
+  });
+
+  it('DMTE-483 AC-01: mostra carregamento e não renderiza o formulário enquanto o catálogo carrega', async () => {
+    vi.mocked(api.get).mockImplementation((url) => {
+      if (url === '/catalog') return new Promise(() => {});
+      return Promise.resolve({ data: [] });
+    });
+    renderPage();
+
+    expect(await screen.findByRole('status')).toHaveTextContent(/carregando/i);
+    expect(screen.queryByLabelText(/título \(assunto\)/i)).not.toBeInTheDocument();
+    expect(screen.queryByText('Abrir Chamado')).not.toBeInTheDocument();
+  });
+
+  it('DMTE-483 AC-02: com a consulta de catálogo falhando, abre o formulário em branco', async () => {
+    vi.mocked(api.get).mockImplementation((url) => {
+      if (url === '/catalog') return Promise.reject(new Error('boom'));
+      return Promise.resolve({ data: [] });
+    });
+    renderPage();
+
+    expect(await screen.findByLabelText(/título \(assunto\)/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText('Voltar para o catálogo')).not.toBeInTheDocument();
+  });
+
+  it('DMTE-483 AC-04: formulário e catálogo usam a mesma largura máxima', async () => {
+    vi.mocked(api.get).mockImplementation((url) => {
+      if (url === '/catalog') {
+        return Promise.resolve({
+          data: [{ id: 'cat-1', name: 'Hardware', description: null, items: [] }],
+        });
+      }
+      return Promise.resolve({ data: [] });
+    });
+    const user = userEvent.setup();
+    renderPage();
+
+    const maxWidth = (el: HTMLElement) =>
+      (el.closest('[class*="max-w-"]') as HTMLElement).className.match(/max-w-\S+/)?.[0];
+
+    const catalogWidth = maxWidth(await screen.findByText('Catálogo de Serviços'));
+    await user.click(screen.getByRole('button', { name: /meu problema não está catalogado/i }));
+    const formWidth = maxWidth(await screen.findByText('Abrir Chamado'));
+
+    expect(formWidth).toBe(catalogWidth);
   });
 
   it('should populate the service desk dropdown from the API', async () => {
@@ -93,7 +138,7 @@ describe('CreateTicketPage', () => {
     const user = userEvent.setup();
     renderPage();
 
-    await user.click(screen.getByRole('button', { name: /abrir ticket/i }));
+    await user.click(await screen.findByRole('button', { name: /abrir ticket/i }));
 
     expect(await screen.findByText(/Descrição é obrigatória/i)).toBeInTheDocument();
     expect(api.post).not.toHaveBeenCalled();
