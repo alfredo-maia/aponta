@@ -99,6 +99,7 @@ export const PERMISSION_CATALOG: PermissionDefinition[] = [
   { key: 'CREATE_EDIT_WORKLOGS', category: PermissionCategory.TECHNICAL, label: 'Criar e editar apontamentos' },
   { key: 'EDIT_TICKETS', category: PermissionCategory.TECHNICAL, label: 'Editar tickets' },
   { key: 'CHANGE_PRIORITY_AND_DISABLE_SLA', category: PermissionCategory.TECHNICAL, label: 'Mudar a prioridade e desativar SLA dos tickets' },
+  { key: 'LAUNCH_WORKLOG_GUARANTEE', category: PermissionCategory.TECHNICAL, label: 'Lançar garantia em apontamentos' },
   { key: 'ADD_REMOVE_VALUATION_ON_OPEN_TICKETS', category: PermissionCategory.TECHNICAL, label: 'Inserir e remover valorização em tickets abertos' },
   { key: 'REMOTE_ACCESS', category: PermissionCategory.TECHNICAL, label: 'Acesso remoto' },
   { key: 'EDIT_ALL_WORKLOGS', category: PermissionCategory.TECHNICAL, label: 'Editar apontamentos de todos' },

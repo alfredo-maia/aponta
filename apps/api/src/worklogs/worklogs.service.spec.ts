@@ -59,7 +59,7 @@ describe('WorklogsService', () => {
     terms: [{ id: 'term-1', effectiveFrom: new Date('2026-01-01T03:00:00Z'), approved: true, active: true, startsAt: new Date('2026-01-01T03:00:00Z'), endsAt: null, type: 'MONTHLY_HOURS', includedMinutes: 600, monthlyFeeCents: 10000, excessHourlyRateCents: 12000, serviceDeskIds: ['desk-1'] }],
   };
 
-  let mockPermissions: { canViewTicketValues: jest.Mock };
+  let mockPermissions: { canViewTicketValues: jest.Mock; hasPermission: jest.Mock };
 
   beforeEach(async () => {
     mockPrisma = {
@@ -93,7 +93,7 @@ describe('WorklogsService', () => {
         delete: jest.fn(),
       },
     };
-    mockPermissions = { canViewTicketValues: jest.fn().mockResolvedValue(true) };
+    mockPermissions = { canViewTicketValues: jest.fn().mockResolvedValue(true), hasPermission: jest.fn().mockResolvedValue(false) };
     mockCommentsService = { create: jest.fn(), withTransaction: jest.fn(() => mockCommentsService) };
     mockTicketsService = { changeStage: jest.fn(), withTransaction: jest.fn(() => mockTicketsService) };
 
@@ -461,8 +461,45 @@ describe('WorklogsService', () => {
       expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
     });
 
+    it('rejects a guarantee from an agent without LAUNCH_WORKLOG_GUARANTEE', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPermissions.hasPermission.mockResolvedValue(false);
+
+      await expect(service.create(
+        'ticket-1',
+        {
+          startTime: '2026-10-13T08:00:00Z',
+          endTime: '2026-10-13T09:00:00Z',
+          description: 'Retrabalho em garantia',
+          valuationType: ValuationType.GUARANTEE,
+          bonusReason: 'Correção de erro técnico',
+        },
+        agentUser,
+      )).rejects.toThrow(ForbiddenException);
+      expect(mockPermissions.hasPermission).toHaveBeenCalledWith('agent-1', 'LAUNCH_WORKLOG_GUARANTEE');
+      expect(mockPrisma.worklog.create).not.toHaveBeenCalled();
+    });
+
+    it('answers 403 (not 400) for a guarantee without permission even when billable is true', async () => {
+      mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPermissions.hasPermission.mockResolvedValue(false);
+
+      await expect(service.create(
+        'ticket-1',
+        {
+          startTime: '2026-10-13T08:00:00Z',
+          endTime: '2026-10-13T09:00:00Z',
+          description: 'Garantia faturável',
+          valuationType: ValuationType.GUARANTEE,
+          billable: true,
+        },
+        agentUser,
+      )).rejects.toThrow(ForbiddenException);
+    });
+
     it('should zero the value and default billable to false when valuationType is GUARANTEE', async () => {
       mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPermissions.hasPermission.mockResolvedValue(true);
       mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-9' });
 
       await service.create(
@@ -486,6 +523,7 @@ describe('WorklogsService', () => {
 
     it('rejects billable guarantees before opening a transaction', async () => {
       mockPrisma.ticket.findUnique.mockResolvedValue(validTicket);
+      mockPermissions.hasPermission.mockResolvedValue(true);
       mockPrisma.worklog.create.mockResolvedValue({ id: 'wl-10' });
 
       await expect(service.create(

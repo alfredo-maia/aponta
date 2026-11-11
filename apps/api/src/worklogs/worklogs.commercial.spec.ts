@@ -9,7 +9,7 @@ describe('mandatory commercial authorization', () => {
     includedMinutes: null, excessHourlyRateCents: null, monthlyFeeCents: null, fixedPriceCents: null, estimatedMinutes: null };
   let db: any;
   let service: WorklogsService;
-  let permissions: { canViewTicketValues: jest.Mock };
+  let permissions: { canViewTicketValues: jest.Mock; hasPermission: jest.Mock };
   beforeEach(() => {
     const contract = { id: 'contract', organizationId: 'org', approved: true, active: true, type: 'HOURLY', name: 'Avulso',
       startsAt: new Date('2026-01-01'), endsAt: null, serviceDesks: [{ id: 'desk' }], terms: [term],
@@ -22,7 +22,7 @@ describe('mandatory commercial authorization', () => {
       technicianCostRate: { findMany: jest.fn().mockResolvedValue([{ id: 'cost', effectiveFrom: new Date('2026-01-01'), hourlyCostCents: 10000 }]) },
       worklog: { create: jest.fn(({ data }) => Promise.resolve({ id: 'log', ...data })), update: jest.fn(), delete: jest.fn(), findMany: jest.fn().mockResolvedValue([]), findUnique: jest.fn(), count: jest.fn().mockResolvedValue(0) },
       preAppointment: { create: jest.fn(({ data }) => Promise.resolve({ id: 'timer', ...data })), findUnique: jest.fn(), update: jest.fn() } };
-    permissions = { canViewTicketValues: jest.fn().mockResolvedValue(true) };
+    permissions = { canViewTicketValues: jest.fn().mockResolvedValue(true), hasPermission: jest.fn().mockResolvedValue(true) };
     service = new WorklogsService(db, {} as any, {} as any, permissions as any);
   });
   it('blocks a company without an explicit desk relationship', async () => {
