@@ -1,0 +1,223 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-458-202b034226d7/workdir/aponta/apps/web
+
+ ❯ |web| src/components/tickets/TicketKanban.test.tsx (35 tests | 1 failed) 2227ms
+       × DMTE-458: board is a snap-scroll container and columns are fluid (no fixed 290px) 122ms
+       ✓ shows a skeleton loading state with every column label while isLoading 36ms
+       ✓ shows an error message when isError is true 49ms
+       ✓ groups tickets into their matching status column with correct counts 83ms
+       ✓ renders an empty column (count 0) when there are no tickets for that status 40ms
+       ✓ does nothing when a card is dropped outside any column (no destination) 33ms
+       ✓ does nothing when a card is dropped back in the same column 18ms
+       ✓ calls the status-update API when a card is dropped into a different column 90ms
+       ✓ rolls back the optimistic update when the status-update API call fails 69ms
+       ✓ disables drop targets and card dragging for CLIENT role users 18ms
+       ✓ does not fetch mesa stages when no mesa is selected (fetches only the Mesa dropdown list) 21ms
+       ✓ shows a collapse toggle and an "Abrir novo ticket" link on every column by default (fallback por status) 54ms
+       ✓ collapsing a status column hides its ticket list and disables it as a drop target; expanding restores it 60ms
+       ✓ does not show "Abrir novo ticket" for CLIENT role users 13ms
+       ✓ collapsing a stage column (mesa selecionada) hides its ticket list and disables it as a drop target 43ms
+       ✓ lists service desks in the Mesa dropdown and switches to stage-grouped columns on selection, without needing initialServiceDeskId 131ms
+       ✓ keeps the user's own Mesa selection even if the component re-renders with a different initialServiceDeskId 101ms
+       ✓ fetches the mesa stages via GET /service-desks/:id/stages 17ms
+       ✓ groups tickets by stage (ordered by position) instead of by status 34ms
+       ✓ puts tickets with no recognized stage into a "Sem estágio" column that never accepts a drop 24ms
+       ✓ allows dragging an unstaged ticket straight to the mesa's initial stage 71ms
+       ✓ blocks dragging an unstaged ticket to a non-initial stage 31ms
+       ✓ calls PATCH /tickets/:id/stage (not /status) when dropping into an allowed next stage 71ms
+       ✓ blocks the drop and shows an error when the destination stage is not in transitionToIds 40ms
+       ✓ does nothing when a card is dropped back in its own stage column 24ms
+       ✓ dims (disables) columns unreachable from the dragged card while dragging 28ms
+       ✓ rolls back the optimistic update and surfaces the backend message when the stage API call rejects with 400 32ms
+       ✓ shows an informational alert when the mesa has no stages configured 14ms
+       ✓ AC-04: keeps Mesa, responsáveis, Ordenar and Configurações in one toolbar row, in that order 78ms
+       ✓ renders one avatar per distinct agent present in the tickets 95ms
+       ✓ clicking an avatar filters the board to that agent's tickets (toggle, multi-select) 96ms
+       ✓ opens "Ordenar", sorts cards by Título asc/desc, and "Limpar" restores the original order 243ms
+       ✓ "Configurações" lets the user group by Responsável instead of Status/Estágio 134ms
+       ✓ "Configurações" lets the user group by Prioridade 79ms
+       ✓ RODADA 2 ("Exibir campos", D6c): "Configurações" lets the user toggle optional card fields, persisted like "Agrupar por" 126ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 34 passed (35)
+   Start at  22:55:24
+   Duration  8.87s (transform 2.58s, setup 660ms, import 3.97s, tests 2.23s, environment 1.66s)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web| src/components/tickets/TicketKanban.test.tsx > TicketKanban > fallback por status (nenhuma mesa selecionada) > DMTE-458: board is a snap-scroll container and columns are fluid (no fixed 290px)
+TestingLibraryElementError: Unable to find an element by: [data-testid="kanban-board"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-3"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-wrap items-center gap-3"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"max-w-xs"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"sr-only"[39m
+            [33mfor[39m=[32m"kanban-mesa-select"[39m
+          [36m>[39m
+            [0mMesa[0m
+          [36m</label>[39m
+          [36m<select[39m
+            [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-900 hover:border-gray-300 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+            [33mdata-testid[39m=[32m"kanban-mesa-select"[39m
+            [33mid[39m=[32m"kanban-mesa-select"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m""[39m
+            [36m>[39m
+              [0mMesa: Todas[0m
+            [36m</option>[39m
+          [36m</select>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"relative"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"flex h-[var(--control-height-md)] items-center gap-1.5 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-arrow-up-down h-3.5 w-3.5"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"m21 16-4 4-4-4"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M17 20V4"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"m3 8 4-4 4 4"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M7 4v16"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mOrdenar[0m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"relative"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"flex h-[var(--control-height-md)] items-center gap-1.5 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-sliders-horizontal h-3.5 w-3.5"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M10 5H3"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M12 19H3"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M14 3v4"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M16 17v4"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M21 12h-9"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M21 19h-5"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M21 5h-7"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M8 10v4"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M8 12H3"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mConfigurações[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex items-start gap-4 overflow-x-auto pb-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex w-[290px] shrink-0 flex-col gap-3 rounded-lg border p-4 min-h-[500px] transition-colors border-gray-200 bg-gray-80"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"flex items-center gap-1 text-gray-400 hover:text-gray-700 cursor-pointer"[39m
+              [33mdata-testid[39m=[32m"collapse-column-OPEN"[39m
+              [33mtitle[39m=[32m"Recolher coluna"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-chevron-left w-3.5 h-3.5"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"m15 18-6-6 6-6"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+            [36m<h3[39m
+              [33mclass[39m=[32m"flex-1 text-sm font-semibold text-gray-900"[39m
+            [36m>[39m
+              [0mAberto[0m
+            [36m</h3>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px] text-[12px] font-medium leading-none select-none transition-c...
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/tickets/TicketKanban.test.tsx:186:28
+    184|       renderKanban({ tickets: [baseTicket], isLoading: false, isError:…
+    185|
+    186|       const board = screen.getByTestId('kanban-board');
+       |                            ^
+    187|       expect(board.className).toContain('overflow-x-auto');
+    188|       expect(board.className).toContain('snap-x');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
