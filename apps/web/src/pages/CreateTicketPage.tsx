@@ -37,6 +37,8 @@ export function CreateTicketPage() {
       const res = await api.get<CatalogCategory[]>('/catalog');
       return res.data;
     },
+    // Falha do catálogo cai no formulário em branco; retentativas só prolongariam o spinner.
+    retry: false,
   });
 
   const mutation = useMutation({
