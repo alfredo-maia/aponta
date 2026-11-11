@@ -89,6 +89,7 @@ Aceite visual é decisão do responsável: a evidência técnica (testes, captur
 - AC-13: em Mesas, a opção `catalogRequiredOnOpen` aparece com o rótulo "Mostrar o catálogo ao abrir (permite 'não catalogado')".
 - AC-14: o catálogo renderiza um cartão por categoria com itens, com o nome da categoria como título e os serviços dentro; categoria sem itens não renderiza; o card do serviço não mostra a mesa; categorias e itens seguem em ordem alfabética.
 - AC-15: o contêiner dos cartões usa 1 coluna abaixo de 640 px, 2 a partir de 640 px e 3 a partir de 1024 px, e o cartão não se parte entre colunas; cada serviço é um botão com nome acessível e cada cartão uma região rotulada pelo título.
+- AC-16: `CLIENT_MASTER` enxerga o chamado cujo `commercialOrganizationId` é a sua organização, mesmo aberto por atendente de outra organização (`getTicketWhere`: solicitante da organização OU Cliente comercial da organização); `CLIENT` continua vendo só os chamados que ele mesmo abriu.
 
 ## Testing Decisions
 
@@ -117,6 +118,7 @@ Cobertura de tenant: AC-01, AC-04, AC-05 e AC-06 são a prova de isolamento (CLI
 - A mesa sem Cliente vinculado é global: item de mesa global aparece para qualquer Cliente. É o comportamento já adotado para listar mesas.
 - A regra "mesa efetiva serve o Cliente" também vale na criação em branco. Chamado de atendente numa mesa de outro cliente, que hoje passa, passa a dar 400. É a intenção, mas muda o comportamento: o responsável confirma na aprovação da divisão em tickets.
 - `catalogRequiredOnOpen` deixa de bloquear a tela e passa a exigir só a declaração `semCatalogo` na API. Integrações que criam chamado sem item nessas mesas continuam recusadas.
+- Gravar o Cliente em `commercialOrganizationId` quebra a igualdade antiga entre esse campo e a organização do solicitante; o recorte de visibilidade do `CLIENT_MASTER` passa a olhar os dois (AC-16, achado do QA no SHA `4d5994d`).
 - `organizationId` e `semCatalogo` entram no DTO de criação, que rejeita campos desconhecidos: o web e a API mudam juntos, e a fatia que os traz entrega os dois lados.
 - Verificar, na fatia T2, se a criação já valida acesso à mesa pelo mesmo recorte de `GET /service-desks`; se não valida, o teste de tenant registra a lacuna e a SPEC volta ao alinhamento em vez de a fatia absorver o conserto.
 
@@ -132,6 +134,7 @@ Cobertura de tenant: AC-01, AC-04, AC-05 e AC-06 são a prova de isolamento (CLI
 | AC-12 | `CreateTicketPage`/`TicketForm` | teste de tela + payload |
 | AC-13 | Mesas | teste do editor de flags |
 | AC-14, AC-15 | `CreateTicketPage` | teste de DOM; captura em desktop e celular para aceite visual |
+| AC-16 | `TenantHelper.getTicketWhere` | spec do helper (recorte de visibilidade, usado por tickets, relatórios, worklogs e agenda) |
 
 ## Further Notes
 

@@ -9,10 +9,12 @@ describe('TenantHelper', () => {
     expect(where).toEqual({ requesterId: 'u1' });
   });
 
-  it('should restrict CLIENT_MASTER to their organization tickets', () => {
+  it('DMTE-485 AC-16: CLIENT_MASTER enxerga o ticket da própria organização pelo solicitante ou pelo Cliente comercial', () => {
     const user: CurrentUserPayload = { id: 'u2', role: Role.CLIENT_MASTER, organizationId: 'org1' };
     const where = TenantHelper.getTicketWhere(user);
-    expect(where).toEqual({ requester: { organizationId: 'org1' } });
+    expect(where).toEqual({
+      OR: [{ requester: { organizationId: 'org1' } }, { commercialOrganizationId: 'org1' }],
+    });
   });
 
   it('should restrict CLIENT_MASTER to their own tickets if no organization', () => {
