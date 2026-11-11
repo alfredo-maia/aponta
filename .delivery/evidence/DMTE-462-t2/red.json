@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-11T10:23:31.736851+00:00",
+  "finished_at": "2026-11-11T10:27:46.981551+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run-many",
+    "-t",
+    "test",
+    "-p",
+    "api,web",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "3abe1f097e2500dfb64db8f68635764b206d2255",
+  "head_sha": "3abe1f097e2500dfb64db8f68635764b206d2255",
+  "exit_code": 1,
+  "tests": {
+    "apps/api/prisma/seed.spec.ts": "1cc22952e1cb25e77aef4ac86e26efc5f50d38bed90696a0b50b76242bd789f1",
+    "apps/api/src/agenda/agenda.service.spec.ts": "1dbefe621231c454839a67eaa3d30e5ecf577e1bcc28d36f4a5f626d7c11b265",
+    "apps/api/src/auth/auth.controller.spec.ts": "e7a1a72257cf30a2d37b7dedcbda960472b98e0daf7e65459981414a2642dbd4",
+    "apps/api/src/permissions/permissions.service.spec.ts": "1ee179d1e140b638eebea76cb8723b494aafe4b068bae01f2039a823a3650575",
+    "apps/api/src/worklogs/agenda-window.spec.ts": "eb457703b81999c6eb314aa5d76a654d296fc6aa2b235c839fce6bcf659efe83",
+    "apps/api/src/worklogs/worklogs.commercial.spec.ts": "1fa18546473369a2f0c5e319cc684169c846dcdabbfb8a8a3398d094fea47404",
+    "apps/web/src/components/schedule/AppointmentModal.test.tsx": "c216cfb8fa7efe1d6c2e4e510b89e0c0ac3ca6fec36436946cfa367e729bfc34",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "fddd1c793092ed855d5950289001e30e5d9c2ba77b182267831a8df5a0d92998"
+  },
+  "criteria": [
+    "AC-06",
+    "AC-07",
+    "AC-08",
+    "AC-09",
+    "AC-10",
+    "AC-11",
+    "AC-12",
+    "AC-13"
+  ],
+  "source_hashes": {
+    "apps/api/prisma/seed.spec.ts": "1cc22952e1cb25e77aef4ac86e26efc5f50d38bed90696a0b50b76242bd789f1",
+    "apps/api/src/agenda/agenda.service.spec.ts": "1dbefe621231c454839a67eaa3d30e5ecf577e1bcc28d36f4a5f626d7c11b265",
+    "apps/api/src/agenda/agenda.service.ts": "0d2ea9c27670276e8f99ffc76c6fa5f470c004882e90d83cf15a445486d69a17",
+    "apps/api/src/auth/auth.controller.spec.ts": "e7a1a72257cf30a2d37b7dedcbda960472b98e0daf7e65459981414a2642dbd4",
+    "apps/api/src/permissions/permissions.service.spec.ts": "1ee179d1e140b638eebea76cb8723b494aafe4b068bae01f2039a823a3650575",
+    "apps/api/src/permissions/permissions.service.ts": "586dc3efda6796ff64a5ffe1509c43f3aaab3e1efc2db78baf3cfdc4f3131ea7",
+    "apps/api/src/worklogs/agenda-window.spec.ts": "eb457703b81999c6eb314aa5d76a654d296fc6aa2b235c839fce6bcf659efe83",
+    "apps/api/src/worklogs/agenda-window.ts": "711fcbd14cf9e061b5f6bd4bcd5c5fd58e3edba68240c817a641e7c7db072e7f",
+    "apps/api/src/worklogs/worklogs.commercial.spec.ts": "1fa18546473369a2f0c5e319cc684169c846dcdabbfb8a8a3398d094fea47404",
+    "apps/web/src/components/schedule/AppointmentModal.test.tsx": "c216cfb8fa7efe1d6c2e4e510b89e0c0ac3ca6fec36436946cfa367e729bfc34",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "fddd1c793092ed855d5950289001e30e5d9c2ba77b182267831a8df5a0d92998"
+  },
+  "log": ".delivery/evidence/DMTE-462-t2/red.log",
+  "log_sha256": "f8845ab840daa73c9883dae705f7c7b2eff5f8cc99d358ec35b03341ae75309b"
+}

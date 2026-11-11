@@ -11,10 +11,14 @@ import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { QueryAppointmentDto } from './dto/query-appointment.dto';
+import { PermissionsService } from '../permissions/permissions.service';
 
 @Injectable()
 export class AgendaService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly permissions: PermissionsService,
+  ) {}
 
   async findAll(query: QueryAppointmentDto, user: CurrentUserPayload) {
     const baseWhere = TenantHelper.getAppointmentWhere(user);

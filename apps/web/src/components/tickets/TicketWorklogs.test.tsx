@@ -1323,11 +1323,17 @@ describe('TicketWorklogs', () => {
   describe('hora inicial por permissão (DMTE-462 T1)', () => {
     const stoppedPre: PreRow = { id: 'stopped-pre', contractId: 'contract-1', beginning: '2026-10-14T12:00:00Z', ending: '2026-10-14T13:00:00Z', initTime: '09:00', endTime: '10:00', ticketId: 't-1', authorId: 'u-1', createdAt: '2026-10-14T12:00:00Z', author: { id: 'u-1', name: 'Técnico', email: 'agent@example.com' } };
 
-    it('AC-04: sem a permissão, o botão Apontamento (lançamento manual) fica desativado', async () => {
+    it('T2: sem a permissão, o botão Apontamento segue ativo e o manual abre com início e fim editáveis (a agenda é validada no servidor)', async () => {
       editWorklogStartTime = false;
       loginAs('AGENT', 'u-1');
       renderComponent('t-1', false);
-      await waitFor(() => expect(screen.getByTestId('open-worklog-modal-btn')).toBeDisabled());
+      await waitFor(() => expect(api.get).toHaveBeenCalledWith('/auth/me'));
+      const openBtn = screen.getByTestId('open-worklog-modal-btn');
+      expect(openBtn).toBeEnabled();
+      fireEvent.click(openBtn);
+      expect(screen.getByTestId('worklog-start-time-input')).not.toHaveAttribute('readonly');
+      expect(screen.getByTestId('worklog-end-time-input')).not.toHaveAttribute('readonly');
+      expect(screen.getByRole('button', { name: '30m' })).toBeEnabled();
     });
 
     it('AC-04: sem a permissão, converter o cronômetro abre início e fim somente leitura', async () => {

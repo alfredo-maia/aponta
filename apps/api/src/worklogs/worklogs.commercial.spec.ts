@@ -21,8 +21,9 @@ describe('mandatory commercial authorization', () => {
       ticket: { findUnique: jest.fn().mockResolvedValue(ticket), update: jest.fn() }, serviceDesk: { findFirst: jest.fn().mockResolvedValue({ id: 'desk' }) },
       contract: { findMany: jest.fn().mockResolvedValue([contract]), findUniqueOrThrow: jest.fn().mockResolvedValue(contract) },
       technicianCostRate: { findMany: jest.fn().mockResolvedValue([{ id: 'cost', effectiveFrom: new Date('2026-01-01'), hourlyCostCents: 10000 }]) },
-      worklog: { create: jest.fn(({ data }) => Promise.resolve({ id: 'log', ...data })), update: jest.fn(), delete: jest.fn(), findMany: jest.fn().mockResolvedValue([]), findUnique: jest.fn(), count: jest.fn().mockResolvedValue(0) },
-      preAppointment: { create: jest.fn(({ data }) => Promise.resolve({ id: 'timer', ...data })), findUnique: jest.fn(), update: jest.fn() } };
+      worklog: { create: jest.fn(({ data }) => Promise.resolve({ id: 'log', ...data })), update: jest.fn(), delete: jest.fn(), findMany: jest.fn().mockResolvedValue([]), findUnique: jest.fn(), count: jest.fn().mockResolvedValue(0), aggregate: jest.fn().mockResolvedValue({ _sum: { minutes: 0 } }) },
+      preAppointment: { create: jest.fn(({ data }) => Promise.resolve({ id: 'timer', ...data })), findUnique: jest.fn(), findFirst: jest.fn().mockResolvedValue(null), update: jest.fn() },
+      appointment: { findMany: jest.fn().mockResolvedValue([]) } };
     permissions = { canViewTicketValues: jest.fn().mockResolvedValue(true), canEditWorklogStartTime: jest.fn().mockResolvedValue(true), hasPermission: jest.fn().mockResolvedValue(true) };
     service = new WorklogsService(db, {} as any, {} as any, permissions as any);
   });
@@ -160,6 +161,7 @@ describe('mandatory commercial authorization', () => {
     it('AC-03: o PLAY sem a permissão ignora início e hora enviados e usa o relógio do servidor', async () => {
       permissions.canEditWorklogStartTime.mockResolvedValue(false);
       jest.useFakeTimers({ now: new Date('2026-10-17T15:20:30Z') });
+      db.appointment.findMany.mockResolvedValue([{ id: 'ag', type: 'AGENDA', ticketId: 'ticket', ignoresWorklogRule: false, startTime: new Date('2026-10-17T14:00:00Z'), endTime: new Date('2026-10-17T18:00:00Z') }]);
       await service.createPreAppointment('ticket', { beginning: '2026-10-17T08:00:00Z', initTime: '05:00', contractId: 'contract' }, agent);
       expect(db.preAppointment.create).toHaveBeenCalledWith(expect.objectContaining({
         data: expect.objectContaining({ beginning: new Date('2026-10-17T15:20:30Z'), initTime: '12:20' }),
@@ -183,6 +185,81 @@ describe('mandatory commercial authorization', () => {
       expect(db.preAppointment.update).toHaveBeenCalledWith(expect.objectContaining({
         data: { ending: new Date('2026-10-17T13:30:00Z'), endTime: '10:30' },
       }));
+    });
+  });
+
+  describe('DMTE-462 T2: janela da agenda', () => {
+    const NOW = new Date('2026-10-17T15:20:30Z');
+    const agendaDoTicket = { id: 'ag', type: 'AGENDA', ticketId: 'ticket', ignoresWorklogRule: false, startTime: new Date('2026-10-17T14:00:00Z'), endTime: new Date('2026-10-17T18:00:00Z') };
+    const manual = { ...dto, startTime: '2026-10-17T15:00:00Z', endTime: '2026-10-17T16:00:00Z' };
+    beforeEach(() => { permissions.canEditWorklogStartTime.mockResolvedValue(false); });
+    afterEach(() => jest.useRealTimers());
+
+    it('AC-06: o PLAY sem agenda é recusado', async () => {
+      jest.useFakeTimers({ now: NOW });
+      await expect(service.createPreAppointment('ticket', { contractId: 'contract' }, agent)).rejects.toThrow(/agenda/i);
+      expect(db.preAppointment.create).not.toHaveBeenCalled();
+    });
+
+    it('AC-06 e AC-10: o PLAY grava a agenda e congela o limite em minutos', async () => {
+      jest.useFakeTimers({ now: NOW });
+      db.appointment.findMany.mockResolvedValue([agendaDoTicket]);
+      await service.createPreAppointment('ticket', { contractId: 'contract' }, agent);
+      expect(db.preAppointment.create).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ appointmentId: 'ag', limitMinutes: 240 }),
+      }));
+    });
+
+    it('AC-06: o lançamento manual dentro da janela é aceito e fica ligado à agenda', async () => {
+      db.appointment.findMany.mockResolvedValue([agendaDoTicket]);
+      const result = await service.create('ticket', manual, agent);
+      expect(result.appointmentId).toBe('ag');
+    });
+
+    it('AC-06: o lançamento manual fora da janela é recusado', async () => {
+      db.appointment.findMany.mockResolvedValue([agendaDoTicket]);
+      await expect(service.create('ticket', { ...manual, startTime: '2026-10-17T19:00:00Z', endTime: '2026-10-17T20:00:00Z' }, agent)).rejects.toThrow(ForbiddenException);
+      expect(db.worklog.create).not.toHaveBeenCalled();
+    });
+
+    it('AC-07: a soma por agenda não passa da duração dela', async () => {
+      db.appointment.findMany.mockResolvedValue([agendaDoTicket]);
+      db.worklog.aggregate.mockResolvedValue({ _sum: { minutes: 200 } });
+      await expect(service.create('ticket', manual, agent)).rejects.toThrow(/limite/i);
+      db.worklog.aggregate.mockResolvedValue({ _sum: { minutes: 180 } });
+      await expect(service.create('ticket', manual, agent)).resolves.toMatchObject({ appointmentId: 'ag' });
+    });
+
+    it('AC-07 e AC-10: converter o cronômetro respeita o limite congelado no PLAY, mesmo com a agenda alterada', async () => {
+      db.appointment.findMany.mockResolvedValue([]);
+      db.preAppointment.findUnique.mockResolvedValue({ id: 'timer', ticketId: 'ticket', authorId: admin.id, contractId: 'contract', appointmentId: 'ag', limitMinutes: 90,
+        beginning: new Date(dto.startTime), ending: new Date(dto.endTime) });
+      db.worklog.aggregate.mockResolvedValue({ _sum: { minutes: 45 } });
+      await expect(service.create('ticket', { ...dto, preAppointmentId: 'timer' }, agent)).rejects.toThrow(/limite/i);
+      db.worklog.aggregate.mockResolvedValue({ _sum: { minutes: 30 } });
+      await expect(service.create('ticket', { ...dto, preAppointmentId: 'timer' }, agent)).resolves.toMatchObject({ appointmentId: 'ag' });
+    });
+
+    it('AC-08: ausência ou férias bloqueiam o PLAY e o lançamento manual', async () => {
+      jest.useFakeTimers({ now: NOW });
+      db.appointment.findMany.mockResolvedValue([agendaDoTicket, { ...agendaDoTicket, id: 'ferias', type: 'VACATION', ticketId: null }]);
+      await expect(service.createPreAppointment('ticket', { contractId: 'contract' }, agent)).rejects.toThrow(/ausência|férias/i);
+      await expect(service.create('ticket', manual, agent)).rejects.toThrow(/ausência|férias/i);
+    });
+
+    it('AC-11: o segundo PLAY na mesma agenda é recusado', async () => {
+      jest.useFakeTimers({ now: NOW });
+      db.appointment.findMany.mockResolvedValue([agendaDoTicket]);
+      db.preAppointment.findFirst.mockResolvedValue({ id: 'aberto' });
+      await expect(service.createPreAppointment('ticket', { contractId: 'contract' }, agent)).rejects.toThrow(/já há um cronômetro/i);
+      expect(db.preAppointment.findFirst).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ appointmentId: 'ag', authorId: 'tech', ending: null }) }));
+    });
+
+    it('AC-13: quem tem a permissão de hora inicial não consulta a agenda no PLAY nem no manual', async () => {
+      permissions.canEditWorklogStartTime.mockResolvedValue(true);
+      await service.createPreAppointment('ticket', { beginning: '2026-10-17T08:00:00Z', contractId: 'contract' }, agent);
+      await service.create('ticket', dto, agent);
+      expect(db.appointment.findMany).not.toHaveBeenCalled();
     });
   });
 });

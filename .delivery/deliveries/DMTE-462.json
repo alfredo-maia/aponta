@@ -8,57 +8,84 @@
   "tier": 3,
   "criteria": [
     {
-      "id": "AC-01",
-      "description": "sem a permissão de edição de hora inicial (qualquer role), a API recusa lançamento manual de apontamento e a alteração de início ou fim de apontamento existente; descrição, tipo de atendimento e demais campos continuam editáveis.",
+      "id": "AC-06",
+      "description": "PLAY e lançamento manual sem permissão só são aceitos se o início cair entre 1 dia antes do início e o fim de um compromisso AGENDA do consultor ligado ao ticket; fora disso são recusados com mensagem (até T5).",
       "tests": [
+        "apps/api/src/worklogs/agenda-window.spec.ts",
         "apps/api/src/worklogs/worklogs.commercial.spec.ts",
-        "apps/api/src/permissions/permissions.service.spec.ts"
+        "apps/web/src/components/tickets/TicketWorklogs.test.tsx"
       ]
     },
     {
-      "id": "AC-02",
-      "description": "com a permissão (grupo direto ou do grupo técnico), qualquer role lança e altera início e fim.",
-      "tests": [
-        "apps/api/src/worklogs/worklogs.commercial.spec.ts",
-        "apps/api/src/permissions/permissions.service.spec.ts"
-      ]
-    },
-    {
-      "id": "AC-03",
-      "description": "o PLAY de quem não tem a permissão ignora o início enviado pelo cliente e usa o relógio do servidor; com a permissão aceita o início informado.",
+      "id": "AC-07",
+      "description": "a soma apontada por agenda não passa da duração dela; o excedente é recusado.",
       "tests": [
         "apps/api/src/worklogs/worklogs.commercial.spec.ts"
       ]
     },
     {
-      "id": "AC-04",
-      "description": "`/auth/me` informa se o usuário pode editar a hora inicial, e a tela mostra início e fim somente leitura e esconde o lançamento manual sem a permissão.",
+      "id": "AC-08",
+      "description": "compromisso de ausência ou férias que cobre o instante bloqueia o PLAY e o lançamento manual.",
       "tests": [
-        "apps/api/src/auth/auth.controller.spec.ts",
-        "apps/web/src/components/tickets/TicketWorklogs.test.tsx"
+        "apps/api/src/worklogs/agenda-window.spec.ts",
+        "apps/api/src/worklogs/worklogs.commercial.spec.ts"
       ]
     },
     {
-      "id": "AC-05",
-      "description": "a chave existe no catálogo, o grupo padrão do administrador não a recebe, e a migração cria o grupo de edição de hora inicial sem membros.",
+      "id": "AC-09",
+      "description": "com mais de uma agenda, vale a que inclui o início; em empate, a que começa primeiro.",
       "tests": [
-        "apps/api/prisma/seed.spec.ts"
+        "apps/api/src/worklogs/agenda-window.spec.ts"
+      ]
+    },
+    {
+      "id": "AC-10",
+      "description": "o PLAY grava a agenda e o limite; alterar ou apagar a agenda depois não altera esse limite.",
+      "tests": [
+        "apps/api/src/worklogs/worklogs.commercial.spec.ts"
+      ]
+    },
+    {
+      "id": "AC-11",
+      "description": "um consultor mantém cronômetros ativos em agendas ou tickets diferentes; o segundo PLAY na mesma agenda é recusado.",
+      "tests": [
+        "apps/api/src/worklogs/worklogs.commercial.spec.ts"
+      ]
+    },
+    {
+      "id": "AC-12",
+      "description": "compromisso marcado \"ignora a regra\" libera o apontamento sem janela; marcar exige a permissão de liberar apontamento sem agenda, e consultor sem ela não consegue marcar.",
+      "tests": [
+        "apps/api/src/worklogs/agenda-window.spec.ts",
+        "apps/api/src/agenda/agenda.service.spec.ts",
+        "apps/api/src/auth/auth.controller.spec.ts",
+        "apps/api/src/permissions/permissions.service.spec.ts",
+        "apps/api/prisma/seed.spec.ts",
+        "apps/web/src/components/schedule/AppointmentModal.test.tsx"
+      ]
+    },
+    {
+      "id": "AC-13",
+      "description": "quem tem a permissão de edição de hora inicial não fica preso à regra da janela no PLAY e no lançamento manual.",
+      "tests": [
+        "apps/api/src/worklogs/worklogs.commercial.spec.ts"
       ]
     }
   ],
   "spec": "docs/delivery/specs/DMTE-462.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-462/red-r2.json",
-    "green": ".delivery/evidence/DMTE-462/green-r4.json"
+    "red": ".delivery/evidence/DMTE-462-t2/red.json",
+    "green": ".delivery/evidence/DMTE-462-t2/green.json"
   },
   "design_system": {
     "applicable": true,
     "reused": [
       "EzButton",
+      "EzCheck",
       "EzDateInput",
       "EzTimeInput"
     ],
-    "reason": "T1: somente leitura e botão desativado em TicketWorklogs.tsx; nenhum componente DS novo ou alterado."
+    "reason": "T2: botão Apontamento ativo e campo do compromisso com EzCheck; nenhum componente DS novo ou alterado."
   }
 }

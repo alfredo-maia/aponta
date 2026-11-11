@@ -4,9 +4,11 @@ import { AppointmentType, Role } from '@prisma/client';
 import { AgendaService } from './agenda.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
+import { PermissionsService } from '../permissions/permissions.service';
 
 describe('AgendaService', () => {
   let service: AgendaService;
+  let permissions: { hasPermission: jest.Mock };
   let prisma: {
     appointment: {
       findMany: jest.Mock;
@@ -55,10 +57,12 @@ describe('AgendaService', () => {
       },
     };
 
+    permissions = { hasPermission: jest.fn().mockResolvedValue(false) };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AgendaService,
         { provide: PrismaService, useValue: prisma },
+        { provide: PermissionsService, useValue: permissions },
       ],
     }).compile();
 
@@ -280,6 +284,40 @@ describe('AgendaService', () => {
       await expect(service.remove('app-1', agent2User)).rejects.toThrow(
         ForbiddenException,
       );
+    });
+  });
+
+  describe('compromisso que ignora a regra de apontamento (DMTE-462 T2)', () => {
+    const dto = {
+      title: 'Atendimento sem ticket',
+      startTime: '2026-10-16T14:00:00Z',
+      endTime: '2026-10-16T15:00:00Z',
+      ignoresWorklogRule: true,
+    };
+
+    it('AC-12: sem a permissão de liberar apontamento, marcar o compromisso é recusado (criar e alterar)', async () => {
+      await expect(service.create(dto, agentUser)).rejects.toThrow(ForbiddenException);
+      await expect(service.update('app-1', { ...dto }, agentUser)).rejects.toThrow(ForbiddenException);
+      expect(prisma.appointment.create).not.toHaveBeenCalled();
+      expect(prisma.appointment.update).not.toHaveBeenCalled();
+      expect(permissions.hasPermission).toHaveBeenCalledWith('agent-1', 'RELEASE_WORKLOG_WITHOUT_SCHEDULE');
+    });
+
+    it('AC-12: com a permissão, o compromisso é gravado com a marca', async () => {
+      permissions.hasPermission.mockResolvedValue(true);
+      await service.create(dto, agentUser);
+      expect(prisma.appointment.create).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ ignoresWorklogRule: true }),
+      }));
+    });
+
+    it('AC-12: ADMIN também depende da permissão (sem desvio por role)', async () => {
+      await expect(service.create(dto, adminUser)).rejects.toThrow(ForbiddenException);
+    });
+
+    it('AC-12: compromisso comum não consulta a permissão', async () => {
+      await service.create({ title: 'Comum', startTime: dto.startTime, endTime: dto.endTime }, agentUser);
+      expect(permissions.hasPermission).not.toHaveBeenCalled();
     });
   });
 });

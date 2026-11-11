@@ -1,9 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import { AppointmentModal } from './AppointmentModal';
 import { Appointment } from '../../hooks/useAppointments';
 import { api } from '../../lib/api';
+import { useAuthStore } from '../../stores/authStore';
 
 vi.mock('../../lib/api', () => ({
   api: {
@@ -248,5 +249,38 @@ describe('AppointmentModal', () => {
 
     expect(screen.queryByRole('button', { name: /^Salvar$/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Excluir/i })).not.toBeInTheDocument();
+  });
+});
+
+describe('compromisso que ignora a regra de apontamento (DMTE-462 T2)', () => {
+  const originalGet = vi.mocked(api.get).getMockImplementation()!;
+  const comPermissao = (can: boolean) =>
+    vi.mocked(api.get).mockImplementation((url: string) =>
+      url === '/auth/me'
+        ? Promise.resolve({ data: { id: 'u-1', isAdmin: false, permissions: [], canViewTicketValues: false, canEditWorklogStartTime: false, canReleaseWorklogWithoutSchedule: can } })
+        : originalGet(url));
+  afterEach(() => {
+    vi.mocked(api.get).mockImplementation(originalGet);
+    useAuthStore.setState({ token: null, user: null });
+  });
+
+  it('AC-12: com a permissão, o campo aparece e a marca vai no que é salvo', async () => {
+    useAuthStore.setState({ token: 'fake-token', user: { sub: 'u-1', email: 'g@aponta.com', role: 'AGENT' } });
+    comPermissao(true);
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    renderModal(<AppointmentModal isOpen={true} onClose={vi.fn()} onSave={onSave} initialDate="2026-10-15" />);
+    const check = await screen.findByLabelText('Ignora a regra de apontamento');
+    fireEvent.click(check);
+    fireEvent.change(screen.getByPlaceholderText('Ex: Reunião com cliente, Atendimento remoto...'), { target: { value: 'Atendimento sem ticket' } });
+    fireEvent.click(screen.getByRole('button', { name: /^Salvar$/i }));
+    await waitFor(() => expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ ignoresWorklogRule: true })));
+  });
+
+  it('AC-12: sem a permissão, o campo não aparece', async () => {
+    useAuthStore.setState({ token: 'fake-token', user: { sub: 'u-1', email: 'c@aponta.com', role: 'AGENT' } });
+    comPermissao(false);
+    renderModal(<AppointmentModal isOpen={true} onClose={vi.fn()} onSave={vi.fn()} initialDate="2026-10-15" />);
+    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/auth/me'));
+    expect(screen.queryByLabelText('Ignora a regra de apontamento')).not.toBeInTheDocument();
   });
 });
