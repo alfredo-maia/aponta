@@ -15,6 +15,7 @@ export interface Appointment {
   organizationId?: string | null;
   organization?: { id: string; name: string } | null;
   ticketId?: string | null;
+  ignoresWorklogRule?: boolean;
   ticket?: {
     id: string;
     protocol: string;
@@ -44,6 +45,7 @@ export interface CreateAppointmentInput {
   userId?: string;
   organizationId?: string;
   ticketId?: string;
+  ignoresWorklogRule?: boolean;
 }
 
 export interface UpdateAppointmentInput extends Partial<CreateAppointmentInput> {

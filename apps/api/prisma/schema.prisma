@@ -817,6 +817,10 @@ model PreAppointment {
   ticket    Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   authorId  String
   author    User      @relation(fields: [authorId], references: [id])
+  /// DMTE-462 T2: agenda e limite de horas congelados no PLAY (apagar a agenda não muda o limite).
+  appointmentId String?
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  limitMinutes  Int?
   createdAt DateTime  @default(now())
 
   @@index([ticketId])
@@ -845,9 +849,13 @@ model Worklog {
   ticket         Ticket         @relation(fields: [ticketId], references: [id])
   authorId       String
   author         User           @relation(fields: [authorId], references: [id])
+  /// DMTE-462 T2: agenda a que o apontamento foi debitado (soma por agenda).
+  appointmentId  String?
+  appointment    Appointment?   @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
   createdAt      DateTime       @default(now())
 
   @@index([contractId, startTime])
+  @@index([appointmentId])
 }
 
 model ApiToken {
@@ -882,6 +890,10 @@ model Appointment {
   organization   Organization?   @relation(fields: [organizationId], references: [id])
   ticketId       String?
   ticket         Ticket?         @relation(fields: [ticketId], references: [id])
+  /// DMTE-462 T2: libera apontamento fora de uma agenda do ticket, sem limite de horas.
+  ignoresWorklogRule Boolean     @default(false)
+  preAppointments PreAppointment[]
+  worklogs       Worklog[]
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 
