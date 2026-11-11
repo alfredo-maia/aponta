@@ -1,0 +1,60 @@
+
+> nx run api:test --testPathPatterns=seed-catalog
+
+> jest --passWithNoTests=true --testPathPatterns=seed-catalog
+
+  [2mconsole.log[22m
+    Catálogo semeado: 8 categorias, 18 itens (mesa Suporte Geral).
+[2m[22m
+[2m      [2mat seedServiceCatalog ([22m[2mprisma/seed-catalog.ts[2m:64:11)[22m[2m[22m
+
+  [2mconsole.log[22m
+    Catálogo semeado: 8 categorias, 18 itens (mesa Suporte Geral).
+[2m[22m
+[2m      [2mat seedServiceCatalog ([22m[2mprisma/seed-catalog.ts[2m:64:11)[22m[2m[22m
+
+  [2mconsole.log[22m
+    Catálogo semeado: 8 categorias, 18 itens (mesa Suporte Geral).
+[2m[22m
+[2m      [2mat seedServiceCatalog ([22m[2mprisma/seed-catalog.ts[2m:64:11)[22m[2m[22m
+
+  [2mconsole.log[22m
+    Catálogo semeado: 8 categorias, 18 itens (mesa Suporte Geral).
+[2m[22m
+[2m      [2mat seedServiceCatalog ([22m[2mprisma/seed-catalog.ts[2m:64:11)[22m[2m[22m
+
+
+
+
+ NX   Running target test for project api failed
+
+Failed tasks:
+
+- api:test
+
+Hint: run the command with --verbose for more details.
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m api [39m[27m[0m [2mprisma/[22m[1mseed-catalog.spec.ts[22m
+[1m[31m  [1m● [22m[1mcatalogo-atendimento.json (DMTE-484) › AC-01: no item description mentions SAB or Zydon[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mnot[2m.[22mtoMatch[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected pattern: not [32m/\bSAB\b|zydon/i[39m
+    Received string:      [31m"Erros ao faturar, condição comercial/negociação não aplicando, problemas no portal de vendas B2B ([7mZydon[27m), devolução, bonificação. Inclua ao abrir: Número do pedido de venda; Cliente/parceiro envolvido; Comportamento esperado x comportamento atual; Se envolve o Portal B2B, informar o usuário/loja usada."[39m
+
+[2m    [0m [90m 102 |[39m   it([32m'AC-01: no item description mentions SAB or Zydon'[39m[33m,[39m () [33m=>[39m {[22m
+[2m     [90m 103 |[39m     [36mfor[39m ([36mconst[39m i [36mof[39m data[33m.[39mitems) {[22m
+[2m    [31m[1m>[22m[2m[39m[90m 104 |[39m       expect(i[33m.[39mitem_description)[33m.[39mnot[33m.[39mtoMatch([35m/\bSAB\b|zydon/i[39m)[33m;[39m[22m
+[2m     [90m     |[39m                                      [31m[1m^[22m[2m[39m[22m
+[2m     [90m 105 |[39m     }[22m
+[2m     [90m 106 |[39m   })[33m;[39m[22m
+[2m     [90m 107 |[39m[0m[22m
+
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36mprisma/seed-catalog.spec.ts[39m[0m[2m:104:38)[22m[2m[22m
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, 1 total
+[1mTests:       [22m[1m[31m1 failed[39m[22m, [1m[32m7 passed[39m[22m, 8 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        0.491 s, estimated 1 s
+[2mRan all test suites[22m[2m matching [22mseed-catalog[2m.[22m
+Warning: command "jest --passWithNoTests=true --testPathPatterns=seed-catalog" exited with non-zero status code

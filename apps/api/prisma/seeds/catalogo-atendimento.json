@@ -32,7 +32,7 @@
     {
       "macro_category": "Comercial e Vendas",
       "item_title": "Vendas / Pedido de Venda / Faturamento / Portal B2B",
-      "item_description": "Erros ao faturar, condição comercial/negociação não aplicando, problemas no portal de vendas B2B (Zydon), devolução, bonificação. Inclua ao abrir: Número do pedido de venda; Cliente/parceiro envolvido; Comportamento esperado x comportamento atual; Se envolve o Portal B2B, informar o usuário/loja usada.",
+      "item_description": "Erros ao faturar, condição comercial/negociação não aplicando, problemas no portal de vendas B2B, devolução, bonificação. Inclua ao abrir: Número do pedido de venda; Cliente/parceiro envolvido; Comportamento esperado x comportamento atual; Se envolve o Portal B2B, informar o usuário/loja usada.",
       "default_priority": "HIGH",
       "icon": "🛒"
     },
@@ -46,7 +46,7 @@
     {
       "macro_category": "Sistemas e Acessos",
       "item_title": "Automação, Integração e APIs",
-      "item_description": "Falhas/ajustes em automações (SAB), integrações EDI, App Center/Sankhya Place, rateio automático de custos/despesas. Inclua ao abrir: Nome da automação/integração envolvida; Horário da última execução esperada x real; Log de erro, se disponível; Impacto (quantos registros/pedidos parados).",
+      "item_description": "Falhas/ajustes em automações, integrações EDI, App Center/Sankhya Place, rateio automático de custos/despesas. Inclua ao abrir: Nome da automação/integração envolvida; Horário da última execução esperada x real; Log de erro, se disponível; Impacto (quantos registros/pedidos parados).",
       "default_priority": "MEDIUM",
       "icon": "🔌"
     },

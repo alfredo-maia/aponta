@@ -18,7 +18,7 @@ Descrições neutras, sem os dois nomes. Estrutura do catálogo intacta.
 - AC-02: o JSON mantém as 8 categorias e os 18 itens, com os mesmos títulos, prioridades e ícones de antes.
 
 ## Testes
-`apps/api/prisma/seed-catalog.spec.ts`, bloco `catalogo-atendimento.json (DMTE-484)` (lê o JSON direto; seam existente do DMTE-456). Comando: `pnpm exec nx test api --testFile=seed-catalog.spec.ts`. AC-02 fixa a lista de títulos, prioridades e ícones atuais, então um item apagado ou renomeado falha.
+`apps/api/prisma/seed-catalog.spec.ts`, bloco `catalogo-atendimento.json (DMTE-484)` (lê o JSON direto; seam existente do DMTE-456). Comando: `pnpm exec nx test api --testPathPatterns=seed-catalog`. AC-02 fixa a lista de títulos, prioridades e ícones atuais, então um item apagado ou renomeado falha.
 
 ## Riscos e exclusões
 Risco baixo: dados estáticos. Fora do escopo: schema, lógica do seed, remoção/desativação de itens, execução em produção, deploy.
