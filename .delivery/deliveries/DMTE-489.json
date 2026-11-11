@@ -30,17 +30,24 @@
     },
     {
       "id": "AC-04",
-      "description": "em 768px os botões \"Salvar e criar novo\" e \"Abrir Ticket\" ficam dentro do cartão do formulário: a linha de ações quebra para uma segunda linha alinhada à direita em vez de vazar.",
+      "description": "em 768px os botões \"Salvar e criar novo\" e \"Abrir Ticket\" ficam dentro do cartão do formulário: a linha de ações quebra para uma segunda linha alinhada à direita em vez de vazar; abaixo de `sm` os botões continuam como antes (sem quebra de linha).",
       "tests": [
         "DMTE-489 AC-04: ações do formulário quebram de linha em vez de vazar do cartão"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "o aviso \"Esta mesa exige um item do catálogo\" ocupa a linha inteira da grade de identificação também em `xl` (4 colunas), como já ocupava em `md`.",
+      "tests": [
+        "DMTE-489 AC-05: aviso de catálogo obrigatório ocupa a linha inteira da grade de 4 colunas"
       ]
     }
   ],
   "spec": "docs/delivery/specs/DMTE-489.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-489/red-r2.json",
-    "green": ".delivery/evidence/DMTE-489/green-r2.json"
+    "red": ".delivery/evidence/DMTE-489/red-r3.json",
+    "green": ".delivery/evidence/DMTE-489/green-r3.json"
   },
   "design_system": {
     "applicable": true,

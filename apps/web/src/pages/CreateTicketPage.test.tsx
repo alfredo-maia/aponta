@@ -157,7 +157,25 @@ describe('CreateTicketPage', () => {
     const submit = await screen.findByRole('button', { name: /abrir ticket/i });
     const actions = submit.closest('form')?.lastElementChild as HTMLElement;
     expect(actions).toHaveClass('sm:flex-wrap');
-    expect(submit.parentElement).toHaveClass('flex-wrap', 'sm:ml-auto');
+    expect(submit.parentElement).toHaveClass('sm:flex-wrap', 'sm:ml-auto');
+    // Abaixo de sm os botões seguem lado a lado como antes: sem quebra sem prefixo.
+    expect(submit.parentElement).not.toHaveClass('flex-wrap');
+  });
+
+  it('DMTE-489 AC-05: aviso de catálogo obrigatório ocupa a linha inteira da grade de 4 colunas', async () => {
+    vi.mocked(api.get).mockImplementation((url) => {
+      if (url === '/service-desks') {
+        return Promise.resolve({ data: [{ id: 'sd-1', name: 'Suporte N1', catalogRequiredOnOpen: true }] });
+      }
+      return Promise.resolve({ data: [] });
+    });
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByRole('option', { name: 'Suporte N1' });
+    await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
+
+    expect(await screen.findByText(/exige um item do catálogo/i)).toHaveClass('md:col-span-2', 'xl:col-span-4');
   });
 
   it('DMTE-483 AC-04: formulário e catálogo usam a mesma largura máxima', async () => {

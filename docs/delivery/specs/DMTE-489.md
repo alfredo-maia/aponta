@@ -12,7 +12,8 @@ Formulário e catálogo com teto `max-w-7xl` (80rem), campos de identificação 
 - AC-01: o contêiner do formulário e o do catálogo usam o teto `max-w-7xl`, o mesmo para os dois.
 - AC-02: o bloco com cliente, mesa, solicitante e prioridade usa 1 coluna no celular, 2 a partir de `md` e 4 a partir de `xl`.
 - AC-03: a grade de cartões do catálogo passa a 4 colunas a partir de `xl`, mantendo 1, 2 e 3 nos tamanhos menores.
-- AC-04: em 768px os botões "Salvar e criar novo" e "Abrir Ticket" ficam dentro do cartão do formulário: a linha de ações quebra para uma segunda linha alinhada à direita em vez de vazar.
+- AC-04: em 768px os botões "Salvar e criar novo" e "Abrir Ticket" ficam dentro do cartão do formulário: a linha de ações quebra para uma segunda linha alinhada à direita em vez de vazar; abaixo de `sm` os botões continuam como antes (sem quebra de linha).
+- AC-05: o aviso "Esta mesa exige um item do catálogo" ocupa a linha inteira da grade de identificação também em `xl` (4 colunas), como já ocupava em `md`.
 
 ## Comportamento preservado (sem RED novo)
 Carregamento do catálogo, formulário em branco, banner do serviço, Escape/voltar e payload da DMTE-483 e anteriores; o teste "DMTE-483 AC-04" (mesma largura nos dois contêineres) continua valendo.
