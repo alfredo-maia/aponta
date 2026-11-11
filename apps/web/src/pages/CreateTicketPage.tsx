@@ -7,7 +7,7 @@ import { api } from '../lib/api';
 import type { Ticket, TicketPriority } from '../hooks/useTickets';
 import type { TicketFormValues } from '../components/tickets/TicketForm';
 import { TicketForm } from '../components/tickets/TicketForm';
-import { EzCardItem, EzAlert, EzButton } from '../components/ds';
+import { EzCardItem, EzAlert, EzButton, EzSpinner } from '../components/ds';
 
 export interface CatalogItem {
   id: string;
@@ -31,7 +31,7 @@ export function CreateTicketPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [selectedCatalogItem, setSelectedCatalogItem] = useState<CatalogItem | null>(null);
 
-  const { data: catalog = [] } = useQuery({
+  const { data: catalog = [], isPending: catalogLoading } = useQuery({
     queryKey: ['catalog'],
     queryFn: async () => {
       const res = await api.get<CatalogCategory[]>('/catalog');
@@ -101,6 +101,14 @@ export function CreateTicketPage() {
 
   useEscapeLayer(() => setSelectedCatalogItem(null), catalog.length > 0 && !!selectedCatalogItem, 'page');
 
+  if (catalogLoading) {
+    return (
+      <div className="max-w-4xl pt-4">
+        <EzSpinner label="Carregando catálogo…" />
+      </div>
+    );
+  }
+
   if (catalog.length > 0 && !selectedCatalogItem) {
     return (
       <div className="space-y-6 max-w-4xl pt-4">
@@ -158,7 +166,7 @@ export function CreateTicketPage() {
   }
 
   return (
-    <div className="space-y-4 pt-4 max-w-lg">
+    <div className="space-y-4 pt-4 max-w-4xl">
       <div className="flex items-center gap-3">
         {catalog.length > 0 && (
           <EzButton
