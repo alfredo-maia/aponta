@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { User, Users, UserCog, ShieldCheck, Box, ChevronRight } from 'lucide-react';
+import { User, Users, UserCog, ShieldCheck, Box, Timer, ChevronRight } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useHasPermission } from '../hooks/usePermissions';
 import { EzCardItem } from '../components/ds';
@@ -15,6 +15,7 @@ export function SettingsPage() {
   const isAdmin = user?.role === 'ADMIN';
   const canManageUsers = useHasPermission('MANAGE_USERS');
   const canManagePermissionGroups = useHasPermission('MANAGE_PERMISSION_GROUPS');
+  const canManageScheduledJobs = useHasPermission('MANAGE_SCHEDULED_JOBS');
 
   const usersSubmenuLinks = [
     { to: '/my-account', label: 'Minha conta', icon: User, visible: true },
@@ -60,6 +61,26 @@ export function SettingsPage() {
             ))}
           </EzCardItem>
         </div>
+
+        {canManageScheduledJobs && (
+          <div className="space-y-1.5">
+            <h2 className="px-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Sistema
+            </h2>
+            <EzCardItem flat className="p-0">
+              <Link
+                to="/settings/scheduled-jobs"
+                className="flex items-center justify-between gap-3 px-4 py-3 text-[14px] text-gray-900 transition-colors hover:bg-gray-90"
+              >
+                <span className="flex items-center gap-3">
+                  <Timer className="h-4 w-4 text-gray-500" />
+                  Tarefas agendadas
+                </span>
+                <ChevronRight className="h-4 w-4 text-gray-400" />
+              </Link>
+            </EzCardItem>
+          </div>
+        )}
 
         {isAdmin && (
           <div className="space-y-1.5">
