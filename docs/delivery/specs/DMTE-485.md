@@ -89,7 +89,7 @@ Aceite visual é decisão do responsável: a evidência técnica (testes, captur
 - AC-13: em Mesas, a opção `catalogRequiredOnOpen` aparece com o rótulo "Mostrar o catálogo ao abrir (permite 'não catalogado')".
 - AC-14: o catálogo renderiza um cartão por categoria com itens, com o nome da categoria como título e os serviços dentro; categoria sem itens não renderiza; o card do serviço não mostra a mesa; categorias e itens seguem em ordem alfabética.
 - AC-15: o contêiner dos cartões usa 1 coluna abaixo de 640 px, 2 a partir de 640 px e 3 a partir de 1024 px, e o cartão não se parte entre colunas; cada serviço é um botão com nome acessível e cada cartão uma região rotulada pelo título.
-- AC-16: `CLIENT_MASTER` enxerga o chamado cujo `commercialOrganizationId` é a sua organização, mesmo aberto por atendente de outra organização (`getTicketWhere`: solicitante da organização OU Cliente comercial da organização, dentro de `AND`), e os filtros da lista (`search`, `organizationId`, `requesterQuery`) nunca derrubam esse recorte; `CLIENT` continua vendo só os chamados que ele mesmo abriu.
+- AC-16: `CLIENT_MASTER` enxerga o chamado cujo `commercialOrganizationId` é a sua organização, mesmo aberto por atendente de outra organização (`getTicketWhere`: solicitante da organização OU Cliente comercial da organização, dentro de `AND`), na lista e no detalhe do chamado (`findOne`, de que dependem `update` e anexos), e os filtros da lista (`search`, `organizationId`, `requesterQuery`) nunca derrubam esse recorte; `CLIENT` continua vendo só os chamados que ele mesmo abriu.
 
 ## Testing Decisions
 

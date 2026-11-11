@@ -1087,6 +1087,32 @@ describe('TicketsService', () => {
         include: expect.any(Object),
       });
     });
+
+    it('DMTE-485 AC-16: findOne mostra ao CLIENT_MASTER o chamado aberto por atendente para a organização dele', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        requesterId: 'agent-9',
+        commercialOrganizationId: 'my-org',
+        requester: { organizationId: 'provider-org' },
+      });
+
+      await expect(
+        service.findOne('t1', { id: 'client-master-1', role: Role.CLIENT_MASTER, organizationId: 'my-org' }),
+      ).resolves.toMatchObject({ id: 't1' });
+    });
+
+    it('DMTE-485 AC-16: findOne continua escondendo do CLIENT_MASTER o chamado de outra organização', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        requesterId: 'agent-9',
+        commercialOrganizationId: 'other-org',
+        requester: { organizationId: 'provider-org' },
+      });
+
+      await expect(
+        service.findOne('t1', { id: 'client-master-1', role: Role.CLIENT_MASTER, organizationId: 'my-org' }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
   });
 
   describe('findOne', () => {

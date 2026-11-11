@@ -134,13 +134,15 @@
     },
     {
       "id": "AC-16",
-      "description": "`CLIENT_MASTER` enxerga o chamado cujo `commercialOrganizationId` é a sua organização, mesmo aberto por atendente de outra organização (`getTicketWhere`: solicitante da organização OU Cliente comercial da organização, dentro de `AND`), e os filtros da lista (`search`, `organizationId`, `requesterQuery`) nunca derrubam esse recorte; `CLIENT` continua vendo só os chamados que ele mesmo abriu.",
+      "description": "`CLIENT_MASTER` enxerga o chamado cujo `commercialOrganizationId` é a sua organização, mesmo aberto por atendente de outra organização (`getTicketWhere`: solicitante da organização OU Cliente comercial da organização, dentro de `AND`), na lista e no detalhe do chamado (`findOne`, de que dependem `update` e anexos), e os filtros da lista (`search`, `organizationId`, `requesterQuery`) nunca derrubam esse recorte; `CLIENT` continua vendo só os chamados que ele mesmo abriu.",
       "tests": [
         "DMTE-485 AC-16: CLIENT_MASTER enxerga o ticket da própria organização pelo solicitante ou pelo Cliente comercial",
         "DMTE-485 AC-16: search de CLIENT_MASTER não derruba o recorte da organização",
         "RODADA 2 - vazamento entre organizações: CLIENT_MASTER forcing organizationId from another org never drops the TenantHelper org scope",
         "RODADA 2 - vazamento entre organizações: requesterQuery from a CLIENT_MASTER never drops the TenantHelper org scope",
-        "should restrict CLIENT to their own tickets"
+        "should restrict CLIENT to their own tickets",
+        "DMTE-485 AC-16: findOne mostra ao CLIENT_MASTER o chamado aberto por atendente para a organização dele",
+        "DMTE-485 AC-16: findOne continua escondendo do CLIENT_MASTER o chamado de outra organização"
       ]
     }
   ],
