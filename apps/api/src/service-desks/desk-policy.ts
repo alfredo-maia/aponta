@@ -1,4 +1,5 @@
 import {
+  Prisma,
   Role,
   TicketPriority,
   TicketStatus,
@@ -176,6 +177,24 @@ export function assertListedAgentMayMutate(params: {
   }
 }
 
+export function isClientRole(user: Pick<CurrentUserPayload, 'role'>): boolean {
+  return user.role === Role.CLIENT || user.role === Role.CLIENT_MASTER;
+}
+
+/** Campos da mesa que isDeskUsableBy lê; o catálogo seleciona exatamente estes. */
+export const DESK_CATALOG_SELECT = {
+  active: true,
+  acceptingNewTickets: true,
+  internalUse: true,
+  openByAgentsOnly: true,
+  listedGroupsOnly: true,
+  unlistedCanCreateTicket: true,
+  allowCrossDeskInteraction: true,
+  agents: { select: { id: true } },
+  agentGroups: { select: { members: { select: { id: true } } } },
+  organizations: { select: { id: true } },
+} satisfies Prisma.ServiceDeskSelect;
+
 export type DeskCatalogContext = Pick<
   ServiceDesk,
   | 'active'
@@ -205,7 +224,7 @@ export function deskServesOrganization(
 export function isDeskUsableBy(desk: DeskCatalogContext, user: CurrentUserPayload): boolean {
   if (!desk.active || !desk.acceptingNewTickets) return false;
   if (user.role === Role.ADMIN) return true;
-  if (user.role === Role.CLIENT || user.role === Role.CLIENT_MASTER) {
+  if (isClientRole(user)) {
     return !desk.internalUse && !desk.openByAgentsOnly && deskServesOrganization(desk, user.organizationId);
   }
   if (user.role === Role.AGENT || user.role === Role.AGENT_MASTER) {

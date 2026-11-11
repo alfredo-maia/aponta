@@ -4,9 +4,8 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CreateCatalogItemDto } from './dto/create-catalog-item.dto';
 import { UpdateCatalogItemDto } from './dto/update-catalog-item.dto';
-import { Role } from '@prisma/client';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
-import { deskServesOrganization, isDeskUsableBy } from '../service-desks/desk-policy';
+import { DESK_CATALOG_SELECT, deskServesOrganization, isClientRole, isDeskUsableBy } from '../service-desks/desk-policy';
 
 @Injectable()
 export class CatalogService {
@@ -34,26 +33,13 @@ export class CatalogService {
           where: { isActive: true },
           orderBy: { title: 'asc' },
           include: {
-            defaultServiceDesk: {
-              select: {
-                active: true,
-                acceptingNewTickets: true,
-                internalUse: true,
-                openByAgentsOnly: true,
-                listedGroupsOnly: true,
-                unlistedCanCreateTicket: true,
-                allowCrossDeskInteraction: true,
-                agents: { select: { id: true } },
-                agentGroups: { select: { members: { select: { id: true } } } },
-                organizations: { select: { id: true } },
-              },
-            },
+            defaultServiceDesk: { select: DESK_CATALOG_SELECT },
           },
         },
       },
       orderBy: { name: 'asc' },
     });
-    const isClient = user.role === Role.CLIENT || user.role === Role.CLIENT_MASTER;
+    const isClient = isClientRole(user);
     return categories
       .map((category) => ({
         ...category,

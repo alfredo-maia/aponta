@@ -30,6 +30,7 @@ import {
   assertListedAgentMayMutate,
   isTicketBilled,
   deskServesOrganization,
+  isClientRole,
 } from '../service-desks/desk-policy';
 
 const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
@@ -398,9 +399,7 @@ export class TicketsService {
     // Atendente abre o chamado para um Cliente: valida o Cliente e se a mesa o atende.
     // CLIENT/CLIENT_MASTER ficam na organização do solicitante e o valor enviado é ignorado.
     let commercialOrganizationId = requester?.organizationId ?? null;
-    const isClientUser =
-      user.role === Role.CLIENT || user.role === Role.CLIENT_MASTER;
-    if (dto.organizationId && !isClientUser) {
+    if (dto.organizationId && !isClientRole(user)) {
       const organization = await this.prisma.organization.findUnique({
         where: { id: dto.organizationId },
         select: { id: true, active: true },

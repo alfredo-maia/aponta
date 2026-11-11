@@ -127,6 +127,7 @@ export function CreateTicketPage() {
     },
   });
 
+  // Com Cliente escolhido a tela fica no catálogo mesmo vazia (estado vazio + botão em branco).
   const showCatalog = catalog.length > 0 || !!organizationId;
   useEscapeLayer(() => setSelectedCatalogItem(null), showCatalog && !!selectedCatalogItem, 'page');
 

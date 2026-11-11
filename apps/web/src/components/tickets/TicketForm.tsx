@@ -130,7 +130,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
   const availableDesks = serviceDesks.filter((desk) => {
     if (desk.active === false || desk.acceptingNewTickets === false) return false;
     if (isClientBase && desk.internalUse === true) return false;
-    // Atendente com Cliente escolhido só vê mesas que o atendem (mesa sem Cliente vinculado é global).
+    // Mesmo critério de deskServesOrganization na API: mesa sem Cliente vinculado é global.
     if (!isClientBase && watchOrgId && desk.organizations?.length && !desk.organizations.some((org) => org.id === watchOrgId)) return false;
     return true;
   });
