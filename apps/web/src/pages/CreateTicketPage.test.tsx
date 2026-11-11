@@ -151,6 +151,15 @@ describe('CreateTicketPage', () => {
     expect(card.parentElement).toHaveClass('grid-cols-1', 'sm:grid-cols-2', 'md:grid-cols-3', 'xl:grid-cols-4');
   });
 
+  it('DMTE-489 AC-04: ações do formulário quebram de linha em vez de vazar do cartão', async () => {
+    renderPage();
+
+    const submit = await screen.findByRole('button', { name: /abrir ticket/i });
+    const actions = submit.closest('form')?.lastElementChild as HTMLElement;
+    expect(actions).toHaveClass('sm:flex-wrap');
+    expect(submit.parentElement).toHaveClass('flex-wrap', 'sm:ml-auto');
+  });
+
   it('DMTE-483 AC-04: formulário e catálogo usam a mesma largura máxima', async () => {
     vi.mocked(api.get).mockImplementation((url) => {
       if (url === '/catalog') {

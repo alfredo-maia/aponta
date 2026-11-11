@@ -27,13 +27,20 @@
       "tests": [
         "DMTE-489 AC-03: cartões do catálogo em 1, 2, 3 e 4 colunas por largura"
       ]
+    },
+    {
+      "id": "AC-04",
+      "description": "em 768px os botões \"Salvar e criar novo\" e \"Abrir Ticket\" ficam dentro do cartão do formulário: a linha de ações quebra para uma segunda linha alinhada à direita em vez de vazar.",
+      "tests": [
+        "DMTE-489 AC-04: ações do formulário quebram de linha em vez de vazar do cartão"
+      ]
     }
   ],
   "spec": "docs/delivery/specs/DMTE-489.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-489/red.json",
-    "green": ".delivery/evidence/DMTE-489/green.json"
+    "red": ".delivery/evidence/DMTE-489/red-r2.json",
+    "green": ".delivery/evidence/DMTE-489/green-r2.json"
   },
   "design_system": {
     "applicable": true,
