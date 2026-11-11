@@ -10,22 +10,34 @@
     {
       "id": "AC-01",
       "description": "`getBilling` recusa com `ForbiddenException` usuário sem `VIEW_TICKET_VALUES`, ADMIN e CLIENT_MASTER inclusive; com a permissão mantém o resultado e o recorte por organização atuais.",
-      "tests": []
+      "tests": [
+        "DMTE-479 AC-01: recusa faturamento sem VIEW_TICKET_VALUES, ADMIN e CLIENT_MASTER inclusive",
+        "DMTE-479 AC-01: com VIEW_TICKET_VALUES o CLIENT_MASTER segue limitado à própria organização"
+      ]
     },
     {
       "id": "AC-02",
       "description": "`getCommercial` recusa com `ForbiddenException` ADMIN sem `VIEW_TICKET_VALUES`; ADMIN com a permissão mantém o resultado atual; role diferente de ADMIN continua recusada.",
-      "tests": []
+      "tests": [
+        "DMTE-479 AC-02: recusa ADMIN sem VIEW_TICKET_VALUES antes de ler contratos",
+        "DMTE-479 AC-02: ADMIN com VIEW_TICKET_VALUES continua recebendo o relatório"
+      ]
     },
     {
       "id": "AC-03",
       "description": "na tela de Relatórios, sem `canViewTicketValues` as abas Faturamento Base e Resultado gerencial não aparecem e a consulta de faturamento não é feita; com a permissão e o role atual elas aparecem como hoje.",
-      "tests": []
+      "tests": [
+        "DMTE-479 AC-03: hides Faturamento and Resultado gerencial for an ADMIN without canViewTicketValues",
+        "DMTE-479 AC-03: shows Resultado gerencial for an ADMIN with canViewTicketValues"
+      ]
     },
     {
       "id": "AC-04",
       "description": "com rascunho `MANUAL` e `manualValue` e usuário ADMIN sem a permissão, o aviso de rascunho não aparece só por causa do valor manual e o envio não leva `manualValue`.",
-      "tests": []
+      "tests": [
+        "DMTE-479 AC-04: um rascunho só com valor manual não dispara o aviso de rascunho para ADMIN sem a permissão",
+        "DMTE-479 AC-04: o envio de ADMIN sem a permissão não leva o valor manual do rascunho"
+      ]
     }
   ],
   "spec": "docs/delivery/specs/DMTE-479.md",

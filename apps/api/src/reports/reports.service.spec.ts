@@ -15,7 +15,7 @@ describe('ReportsService', () => {
         findMany: jest.fn().mockResolvedValue([]),
       },
     };
-    service = new ReportsService(mockPrisma as any);
+    service = new ReportsService(mockPrisma as any, { canViewTicketValues: jest.fn().mockResolvedValue(true) } as any);
   });
 
   describe('getBilling', () => {

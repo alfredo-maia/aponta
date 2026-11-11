@@ -28,8 +28,11 @@ const billing = [
   },
 ];
 
+let canViewTicketValues = true;
+
 function mockApiGet() {
   vi.mocked(api.get).mockImplementation((url: string) => {
+    if (url === '/auth/me') return Promise.resolve({ data: { id: 'u-1', isAdmin: false, permissions: [], canViewTicketValues } });
     if (url === '/reports/workload') return Promise.resolve({ data: workload });
     if (url === '/reports/billing') return Promise.resolve({ data: billing });
     if (url === '/contracts') return Promise.resolve({ data: [{ id: 'c1', name: 'Suporte' }] });
@@ -62,6 +65,7 @@ function loginAs(role: 'ADMIN' | 'AGENT' | 'CLIENT_MASTER') {
 describe('ReportsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    canViewTicketValues = true;
     mockApiGet();
     useAuthStore.setState({ token: null, user: null });
   });
@@ -88,7 +92,7 @@ describe('ReportsPage', () => {
       expect(screen.getByText('Alice')).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole('tab', { name: /faturamento base/i }));
+    await user.click(await screen.findByRole('tab', { name: /faturamento base/i }));
 
     await waitFor(() => {
       expect(screen.getByText('Empresa A')).toBeInTheDocument();
@@ -118,6 +122,30 @@ describe('ReportsPage', () => {
     expect(screen.queryByRole('tab', { name: /faturamento base/i })).not.toBeInTheDocument();
     // AGENT must never trigger the billing request at all
     expect(vi.mocked(api.get).mock.calls.some(([url]) => url === '/reports/billing')).toBe(false);
+  });
+
+  it('DMTE-479 AC-03: hides Faturamento and Resultado gerencial for an ADMIN without canViewTicketValues', async () => {
+    canViewTicketValues = false;
+    loginAs('ADMIN');
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(vi.mocked(api.get).mock.calls.some(([url]) => url === '/auth/me')).toBe(true);
+    });
+
+    expect(screen.queryByRole('tab', { name: /faturamento base/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: /resultado gerencial/i })).not.toBeInTheDocument();
+    expect(vi.mocked(api.get).mock.calls.some(([url]) => url === '/reports/billing')).toBe(false);
+  });
+
+  it('DMTE-479 AC-03: shows Resultado gerencial for an ADMIN with canViewTicketValues', async () => {
+    loginAs('ADMIN');
+    renderPage();
+
+    expect(await screen.findByRole('tab', { name: /resultado gerencial/i })).toBeInTheDocument();
   });
 
   it('shows an empty state when there is no workload data', async () => {
