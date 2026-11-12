@@ -1,16 +1,9 @@
-/tmp/multica-task-3305320482/tmptjnmf73a/apps/web/src/pages/Y.tsx: <select> nativo: use EzSelect
+/tmp/multica-task-2381244248/tmp5jrkl11m/apps/web/src/pages/Y.tsx: <select> nativo: use EzSelect
 FALHA: <select> nativo fora do EzSelect (AC-15, DMTE-490).
 OK: nenhum <select> nativo fora do EzSelect (AC-15, DMTE-490).
 OK: nenhum <select> nativo fora do EzSelect (AC-15, DMTE-490).
-test_ez_select_and_other_components_are_not_violations (test_check_native_select.NativeSelectCheckTest.test_ez_select_and_other_components_are_not_violations) ... ok
-test_ez_select_component_itself_is_out_of_scope (test_check_native_select.NativeSelectCheckTest.test_ez_select_component_itself_is_out_of_scope) ... ok
-test_main_fails_and_names_the_file_when_a_native_select_exists (test_check_native_select.NativeSelectCheckTest.test_main_fails_and_names_the_file_when_a_native_select_exists) ... ok
-test_main_passes_on_a_clean_tree (test_check_native_select.NativeSelectCheckTest.test_main_passes_on_a_clean_tree) ... ok
-test_multiline_native_select_is_a_violation (test_check_native_select.NativeSelectCheckTest.test_multiline_native_select_is_a_violation) ... ok
-test_native_select_is_a_violation (test_check_native_select.NativeSelectCheckTest.test_native_select_is_a_violation) ... ok
-test_repository_has_no_native_select_outside_ez_select (test_check_native_select.NativeSelectCheckTest.test_repository_has_no_native_select_outside_ez_select) ... ok
-
+.......
 ----------------------------------------------------------------------
-Ran 7 tests in 0.092s
+Ran 7 tests in 0.059s
 
 OK
