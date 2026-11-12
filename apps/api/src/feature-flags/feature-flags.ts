@@ -15,7 +15,15 @@ export interface FeatureFlag {
   removeBy: string;
 }
 
-export const FEATURE_FLAGS: readonly FeatureFlag[] = [];
+export const FEATURE_FLAGS: readonly FeatureFlag[] = [
+  {
+    key: 'fechamento-automatico-cronometro',
+    description: 'Fechamento automático do cronômetro (limite da agenda, pausa de 2 dias, janela fechada) e o e-mail de aviso',
+    owner: 'alfredo',
+    defaultValue: true,
+    removeBy: '2026-12-12',
+  },
+];
 
 export const FEATURE_FLAGS_TOKEN = 'FEATURE_FLAGS';
 export const FEATURE_ENV_TOKEN = 'FEATURE_ENV';

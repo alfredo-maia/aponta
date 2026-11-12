@@ -26,10 +26,11 @@ export class WorklogAutoCloseService {
     private readonly prisma: PrismaService,
     private readonly permissions: PermissionsService,
     private readonly mail: MailService,
-    readonly flags: FeatureFlagsService,
+    private readonly flags: FeatureFlagsService,
   ) {}
 
   async run(now: Date): Promise<number> {
+    if (!this.flags.isEnabled('fechamento-automatico-cronometro')) return 0;
     const open = await this.prisma.preAppointment.findMany({
       where: { ending: null },
       include: { author: { select: { id: true, name: true, email: true } }, ticket: { select: { id: true, protocol: true, title: true } } },
