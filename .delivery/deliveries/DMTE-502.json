@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "delivery": "DMTE-502",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 230,
+  "multica_id": "01a1d194-d6dc-7515-9dc3-3ffc7c7da35b",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 2,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "com `tickets: []`, `TicketList` mostra \"Agrupar por\", \"Exibir colunas\" e a mensagem \"Nenhum chamado encontrado\", e não mostra a tabela.",
+      "tests": []
+    },
+    {
+      "id": "AC-02",
+      "description": "com `tickets: []`, abrir \"Exibir colunas\" lista todas as colunas, e marcar ou desmarcar uma persiste na configuração `tickets-list` e vale quando a lista volta a ter chamados.",
+      "tests": []
+    },
+    {
+      "id": "AC-03",
+      "description": "nos estados de carregamento e de erro a lista continua sem os controles.",
+      "tests": []
+    },
+    {
+      "id": "AC-04",
+      "description": "\"Exibir colunas\" oferece E-mail do solicitante, Telefone do solicitante, Ramal do solicitante e Grupo de recursos, desmarcadas por padrão; marcadas, a tabela mostra o valor do chamado ou \"—\" quando ausente. As sete colunas padrão atuais continuam marcadas.",
+      "tests": []
+    },
+    {
+      "id": "AC-05",
+      "description": "para ADMIN, AGENT_MASTER e AGENT, a listagem devolve `requester.phone` e `requester.extension`.",
+      "tests": []
+    },
+    {
+      "id": "AC-06",
+      "description": "para CLIENT e CLIENT_MASTER, a listagem não devolve `phone` nem `extension` do solicitante, e a tela não oferece as colunas de telefone e ramal.",
+      "tests": []
+    },
+    {
+      "id": "AC-07",
+      "description": "o isolamento por organização e os filtros da listagem ficam como estão (os testes atuais de `findAll` continuam verdes).",
+      "tests": []
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-502.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-502/red.json",
+    "green": ".delivery/evidence/DMTE-502/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": []
+  }
+}
