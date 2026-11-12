@@ -1,5 +1,4 @@
 import { Plus, Trash2 } from 'lucide-react';
-import { cn } from './utils';
 import { EzSelect } from './EzSelect';
 
 export type EzDynamicFilterOperator =

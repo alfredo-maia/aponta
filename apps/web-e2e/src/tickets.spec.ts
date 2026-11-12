@@ -95,7 +95,7 @@ test.describe('ticket creation and detail view', () => {
     // 3. Look for the assignment dropdown (seeded agent is already logged
     // in, so this ticket's requester IS the agent — assignment doesn't
     // require a second CLIENT identity like the old spec simulated).
-    const assignSelect = page.getByLabel(/atribuído a:/i);
+    const assignSelect = page.getByLabel(/atribuído a:/i).and(page.locator('select'));
     await expect(assignSelect).toBeVisible();
 
     // 4. Assign it to the seeded agent itself.
@@ -103,6 +103,6 @@ test.describe('ticket creation and detail view', () => {
 
     // 5. Verify the selection persisted after a full reload
     await page.reload();
-    await expect(page.getByLabel(/atribuído a:/i)).toHaveValue(/^[0-9a-fA-F-]+$/); // It should have the UUID of the Agent
+    await expect(page.getByLabel(/atribuído a:/i).and(page.locator('select'))).toHaveValue(/^[0-9a-fA-F-]+$/); // It should have the UUID of the Agent
   });
 });
