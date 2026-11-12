@@ -1,0 +1,57 @@
+
+> nx run web:test src/pages/CreateTicketPage.test.tsx
+
+web:  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-483-2e65a9ae11ff/workdir/aponta/apps/web
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should render ticket form with new DS components
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-483 AC-02: com a consulta de catálogo falhando, abre o formulário em branco sem esperar retentativas
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-489 AC-01: formulário e catálogo usam o teto max-w-7xl
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-489 AC-02: cliente, mesa, solicitante e prioridade em 1, 2 e 4 colunas por largura
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-483 AC-04: formulário e catálogo usam a mesma largura máxima
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should populate the service desk dropdown from the API
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should not submit when required fields are empty
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should submit the form and navigate to the new ticket detail page
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows the service catalog when the API returns categories, and lets the user pick an item
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > AC-3: Esc no formulário volta para o catálogo
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user open a blank ticket from the catalog via "não está catalogado"
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > submits a blank ticket from the catalog without the synthetic custom item or an empty desk
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user go back from the form to the catalog view
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows a submit error message and does not navigate when the API call fails
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web: stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > patches the parent ticket and uploads attachments after creating the ticket
+web: [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+web:  ✓ |web| src/pages/CreateTicketPage.test.tsx (18 tests) 7633ms
+web:      ✓ should render ticket form with new DS components  420ms
+web:      ✓ DMTE-483 AC-02: com a consulta de catálogo falhando, abre o formulário em branco sem esperar retentativas  573ms
+web:      ✓ DMTE-489 AC-01: formulário e catálogo usam o teto max-w-7xl  419ms
+web:      ✓ should populate the service desk dropdown from the API  868ms
+web:      ✓ should not submit when required fields are empty  1376ms
+web:      ✓ should submit the form and navigate to the new ticket detail page  771ms
+web:      ✓ submits a blank ticket from the catalog without the synthetic custom item or an empty desk  539ms
+web:      ✓ shows a submit error message and does not navigate when the API call fails  576ms
+web:      ✓ forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit  309ms
+web:      ✓ patches the parent ticket and uploads attachments after creating the ticket  432ms
+web:  Test Files  1 passed (1)
+web:       Tests  18 passed (18)
+web:    Start at  17:36:52
+web:    Duration  14.39s (transform 3.14s, setup 122ms, import 6.01s, tests 7.63s, environment 416ms)
+
+
+
+ NX   Successfully ran target test for project web
+
+

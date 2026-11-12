@@ -139,3 +139,10 @@ describe('DMTE-462 T2 RELEASE_WORKLOG_WITHOUT_SCHEDULE', () => {
     }
   });
 });
+
+describe('DMTE-462 T3 MANAGE_SCHEDULED_JOBS', () => {
+  it('AC-15: a chave existe no catálogo e o grupo padrão do ADMIN a traz', () => {
+    expect(PERMISSION_KEYS).toContain('MANAGE_SCHEDULED_JOBS');
+    expect(DEFAULT_PERMISSION_GROUPS[Role.ADMIN].permissions).toContain('MANAGE_SCHEDULED_JOBS');
+  });
+});

@@ -131,7 +131,7 @@ export function CreateTicketPage() {
 
   if (catalogLoading) {
     return (
-      <div className="max-w-4xl pt-4">
+      <div className="max-w-7xl pt-4">
         <EzSpinner label="Carregando catálogo…" />
       </div>
     );
@@ -231,7 +231,7 @@ export function CreateTicketPage() {
   }
 
   return (
-    <div className="space-y-4 pt-4 max-w-4xl">
+    <div className="space-y-4 pt-4 max-w-7xl">
       <div className="flex items-center gap-3">
         {showCatalog && (
           <EzButton

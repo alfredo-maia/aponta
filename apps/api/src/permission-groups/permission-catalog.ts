@@ -68,6 +68,7 @@ export const PERMISSION_CATALOG: PermissionDefinition[] = [
   { key: 'OPEN_CHILD_TICKETS', category: PermissionCategory.CLIENT, label: 'Abrir tickets filhos' },
 
   // Permissões de gestão
+  { key: 'MANAGE_SCHEDULED_JOBS', category: PermissionCategory.MANAGEMENT, label: 'Gerenciar tarefas agendadas' },
   { key: 'MANAGE_PERMISSION_GROUPS', category: PermissionCategory.MANAGEMENT, label: 'Gerenciar grupos de permissão' },
   { key: 'MANAGE_USERS', category: PermissionCategory.MANAGEMENT, label: 'Gerenciar usuários' },
   { key: 'MANAGE_SERVICE_CATALOGS', category: PermissionCategory.MANAGEMENT, label: 'Gerenciar catálogos de serviço' },

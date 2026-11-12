@@ -994,3 +994,35 @@ model TechnicalGroupServiceDesk {
   @@index([serviceDeskId])
 }
 
+enum JobRunStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+/// DMTE-462 T3: uma linha por tipo de tarefa agendada, com o cron editável e a próxima execução.
+model ScheduledJob {
+  type      String    @id
+  cron      String
+  enabled   Boolean   @default(true)
+  nextRunAt DateTime
+  lastRunAt DateTime?
+  /// Falhas seguidas; a próxima execução é a tentativa failures + 1.
+  failures  Int       @default(0)
+  runs      JobRun[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model JobRun {
+  id         String       @id @default(uuid())
+  jobType    String
+  job        ScheduledJob @relation(fields: [jobType], references: [type], onDelete: Cascade)
+  status     JobRunStatus @default(RUNNING)
+  attempt    Int          @default(1)
+  startedAt  DateTime
+  finishedAt DateTime?
+  error      String?
+
+  @@index([jobType, startedAt])
+}

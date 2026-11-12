@@ -8,84 +8,51 @@
   "tier": 3,
   "criteria": [
     {
-      "id": "AC-06",
-      "description": "PLAY e lançamento manual sem permissão só são aceitos se o início cair entre 1 dia antes do início e o fim de um compromisso AGENDA do consultor ligado ao ticket; fora disso são recusados com mensagem (até T5).",
+      "id": "AC-14",
+      "description": "o executor roda cada tarefa vencida uma única vez mesmo com duas instâncias, registra estado, tentativas e erro, e executa as atrasadas depois de reiniciar.",
       "tests": [
-        "apps/api/src/worklogs/agenda-window.spec.ts",
-        "apps/api/src/worklogs/worklogs.commercial.spec.ts",
-        "apps/web/src/components/tickets/TicketWorklogs.test.tsx"
+        "apps/api/src/jobs/jobs.service.spec.ts"
       ]
     },
     {
-      "id": "AC-07",
-      "description": "a soma apontada por agenda não passa da duração dela; o excedente é recusado.",
+      "id": "AC-15",
+      "description": "o cron de cada tipo é editável por quem tem a permissão de gerenciar tarefas; expressão inválida é recusada; a mudança vale sem reiniciar; sem a permissão a API devolve 403.",
       "tests": [
-        "apps/api/src/worklogs/worklogs.commercial.spec.ts"
-      ]
-    },
-    {
-      "id": "AC-08",
-      "description": "compromisso de ausência ou férias que cobre o instante bloqueia o PLAY e o lançamento manual.",
-      "tests": [
-        "apps/api/src/worklogs/agenda-window.spec.ts",
-        "apps/api/src/worklogs/worklogs.commercial.spec.ts"
-      ]
-    },
-    {
-      "id": "AC-09",
-      "description": "com mais de uma agenda, vale a que inclui o início; em empate, a que começa primeiro.",
-      "tests": [
-        "apps/api/src/worklogs/agenda-window.spec.ts"
-      ]
-    },
-    {
-      "id": "AC-10",
-      "description": "o PLAY grava a agenda e o limite; alterar ou apagar a agenda depois não altera esse limite.",
-      "tests": [
-        "apps/api/src/worklogs/worklogs.commercial.spec.ts"
-      ]
-    },
-    {
-      "id": "AC-11",
-      "description": "um consultor mantém cronômetros ativos em agendas ou tickets diferentes; o segundo PLAY na mesma agenda é recusado.",
-      "tests": [
-        "apps/api/src/worklogs/worklogs.commercial.spec.ts"
-      ]
-    },
-    {
-      "id": "AC-12",
-      "description": "compromisso marcado \"ignora a regra\" libera o apontamento sem janela; marcar exige a permissão de liberar apontamento sem agenda, e consultor sem ela não consegue marcar.",
-      "tests": [
-        "apps/api/src/worklogs/agenda-window.spec.ts",
-        "apps/api/src/agenda/agenda.service.spec.ts",
-        "apps/api/src/auth/auth.controller.spec.ts",
-        "apps/api/src/permissions/permissions.service.spec.ts",
+        "apps/api/src/jobs/cron.spec.ts",
+        "apps/api/src/jobs/jobs.service.spec.ts",
+        "apps/api/src/jobs/jobs.controller.spec.ts",
         "apps/api/prisma/seed.spec.ts",
-        "apps/web/src/components/schedule/AppointmentModal.test.tsx"
+        "apps/web/src/pages/ScheduledJobsPage.test.tsx"
       ]
     },
     {
-      "id": "AC-13",
-      "description": "quem tem a permissão de edição de hora inicial não fica preso à regra da janela no PLAY e no lançamento manual.",
+      "id": "AC-16",
+      "description": "a tela lista as tarefas e suas execuções, com o cron atual de cada tipo.",
       "tests": [
-        "apps/api/src/worklogs/worklogs.commercial.spec.ts"
+        "apps/api/src/jobs/jobs.service.spec.ts",
+        "apps/api/src/jobs/jobs.controller.spec.ts",
+        "apps/web/src/pages/ScheduledJobsPage.test.tsx",
+        "apps/web/src/pages/SettingsPage.test.tsx"
       ]
     }
   ],
   "spec": "docs/delivery/specs/DMTE-462.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-462-t2/red-r2.json",
-    "green": ".delivery/evidence/DMTE-462-t2/green-r2.json"
+    "red": ".delivery/evidence/DMTE-462-t3/red-r2.json",
+    "green": ".delivery/evidence/DMTE-462-t3/green-r3.json"
   },
   "design_system": {
     "applicable": true,
     "reused": [
+      "EzPageLayout",
+      "EzCardItem",
       "EzButton",
+      "EzTextInput",
       "EzCheck",
-      "EzDateInput",
-      "EzTimeInput"
+      "EzSpinner",
+      "EzEmptyCard"
     ],
-    "reason": "T2: botão Apontamento ativo e campo do compromisso com EzCheck; nenhum componente DS novo ou alterado."
+    "reason": "T3: página de Configurações com componentes do DS existentes; nenhum componente DS novo ou alterado."
   }
 }

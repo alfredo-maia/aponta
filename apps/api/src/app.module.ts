@@ -30,6 +30,7 @@ import { FeatureFlagsModule } from './feature-flags/feature-flags.module';
 import { WorklogsModule } from './worklogs/worklogs.module';
 import { AgendaModule } from './agenda/agenda.module';
 import { PermissionGroupsModule } from './permission-groups/permission-groups.module';
+import { JobsModule } from './jobs/jobs.module';
 import { TechnicalGroupsModule } from './technical-groups/technical-groups.module';
 import { LoggerModule } from 'nestjs-pino';
 
@@ -100,6 +101,7 @@ import { LoggerModule } from 'nestjs-pino';
     WorklogsModule,
     AgendaModule,
     PermissionGroupsModule,
+    JobsModule,
     TechnicalGroupsModule,
   ],
   controllers: [AppController],
