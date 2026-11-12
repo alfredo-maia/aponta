@@ -140,7 +140,7 @@ export function CreateTicketPage() {
   if (showCatalog && !selectedCatalogItem) {
     const categories = catalog.filter((category) => category.items.length > 0);
     return (
-      <div className="space-y-6 max-w-4xl pt-4">
+      <div className="space-y-6 max-w-7xl pt-4">
         <div data-testid="catalog-header" className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-[16rem] flex-1 space-y-1">
             <h1 className="text-[20px] font-semibold text-gray-900">Catálogo de Serviços</h1>
@@ -187,7 +187,7 @@ export function CreateTicketPage() {
                 : 'Nenhum serviço disponível no catálogo.'}
             </p>
           ) : (
-            <div data-testid="catalog-columns" className="columns-1 gap-4 sm:columns-2 lg:columns-3">
+            <div data-testid="catalog-columns" className="columns-1 gap-4 sm:columns-2 md:columns-3 xl:columns-4">
               {categories.map((category) => (
                 <EzCardItem
                   key={category.id}
