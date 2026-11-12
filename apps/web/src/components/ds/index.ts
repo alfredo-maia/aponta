@@ -51,6 +51,7 @@ export * from './EzCalendar';
 export * from './EzChart';
 export * from './EzChip';
 export * from './EzClassicComboBox';
+export * from './EzSelect';
 export * from './EzClassicInput';
 export * from './EzClassicTextArea';
 export * from './EzCollapsibleBox';

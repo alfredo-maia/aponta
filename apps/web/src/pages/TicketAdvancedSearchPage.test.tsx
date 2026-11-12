@@ -58,13 +58,13 @@ describe('TicketAdvancedSearchPage (D4)', () => {
     expect(screen.getByRole('heading', { name: 'Busca avançada' })).toBeInTheDocument();
     expect(screen.getByLabelText(/número/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/título/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/^status$/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/^cliente$/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^status$/i, { selector: 'select' })).toBeInTheDocument();
+    expect(screen.getByLabelText(/^cliente$/i, { selector: 'select' })).toBeInTheDocument();
     expect(screen.getByLabelText(/solicitante/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/atendente/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/mesa de serviço/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/estágio/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/^prioridade$/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/atendente/i, { selector: 'select' })).toBeInTheDocument();
+    expect(screen.getByLabelText(/mesa de serviço/i, { selector: 'select' })).toBeInTheDocument();
+    expect(screen.getByLabelText(/estágio/i, { selector: 'select' })).toBeInTheDocument();
+    expect(screen.getByLabelText(/^prioridade$/i, { selector: 'select' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Buscar' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Limpar' })).toBeInTheDocument();
   });
@@ -73,9 +73,9 @@ describe('TicketAdvancedSearchPage (D4)', () => {
     useAuthStore.setState({ token: 'tok', user: { sub: 'u2', email: 'client@x.com', role: 'CLIENT', organizationId: null } });
     renderPage();
 
-    expect(screen.queryByLabelText(/^cliente$/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^cliente$/i, { selector: 'select' })).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/solicitante/i)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/atendente/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/atendente/i, { selector: 'select' })).not.toBeInTheDocument();
   });
 
   it('RODADA 2: hides Atendente (but keeps Solicitante) for CLIENT_MASTER, since GET /users/agents returns 403 for this role', () => {
@@ -85,9 +85,9 @@ describe('TicketAdvancedSearchPage (D4)', () => {
     });
     renderPage();
 
-    expect(screen.queryByLabelText(/^cliente$/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^cliente$/i, { selector: 'select' })).not.toBeInTheDocument();
     expect(screen.getByLabelText(/solicitante/i)).toBeInTheDocument();
-    expect(screen.queryByLabelText(/atendente/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/atendente/i, { selector: 'select' })).not.toBeInTheDocument();
     expect(api.get).not.toHaveBeenCalledWith('/users/agents');
   });
 
@@ -95,7 +95,7 @@ describe('TicketAdvancedSearchPage (D4)', () => {
     const user = userEvent.setup();
     renderPage();
 
-    await user.selectOptions(screen.getByLabelText(/^status$/i), 'Abertos');
+    await user.selectOptions(screen.getByLabelText(/^status$/i, { selector: 'select' }), 'Abertos');
     await user.click(screen.getByRole('button', { name: 'Buscar' }));
     await waitFor(() => {
       const probe = screen.getByTestId('location-probe');
@@ -108,7 +108,7 @@ describe('TicketAdvancedSearchPage (D4)', () => {
     const user = userEvent.setup();
     renderPage();
 
-    await user.selectOptions(screen.getByLabelText(/^status$/i), 'Fechados');
+    await user.selectOptions(screen.getByLabelText(/^status$/i, { selector: 'select' }), 'Fechados');
     await user.click(screen.getByRole('button', { name: 'Buscar' }));
     await waitFor(() => {
       const probe = screen.getByTestId('location-probe');
@@ -164,13 +164,13 @@ describe('TicketAdvancedSearchPage (D4)', () => {
   it('keeps Estágio disabled until a Mesa is chosen', async () => {
     renderPage();
 
-    expect(screen.getByLabelText(/estágio/i)).toBeDisabled();
+    expect(screen.getByLabelText(/estágio/i, { selector: 'select' })).toBeDisabled();
 
     const user = userEvent.setup();
-    await screen.findByRole('option', { name: 'Suporte N1' });
-    await user.selectOptions(screen.getByLabelText(/mesa de serviço/i), 'sd-1');
+    await screen.findByRole('option', { name: 'Suporte N1', hidden: true });
+    await user.selectOptions(screen.getByLabelText(/mesa de serviço/i, { selector: 'select' }), 'sd-1');
 
-    await waitFor(() => expect(screen.getByLabelText(/estágio/i)).not.toBeDisabled());
+    await waitFor(() => expect(screen.getByLabelText(/estágio/i, { selector: 'select' })).not.toBeDisabled());
   });
 
   it('"Buscar" navigates to "/" with the chosen filters in the query string', async () => {

@@ -297,9 +297,9 @@ describe('TicketWorklogs', () => {
     expect(attendance.parentElement).toHaveClass('rounded-[12px]');
     expect(nextStage.parentElement).toHaveClass('rounded-[12px]');
     expect(valuation.parentElement).toHaveClass('rounded-[12px]');
-    expect(screen.getByLabelText(/Tipo de Valorização/)).toBe(valuation);
-    expect(screen.getByLabelText(/Próximo Estágio/)).toBe(nextStage);
-    expect(screen.getByLabelText(/Deslocamento/)).toBeDisabled();
+    expect(screen.getByLabelText(/Tipo de Valorização/, { selector: 'select' })).toBe(valuation);
+    expect(screen.getByLabelText(/Próximo Estágio/, { selector: 'select' })).toBe(nextStage);
+    expect(screen.getByLabelText(/Deslocamento/, { selector: 'select' })).toBeDisabled();
   });
 
   it('allows filling the form and submitting a new worklog', async () => {
@@ -458,7 +458,7 @@ describe('TicketWorklogs', () => {
     currentWorklogs = mockWorklogs;
     renderComponent('t-1', true);
     await screen.findByTestId('worklog-item-wl-1');
-    await screen.findByRole('option', { name: 'Suporte' });
+    await screen.findByRole('option', { name: 'Suporte', hidden: true });
     expect(screen.queryByTestId('worklog-valuation-type-select')).not.toBeInTheDocument();
     expect(screen.queryByText(/Tipo de Valorização/)).not.toBeInTheDocument();
     expect(within(screen.getByTestId('worklog-item-wl-1')).queryByText(/Contrato ·/)).not.toBeInTheDocument();
@@ -484,7 +484,7 @@ describe('TicketWorklogs', () => {
     viewTicketValues = false;
     localStorage.setItem('aponta_worklog_draft_t-1', JSON.stringify({ valuationType: 'MANUAL', manualValue: '250', description: 'Rascunho anterior' }));
     renderComponent('t-1', true);
-    await screen.findByRole('option', { name: 'Suporte' });
+    await screen.findByRole('option', { name: 'Suporte', hidden: true });
     fireEvent.submit(screen.getByTestId('worklog-form'));
     await waitFor(() => expect(api.post).toHaveBeenCalledWith('/tickets/t-1/worklogs', expect.objectContaining({ valuationType: 'CONTRACT' })));
     expect(vi.mocked(api.post).mock.calls[0][1]).not.toHaveProperty('value');
@@ -498,7 +498,7 @@ describe('TicketWorklogs', () => {
       String(url).includes('/auth/me') ? new Promise<never>(() => undefined) : base(url),
     );
     renderComponent('t-1', true);
-    await screen.findByRole('option', { name: 'Suporte' });
+    await screen.findByRole('option', { name: 'Suporte', hidden: true });
     await waitFor(() => expect(vi.mocked(api.get).mock.calls.some(([u]) => String(u).includes('/auth/me'))).toBe(true));
     fireEvent.submit(screen.getByTestId('worklog-form'));
     await screen.findByText('Informe um valor manual válido.');
@@ -513,7 +513,7 @@ describe('TicketWorklogs', () => {
       String(url).includes('/auth/me') ? Promise.reject(new Error('offline')) : base(url),
     );
     renderComponent('t-1', true);
-    await screen.findByRole('option', { name: 'Suporte' });
+    await screen.findByRole('option', { name: 'Suporte', hidden: true });
     fireEvent.submit(screen.getByTestId('worklog-form'));
     await waitFor(() => expect(api.post).toHaveBeenCalledWith('/tickets/t-1/worklogs', expect.objectContaining({ valuationType: 'CONTRACT', billable: true })));
     expect(vi.mocked(api.post).mock.calls[0][1]).not.toHaveProperty('bonusReason');
@@ -527,7 +527,7 @@ describe('TicketWorklogs', () => {
       String(url).includes('/auth/me') ? Promise.reject(new Error('offline')) : base(url),
     );
     renderComponent('t-1', true);
-    await screen.findByRole('option', { name: 'Suporte' });
+    await screen.findByRole('option', { name: 'Suporte', hidden: true });
     await waitFor(() => expect(vi.mocked(api.get).mock.calls.some(([u]) => String(u).includes('/auth/me'))).toBe(true));
     expect(screen.queryByLabelText(/Motivo da garantia ou bonificação/)).not.toBeInTheDocument();
     expect(screen.queryByTestId('worklog-valuation-type-select')).not.toBeInTheDocument();
@@ -548,8 +548,8 @@ describe('TicketWorklogs', () => {
     currentPermissions = ['LAUNCH_WORKLOG_GUARANTEE'];
     renderComponent('t-1', true);
     expect(await screen.findByTestId('worklog-valuation-type-select')).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'Garantia' })).toBeInTheDocument();
-    expect(screen.queryByRole('option', { name: 'Valor manual' })).not.toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Garantia', hidden: true })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Valor manual', hidden: true })).not.toBeInTheDocument();
   });
 
   it('unchecks billable automatically when GUARANTEE is selected', async () => {
@@ -822,7 +822,7 @@ describe('TicketWorklogs', () => {
     preStore = [{ id: 'source-pre', contractId: 'contract-1', beginning: '2026-10-14T12:00:00Z', ending: '2026-10-14T13:00:00Z', initTime: '09:00', endTime: '10:00', ticketId: 't-1', authorId: 'u-1', createdAt: '2026-10-14T12:00:00Z', author: { id: 'u-1', name: 'Técnico', email: 'agent@example.com' } }];
     renderComponent('t-1', false);
     fireEvent.click(await screen.findByTestId('worklog-pre-convert-btn'));
-    expect(screen.getByLabelText('Contrato aplicável')).toHaveValue('contract-1');
+    expect(screen.getByLabelText('Contrato aplicável', { selector: 'select' })).toHaveValue('contract-1');
     fireEvent.change(screen.getByTestId('worklog-description-input'), { target: { value: 'Conversão de tempo preservado' } });
     fireEvent.submit(screen.getByTestId('worklog-form'));
     await waitFor(() => expect(api.post).toHaveBeenCalledWith('/tickets/t-1/worklogs', expect.objectContaining({ contractId: 'contract-1', preAppointmentId: 'source-pre' })));
@@ -1180,7 +1180,7 @@ describe('TicketWorklogs', () => {
     renderComponent('t-1', true);
     await screen.findByTestId('worklog-item-wl-1');
     expect(screen.queryByText('R$ 100,00')).not.toBeInTheDocument();
-    expect(screen.queryByRole('option', { name: 'Valor manual' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Valor manual', hidden: true })).not.toBeInTheDocument();
     expect(screen.queryByTestId('worklog-footer-value')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Valor')).not.toBeInTheDocument();
   });
@@ -1188,8 +1188,8 @@ describe('TicketWorklogs', () => {
   it('submits an explicit eligible contract and preserves it in the draft', async () => {
     loginAs('AGENT');
     renderComponent('t-1', true);
-    await screen.findByRole('option', { name: 'Suporte' });
-    fireEvent.change(screen.getByLabelText('Contrato aplicável'), { target: { value: 'contract-1' } });
+    await screen.findByRole('option', { name: 'Suporte', hidden: true });
+    fireEvent.change(screen.getByLabelText('Contrato aplicável', { selector: 'select' }), { target: { value: 'contract-1' } });
     fireEvent.change(screen.getByTestId('worklog-description-input'), { target: { value: 'Atividade realizada' } });
     await waitFor(() => expect(JSON.parse(localStorage.getItem('aponta_worklog_draft_t-1') || '{}').contractId).toBe('contract-1'));
     fireEvent.submit(screen.getByTestId('worklog-form'));
@@ -1222,7 +1222,7 @@ describe('TicketWorklogs', () => {
     loginAs('ADMIN');
     renderComponent('t-1', true);
     fireEvent.change(screen.getByTestId('worklog-description-input'), { target: { value: 'Atividade realizada' } });
-    await screen.findByRole('option', { name: 'Valor manual' });
+    await screen.findByRole('option', { name: 'Valor manual', hidden: true });
     fireEvent.change(screen.getByTestId('worklog-valuation-type-select'), { target: { value: 'MANUAL' } });
     fireEvent.change(screen.getByTestId('worklog-manual-value-input'), { target: { value: '-10' } });
     fireEvent.submit(screen.getByTestId('worklog-form'));
@@ -1234,8 +1234,8 @@ describe('TicketWorklogs', () => {
     loginAs('ADMIN');
     currentWorklogs = [{ ...mockWorklogs[0], value: null }];
     renderComponent('t-1', true);
-    await screen.findByRole('option', { name: 'Suporte' });
-    fireEvent.change(screen.getByLabelText('Contrato aplicável'), { target: { value: 'contract-1' } });
+    await screen.findByRole('option', { name: 'Suporte', hidden: true });
+    fireEvent.change(screen.getByLabelText('Contrato aplicável', { selector: 'select' }), { target: { value: 'contract-1' } });
     expect(await screen.findByTestId('worklog-footer-value')).toHaveTextContent('Valor desconhecido');
   });
   it('blocks every valuation mode when no commercial contract is eligible', async () => {
@@ -1254,7 +1254,7 @@ describe('TicketWorklogs', () => {
   it('requires a bonus reason and records its eligible contract without quota consumption', async () => {
     loginAs('ADMIN');
     renderComponent('t-1', true);
-    await screen.findByRole('option', { name: 'Suporte' });
+    await screen.findByRole('option', { name: 'Suporte', hidden: true });
     fireEvent.change(screen.getByTestId('worklog-description-input'), { target: { value: 'Correção interna' } });
     fireEvent.change(screen.getByTestId('worklog-valuation-type-select'), { target: { value: 'BONUS' } });
     fireEvent.submit(screen.getByTestId('worklog-form'));
@@ -1306,7 +1306,7 @@ describe('TicketWorklogs', () => {
       expect(within(item).queryByText('R$ 100,00')).not.toBeInTheDocument();
       expect(screen.queryByTestId('worklog-footer-value')).not.toBeInTheDocument();
       expect(screen.queryByLabelText('Valor')).not.toBeInTheDocument();
-      expect(screen.queryByRole('option', { name: 'Valor manual' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: 'Valor manual', hidden: true })).not.toBeInTheDocument();
     });
 
     it('AC-05: agente com VIEW_TICKET_VALUES vê o valor da linha e o total', async () => {

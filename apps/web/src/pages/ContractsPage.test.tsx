@@ -169,14 +169,14 @@ describe('ContractsPage', () => {
     loginAs('ADMIN');
     renderPage();
     fireEvent.click(await screen.findByRole('button', { name: 'Novo contrato' }));
-    await screen.findByRole('option', { name: 'Empresa A' });
+    await screen.findByRole('option', { name: 'Empresa A', hidden: true });
     fireEvent.change(screen.getByLabelText(/Nome do contrato/), {
       target: { value: 'Suporte' },
     });
-    fireEvent.change(await screen.findByLabelText(/Empresa/), {
+    fireEvent.change(await screen.findByLabelText(/Empresa/, { selector: 'select' }), {
       target: { value: 'org-1' },
     });
-    fireEvent.change(screen.getByLabelText('Modalidade'), {
+    fireEvent.change(screen.getByLabelText('Modalidade', { selector: 'select' }), {
       target: { value: 'MONTHLY_HOURS' },
     });
     fireEvent.change(screen.getByLabelText('Franquia mensal (horas)'), {
@@ -548,7 +548,7 @@ describe('ContractsPage', () => {
     fireEvent.click(
       await screen.findByRole('button', { name: 'Editar contrato' }),
     );
-    await screen.findByRole('option', { name: 'Empresa A' });
+    await screen.findByRole('option', { name: 'Empresa A', hidden: true });
     await waitFor(() =>
       expect(
         screen.getByRole('button', { name: 'Salvar contrato' }),
@@ -578,8 +578,8 @@ describe('ContractsPage', () => {
     loginAs('ADMIN');
     renderPage();
     fireEvent.click(await screen.findByRole('button', { name: 'Novo contrato' }));
-    await screen.findByRole('option', { name: 'Empresa A' });
-    fireEvent.change(screen.getByLabelText(/Empresa/), {
+    await screen.findByRole('option', { name: 'Empresa A', hidden: true });
+    fireEvent.change(screen.getByLabelText(/Empresa/, { selector: 'select' }), {
       target: { value: 'org-1' },
     });
     fireEvent.change(screen.getByLabelText('Início da vigência'), {

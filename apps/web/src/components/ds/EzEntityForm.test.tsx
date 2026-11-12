@@ -50,7 +50,7 @@ describe('EzEntityForm', () => {
     expect(screen.getByRole('spinbutton')).toBeInTheDocument();
     expect(screen.getByLabelText('Nascimento')).toBeInTheDocument();
     expect(screen.getByLabelText('Criado em')).toBeInTheDocument();
-    expect(screen.getByLabelText('Status')).toBeInTheDocument();
+    expect(screen.getByLabelText('Status', { selector: 'select' })).toBeInTheDocument();
     expect(screen.getByText('Ativo', { selector: 'option' })).toBeInTheDocument();
     expect(screen.getByLabelText('Observações')).toBeInTheDocument();
     expect(screen.getByText('Ativo', { selector: 'span' })).toBeInTheDocument();
@@ -107,7 +107,7 @@ describe('EzEntityForm', () => {
       />
     );
 
-    await userEvent.selectOptions(screen.getByLabelText('Status'), 'INATIVO');
+    await userEvent.selectOptions(screen.getByLabelText('Status', { selector: 'select' }), 'INATIVO');
     expect(onChange).toHaveBeenCalledWith('status', 'INATIVO');
   });
 

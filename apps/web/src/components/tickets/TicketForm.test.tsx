@@ -50,7 +50,7 @@ function mockApiGet(overrides: Record<string, unknown> = {}) {
 
 async function fillRequiredFields(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText(/título \(assunto\)/i), 'Algo quebrou');
-  await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
+  await user.selectOptions(screen.getByLabelText(/^mesa/i, { selector: 'select' }), 'sd-1');
   const editable = screen
     .getByTestId('ticket-description')
     .querySelector('[contenteditable="true"]') as HTMLElement;
@@ -71,8 +71,8 @@ describe('TicketForm', () => {
 
     expect(screen.getByLabelText(/título \(assunto\)/i)).toBeInTheDocument();
     expect(screen.getByText(/descrição detalhada/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/^mesa/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/prioridade/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^mesa/i, { selector: 'select' })).toBeInTheDocument();
+    expect(screen.getByLabelText(/prioridade/i, { selector: 'select' })).toBeInTheDocument();
   });
 
   it('shows the submit error banner when submitError is set', () => {
@@ -135,8 +135,8 @@ describe('TicketForm', () => {
     await waitFor(() => expect(api.get).toHaveBeenCalledWith('/service-desks'));
 
     expect(screen.getByLabelText(/título \(assunto\)/i)).toBeDisabled();
-    expect(screen.getByLabelText(/^mesa/i)).toBeDisabled();
-    expect(screen.getByLabelText(/prioridade/i)).toBeDisabled();
+    expect(screen.getByLabelText(/^mesa/i, { selector: 'select' })).toBeDisabled();
+    expect(screen.getByLabelText(/prioridade/i, { selector: 'select' })).toBeDisabled();
     expect(screen.getByLabelText(/título \(assunto\)/i)).toHaveValue('Troca de Teclado');
   });
 
@@ -271,13 +271,13 @@ describe('TicketForm', () => {
     renderForm();
     await waitFor(() => expect(api.get).toHaveBeenCalledWith('/service-desks'));
 
-    const mesa = screen.getByLabelText(/^mesa/i);
+    const mesa = screen.getByLabelText(/^mesa/i, { selector: 'select' });
     await waitFor(() => {
-      expect(within(mesa).getByRole('option', { name: 'Mesa aberta' })).toBeInTheDocument();
+      expect(within(mesa).getByRole('option', { name: 'Mesa aberta', hidden: true })).toBeInTheDocument();
     });
-    expect(within(mesa).queryByRole('option', { name: 'Mesa inativa' })).not.toBeInTheDocument();
-    expect(within(mesa).queryByRole('option', { name: 'Mesa fechada' })).not.toBeInTheDocument();
-    expect(within(mesa).queryByRole('option', { name: 'Mesa interna' })).not.toBeInTheDocument();
+    expect(within(mesa).queryByRole('option', { name: 'Mesa inativa', hidden: true })).not.toBeInTheDocument();
+    expect(within(mesa).queryByRole('option', { name: 'Mesa fechada', hidden: true })).not.toBeInTheDocument();
+    expect(within(mesa).queryByRole('option', { name: 'Mesa interna', hidden: true })).not.toBeInTheDocument();
   });
 
   it('warns and blocks submit when the desk requires catalog or attachments', async () => {

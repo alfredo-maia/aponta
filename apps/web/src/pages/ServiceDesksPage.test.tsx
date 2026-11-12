@@ -240,7 +240,7 @@ describe('ServiceDesksPage', () => {
     const editSlaButton = await screen.findByRole('button', { name: /editar cliente e sla/i });
     await user.click(editSlaButton);
 
-    const orgSelect = await screen.findByLabelText(/cliente vinculado/i);
+    const orgSelect = await screen.findByLabelText(/cliente vinculado/i, { selector: 'select' });
     await user.selectOptions(orgSelect, 'org-1');
 
     const criticalResponseInput = screen.getByLabelText(/1ª resposta \(pad\. 1h\)/i);

@@ -172,8 +172,8 @@ describe('CreateTicketPage', () => {
     const user = userEvent.setup();
     renderPage();
 
-    await screen.findByRole('option', { name: 'Suporte N1' });
-    await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
+    await screen.findByRole('option', { name: 'Suporte N1', hidden: true });
+    await user.selectOptions(screen.getByLabelText(/^mesa/i, { selector: 'select' }), 'sd-1');
 
     expect(await screen.findByText(/exige um item do catálogo/i)).toHaveClass('md:col-span-2', 'xl:col-span-4');
   });
@@ -207,9 +207,9 @@ describe('CreateTicketPage', () => {
       expect(api.get).toHaveBeenCalledWith('/service-desks');
     });
 
-    const select = screen.getByLabelText(/^mesa/i) as HTMLSelectElement;
+    const select = screen.getByLabelText(/^mesa/i, { selector: 'select' }) as HTMLSelectElement;
     await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'Suporte N1' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Suporte N1', hidden: true })).toBeInTheDocument();
     });
     expect(select.querySelectorAll('option')).toHaveLength(2); // placeholder + Suporte N1
   });
@@ -230,11 +230,11 @@ describe('CreateTicketPage', () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'Suporte N1' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Suporte N1', hidden: true })).toBeInTheDocument();
     });
 
     await user.type(screen.getByLabelText(/título \(assunto\)/i), 'Impressora não liga');
-    await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
+    await user.selectOptions(screen.getByLabelText(/^mesa/i, { selector: 'select' }), 'sd-1');
 
     // EzRichText (Tiptap) is not a plain <textarea>/<input> and its
     // contenteditable surface can't be driven by userEvent.type() under
@@ -388,11 +388,11 @@ describe('CreateTicketPage', () => {
     await user.click(screen.getByRole('button', { name: /meu problema não está catalogado/i }));
     await screen.findByText('Abrir Chamado');
     await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'Suporte N1' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Suporte N1', hidden: true })).toBeInTheDocument();
     });
 
     await user.type(screen.getByLabelText(/título \(assunto\)/i), 'Impressora não liga');
-    await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
+    await user.selectOptions(screen.getByLabelText(/^mesa/i, { selector: 'select' }), 'sd-1');
     const editable = screen
       .getByTestId('ticket-description')
       .querySelector('[contenteditable="true"]') as HTMLElement;
@@ -439,11 +439,11 @@ describe('CreateTicketPage', () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'Suporte N1' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Suporte N1', hidden: true })).toBeInTheDocument();
     });
 
     await user.type(screen.getByLabelText(/título \(assunto\)/i), 'Impressora não liga');
-    await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
+    await user.selectOptions(screen.getByLabelText(/^mesa/i, { selector: 'select' }), 'sd-1');
 
     const editable = screen
       .getByTestId('ticket-description')
@@ -528,11 +528,11 @@ describe('CreateTicketPage', () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'Suporte N1' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Suporte N1', hidden: true })).toBeInTheDocument();
     });
 
     await user.type(screen.getByLabelText(/título \(assunto\)/i), 'Ticket com anexo');
-    await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
+    await user.selectOptions(screen.getByLabelText(/^mesa/i, { selector: 'select' }), 'sd-1');
 
     const editable = screen
       .getByTestId('ticket-description')

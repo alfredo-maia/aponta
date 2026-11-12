@@ -202,7 +202,7 @@ describe('KnowledgePage', () => {
 
     await user.click(screen.getByRole('button', { name: /\+ novo artigo/i }));
 
-    expect(screen.getByLabelText(/tipo de acesso/i)).toHaveValue('PUBLIC');
+    expect(screen.getByLabelText(/tipo de acesso/i, { selector: 'select' })).toHaveValue('PUBLIC');
     expect(screen.queryByRole('button', { name: /compartilhar/i })).not.toBeInTheDocument();
   });
 
@@ -214,7 +214,7 @@ describe('KnowledgePage', () => {
     await openSupportFolder(user);
 
     await user.click(screen.getByRole('button', { name: /\+ novo artigo/i }));
-    fireEvent.change(screen.getByLabelText(/tipo de acesso/i), { target: { value: 'PRIVATE' } });
+    fireEvent.change(screen.getByLabelText(/tipo de acesso/i, { selector: 'select' }), { target: { value: 'PRIVATE' } });
 
     await user.click(screen.getByRole('button', { name: /compartilhar/i }));
 
@@ -291,7 +291,7 @@ describe('KnowledgePage', () => {
     editable.innerHTML = '<p>Conteúdo restrito</p>';
     editable.dispatchEvent(new Event('input', { bubbles: true }));
 
-    fireEvent.change(screen.getByLabelText(/tipo de acesso/i), { target: { value: 'PRIVATE' } });
+    fireEvent.change(screen.getByLabelText(/tipo de acesso/i, { selector: 'select' }), { target: { value: 'PRIVATE' } });
     await user.click(screen.getByRole('button', { name: /compartilhar/i }));
 
     await waitFor(() => {
@@ -347,7 +347,7 @@ describe('KnowledgePage', () => {
     // form must be prepopulated
     expect(screen.getByLabelText(/título/i)).toHaveValue('Como abrir um chamado');
     expect(screen.getByLabelText(/tags/i)).toHaveValue('senha, ajuda');
-    expect(screen.getByLabelText(/tipo de acesso/i)).toHaveValue('PUBLIC');
+    expect(screen.getByLabelText(/tipo de acesso/i, { selector: 'select' })).toHaveValue('PUBLIC');
 
     // edit title
     await user.clear(screen.getByLabelText(/título/i));
@@ -439,7 +439,7 @@ describe('KnowledgePage', () => {
 
     await openSupportFolder(user);
 
-    fireEvent.change(screen.getByLabelText('Ordenar por'), { target: { value: 'title_asc' } });
+    fireEvent.change(screen.getByLabelText('Ordenar por', { selector: 'select' }), { target: { value: 'title_asc' } });
 
     await waitFor(() => {
       const calls = vi.mocked(api.get).mock.calls;
