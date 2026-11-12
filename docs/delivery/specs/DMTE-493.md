@@ -16,7 +16,11 @@ Os três contêineres ocupam a área útil ao lado do menu, sem classe `max-w-*`
 Os testes "DMTE-483 AC-04", "DMTE-489 AC-02" e "DMTE-489 AC-03" já cobrem o AC-02 e continuam verdes. O teste "DMTE-483 AC-04" só passa a tolerar contêiner sem `max-w-*` (o auxiliar que lia a classe falharia com `null`); a asserção, mesma largura nos dois, não muda. O teste "DMTE-489 AC-01", que exigia `max-w-7xl`, é substituído pelo AC-01 desta entrega (decisão do usuário supera o teto).
 
 ## Testes
-`apps/web/src/pages/CreateTicketPage.test.tsx`, seam: página renderizada com `api.get` mockado; jsdom não calcula layout, então o critério compara as classes do Tailwind nos três estados da página. Validação visual (fora dos ACs, não substitui o aceite): capturas do Chromium em 1920, 1440, 1024, 768 e 390px sem rolagem horizontal, anexadas no pai Multica (issue #216, AC-03).
+`apps/web/src/pages/CreateTicketPage.test.tsx`, seam: página renderizada com `api.get` mockado; jsdom não calcula layout, então o critério compara as classes do Tailwind nos três estados da página.
+- AC-01 → "DMTE-493 AC-01: carregamento, catálogo e formulário sem teto de largura, como Relatórios" (teste novo, com RED).
+- AC-02 → "DMTE-483 AC-04", "DMTE-489 AC-02" e "DMTE-489 AC-03" (existentes, sem RED novo).
+
+Validação visual, que é o AC-03 da issue #216 e não entra no manifesto por não ser automatizável: capturas do Chromium em 1920, 1440, 1024, 768 e 390px sem rolagem horizontal, anexadas no pai Multica. Não substitui o aceite.
 
 ## Riscos e exclusões
 Fora do escopo: campos, validações, payload, backend, ordem do DOM, redesenho do catálogo, outras telas. Em 1920px, título e descrição esticam até ~1630px, linhas longas no editor; é a decisão do usuário. Reverter é devolver `max-w-7xl`.
