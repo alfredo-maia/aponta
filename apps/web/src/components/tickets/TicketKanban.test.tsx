@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   act,
+  cleanup,
   fireEvent,
   render,
   screen,
@@ -409,6 +410,31 @@ describe('TicketKanban', () => {
 
       expect(screen.getByText(/AP-2026-0001/)).toBeInTheDocument();
       expect(capturedDroppables['OPEN'].isDropDisabled).toBe(false);
+    });
+
+    it('DMTE-496 AC-01: a coluna recolhida tem a altura mínima da expandida e acompanha o quadro, por status e por estágio', async () => {
+      renderKanban({ tickets: [baseTicket], isLoading: false, isError: false });
+
+      const expandedClass = screen.getAllByTestId('kanban-column')[0].className;
+      expect(expandedClass).toContain('min-h-[500px]');
+      fireEvent.click(screen.getByTestId('collapse-column-OPEN'));
+      const collapsedByStatus = screen.getByTestId('expand-column').parentElement;
+      expect(collapsedByStatus).toHaveClass('min-h-[500px]', 'self-stretch');
+
+      cleanup();
+      mockApiGet();
+      renderKanban({
+        tickets: [{ ...baseTicket, stageId: 's-n1' }],
+        isLoading: false,
+        isError: false,
+        initialServiceDeskId: 'desk-1',
+      });
+      await waitFor(() => {
+        expect(screen.getByText('N1')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByTestId('collapse-column-s-n1'));
+      const collapsedByStage = screen.getByTestId('expand-column').parentElement;
+      expect(collapsedByStage).toHaveClass('min-h-[500px]', 'self-stretch');
     });
 
     it('does not show "Abrir novo ticket" for CLIENT role users', () => {

@@ -10,12 +10,17 @@
     {
       "id": "AC-01",
       "description": "a coluna recolhida tem `min-h-[500px]` e `self-stretch`, no agrupamento por estágio e no por status.",
-      "tests": []
+      "tests": [
+        "DMTE-496 AC-01: a coluna recolhida tem a altura mínima da expandida e acompanha o quadro, por status e por estágio"
+      ]
     },
     {
       "id": "AC-02",
       "description": "expandir e recolher, contador, rótulo vertical e arrastar-e-soltar continuam como estão (testes existentes de recolher/expandir seguem verdes).",
-      "tests": []
+      "tests": [
+        "collapsing a status column hides its ticket list and disables it as a drop target; expanding restores it",
+        "collapsing a stage column (mesa selecionada) hides its ticket list and disables it as a drop target"
+      ]
     }
   ],
   "spec": "docs/delivery/specs/DMTE-496.md",
