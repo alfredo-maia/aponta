@@ -124,8 +124,8 @@
   "spec": "docs/delivery/specs/DMTE-485.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-485/red-r5.json",
-    "green": ".delivery/evidence/DMTE-485/green-r10.json"
+    "red": ".delivery/evidence/DMTE-485/red-r6.json",
+    "green": ".delivery/evidence/DMTE-485/green-r12.json"
   },
   "design_system": {
     "applicable": true,
