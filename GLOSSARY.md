@@ -31,3 +31,19 @@ _Avoid_: Apontamento bloqueado
 **Fechamento automático**:
 Encerramento do pré-apontamento pelo sistema quando o tempo trabalhado atinge a duração da agenda.
 _Avoid_: Auto-stop
+
+**Catálogo de serviços**:
+Lista de categorias e itens oferecida na abertura de um chamado; cada item aponta para uma mesa de destino e uma prioridade padrão.
+_Avoid_: Catálogo de atendimento, tipos de solicitação
+
+**Item do catálogo**:
+Serviço pré-definido do catálogo de serviços que, ao ser escolhido, fixa a mesa e a prioridade do chamado.
+_Avoid_: Serviço cadastrado, tipo de chamado
+
+**Chamado não catalogado**:
+Chamado aberto sem item do catálogo, quando o solicitante declara que o problema não está catalogado.
+_Avoid_: Chamado em branco, chamado avulso
+
+**Catálogo de conhecimento**:
+Classificação dos artigos da base de conhecimento por serviço; é outro recurso, sem relação com a mesa de destino de um chamado.
+_Avoid_: Catálogo de serviços

@@ -31,7 +31,7 @@ interface ServiceDesk {
   active?: boolean;
   acceptingNewTickets?: boolean;
   internalUse?: boolean;
-  catalogRequiredOnOpen?: boolean;
+  organizations?: { id: string }[];
   requireAttachments?: boolean;
   priorities?: { ticketPriority: TicketPriority; enabled: boolean; label?: string }[];
 }
@@ -66,9 +66,11 @@ interface TicketFormProps {
   isSubmitting?: boolean;
   submitError?: string | null;
   catalogOverride?: CatalogItem | null;
+  /** Cliente escolhido no catálogo: chega preenchido e travado. */
+  lockedOrganizationId?: string;
 }
 
-export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverride }: TicketFormProps) {
+export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverride, lockedOrganizationId }: TicketFormProps) {
   const currentUser = useAuthStore((state) => state.user);
 
   // Queries (Mocking relations missing in Prisma for UI completion)
@@ -113,7 +115,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
     defaultValues: {
       title: catalogOverride?.title || '',
       description: '',
-      organizationId: isClientBase ? currentUser?.organizationId || '' : '',
+      organizationId: isClientBase ? currentUser?.organizationId || '' : lockedOrganizationId ?? '',
       serviceDeskId: catalogOverride?.defaultServiceDeskId || '',
       requesterId: currentUser?.role === 'CLIENT' ? currentUser?.sub || '' : '',
       priority: catalogOverride?.defaultPriority || 'MEDIUM',
@@ -128,6 +130,8 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
   const availableDesks = serviceDesks.filter((desk) => {
     if (desk.active === false || desk.acceptingNewTickets === false) return false;
     if (isClientBase && desk.internalUse === true) return false;
+    // Mesmo critério de deskServesOrganization na API: mesa sem Cliente vinculado é global.
+    if (!isClientBase && watchOrgId && desk.organizations?.length && !desk.organizations.some((org) => org.id === watchOrgId)) return false;
     return true;
   });
   const selectedDesk = availableDesks.find((desk) => desk.id === watchDeskId);
@@ -149,7 +153,6 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
   return (
     <form
       onSubmit={handleSubmit((data) => {
-        if (selectedDesk?.catalogRequiredOnOpen && !catalogOverride) return;
         if (selectedDesk?.requireAttachments && !(data.attachments?.length)) return;
         onSubmit(data);
       })}
@@ -170,7 +173,7 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
               onChange={field.onChange}
               hasError={!!errors.organizationId}
               message={errors.organizationId?.message}
-              disabled={currentUser?.role === 'CLIENT'}
+              disabled={currentUser?.role === 'CLIENT' || !!lockedOrganizationId}
             />
           )}
         />
@@ -194,12 +197,6 @@ export function TicketForm({ onSubmit, isSubmitting, submitError, catalogOverrid
             </EzComboBox>
           )}
         />
-        {selectedDesk?.catalogRequiredOnOpen && !catalogOverride && (
-          <p className="text-sm text-yellow-700 md:col-span-2 xl:col-span-4">
-            Esta mesa exige um item do catálogo. Selecione o catálogo antes de abrir o ticket.
-          </p>
-        )}
-
         <Controller
           name="requesterId"
           control={control}

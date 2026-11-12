@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-11T20:29:08.527835+00:00",
+  "finished_at": "2026-11-11T20:35:37.876057+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run-many",
+    "-t",
+    "test",
+    "-p",
+    "api,web",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "00dbc0e9c4299d16e9efe9befb2a120a656aee45",
+  "head_sha": "d275a8b877abd921a2a34748b3faa15ed79be254",
+  "exit_code": 1,
+  "tests": {
+    "apps/api/src/catalog/catalog.service.spec.ts": "7b92f6153c3cbce38c364dce1e43202e27d74f6110e75eeb811cae11e935abe1",
+    "apps/api/src/catalog/catalog.controller.spec.ts": "73069e6f48a76617043889ee8813efe88a6942d6a67e4f6d24a2244a20d8e71f",
+    "apps/api/src/service-desks/desk-policy.spec.ts": "1e12a91c3ec962f196edf82bd6ee77e8452b3445f097abb11e0700af09ba6edf",
+    "apps/api/src/tickets/tickets.service.catalog-client.spec.ts": "5ede6a30dd7120c5e0e0ac0b0b2c98244a9d9a37893a4b3386102ef17ac8ec28",
+    "apps/web/src/pages/CreateTicketPage.test.tsx": "dfce1039cecc97db3cebbd0ddcecc23d356e20957dd1a1ba97f9894267b5d3b7",
+    "apps/web/src/components/tickets/TicketForm.test.tsx": "f91168f76d07dd9232490ffbff6331cc6a356ad5d4c834e19f5554c98a63bfc9",
+    "apps/web/src/pages/ServiceDesksPage.test.tsx": "018c8af9962642afe2525ecc1ec61cf0a0dfaf7e61893e390577723c071c0c65"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07",
+    "AC-08",
+    "AC-09",
+    "AC-10",
+    "AC-11",
+    "AC-12",
+    "AC-13",
+    "AC-14",
+    "AC-15"
+  ],
+  "source_hashes": {
+    "GLOSSARY.md": "3adce505337a55ecb685feb205f8dfa76d6241e3bea675154f60f5e558249be2",
+    "apps/api/src/catalog/catalog.controller.spec.ts": "73069e6f48a76617043889ee8813efe88a6942d6a67e4f6d24a2244a20d8e71f",
+    "apps/api/src/catalog/catalog.controller.ts": "9a59568ab690ecf6bdf6a5fe5abd72dbd4ff65515bed99dc78f569b95625888e",
+    "apps/api/src/catalog/catalog.service.spec.ts": "7b92f6153c3cbce38c364dce1e43202e27d74f6110e75eeb811cae11e935abe1",
+    "apps/api/src/catalog/catalog.service.ts": "89d7867b4178b7de16913d9ea0c0892665d0db708737fda5258237e8d1042ad5",
+    "apps/api/src/service-desks/desk-policy.spec.ts": "1e12a91c3ec962f196edf82bd6ee77e8452b3445f097abb11e0700af09ba6edf",
+    "apps/api/src/service-desks/desk-policy.ts": "89c792fc9a2216c91b8a5a1d3284bb07aabb0fbe373e1d64501fe293bdb1ee1b",
+    "apps/api/src/tickets/dto/create-ticket.dto.ts": "94654205fea8f920002868f31195c408683316e81a369778f239864b811e091f",
+    "apps/api/src/tickets/tickets.service.catalog-client.spec.ts": "5ede6a30dd7120c5e0e0ac0b0b2c98244a9d9a37893a4b3386102ef17ac8ec28",
+    "apps/web/src/components/tickets/TicketForm.test.tsx": "f91168f76d07dd9232490ffbff6331cc6a356ad5d4c834e19f5554c98a63bfc9",
+    "apps/web/src/pages/CreateTicketPage.test.tsx": "dfce1039cecc97db3cebbd0ddcecc23d356e20957dd1a1ba97f9894267b5d3b7",
+    "apps/web/src/pages/ServiceDesksPage.test.tsx": "018c8af9962642afe2525ecc1ec61cf0a0dfaf7e61893e390577723c071c0c65"
+  },
+  "log": ".delivery/evidence/DMTE-485/red.log",
+  "log_sha256": "802fbdd5ef19dfb8598ed95068485097c43573b618f94e88f532fc8dd65921d8"
+}

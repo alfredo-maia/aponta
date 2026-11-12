@@ -1,4 +1,5 @@
 import {
+  Prisma,
   Role,
   TicketPriority,
   TicketStatus,
@@ -35,6 +36,7 @@ export function assertDeskAllowsOpen(params: {
   user: CurrentUserPayload;
   requester: Pick<User, 'name' | 'email' | 'phone' | 'extension'>;
   catalogItemId?: string;
+  semCatalogo?: boolean;
   priority?: TicketPriority;
   resourceGroup?: string;
   attachmentCount: number;
@@ -47,16 +49,16 @@ export function assertDeskAllowsOpen(params: {
   if (!desk.acceptingNewTickets) {
     throw new BadRequestException('Esta mesa não está recebendo novos tickets.');
   }
-  if (desk.internalUse && (user.role === Role.CLIENT || user.role === Role.CLIENT_MASTER)) {
+  if (desk.internalUse && isClientRole(user)) {
     throw new ForbiddenException('Esta mesa é de uso interno.');
   }
-  if (
-    desk.openByAgentsOnly &&
-    (user.role === Role.CLIENT || user.role === Role.CLIENT_MASTER)
-  ) {
+  if (desk.openByAgentsOnly && isClientRole(user)) {
     throw new ForbiddenException('Somente atendentes podem abrir tickets nesta mesa.');
   }
-  if (desk.catalogRequiredOnOpen && !params.catalogItemId) {
+  if (params.semCatalogo && params.catalogItemId) {
+    throw new BadRequestException('semCatalogo não pode ser combinado com um item do catálogo.');
+  }
+  if (desk.catalogRequiredOnOpen && !params.catalogItemId && !params.semCatalogo) {
     throw new BadRequestException('O item do catálogo é obrigatório nesta mesa.');
   }
   if (params.priority && desk.priorities) {
@@ -170,4 +172,62 @@ export function assertListedAgentMayMutate(params: {
       'Somente grupos ou agentes vinculados a esta mesa podem manipular o ticket.',
     );
   }
+}
+
+export function isClientRole(user: Pick<CurrentUserPayload, 'role'>): boolean {
+  return user.role === Role.CLIENT || user.role === Role.CLIENT_MASTER;
+}
+
+/** Campos da mesa que isDeskUsableBy lê; o catálogo seleciona exatamente estes. */
+export const DESK_CATALOG_SELECT = {
+  active: true,
+  acceptingNewTickets: true,
+  internalUse: true,
+  openByAgentsOnly: true,
+  listedGroupsOnly: true,
+  unlistedCanCreateTicket: true,
+  allowCrossDeskInteraction: true,
+  agents: { select: { id: true } },
+  agentGroups: { select: { members: { select: { id: true } } } },
+  organizations: { select: { id: true } },
+} satisfies Prisma.ServiceDeskSelect;
+
+export type DeskCatalogContext = Pick<
+  ServiceDesk,
+  | 'active'
+  | 'acceptingNewTickets'
+  | 'internalUse'
+  | 'openByAgentsOnly'
+  | 'listedGroupsOnly'
+  | 'unlistedCanCreateTicket'
+  | 'allowCrossDeskInteraction'
+> &
+  Pick<DeskOpenContext, 'agents' | 'agentGroups'> & { organizations?: { id: string }[] };
+
+/** Mesa sem Cliente vinculado é global; senão precisa listar o Cliente. */
+export function deskServesOrganization(
+  desk: { organizations?: { id: string }[] },
+  organizationId?: string | null,
+): boolean {
+  const organizations = desk.organizations ?? [];
+  return organizations.length === 0 || organizations.some((org) => org.id === organizationId);
+}
+
+/**
+ * A mesa aparece para o usuário no catálogo de abertura: espelha as regras de
+ * visibilidade de mesas (TenantHelper.getServiceDeskWhere) e de abertura
+ * (assertDeskAllowsOpen), sem o que depende do chamado em si.
+ */
+export function isDeskUsableBy(desk: DeskCatalogContext, user: CurrentUserPayload): boolean {
+  if (!desk.active || !desk.acceptingNewTickets) return false;
+  if (user.role === Role.ADMIN) return true;
+  if (isClientRole(user)) {
+    return !desk.internalUse && !desk.openByAgentsOnly && deskServesOrganization(desk, user.organizationId);
+  }
+  if (user.role === Role.AGENT || user.role === Role.AGENT_MASTER) {
+    const listed = isUserListedOnDesk(desk, user.id);
+    if (!listed && !desk.allowCrossDeskInteraction) return false;
+    return !(desk.listedGroupsOnly && !listed && !desk.unlistedCanCreateTicket);
+  }
+  return false;
 }
