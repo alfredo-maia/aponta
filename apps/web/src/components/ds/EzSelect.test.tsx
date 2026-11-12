@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EzSelect } from './EzSelect';
 
 const options = (
@@ -153,6 +153,25 @@ describe('EzSelect (DMTE-490 T2)', () => {
     expect(onChange).not.toHaveBeenCalled();
     expect(control).toHaveFocus();
     expect(parentKey.mock.calls.some(([e]) => e.key === 'Escape')).toBe(false);
+  });
+
+  describe('rolagem da lista longa', () => {
+    afterEach(() => {
+      delete (Element.prototype as Partial<Element>).scrollIntoView;
+    });
+
+    it('AC-09: keeps the active option in view while navigating with the keyboard', async () => {
+      const scrollIntoView = vi.fn();
+      Element.prototype.scrollIntoView = scrollIntoView;
+      const { user, control } = setup();
+      control.focus();
+
+      await user.keyboard('{ArrowDown}{ArrowDown}');
+
+      const items = within(screen.getByRole('listbox')).getAllByRole('option');
+      expect(scrollIntoView).toHaveBeenLastCalledWith({ block: 'nearest' });
+      expect(scrollIntoView.mock.contexts.at(-1)).toBe(items[1]);
+    });
   });
 
   it('AC-09: a click outside closes the list', async () => {

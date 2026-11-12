@@ -87,7 +87,8 @@
         "EzSelect (DMTE-490 T2) > AC-09: ArrowDown opens, arrows move the active option skipping disabled ones, Enter chooses",
         "EzSelect (DMTE-490 T2) > AC-09: Home and End jump to the first and last enabled option",
         "EzSelect (DMTE-490 T2) > AC-09: Escape closes without choosing, returns focus to the control and does not reach a parent Escape handler",
-        "EzSelect (DMTE-490 T2) > AC-09: a click outside closes the list"
+        "EzSelect (DMTE-490 T2) > AC-09: a click outside closes the list",
+        "EzSelect (DMTE-490 T2) > rolagem da lista longa > AC-09: keeps the active option in view while navigating with the keyboard"
       ]
     },
     {
@@ -166,8 +167,8 @@
   "spec": "docs/delivery/specs/DMTE-490.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-490/red.json",
-    "green": ".delivery/evidence/DMTE-490/green.json"
+    "red": ".delivery/evidence/DMTE-490/red-r2.json",
+    "green": ".delivery/evidence/DMTE-490/green-r2.json"
   },
   "design_system": {
     "applicable": true,
