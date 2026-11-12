@@ -7,10 +7,11 @@ import { CommentsModule } from '../comments/comments.module';
 import { TicketsModule } from '../tickets/tickets.module';
 import { PermissionsModule } from '../permissions/permissions.module';
 import { MailModule } from '../mail/mail.module';
+import { FeatureFlagsModule } from '../feature-flags/feature-flags.module';
 import { WorklogAutoCloseService } from './worklog-autoclose.service';
 
 @Module({
-  imports: [PrismaModule, AuthModule, CommentsModule, TicketsModule, PermissionsModule, MailModule],
+  imports: [PrismaModule, AuthModule, CommentsModule, TicketsModule, PermissionsModule, MailModule, FeatureFlagsModule],
   controllers: [WorklogsController],
   providers: [WorklogsService, WorklogAutoCloseService],
   exports: [WorklogsService, WorklogAutoCloseService],
