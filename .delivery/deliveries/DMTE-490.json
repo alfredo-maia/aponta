@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "delivery": "DMTE-490",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 218,
+  "multica_id": "01a1cc59-99f3-72bc-bced-b00e3589a7ce",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 3,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "`changeStatus` aceita Em Andamento → Aguardando Sankhya e Aguardando Sankhya → Em Andamento/Resolvido, e rejeita as demais transições de e para o novo status (por exemplo Aberto → Aguardando Sankhya).",
+      "tests": []
+    },
+    {
+      "id": "AC-02",
+      "description": "entrar em Aguardando Sankhya registra a pausa do SLA e sair dele a retoma; com `allowPauseResumeSla=false` na mesa, as transições de e para o novo status são proibidas.",
+      "tests": []
+    },
+    {
+      "id": "AC-03",
+      "description": "o filtro `paused=true`, o KPI \"Pausados\" e os relatórios incluem tickets em Aguardando Sankhya.",
+      "tests": []
+    },
+    {
+      "id": "AC-04",
+      "description": "a migração adiciona `PENDING_SANKHYA` ao enum de status sem alterar os valores existentes, e o schema Prisma o declara.",
+      "tests": []
+    },
+    {
+      "id": "AC-05",
+      "description": "o detalhe, a lista, o Kanban e o dashboard exibem \"Aguardando Sankhya\" com o mesmo rótulo e variante, e o Kanban tem a coluna logo depois de \"Aguardando Terceiros\".",
+      "tests": []
+    },
+    {
+      "id": "AC-06",
+      "description": "o formulário do ticket oferece todos os status com os mesmos rótulos do detalhe, incluindo Aguardando Aprovação e Aguardando Sankhya.",
+      "tests": []
+    },
+    {
+      "id": "AC-07",
+      "description": "o perfil CLIENT vê o status como texto, sem seletor, inclusive com o novo status.",
+      "tests": []
+    },
+    {
+      "id": "AC-08",
+      "description": "`EzSelect` abre uma lista própria, escolher uma opção por clique chama `onChange` com o valor e o valor controlado reflete na exibição fechada.",
+      "tests": []
+    },
+    {
+      "id": "AC-09",
+      "description": "`EzSelect` responde a teclado: setas movem a opção ativa, Home e End vão ao primeiro e ao último, Enter escolhe e Esc fecha devolvendo o foco ao controle.",
+      "tests": []
+    },
+    {
+      "id": "AC-10",
+      "description": "`EzSelect` expõe listbox/option com `aria-expanded` e `aria-selected`, tem rótulo associado, mostra estados desabilitado e de erro com mensagem, e tem foco visível, usando só a paleta do DS.",
+      "tests": []
+    },
+    {
+      "id": "AC-11",
+      "description": "`EzComboBox` e `EzClassicComboBox` mantêm API, `ref` e `onChange` e renderizam por `EzSelect`; os testes existentes que usam `selectOptions` continuam passando sem reescrita.",
+      "tests": []
+    },
+    {
+      "id": "AC-12",
+      "description": "o spike registra se o Playwright usa o select escondido (`selectOption`); se não usar, os pontos de E2E migram para um helper do `EzSelect`.",
+      "tests": []
+    },
+    {
+      "id": "AC-13",
+      "description": "o Storybook do `EzSelect` mostra normal, selecionado, desabilitado, erro e lista longa.",
+      "tests": []
+    },
+    {
+      "id": "AC-14",
+      "description": "nenhum `<select>` cru resta em TSX de produto fora do `EzSelect`; os 16 seletores trocados mantêm `id`, `data-testid`, `aria-label` e rótulo.",
+      "tests": []
+    },
+    {
+      "id": "AC-15",
+      "description": "o verificador de CI reprova `<select>` fora do `EzSelect` e passa na `main` após a troca; seu teste cobre os dois casos.",
+      "tests": []
+    },
+    {
+      "id": "AC-16",
+      "description": "as suítes web e E2E ficam verdes após a troca.",
+      "tests": []
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-490.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-490/red.json",
+    "green": ".delivery/evidence/DMTE-490/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": []
+  }
+}
