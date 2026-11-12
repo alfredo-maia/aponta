@@ -180,6 +180,7 @@ describe('PermissionsService', () => {
       expect(JSON.stringify(where)).toContain('RECEIVE_WORKLOG_AUTOCLOSE_ALERT');
       expect(where.OR).toHaveLength(2);
       expect(JSON.stringify(where)).not.toContain('ADMIN');
+      expect(where.active).toBe(true);
     });
   });
 });

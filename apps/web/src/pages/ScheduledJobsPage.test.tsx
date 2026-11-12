@@ -52,6 +52,13 @@ describe('ScheduledJobsPage (DMTE-462 T3)', () => {
     expect(api.get).toHaveBeenCalledWith('/scheduled-jobs');
   });
 
+  it('AC-18: a tarefa do fechamento automático aparece com nome em português', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: [{ ...JOBS[0], type: 'WORKLOG_AUTOCLOSE', runs: [] }] });
+    renderPage();
+    expect(await screen.findByText('Fechamento automático de cronômetros')).toBeInTheDocument();
+    expect(screen.queryByText('WORKLOG_AUTOCLOSE')).not.toBeInTheDocument();
+  });
+
   it('AC-16: falha ao carregar não aparece como lista vazia', async () => {
     vi.mocked(api.get).mockRejectedValue(new Error('403'));
     renderPage();

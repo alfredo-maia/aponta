@@ -293,7 +293,7 @@ describe('mandatory commercial authorization', () => {
       db.preAppointment.findUnique.mockResolvedValue(open());
       db.preAppointment.update.mockResolvedValue({ id: 'timer' });
       await service.pausePreAppointment('ticket', 'timer', agent);
-      expect(db.preAppointment.update).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'timer' }, data: { pausedAt: T('12:20') } }));
+      expect(db.preAppointment.update).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'timer', ending: null }, data: { pausedAt: T('12:20') } }));
     });
 
     it('AC-17: retomar soma o tempo parado e limpa a pausa', async () => {
@@ -301,7 +301,7 @@ describe('mandatory commercial authorization', () => {
       db.preAppointment.findUnique.mockResolvedValue(open({ pausedAt: T('12:20'), pausedMs: 5 * 60_000 }));
       db.preAppointment.update.mockResolvedValue({ id: 'timer' });
       await service.resumePreAppointment('ticket', 'timer', agent);
-      expect(db.preAppointment.update).toHaveBeenCalledWith(expect.objectContaining({ data: { pausedAt: null, pausedMs: 35 * 60_000 } }));
+      expect(db.preAppointment.update).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'timer', ending: null }, data: { pausedAt: null, pausedMs: 35 * 60_000 } }));
     });
 
     it('AC-17: pausar o que já está pausado, retomar o que corre, ou mexer no de outro autor, é recusado', async () => {
@@ -338,6 +338,31 @@ describe('mandatory commercial authorization', () => {
       db.preAppointment.update.mockResolvedValue({ id: 'timer' });
       await service.stopPreAppointment('ticket', 'timer', {}, agent);
       expect(db.preAppointment.update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ ending: T('12:20'), pausedAt: null }) }));
+    });
+
+    it('AC-20: parar um cronômetro que já foi encerrado (pelo sistema ou por outra aba) é recusado e não muda o fim', async () => {
+      permissions.canEditWorklogStartTime.mockResolvedValue(false);
+      db.preAppointment.findUnique.mockResolvedValue(open({ ending: T('12:30'), lockedReason: 'LIMIT' }));
+      await expect(service.stopPreAppointment('ticket', 'timer', {}, agent)).rejects.toThrow(BadRequestException);
+      expect(db.preAppointment.update).not.toHaveBeenCalled();
+    });
+
+    it('AC-20: parar depois do fim da janela da agenda encerra e trava (WINDOW_CLOSED)', async () => {
+      permissions.canEditWorklogStartTime.mockResolvedValue(false);
+      jest.useFakeTimers({ now: T('18:30') });
+      db.preAppointment.findUnique.mockResolvedValue(open({ windowEndsAt: T('18:00') }));
+      db.preAppointment.update.mockResolvedValue({ id: 'timer' });
+      await service.stopPreAppointment('ticket', 'timer', {}, agent);
+      expect(db.preAppointment.update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ lockedReason: 'WINDOW_CLOSED' }) }));
+    });
+
+    it('AC-20: parar dentro da janela não trava', async () => {
+      permissions.canEditWorklogStartTime.mockResolvedValue(false);
+      jest.useFakeTimers({ now: T('17:30') });
+      db.preAppointment.findUnique.mockResolvedValue(open({ windowEndsAt: T('18:00') }));
+      db.preAppointment.update.mockResolvedValue({ id: 'timer' });
+      await service.stopPreAppointment('ticket', 'timer', {}, agent);
+      expect(db.preAppointment.update.mock.calls[0][0].data).not.toHaveProperty('lockedReason');
     });
 
     it('AC-20: cronômetro encerrado pelo sistema não é removido por quem não tem a permissão de hora inicial', async () => {

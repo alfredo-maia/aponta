@@ -80,6 +80,29 @@ describe('WorklogAutoCloseService (DMTE-462 T4)', () => {
     expect(html).toContain('Ana Consultora');
   });
 
+  it('AC-21: o e-mail escapa o nome e o título digitados por usuários', async () => {
+    const { service, mail } = setup([open({ author: { id: 'u-1', name: '<b>Ana</b>', email: 'ana@aponta.test' }, ticket: { id: 'ticket-1', protocol: 'T-1001', title: '<script>alert(1)</script>' } })]);
+    await service.run(T('12:30'));
+    const { html, text } = mail.sendEmail.mock.calls[0][0];
+    expect(html).not.toContain('<script>');
+    expect(html).not.toContain('<b>Ana</b>');
+    expect(html).toContain('&lt;script&gt;');
+    expect(text).toContain('<b>Ana</b>');
+  });
+
+  it('AC-21: o mesmo e-mail com caixa diferente recebe um aviso só', async () => {
+    const { service, mail } = setup([open({ author: { id: 'u-1', name: 'Ana', email: 'Ana@Aponta.Test' } })], [{ id: 'g-1', name: 'Ana (gerente)', email: 'ana@aponta.test' }]);
+    await service.run(T('12:30'));
+    expect(mail.sendEmail).toHaveBeenCalledTimes(1);
+  });
+
+  it('AC-21: falha ao descobrir os destinatários não derruba o fechamento dos demais cronômetros', async () => {
+    const { service, permissions, prisma } = setup([open(), open({ id: 'pre-2' })]);
+    permissions.usersWithPermission.mockRejectedValueOnce(new Error('banco caiu'));
+    await expect(service.run(T('12:30'))).resolves.toBe(2);
+    expect(prisma.preAppointment.updateMany).toHaveBeenCalledTimes(2);
+  });
+
   it('AC-21: se outra instância já fechou (nenhuma linha alterada), não envia e-mail e não conta', async () => {
     const { service, prisma, mail } = setup([open()]);
     prisma.preAppointment.updateMany.mockResolvedValue({ count: 0 });
