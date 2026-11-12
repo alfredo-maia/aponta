@@ -183,6 +183,7 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
     };
 
     const accessibleName = label ?? props['aria-label'];
+    const labelSize = dense ? 'text-[13px]' : 'text-[14px]';
 
     return (
       <div className={cn('flex flex-col w-full', dense ? 'gap-1' : 'gap-1.5', className)}>
@@ -197,8 +198,10 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
               }}
               className={cn(
                 'font-medium select-none',
-                // leading-none depois do tamanho: twMerge descarta leading-* que vem antes de text-[..px].
-                dense ? 'text-[13px] leading-none' : 'text-[14px] leading-none',
+                // leading-none depois do tamanho: twMerge descarta leading-* que vem antes de text-[..px]
+                // (o leading-none da linha acima não alcança o rótulo quando isso acontece).
+                labelSize,
+                'leading-none',
                 disabled ? 'text-gray-400' : 'text-gray-900',
                 showError && 'text-red-700',
               )}
@@ -206,7 +209,7 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
               {label}
             </label>
             {required && (
-              <span aria-hidden="true" className={cn('ml-1 text-red-600', dense ? 'text-[13px]' : 'text-[14px]')}>
+              <span aria-hidden="true" className={cn('ml-1 text-red-600', labelSize)}>
                 *
               </span>
             )}

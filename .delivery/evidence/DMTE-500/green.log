@@ -2,12 +2,15 @@
 > nx run web:test src/components/ds/EzSelect.test.tsx
 
 web:  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-500-4ba825783937/workdir/aponta/apps/web
-web:  ✓ |web| src/components/ds/EzSelect.test.tsx (21 tests) 2114ms
-web:      ✓ AC-08: shows the selected option label on the closed control, with the list closed  388ms
+web:  ✓ |web| src/components/ds/EzSelect.test.tsx (21 tests) 3695ms
+web:      ✓ AC-08: shows the selected option label on the closed control, with the list closed  422ms
+web:      ✓ AC-08/AC-10: opens its own listbox with every option, marking the selected one  423ms
+web:      ✓ AC-08: choosing an option by click calls onChange with the new value, closes the list and returns focus  340ms
+web:      ✓ AC-08: is controlled, showing `value` until the parent changes it  415ms
 web:  Test Files  1 passed (1)
 web:       Tests  21 passed (21)
-web:    Start at  18:09:15
-web:    Duration  5.84s (transform 701ms, setup 318ms, import 1.38s, tests 2.11s, environment 1.31s)
+web:    Start at  18:25:41
+web:    Duration  9.90s (transform 1.43s, setup 356ms, import 2.43s, tests 3.69s, environment 2.41s)
 
 
 
