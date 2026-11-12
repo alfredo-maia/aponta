@@ -10,7 +10,7 @@ export interface WindowAppointment {
 }
 
 export type WindowDecision =
-  | { ok: true; appointmentId: string; limitMinutes: number | null }
+  | { ok: true; appointmentId: string; limitMinutes: number | null; windowEndsAt?: Date }
   | { ok: false; reason: 'NO_AGENDA' | 'ABSENCE' };
 
 export const WINDOW_LEAD_MS = 86_400_000;

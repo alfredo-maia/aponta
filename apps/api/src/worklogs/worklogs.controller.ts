@@ -115,6 +115,26 @@ export class WorklogsController {
     return this.worklogsService.stopPreAppointment(ticketId, preAppointmentId, dto, req.user);
   }
 
+  @Post(':ticketId/pre-appointments/:preAppointmentId/pause')
+  @ApiOperation({ summary: 'Pausar o pré-apontamento em aberto (a pausa fica gravada no servidor)' })
+  pausePreAppointment(
+    @Param('ticketId') ticketId: string,
+    @Param('preAppointmentId') preAppointmentId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.worklogsService.pausePreAppointment(ticketId, preAppointmentId, req.user);
+  }
+
+  @Post(':ticketId/pre-appointments/:preAppointmentId/resume')
+  @ApiOperation({ summary: 'Retomar o pré-apontamento pausado' })
+  resumePreAppointment(
+    @Param('ticketId') ticketId: string,
+    @Param('preAppointmentId') preAppointmentId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.worklogsService.resumePreAppointment(ticketId, preAppointmentId, req.user);
+  }
+
   @Delete(':ticketId/pre-appointments/:preAppointmentId')
   @ApiOperation({ summary: 'Remover pré-apontamento' })
   deletePreAppointment(

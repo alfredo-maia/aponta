@@ -146,3 +146,12 @@ describe('DMTE-462 T3 MANAGE_SCHEDULED_JOBS', () => {
     expect(DEFAULT_PERMISSION_GROUPS[Role.ADMIN].permissions).toContain('MANAGE_SCHEDULED_JOBS');
   });
 });
+
+describe('DMTE-462 T4 RECEIVE_WORKLOG_AUTOCLOSE_ALERT', () => {
+  it('AC-21: a chave existe no catálogo e nenhum grupo padrão por role a traz', () => {
+    expect(PERMISSION_KEYS).toContain('RECEIVE_WORKLOG_AUTOCLOSE_ALERT');
+    for (const role of Object.values(Role)) {
+      expect(DEFAULT_PERMISSION_GROUPS[role].permissions).not.toContain('RECEIVE_WORKLOG_AUTOCLOSE_ALERT');
+    }
+  });
+});

@@ -62,6 +62,11 @@ export class PermissionsService {
     return this.hasPermission(userId, 'VIEW_TICKET_VALUES');
   }
 
+  /** DMTE-462 T4: stub neutro (sem o comportamento), substituído na implementação. */
+  async usersWithPermission(_key: string): Promise<{ id: string; name: string; email: string }[]> {
+    return [];
+  }
+
   /** DMTE-462 T2: só quem tem a chave marca compromisso que ignora a regra de apontamento. */
   async canReleaseWorklogWithoutSchedule(userId: string): Promise<boolean> {
     return this.hasPermission(userId, 'RELEASE_WORKLOG_WITHOUT_SCHEDULE');

@@ -171,4 +171,15 @@ describe('PermissionsService', () => {
       await expect(service.canReleaseWorklogWithoutSchedule('user-1')).resolves.toBe(false);
     });
   });
+
+  describe('usersWithPermission (DMTE-462 T4)', () => {
+    it('AC-21: devolve quem tem a chave num grupo direto ou pelo grupo técnico, sem desvio por role', async () => {
+      mockPrisma.user.findMany = jest.fn().mockResolvedValue([{ id: 'g-1', name: 'Gerente', email: 'gerente@aponta.test' }]);
+      await expect(service.usersWithPermission('RECEIVE_WORKLOG_AUTOCLOSE_ALERT')).resolves.toEqual([{ id: 'g-1', name: 'Gerente', email: 'gerente@aponta.test' }]);
+      const { where } = mockPrisma.user.findMany.mock.calls[0][0];
+      expect(JSON.stringify(where)).toContain('RECEIVE_WORKLOG_AUTOCLOSE_ALERT');
+      expect(where.OR).toHaveLength(2);
+      expect(JSON.stringify(where)).not.toContain('ADMIN');
+    });
+  });
 });

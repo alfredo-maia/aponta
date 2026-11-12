@@ -590,6 +590,15 @@ export class WorklogsService {
     });
   }
 
+  /** DMTE-462 T4: stubs neutros (sem o comportamento), substituídos na implementação. */
+  async pausePreAppointment(_ticketId: string, _preAppointmentId: string, _currentUser: CurrentUserPayload): Promise<unknown> {
+    return undefined;
+  }
+
+  async resumePreAppointment(_ticketId: string, _preAppointmentId: string, _currentUser: CurrentUserPayload): Promise<unknown> {
+    return undefined;
+  }
+
   async deletePreAppointment(
     ticketId: string,
     preAppointmentId: string,

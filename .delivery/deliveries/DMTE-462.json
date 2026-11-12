@@ -8,51 +8,64 @@
   "tier": 3,
   "criteria": [
     {
-      "id": "AC-14",
-      "description": "o executor roda cada tarefa vencida uma única vez mesmo com duas instâncias, registra estado, tentativas e erro, e executa as atrasadas depois de reiniciar.",
+      "id": "AC-17",
+      "description": "pausa e retomada são gravadas no servidor e o tempo trabalhado desconta as pausas.",
       "tests": [
-        "apps/api/src/jobs/jobs.service.spec.ts"
+        "apps/api/src/worklogs/pre-appointment-clock.spec.ts",
+        "apps/api/src/worklogs/agenda-window.spec.ts",
+        "apps/api/src/worklogs/worklogs.commercial.spec.ts",
+        "apps/api/src/worklogs/worklogs.controller.spec.ts",
+        "apps/web/src/components/tickets/TicketWorklogs.test.tsx"
       ]
     },
     {
-      "id": "AC-15",
-      "description": "o cron de cada tipo é editável por quem tem a permissão de gerenciar tarefas; expressão inválida é recusada; a mudança vale sem reiniciar; sem a permissão a API devolve 403.",
+      "id": "AC-18",
+      "description": "o cronômetro fecha sozinho quando o tempo trabalhado atinge a duração da agenda congelada, com fim igual ao início somado à duração (08:30 numa agenda de 4 horas fecha às 12:30).",
       "tests": [
-        "apps/api/src/jobs/cron.spec.ts",
-        "apps/api/src/jobs/jobs.service.spec.ts",
-        "apps/api/src/jobs/jobs.controller.spec.ts",
-        "apps/api/prisma/seed.spec.ts",
-        "apps/web/src/pages/ScheduledJobsPage.test.tsx"
+        "apps/api/src/worklogs/pre-appointment-clock.spec.ts",
+        "apps/api/src/worklogs/worklog-autoclose.service.spec.ts",
+        "apps/api/src/jobs/job-handlers.spec.ts"
       ]
     },
     {
-      "id": "AC-16",
-      "description": "a tela lista as tarefas e suas execuções, com o cron atual de cada tipo.",
+      "id": "AC-19",
+      "description": "pausa maior que 2 dias, contada do momento da pausa, é encerrada com o tempo trabalhado até ali.",
       "tests": [
-        "apps/api/src/jobs/jobs.service.spec.ts",
-        "apps/api/src/jobs/jobs.controller.spec.ts",
-        "apps/web/src/pages/ScheduledJobsPage.test.tsx",
-        "apps/web/src/pages/SettingsPage.test.tsx"
+        "apps/api/src/worklogs/pre-appointment-clock.spec.ts",
+        "apps/api/src/worklogs/worklog-autoclose.service.spec.ts"
+      ]
+    },
+    {
+      "id": "AC-20",
+      "description": "apontamento encerrado por limite, por pausa ou após o fim da janela fica travado: consultor sem permissão não o altera (até T5).",
+      "tests": [
+        "apps/api/src/worklogs/pre-appointment-clock.spec.ts",
+        "apps/api/src/worklogs/worklog-autoclose.service.spec.ts",
+        "apps/api/src/worklogs/worklogs.commercial.spec.ts",
+        "apps/web/src/components/tickets/TicketWorklogs.test.tsx"
+      ]
+    },
+    {
+      "id": "AC-21",
+      "description": "o fechamento automático envia e-mail ao consultor e aos membros do grupo com a permissão de receber aviso.",
+      "tests": [
+        "apps/api/src/worklogs/worklog-autoclose.service.spec.ts",
+        "apps/api/src/permissions/permissions.service.spec.ts",
+        "apps/api/prisma/seed.spec.ts"
       ]
     }
   ],
   "spec": "docs/delivery/specs/DMTE-462.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-462-t3/red-r2.json",
-    "green": ".delivery/evidence/DMTE-462-t3/green-r3.json"
+    "red": ".delivery/evidence/DMTE-462-t4/red.json",
+    "green": ".delivery/evidence/DMTE-462-t4/green.json"
   },
   "design_system": {
     "applicable": true,
     "reused": [
-      "EzPageLayout",
-      "EzCardItem",
-      "EzButton",
-      "EzTextInput",
-      "EzCheck",
-      "EzSpinner",
-      "EzEmptyCard"
+      "EzButton"
     ],
-    "reason": "T3: página de Configurações com componentes do DS existentes; nenhum componente DS novo ou alterado."
+    "reason": "T4: cronômetro e linha de pré-apontamento em TicketWorklogs.tsx com os elementos atuais; nenhum componente DS novo ou alterado."
   }
 }
