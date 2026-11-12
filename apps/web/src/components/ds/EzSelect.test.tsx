@@ -205,6 +205,31 @@ describe('EzSelect (DMTE-490 T2)', () => {
     expect(control).toHaveFocus();
   });
 
+  it('AC-10: a required select left empty blocks the submit and focuses the visible control, flagged invalid', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
+    render(
+      <form onSubmit={onSubmit}>
+        <EzSelect id="req" label="Mesa" required defaultValue="">
+          <option value="">Selecione</option>
+          <option value="a">Suporte</option>
+        </EzSelect>
+        <button type="submit">Enviar</button>
+      </form>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Enviar' }));
+
+    const control = screen.getByRole('combobox', { name: /mesa/i });
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(control).toHaveFocus();
+    expect(control).toHaveAttribute('aria-invalid', 'true');
+
+    await user.click(control);
+    await user.click(screen.getByRole('option', { name: 'Suporte' }));
+    expect(control).not.toHaveAttribute('aria-invalid');
+  });
+
   it('AC-10: announces the popup as a listbox and names the control after its label', () => {
     const { control } = setup();
 

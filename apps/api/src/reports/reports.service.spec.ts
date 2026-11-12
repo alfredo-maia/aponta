@@ -200,7 +200,7 @@ describe('ReportsService', () => {
 
       const res = await service.getSummary({ id: 'admin', role: Role.ADMIN });
 
-      expect(res.ticketSummary.paused).toBe(2);
+      expect(res.ticketSummary?.paused).toBe(2);
     });
 
     it('flags an open ticket as SLA-breached once its deadline has passed', async () => {

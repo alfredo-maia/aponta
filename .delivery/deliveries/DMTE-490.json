@@ -99,7 +99,8 @@
         "EzSelect (DMTE-490 T2) > AC-10: announces the popup as a listbox and names the control after its label",
         "EzSelect (DMTE-490 T2) > AC-10: disabled control does not open",
         "EzSelect (DMTE-490 T2) > AC-10: error state flags the control invalid and shows the message",
-        "EzSelect (DMTE-490 T2) > AC-10: clicking the label moves focus to the visible control, not to the hidden native select"
+        "EzSelect (DMTE-490 T2) > AC-10: clicking the label moves focus to the visible control, not to the hidden native select",
+        "EzSelect (DMTE-490 T2) > AC-10: a required select left empty blocks the submit and focuses the visible control, flagged invalid"
       ]
     },
     {
@@ -168,8 +169,8 @@
   "spec": "docs/delivery/specs/DMTE-490.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-490/red-r3.json",
-    "green": ".delivery/evidence/DMTE-490/green-r3.json"
+    "red": ".delivery/evidence/DMTE-490/red-r4.json",
+    "green": ".delivery/evidence/DMTE-490/green-r4.json"
   },
   "design_system": {
     "applicable": true,
