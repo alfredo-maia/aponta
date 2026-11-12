@@ -32,9 +32,7 @@
   "design_system": {
     "applicable": true,
     "reused": [
-      "EzTag",
-      "EzAlert",
-      "EzSelect"
+      "EzTag"
     ],
     "reason": "Só acrescenta classes de layout (min-h-[500px], self-stretch) à tira recolhida em TicketKanban.tsx; nenhum componente DS novo ou alterado."
   }
