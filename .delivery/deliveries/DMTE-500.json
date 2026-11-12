@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "delivery": "DMTE-500",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 229,
+  "multica_id": "01a1d18e-ecba-7cff-a79d-9b09ee8b9500",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "o rótulo do `EzSelect` mantém `leading-none` nas variantes `default`, `classic` e `compact`.",
+      "tests": [
+        "DMTE-500 AC-01: o rótulo mantém leading-none em todas as variantes"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "a linha do rótulo (rótulo e `*`) do `EzSelect` tem `leading-none`, então um seletor obrigatório não fica mais alto que um sem `*`.",
+      "tests": [
+        "DMTE-500 AC-02: a linha do rótulo e do asterisco tem leading-none"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "em Chromium, Cliente, Mesa, Solicitante e Prioridade têm o mesmo topo de controle.",
+      "tests": [
+        "Medição em Chromium (script descartável, registrada no pai Multica DMTE-500); sem teste automatizado: jsdom não calcula layout"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-500.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-500/red.json",
+    "green": ".delivery/evidence/DMTE-500/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzSelect"
+    ],
+    "stories": [
+      "apps/web/src/components/ds/EzSelect.stories.tsx"
+    ]
+  }
+}
