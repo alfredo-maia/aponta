@@ -700,12 +700,12 @@ describe('CreateTicketPage', () => {
       await chooseCliente(user);
       await user.click(await screen.findByRole('button', { name: /meu problema não está catalogado/i }));
 
-      const mesa = await screen.findByLabelText(/^mesa/i);
+      const mesa = await screen.findByLabelText(/^mesa/i, { selector: 'select' });
       await waitFor(() => {
-        expect(within(mesa).getByRole('option', { name: 'Mesa do Acme' })).toBeInTheDocument();
+        expect(within(mesa).getByRole('option', { name: 'Mesa do Acme', hidden: true })).toBeInTheDocument();
       });
-      expect(within(mesa).getByRole('option', { name: 'Mesa global' })).toBeInTheDocument();
-      expect(within(mesa).queryByRole('option', { name: 'Mesa de outro cliente' })).not.toBeInTheDocument();
+      expect(within(mesa).getByRole('option', { name: 'Mesa global', hidden: true })).toBeInTheDocument();
+      expect(within(mesa).queryByRole('option', { name: 'Mesa de outro cliente', hidden: true })).not.toBeInTheDocument();
     });
 
     it('AC-10: o botão "não catalogado" fica no cabeçalho ao lado do título, antes das categorias', async () => {
@@ -731,9 +731,9 @@ describe('CreateTicketPage', () => {
 
       await user.type(await screen.findByLabelText(/título \(assunto\)/i), 'Algo sem catálogo');
       await waitFor(() => {
-        expect(screen.getByRole('option', { name: 'Suporte N1' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Suporte N1', hidden: true })).toBeInTheDocument();
       });
-      await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
+      await user.selectOptions(screen.getByLabelText(/^mesa/i, { selector: 'select' }), 'sd-1');
       await fillDescription();
       expect(screen.queryByText(/exige um item do catálogo/i)).not.toBeInTheDocument();
       await user.click(screen.getByRole('button', { name: /abrir ticket/i }));
