@@ -145,6 +145,21 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Escalonado')).toBeInTheDocument();
   });
 
+  it('DMTE-490 AC-05: labels the PENDING_SANKHYA slice of the open-tickets breakdown as Aguardando Sankhya', async () => {
+    vi.mocked(api.get).mockResolvedValue({
+      data: {
+        openCount: 2,
+        closedCount: 0,
+        slaBreachedCount: 0,
+        avgResolutionMinutes: null,
+        byStatus: { OPEN: 1, PENDING_SANKHYA: 1 },
+      },
+    });
+    renderDashboard();
+
+    expect(await screen.findByText('Aguardando Sankhya')).toBeInTheDocument();
+  });
+
   it('shows an empty message when there are no open tickets', async () => {
     vi.mocked(api.get).mockResolvedValue({
       data: {

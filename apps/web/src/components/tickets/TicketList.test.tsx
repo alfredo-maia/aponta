@@ -97,6 +97,11 @@ describe('TicketList (D5: Lista agrupável)', () => {
     expect(headerLabels.some((h) => h?.includes('Responsável'))).toBe(false);
   });
 
+  it('DMTE-490 AC-05: shows the Aguardando Sankhya label for a ticket in that status', () => {
+    renderList({ tickets: [{ ...ticketA, status: 'PENDING_SANKHYA' }] });
+    expect(screen.getByText('Aguardando Sankhya')).toBeInTheDocument();
+  });
+
   it('renders a row per ticket with its data, ungrouped by default', () => {
     renderList();
     expect(screen.getByText('AP-2026-0001')).toBeInTheDocument();

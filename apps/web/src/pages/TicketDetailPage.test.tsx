@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
 import { TicketDetailPage } from './TicketDetailPage';
@@ -112,6 +112,10 @@ function mockApi() {
     return Promise.reject(new Error(`Unexpected GET ${url}`));
   });
   vi.mocked(api.patch).mockImplementation((url: string, body: unknown) => {
+    if (url === '/tickets/t-1/status') {
+      ticket.status = (body as { status: string }).status;
+      return Promise.resolve({ data: ticket });
+    }
     if (url === '/tickets/t-1/assign') {
       const { agentId } = body as { agentId: string };
       ticket.agentId = agentId;
@@ -406,6 +410,49 @@ describe('TicketDetailPage', () => {
       await waitFor(() => {
         expect(api.patch).toHaveBeenCalledWith('/tickets/t-1/assign', { agentId: 'agent-2' });
       });
+    });
+  });
+
+  describe('Aguardando Sankhya (DMTE-490)', () => {
+    const STATUS_OPTIONS = [
+      'Aberto',
+      'Em Andamento',
+      'Aguardando Cliente',
+      'Aguardando Terceiros',
+      'Aguardando Sankhya',
+      'Aguardando Aprovação',
+      'Escalonado',
+      'Resolvido',
+      'Fechado',
+    ];
+
+    afterEach(() => {
+      ticket.status = 'IN_PROGRESS';
+    });
+
+    it('AC-05: the agent status select lists Aguardando Sankhya right after Aguardando Terceiros and moves the ticket there', async () => {
+      setRole('AGENT');
+      const user = userEvent.setup();
+      renderPage();
+
+      const select = await screen.findByLabelText(/^status$/i);
+      const labels = within(select).getAllByRole('option').map((o) => o.textContent);
+      expect(labels).toEqual(STATUS_OPTIONS);
+
+      await user.selectOptions(select, 'PENDING_SANKHYA');
+
+      await waitFor(() => {
+        expect(api.patch).toHaveBeenCalledWith('/tickets/t-1/status', { status: 'PENDING_SANKHYA' });
+      });
+    });
+
+    it('AC-07: a client sees the status as text, without a status select', async () => {
+      ticket.status = 'PENDING_SANKHYA';
+      setRole('CLIENT');
+      renderPage();
+
+      expect(await screen.findByText('Aguardando Sankhya')).toBeInTheDocument();
+      expect(screen.queryByLabelText(/^status$/i)).not.toBeInTheDocument();
     });
   });
 

@@ -242,6 +242,28 @@ describe('TicketKanban', () => {
       expect(abertoColumn).toHaveTextContent('2');
     });
 
+    it('DMTE-490 AC-05: has an Aguardando Sankhya column right after Aguardando Terceiros and groups its tickets there', () => {
+      renderKanban({
+        tickets: [{ ...baseTicket, id: 't9', protocol: 'AP-2026-0009', status: 'PENDING_SANKHYA' }],
+        isLoading: false,
+        isError: false,
+      });
+
+      const headings = screen
+        .getAllByRole('heading', { level: 3 })
+        .map((h) => h.textContent);
+      const terceiros = headings.indexOf('Aguardando Terceiros');
+      expect(terceiros).toBeGreaterThanOrEqual(0);
+      expect(headings[terceiros + 1]).toBe('Aguardando Sankhya');
+
+      const sankhyaHeading = screen
+        .getAllByText('Aguardando Sankhya')
+        .find((el) => el.tagName === 'H3')!;
+      const column = sankhyaHeading.closest('div')?.parentElement as HTMLElement;
+      expect(column).toHaveTextContent('1');
+      expect(screen.getByText(/AP-2026-0009/)).toBeInTheDocument();
+    });
+
     it('renders an empty column (count 0) when there are no tickets for that status', () => {
       renderKanban({ tickets: [], isLoading: false, isError: false });
 
