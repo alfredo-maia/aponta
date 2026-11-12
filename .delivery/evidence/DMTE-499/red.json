@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-12T21:00:49.817804+00:00",
+  "finished_at": "2026-11-12T21:01:40.846206+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run",
+    "web:test",
+    "--skip-nx-cache",
+    "--output-style=stream",
+    "src/pages/TicketAdvancedSearchPage.test.tsx"
+  ],
+  "base_sha": "42ef297ffe91e979169082ce77c5bef8206a5ef6",
+  "head_sha": "40db1f737e615c7de8e11ff54adeada430c83300",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/pages/TicketAdvancedSearchPage.test.tsx": "f5f35047af883e7937be5513a6211d72501cdca7bcf4a60aef14c47aa92c0c9c"
+  },
+  "criteria": [
+    "AC-01"
+  ],
+  "source_hashes": {
+    "apps/web/src/pages/TicketAdvancedSearchPage.test.tsx": "f5f35047af883e7937be5513a6211d72501cdca7bcf4a60aef14c47aa92c0c9c"
+  },
+  "log": ".delivery/evidence/DMTE-499/red.log",
+  "log_sha256": "c1600ea8f3be616432a2ff61c2737d59b7257ab31362754705c859d19c0ac6e4"
+}

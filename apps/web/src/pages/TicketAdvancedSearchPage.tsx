@@ -106,7 +106,7 @@ export function TicketAdvancedSearchPage() {
   const handleClear = () => setForm(EMPTY_FORM);
 
   return (
-    <div className="max-w-5xl space-y-6">
+    <div className="space-y-6">
       <h1 className="text-[20px] font-semibold text-gray-900">Busca avançada</h1>
 
       <form onSubmit={handleSearch} className="space-y-4">
