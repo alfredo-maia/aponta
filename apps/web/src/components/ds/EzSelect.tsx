@@ -86,6 +86,9 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
 
     const [open, setOpen] = useState(false);
     const [active, setActive] = useState(0);
+    // Validação nativa do formulário (select obrigatório vazio) falhou no select escondido.
+    const [invalid, setInvalid] = useState(false);
+    const showError = hasError || invalid;
 
     useEffect(() => {
       if (!open) return;
@@ -171,7 +174,7 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
                 'font-medium leading-none select-none',
                 dense ? 'text-[13px]' : 'text-[14px]',
                 disabled ? 'text-gray-400' : 'text-gray-900',
-                hasError && 'text-red-700',
+                showError && 'text-red-700',
               )}
             >
               {label}
@@ -190,7 +193,7 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
               'relative flex items-center w-full overflow-hidden transition-colors border bg-white',
               classic ? 'rounded-none h-[34px]' : compact ? 'rounded-[8px] h-11 sm:h-[32px]' : 'rounded-[12px] h-[42px]',
               'focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600',
-              hasError
+              showError
                 ? 'border-red-600 ring-red-600'
                 : classic
                   ? 'border-gray-300 hover:border-gray-400'
@@ -207,7 +210,14 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
               disabled={disabled}
               required={required}
               {...(value !== undefined ? { value } : { defaultValue })}
+              onInvalid={(event) => {
+                // A mensagem nativa apontaria para um controle inalcançável: o foco vai para o visível.
+                event.preventDefault();
+                setInvalid(true);
+                controlRef.current?.focus();
+              }}
               onChange={(event) => {
+                setInvalid(false);
                 setUncontrolled(event.target.value);
                 onChange?.(event);
               }}
@@ -223,7 +233,7 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
               aria-expanded={open}
               aria-controls={open ? listId : undefined}
               aria-activedescendant={open ? `${listId}-${active}` : undefined}
-              aria-invalid={hasError || undefined}
+              aria-invalid={showError || undefined}
               aria-label={accessibleName}
               disabled={disabled}
               onClick={() => (open ? setOpen(false) : openList())}
