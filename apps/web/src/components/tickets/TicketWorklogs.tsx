@@ -131,6 +131,12 @@ const valuationTypeLabels: Record<ValuationType, string> = {
   MANUAL: 'Valor manual',
 };
 
+const LOCK_TEXT = {
+  LIMIT: 'Encerrado automaticamente (limite da agenda)',
+  PAUSE_EXPIRED: 'Encerrado automaticamente (pausa de 2 dias)',
+  WINDOW_CLOSED: 'Encerrado automaticamente (janela da agenda fechada)',
+} as const;
+
 function todayStr(): string {
   return brasiliaDateString();
 }
@@ -1357,6 +1363,11 @@ export function TicketWorklogs({
                           data-testid="worklog-pre-end"
                         >
                           {item.endTime || '--'}
+                          {item.lockedReason && (
+                            <span data-testid="worklog-pre-locked" className="ml-2 font-sans text-[11px] text-yellow-700">
+                              {LOCK_TEXT[item.lockedReason]}
+                            </span>
+                          )}
                         </td>
                         <td className="py-1.5 px-2 text-right">
                           <div className="inline-flex items-center gap-0.5">
@@ -1393,15 +1404,17 @@ export function TicketWorklogs({
                                 <CheckCircle2 className="w-3.5 h-3.5" />
                               </button>
                             )}
-                            <button
-                              type="button"
-                              data-testid="worklog-pre-delete-btn"
-                              onClick={() => void handleCancelTimer(item.id)}
-                              className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-100 rounded cursor-pointer"
-                              title="Remover pré-apontamento"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {!item.lockedReason && (
+                              <button
+                                type="button"
+                                data-testid="worklog-pre-delete-btn"
+                                onClick={() => void handleCancelTimer(item.id)}
+                                className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-100 rounded cursor-pointer"
+                                title="Remover pré-apontamento"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

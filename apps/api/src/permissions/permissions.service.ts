@@ -62,6 +62,15 @@ export class PermissionsService {
     return this.hasPermission(userId, 'VIEW_TICKET_VALUES');
   }
 
+  /** DMTE-462 T4: quem tem a chave num grupo direto ou pelo grupo técnico; sem desvio por role. */
+  async usersWithPermission(key: string): Promise<{ id: string; name: string; email: string }[]> {
+    const group = { permissionGroup: { permissions: { has: key } } };
+    return this.prisma.user.findMany({
+      where: { active: true, OR: [{ permissionGroupLinks: { some: group } }, { technicalGroup: { permissionGroupLinks: { some: group } } }] },
+      select: { id: true, name: true, email: true },
+    });
+  }
+
   /** DMTE-462 T2: só quem tem a chave marca compromisso que ignora a regra de apontamento. */
   async canReleaseWorklogWithoutSchedule(userId: string): Promise<boolean> {
     return this.hasPermission(userId, 'RELEASE_WORKLOG_WITHOUT_SCHEDULE');

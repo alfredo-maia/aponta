@@ -18,21 +18,13 @@ import { TicketsService } from '../tickets/tickets.service';
 import { PermissionsService } from '../permissions/permissions.service';
 import { allocateCommercialSegments, isCompleteCommercialTerm } from './commercial-valuation';
 import { evaluateWorklogWindow, WINDOW_LEAD_MS } from './agenda-window';
+import { brasiliaHhMm, ClockPre, workedMs } from './pre-appointment-clock';
 
-const BRASILIA_TZ = 'America/Sao_Paulo';
 const AUTHOR_SELECT = { select: { id: true, name: true, email: true } } as const;
 
-function brasiliaHhMm(date: Date): string {
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    timeZone: BRASILIA_TZ,
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).formatToParts(date);
-  let hour = parts.find((part) => part.type === 'hour')?.value ?? '00';
-  const minute = parts.find((part) => part.type === 'minute')?.value ?? '00';
-  if (hour === '24') hour = '00';
-  return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+/** Os campos do relógio vêm do banco; o `??` cobre cronômetros anteriores ao T4 lidos antes da migração. */
+function clockOf(pre: { beginning: Date; pausedAt?: Date | null; pausedMs?: number; limitMinutes?: number | null; windowEndsAt?: Date | null }): ClockPre {
+  return { beginning: pre.beginning, pausedAt: pre.pausedAt ?? null, pausedMs: pre.pausedMs ?? 0, limitMinutes: pre.limitMinutes ?? null, windowEndsAt: pre.windowEndsAt ?? null };
 }
 
 @Injectable()
@@ -515,7 +507,7 @@ export class WorklogsService {
       const current = await database.contract.findUniqueOrThrow({ where: { id: contracts[0].id }, include: { terms: true, lifecycleEvents: { orderBy: [{ effectiveFrom: 'asc' }, { createdAt: 'asc' }] }, serviceDesks: { select: { id: true } } } });
       if (!context.commercialOrganizationId || !this.contractCovers(current, context.commercialOrganizationId, context.serviceDeskId, beginning, new Date(beginning.getTime() + 60000))) throw new BadRequestException('Contrato não está mais elegível');
       // DMTE-462 T2: sem a permissão, o PLAY exige agenda livre e congela agenda e limite no cronômetro.
-      let frozen: { appointmentId: string; limitMinutes: number | null } | undefined;
+      let frozen: { appointmentId: string; limitMinutes: number | null; windowEndsAt?: Date } | undefined;
       if (!canEditStart) {
         const window = await this.windowFor(database, currentUser.id, ticketId, beginning);
         await this.lockAppointment(database, window.appointmentId);
@@ -526,7 +518,7 @@ export class WorklogsService {
           throw new BadRequestException('Já há um cronômetro aberto nesta agenda');
         }
         await this.assertWithinLimit(database, window.appointmentId, window.limitMinutes, 1);
-        frozen = { appointmentId: window.appointmentId, limitMinutes: window.limitMinutes };
+        frozen = { appointmentId: window.appointmentId, limitMinutes: window.limitMinutes, windowEndsAt: window.windowEndsAt };
       }
       return database.preAppointment.create({
       data: {
@@ -571,8 +563,14 @@ export class WorklogsService {
       throw new ForbiddenException('Você não tem permissão para encerrar o pré-apontamento de outro usuário');
     }
 
+    if (pre.ending) throw new BadRequestException('Este cronômetro já foi encerrado');
+
     const canEditStart = await this.permissions.canEditWorklogStartTime(currentUser.id);
-    const ending = canEditStart && dto.ending ? new Date(dto.ending) : new Date();
+    // DMTE-462 T4: sem a permissão, o fim é início + tempo trabalhado (sem as pausas); parado em pausa, vale o instante da pausa.
+    const now = new Date();
+    const ending = canEditStart && dto.ending
+      ? new Date(dto.ending)
+      : new Date(pre.beginning.getTime() + workedMs(clockOf(pre), now));
     if (isNaN(ending.getTime())) {
       throw new BadRequestException('Horário de término inválido');
     }
@@ -585,7 +583,52 @@ export class WorklogsService {
 
     return this.prisma.preAppointment.update({
       where: { id: preAppointmentId },
-      data: { ending, endTime },
+      data: {
+        ending,
+        endTime,
+        ...(pre.pausedAt ? { pausedAt: null } : {}),
+        // Parar depois do fim da janela da agenda também trava: só muda com aprovação (T5).
+        ...(!canEditStart && pre.windowEndsAt && now > pre.windowEndsAt ? { lockedReason: 'WINDOW_CLOSED' as const } : {}),
+      },
+      include: { author: AUTHOR_SELECT },
+    });
+  }
+
+  /** Cronômetro do próprio autor (ou ADMIN), ainda aberto; base de pausar e retomar. */
+  private async openPreAppointmentOf(ticketId: string, preAppointmentId: string, currentUser: CurrentUserPayload) {
+    await this.assertTicketForPreAppointments(ticketId, currentUser);
+    const pre = await this.prisma.preAppointment.findUnique({ where: { id: preAppointmentId } });
+    if (!pre || pre.ticketId !== ticketId) {
+      throw new NotFoundException(`Pré-apontamento ${preAppointmentId} não encontrado no chamado`);
+    }
+    if (currentUser.role !== Role.ADMIN && pre.authorId !== currentUser.id) {
+      throw new ForbiddenException('Você não tem permissão para alterar o pré-apontamento de outro usuário');
+    }
+    if (pre.ending) throw new BadRequestException('Este cronômetro já foi encerrado');
+    return pre;
+  }
+
+  /** DMTE-462 T4: a pausa fica gravada no servidor; o tempo parado não conta como trabalhado. */
+  async pausePreAppointment(ticketId: string, preAppointmentId: string, currentUser: CurrentUserPayload) {
+    const pre = await this.openPreAppointmentOf(ticketId, preAppointmentId, currentUser);
+    if (pre.pausedAt) throw new BadRequestException('Este cronômetro já está pausado');
+    return this.prisma.preAppointment.update({
+      where: { id: preAppointmentId, ending: null },
+      data: { pausedAt: new Date() },
+      include: { author: AUTHOR_SELECT },
+    });
+  }
+
+  async resumePreAppointment(ticketId: string, preAppointmentId: string, currentUser: CurrentUserPayload) {
+    const pre = await this.openPreAppointmentOf(ticketId, preAppointmentId, currentUser);
+    if (!pre.pausedAt) throw new BadRequestException('Este cronômetro não está pausado');
+    const now = new Date();
+    if (pre.windowEndsAt && now > pre.windowEndsAt) {
+      throw new ForbiddenException('A janela da agenda já fechou: este cronômetro só muda com aprovação');
+    }
+    return this.prisma.preAppointment.update({
+      where: { id: preAppointmentId, ending: null },
+      data: { pausedAt: null, pausedMs: pre.pausedMs + (now.getTime() - pre.pausedAt.getTime()) },
       include: { author: AUTHOR_SELECT },
     });
   }
@@ -606,6 +649,11 @@ export class WorklogsService {
 
     if (currentUser.role !== Role.ADMIN && pre.authorId !== currentUser.id) {
       throw new ForbiddenException('Você não tem permissão para remover o pré-apontamento de outro usuário');
+    }
+
+    // DMTE-462 T4: o que o sistema encerrou fica travado: só quem edita a hora inicial o remove (os demais, com aprovação no T5).
+    if (pre.lockedReason && !(await this.permissions.canEditWorklogStartTime(currentUser.id))) {
+      throw new ForbiddenException('Este cronômetro foi encerrado pelo sistema e só muda com aprovação');
     }
 
     return this.prisma.preAppointment.delete({

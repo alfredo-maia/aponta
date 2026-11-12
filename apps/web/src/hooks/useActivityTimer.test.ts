@@ -35,7 +35,16 @@ describe('useActivityTimer', () => {
           : [...store],
       }),
     );
-    vi.mocked(api.post).mockImplementation((_url: string, body?: unknown) => {
+    vi.mocked(api.post).mockImplementation((url: string, body?: unknown) => {
+      const control = String(url).match(/\/pre-appointments\/([^/]+)\/(pause|resume)$/);
+      if (control) {
+        store = store.map((row) =>
+          row.id === control[1]
+            ? { ...row, pausedAt: control[2] === 'pause' ? new Date().toISOString() : null }
+            : row,
+        );
+        return Promise.resolve({ data: store.find((row) => row.id === control[1]) });
+      }
       const input = (body || {}) as { beginning?: string; initTime?: string };
       const created: PreAppointment = {
         id: `pre-${store.length + 1}`,
@@ -174,7 +183,7 @@ describe('useActivityTimer', () => {
     await waitFor(() => expect(result.current.items).toHaveLength(2));
   });
 
-  it('pause and resume freeze the clock without dropping the pré', async () => {
+  it('pause and resume are saved on the server and freeze the clock without dropping the pré (DMTE-462 T4)', async () => {
     const { result } = renderHook(() => useActivityTimer('ticket-1'), {
       wrapper,
     });
@@ -187,12 +196,14 @@ describe('useActivityTimer', () => {
     act(() => {
       result.current.handlePauseTimer();
     });
-    expect(result.current.timerPaused).toBe(true);
+    await waitFor(() => expect(result.current.timerPaused).toBe(true));
+    expect(api.post).toHaveBeenCalledWith('/tickets/ticket-1/pre-appointments/pre-1/pause');
 
     act(() => {
       result.current.handleResumeTimer();
     });
-    expect(result.current.timerPaused).toBe(false);
+    await waitFor(() => expect(result.current.timerPaused).toBe(false));
+    expect(api.post).toHaveBeenCalledWith('/tickets/ticket-1/pre-appointments/pre-1/resume');
     expect(result.current.items).toHaveLength(1);
   });
 

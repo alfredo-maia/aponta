@@ -9,7 +9,7 @@ const AT = new Date('2026-11-12T13:00:00Z');
 
 describe('evaluateWorklogWindow (DMTE-462 T2)', () => {
   it('AC-06: aceita dentro da agenda do ticket e devolve a agenda e o limite em minutos', () => {
-    expect(evaluateWorklogWindow([agenda()], 'ticket-1', AT)).toEqual({ ok: true, appointmentId: 'ag-1', limitMinutes: 240 });
+    expect(evaluateWorklogWindow([agenda()], 'ticket-1', AT)).toEqual({ ok: true, appointmentId: 'ag-1', limitMinutes: 240, windowEndsAt: new Date('2026-11-12T15:00:00Z') });
   });
 
   it('AC-06: aceita a partir de 1 dia antes do início da agenda e recusa antes disso', () => {
@@ -41,11 +41,11 @@ describe('evaluateWorklogWindow (DMTE-462 T2)', () => {
 
   it('AC-09 e AC-12: a agenda do ticket vence o compromisso que ignora a regra, mesmo que este comece antes (o limite vale)', () => {
     const free = agenda({ id: 'livre', ticketId: null, ignoresWorklogRule: true, startTime: new Date('2026-11-12T09:00:00Z') });
-    expect(evaluateWorklogWindow([free, agenda()], 'ticket-1', AT)).toEqual({ ok: true, appointmentId: 'ag-1', limitMinutes: 240 });
+    expect(evaluateWorklogWindow([free, agenda()], 'ticket-1', AT)).toEqual({ ok: true, appointmentId: 'ag-1', limitMinutes: 240, windowEndsAt: new Date('2026-11-12T15:00:00Z') });
   });
 
   it('AC-12: compromisso que ignora a regra libera qualquer ticket, sem limite de horas', () => {
     const free = agenda({ id: 'livre', ticketId: null, ignoresWorklogRule: true });
-    expect(evaluateWorklogWindow([free], 'ticket-1', AT)).toEqual({ ok: true, appointmentId: 'livre', limitMinutes: null });
+    expect(evaluateWorklogWindow([free], 'ticket-1', AT)).toEqual({ ok: true, appointmentId: 'livre', limitMinutes: null, windowEndsAt: new Date('2026-11-12T15:00:00Z') });
   });
 });

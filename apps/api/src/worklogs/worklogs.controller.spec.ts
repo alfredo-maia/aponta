@@ -15,6 +15,8 @@ describe('WorklogsController', () => {
     findPreAppointments: jest.Mock;
     stopPreAppointment: jest.Mock;
     deletePreAppointment: jest.Mock;
+    pausePreAppointment: jest.Mock;
+    resumePreAppointment: jest.Mock;
   };
 
   const agentUser: CurrentUserPayload = { id: 'agent-1', role: Role.AGENT };
@@ -28,6 +30,8 @@ describe('WorklogsController', () => {
       findPreAppointments: jest.fn(),
       stopPreAppointment: jest.fn(),
       deletePreAppointment: jest.fn(),
+      pausePreAppointment: jest.fn(),
+      resumePreAppointment: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -118,6 +122,15 @@ describe('WorklogsController', () => {
       await controller.deletePreAppointment('t-1', 'pre-1', { user: agentUser });
 
       expect(service.deletePreAppointment).toHaveBeenCalledWith('t-1', 'pre-1', agentUser);
+    });
+  });
+
+  describe('pausa e retomada (DMTE-462 T4)', () => {
+    it('AC-17: pausar e retomar delegam ao serviço com o ticket, o cronômetro e o usuário', async () => {
+      await controller.pausePreAppointment('ticket-1', 'pre-1', { user: agentUser } as never);
+      await controller.resumePreAppointment('ticket-1', 'pre-1', { user: agentUser } as never);
+      expect(service.pausePreAppointment).toHaveBeenCalledWith('ticket-1', 'pre-1', agentUser);
+      expect(service.resumePreAppointment).toHaveBeenCalledWith('ticket-1', 'pre-1', agentUser);
     });
   });
 });
