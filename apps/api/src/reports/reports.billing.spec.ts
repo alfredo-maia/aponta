@@ -67,7 +67,7 @@ describe('Billing valuation snapshots', () => {
   });
   it('keeps organization policy on contract-filtered queries', async () => {
     await service.getBilling({ id: 'master', role: Role.CLIENT_MASTER, organizationId: 'org' }, { contractId: 'other-contract' });
-    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { ticket: { AND: [{ OR: [{ requester: { organizationId: 'org' } }, { commercialOrganizationId: 'org' }] }] }, contractId: 'other-contract', voidedAt: null } }));
+    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { ticket: { requester: { organizationId: 'org' } }, contractId: 'other-contract', voidedAt: null } }));
   });
   it('groups historical ownership and blocks financial leakage after requester moves', async () => {
     findMany.mockResolvedValue([row({ valueCents: 6000, valuationSnapshot: { organizationId: 'old-org', organizationName: 'Original', segments: [october] } })]);

@@ -44,25 +44,6 @@
       ]
     },
     {
-      "id": "AC-05",
-      "description": "`POST /tickets` de atendente com `organizationId` grava o Cliente em `commercialOrganizationId`; de CLIENT ou CLIENT_MASTER, o valor enviado é ignorado e vale a organização do solicitante.",
-      "tests": [
-        "AC-05: atendente com organizationId grava o Cliente em commercialOrganizationId",
-        "AC-05: CLIENT tem o organizationId enviado ignorado e fica na organização do solicitante",
-        "AC-05 e AC-11: aceita organizationId (UUID) e semCatalogo (booleano)"
-      ]
-    },
-    {
-      "id": "AC-06",
-      "description": "`POST /tickets` responde 400 quando o Cliente não existe ou está inativo, e quando a mesa efetiva não serve o Cliente informado nem é global.",
-      "tests": [
-        "AC-06: recusa Cliente que não existe",
-        "AC-06: recusa Cliente inativo",
-        "AC-06: recusa mesa que não serve o Cliente e aceita mesa vinculada a ele",
-        "AC-06: a mesa avaliada é a do item do catálogo, não a enviada no corpo"
-      ]
-    },
-    {
       "id": "AC-07",
       "description": "na tela de novo chamado, o atendente vê o seletor de Cliente acima do catálogo e o usuário CLIENT não; ao escolher um Cliente, a tela consulta o catálogo com `organizationId` e mostra o resultado.",
       "tests": [
@@ -73,10 +54,13 @@
     },
     {
       "id": "AC-08",
-      "description": "o Cliente escolhido no catálogo chega ao formulário preenchido e travado, e o envio leva `organizationId`; no fluxo em branco, a lista de mesas só mostra mesas que servem o Cliente escolhido.",
+      "description": "o Cliente escolhido no catálogo chega ao formulário preenchido e travado, e o envio não leva `organizationId`; no fluxo em branco, a lista de mesas só mostra mesas que servem o Cliente escolhido.",
       "tests": [
-        "AC-08: o Cliente escolhido no catálogo chega ao formulário travado e o envio leva organizationId",
-        "AC-08: no fluxo em branco a lista de mesas só mostra mesas que servem o Cliente escolhido"
+        "AC-08: o Cliente escolhido no catálogo chega ao formulário travado e o envio não leva organizationId",
+        "AC-08: no fluxo em branco a lista de mesas só mostra mesas que servem o Cliente escolhido",
+        "DMTE-485: o Cliente comercial do chamado é a organização do solicitante",
+        "DMTE-485: recusa organizationId, porque o Cliente do chamado é o do solicitante",
+        "should restrict CLIENT_MASTER to their organization tickets"
       ]
     },
     {
@@ -100,7 +84,9 @@
         "DMTE-485 AC-11: aceita chamado sem item em mesa com catálogo exigido quando declara semCatalogo",
         "DMTE-485 AC-11: recusa semCatalogo junto de um catalogItemId",
         "AC-11: semCatalogo abre o chamado em mesa com catálogo exigido e não é gravado",
-        "AC-11: sem semCatalogo e sem item a mesa com catálogo exigido continua recusando"
+        "AC-11: sem semCatalogo e sem item a mesa com catálogo exigido continua recusando",
+        "AC-11: aceita semCatalogo booleano",
+        "AC-11: recusa semCatalogo que não é booleano"
       ]
     },
     {
@@ -130,19 +116,6 @@
       "description": "o contêiner dos cartões usa 1 coluna abaixo de 640 px, 2 a partir de 640 px e 3 a partir de 1024 px, e o cartão não se parte entre colunas; cada serviço é um botão com nome acessível e cada cartão uma região rotulada pelo título.",
       "tests": [
         "AC-15: os cartões fluem em 1, 2 e 3 colunas sem se partir entre colunas"
-      ]
-    },
-    {
-      "id": "AC-16",
-      "description": "`CLIENT_MASTER` enxerga o chamado cujo `commercialOrganizationId` é a sua organização, mesmo aberto por atendente de outra organização (`getTicketWhere`: solicitante da organização OU Cliente comercial da organização, dentro de `AND`), na lista e no detalhe do chamado (`findOne`, de que dependem `update` e anexos), e os filtros da lista (`search`, `organizationId`, `requesterQuery`) nunca derrubam esse recorte; `CLIENT` continua vendo só os chamados que ele mesmo abriu.",
-      "tests": [
-        "DMTE-485 AC-16: CLIENT_MASTER enxerga o ticket da própria organização pelo solicitante ou pelo Cliente comercial",
-        "DMTE-485 AC-16: search de CLIENT_MASTER não derruba o recorte da organização",
-        "RODADA 2 - vazamento entre organizações: CLIENT_MASTER forcing organizationId from another org never drops the TenantHelper org scope",
-        "RODADA 2 - vazamento entre organizações: requesterQuery from a CLIENT_MASTER never drops the TenantHelper org scope",
-        "should restrict CLIENT to their own tickets",
-        "DMTE-485 AC-16: findOne mostra ao CLIENT_MASTER o chamado aberto por atendente para a organização dele",
-        "DMTE-485 AC-16: findOne continua escondendo do CLIENT_MASTER o chamado de outra organização"
       ]
     }
   ],

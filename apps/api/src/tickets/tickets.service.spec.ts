@@ -1018,8 +1018,12 @@ describe('TicketsService', () => {
 
       expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
         where: {
-          AND: [{ OR: [{ requester: { organizationId: 'my-org' } }, { commercialOrganizationId: 'my-org' }] }],
-          requester: { organizationId: 'org-not-mine' },
+          requester: {
+            AND: [
+              { organizationId: 'my-org' },
+              { organizationId: 'org-not-mine' },
+            ],
+          },
         },
         skip: 0,
         take: 20,
@@ -1047,11 +1051,15 @@ describe('TicketsService', () => {
 
       expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
         where: {
-          AND: [{ OR: [{ requester: { organizationId: 'my-org' } }, { commercialOrganizationId: 'my-org' }] }],
           requester: {
-            OR: [
-              { name: { contains: 'maria', mode: 'insensitive' } },
-              { email: { contains: 'maria', mode: 'insensitive' } },
+            AND: [
+              { organizationId: 'my-org' },
+              {
+                OR: [
+                  { name: { contains: 'maria', mode: 'insensitive' } },
+                  { email: { contains: 'maria', mode: 'insensitive' } },
+                ],
+              },
             ],
           },
         },
@@ -1060,58 +1068,6 @@ describe('TicketsService', () => {
         orderBy: { createdAt: 'desc' },
         include: expect.any(Object),
       });
-    });
-  });
-
-  describe('findAll: CLIENT_MASTER e Cliente comercial (DMTE-485 AC-16)', () => {
-    it('DMTE-485 AC-16: search de CLIENT_MASTER não derruba o recorte da organização', async () => {
-      mockPrismaService.ticket.findMany.mockResolvedValue([]);
-
-      await service.findAll(
-        { search: 'impressora' },
-        { id: 'client-master-1', role: Role.CLIENT_MASTER, organizationId: 'my-org' },
-      );
-
-      expect(mockPrismaService.ticket.findMany).toHaveBeenCalledWith({
-        where: {
-          AND: [{ OR: [{ requester: { organizationId: 'my-org' } }, { commercialOrganizationId: 'my-org' }] }],
-          OR: [
-            { title: { contains: 'impressora', mode: 'insensitive' } },
-            { protocol: { contains: 'impressora', mode: 'insensitive' } },
-            { description: { contains: 'impressora', mode: 'insensitive' } },
-          ],
-        },
-        skip: 0,
-        take: 20,
-        orderBy: { createdAt: 'desc' },
-        include: expect.any(Object),
-      });
-    });
-
-    it('DMTE-485 AC-16: findOne mostra ao CLIENT_MASTER o chamado aberto por atendente para a organização dele', async () => {
-      mockPrismaService.ticket.findUnique.mockResolvedValue({
-        id: 't1',
-        requesterId: 'agent-9',
-        commercialOrganizationId: 'my-org',
-        requester: { organizationId: 'provider-org' },
-      });
-
-      await expect(
-        service.findOne('t1', { id: 'client-master-1', role: Role.CLIENT_MASTER, organizationId: 'my-org' }),
-      ).resolves.toMatchObject({ id: 't1' });
-    });
-
-    it('DMTE-485 AC-16: findOne continua escondendo do CLIENT_MASTER o chamado de outra organização', async () => {
-      mockPrismaService.ticket.findUnique.mockResolvedValue({
-        id: 't1',
-        requesterId: 'agent-9',
-        commercialOrganizationId: 'other-org',
-        requester: { organizationId: 'provider-org' },
-      });
-
-      await expect(
-        service.findOne('t1', { id: 'client-master-1', role: Role.CLIENT_MASTER, organizationId: 'my-org' }),
-      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 

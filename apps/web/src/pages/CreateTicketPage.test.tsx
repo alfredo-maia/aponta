@@ -599,7 +599,7 @@ describe('CreateTicketPage', () => {
       expect(screen.getByLabelText('Cliente')).toBeInTheDocument();
     });
 
-    it('AC-08: o Cliente escolhido no catálogo chega ao formulário travado e o envio leva organizationId', async () => {
+    it('AC-08: o Cliente escolhido no catálogo chega ao formulário travado e o envio não leva organizationId', async () => {
       mockApi();
       const user = userEvent.setup();
       renderPage();
@@ -616,9 +616,11 @@ describe('CreateTicketPage', () => {
       await waitFor(() => {
         expect(api.post).toHaveBeenCalledWith(
           '/tickets',
-          expect.objectContaining({ organizationId: 'org-1', catalogItemId: 'i-1', serviceDeskId: 'sd-1' }),
+          expect.objectContaining({ catalogItemId: 'i-1', serviceDeskId: 'sd-1' }),
         );
       });
+      // O Cliente do chamado é o do solicitante: a tela filtra mesas e catálogo, mas não envia o Cliente.
+      expect(vi.mocked(api.post).mock.calls[0][1]).not.toHaveProperty('organizationId');
     });
 
     it('AC-08: no fluxo em branco a lista de mesas só mostra mesas que servem o Cliente escolhido', async () => {
