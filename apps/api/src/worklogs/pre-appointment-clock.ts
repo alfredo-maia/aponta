@@ -10,11 +10,26 @@ export interface ClockPre {
 
 export const PAUSE_EXPIRY_MS = 2 * 86_400_000;
 
-/** DMTE-462 T4: stubs neutros (sem o comportamento), substituídos na implementação. */
-export function workedMs(_pre: ClockPre, _now: Date): number {
-  return 0;
+/** Tempo trabalhado: do início até agora (ou até a pausa, se pausado), sem as pausas já encerradas. */
+export function workedMs(pre: ClockPre, now: Date): number {
+  const until = (pre.pausedAt ?? now).getTime();
+  return Math.max(0, until - pre.beginning.getTime() - pre.pausedMs);
 }
 
-export function autoCloseDecision(_pre: ClockPre, _now: Date): { endsAt: Date; reason: LockReason } | null {
+/**
+ * Quando o sistema deve encerrar o cronômetro, e por quê. O fim do apontamento é início + tempo trabalhado
+ * (as pausas não entram), então o apontamento convertido tem os minutos trabalhados.
+ */
+export function autoCloseDecision(pre: ClockPre, now: Date): { endsAt: Date; reason: LockReason } | null {
+  const worked = workedMs(pre, now);
+  const endsAt = new Date(pre.beginning.getTime() + worked);
+  if (pre.pausedAt) {
+    if (now.getTime() - pre.pausedAt.getTime() >= PAUSE_EXPIRY_MS) return { endsAt, reason: 'PAUSE_EXPIRED' };
+    if (pre.windowEndsAt && now.getTime() > pre.windowEndsAt.getTime()) return { endsAt, reason: 'WINDOW_CLOSED' };
+    return null;
+  }
+  if (pre.limitMinutes !== null && worked >= pre.limitMinutes * 60_000) {
+    return { endsAt: new Date(pre.beginning.getTime() + pre.limitMinutes * 60_000), reason: 'LIMIT' };
+  }
   return null;
 }

@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-12T15:07:07.517945+00:00",
+  "finished_at": "2026-11-12T15:12:17.709545+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run-many",
+    "-t",
+    "test",
+    "-p",
+    "api,web",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "596fdac2b90e99b040d1366e381c818d762c532a",
+  "head_sha": "2709681ab8226924d64eeaa1a42f91d4ad86fe95",
+  "exit_code": 1,
+  "tests": {
+    "apps/api/prisma/seed.spec.ts": "b00ad4604c1ef4d076ec8a3c4d19a22fb64454115960fc815088780149a114dc",
+    "apps/api/src/jobs/job-handlers.spec.ts": "13b4bab9ddde29b2a961776528598b6cac9c771e2d626bd7ec9d654fd7d7537d",
+    "apps/api/src/permissions/permissions.service.spec.ts": "73a26970f062b72b871fb309c9feb52d7d183c666dc9615ee12be416a144c6e3",
+    "apps/api/src/worklogs/agenda-window.spec.ts": "96066008d9ec388d968c375dea124ba4818453c0cd48b5e49e2e209a351331e1",
+    "apps/api/src/worklogs/pre-appointment-clock.spec.ts": "bf34ff1a598c146dca21d4330ed4c671a299b811d0180cdb4574ce432b023109",
+    "apps/api/src/worklogs/worklog-autoclose.service.spec.ts": "aba8f90f2a66388125793b95abdefb8b21d72257934bea35b0f4db16fca65cd3",
+    "apps/api/src/worklogs/worklogs.commercial.spec.ts": "726b5ffdf9e9a866003bc4248b3fe1d3c50507e97ed3878a95940a942a9c3e8b",
+    "apps/api/src/worklogs/worklogs.controller.spec.ts": "403a230647a4a173e032a4df6488d31c502fb91aa8de968db1fb15020dfd0820",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "279cbdc7ac93dd2689cea15123820da5079873d1935634f90f90e85c61397dee",
+    "apps/web/src/hooks/useActivityTimer.test.ts": "49b9ff58bfc4e01cec752790e070d6a9763274496606b899fb6bab2dc3e5248e"
+  },
+  "criteria": [
+    "AC-17",
+    "AC-18",
+    "AC-19",
+    "AC-20",
+    "AC-21"
+  ],
+  "source_hashes": {
+    "apps/api/prisma/seed.spec.ts": "b00ad4604c1ef4d076ec8a3c4d19a22fb64454115960fc815088780149a114dc",
+    "apps/api/src/jobs/job-handlers.spec.ts": "13b4bab9ddde29b2a961776528598b6cac9c771e2d626bd7ec9d654fd7d7537d",
+    "apps/api/src/jobs/job-handlers.ts": "dcdd501741f9e4aea7d6ea7a3b084e3ade45e2a2acd06635c12d6b4dcfa49a47",
+    "apps/api/src/permissions/permissions.service.spec.ts": "73a26970f062b72b871fb309c9feb52d7d183c666dc9615ee12be416a144c6e3",
+    "apps/api/src/permissions/permissions.service.ts": "4b91331f5a197acc98a4f2dc68d4b772fe0bb75a76a826f9c25ee17b7684a69d",
+    "apps/api/src/worklogs/agenda-window.spec.ts": "96066008d9ec388d968c375dea124ba4818453c0cd48b5e49e2e209a351331e1",
+    "apps/api/src/worklogs/agenda-window.ts": "46124eddf0467062b9f6a087ea6065364d4e31f64aaff1a4b396e2753d2a8db2",
+    "apps/api/src/worklogs/pre-appointment-clock.spec.ts": "bf34ff1a598c146dca21d4330ed4c671a299b811d0180cdb4574ce432b023109",
+    "apps/api/src/worklogs/pre-appointment-clock.ts": "7ed5ccb217cea5106e52343375d02f4a7b66126864ed43925ea27a8ab2b9b43d",
+    "apps/api/src/worklogs/worklog-autoclose.service.spec.ts": "aba8f90f2a66388125793b95abdefb8b21d72257934bea35b0f4db16fca65cd3",
+    "apps/api/src/worklogs/worklog-autoclose.service.ts": "61ead0aa311622dae22a31893caed228bcee9a822ac4bd6a408919974133b6b2",
+    "apps/api/src/worklogs/worklogs.commercial.spec.ts": "726b5ffdf9e9a866003bc4248b3fe1d3c50507e97ed3878a95940a942a9c3e8b",
+    "apps/api/src/worklogs/worklogs.controller.spec.ts": "403a230647a4a173e032a4df6488d31c502fb91aa8de968db1fb15020dfd0820",
+    "apps/api/src/worklogs/worklogs.controller.ts": "7a6619da5928fca676a192c4448fbecf8c95ccba3dc819e1c7769dedcef85d87",
+    "apps/api/src/worklogs/worklogs.service.ts": "f022779f83206549d11291eafcb7f2824517bb9560ddf293c6557789ee2069b3",
+    "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "279cbdc7ac93dd2689cea15123820da5079873d1935634f90f90e85c61397dee",
+    "apps/web/src/hooks/useActivityTimer.test.ts": "49b9ff58bfc4e01cec752790e070d6a9763274496606b899fb6bab2dc3e5248e"
+  },
+  "log": ".delivery/evidence/DMTE-462-t4/red.log",
+  "log_sha256": "34b540fd9f55ade54620c61f92d00d61688f9f7bc2e5d754e14d1e972a58579c"
+}

@@ -100,6 +100,7 @@ export const PERMISSION_CATALOG: PermissionDefinition[] = [
   { key: 'CREATE_EDIT_WORKLOGS', category: PermissionCategory.TECHNICAL, label: 'Criar e editar apontamentos' },
   { key: 'EDIT_TICKETS', category: PermissionCategory.TECHNICAL, label: 'Editar tickets' },
   { key: 'CHANGE_PRIORITY_AND_DISABLE_SLA', category: PermissionCategory.TECHNICAL, label: 'Mudar a prioridade e desativar SLA dos tickets' },
+  { key: 'RECEIVE_WORKLOG_AUTOCLOSE_ALERT', category: PermissionCategory.TECHNICAL, label: 'Receber aviso de cronômetro encerrado automaticamente' },
   { key: 'RELEASE_WORKLOG_WITHOUT_SCHEDULE', category: PermissionCategory.TECHNICAL, label: 'Liberar apontamento sem agenda' },
   { key: 'EDIT_WORKLOG_START_TIME', category: PermissionCategory.TECHNICAL, label: 'Editar hora inicial e final do apontamento' },
   { key: 'LAUNCH_WORKLOG_GUARANTEE', category: PermissionCategory.TECHNICAL, label: 'Lançar garantia em apontamentos' },

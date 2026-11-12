@@ -1,8 +1,11 @@
 import { JobHandlers } from './jobs.service';
 
-/** DMTE-462 T4: um ponto só para os tipos de tarefa com código. Stub neutro, substituído na implementação. */
-export function buildJobHandlers(_autoClose: { run(now: Date): Promise<number> }): JobHandlers {
+/** Os tipos de tarefa com código. Cada tipo novo entra aqui e ganha a linha na migração. */
+export function buildJobHandlers(autoClose: { run(now: Date): Promise<number> }): JobHandlers {
   return {
     HEARTBEAT: async () => undefined,
+    WORKLOG_AUTOCLOSE: async () => {
+      await autoClose.run(new Date());
+    },
   };
 }

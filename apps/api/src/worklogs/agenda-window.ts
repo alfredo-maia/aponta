@@ -45,5 +45,6 @@ export function evaluateWorklogWindow(
     ok: true,
     appointmentId: pick.id,
     limitMinutes: pick.ignoresWorklogRule ? null : Math.round((pick.endTime.getTime() - pick.startTime.getTime()) / 60000),
+    windowEndsAt: pick.endTime,
   };
 }
