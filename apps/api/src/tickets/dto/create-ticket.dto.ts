@@ -45,11 +45,6 @@ export class CreateTicketDto {
   @Min(0)
   attachmentCount?: number;
 
-  @ApiPropertyOptional({ description: 'Cliente (organização) para quem o atendente abre o chamado. Ignorado para usuários CLIENT.' })
-  @IsOptional()
-  @IsUUID()
-  organizationId?: string;
-
   @ApiPropertyOptional({ description: 'Declara que o chamado não está catalogado; só isso abre chamado sem item em mesa que pede catálogo.' })
   @IsOptional()
   @IsBoolean()

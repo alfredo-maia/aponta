@@ -67,7 +67,7 @@ export function CreateTicketPage() {
     mutationFn: async (values: TicketFormValues & { catalogItemId?: string }) => {
       // IMPORTANT: apps/api's ValidationPipe uses forbidNonWhitelisted: true,
       // and CreateTicketDto only accepts catalogItemId/semCatalogo/title/
-      // description/serviceDeskId/priority/organizationId. requesterId,
+      // description/serviceDeskId/priority. organizationId, requesterId,
       // followersIds, parentId, scheduledDate and attachments are DS-form-only
       // fields with no backend support yet (no TicketFollower table, no
       // scheduledFor column). Sending them verbatim makes every ticket
@@ -78,7 +78,6 @@ export function CreateTicketPage() {
       const payload: {
         catalogItemId?: string;
         semCatalogo?: boolean;
-        organizationId?: string;
         title: string;
         description: string;
         serviceDeskId: string;
@@ -91,7 +90,6 @@ export function CreateTicketPage() {
         priority: values.priority,
         attachmentCount: values.attachments?.length ?? 0,
       };
-      if (!isClientBase && values.organizationId) payload.organizationId = values.organizationId;
       if (selectedCatalogItem && selectedCatalogItem.id !== 'custom') {
         payload.catalogItemId = selectedCatalogItem.id;
         payload.serviceDeskId = selectedCatalogItem.defaultServiceDeskId;

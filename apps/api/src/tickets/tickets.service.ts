@@ -29,8 +29,6 @@ import {
   assertDeskAllowsReopen,
   assertListedAgentMayMutate,
   isTicketBilled,
-  deskServesOrganization,
-  isClientRole,
 } from '../service-desks/desk-policy';
 
 const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
@@ -350,7 +348,6 @@ export class TicketsService {
             priorities: true,
             agents: { select: { id: true } },
             agentGroups: { include: { members: { select: { id: true } } } },
-            organizations: { select: { id: true } },
             stages: {
               where: { isInitial: true },
               take: 1,
@@ -396,22 +393,6 @@ export class TicketsService {
       resourceGroup: dto.resourceGroup,
       attachmentCount: dto.attachmentCount ?? 0,
     });
-    // Atendente abre o chamado para um Cliente: valida o Cliente e se a mesa o atende.
-    // CLIENT/CLIENT_MASTER ficam na organização do solicitante e o valor enviado é ignorado.
-    let commercialOrganizationId = requester?.organizationId ?? null;
-    if (dto.organizationId && !isClientRole(user)) {
-      const organization = await this.prisma.organization.findUnique({
-        where: { id: dto.organizationId },
-        select: { id: true, active: true },
-      });
-      if (!organization || !organization.active) {
-        throw new BadRequestException('Cliente inexistente ou inativo.');
-      }
-      if (!deskServesOrganization(serviceDesk, organization.id)) {
-        throw new BadRequestException('Esta mesa não atende o Cliente informado.');
-      }
-      commercialOrganizationId = organization.id;
-    }
     const slaEnabled = serviceDesk.slaControlEnabled !== false;
     const { responseDeadline, resolveDeadline } = slaEnabled
       ? calculateSla(
@@ -446,7 +427,7 @@ export class TicketsService {
               description: dto.description,
               serviceDeskId: serviceDeskId,
               requesterId,
-              commercialOrganizationId,
+              commercialOrganizationId: requester?.organizationId ?? null,
               status: serviceDesk.defaultOpenStatus ?? TicketStatus.OPEN,
               stageId: serviceDesk.stages[0]?.id,
               priority,
@@ -552,10 +533,17 @@ export class TicketsService {
   }> {
     const baseWhere = TenantHelper.getTicketWhere(currentUser);
     const where: Prisma.TicketWhereInput = { ...baseWhere };
-    // The CLIENT_MASTER org scope lives in baseWhere.AND, which nothing below
-    // overwrites; `requester` carries only the Busca avançada filters
-    // (organizationId, requesterQuery), ANDed together so one never replaces the other.
+    // `requester` is the one key both TenantHelper (CLIENT_MASTER's org
+    // scope) and the Busca avançada filters (organizationId, requesterQuery)
+    // can write to. Collecting every condition here and ANDing them —
+    // instead of letting a later `where.requester = {...}` assignment
+    // silently replace the TenantHelper scope — is what stops a
+    // CLIENT_MASTER from reading another organization's tickets by sending
+    // `organizationId`/`requesterQuery` in the query string.
     const requesterConditions: Prisma.UserWhereInput[] = [];
+    if (baseWhere.requester) {
+      requesterConditions.push(baseWhere.requester as Prisma.UserWhereInput);
+    }
     if (query.serviceDeskId) {
       where.serviceDeskId = query.serviceDeskId;
     }
@@ -800,13 +788,11 @@ export class TicketsService {
     } else if (currentUser.role === Role.CLIENT) {
       isAuthorized = ticket.requesterId === currentUser.id;
     } else if (currentUser.role === Role.CLIENT_MASTER) {
-      // Mesma regra de TenantHelper.getTicketWhere: solicitante da organização ou Cliente comercial.
       isAuthorized =
         ticket.requesterId === currentUser.id ||
         (!!currentUser.organizationId &&
-          ((ticket as Ticket & { requester?: any; serviceDesk?: any }).requester
-            ?.organizationId === currentUser.organizationId ||
-            ticket.commercialOrganizationId === currentUser.organizationId));
+          (ticket as Ticket & { requester?: any; serviceDesk?: any }).requester
+            ?.organizationId === currentUser.organizationId);
     } else if (
       currentUser.role === Role.AGENT ||
       currentUser.role === Role.AGENT_MASTER
