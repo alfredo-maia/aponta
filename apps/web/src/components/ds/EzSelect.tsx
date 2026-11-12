@@ -125,7 +125,32 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
       }
     };
 
+    // Busca por digitação: letras seguidas (até 600ms) formam o prefixo; sem resultado, recomeça só com a última letra.
+    const typed = useRef({ text: '', at: 0 });
+    const typeAhead = (char: string) => {
+      const now = Date.now();
+      const text = now - typed.current.at < 600 ? typed.current.text + char : char;
+      const find = (prefix: string, from: number) => {
+        for (let i = 0; i < options.length; i += 1) {
+          const index = (from + i) % options.length;
+          if (!options[index].disabled && options[index].label.toLowerCase().startsWith(prefix)) return index;
+        }
+        return -1;
+      };
+      let found = find(text, text.length === 1 ? active + 1 : active);
+      let kept = text;
+      if (found < 0 && text.length > 1) {
+        kept = char;
+        found = find(char, active + 1);
+      }
+      typed.current = { text: kept, at: now };
+      if (found >= 0) setActive(found);
+    };
+
     const onKeyDown = (event: React.KeyboardEvent) => {
+      if (open && event.key.length === 1 && event.key !== ' ' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        return typeAhead(event.key.toLowerCase());
+      }
       const enabled = options.map((o, i) => (o.disabled ? -1 : i)).filter((i) => i >= 0);
       switch (event.key) {
         case 'ArrowDown':
