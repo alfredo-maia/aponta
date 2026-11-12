@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "delivery": "DMTE-496",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 224,
+  "multica_id": "01a1d188-a47d-72e9-8c42-0dbcb4a33d30",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "a coluna recolhida tem `min-h-[500px]` e `self-stretch`, no agrupamento por estágio e no por status.",
+      "tests": []
+    },
+    {
+      "id": "AC-02",
+      "description": "expandir e recolher, contador, rótulo vertical e arrastar-e-soltar continuam como estão (testes existentes de recolher/expandir seguem verdes).",
+      "tests": []
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-496.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-496/red.json",
+    "green": ".delivery/evidence/DMTE-496/green.json"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Só acrescenta classes de layout à tira recolhida em TicketKanban.tsx; nenhum componente DS novo ou alterado."
+  }
+}
