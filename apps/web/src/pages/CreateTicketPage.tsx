@@ -131,7 +131,7 @@ export function CreateTicketPage() {
 
   if (catalogLoading) {
     return (
-      <div className="max-w-7xl pt-4">
+      <div className="pt-4">
         <EzSpinner label="Carregando catálogo…" />
       </div>
     );
@@ -140,7 +140,7 @@ export function CreateTicketPage() {
   if (showCatalog && !selectedCatalogItem) {
     const categories = catalog.filter((category) => category.items.length > 0);
     return (
-      <div className="space-y-6 max-w-7xl pt-4">
+      <div className="space-y-6 pt-4">
         <div data-testid="catalog-header" className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-[16rem] flex-1 space-y-1">
             <h1 className="text-[20px] font-semibold text-gray-900">Catálogo de Serviços</h1>
@@ -231,7 +231,7 @@ export function CreateTicketPage() {
   }
 
   return (
-    <div className="space-y-4 pt-4 max-w-7xl">
+    <div className="space-y-4 pt-4">
       <div className="flex items-center gap-3">
         {showCatalog && (
           <EzButton

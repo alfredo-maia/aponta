@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "delivery": "DMTE-493",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 216,
+  "multica_id": "01a1cfd0-a163-71f5-a67f-b51517f55ec6",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "o contêiner de carregamento, o do catálogo e o do formulário de `CreateTicketPage` não têm teto de largura (`max-w-*`).",
+      "tests": [
+        "DMTE-493 AC-01: carregamento, catálogo e formulário sem teto de largura, como Relatórios"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "o catálogo e o formulário continuam com a mesma largura entre si e com as colunas responsivas da DMTE-489 (identificação em 1, 2 e 4 colunas; catálogo em 1, 2, 3 e 4).",
+      "tests": [
+        "DMTE-483 AC-04: formulário e catálogo usam a mesma largura máxima",
+        "DMTE-489 AC-02: cliente, mesa, solicitante e prioridade em 1, 2 e 4 colunas por largura",
+        "DMTE-489 AC-03: cartões do catálogo em 1, 2, 3 e 4 colunas por largura"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-493.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-493/red.json",
+    "green": ".delivery/evidence/DMTE-493/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzSpinner",
+      "EzCardItem",
+      "EzAlert",
+      "EzButton"
+    ],
+    "reason": "Só remove a classe max-w-7xl dos contêineres de CreateTicketPage.tsx; nenhum componente DS novo ou alterado."
+  }
+}
