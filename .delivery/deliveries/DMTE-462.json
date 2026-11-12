@@ -8,65 +8,22 @@
   "tier": 3,
   "criteria": [
     {
-      "id": "AC-17",
-      "description": "pausa e retomada são gravadas no servidor e o tempo trabalhado desconta as pausas.",
-      "tests": [
-        "apps/api/src/worklogs/pre-appointment-clock.spec.ts",
-        "apps/api/src/worklogs/agenda-window.spec.ts",
-        "apps/api/src/worklogs/worklogs.commercial.spec.ts",
-        "apps/api/src/worklogs/worklogs.controller.spec.ts",
-        "apps/web/src/components/tickets/TicketWorklogs.test.tsx",
-        "apps/web/src/hooks/useActivityTimer.test.ts"
-      ]
-    },
-    {
-      "id": "AC-18",
-      "description": "o cronômetro fecha sozinho quando o tempo trabalhado atinge a duração da agenda congelada, com fim igual ao início somado à duração (08:30 numa agenda de 4 horas fecha às 12:30).",
-      "tests": [
-        "apps/api/src/worklogs/pre-appointment-clock.spec.ts",
-        "apps/api/src/worklogs/worklog-autoclose.service.spec.ts",
-        "apps/api/src/jobs/job-handlers.spec.ts"
-      ]
-    },
-    {
-      "id": "AC-19",
-      "description": "pausa maior que 2 dias, contada do momento da pausa, é encerrada com o tempo trabalhado até ali.",
-      "tests": [
-        "apps/api/src/worklogs/pre-appointment-clock.spec.ts",
-        "apps/api/src/worklogs/worklog-autoclose.service.spec.ts"
-      ]
-    },
-    {
-      "id": "AC-20",
-      "description": "apontamento encerrado por limite, por pausa ou após o fim da janela fica travado: consultor sem permissão não o altera (até T5).",
-      "tests": [
-        "apps/api/src/worklogs/pre-appointment-clock.spec.ts",
-        "apps/api/src/worklogs/worklog-autoclose.service.spec.ts",
-        "apps/api/src/worklogs/worklogs.commercial.spec.ts",
-        "apps/web/src/components/tickets/TicketWorklogs.test.tsx"
-      ]
-    },
-    {
-      "id": "AC-21",
-      "description": "o fechamento automático envia e-mail ao consultor e aos membros do grupo com a permissão de receber aviso.",
+      "id": "AC-32",
+      "description": "o fechamento automático (fechar o cronômetro e avisar) só roda com a flag `fechamento-automatico-cronometro` ligada, registrada com dono e data de remoção e ligada por padrão; desligada, a tarefa não fecha, não avisa e nem consulta os cronômetros.",
       "tests": [
         "apps/api/src/worklogs/worklog-autoclose.service.spec.ts",
-        "apps/api/src/permissions/permissions.service.spec.ts",
-        "apps/api/prisma/seed.spec.ts"
+        "apps/api/src/feature-flags/feature-flags.spec.ts"
       ]
     }
   ],
   "spec": "docs/delivery/specs/DMTE-462.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-462-t4/red-r2.json",
-    "green": ".delivery/evidence/DMTE-462-t4/green-r2.json"
+    "red": ".delivery/evidence/DMTE-462-t4flag/red.json",
+    "green": ".delivery/evidence/DMTE-462-t4flag/green.json"
   },
   "design_system": {
-    "applicable": true,
-    "reused": [
-      "EzButton"
-    ],
-    "reason": "T4: cronômetro e linha de pré-apontamento em TicketWorklogs.tsx com os elementos atuais; nenhum componente DS novo ou alterado."
+    "applicable": false,
+    "reason": "Flag no servidor, sem UI."
   }
 }

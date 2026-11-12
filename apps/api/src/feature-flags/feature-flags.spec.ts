@@ -1,5 +1,6 @@
 import { FeatureFlag, flagProblems, resolveFlags, FEATURE_FLAGS } from './feature-flags';
 import { FeatureFlagsController } from './feature-flags.controller';
+import { FeatureFlagsService } from './feature-flags.service';
 
 const flag = (changes: Partial<FeatureFlag> = {}): FeatureFlag => ({
   key: 'new-board',
@@ -73,5 +74,26 @@ describe('feature flags', () => {
       const controller = new FeatureFlagsController([flag()], { FEATURE_NEW_BOARD: 'true' });
       expect(controller.list()).toEqual({ 'new-board': true });
     });
+  });
+});
+
+describe('FeatureFlagsService (DMTE-462 T4)', () => {
+  it('AC-32: isEnabled usa o padrão da flag e deixa o ambiente ligar ou desligar', () => {
+    const on = flag({ key: 'fechamento-teste', defaultValue: true });
+    expect(new FeatureFlagsService([on], {}).isEnabled('fechamento-teste')).toBe(true);
+    expect(new FeatureFlagsService([on], { FEATURE_FECHAMENTO_TESTE: 'false' }).isEnabled('fechamento-teste')).toBe(false);
+    expect(new FeatureFlagsService([flag()], { FEATURE_NEW_BOARD: 'true' }).isEnabled('new-board')).toBe(true);
+  });
+
+  it('AC-32: uma flag que não existe fica desligada', () => {
+    expect(new FeatureFlagsService([], {}).isEnabled('nao-existe')).toBe(false);
+  });
+});
+
+describe('flags registradas (DMTE-462 T4)', () => {
+  it('AC-32: fechamento-automatico-cronometro está registrada, ligada por padrão e com dono e data de remoção', () => {
+    const registered = FEATURE_FLAGS.find((f) => f.key === 'fechamento-automatico-cronometro');
+    expect(registered).toMatchObject({ owner: 'alfredo', defaultValue: true });
+    expect(registered?.removeBy).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 });

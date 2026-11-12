@@ -92,6 +92,7 @@ T4 (pausa e fechamento automático):
 - AC-19: pausa maior que 2 dias, contada do momento da pausa, é encerrada com o tempo trabalhado até ali.
 - AC-20: apontamento encerrado por limite, por pausa ou após o fim da janela fica travado: consultor sem permissão não o altera (até T5).
 - AC-21: o fechamento automático envia e-mail ao consultor e aos membros do grupo com a permissão de receber aviso.
+- AC-32: o fechamento automático (fechar o cronômetro e avisar) só roda com a flag `fechamento-automatico-cronometro` ligada, registrada com dono e data de remoção e ligada por padrão; desligada, a tarefa não fecha, não avisa e nem consulta os cronômetros.
 
 T5 (aprovação):
 - AC-22: o que seria recusado por janela, ausência ou férias, o encerrado por pausa e o pedido de alteração de apontamento travado ficam pendentes em vez de recusados.
