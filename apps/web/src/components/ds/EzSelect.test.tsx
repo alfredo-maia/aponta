@@ -197,6 +197,14 @@ describe('EzSelect (DMTE-490 T2)', () => {
     expect(native).toHaveAttribute('aria-hidden', 'true');
   });
 
+  it('AC-10: clicking the label moves focus to the visible control, not to the hidden native select', async () => {
+    const { user, control } = setup();
+
+    await user.click(screen.getByText('Status'));
+
+    expect(control).toHaveFocus();
+  });
+
   it('AC-10: announces the popup as a listbox and names the control after its label', () => {
     const { control } = setup();
 
