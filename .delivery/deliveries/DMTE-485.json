@@ -9,7 +9,7 @@
   "criteria": [
     {
       "id": "AC-01",
-      "description": "`GET /catalog` devolve só itens ativos, de categoria ativa, cuja mesa está ativa e recebendo chamados e é utilizável pelo papel do usuário: CLIENT e CLIENT_MASTER não recebem item de mesa de uso interno nem só de atendentes; atendente de mesa listada-apenas não recebe item de mesa onde não está listado quando `unlistedCanCreateTicket` é falso.",
+      "description": "`GET /catalog` devolve só itens ativos, de categoria ativa, cuja mesa está ativa e recebendo chamados e é utilizável pelo papel do usuário: CLIENT e CLIENT_MASTER não recebem item de mesa de uso interno nem só de atendentes; atendente não recebe item de mesa onde não está listado quando `allowCrossDeskInteraction` é falso, nem de mesa listada-apenas onde não está listado quando `unlistedCanCreateTicket` é falso.",
       "tests": [
         "AC-01: pede ao banco só categorias e itens ativos, ordenados",
         "AC-01: ADMIN recebe item de mesa aberta e não recebe mesa inativa nem mesa fora de recebimento",

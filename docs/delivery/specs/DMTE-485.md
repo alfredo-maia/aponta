@@ -73,7 +73,7 @@ Aceite visual é decisão do responsável: a evidência técnica (testes, captur
 
 ## Acceptance criteria
 
-- AC-01: `GET /catalog` devolve só itens ativos, de categoria ativa, cuja mesa está ativa e recebendo chamados e é utilizável pelo papel do usuário: CLIENT e CLIENT_MASTER não recebem item de mesa de uso interno nem só de atendentes; atendente de mesa listada-apenas não recebe item de mesa onde não está listado quando `unlistedCanCreateTicket` é falso.
+- AC-01: `GET /catalog` devolve só itens ativos, de categoria ativa, cuja mesa está ativa e recebendo chamados e é utilizável pelo papel do usuário: CLIENT e CLIENT_MASTER não recebem item de mesa de uso interno nem só de atendentes; atendente não recebe item de mesa onde não está listado quando `allowCrossDeskInteraction` é falso, nem de mesa listada-apenas onde não está listado quando `unlistedCanCreateTicket` é falso.
 - AC-02: `GET /catalog` omite a categoria cujos itens ficaram todos fora da resposta.
 - AC-03: `GET /catalog?organizationId=<id>` por ADMIN, AGENT ou AGENT_MASTER devolve só itens cuja mesa tem esse Cliente vinculado ou nenhum Cliente vinculado; sem o parâmetro, não filtra por Cliente.
 - AC-04: para CLIENT e CLIENT_MASTER, `GET /catalog` ignora `organizationId` e usa a organização do usuário (nunca devolve item de mesa só de outra empresa).
@@ -95,7 +95,7 @@ Seams, os mais altos que já existem:
 
 1. API, catálogo: `CatalogController`/`CatalogService` (`GET /catalog` com usuário e `organizationId`), no padrão de `catalog.controller.spec.ts` e `catalog.service.spec.ts` com Prisma simulado. AC-01 a AC-04.
 2. API, criação: `TicketsService.create` e `assertDeskAllowsOpen`, no padrão de `tickets.service.spec.ts` e `desk-policy.spec.ts`. AC-11 e a prova de que o Cliente comercial segue o solicitante.
-3. Web: `CreateTicketPage` renderizada com `api` simulado, no padrão de `CreateTicketPage.test.tsx` (consulta enviada, DOM, payload de `POST /tickets`); `TicketForm.test.tsx` para o aviso; `MesaFlagEditor.test.tsx` para o rótulo. AC-07 a AC-10, AC-12 a AC-15.
+3. Web: `CreateTicketPage` renderizada com `api` simulado, no padrão de `CreateTicketPage.test.tsx` (consulta enviada, DOM, payload de `POST /tickets`); `TicketForm.test.tsx` para o aviso; `ServiceDesksPage.test.tsx` para o rótulo. AC-07 a AC-10, AC-12 a AC-15.
 
 Cobertura de tenant: AC-01 e AC-04 são a prova de isolamento (CLIENT nunca vê item de mesa de outra empresa); o QA reproduz com usuários de duas organizações. Comandos: `npx jest <spec>` em `apps/api` e `npx vitest run <arquivo>` em `apps/web`. O layout em 640/1024 px é verificado por teste de classes e por captura em desktop e celular, que o responsável aceita visualmente. Testes planejados não são testes executados.
 
@@ -112,11 +112,11 @@ Cobertura de tenant: AC-01 e AC-04 são a prova de isolamento (CLIENT nunca vê 
 ## Riscos
 
 - A mesa sem Cliente vinculado é global: item de mesa global aparece para qualquer Cliente. É o comportamento já adotado para listar mesas.
-- A regra "mesa efetiva serve o Cliente" também vale na criação em branco. Chamado de atendente numa mesa de outro cliente, que hoje passa, passa a dar 400. É a intenção, mas muda o comportamento: o responsável confirma na aprovação da divisão em tickets.
+- A lista de mesas do formulário filtra por Cliente só na tela: a API não recebe o Cliente, então ela não recusa mesa de outro Cliente. A lacuna anterior continua: `POST /tickets` não valida a mesa contra a organização de um usuário CLIENT (fora desta entrega, reportada ao responsável).
 - `catalogRequiredOnOpen` deixa de bloquear a tela e passa a exigir só a declaração `semCatalogo` na API. Integrações que criam chamado sem item nessas mesas continuam recusadas.
 - Retirado em 2026-11-12: gravar o Cliente escolhido em `commercialOrganizationId` quebraria a igualdade entre esse campo e a organização do solicitante, e todo consumidor (visibilidade do `CLIENT_MASTER`, faturamento, dashboard, agenda, lista) lê o solicitante como Cliente do chamado. AC-05, AC-06 e AC-16 deixaram de existir; a numeração dos demais ACs não muda.
 - `semCatalogo` entra no DTO de criação, que rejeita campos desconhecidos (`organizationId` continua rejeitado): o web e a API mudam juntos.
-- Verificar, na fatia T2, se a criação já valida acesso à mesa pelo mesmo recorte de `GET /service-desks`; se não valida, o teste de tenant registra a lacuna e a SPEC volta ao alinhamento em vez de a fatia absorver o conserto.
+- A visibilidade de mesas para CLIENT que o catálogo aplica (`isDeskUsableBy`) espelha `getServiceDeskWhere`; `POST /tickets` segue sem checar a mesa contra a organização, como antes.
 
 ## Matriz de validação
 
@@ -127,7 +127,7 @@ Cobertura de tenant: AC-01 e AC-04 são a prova de isolamento (CLIENT nunca vê 
 | AC-07, AC-08, AC-09, AC-10 | `CreateTicketPage` | teste de tela + payload |
 | AC-11 | criação (API) | spec de `desk-policy`/`TicketsService.create` |
 | AC-12 | `CreateTicketPage`/`TicketForm` | teste de tela + payload |
-| AC-13 | Mesas | teste do editor de flags |
+| AC-13 | Mesas | teste da página de Mesas (aba Parâmetros) |
 | AC-14, AC-15 | `CreateTicketPage` | teste de DOM; captura em desktop e celular para aceite visual |
 
 ## Further Notes
