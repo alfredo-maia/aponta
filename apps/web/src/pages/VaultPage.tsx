@@ -32,6 +32,7 @@ import {
   EzCardItem,
   EzEmptyCard,
   EzPagination,
+  EzSelect,
   EzSpinner,
   EzTextInput,
   EzTree,
@@ -156,21 +157,14 @@ function CredentialModal({
         />
         <EzTextInput label="URL" value={url} onChange={(e) => setUrl(e.target.value)} />
         <EzTextInput label="Notas" value={description} onChange={(e) => setDescription(e.target.value)} />
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[14px] font-medium text-gray-900">Pasta</label>
-          <select
-            value={folderId}
-            onChange={(e) => setFolderId(e.target.value)}
-            className="h-[42px] w-full rounded-[12px] border border-gray-200 bg-white px-3 text-[14px] text-gray-900 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"
-          >
+        <EzSelect label="Pasta" value={folderId} onChange={(e) => setFolderId(e.target.value)}>
             <option value={ROOT_FOLDER_ID}>Raiz do cofre</option>
             {folders.map((folder) => (
               <option key={folder.id} value={folder.id}>
                 {folder.name}
               </option>
             ))}
-          </select>
-        </div>
+          </EzSelect>
         <div className="flex justify-end gap-3">
           <EzButton type="button" variant="secondary" label="Cancelar" onClick={onClose} />
           <EzButton type="submit" variant="primary" label="Salvar" />

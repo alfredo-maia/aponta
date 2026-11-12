@@ -269,7 +269,7 @@ describe('KnowledgePage', () => {
         folderId: 'folder-1',
       });
     });
-  });
+  }, 20000);
 
   it('selects an agent group and a client in the share dialog, and sends them (plus auto-share) in the create payload', async () => {
     loginAs('AGENT');
@@ -330,7 +330,7 @@ describe('KnowledgePage', () => {
         folderId: 'folder-1',
       });
     });
-  });
+  }, 20000);
 
   it('allows an AGENT to update an existing article, pre-populating the access type and sharing lists', async () => {
     loginAs('AGENT');

@@ -1,7 +1,7 @@
 import { Fragment, useState, type ReactNode } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import type { Ticket } from '../../hooks/useTickets';
-import { EzAlert, EzEmptyCard, EzSpinner, EzTag } from '../ds';
+import { EzAlert, EzEmptyCard, EzSelect, EzSpinner, EzTag } from '../ds';
 import { statusLabels, priorityLabels, statusTagVariants, priorityTagVariants } from './TicketCard';
 import { useUserScreenConfig } from '../../hooks/useUserScreenConfig';
 import { useOpenInTab } from '../../contexts/TabsContext';
@@ -256,18 +256,20 @@ export function TicketList({
         <label htmlFor="ticket-list-group-by" className="text-[13px] font-medium text-gray-700">
           Agrupar por
         </label>
-        <select
+        <EzSelect
           id="ticket-list-group-by"
+          aria-label="Agrupar por"
+          variant="compact"
+          className="w-auto"
           value={config.groupBy || 'none'}
           onChange={(e) => setGroupBy(e.target.value)}
-          className="h-[var(--control-height-compact)] rounded-control border border-gray-200 bg-white px-2 text-[13px] text-gray-900"
         >
           {GROUP_OPTIONS.map((opt) => (
             <option key={opt.id} value={opt.id}>
               {opt.label}
             </option>
           ))}
-        </select>
+        </EzSelect>
 
         <div className="relative">
           <button

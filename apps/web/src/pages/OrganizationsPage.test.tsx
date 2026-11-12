@@ -982,7 +982,7 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     await user.click(within(drawer).getByTestId('ez-dynamic-filter-add'));
 
     const rule = within(drawer).getByTestId('ez-dynamic-filter-rule');
-    const fieldOptions = within(within(rule).getByLabelText('Campo')).getAllByRole('option').map((o) => o.textContent);
+    const fieldOptions = within(within(rule).getByLabelText('Campo', { selector: 'select' })).getAllByRole('option', { hidden: true }).map((o) => o.textContent);
     expect(fieldOptions).toEqual(
       expect.arrayContaining(['Nome', 'Razão Social', 'CPF / CNPJ', 'Status', 'Clientes', 'Inscrição Estadual', 'Perfil', 'Saúde']),
     );

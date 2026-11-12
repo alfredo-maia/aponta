@@ -472,8 +472,8 @@ describe('ContractsPage', () => {
     await user.click(within(drawer).getByTestId('ez-dynamic-filter-add'));
 
     const rule = within(drawer).getByTestId('ez-dynamic-filter-rule');
-    await user.selectOptions(within(rule).getByLabelText('Campo'), 'modality');
-    await user.selectOptions(within(rule).getByLabelText('Valor'), 'Cobertura');
+    await user.selectOptions(within(rule).getByLabelText('Campo', { selector: 'select' }), 'modality');
+    await user.selectOptions(within(rule).getByLabelText('Valor', { selector: 'select' }), 'Cobertura');
 
     expect(screen.queryByText('Empresa A')).not.toBeInTheDocument();
     expect(screen.getByText('Empresa B')).toBeInTheDocument();

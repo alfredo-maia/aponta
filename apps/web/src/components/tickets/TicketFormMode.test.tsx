@@ -44,7 +44,7 @@ describe('TicketFormMode', () => {
   it('DMTE-490 AC-06: status select offers every status with the same labels and order as the ticket detail', () => {
     render(<TicketFormMode ticket={mockTicket} layout="CASCADE" onBackToGrid={vi.fn()} />);
 
-    const options = within(screen.getByTestId('ticket-form-status-select')).getAllByRole('option');
+    const options = within(screen.getByTestId('ticket-form-status-select')).getAllByRole('option', { hidden: true });
 
     expect(options.map((o) => o.textContent)).toEqual([
       'Aberto',

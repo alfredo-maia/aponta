@@ -426,7 +426,7 @@ describe('EzEntityGrid rich pagination and horizontal scrollbar (Sankhya parity)
 
     // Initial page: 1-2 de 3
     expect(screen.getByTestId('ez-entity-grid-pagination-count')).toHaveTextContent('1-2 de 3');
-    const select = screen.getByLabelText('Linhas por página:');
+    const select = screen.getByLabelText('Linhas por página:', { selector: 'select' });
     expect(select).toBeInTheDocument();
     expect(select).toHaveValue('2');
 

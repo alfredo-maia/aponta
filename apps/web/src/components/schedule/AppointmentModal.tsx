@@ -6,7 +6,7 @@ import { Ticket } from '../../hooks/useTickets';
 import { useAuthStore } from '../../stores/authStore';
 import { useCanReleaseWorklogWithoutSchedule } from '../../hooks/usePermissions';
 import { TicketSearchModal } from './TicketSearchModal';
-import { EzButton, EzCheck, EzModal, EzTextInput, EzBadge, EzSearch, EzDateInput, EzTimeInput } from '../ds';
+import { EzButton, EzCheck, EzModal, EzSelect, EzTextInput, EzBadge, EzSearch, EzDateInput, EzTimeInput } from '../ds';
 import { Search, Trash2, Unlink, User as UserIcon } from 'lucide-react';
 
 interface OrganizationOption {
@@ -303,21 +303,18 @@ export function AppointmentModal({
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1">Tipo de Evento</label>
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value as AppointmentType)}
-              disabled={!canEdit || isSubmitting}
-              className="w-full h-[42px] px-3 text-sm border border-gray-300 rounded-[8px] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
-            >
+          <EzSelect
+            label="Tipo de Evento"
+            value={type}
+            onChange={(e) => setType(e.target.value as AppointmentType)}
+            disabled={!canEdit || isSubmitting}
+          >
               {TYPE_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
               ))}
-            </select>
-          </div>
+            </EzSelect>
 
           {linkedTicket ? (
             <EzTextInput

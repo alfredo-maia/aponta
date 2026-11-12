@@ -105,6 +105,6 @@ describe('EzTaskbar e seletor de linhas no celular (revisão interna)', () => {
 
   it('seletor de linhas por página tem 44px de altura abaixo de sm', () => {
     render(<EzEntityGrid columns={columns} data={data} pageSize={2} pageSizeOptions={[2, 5]} />);
-    expect(screen.getByLabelText('Linhas por página:')).toHaveClass('h-11');
+    expect(screen.getByRole('combobox', { name: 'Linhas por página:' }).parentElement).toHaveClass('h-11');
   });
 });

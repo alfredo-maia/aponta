@@ -21,10 +21,11 @@ export interface EzSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   hasError?: boolean;
   /**
    * `default` follows EzComboBox (rounded, 42px); `classic` follows
-   * EzClassicComboBox (square corners, denser).
+   * EzClassicComboBox (square corners, denser); `compact` is the 32px control
+   * (44px touch target below `sm`) for toolbars, grids and filters.
    * @default 'default'
    */
-  variant?: 'default' | 'classic';
+  variant?: 'default' | 'classic' | 'compact';
 }
 
 interface Option {
@@ -67,6 +68,8 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
     const fieldId = id ?? generatedId;
     const listId = `${fieldId}-listbox`;
     const classic = variant === 'classic';
+    const compact = variant === 'compact';
+    const dense = classic || compact;
 
     const nativeRef = useRef<HTMLSelectElement>(null);
     const anchorRef = useRef<HTMLDivElement>(null);
@@ -146,14 +149,14 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
     const accessibleName = label ?? props['aria-label'];
 
     return (
-      <div className={cn('flex flex-col w-full', classic ? 'gap-1' : 'gap-1.5', className)}>
+      <div className={cn('flex flex-col w-full', dense ? 'gap-1' : 'gap-1.5', className)}>
         {label && (
           <div className="flex items-center mb-0.5">
             <label
               htmlFor={fieldId}
               className={cn(
                 'font-medium leading-none select-none',
-                classic ? 'text-[13px]' : 'text-[14px]',
+                dense ? 'text-[13px]' : 'text-[14px]',
                 disabled ? 'text-gray-400' : 'text-gray-900',
                 hasError && 'text-red-700',
               )}
@@ -172,7 +175,7 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
           <div
             className={cn(
               'relative flex items-center w-full overflow-hidden transition-colors border bg-white',
-              classic ? 'rounded-none h-[34px]' : 'rounded-[12px] h-[42px]',
+              classic ? 'rounded-none h-[34px]' : compact ? 'rounded-[8px] h-11 sm:h-[32px]' : 'rounded-[12px] h-[42px]',
               'focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600',
               hasError
                 ? 'border-red-600 ring-red-600'
@@ -214,12 +217,12 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
               onKeyDown={onKeyDown}
               className={cn(
                 'flex h-full w-full items-center justify-between gap-2 bg-transparent text-left text-gray-900 outline-none',
-                classic ? 'pl-2 pr-2 text-[13px]' : 'pl-4 pr-3 text-[14px]',
+                dense ? 'pl-2 pr-2 text-[13px]' : 'pl-4 pr-3 text-[14px]',
                 disabled && 'text-gray-400 cursor-not-allowed',
               )}
             >
               <span className="truncate">{selected?.label}</span>
-              <ChevronDown className={cn('shrink-0 text-gray-500', classic ? 'w-3.5 h-3.5' : 'w-4 h-4')} aria-hidden="true" />
+              <ChevronDown className={cn('shrink-0 text-gray-500', dense ? 'w-3.5 h-3.5' : 'w-4 h-4')} aria-hidden="true" />
             </button>
           </div>
 
@@ -229,8 +232,8 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
               role="listbox"
               aria-label={accessibleName}
               className={cn(
-                'absolute left-0 top-full z-30 mt-1 max-h-60 w-full overflow-auto border border-gray-200 bg-white py-1 shadow-popover',
-                classic ? 'rounded-none' : 'rounded-[12px]',
+                'absolute left-0 top-full z-30 mt-1 max-h-60 w-max min-w-full max-w-[24rem] overflow-auto border border-gray-200 bg-white py-1 shadow-popover',
+                classic ? 'rounded-none' : compact ? 'rounded-[8px]' : 'rounded-[12px]',
               )}
             >
               {options.map((option, index) => (
@@ -262,12 +265,12 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
           <div
             className={cn(
               'flex items-center gap-1.5 font-medium leading-none mt-0.5',
-              classic ? 'text-[11px]' : 'text-[12px]',
+              dense ? 'text-[11px]' : 'text-[12px]',
               hasError ? 'text-red-700' : 'text-gray-500',
               disabled && 'text-gray-400',
             )}
           >
-            {hasError && <AlertCircle className={classic ? 'w-3 h-3' : 'w-3.5 h-3.5'} />}
+            {hasError && <AlertCircle className={dense ? 'w-3 h-3' : 'w-3.5 h-3.5'} />}
             <span>{message}</span>
           </div>
         )}

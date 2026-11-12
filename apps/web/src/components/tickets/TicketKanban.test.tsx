@@ -463,7 +463,7 @@ describe('TicketKanban', () => {
       // yet and silently ignores the change.
       await waitFor(() => {
         expect(
-          screen.getByRole('option', { name: 'Mesa: Suporte N1' }),
+          screen.getByRole('option', { name: 'Mesa: Suporte N1', hidden: true }),
         ).toBeInTheDocument();
       });
       expect(screen.getByTestId('kanban-mesa-select')).toHaveValue('');
@@ -872,7 +872,7 @@ describe('TicketKanban', () => {
         screen.getByRole('button', { name: /ordenar/i }),
         screen.getByRole('button', { name: /configurações/i }),
       ];
-      const row = controls[0].parentElement!.parentElement!;
+      const row = controls[0].closest('.max-w-xs')!.parentElement!;
       controls.forEach((control) => expect(row).toContainElement(control));
       controls.slice(1).forEach((control, index) => {
         expect(
@@ -939,7 +939,7 @@ describe('TicketKanban', () => {
       renderKanban({ tickets: ticketsWithAgents, isLoading: false, isError: false });
 
       fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
-      fireEvent.change(screen.getByLabelText(/agrupar por/i), { target: { value: 'agent' } });
+      fireEvent.change(screen.getByLabelText(/agrupar por/i, { selector: 'select' }), { target: { value: 'agent' } });
 
       expect(screen.getByRole('heading', { name: 'Ana Costa' })).toBeInTheDocument();
       expect(screen.getByRole('heading', { name: 'Bruno Dias' })).toBeInTheDocument();
@@ -953,7 +953,7 @@ describe('TicketKanban', () => {
       renderKanban({ tickets: ticketsWithAgents, isLoading: false, isError: false });
 
       fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
-      fireEvent.change(screen.getByLabelText(/agrupar por/i), { target: { value: 'priority' } });
+      fireEvent.change(screen.getByLabelText(/agrupar por/i, { selector: 'select' }), { target: { value: 'priority' } });
 
       expect(screen.getByRole('heading', { name: 'Alta' })).toBeInTheDocument();
     });

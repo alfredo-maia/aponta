@@ -113,7 +113,7 @@ describe('TicketList (D5: Lista agrupável)', () => {
     const user = userEvent.setup();
     renderList();
 
-    await user.selectOptions(screen.getByLabelText(/agrupar por/i), 'organization');
+    await user.selectOptions(screen.getByLabelText(/agrupar por/i, { selector: 'select' }), 'organization');
 
     const acmeGroup = screen.getByText(/Acme.*\(1\)|Acme — 1|Acme \(1\)/i);
     expect(acmeGroup).toBeInTheDocument();
@@ -129,7 +129,7 @@ describe('TicketList (D5: Lista agrupável)', () => {
     const user = userEvent.setup();
     renderList();
 
-    await user.selectOptions(screen.getByLabelText(/agrupar por/i), 'organization');
+    await user.selectOptions(screen.getByLabelText(/agrupar por/i, { selector: 'select' }), 'organization');
     const header = screen.getByRole('button', { name: /Acme \(1\)/ });
     expect(header).toHaveAttribute('aria-expanded', 'false');
 
@@ -146,8 +146,8 @@ describe('TicketList (D5: Lista agrupável)', () => {
     const user = userEvent.setup();
     renderList();
 
-    await user.selectOptions(screen.getByLabelText(/agrupar por/i), 'organization');
-    await user.selectOptions(screen.getByLabelText(/agrupar por/i), 'none');
+    await user.selectOptions(screen.getByLabelText(/agrupar por/i, { selector: 'select' }), 'organization');
+    await user.selectOptions(screen.getByLabelText(/agrupar por/i, { selector: 'select' }), 'none');
 
     expect(screen.getByText('AP-2026-0001')).toBeInTheDocument();
     expect(screen.getByText('AP-2026-0002')).toBeInTheDocument();
@@ -175,7 +175,7 @@ describe('TicketList (D5: Lista agrupável)', () => {
     const user = userEvent.setup();
     renderList({ totalPages: 3 });
 
-    await user.selectOptions(screen.getByLabelText(/agrupar por/i), 'organization');
+    await user.selectOptions(screen.getByLabelText(/agrupar por/i, { selector: 'select' }), 'organization');
 
     expect(screen.getByText(/agrupando os 2 chamados desta página/i)).toBeInTheDocument();
   });

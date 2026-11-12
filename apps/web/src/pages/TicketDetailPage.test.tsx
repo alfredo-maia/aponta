@@ -390,7 +390,7 @@ describe('TicketDetailPage', () => {
       setRole('CLIENT');
       renderPage();
       await screen.findByText('Printer not working');
-      expect(screen.queryByLabelText(/atribuído a:/i)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/atribuído a:/i, { selector: 'select' })).not.toBeInTheDocument();
     });
 
     it('shows the assignment dropdown to agents and allows assigning a ticket', async () => {
@@ -398,11 +398,11 @@ describe('TicketDetailPage', () => {
       const user = userEvent.setup();
       renderPage();
       
-      const select = await screen.findByLabelText(/atribuído a:/i);
+      const select = await screen.findByLabelText(/atribuído a:/i, { selector: 'select' });
       expect(select).toBeInTheDocument();
       
       // Need to wait for the agents query to render options
-      await screen.findByRole('option', { name: 'Agent Jones' });
+      await screen.findByRole('option', { name: 'Agent Jones', hidden: true });
       
       // Select the new agent (Agent Jones)
       await user.selectOptions(select, 'agent-2');
@@ -435,8 +435,8 @@ describe('TicketDetailPage', () => {
       const user = userEvent.setup();
       renderPage();
 
-      const select = await screen.findByLabelText(/^status$/i);
-      const labels = within(select).getAllByRole('option').map((o) => o.textContent);
+      const select = await screen.findByLabelText(/^status$/i, { selector: 'select' });
+      const labels = within(select).getAllByRole('option', { hidden: true }).map((o) => o.textContent);
       expect(labels).toEqual(STATUS_OPTIONS);
 
       await user.selectOptions(select, 'PENDING_SANKHYA');
@@ -452,7 +452,7 @@ describe('TicketDetailPage', () => {
       renderPage();
 
       expect(await screen.findByText('Aguardando Sankhya')).toBeInTheDocument();
-      expect(screen.queryByLabelText(/^status$/i)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/^status$/i, { selector: 'select' })).not.toBeInTheDocument();
     });
   });
 
@@ -474,7 +474,7 @@ describe('TicketDetailPage', () => {
       const user = userEvent.setup();
       renderPage();
 
-      const select = await screen.findByLabelText(/^status$/i);
+      const select = await screen.findByLabelText(/^status$/i, { selector: 'select' });
       await user.selectOptions(select, 'CLOSED');
 
       await waitFor(() => {
@@ -619,8 +619,8 @@ describe('TicketDetailPage', () => {
       });
       vi.mocked(api.patch).mockResolvedValue({ data: { id: 't-1' } });
 
-      const select = await screen.findByLabelText(/atribuído a:/i);
-      await screen.findByRole('option', { name: 'Agent Jones' });
+      const select = await screen.findByLabelText(/atribuído a:/i, { selector: 'select' });
+      await screen.findByRole('option', { name: 'Agent Jones', hidden: true });
       await user.selectOptions(select, 'agent-2');
 
       await waitFor(() => {
