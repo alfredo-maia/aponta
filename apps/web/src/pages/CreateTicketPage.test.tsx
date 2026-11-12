@@ -101,7 +101,7 @@ describe('CreateTicketPage', () => {
     expect(screen.queryByLabelText('Voltar para o catálogo')).not.toBeInTheDocument();
   });
 
-  it('DMTE-489 AC-01: formulário e catálogo usam o teto max-w-7xl', async () => {
+  it('DMTE-493 AC-01: carregamento, catálogo e formulário sem teto de largura, como Relatórios', async () => {
     vi.mocked(api.get).mockImplementation((url) => {
       if (url === '/catalog') {
         return Promise.resolve({
@@ -113,11 +113,10 @@ describe('CreateTicketPage', () => {
     const user = userEvent.setup();
     renderPage();
 
-    const catalogWrapper = (await screen.findByText('Catálogo de Serviços')).closest('[class*="max-w-"]');
-    expect(catalogWrapper).toHaveClass('max-w-7xl');
+    expect(screen.getByText('Carregando catálogo…').closest('[class*="max-w-"]')).toBeNull();
+    expect((await screen.findByText('Catálogo de Serviços')).closest('[class*="max-w-"]')).toBeNull();
     await user.click(screen.getByRole('button', { name: /meu problema não está catalogado/i }));
-    const formWrapper = (await screen.findByText('Abrir Chamado')).closest('[class*="max-w-"]');
-    expect(formWrapper).toHaveClass('max-w-7xl');
+    expect((await screen.findByText('Abrir Chamado')).closest('[class*="max-w-"]')).toBeNull();
   });
 
   it('DMTE-489 AC-02: cliente, mesa, solicitante e prioridade em 1, 2 e 4 colunas por largura', async () => {
@@ -177,7 +176,7 @@ describe('CreateTicketPage', () => {
     renderPage();
 
     const maxWidth = (el: HTMLElement) =>
-      (el.closest('[class*="max-w-"]') as HTMLElement).className.match(/max-w-\S+/)?.[0];
+      (el.closest('[class*="max-w-"]') as HTMLElement | null)?.className.match(/max-w-\S+/)?.[0];
 
     const catalogWidth = maxWidth(await screen.findByText('Catálogo de Serviços'));
     await user.click(screen.getByRole('button', { name: /meu problema não está catalogado/i }));
