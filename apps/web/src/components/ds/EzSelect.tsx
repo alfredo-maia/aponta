@@ -16,8 +16,11 @@ import { AlertCircle, Check, ChevronDown } from 'lucide-react';
 import { cn } from './utils';
 
 export interface EzSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+  /** Visible label, associated to the field (clicking it focuses the control). */
   label?: string;
+  /** Help or error text shown under the field. */
   message?: string;
+  /** Error state: red border and label, `aria-invalid` on the control. */
   hasError?: boolean;
   /**
    * `default` follows EzComboBox (rounded, 42px); `classic` follows
@@ -159,6 +162,11 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
           <div className="flex items-center mb-0.5">
             <label
               htmlFor={fieldId}
+              onClick={(event) => {
+                // O padrão do rótulo foca o select escondido; o foco vai para o controle visível.
+                event.preventDefault();
+                controlRef.current?.focus();
+              }}
               className={cn(
                 'font-medium leading-none select-none',
                 dense ? 'text-[13px]' : 'text-[14px]',
@@ -187,7 +195,7 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
                 : classic
                   ? 'border-gray-300 hover:border-gray-400'
                   : 'border-gray-200 hover:border-gray-300',
-              disabled && 'bg-gray-80 border-gray-200 cursor-not-allowed',
+              disabled && (dense ? 'bg-gray-80 border-gray-200 cursor-not-allowed' : 'bg-gray-80 border-gray-100 cursor-not-allowed'),
             )}
           >
             <select

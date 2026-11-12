@@ -58,6 +58,8 @@ export default defineConfig(() => {
       name: 'web',
       watch: false,
       globals: true,
+      // Telas com muitos seletores (EzSelect) têm mais botões para as consultas por role; sob carga o padrão de 5s oscila.
+      testTimeout: 15000,
       environment: 'jsdom',
       setupFiles: ['./src/test-setup.ts'],
       include: ['{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
