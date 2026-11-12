@@ -1,8 +1,8 @@
 {
   "version": 1,
   "phase": "red",
-  "started_at": "2026-11-12T20:41:44.381595+00:00",
-  "finished_at": "2026-11-12T20:45:12.223744+00:00",
+  "started_at": "2026-11-12T20:45:22.899836+00:00",
+  "finished_at": "2026-11-12T20:48:23.847571+00:00",
   "command": [
     "pnpm",
     "exec",
@@ -15,7 +15,7 @@
     "--skip-nx-cache"
   ],
   "base_sha": "42ef297ffe91e979169082ce77c5bef8206a5ef6",
-  "head_sha": "6440d7632677d40392b5b6f93063e6b416acb32e",
+  "head_sha": "6a0a654ac2e14cc428ef0fa13136b2ffeede3c94",
   "exit_code": 1,
   "tests": {
     "apps/api/src/worklogs/worklog-autoclose.service.spec.ts": "106136ca0de09bf1afd2f6a61f770e1d1a4bb7987a39db1956a3b0f60045636c",
@@ -25,11 +25,13 @@
     "AC-32"
   ],
   "source_hashes": {
+    "apps/api/src/feature-flags/feature-flags.module.ts": "5b6909abdab48a3460204ac96a38c265de3103cf983c799ec62614f38db14f6f",
     "apps/api/src/feature-flags/feature-flags.service.ts": "495bc994673c562a44ea86eca2aeff9ae47c9439a2f0774c79b1984636c82a99",
     "apps/api/src/feature-flags/feature-flags.spec.ts": "144560807e03887fc187f7ab3f3b91635785556e17e9572e14c331f967f3005f",
     "apps/api/src/worklogs/worklog-autoclose.service.spec.ts": "106136ca0de09bf1afd2f6a61f770e1d1a4bb7987a39db1956a3b0f60045636c",
-    "apps/api/src/worklogs/worklog-autoclose.service.ts": "7a0e017b3cede2d6fc702012d3929aa62e2fb989f1d9d52f3037344ae179745c"
+    "apps/api/src/worklogs/worklog-autoclose.service.ts": "7a0e017b3cede2d6fc702012d3929aa62e2fb989f1d9d52f3037344ae179745c",
+    "apps/api/src/worklogs/worklogs.module.ts": "b3733e803d81a6cf72aac327627644be4964a19186100dd4e0d60cffc743f90d"
   },
   "log": ".delivery/evidence/DMTE-462-t4flag/red.log",
-  "log_sha256": "1b544b54e0465ec281c4d437b14c8615e2844e7c1adbdc5d7ca93e609caf6deb"
+  "log_sha256": "c78a1fee7bd0966b3bb20dadb0a6fce9cf1591f30ce572b98b6cbb12dc8cfb74"
 }
