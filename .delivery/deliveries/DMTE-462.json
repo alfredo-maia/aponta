@@ -15,7 +15,8 @@
         "apps/api/src/worklogs/agenda-window.spec.ts",
         "apps/api/src/worklogs/worklogs.commercial.spec.ts",
         "apps/api/src/worklogs/worklogs.controller.spec.ts",
-        "apps/web/src/components/tickets/TicketWorklogs.test.tsx"
+        "apps/web/src/components/tickets/TicketWorklogs.test.tsx",
+        "apps/web/src/hooks/useActivityTimer.test.ts"
       ]
     },
     {
