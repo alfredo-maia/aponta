@@ -110,6 +110,31 @@ describe('assertDeskAllowsOpen', () => {
     ).toThrow(BadRequestException);
   });
 
+  it('DMTE-485 AC-11: aceita chamado sem item em mesa com catálogo exigido quando declara semCatalogo', () => {
+    expect(() =>
+      assertDeskAllowsOpen({
+        desk: { ...openDesk, catalogRequiredOnOpen: true },
+        user: agent,
+        requester,
+        semCatalogo: true,
+        attachmentCount: 0,
+      }),
+    ).not.toThrow();
+  });
+
+  it('DMTE-485 AC-11: recusa semCatalogo junto de um catalogItemId', () => {
+    expect(() =>
+      assertDeskAllowsOpen({
+        desk: openDesk,
+        user: agent,
+        requester,
+        catalogItemId: 'item-1',
+        semCatalogo: true,
+        attachmentCount: 0,
+      }),
+    ).toThrow(BadRequestException);
+  });
+
   it('rejects a disabled priority', () => {
     expect(() =>
       assertDeskAllowsOpen({

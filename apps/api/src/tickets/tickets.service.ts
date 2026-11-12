@@ -392,6 +392,7 @@ export class TicketsService {
         extension: null,
       },
       catalogItemId: dto.catalogItemId,
+      semCatalogo: dto.semCatalogo,
       priority,
       resourceGroup: dto.resourceGroup,
       attachmentCount: dto.attachmentCount ?? 0,

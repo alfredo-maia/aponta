@@ -260,6 +260,20 @@ describe('ServiceDesksPage', () => {
     });
   });
 
+  it("DMTE-485 AC-13: a opção de catálogo da mesa aparece como \"Mostrar o catálogo ao abrir (permite 'não catalogado')\"", async () => {
+    loginAs('ADMIN');
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Suporte N1');
+    await user.click(screen.getByText('Suporte N1'));
+    await user.click(await screen.findByRole('tab', { name: 'Parâmetros' }));
+
+    expect(
+      await screen.findByLabelText("Mostrar o catálogo ao abrir (permite 'não catalogado')"),
+    ).toBeInTheDocument();
+    expect(screen.queryByLabelText('Catálogo obrigatório ao abrir')).not.toBeInTheDocument();
+  });
+
   it('shows the Sankhya-standard filter drawer with search, status and dynamic filter fields', async () => {
     loginAs('ADMIN');
     const user = userEvent.setup();

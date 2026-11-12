@@ -4,6 +4,7 @@ import { JobRun, ScheduledJob, useScheduledJobs, useUpdateScheduledJob } from '.
 
 const JOB_LABELS: Record<string, string> = {
   HEARTBEAT: 'Verificação do agendador',
+  WORKLOG_AUTOCLOSE: 'Fechamento automático de cronômetros',
 };
 const RUN_STATUS: Record<JobRun['status'], string> = { RUNNING: 'Em execução', SUCCESS: 'Sucesso', FAILED: 'Falhou' };
 

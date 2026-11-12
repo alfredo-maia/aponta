@@ -5,7 +5,9 @@ import type { Contract } from './useContracts';
 import {
   useCreatePreAppointment,
   useDeletePreAppointment,
+  usePausePreAppointment,
   usePreAppointments,
+  useResumePreAppointment,
   useStopPreAppointment,
   type PreAppointment,
 } from './usePreAppointments';
@@ -34,35 +36,36 @@ export function useActivityTimer(ticketId: string): ActivityTimer {
   const createMut = useCreatePreAppointment(ticketId);
   const stopMut = useStopPreAppointment(ticketId);
   const deleteMut = useDeletePreAppointment(ticketId);
+  const pauseMut = usePausePreAppointment(ticketId);
+  const resumeMut = useResumePreAppointment(ticketId);
 
   const running = items.find((item) => !item.ending);
-  const [timerPaused, setTimerPaused] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(0);
 
   const timerActive = Boolean(running);
   const timerStartISO = running?.beginning ?? null;
   const timerEndISO = null;
+  // DMTE-462 T4: a pausa vem do servidor; o relógio desconta as pausas já somadas e para no instante da pausa.
+  const pausedAt = running?.pausedAt ?? null;
+  const pausedMs = running?.pausedMs ?? 0;
+  const timerPaused = Boolean(pausedAt);
 
   useEffect(() => {
-    if (!running) {
-      setTimerPaused(false);
+    if (!timerStartISO) {
       setTimerSeconds(0);
+      return;
     }
-  }, [running?.id]);
-
-  useEffect(() => {
-    if (!timerActive || timerPaused || !timerStartISO) return;
-
     const startMs = new Date(timerStartISO).getTime();
-    setTimerSeconds(Math.max(0, Math.floor((Date.now() - startMs) / 1000)));
+    const tick = () =>
+      setTimerSeconds(
+        Math.max(0, Math.floor(((pausedAt ? new Date(pausedAt).getTime() : Date.now()) - startMs - pausedMs) / 1000)),
+      );
+    tick();
+    if (pausedAt) return;
 
-    const interval = setInterval(() => {
-      const elapsed = Math.max(0, Math.floor((Date.now() - startMs) / 1000));
-      setTimerSeconds(elapsed);
-    }, 1000);
-
+    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [timerActive, timerPaused, timerStartISO]);
+  }, [timerStartISO, pausedAt, pausedMs]);
 
   const handleStartTimer = async (contractId?: string) => {
     const beginning = new Date().toISOString();
@@ -91,16 +94,15 @@ export function useActivityTimer(ticketId: string): ActivityTimer {
       beginning,
       initTime: brasiliaTimeString(new Date(beginning)),
     });
-    setTimerPaused(false);
     setTimerSeconds(0);
   };
 
   const handlePauseTimer = () => {
-    setTimerPaused(true);
+    if (running) void pauseMut.mutateAsync(running.id);
   };
 
   const handleResumeTimer = () => {
-    setTimerPaused(false);
+    if (running) void resumeMut.mutateAsync(running.id);
   };
 
   const handleStopTimer = async () => {
@@ -111,14 +113,12 @@ export function useActivityTimer(ticketId: string): ActivityTimer {
       ending,
       endTime: brasiliaTimeString(new Date(ending)),
     });
-    setTimerPaused(false);
   };
 
   const handleCancelTimer = async (id?: string) => {
     const targetId = id || running?.id;
     if (!targetId) return;
     await deleteMut.mutateAsync(targetId);
-    setTimerPaused(false);
     setTimerSeconds(0);
   };
 

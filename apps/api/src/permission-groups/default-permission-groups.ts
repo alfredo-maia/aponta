@@ -1,7 +1,7 @@
 import { Role } from '@prisma/client';
 import { PERMISSION_KEYS } from './permission-catalog';
 
-const GROUP_ONLY_KEYS = ['VIEW_TICKET_VALUES', 'EDIT_WORKLOG_START_TIME', 'RELEASE_WORKLOG_WITHOUT_SCHEDULE'];
+const GROUP_ONLY_KEYS = ['VIEW_TICKET_VALUES', 'EDIT_WORKLOG_START_TIME', 'RELEASE_WORKLOG_WITHOUT_SCHEDULE', 'RECEIVE_WORKLOG_AUTOCLOSE_ALERT'];
 
 /**
  * DMTE-84 (Tarefa 1): one default PermissionGroup per legacy Role enum

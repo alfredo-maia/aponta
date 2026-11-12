@@ -18,6 +18,10 @@ export interface PreAppointment {
   authorId: string;
   createdAt: string;
   author?: PreAppointmentAuthor;
+  /** DMTE-462 T4: pausa gravada no servidor e motivo da trava (encerrado pelo sistema). */
+  pausedAt?: string | null;
+  pausedMs?: number;
+  lockedReason?: 'LIMIT' | 'PAUSE_EXPIRED' | 'WINDOW_CLOSED' | null;
 }
 
 export interface CreatePreAppointmentInput {
@@ -107,3 +111,24 @@ export function useDeletePreAppointment(ticketId: string) {
     },
   });
 }
+
+function usePreAppointmentControl(ticketId: string, action: 'pause' | 'resume') {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (preAppointmentId: string) => {
+      const res = await api.post<PreAppointment>(
+        `/tickets/${ticketId}/pre-appointments/${preAppointmentId}/${action}`,
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: preAppointmentsQueryKey(ticketId),
+      });
+    },
+  });
+}
+
+export const usePausePreAppointment = (ticketId: string) => usePreAppointmentControl(ticketId, 'pause');
+export const useResumePreAppointment = (ticketId: string) => usePreAppointmentControl(ticketId, 'resume');

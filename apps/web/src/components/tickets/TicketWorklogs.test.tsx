@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../stores/authStore';
 import { brasiliaDateString } from '../../lib/brasiliaTime';
@@ -104,6 +104,9 @@ type PreRow = {
   authorId: string;
   createdAt: string;
   author: { id: string; name: string; email: string };
+  pausedAt?: string | null;
+  pausedMs?: number;
+  lockedReason?: 'LIMIT' | 'PAUSE_EXPIRED' | 'WINDOW_CLOSED' | null;
 };
 
 let currentWorklogs: unknown[] = [];
@@ -143,6 +146,18 @@ function installApiStubs() {
     return Promise.resolve({ data: currentWorklogs });
   });
   vi.mocked(api.post).mockImplementation((url: string, body?: unknown) => {
+    const control = String(url).match(/\/pre-appointments\/([^/]+)\/(pause|resume)$/);
+    if (control) {
+      const now = new Date().toISOString();
+      preStore = preStore.map((row) =>
+        row.id !== control[1]
+          ? row
+          : control[2] === 'pause'
+            ? { ...row, pausedAt: now }
+            : { ...row, pausedAt: null, pausedMs: (row.pausedMs ?? 0) + (row.pausedAt ? Date.now() - new Date(row.pausedAt).getTime() : 0) },
+      );
+      return Promise.resolve({ data: preStore.find((row) => row.id === control[1]) });
+    }
     if (String(url).includes('/pre-appointments')) {
       const input = (body || {}) as { beginning?: string; initTime?: string };
       const beginning = input.beginning || new Date().toISOString();
@@ -751,7 +766,7 @@ describe('TicketWorklogs', () => {
     expect(screen.getByTestId('worklog-timer-stop-btn')).toBeInTheDocument();
 
     await user.click(screen.getByTestId('worklog-timer-pause-btn'));
-    expect(screen.getByTestId('worklog-timer-resume-btn')).toBeInTheDocument();
+    expect(await screen.findByTestId('worklog-timer-resume-btn')).toBeInTheDocument();
 
     expect(screen.getByTestId('worklog-pre-appointments')).toBeInTheDocument();
     expect(screen.getByTestId('worklog-pre-end')).toHaveTextContent('--');
@@ -1377,5 +1392,62 @@ describe('TicketWorklogs', () => {
       expect(screen.getByTestId('worklog-start-time-input')).not.toHaveAttribute('readonly');
       expect(screen.getByTestId('worklog-end-time-input')).not.toHaveAttribute('readonly');
     });
+  });
+});
+describe('TicketWorklogs: pausa no servidor e cronômetro travado (DMTE-462 T4)', () => {
+  const NOW = new Date('2026-11-12T13:00:00.000Z');
+  const row = (over: Partial<PreRow> = {}): PreRow => ({
+    id: 'pre-1', contractId: 'contract-1', beginning: new Date(NOW.getTime() - 60 * 60_000).toISOString(), ending: null,
+    initTime: '09:00', endTime: null, ticketId: 't-1', authorId: 'u-1', createdAt: NOW.toISOString(),
+    author: { id: 'u-1', name: 'Técnico', email: 'agent@example.com' }, pausedAt: null, pausedMs: 0, lockedReason: null, ...over,
+  });
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'], now: NOW });
+    installApiStubs();
+    loginAs('AGENT', 'u-1');
+  });
+  afterEach(() => vi.useRealTimers());
+
+  it('AC-17: pausar grava no servidor', async () => {
+    preStore = [row()];
+    renderComponent('t-1', false);
+    fireEvent.click(await screen.findByTestId('worklog-timer-pause-btn'));
+    await waitFor(() => expect(vi.mocked(api.post).mock.calls.some(([url]) => String(url).endsWith('/pre-appointments/pre-1/pause'))).toBe(true));
+    expect(await screen.findByTestId('worklog-timer-resume-btn')).toBeInTheDocument();
+  });
+
+  it('AC-17: retomar grava no servidor', async () => {
+    preStore = [row({ pausedAt: new Date(NOW.getTime() - 10 * 60_000).toISOString() })];
+    renderComponent('t-1', false);
+    fireEvent.click(await screen.findByTestId('worklog-timer-resume-btn'));
+    await waitFor(() => expect(vi.mocked(api.post).mock.calls.some(([url]) => String(url).endsWith('/pre-appointments/pre-1/resume'))).toBe(true));
+  });
+
+  it('AC-17: o relógio desconta a pausa que o servidor já somou', async () => {
+    preStore = [row({ pausedMs: 10 * 60_000 })];
+    renderComponent('t-1', false);
+    await waitFor(() => expect(screen.getByTestId('worklog-timer-display')).toHaveTextContent('00:50:00'));
+  });
+
+  it('AC-17: pausado, o relógio fica parado no instante da pausa gravado no servidor', async () => {
+    preStore = [row({ pausedAt: new Date(NOW.getTime() - 20 * 60_000).toISOString() })];
+    renderComponent('t-1', false);
+    await waitFor(() => expect(screen.getByTestId('worklog-timer-display')).toHaveTextContent('00:40:00'));
+    expect(screen.getByTestId('worklog-timer-resume-btn')).toBeInTheDocument();
+  });
+
+  it('AC-20: cronômetro encerrado pelo sistema mostra o motivo e não oferece remover', async () => {
+    preStore = [row({ ending: NOW.toISOString(), endTime: '10:00', lockedReason: 'LIMIT' })];
+    renderComponent('t-1', false);
+    expect(await screen.findByText(/encerrado automaticamente/i)).toBeInTheDocument();
+    expect(screen.queryByTestId('worklog-pre-delete-btn')).not.toBeInTheDocument();
+    expect(screen.getByTestId('worklog-pre-convert-btn')).toBeInTheDocument();
+  });
+
+  it('AC-20: o encerrado por pausa também mostra o motivo; o comum continua removível', async () => {
+    preStore = [row({ id: 'pre-2', ending: NOW.toISOString(), endTime: '10:00', lockedReason: 'PAUSE_EXPIRED' }), row({ id: 'pre-3', ending: NOW.toISOString(), endTime: '10:00' })];
+    renderComponent('t-1', false);
+    expect(await screen.findByText(/pausa de 2 dias/i)).toBeInTheDocument();
+    expect(screen.getAllByTestId('worklog-pre-delete-btn')).toHaveLength(1);
   });
 });

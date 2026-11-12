@@ -4,6 +4,8 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CreateCatalogItemDto } from './dto/create-catalog-item.dto';
 import { UpdateCatalogItemDto } from './dto/update-catalog-item.dto';
+import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
+import { DESK_CATALOG_SELECT, deskServesOrganization, isClientRole, isDeskUsableBy } from '../service-desks/desk-policy';
 
 @Injectable()
 export class CatalogService {
@@ -17,6 +19,39 @@ export class CatalogService {
       } : undefined,
       orderBy: { name: 'asc' }
     });
+  }
+
+  /**
+   * Catálogo da abertura de chamados para o usuário: só itens ativos cuja mesa ele pode usar.
+   * Atendente pode restringir ao Cliente; CLIENT fica sempre na própria organização.
+   */
+  async findActiveCatalog(user: CurrentUserPayload, organizationId?: string) {
+    const categories = await this.prisma.serviceCatalogCategory.findMany({
+      where: { isActive: true },
+      include: {
+        items: {
+          where: { isActive: true },
+          orderBy: { title: 'asc' },
+          include: {
+            defaultServiceDesk: { select: DESK_CATALOG_SELECT },
+          },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+    const isClient = isClientRole(user);
+    return categories
+      .map((category) => ({
+        ...category,
+        // flatMap tira a mesa da resposta: ela carrega ids de atendentes e grupos.
+        items: category.items.flatMap(({ defaultServiceDesk: desk, ...item }) =>
+          isDeskUsableBy(desk, user) &&
+          (isClient || !organizationId || deskServesOrganization(desk, organizationId))
+            ? [item]
+            : [],
+        ),
+      }))
+      .filter((category) => category.items.length > 0);
   }
 
   async createCategory(dto: CreateCategoryDto) {

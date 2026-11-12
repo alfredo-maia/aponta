@@ -528,7 +528,7 @@ export function ServiceDesksPage() {
                         flags={[
                           { key: 'allowCrossDeskInteraction', label: 'Interação com outras mesas' },
                           { key: 'allowCancelTicket', label: 'Permitir cancelar ticket' },
-                          { key: 'catalogRequiredOnOpen', label: 'Catálogo obrigatório ao abrir' },
+                          { key: 'catalogRequiredOnOpen', label: "Mostrar o catálogo ao abrir (permite 'não catalogado')" },
                           { key: 'slaControlEnabled', label: 'Controle de SLA' },
                           { key: 'allowAddSlaHours', label: 'Permitir adicionar horas ao SLA' },
                           { key: 'allowPauseResumeSla', label: 'Permitir parar e retomar o SLA' },

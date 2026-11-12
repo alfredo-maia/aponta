@@ -821,6 +821,11 @@ model PreAppointment {
   /// DMTE-462 T2: agenda e limite de horas congelados no PLAY. Sem FK de propósito: apagar a agenda não muda o limite.
   appointmentId String?
   limitMinutes  Int?
+  /// DMTE-462 T4: fim da agenda congelado no PLAY, pausa gravada no servidor e motivo da trava.
+  windowEndsAt  DateTime?
+  pausedAt      DateTime?
+  pausedMs      Int           @default(0)
+  lockedReason  PreLockReason?
   createdAt DateTime  @default(now())
 
   @@index([ticketId])
@@ -1026,4 +1031,10 @@ model JobRun {
   error      String?
 
   @@index([jobType, startedAt])
+}
+
+enum PreLockReason {
+  LIMIT
+  PAUSE_EXPIRED
+  WINDOW_CLOSED
 }

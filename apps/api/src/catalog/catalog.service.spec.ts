@@ -1,4 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
+import { Role } from '@prisma/client';
 import { CatalogService } from './catalog.service';
 
 describe('CatalogService', () => {
@@ -53,6 +54,192 @@ describe('CatalogService', () => {
         include: { items: { orderBy: { title: 'asc' } } },
         orderBy: { name: 'asc' },
       });
+    });
+  });
+
+  describe('findActiveCatalog (DMTE-485)', () => {
+    const desk = (overrides: Record<string, unknown> = {}) => ({
+      active: true,
+      acceptingNewTickets: true,
+      internalUse: false,
+      openByAgentsOnly: false,
+      listedGroupsOnly: false,
+      unlistedCanCreateTicket: true,
+      allowCrossDeskInteraction: true,
+      agents: [],
+      agentGroups: [],
+      organizations: [],
+      ...overrides,
+    });
+    const item = (id: string, deskOverrides: Record<string, unknown> = {}) => ({
+      id,
+      title: id,
+      description: null,
+      icon: null,
+      categoryId: 'cat-1',
+      defaultServiceDeskId: `desk-${id}`,
+      defaultPriority: 'MEDIUM',
+      isActive: true,
+      defaultServiceDesk: desk(deskOverrides),
+    });
+    const category = (id: string, ...items: unknown[]) => ({
+      id,
+      name: id,
+      description: null,
+      isActive: true,
+      items,
+    });
+    const returns = (...categories: unknown[]) =>
+      mockPrisma.serviceCatalogCategory.findMany.mockResolvedValue(categories);
+    const itemIds = (result: { items: { id: string }[] }[]) =>
+      result.flatMap((c) => c.items.map((i) => i.id));
+
+    const admin = { id: 'admin-1', role: Role.ADMIN };
+    const agent = { id: 'agent-1', role: Role.AGENT };
+    const client = { id: 'client-1', role: Role.CLIENT, organizationId: 'org-1' };
+
+    it('AC-01: pede ao banco só categorias e itens ativos, ordenados', async () => {
+      returns();
+      await service.findActiveCatalog(admin);
+      expect(mockPrisma.serviceCatalogCategory.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { isActive: true },
+          orderBy: { name: 'asc' },
+          include: {
+            items: expect.objectContaining({
+              where: { isActive: true },
+              orderBy: { title: 'asc' },
+            }),
+          },
+        }),
+      );
+    });
+
+    it('AC-01: ADMIN recebe item de mesa aberta e não recebe mesa inativa nem mesa fora de recebimento', async () => {
+      returns(
+        category(
+          'cat-1',
+          item('open'),
+          item('inactive', { active: false }),
+          item('closed', { acceptingNewTickets: false }),
+        ),
+      );
+      expect(itemIds(await service.findActiveCatalog(admin))).toEqual(['open']);
+    });
+
+    it('AC-01: CLIENT não recebe item de mesa de uso interno nem só de atendentes', async () => {
+      returns(
+        category(
+          'cat-1',
+          item('open'),
+          item('internal', { internalUse: true }),
+          item('agents-only', { openByAgentsOnly: true }),
+        ),
+      );
+      expect(itemIds(await service.findActiveCatalog(client))).toEqual(['open']);
+    });
+
+    it('AC-01: atendente de mesa listada-apenas só recebe o item onde está listado ou onde não listados podem criar', async () => {
+      const listedOnly = { listedGroupsOnly: true, unlistedCanCreateTicket: false };
+      returns(
+        category(
+          'cat-1',
+          item('not-listed', listedOnly),
+          item('listed-as-agent', { ...listedOnly, agents: [{ id: 'agent-1' }] }),
+          item('listed-in-group', {
+            ...listedOnly,
+            agentGroups: [{ members: [{ id: 'agent-1' }] }],
+          }),
+          item('unlisted-allowed', { listedGroupsOnly: true, unlistedCanCreateTicket: true }),
+        ),
+      );
+      expect(itemIds(await service.findActiveCatalog(agent))).toEqual([
+        'listed-as-agent',
+        'listed-in-group',
+        'unlisted-allowed',
+      ]);
+    });
+
+    it('AC-01: atendente não recebe item de mesa que não enxerga (nem listado, nem interação entre mesas)', async () => {
+      returns(
+        category(
+          'cat-1',
+          item('hidden', { allowCrossDeskInteraction: false }),
+          item('mine', { allowCrossDeskInteraction: false, agents: [{ id: 'agent-1' }] }),
+          item('cross', { allowCrossDeskInteraction: true }),
+        ),
+      );
+      expect(itemIds(await service.findActiveCatalog(agent))).toEqual(['mine', 'cross']);
+    });
+
+    it('AC-01: a resposta não vaza os dados internos da mesa', async () => {
+      returns(category('cat-1', item('open', { agents: [{ id: 'agent-9' }] })));
+      const [first] = await service.findActiveCatalog(admin);
+      expect(first.items).toHaveLength(1);
+      expect(first.items[0]).not.toHaveProperty('defaultServiceDesk');
+      expect(first.items[0]).toHaveProperty('defaultServiceDeskId', 'desk-open');
+    });
+
+    it('AC-02: omite a categoria cujos itens ficaram todos fora e mantém as demais', async () => {
+      returns(
+        category('cat-empty', item('inactive', { active: false })),
+        category('cat-ok', item('open')),
+      );
+      const result = await service.findActiveCatalog(admin);
+      expect(result.map((c: { id: string }) => c.id)).toEqual(['cat-ok']);
+    });
+
+    it('AC-03: atendente com organizationId recebe itens da mesa do Cliente e de mesa global, e não de mesa de outro Cliente', async () => {
+      returns(
+        category(
+          'cat-1',
+          item('mine', { organizations: [{ id: 'org-9' }] }),
+          item('shared', { organizations: [{ id: 'org-1' }, { id: 'org-9' }] }),
+          item('global', { organizations: [] }),
+          item('other', { organizations: [{ id: 'org-1' }] }),
+        ),
+      );
+      expect(itemIds(await service.findActiveCatalog(agent, 'org-9'))).toEqual([
+        'mine',
+        'shared',
+        'global',
+      ]);
+    });
+
+    it('AC-03: sem organizationId o atendente não é filtrado por Cliente', async () => {
+      returns(
+        category(
+          'cat-1',
+          item('a', { organizations: [{ id: 'org-1' }] }),
+          item('b', { organizations: [{ id: 'org-2' }] }),
+          item('c', { organizations: [] }),
+        ),
+      );
+      expect(itemIds(await service.findActiveCatalog(agent))).toEqual(['a', 'b', 'c']);
+    });
+
+    it('AC-04: CLIENT ignora o organizationId recebido e fica na própria organização', async () => {
+      returns(
+        category(
+          'cat-1',
+          item('mine', { organizations: [{ id: 'org-1' }] }),
+          item('global', { organizations: [] }),
+          item('other', { organizations: [{ id: 'org-2' }] }),
+        ),
+      );
+      expect(itemIds(await service.findActiveCatalog(client, 'org-2'))).toEqual(['mine', 'global']);
+    });
+
+    it('AC-04: CLIENT sem organização só recebe itens de mesa global', async () => {
+      returns(
+        category(
+          'cat-1',
+          item('mine', { organizations: [{ id: 'org-1' }] }),
+          item('global', { organizations: [] }),
+        ),
+      );
+      const orphan = { id: 'client-2', role: Role.CLIENT, organizationId: null };
+      expect(itemIds(await service.findActiveCatalog(orphan))).toEqual(['global']);
     });
   });
 
