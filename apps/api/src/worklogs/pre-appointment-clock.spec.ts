@@ -47,6 +47,6 @@ describe('relógio do pré-apontamento (DMTE-462 T4)', () => {
 
   it('AC-19: com a pausa tendo acumulado antes, o fim é início + tempo trabalhado até a última pausa', () => {
     const paused = pre({ pausedAt: at('10:00'), pausedMs: 15 * MIN });
-    expect(autoCloseDecision(paused, new Date(at('10:00').getTime() + PAUSE_EXPIRY_MS))).toEqual({ endsAt: at('10:45'), reason: 'PAUSE_EXPIRED' });
+    expect(autoCloseDecision(paused, new Date(at('10:00').getTime() + PAUSE_EXPIRY_MS))).toEqual({ endsAt: at('09:45'), reason: 'PAUSE_EXPIRED' });
   });
 });
