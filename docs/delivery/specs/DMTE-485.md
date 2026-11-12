@@ -55,7 +55,7 @@ Tela (fatias T2, T3 e T4):
 - Layout: cada categoria vira um cartão com o nome no topo e os serviços empilhados (ícone, título, descrição curta), distribuídos em fluxo de colunas: 1 coluna abaixo de 640 px, 2 a partir de 640 px, 3 a partir de 1024 px; o cartão não se parte entre colunas. Categoria sem itens não renderiza. A ordem de categorias e itens segue alfabética, como hoje (sem `sortOrder`). O card do serviço não mostra a mesa de destino.
 - Componentes: `EzCardItem`, `EzButton`, `EzAlert`, `EzSearch`/`EzComboBox` do DS do Aponta e tokens; nenhum componente de DS novo ou alterado (sem story nova), sem Carbon nem Next.js.
 
-Dependência de sequência: a DMTE-483 (#200) corrige largura do formulário e o formulário que aparece antes do catálogo, no mesmo `CreateTicketPage`. Ela entra antes; esta entrega parte da `main` depois do merge dela.
+Dependência de sequência: a DMTE-489 (#212, teto `max-w-7xl` e 4 colunas em `xl`) entrou na `main` depois do planejamento e foi integrada aqui; a DMTE-483 (#200) corrige largura do formulário e o formulário que aparece antes do catálogo, no mesmo `CreateTicketPage`. Ela entra antes; esta entrega parte da `main` depois do merge dela.
 
 ### Parecer de design (UI)
 
@@ -85,7 +85,7 @@ Aceite visual é decisão do responsável: a evidência técnica (testes, captur
 - AC-12: o fluxo em branco envia `semCatalogo: true` e nenhum `catalogItemId`, o formulário não bloqueia o envio por `catalogRequiredOnOpen` e não mostra o aviso "Esta mesa exige um item do catálogo".
 - AC-13: em Mesas, a opção `catalogRequiredOnOpen` aparece com o rótulo "Mostrar o catálogo ao abrir (permite 'não catalogado')".
 - AC-14: o catálogo renderiza um cartão por categoria com itens, com o nome da categoria como título e os serviços dentro; categoria sem itens não renderiza; o card do serviço não mostra a mesa; categorias e itens seguem em ordem alfabética.
-- AC-15: o contêiner dos cartões usa 1 coluna abaixo de 640 px, 2 a partir de 640 px e 3 a partir de 1024 px, e o cartão não se parte entre colunas; cada serviço é um botão com nome acessível e cada cartão uma região rotulada pelo título.
+- AC-15: o contêiner dos cartões usa 1 coluna abaixo de 640 px, 2 a partir de 640 px, 3 a partir de 768 px e 4 a partir de 1280 px (`columns-1 sm:columns-2 md:columns-3 xl:columns-4`, os mesmos pontos de quebra da DMTE-489) e o cartão não se parte entre colunas; cada serviço é um botão com nome acessível e cada cartão uma região rotulada pelo título.
 
 ## Testing Decisions
 

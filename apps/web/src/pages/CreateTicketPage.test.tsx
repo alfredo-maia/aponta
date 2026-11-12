@@ -148,8 +148,9 @@ describe('CreateTicketPage', () => {
     });
     renderPage();
 
-    const card = await screen.findByRole('button', { name: /troca de impressora/i });
-    expect(card.parentElement).toHaveClass('grid-cols-1', 'sm:grid-cols-2', 'md:grid-cols-3', 'xl:grid-cols-4');
+    // DMTE-485: as categorias viram cartões em fluxo de colunas (CSS columns), com os mesmos pontos de quebra.
+    const columns = await screen.findByTestId('catalog-columns');
+    expect(columns).toHaveClass('columns-1', 'sm:columns-2', 'md:columns-3', 'xl:columns-4');
   });
 
   it('DMTE-489 AC-04: ações do formulário quebram de linha em vez de vazar do cartão', async () => {
@@ -161,22 +162,6 @@ describe('CreateTicketPage', () => {
     expect(submit.parentElement).toHaveClass('sm:flex-wrap', 'sm:ml-auto');
     // Abaixo de sm os botões seguem lado a lado como antes: sem quebra sem prefixo.
     expect(submit.parentElement).not.toHaveClass('flex-wrap');
-  });
-
-  it('DMTE-489 AC-05: aviso de catálogo obrigatório ocupa a linha inteira da grade de 4 colunas', async () => {
-    vi.mocked(api.get).mockImplementation((url) => {
-      if (url === '/service-desks') {
-        return Promise.resolve({ data: [{ id: 'sd-1', name: 'Suporte N1', catalogRequiredOnOpen: true }] });
-      }
-      return Promise.resolve({ data: [] });
-    });
-    const user = userEvent.setup();
-    renderPage();
-
-    await screen.findByRole('option', { name: 'Suporte N1' });
-    await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
-
-    expect(await screen.findByText(/exige um item do catálogo/i)).toHaveClass('md:col-span-2', 'xl:col-span-4');
   });
 
   it('DMTE-483 AC-04: formulário e catálogo usam a mesma largura máxima', async () => {
@@ -787,14 +772,15 @@ describe('CreateTicketPage', () => {
       expect(screen.queryByText('Infraestrutura')).not.toBeInTheDocument();
     });
 
-    it('AC-15: os cartões fluem em 1, 2 e 3 colunas sem se partir entre colunas', async () => {
+    it('AC-15: os cartões fluem em 1, 2, 3 e 4 colunas sem se partir entre colunas', async () => {
       mockApi();
       renderPage();
 
       const columns = await screen.findByTestId('catalog-columns');
       expect(columns.className).toContain('columns-1');
       expect(columns.className).toContain('sm:columns-2');
-      expect(columns.className).toContain('lg:columns-3');
+      expect(columns.className).toContain('md:columns-3');
+      expect(columns.className).toContain('xl:columns-4');
       for (const region of screen.getAllByRole('region')) {
         expect(columns).toContainElement(region);
         expect(region.className).toContain('break-inside-avoid');

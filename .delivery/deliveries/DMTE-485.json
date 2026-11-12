@@ -113,9 +113,11 @@
     },
     {
       "id": "AC-15",
-      "description": "o contêiner dos cartões usa 1 coluna abaixo de 640 px, 2 a partir de 640 px e 3 a partir de 1024 px, e o cartão não se parte entre colunas; cada serviço é um botão com nome acessível e cada cartão uma região rotulada pelo título.",
+      "description": "o contêiner dos cartões usa 1 coluna abaixo de 640 px, 2 a partir de 640 px, 3 a partir de 768 px e 4 a partir de 1280 px (`columns-1 sm:columns-2 md:columns-3 xl:columns-4`, os mesmos pontos de quebra da DMTE-489) e o cartão não se parte entre colunas; cada serviço é um botão com nome acessível e cada cartão uma região rotulada pelo título.",
       "tests": [
-        "AC-15: os cartões fluem em 1, 2 e 3 colunas sem se partir entre colunas"
+        "AC-15: os cartões fluem em 1, 2, 3 e 4 colunas sem se partir entre colunas",
+        "DMTE-489 AC-03: cartões do catálogo em 1, 2, 3 e 4 colunas por largura",
+        "DMTE-489 AC-01: formulário e catálogo usam o teto max-w-7xl"
       ]
     }
   ],
