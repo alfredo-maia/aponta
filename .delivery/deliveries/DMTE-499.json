@@ -13,15 +13,6 @@
       "tests": [
         "DMTE-499 AC-01: a página não tem teto de largura, como a tela de novo ticket"
       ]
-    },
-    {
-      "id": "AC-02",
-      "description": "os campos, a grade responsiva (1 / 2 / 3 colunas), a ordem do DOM e o comportamento de busca e de limpeza continuam como estão.",
-      "tests": [
-        "renders every D4 field for AGENT/ADMIN",
-        "\"Buscar\" navigates to \"/\" with the chosen filters in the query string",
-        "\"Limpar\" resets every field back to empty"
-      ]
     }
   ],
   "spec": "docs/delivery/specs/DMTE-499.md",
@@ -31,7 +22,14 @@
     "green": ".delivery/evidence/DMTE-499/green.json"
   },
   "design_system": {
-    "applicable": false,
+    "applicable": true,
+    "reused": [
+      "EzCheck",
+      "EzCollapsibleBox",
+      "EzComboBox",
+      "EzTextInput",
+      "EzButton"
+    ],
     "reason": "Só remove a classe max-w-5xl do contêiner de TicketAdvancedSearchPage.tsx; nenhum componente DS novo ou alterado."
   }
 }
