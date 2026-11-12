@@ -18,27 +18,13 @@ import { TicketsService } from '../tickets/tickets.service';
 import { PermissionsService } from '../permissions/permissions.service';
 import { allocateCommercialSegments, isCompleteCommercialTerm } from './commercial-valuation';
 import { evaluateWorklogWindow, WINDOW_LEAD_MS } from './agenda-window';
-import { ClockPre, workedMs } from './pre-appointment-clock';
+import { brasiliaHhMm, ClockPre, workedMs } from './pre-appointment-clock';
 
-const BRASILIA_TZ = 'America/Sao_Paulo';
 const AUTHOR_SELECT = { select: { id: true, name: true, email: true } } as const;
 
 /** Os campos do relógio vêm do banco; o `??` cobre cronômetros anteriores ao T4 lidos antes da migração. */
 function clockOf(pre: { beginning: Date; pausedAt?: Date | null; pausedMs?: number; limitMinutes?: number | null; windowEndsAt?: Date | null }): ClockPre {
   return { beginning: pre.beginning, pausedAt: pre.pausedAt ?? null, pausedMs: pre.pausedMs ?? 0, limitMinutes: pre.limitMinutes ?? null, windowEndsAt: pre.windowEndsAt ?? null };
-}
-
-function brasiliaHhMm(date: Date): string {
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    timeZone: BRASILIA_TZ,
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).formatToParts(date);
-  let hour = parts.find((part) => part.type === 'hour')?.value ?? '00';
-  const minute = parts.find((part) => part.type === 'minute')?.value ?? '00';
-  if (hour === '24') hour = '00';
-  return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
 }
 
 @Injectable()
@@ -577,11 +563,14 @@ export class WorklogsService {
       throw new ForbiddenException('Você não tem permissão para encerrar o pré-apontamento de outro usuário');
     }
 
+    if (pre.ending) throw new BadRequestException('Este cronômetro já foi encerrado');
+
     const canEditStart = await this.permissions.canEditWorklogStartTime(currentUser.id);
     // DMTE-462 T4: sem a permissão, o fim é início + tempo trabalhado (sem as pausas); parado em pausa, vale o instante da pausa.
+    const now = new Date();
     const ending = canEditStart && dto.ending
       ? new Date(dto.ending)
-      : new Date(pre.beginning.getTime() + workedMs(clockOf(pre), new Date()));
+      : new Date(pre.beginning.getTime() + workedMs(clockOf(pre), now));
     if (isNaN(ending.getTime())) {
       throw new BadRequestException('Horário de término inválido');
     }
@@ -594,7 +583,13 @@ export class WorklogsService {
 
     return this.prisma.preAppointment.update({
       where: { id: preAppointmentId },
-      data: { ending, endTime, ...(pre.pausedAt ? { pausedAt: null } : {}) },
+      data: {
+        ending,
+        endTime,
+        ...(pre.pausedAt ? { pausedAt: null } : {}),
+        // Parar depois do fim da janela da agenda também trava: só muda com aprovação (T5).
+        ...(!canEditStart && pre.windowEndsAt && now > pre.windowEndsAt ? { lockedReason: 'WINDOW_CLOSED' as const } : {}),
+      },
       include: { author: AUTHOR_SELECT },
     });
   }
@@ -618,7 +613,7 @@ export class WorklogsService {
     const pre = await this.openPreAppointmentOf(ticketId, preAppointmentId, currentUser);
     if (pre.pausedAt) throw new BadRequestException('Este cronômetro já está pausado');
     return this.prisma.preAppointment.update({
-      where: { id: preAppointmentId },
+      where: { id: preAppointmentId, ending: null },
       data: { pausedAt: new Date() },
       include: { author: AUTHOR_SELECT },
     });
@@ -632,7 +627,7 @@ export class WorklogsService {
       throw new ForbiddenException('A janela da agenda já fechou: este cronômetro só muda com aprovação');
     }
     return this.prisma.preAppointment.update({
-      where: { id: preAppointmentId },
+      where: { id: preAppointmentId, ending: null },
       data: { pausedAt: null, pausedMs: pre.pausedMs + (now.getTime() - pre.pausedAt.getTime()) },
       include: { author: AUTHOR_SELECT },
     });

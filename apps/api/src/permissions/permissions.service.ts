@@ -66,7 +66,7 @@ export class PermissionsService {
   async usersWithPermission(key: string): Promise<{ id: string; name: string; email: string }[]> {
     const group = { permissionGroup: { permissions: { has: key } } };
     return this.prisma.user.findMany({
-      where: { OR: [{ permissionGroupLinks: { some: group } }, { technicalGroup: { permissionGroupLinks: { some: group } } }] },
+      where: { active: true, OR: [{ permissionGroupLinks: { some: group } }, { technicalGroup: { permissionGroupLinks: { some: group } } }] },
       select: { id: true, name: true, email: true },
     });
   }

@@ -2,19 +2,16 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PermissionsService } from '../permissions/permissions.service';
 import { MailService } from '../mail/mail.service';
-import { autoCloseDecision, LockReason } from './pre-appointment-clock';
+import { autoCloseDecision, brasiliaHhMm, LockReason } from './pre-appointment-clock';
+
+const escapeHtml = (value: string) =>
+  value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
 const REASON_TEXT: Record<LockReason, string> = {
   LIMIT: 'o tempo trabalhado atingiu a duração da agenda',
   PAUSE_EXPIRED: 'a pausa passou de 2 dias',
   WINDOW_CLOSED: 'a janela da agenda fechou com o cronômetro pausado',
 };
-
-function brasiliaHhMm(date: Date): string {
-  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(date);
-  const hour = (parts.find((part) => part.type === 'hour')?.value ?? '00').replace('24', '00');
-  return `${hour.padStart(2, '0')}:${parts.find((part) => part.type === 'minute')?.value ?? '00'}`;
-}
 
 /**
  * DMTE-462 T4: tarefa agendada. Fecha os cronômetros abertos que passaram do limite da agenda ou da pausa,
@@ -46,7 +43,12 @@ export class WorklogAutoCloseService {
       });
       if (count === 0) continue;
       closed += 1;
-      await this.notify(pre, decision.endsAt, decision.reason);
+      try {
+        await this.notify(pre, decision.endsAt, decision.reason);
+      } catch (cause) {
+        // A linha já fechou; um erro ao avisar não pode derrubar o fechamento dos demais.
+        this.logger.error(`Falha ao avisar o fechamento de ${pre.id}: ${cause instanceof Error ? cause.message : String(cause)}`);
+      }
     }
     return closed;
   }
@@ -57,12 +59,13 @@ export class WorklogAutoCloseService {
     reason: LockReason,
   ) {
     const managers = await this.permissions.usersWithPermission('RECEIVE_WORKLOG_AUTOCLOSE_ALERT');
-    const recipients = new Map([pre.author, ...managers].map((user) => [user.email, user]));
+    const recipients = new Map([pre.author, ...managers].map((user) => [user.email.toLowerCase(), user.email]));
     const subject = `Cronômetro encerrado automaticamente: ticket ${pre.ticket.protocol}`;
-    const html = `<p>O cronômetro de <strong>${pre.author.name}</strong> no ticket ${pre.ticket.protocol} (${pre.ticket.title}) foi encerrado automaticamente porque ${REASON_TEXT[reason]}.</p>`
-      + `<p>Fim registrado: ${brasiliaHhMm(endsAt)}. Este cronômetro só muda com aprovação.</p>`;
-    const text = `O cronômetro de ${pre.author.name} no ticket ${pre.ticket.protocol} (${pre.ticket.title}) foi encerrado automaticamente porque ${REASON_TEXT[reason]}. Fim registrado: ${brasiliaHhMm(endsAt)}. Este cronômetro só muda com aprovação.`;
-    for (const email of recipients.keys()) {
+    const message = (name: string, title: string) =>
+      `O cronômetro de ${name} no ticket ${pre.ticket.protocol} (${title}) foi encerrado automaticamente porque ${REASON_TEXT[reason]}. Fim registrado: ${brasiliaHhMm(endsAt)}. Este cronômetro só muda com aprovação.`;
+    const text = message(pre.author.name, pre.ticket.title);
+    const html = `<p>${message(escapeHtml(pre.author.name), escapeHtml(pre.ticket.title))}</p>`;
+    for (const email of recipients.values()) {
       try {
         await this.mail.sendEmail({ to: email, subject, text, html });
       } catch (cause) {

@@ -33,3 +33,10 @@ export function autoCloseDecision(pre: ClockPre, now: Date): { endsAt: Date; rea
   }
   return null;
 }
+
+/** HH:mm em Brasília (24 h), o formato de `initTime` e `endTime` dos pré-apontamentos. */
+export function brasiliaHhMm(date: Date): string {
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(date);
+  const hour = (parts.find((part) => part.type === 'hour')?.value ?? '00').replace('24', '00');
+  return `${hour.padStart(2, '0')}:${parts.find((part) => part.type === 'minute')?.value ?? '00'}`;
+}
