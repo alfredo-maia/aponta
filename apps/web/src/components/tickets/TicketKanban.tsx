@@ -17,7 +17,7 @@ import type { DeskStage } from '../MesaStagesEditor';
 import { statusLabels, priorityLabels } from './TicketCard';
 import { TicketKanbanCard, type TicketKanbanCardVisibleFields } from './TicketKanbanCard';
 import { useAuthStore } from '../../stores/authStore';
-import { EzAlert, EzAvatar, EzSpinner, EzTag } from '../ds';
+import { EzAlert, EzAvatar, EzSelect, EzSpinner, EzTag } from '../ds';
 import { cn } from '../ds/utils';
 import { useUserScreenConfig } from '../../hooks/useUserScreenConfig';
 
@@ -28,6 +28,7 @@ const statusColumns: TicketStatus[] = [
   'PENDING_CUSTOMER',
   'PENDING_APPROVAL',
   'ON_HOLD',
+  'PENDING_SANKHYA',
   'RESOLVED',
   'CLOSED',
 ];
@@ -493,12 +494,12 @@ export function TicketKanban({
       <label htmlFor="kanban-mesa-select" className="sr-only">
         Mesa
       </label>
-      <select
+      <EzSelect
         id="kanban-mesa-select"
+        aria-label="Mesa"
         data-testid="kanban-mesa-select"
         value={selectedDeskId}
         onChange={(e) => setSelectedDeskId(e.target.value)}
-        className="h-[var(--control-height-md)] w-full rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-900 hover:border-gray-300 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"
       >
         <option value="">Mesa: Todas</option>
         {serviceDesks.map((desk) => (
@@ -506,7 +507,7 @@ export function TicketKanban({
             Mesa: {desk.name}
           </option>
         ))}
-      </select>
+      </EzSelect>
     </div>
   );
 
@@ -587,17 +588,19 @@ export function TicketKanban({
           <label htmlFor="kanban-group-by" className="px-1 text-[12px] font-semibold text-gray-500">
             Agrupar por
           </label>
-          <select
+          <EzSelect
             id="kanban-group-by"
+            aria-label="Agrupar por"
+            variant="compact"
+            className="mt-1"
             value={groupBy}
             onChange={(e) => setGroupBy(e.target.value)}
-            className="mt-1 h-[var(--control-height-compact)] w-full rounded-control border border-gray-200 bg-white px-2 text-[13px] text-gray-900"
           >
             <option value="stage">Estágio</option>
             <option value="status">Status</option>
             <option value="agent">Responsável</option>
             <option value="priority">Prioridade</option>
-          </select>
+          </EzSelect>
 
           <div className="mt-3 border-t border-gray-100 pt-2">
             <p className="px-1 text-[12px] font-semibold text-gray-500">Exibir campos</p>

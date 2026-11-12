@@ -13,8 +13,8 @@ describe('commercial contract setup', () => {
   it('approves a monthly contract with explicit zero allowance and zero fee', () => {
     const save = vi.fn();
     render(<ContractForm organizations={organizations} onSave={save} onCancel={vi.fn()} />);
-    fireEvent.change(screen.getByLabelText(/Empresa/), { target: { value: 'org' } });
-    fireEvent.change(screen.getByLabelText('Modalidade'), { target: { value: 'MONTHLY_HOURS' } });
+    fireEvent.change(screen.getByLabelText(/Empresa/, { selector: 'select' }), { target: { value: 'org' } });
+    fireEvent.change(screen.getByLabelText('Modalidade', { selector: 'select' }), { target: { value: 'MONTHLY_HOURS' } });
     fireEvent.change(screen.getByLabelText('Franquia mensal (horas)'), { target: { value: '0' } });
     fireEvent.change(screen.getByLabelText('Valor mensal (R$)'), { target: { value: '0' } });
     fireEvent.change(screen.getByLabelText('Hora excedente (R$)'), { target: { value: '120' } });
@@ -33,10 +33,10 @@ describe('commercial contract setup', () => {
         onCancel={vi.fn()}
       />,
     );
-    fireEvent.change(screen.getByLabelText(/Empresa/), {
+    fireEvent.change(screen.getByLabelText(/Empresa/, { selector: 'select' }), {
       target: { value: 'org' },
     });
-    fireEvent.change(screen.getByLabelText('Modalidade'), {
+    fireEvent.change(screen.getByLabelText('Modalidade', { selector: 'select' }), {
       target: { value: 'HOURLY' },
     });
     fireEvent.click(screen.getByLabelText('Condições comerciais aprovadas'));
@@ -55,10 +55,10 @@ describe('commercial contract setup', () => {
         onCancel={vi.fn()}
       />,
     );
-    fireEvent.change(screen.getByLabelText(/Empresa/), {
+    fireEvent.change(screen.getByLabelText(/Empresa/, { selector: 'select' }), {
       target: { value: 'org' },
     });
-    fireEvent.change(screen.getByLabelText('Modalidade'), {
+    fireEvent.change(screen.getByLabelText('Modalidade', { selector: 'select' }), {
       target: { value: 'FIXED_PROJECT' },
     });
     fireEvent.change(screen.getByLabelText('Escopo aprovado'), {

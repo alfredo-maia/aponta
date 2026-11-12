@@ -259,7 +259,7 @@ describe('CommercialReport', () => {
     renderReport([{ id: 'contract-without-name' }]);
     await waitFor(() =>
       expect(
-        screen.getByRole('option', { name: 'contract-without-name' }),
+        screen.getByRole('option', { name: 'contract-without-name', hidden: true }),
       ).toBeInTheDocument(),
     );
   });
@@ -269,7 +269,7 @@ describe('CommercialReport', () => {
     renderReport();
     await waitFor(() =>
       expect(
-        screen.getByRole('option', { name: 'Agente Um' }),
+        screen.getByRole('option', { name: 'Agente Um', hidden: true }),
       ).toBeInTheDocument(),
     );
   });
@@ -290,10 +290,10 @@ describe('CommercialReport', () => {
     renderReport();
     await waitFor(() =>
       expect(
-        screen.getByRole('option', { name: 'Agente Um' }),
+        screen.getByRole('option', { name: 'Agente Um', hidden: true }),
       ).toBeInTheDocument(),
     );
-    fireEvent.change(screen.getByLabelText('Técnico'), {
+    fireEvent.change(screen.getByLabelText('Técnico', { selector: 'select' }), {
       target: { value: 'agent-1' },
     });
     fireEvent.change(screen.getByLabelText(/Custo vigente desde/), {
@@ -314,10 +314,10 @@ describe('CommercialReport', () => {
     renderReport();
     await waitFor(() =>
       expect(
-        screen.getByRole('option', { name: 'Agente Um' }),
+        screen.getByRole('option', { name: 'Agente Um', hidden: true }),
       ).toBeInTheDocument(),
     );
-    fireEvent.change(screen.getByLabelText('Técnico'), {
+    fireEvent.change(screen.getByLabelText('Técnico', { selector: 'select' }), {
       target: { value: 'agent-1' },
     });
     fireEvent.change(screen.getByLabelText(/Custo vigente desde/), {
@@ -338,10 +338,10 @@ describe('CommercialReport', () => {
     renderReport();
     await waitFor(() =>
       expect(
-        screen.getByRole('option', { name: 'Agente Um' }),
+        screen.getByRole('option', { name: 'Agente Um', hidden: true }),
       ).toBeInTheDocument(),
     );
-    fireEvent.change(screen.getByLabelText('Técnico'), {
+    fireEvent.change(screen.getByLabelText('Técnico', { selector: 'select' }), {
       target: { value: 'agent-1' },
     });
     fireEvent.change(screen.getByLabelText(/Custo vigente desde/), {
@@ -363,10 +363,10 @@ describe('CommercialReport', () => {
     renderReport();
     await waitFor(() =>
       expect(
-        screen.getByRole('option', { name: 'Agente Um' }),
+        screen.getByRole('option', { name: 'Agente Um', hidden: true }),
       ).toBeInTheDocument(),
     );
-    fireEvent.change(screen.getByLabelText('Técnico'), {
+    fireEvent.change(screen.getByLabelText('Técnico', { selector: 'select' }), {
       target: { value: 'agent-1' },
     });
     fireEvent.change(screen.getByLabelText(/Custo vigente desde/), {
@@ -401,10 +401,10 @@ describe('CommercialReport', () => {
     renderReport();
     await waitFor(() =>
       expect(
-        screen.getByRole('option', { name: 'Agente Um' }),
+        screen.getByRole('option', { name: 'Agente Um', hidden: true }),
       ).toBeInTheDocument(),
     );
-    fireEvent.change(screen.getByLabelText('Técnico'), {
+    fireEvent.change(screen.getByLabelText('Técnico', { selector: 'select' }), {
       target: { value: 'agent-1' },
     });
     fireEvent.change(screen.getByLabelText(/Custo vigente desde/), {

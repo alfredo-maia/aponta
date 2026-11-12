@@ -62,6 +62,9 @@ jobs:
           python3 scripts/check_tickets_palette.py .
           python3 scripts/check_tickets_proportion.py .
 
+      - name: Native select check (AC-15 DMTE-490)
+        run: python3 scripts/check_native_select.py .
+
       - name: Lint
         run: pnpm exec nx run-many -t lint --projects=api,web,web-e2e
 

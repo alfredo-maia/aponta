@@ -106,7 +106,7 @@ describe('SchedulePage', () => {
     loginAs('ADMIN');
     renderPage();
 
-    const select = screen.getByLabelText(/filtrar por tipo/i);
+    const select = screen.getByLabelText(/filtrar por tipo/i, { selector: 'select' });
     await user.selectOptions(select, 'VACATION');
 
     expect(api.get).toHaveBeenCalledWith(

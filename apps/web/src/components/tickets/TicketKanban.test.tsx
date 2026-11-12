@@ -242,6 +242,28 @@ describe('TicketKanban', () => {
       expect(abertoColumn).toHaveTextContent('2');
     });
 
+    it('DMTE-490 AC-05: has an Aguardando Sankhya column right after Aguardando Terceiros and groups its tickets there', () => {
+      renderKanban({
+        tickets: [{ ...baseTicket, id: 't9', protocol: 'AP-2026-0009', status: 'PENDING_SANKHYA' }],
+        isLoading: false,
+        isError: false,
+      });
+
+      const headings = screen
+        .getAllByRole('heading', { level: 3 })
+        .map((h) => h.textContent);
+      const terceiros = headings.indexOf('Aguardando Terceiros');
+      expect(terceiros).toBeGreaterThanOrEqual(0);
+      expect(headings[terceiros + 1]).toBe('Aguardando Sankhya');
+
+      const sankhyaHeading = screen
+        .getAllByText('Aguardando Sankhya')
+        .find((el) => el.tagName === 'H3')!;
+      const column = sankhyaHeading.closest('div')?.parentElement as HTMLElement;
+      expect(column).toHaveTextContent('1');
+      expect(screen.getByText(/AP-2026-0009/)).toBeInTheDocument();
+    });
+
     it('renders an empty column (count 0) when there are no tickets for that status', () => {
       renderKanban({ tickets: [], isLoading: false, isError: false });
 
@@ -441,7 +463,7 @@ describe('TicketKanban', () => {
       // yet and silently ignores the change.
       await waitFor(() => {
         expect(
-          screen.getByRole('option', { name: 'Mesa: Suporte N1' }),
+          screen.getByRole('option', { name: 'Mesa: Suporte N1', hidden: true }),
         ).toBeInTheDocument();
       });
       expect(screen.getByTestId('kanban-mesa-select')).toHaveValue('');
@@ -850,7 +872,7 @@ describe('TicketKanban', () => {
         screen.getByRole('button', { name: /ordenar/i }),
         screen.getByRole('button', { name: /configurações/i }),
       ];
-      const row = controls[0].parentElement!.parentElement!;
+      const row = controls[0].closest('.max-w-xs')!.parentElement!;
       controls.forEach((control) => expect(row).toContainElement(control));
       controls.slice(1).forEach((control, index) => {
         expect(
@@ -917,7 +939,7 @@ describe('TicketKanban', () => {
       renderKanban({ tickets: ticketsWithAgents, isLoading: false, isError: false });
 
       fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
-      fireEvent.change(screen.getByLabelText(/agrupar por/i), { target: { value: 'agent' } });
+      fireEvent.change(screen.getByLabelText(/agrupar por/i, { selector: 'select' }), { target: { value: 'agent' } });
 
       expect(screen.getByRole('heading', { name: 'Ana Costa' })).toBeInTheDocument();
       expect(screen.getByRole('heading', { name: 'Bruno Dias' })).toBeInTheDocument();
@@ -931,7 +953,7 @@ describe('TicketKanban', () => {
       renderKanban({ tickets: ticketsWithAgents, isLoading: false, isError: false });
 
       fireEvent.click(screen.getByRole('button', { name: 'Configurações' }));
-      fireEvent.change(screen.getByLabelText(/agrupar por/i), { target: { value: 'priority' } });
+      fireEvent.change(screen.getByLabelText(/agrupar por/i, { selector: 'select' }), { target: { value: 'priority' } });
 
       expect(screen.getByRole('heading', { name: 'Alta' })).toBeInTheDocument();
     });

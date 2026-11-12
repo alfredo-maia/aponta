@@ -169,14 +169,14 @@ describe('ContractsPage', () => {
     loginAs('ADMIN');
     renderPage();
     fireEvent.click(await screen.findByRole('button', { name: 'Novo contrato' }));
-    await screen.findByRole('option', { name: 'Empresa A' });
+    await screen.findByRole('option', { name: 'Empresa A', hidden: true });
     fireEvent.change(screen.getByLabelText(/Nome do contrato/), {
       target: { value: 'Suporte' },
     });
-    fireEvent.change(await screen.findByLabelText(/Empresa/), {
+    fireEvent.change(await screen.findByLabelText(/Empresa/, { selector: 'select' }), {
       target: { value: 'org-1' },
     });
-    fireEvent.change(screen.getByLabelText('Modalidade'), {
+    fireEvent.change(screen.getByLabelText('Modalidade', { selector: 'select' }), {
       target: { value: 'MONTHLY_HOURS' },
     });
     fireEvent.change(screen.getByLabelText('Franquia mensal (horas)'), {
@@ -472,8 +472,8 @@ describe('ContractsPage', () => {
     await user.click(within(drawer).getByTestId('ez-dynamic-filter-add'));
 
     const rule = within(drawer).getByTestId('ez-dynamic-filter-rule');
-    await user.selectOptions(within(rule).getByLabelText('Campo'), 'modality');
-    await user.selectOptions(within(rule).getByLabelText('Valor'), 'Cobertura');
+    await user.selectOptions(within(rule).getByLabelText('Campo', { selector: 'select' }), 'modality');
+    await user.selectOptions(within(rule).getByLabelText('Valor', { selector: 'select' }), 'Cobertura');
 
     expect(screen.queryByText('Empresa A')).not.toBeInTheDocument();
     expect(screen.getByText('Empresa B')).toBeInTheDocument();
@@ -548,7 +548,7 @@ describe('ContractsPage', () => {
     fireEvent.click(
       await screen.findByRole('button', { name: 'Editar contrato' }),
     );
-    await screen.findByRole('option', { name: 'Empresa A' });
+    await screen.findByRole('option', { name: 'Empresa A', hidden: true });
     await waitFor(() =>
       expect(
         screen.getByRole('button', { name: 'Salvar contrato' }),
@@ -578,8 +578,8 @@ describe('ContractsPage', () => {
     loginAs('ADMIN');
     renderPage();
     fireEvent.click(await screen.findByRole('button', { name: 'Novo contrato' }));
-    await screen.findByRole('option', { name: 'Empresa A' });
-    fireEvent.change(screen.getByLabelText(/Empresa/), {
+    await screen.findByRole('option', { name: 'Empresa A', hidden: true });
+    fireEvent.change(screen.getByLabelText(/Empresa/, { selector: 'select' }), {
       target: { value: 'org-1' },
     });
     fireEvent.change(screen.getByLabelText('Início da vigência'), {

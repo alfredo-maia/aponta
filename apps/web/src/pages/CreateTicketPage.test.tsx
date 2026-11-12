@@ -192,9 +192,9 @@ describe('CreateTicketPage', () => {
       expect(api.get).toHaveBeenCalledWith('/service-desks');
     });
 
-    const select = screen.getByLabelText(/^mesa/i) as HTMLSelectElement;
+    const select = screen.getByLabelText(/^mesa/i, { selector: 'select' }) as HTMLSelectElement;
     await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'Suporte N1' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Suporte N1', hidden: true })).toBeInTheDocument();
     });
     expect(select.querySelectorAll('option')).toHaveLength(2); // placeholder + Suporte N1
   });
@@ -215,11 +215,11 @@ describe('CreateTicketPage', () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'Suporte N1' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Suporte N1', hidden: true })).toBeInTheDocument();
     });
 
     await user.type(screen.getByLabelText(/título \(assunto\)/i), 'Impressora não liga');
-    await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
+    await user.selectOptions(screen.getByLabelText(/^mesa/i, { selector: 'select' }), 'sd-1');
 
     // EzRichText (Tiptap) is not a plain <textarea>/<input> and its
     // contenteditable surface can't be driven by userEvent.type() under
@@ -373,11 +373,11 @@ describe('CreateTicketPage', () => {
     await user.click(screen.getByRole('button', { name: /meu problema não está catalogado/i }));
     await screen.findByText('Abrir Chamado');
     await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'Suporte N1' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Suporte N1', hidden: true })).toBeInTheDocument();
     });
 
     await user.type(screen.getByLabelText(/título \(assunto\)/i), 'Impressora não liga');
-    await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
+    await user.selectOptions(screen.getByLabelText(/^mesa/i, { selector: 'select' }), 'sd-1');
     const editable = screen
       .getByTestId('ticket-description')
       .querySelector('[contenteditable="true"]') as HTMLElement;
@@ -424,11 +424,11 @@ describe('CreateTicketPage', () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'Suporte N1' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Suporte N1', hidden: true })).toBeInTheDocument();
     });
 
     await user.type(screen.getByLabelText(/título \(assunto\)/i), 'Impressora não liga');
-    await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
+    await user.selectOptions(screen.getByLabelText(/^mesa/i, { selector: 'select' }), 'sd-1');
 
     const editable = screen
       .getByTestId('ticket-description')
@@ -513,11 +513,11 @@ describe('CreateTicketPage', () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'Suporte N1' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Suporte N1', hidden: true })).toBeInTheDocument();
     });
 
     await user.type(screen.getByLabelText(/título \(assunto\)/i), 'Ticket com anexo');
-    await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
+    await user.selectOptions(screen.getByLabelText(/^mesa/i, { selector: 'select' }), 'sd-1');
 
     const editable = screen
       .getByTestId('ticket-description')
@@ -699,12 +699,12 @@ describe('CreateTicketPage', () => {
       await chooseCliente(user);
       await user.click(await screen.findByRole('button', { name: /meu problema não está catalogado/i }));
 
-      const mesa = await screen.findByLabelText(/^mesa/i);
+      const mesa = await screen.findByLabelText(/^mesa/i, { selector: 'select' });
       await waitFor(() => {
-        expect(within(mesa).getByRole('option', { name: 'Mesa do Acme' })).toBeInTheDocument();
+        expect(within(mesa).getByRole('option', { name: 'Mesa do Acme', hidden: true })).toBeInTheDocument();
       });
-      expect(within(mesa).getByRole('option', { name: 'Mesa global' })).toBeInTheDocument();
-      expect(within(mesa).queryByRole('option', { name: 'Mesa de outro cliente' })).not.toBeInTheDocument();
+      expect(within(mesa).getByRole('option', { name: 'Mesa global', hidden: true })).toBeInTheDocument();
+      expect(within(mesa).queryByRole('option', { name: 'Mesa de outro cliente', hidden: true })).not.toBeInTheDocument();
     });
 
     it('AC-10: o botão "não catalogado" fica no cabeçalho ao lado do título, antes das categorias', async () => {
@@ -730,9 +730,9 @@ describe('CreateTicketPage', () => {
 
       await user.type(await screen.findByLabelText(/título \(assunto\)/i), 'Algo sem catálogo');
       await waitFor(() => {
-        expect(screen.getByRole('option', { name: 'Suporte N1' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Suporte N1', hidden: true })).toBeInTheDocument();
       });
-      await user.selectOptions(screen.getByLabelText(/^mesa/i), 'sd-1');
+      await user.selectOptions(screen.getByLabelText(/^mesa/i, { selector: 'select' }), 'sd-1');
       await fillDescription();
       expect(screen.queryByText(/exige um item do catálogo/i)).not.toBeInTheDocument();
       await user.click(screen.getByRole('button', { name: /abrir ticket/i }));

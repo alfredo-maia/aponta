@@ -108,7 +108,7 @@ export class TicketQueryDto {
 
   @ApiPropertyOptional({
     description:
-      'Somente chamados pausados: ON_HOLD, PENDING_CUSTOMER ou PENDING_APPROVAL ("Pausados" no dashboard)',
+      'Somente chamados pausados: ON_HOLD, PENDING_CUSTOMER, PENDING_APPROVAL ou PENDING_SANKHYA ("Pausados" no dashboard)',
     example: 'true',
   })
   @IsOptional()

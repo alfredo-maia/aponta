@@ -10,11 +10,14 @@ describe('EzClassicComboBox', () => {
     { label: 'Opção 3', value: '3', disabled: true },
   ];
 
-  it('renders the label and all options', () => {
+  it('renders the label and all options', async () => {
+    const user = userEvent.setup();
     render(<EzClassicComboBox label="Categoria" options={options} />);
     expect(screen.getByText('Categoria')).toBeInTheDocument();
-    expect(screen.getByText('Opção 1')).toBeInTheDocument();
-    expect(screen.getByText('Opção 2')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('combobox', { name: /categoria/i }));
+
+    expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['Opção 1', 'Opção 2', 'Opção 3']);
   });
 
   it('fires onChange when a different option is selected', async () => {
@@ -22,9 +25,12 @@ describe('EzClassicComboBox', () => {
     const user = userEvent.setup();
     render(<EzClassicComboBox options={options} onChange={onChange} />);
 
-    await user.selectOptions(screen.getByRole('combobox'), '2');
+    await user.click(screen.getByRole('combobox'));
+    await user.click(screen.getByRole('option', { name: 'Opção 2' }));
+
     expect(onChange).toHaveBeenCalledTimes(1);
-    expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('2');
+    expect(onChange.mock.calls[0][0].target.value).toBe('2');
+    expect(screen.getByRole('combobox')).toHaveTextContent('Opção 2');
   });
 
   it('applies square (classic) corners instead of rounded ones', () => {

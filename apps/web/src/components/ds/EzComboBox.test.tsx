@@ -13,7 +13,35 @@ describe('EzComboBox', () => {
     );
     const select = screen.getByTestId('combo');
     expect(select).toBeInTheDocument();
-    expect(screen.getByText('Option 1')).toBeInTheDocument();
+    expect(screen.getByRole('combobox')).toHaveTextContent('Option 1');
+  });
+
+  it('DMTE-490 AC-11: renders through the EzSelect listbox, keeping the children <option> API', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(
+      <EzComboBox label="Prioridade" onChange={onChange}>
+        <option value="LOW">Baixa</option>
+        <option value="HIGH">Alta</option>
+      </EzComboBox>
+    );
+
+    await user.click(screen.getByRole('combobox', { name: /prioridade/i }));
+    expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['Baixa', 'Alta']);
+    await user.click(screen.getByRole('option', { name: 'Alta' }));
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange.mock.calls[0][0].target.value).toBe('HIGH');
+  });
+
+  it('DMTE-490 AC-11: forwards the ref to the native select', () => {
+    const ref = { current: null as HTMLSelectElement | null };
+    render(
+      <EzComboBox ref={ref} data-testid="combo">
+        <option value="1">1</option>
+      </EzComboBox>
+    );
+    expect(ref.current).toBe(screen.getByTestId('combo'));
   });
 
   it('renders a label if provided', () => {
@@ -80,8 +108,9 @@ describe('EzComboBox', () => {
         <option value="1">1</option>
       </EzComboBox>
     );
-    const select = screen.getByTestId('combo');
-    expect(select).toBeDisabled();
-    expect(select).toHaveClass('cursor-not-allowed');
+    expect(screen.getByTestId('combo')).toBeDisabled();
+    const control = screen.getByRole('combobox');
+    expect(control).toBeDisabled();
+    expect(control).toHaveClass('cursor-not-allowed');
   });
 });

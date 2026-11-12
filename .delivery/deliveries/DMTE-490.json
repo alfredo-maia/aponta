@@ -1,0 +1,187 @@
+{
+  "version": 1,
+  "delivery": "DMTE-490",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 218,
+  "multica_id": "01a1cc59-99f3-72bc-bced-b00e3589a7ce",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 3,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "`changeStatus` aceita Em Andamento → Aguardando Sankhya e Aguardando Sankhya → Em Andamento/Resolvido, e rejeita as demais transições de e para o novo status (por exemplo Aberto → Aguardando Sankhya).",
+      "tests": [
+        "TicketsService > Aguardando Sankhya (DMTE-490) > AC-01: allows IN_PROGRESS -> PENDING_SANKHYA",
+        "TicketsService > Aguardando Sankhya (DMTE-490) > AC-01: allows PENDING_SANKHYA -> IN_PROGRESS",
+        "TicketsService > Aguardando Sankhya (DMTE-490) > AC-01: allows PENDING_SANKHYA -> RESOLVED",
+        "TicketsService > Aguardando Sankhya (DMTE-490) > AC-01: rejects OPEN -> PENDING_SANKHYA",
+        "TicketsService > Aguardando Sankhya (DMTE-490) > AC-01: rejects CLOSED -> PENDING_SANKHYA",
+        "TicketsService > Aguardando Sankhya (DMTE-490) > AC-01: rejects ON_HOLD -> PENDING_SANKHYA"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "entrar em Aguardando Sankhya registra a pausa do SLA e sair dele a retoma; com `allowPauseResumeSla=false` na mesa, as transições de e para o novo status são proibidas.",
+      "tests": [
+        "TicketsService > Aguardando Sankhya (DMTE-490) > AC-02: entering PENDING_SANKHYA starts the SLA pause",
+        "TicketsService > Aguardando Sankhya (DMTE-490) > AC-02: leaving PENDING_SANKHYA resumes the SLA and accumulates the paused minutes",
+        "TicketsService > Aguardando Sankhya (DMTE-490) > AC-02: forbids entering PENDING_SANKHYA when the desk disallows SLA pause/resume",
+        "assertDeskAllowsPauseResume (DMTE-490 AC-02) > forbids entering and leaving PENDING_SANKHYA when the flag is false"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "o filtro `paused=true`, o KPI \"Pausados\" e os relatórios incluem tickets em Aguardando Sankhya.",
+      "tests": [
+        "TicketsService > findAll > filters to ON_HOLD/PENDING_CUSTOMER/PENDING_APPROVAL/PENDING_SANKHYA when paused=true (dashboard \"Pausados\" KPI, DMTE-490 AC-03)",
+        "ReportsService > getSummary > counts PENDING_SANKHYA tickets in the paused KPI (DMTE-490 AC-03)"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "a migração adiciona `PENDING_SANKHYA` ao enum de status sem alterar os valores existentes, e o schema Prisma o declara.",
+      "tests": [
+        "TicketStatus enum (DMTE-490 AC-04) > declares PENDING_SANKHYA and keeps every previous value",
+        "TicketStatus enum (DMTE-490 AC-04) > adds the value with a purely additive migration"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "o detalhe, a lista, o Kanban e o dashboard exibem \"Aguardando Sankhya\" com o mesmo rótulo e variante, e o Kanban tem a coluna logo depois de \"Aguardando Terceiros\".",
+      "tests": [
+        "TicketDetailPage > Aguardando Sankhya (DMTE-490) > AC-05: the agent status select lists Aguardando Sankhya right after Aguardando Terceiros and moves the ticket there",
+        "TicketKanban > fallback por status (nenhuma mesa selecionada) > DMTE-490 AC-05: has an Aguardando Sankhya column right after Aguardando Terceiros and groups its tickets there",
+        "TicketList (D5: Lista agrupável) > DMTE-490 AC-05: shows the Aguardando Sankhya label for a ticket in that status",
+        "DashboardPage > DMTE-490 AC-05: labels the PENDING_SANKHYA slice of the open-tickets breakdown as Aguardando Sankhya"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "description": "o formulário do ticket oferece todos os status com os mesmos rótulos do detalhe, incluindo Aguardando Aprovação e Aguardando Sankhya.",
+      "tests": [
+        "TicketFormMode > DMTE-490 AC-06: status select offers every status with the same labels and order as the ticket detail"
+      ]
+    },
+    {
+      "id": "AC-07",
+      "description": "o perfil CLIENT vê o status como texto, sem seletor, inclusive com o novo status.",
+      "tests": [
+        "TicketDetailPage > Aguardando Sankhya (DMTE-490) > AC-07: a client sees the status as text, without a status select"
+      ]
+    },
+    {
+      "id": "AC-08",
+      "description": "`EzSelect` abre uma lista própria, escolher uma opção por clique chama `onChange` com o valor e o valor controlado reflete na exibição fechada.",
+      "tests": [
+        "EzSelect (DMTE-490 T2) > AC-08: shows the selected option label on the closed control, with the list closed",
+        "EzSelect (DMTE-490 T2) > AC-08/AC-10: opens its own listbox with every option, marking the selected one",
+        "EzSelect (DMTE-490 T2) > AC-08: choosing an option by click calls onChange with the new value, closes the list and returns focus",
+        "EzSelect (DMTE-490 T2) > AC-08: a disabled option cannot be chosen",
+        "EzSelect (DMTE-490 T2) > AC-08: is controlled, showing `value` until the parent changes it"
+      ]
+    },
+    {
+      "id": "AC-09",
+      "description": "`EzSelect` responde a teclado: setas movem a opção ativa, Home e End vão ao primeiro e ao último, Enter escolhe e Esc fecha devolvendo o foco ao controle.",
+      "tests": [
+        "EzSelect (DMTE-490 T2) > AC-09: ArrowDown opens, arrows move the active option skipping disabled ones, Enter chooses",
+        "EzSelect (DMTE-490 T2) > AC-09: Home and End jump to the first and last enabled option",
+        "EzSelect (DMTE-490 T2) > AC-09: Escape closes without choosing, returns focus to the control and does not reach a parent Escape handler",
+        "EzSelect (DMTE-490 T2) > AC-09: a click outside closes the list",
+        "EzSelect (DMTE-490 T2) > rolagem da lista longa > AC-09: keeps the active option in view while navigating with the keyboard",
+        "EzSelect (DMTE-490 T2) > AC-09: typing letters jumps to the next enabled option that starts with them"
+      ]
+    },
+    {
+      "id": "AC-10",
+      "description": "`EzSelect` expõe listbox/option com `aria-expanded` e `aria-selected`, tem rótulo associado, mostra estados desabilitado e de erro com mensagem, e tem foco visível, usando só a paleta do DS.",
+      "tests": [
+        "EzSelect (DMTE-490 T2) > AC-10: has a visible label, a required marker and a hidden native select wired to that label",
+        "EzSelect (DMTE-490 T2) > AC-10: announces the popup as a listbox and names the control after its label",
+        "EzSelect (DMTE-490 T2) > AC-10: disabled control does not open",
+        "EzSelect (DMTE-490 T2) > AC-10: error state flags the control invalid and shows the message",
+        "EzSelect (DMTE-490 T2) > AC-10: clicking the label moves focus to the visible control, not to the hidden native select",
+        "EzSelect (DMTE-490 T2) > AC-10: a required select left empty blocks the submit and focuses the visible control, flagged invalid"
+      ]
+    },
+    {
+      "id": "AC-11",
+      "description": "`EzComboBox` e `EzClassicComboBox` mantêm API, `ref` e `onChange` e renderizam por `EzSelect`; os testes existentes que usam `selectOptions` continuam passando sem reescrita.",
+      "tests": [
+        "EzSelect (DMTE-490 T2) > AC-11: forwards id, name, data-testid and ref to the native select and keeps userEvent.selectOptions working",
+        "EzSelect (DMTE-490 T2) > AC-11: lists options declared inside optgroup",
+        "EzComboBox > DMTE-490 AC-11: renders through the EzSelect listbox, keeping the children <option> API",
+        "EzComboBox > DMTE-490 AC-11: forwards the ref to the native select",
+        "EzClassicComboBox > renders the label and all options",
+        "EzClassicComboBox > fires onChange when a different option is selected"
+      ]
+    },
+    {
+      "id": "AC-12",
+      "description": "o spike registra se o Playwright usa o select escondido (`selectOption`); se não usar, os pontos de E2E migram para um helper do `EzSelect`.",
+      "tests": [
+        "Spike registrado na SPEC/PR: o select nativo escondido (sr-only) e usado pelo E2E isolado (scripts/e2e_isolated.sh)"
+      ],
+      "tdd_required": false,
+      "reason": "Spike de compatibilidade: o resultado é registrado, não é comportamento novo do produto."
+    },
+    {
+      "id": "AC-13",
+      "description": "o Storybook do `EzSelect` mostra normal, selecionado, desabilitado, erro e lista longa.",
+      "tests": [
+        "Build do Storybook (nx build-storybook web) com EzSelect.stories.tsx"
+      ],
+      "tdd_required": false,
+      "reason": "Story do Storybook: verificada pelo build do Storybook, não por teste de comportamento."
+    },
+    {
+      "id": "AC-14",
+      "description": "nenhum `<select>` cru resta em TSX de produto fora do `EzSelect`; os 16 seletores trocados mantêm `id`, `data-testid`, `aria-label` e rótulo.",
+      "tests": [
+        "NativeSelectCheckTest > test_repository_has_no_native_select_outside_ez_select"
+      ],
+      "tdd_required": false,
+      "reason": "Verificador Python (scripts/), fora do par RED/GREEN do nx (que roda api e web): RED e GREEN próprios em .delivery/evidence/DMTE-490/red-guard.json e green-guard.json, com o comando python3 -m unittest."
+    },
+    {
+      "id": "AC-15",
+      "description": "o verificador de CI reprova `<select>` fora do `EzSelect` e passa na `main` após a troca; seu teste cobre os dois casos.",
+      "tests": [
+        "NativeSelectCheckTest > test_native_select_is_a_violation",
+        "NativeSelectCheckTest > test_multiline_native_select_is_a_violation",
+        "NativeSelectCheckTest > test_ez_select_and_other_components_are_not_violations",
+        "NativeSelectCheckTest > test_ez_select_component_itself_is_out_of_scope",
+        "NativeSelectCheckTest > test_main_fails_and_names_the_file_when_a_native_select_exists",
+        "NativeSelectCheckTest > test_main_passes_on_a_clean_tree"
+      ],
+      "tdd_required": false,
+      "reason": "Verificador Python (scripts/), fora do par RED/GREEN do nx (que roda api e web): RED e GREEN próprios em .delivery/evidence/DMTE-490/red-guard.json e green-guard.json, com o comando python3 -m unittest."
+    },
+    {
+      "id": "AC-16",
+      "description": "as suítes web e E2E ficam verdes após a troca.",
+      "tests": [
+        "nx run-many -t test --projects=api,web (suíte completa) e E2E isolado"
+      ],
+      "tdd_required": false,
+      "reason": "Suíte completa verde: critério de regressão, coberto pelo GREEN final e pelo CI, sem RED próprio."
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-490.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-490/red-r5.json",
+    "green": ".delivery/evidence/DMTE-490/green-r5.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzComboBox",
+      "EzClassicComboBox",
+      "EzTag"
+    ],
+    "stories": [
+      "apps/web/src/components/ds/EzSelect.stories.tsx"
+    ]
+  }
+}

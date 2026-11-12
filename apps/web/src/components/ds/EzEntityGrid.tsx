@@ -53,6 +53,7 @@ import {
 } from 'lucide-react';
 import { cn } from './utils';
 import { EzGridWrapper } from './EzGrid';
+import { EzSelect } from './EzSelect';
 import { EzTaskbar, EzTaskbarButton } from './EzTaskbar';
 import { EzFilterBar, FilterDef } from './EzFilterBar';
 
@@ -2184,19 +2185,20 @@ function EzEntityGridInner<T>(
               >
                 Linhas por página:
               </label>
-              <select
+              <EzSelect
                 id="ez-entity-grid-page-size-select"
                 aria-label="Linhas por página:"
+                variant="compact"
+                className="w-auto"
                 value={table.getState().pagination.pageSize}
                 onChange={handlePageSizeChange}
-                className="h-11 sm:h-[32px] px-2 text-[13px] text-gray-700 bg-white border border-gray-200 rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-200 cursor-pointer"
               >
                 {resolvedPageSizeOptions.map((option) => (
                   <option key={option} value={option}>
                     {option}
                   </option>
                 ))}
-              </select>
+              </EzSelect>
             </div>
 
             <div className="flex items-center gap-3">

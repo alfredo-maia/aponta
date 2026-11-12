@@ -182,6 +182,27 @@ describe('ReportsService', () => {
       expect(res.avgResolutionMinutes).toBe(120);
     });
 
+    it('counts PENDING_SANKHYA tickets in the paused KPI (DMTE-490 AC-03)', async () => {
+      const now = new Date();
+      const base = {
+        createdAt: now,
+        updatedAt: now,
+        responseDeadline: null,
+        resolveDeadline: null,
+        slaAccumulatedPauseTime: 0,
+        slaPausedAt: null,
+      };
+      mockPrisma.ticket.findMany.mockResolvedValue([
+        { ...base, status: 'PENDING_SANKHYA' },
+        { ...base, status: 'ON_HOLD' },
+        { ...base, status: 'IN_PROGRESS' },
+      ]);
+
+      const res = await service.getSummary({ id: 'admin', role: Role.ADMIN });
+
+      expect(res.ticketSummary?.paused).toBe(2);
+    });
+
     it('flags an open ticket as SLA-breached once its deadline has passed', async () => {
       const now = new Date();
       mockPrisma.ticket.findMany.mockResolvedValue([

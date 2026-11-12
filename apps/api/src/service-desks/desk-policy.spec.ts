@@ -238,6 +238,25 @@ describe('assertDeskAllowsAddSlaHours', () => {
   });
 });
 
+describe('assertDeskAllowsPauseResume (DMTE-490 AC-02)', () => {
+  const PENDING_SANKHYA = 'PENDING_SANKHYA' as TicketStatus;
+
+  it('forbids entering and leaving PENDING_SANKHYA when the flag is false', () => {
+    expect(() =>
+      assertDeskAllowsPauseResume({ allowPauseResumeSla: false }, TicketStatus.IN_PROGRESS, PENDING_SANKHYA),
+    ).toThrow(ForbiddenException);
+    expect(() =>
+      assertDeskAllowsPauseResume({ allowPauseResumeSla: false }, PENDING_SANKHYA, TicketStatus.RESOLVED),
+    ).toThrow(ForbiddenException);
+  });
+
+  it('allows PENDING_SANKHYA transitions when the flag is true', () => {
+    expect(() =>
+      assertDeskAllowsPauseResume({ allowPauseResumeSla: true }, TicketStatus.IN_PROGRESS, PENDING_SANKHYA),
+    ).not.toThrow();
+  });
+});
+
 describe('assertDeskAllowsPauseResume', () => {
   it('forbids ON_HOLD / PENDING_CUSTOMER transitions when the flag is false', () => {
     expect(() =>

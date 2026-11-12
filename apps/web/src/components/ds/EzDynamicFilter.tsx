@@ -1,5 +1,5 @@
 import { Plus, Trash2 } from 'lucide-react';
-import { cn } from './utils';
+import { EzSelect } from './EzSelect';
 
 export type EzDynamicFilterOperator =
   | 'contains'
@@ -160,8 +160,9 @@ export function EzDynamicFilter({ fields, rules, onChange }: EzDynamicFilterProp
             className="space-y-1 rounded-[6px] border border-gray-200 p-2 bg-gray-50/60"
           >
             <div className="flex items-center gap-1">
-              <select
+              <EzSelect
                 aria-label="Campo"
+                variant="compact"
                 value={rule.fieldId}
                 onChange={(e) => {
                   const nextField = fields.find((f) => f.id === e.target.value);
@@ -172,14 +173,13 @@ export function EzDynamicFilter({ fields, rules, onChange }: EzDynamicFilterProp
                     value: '',
                   });
                 }}
-                className={cn(controlClass, 'cursor-pointer')}
               >
                 {fields.map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.label}
                   </option>
                 ))}
-              </select>
+              </EzSelect>
               <button
                 type="button"
                 aria-label="Remover filtro"
@@ -190,25 +190,25 @@ export function EzDynamicFilter({ fields, rules, onChange }: EzDynamicFilterProp
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
-            <select
+            <EzSelect
               aria-label="Operador"
+              variant="compact"
               value={rule.operator}
               onChange={(e) => update(rule.id, { operator: e.target.value as EzDynamicFilterOperator })}
-              className={cn(controlClass, 'cursor-pointer')}
             >
               {ops.map((op) => (
                 <option key={op} value={op}>
                   {OPERATOR_LABELS[op]}
                 </option>
               ))}
-            </select>
+            </EzSelect>
             {needsValue &&
               (field?.type === 'select' && field.options ? (
-                <select
+                <EzSelect
                   aria-label="Valor"
+                  variant="compact"
                   value={rule.value}
                   onChange={(e) => update(rule.id, { value: e.target.value })}
-                  className={cn(controlClass, 'cursor-pointer')}
                 >
                   <option value="">Selecione…</option>
                   {field.options.map((o) => (
@@ -216,7 +216,7 @@ export function EzDynamicFilter({ fields, rules, onChange }: EzDynamicFilterProp
                       {o.label}
                     </option>
                   ))}
-                </select>
+                </EzSelect>
               ) : (
                 <input
                   aria-label="Valor"

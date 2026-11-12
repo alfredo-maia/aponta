@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-12T13:32:18.206821+00:00",
+  "finished_at": "2026-11-12T13:32:18.367095+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_check_native_select.py",
+    "-v"
+  ],
+  "base_sha": "596fdac2b90e99b040d1366e381c818d762c532a",
+  "head_sha": "29f2f76fe5bbbcdb90bdd0b4afd838d63d73e0e8",
+  "exit_code": 1,
+  "tests": {
+    "scripts/test_check_native_select.py": "78f2159842bc122887887d751ab8460da685311c2228970774449ab67a31a2fc"
+  },
+  "criteria": [
+    "AC-14",
+    "AC-15"
+  ],
+  "source_hashes": {
+    "GLOSSARY.md": "ee585aa10a264e36948eb8005d6d52f664207e4679b1668e0bbc3776afd2f4b9",
+    "apps/api/prisma/ticket-status-enum.spec.ts": "fcba27c08bbbee5ffbd8324573f59c60ff0273aa8b8f77c7d959f33dbe1c6da2",
+    "apps/api/src/reports/reports.service.spec.ts": "3a08edc024742325586e6d8e0ce309d61ff10daba8b15b2f790693f04e12dbb9",
+    "apps/api/src/service-desks/desk-policy.spec.ts": "df31abc1066d3656bbf9de7f0f33da2eccc8c51ab94b5e9d2178b221e553cb34",
+    "apps/api/src/tickets/tickets.service.spec.ts": "e29d224dfc8b4c9a72062e49fd1842965e6814cad4fd4631aa233640c6f76ffe",
+    "apps/web/src/components/ds/EzClassicComboBox.test.tsx": "28e0f13af8dede5f92d3886471c8839d6d452fff66ecbc9a2d774f9f9e4092a1",
+    "apps/web/src/components/ds/EzComboBox.test.tsx": "942d4248a9ff6f558cbcf8eac265fdb19504ece7f10db2f0f77f97947e31005c",
+    "apps/web/src/components/ds/EzSelect.test.tsx": "884c56afd23a6fec281ba3f7c39efebd16285c49dc6dbdd9cc2494af4a02566a",
+    "apps/web/src/components/ds/EzSelect.tsx": "15dad8ddde268429aa97855e13fe263f8c8168436873cbf2d7830c1099bdb215",
+    "apps/web/src/components/tickets/TicketFormMode.test.tsx": "bbead6626b2c820db90a557cb1943cd82be5a64c58c4efb25a35376e2d72baf9",
+    "apps/web/src/components/tickets/TicketKanban.test.tsx": "1d91b3c6951883c05a864eb1d95335c15f1bd218d5b41f90635db58c6bbec3fb",
+    "apps/web/src/components/tickets/TicketList.test.tsx": "fc7e59d990664cb87051304c08c574b3fa16df2bd9a7bce49df262bdd383b19f",
+    "apps/web/src/pages/DashboardPage.test.tsx": "159fc2b81bcbc03615c6b2c0d35df36fafb01a5bfca14a90aa8004cc5c5e4605",
+    "apps/web/src/pages/TicketDetailPage.test.tsx": "dbf2c8f239a9c16271332000cfe963aa226734f77760b44f0e27a9fdd457934b",
+    "scripts/check_native_select.py": "d2caeecf9d21e25d2837e013069db38778a94e18525fe9481bb133fd49e9d05c",
+    "scripts/test_check_native_select.py": "78f2159842bc122887887d751ab8460da685311c2228970774449ab67a31a2fc"
+  },
+  "log": ".delivery/evidence/DMTE-490/red-guard.log",
+  "log_sha256": "220ec549c3bba8d5b127de5e3fb953b589696364157820ab2c510cbfae056f3f"
+}

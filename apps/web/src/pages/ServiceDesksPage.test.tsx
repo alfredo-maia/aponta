@@ -99,7 +99,7 @@ describe('ServiceDesksPage', () => {
     expect(await screen.findByText('Suporte N1')).toBeInTheDocument();
     expect(screen.getByText('Infraestrutura')).toBeInTheDocument();
     expect(screen.getByTestId('ez-entity-grid-pagination-count')).toHaveTextContent('1-2 de 2');
-    expect(screen.getByLabelText(/linhas por página/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/linhas por página/i, { selector: 'select' })).toBeInTheDocument();
   });
 
   it('keeps the grid scrollable by touch in both axes on phones (DMTE-455)', async () => {
@@ -240,7 +240,7 @@ describe('ServiceDesksPage', () => {
     const editSlaButton = await screen.findByRole('button', { name: /editar cliente e sla/i });
     await user.click(editSlaButton);
 
-    const orgSelect = await screen.findByLabelText(/cliente vinculado/i);
+    const orgSelect = await screen.findByLabelText(/cliente vinculado/i, { selector: 'select' });
     await user.selectOptions(orgSelect, 'org-1');
 
     const criticalResponseInput = screen.getByLabelText(/1ª resposta \(pad\. 1h\)/i);
@@ -343,8 +343,8 @@ describe('ServiceDesksPage', () => {
     await user.click(within(drawer).getByTestId('ez-dynamic-filter-add'));
 
     const rule = within(drawer).getByTestId('ez-dynamic-filter-rule');
-    const fieldOptions = within(within(rule).getByLabelText('Campo'))
-      .getAllByRole('option')
+    const fieldOptions = within(within(rule).getByLabelText('Campo', { selector: 'select' }))
+      .getAllByRole('option', { hidden: true })
       .map((o) => o.textContent);
     expect(fieldOptions).toEqual(
       expect.arrayContaining(['Nome', 'Nome de exibição', 'Status', 'Recebendo', 'Agentes']),

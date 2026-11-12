@@ -49,10 +49,10 @@ describe('ContractForm precision', () => {
         onCancel={vi.fn()}
       />,
     );
-    fireEvent.change(screen.getByLabelText(/Empresa/), {
+    fireEvent.change(screen.getByLabelText(/Empresa/, { selector: 'select' }), {
       target: { value: 'org-1' },
     });
-    fireEvent.change(screen.getByLabelText('Modalidade'), {
+    fireEvent.change(screen.getByLabelText('Modalidade', { selector: 'select' }), {
       target: { value: 'MONTHLY_HOURS' },
     });
     fireEvent.change(screen.getByLabelText('Franquia mensal (horas)'), {

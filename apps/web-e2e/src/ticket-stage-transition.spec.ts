@@ -88,10 +88,10 @@ test.describe('worklog advances the ticket through desk-configured stages (real 
       await page.getByTestId('worklog-day-input').fill('2026-10-16');
       await page.getByTestId('worklog-start-time-input').fill('09:00');
       await page.getByTestId('worklog-end-time-input').fill('09:30');
-      await page.getByLabel('Contrato aplicável', { exact: true }).selectOption(contractId);
+      await page.getByLabel('Contrato aplicável', { exact: true }).and(page.locator('select')).selectOption(contractId);
       await page.getByTestId('worklog-description-input').locator('[contenteditable="true"]').fill('Avancei para o estágio Resolvido');
       // Real mesa-configured subset, not a free status list: only N2 and Resolvido show up here.
-      const nextStage = page.getByLabel('Próximo Estágio', { exact: true });
+      const nextStage = page.getByLabel('Próximo Estágio', { exact: true }).and(page.locator('select'));
       await expect(nextStage.locator('option')).toHaveText(['Não alterar', 'N2', 'Resolvido']);
       await nextStage.selectOption({ label: 'Resolvido' });
       const savedLog = page.waitForResponse((result) => result.url().endsWith(`/api/tickets/${ids.ticket}/worklogs`) && result.request().method() === 'POST');

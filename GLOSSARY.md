@@ -32,6 +32,10 @@ _Avoid_: Apontamento bloqueado
 Encerramento do pré-apontamento pelo sistema quando o tempo trabalhado atinge a duração da agenda.
 _Avoid_: Auto-stop
 
+**Aguardando Sankhya**:
+Status do ticket parado porque depende de um chamado aberto na Sankhya; pausa o SLA e conta como pausado.
+_Avoid_: Aguardando Chamado Sankhya, Aguardando Terceiros (este é outro status, para terceiros em geral)
+
 **Catálogo de serviços**:
 Lista de categorias e itens oferecida na abertura de um chamado; cada item aponta para uma mesa de destino e uma prioridade padrão.
 _Avoid_: Catálogo de atendimento, tipos de solicitação

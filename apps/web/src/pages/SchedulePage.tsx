@@ -6,6 +6,7 @@ import { CompromissoDetailModal } from '../components/schedule/CompromissoDetail
 import {
   EzButton,
   EzPageLayout,
+  EzSelect,
   EzSpinner,
 } from '../components/ds';
 import {
@@ -497,17 +498,17 @@ export function SchedulePage() {
           </div>
 
           {/* Hidden selector for test compatibility */}
-          <select
+          <EzSelect
             aria-label="Filtrar por tipo"
+            className="sr-only w-px"
             value={filterTypeSelect}
             onChange={(e) => setFilterTypeSelect(e.target.value as AppointmentType | 'ALL')}
-            className="sr-only"
           >
             <option value="ALL">Todos os Tipos</option>
             <option value="AGENDA">Agenda</option>
             <option value="VACATION">Férias</option>
             <option value="ABSENCE">Ausências</option>
-          </select>
+          </EzSelect>
         </div>
       }
     >

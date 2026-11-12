@@ -1,0 +1,51 @@
+test_ez_select_and_other_components_are_not_violations (test_check_native_select.NativeSelectCheckTest.test_ez_select_and_other_components_are_not_violations) ... ok
+test_ez_select_component_itself_is_out_of_scope (test_check_native_select.NativeSelectCheckTest.test_ez_select_component_itself_is_out_of_scope) ... FAIL
+test_main_fails_and_names_the_file_when_a_native_select_exists (test_check_native_select.NativeSelectCheckTest.test_main_fails_and_names_the_file_when_a_native_select_exists) ... FAIL
+test_main_passes_on_a_clean_tree (test_check_native_select.NativeSelectCheckTest.test_main_passes_on_a_clean_tree) ... ok
+test_multiline_native_select_is_a_violation (test_check_native_select.NativeSelectCheckTest.test_multiline_native_select_is_a_violation) ... FAIL
+test_native_select_is_a_violation (test_check_native_select.NativeSelectCheckTest.test_native_select_is_a_violation) ... FAIL
+test_repository_has_no_native_select_outside_ez_select (test_check_native_select.NativeSelectCheckTest.test_repository_has_no_native_select_outside_ez_select) ... ok
+
+======================================================================
+FAIL: test_ez_select_component_itself_is_out_of_scope (test_check_native_select.NativeSelectCheckTest.test_ez_select_component_itself_is_out_of_scope)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-490-ee3aedec3c45/workdir/aponta/scripts/test_check_native_select.py", line 34, in test_ez_select_component_itself_is_out_of_scope
+    self.assertEqual(['Y.tsx'], [p.name for p in find_files(root)])
+AssertionError: Lists differ: ['Y.tsx'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'Y.tsx'
+
+- ['Y.tsx']
++ []
+
+======================================================================
+FAIL: test_main_fails_and_names_the_file_when_a_native_select_exists (test_check_native_select.NativeSelectCheckTest.test_main_fails_and_names_the_file_when_a_native_select_exists)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-490-ee3aedec3c45/workdir/aponta/scripts/test_check_native_select.py", line 40, in test_main_fails_and_names_the_file_when_a_native_select_exists
+    self.assertEqual(1, main(['check_native_select.py', str(root)]))
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_multiline_native_select_is_a_violation (test_check_native_select.NativeSelectCheckTest.test_multiline_native_select_is_a_violation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-490-ee3aedec3c45/workdir/aponta/scripts/test_check_native_select.py", line 21, in test_multiline_native_select_is_a_violation
+    self.assertTrue(find_violations('return (\n  <select\n    id="x"\n  >'))
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_native_select_is_a_violation (test_check_native_select.NativeSelectCheckTest.test_native_select_is_a_violation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-490-ee3aedec3c45/workdir/aponta/scripts/test_check_native_select.py", line 18, in test_native_select_is_a_violation
+    self.assertTrue(find_violations('<select value={v} onChange={f}>'))
+AssertionError: [] is not true
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.006s
+
+FAILED (failures=4)

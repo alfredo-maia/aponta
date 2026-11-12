@@ -72,7 +72,7 @@ describe('EzSimpleFormConfig', () => {
       />
     );
 
-    const razaoSocialTabSelect = screen.getByLabelText(/aba.*razão social/i);
+    const razaoSocialTabSelect = screen.getByLabelText(/aba.*razão social/i, { selector: 'select' });
     await userEvent.selectOptions(razaoSocialTabSelect, 'Contato');
 
     expect(onChange).toHaveBeenCalledTimes(1);
@@ -124,7 +124,7 @@ describe('EzSimpleFormConfig', () => {
       />
     );
 
-    const razaoSocialTabSelect = screen.getByLabelText(/aba.*razão social/i);
+    const razaoSocialTabSelect = screen.getByLabelText(/aba.*razão social/i, { selector: 'select' });
     expect(razaoSocialTabSelect).toHaveTextContent('Geral');
   });
 
@@ -142,7 +142,7 @@ describe('EzSimpleFormConfig', () => {
     await userEvent.type(screen.getByLabelText(/nova aba/i), 'Financeiro');
     await userEvent.click(screen.getByRole('button', { name: /adicionar aba/i }));
 
-    const cnpjTabSelect = screen.getByLabelText(/aba.*cnpj/i);
+    const cnpjTabSelect = screen.getByLabelText(/aba.*cnpj/i, { selector: 'select' });
     await userEvent.selectOptions(cnpjTabSelect, 'Financeiro');
 
     expect(onChange).toHaveBeenLastCalledWith([

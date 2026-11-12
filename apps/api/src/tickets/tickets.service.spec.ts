@@ -1,6 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Prisma, Role, TicketPriority, TicketStatus } from '@prisma/client';
+
+// DMTE-490: o teste referencia o valor pelo literal; o cliente Prisma só o expõe depois da migração.
+const PENDING_SANKHYA = 'PENDING_SANKHYA' as TicketStatus;
 import {
   BadRequestException,
   ForbiddenException,
@@ -638,7 +641,7 @@ describe('TicketsService', () => {
       });
     });
 
-    it('filters to ON_HOLD/PENDING_CUSTOMER/PENDING_APPROVAL when paused=true (dashboard "Pausados" KPI)', async () => {
+    it('filters to ON_HOLD/PENDING_CUSTOMER/PENDING_APPROVAL/PENDING_SANKHYA when paused=true (dashboard "Pausados" KPI, DMTE-490 AC-03)', async () => {
       mockPrismaService.ticket.findMany.mockResolvedValue([]);
 
       await service.findAll(
@@ -653,6 +656,7 @@ describe('TicketsService', () => {
               TicketStatus.ON_HOLD,
               TicketStatus.PENDING_CUSTOMER,
               TicketStatus.PENDING_APPROVAL,
+              PENDING_SANKHYA,
             ],
           },
         },
@@ -1909,6 +1913,114 @@ describe('TicketsService', () => {
 
       await expect(
         service.changeStatus('t1', TicketStatus.IN_PROGRESS, actingUser),
+      ).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe('Aguardando Sankhya (DMTE-490)', () => {
+    const desk = (allowPauseResumeSla: boolean) => ({
+      listedGroupsOnly: false,
+      allowPauseResumeSla,
+      allowReopenUnbilled: true,
+      allowReopenBilled: false,
+      agents: [],
+      agentGroups: [],
+    });
+
+    it('AC-01: allows IN_PROGRESS -> PENDING_SANKHYA', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.IN_PROGRESS,
+        slaAccumulatedPauseTime: 0,
+        slaPausedAt: null,
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({ id: 't1', status: PENDING_SANKHYA });
+
+      const result = await service.changeStatus('t1', PENDING_SANKHYA, actingUser);
+
+      expect(result.status).toBe(PENDING_SANKHYA);
+    });
+
+    it.each([TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED])(
+      'AC-01: allows PENDING_SANKHYA -> %s',
+      async (target) => {
+        mockPrismaService.ticket.findUnique.mockResolvedValue({
+          id: 't1',
+          status: PENDING_SANKHYA,
+          slaAccumulatedPauseTime: 0,
+          slaPausedAt: new Date(),
+        });
+        mockPrismaService.ticket.update.mockResolvedValue({ id: 't1', status: target });
+
+        const result = await service.changeStatus('t1', target, actingUser);
+
+        expect(result.status).toBe(target);
+      },
+    );
+
+    it.each([TicketStatus.OPEN, TicketStatus.CLOSED, TicketStatus.ON_HOLD])(
+      'AC-01: rejects %s -> PENDING_SANKHYA',
+      async (from) => {
+        mockPrismaService.ticket.findUnique.mockResolvedValue({ id: 't1', status: from });
+
+        await expect(
+          service.changeStatus('t1', PENDING_SANKHYA, actingUser),
+        ).rejects.toThrow(BadRequestException);
+      },
+    );
+
+    it('AC-02: entering PENDING_SANKHYA starts the SLA pause', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.IN_PROGRESS,
+        slaAccumulatedPauseTime: 0,
+        slaPausedAt: null,
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({ id: 't1', status: PENDING_SANKHYA });
+
+      await service.changeStatus('t1', PENDING_SANKHYA, actingUser);
+
+      expect(mockPrismaService.ticket.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: PENDING_SANKHYA,
+            slaPausedAt: expect.any(Date),
+          }),
+        }),
+      );
+    });
+
+    it('AC-02: leaving PENDING_SANKHYA resumes the SLA and accumulates the paused minutes', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        status: PENDING_SANKHYA,
+        slaAccumulatedPauseTime: 10,
+        slaPausedAt: new Date(Date.now() - 30 * 60000),
+      });
+      mockPrismaService.ticket.update.mockResolvedValue({ id: 't1', status: TicketStatus.IN_PROGRESS });
+
+      await service.changeStatus('t1', TicketStatus.IN_PROGRESS, actingUser);
+
+      expect(mockPrismaService.ticket.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            slaPausedAt: null,
+            slaAccumulatedPauseTime: 40,
+          }),
+        }),
+      );
+    });
+
+    it('AC-02: forbids entering PENDING_SANKHYA when the desk disallows SLA pause/resume', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        id: 't1',
+        status: TicketStatus.IN_PROGRESS,
+        serviceDeskId: 'desk-1',
+      });
+      mockPrismaService.serviceDesk.findUnique.mockResolvedValue(desk(false));
+
+      await expect(
+        service.changeStatus('t1', PENDING_SANKHYA, actingUser),
       ).rejects.toThrow(ForbiddenException);
     });
   });

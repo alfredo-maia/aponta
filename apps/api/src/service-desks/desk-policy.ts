@@ -110,9 +110,10 @@ export function isTicketBilled(worklogs: { billable: boolean; valuationType: str
   );
 }
 
-const SLA_PAUSE_STATUSES: TicketStatus[] = [
+export const SLA_PAUSE_STATUSES: TicketStatus[] = [
   TicketStatus.ON_HOLD,
   TicketStatus.PENDING_CUSTOMER,
+  TicketStatus.PENDING_SANKHYA,
 ];
 
 export function isSlaPauseResumeTransition(from: TicketStatus, to: TicketStatus): boolean {

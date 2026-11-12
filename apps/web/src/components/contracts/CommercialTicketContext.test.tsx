@@ -81,7 +81,7 @@ describe('CommercialTicketContext', () => {
       ).toBeInTheDocument(),
     );
     expect(
-      screen.queryByLabelText('Empresa comercial do chamado'),
+      screen.queryByLabelText('Empresa comercial do chamado', { selector: 'select' }),
     ).not.toBeInTheDocument();
     expect(api.get).not.toHaveBeenCalledWith('/organizations');
   });
@@ -95,14 +95,14 @@ describe('CommercialTicketContext', () => {
     renderContext({ isAdmin: true });
     await waitFor(() =>
       expect(
-        screen.getByRole('option', { name: 'Empresa Nove' }),
+        screen.getByRole('option', { name: 'Empresa Nove', hidden: true }),
       ).toBeInTheDocument(),
     );
     const button = screen.getByRole('button', {
       name: 'Regularizar empresa comercial',
     });
     expect(button).toBeDisabled();
-    fireEvent.change(screen.getByLabelText('Empresa comercial do chamado'), {
+    fireEvent.change(screen.getByLabelText('Empresa comercial do chamado', { selector: 'select' }), {
       target: { value: 'org-9' },
     });
     expect(button).not.toBeDisabled();
@@ -122,11 +122,11 @@ describe('CommercialTicketContext', () => {
     renderContext({ isAdmin: true });
     await waitFor(() =>
       expect(
-        screen.getByRole('option', { name: 'Empresa Nove' }),
+        screen.getByRole('option', { name: 'Empresa Nove', hidden: true }),
       ).toBeInTheDocument(),
     );
     const form = screen
-      .getByLabelText('Empresa comercial do chamado')
+      .getByLabelText('Empresa comercial do chamado', { selector: 'select' })
       .closest('form');
     expect(form).not.toBeNull();
     fireEvent.submit(form as HTMLFormElement);
@@ -142,10 +142,10 @@ describe('CommercialTicketContext', () => {
     renderContext({ isAdmin: true });
     await waitFor(() =>
       expect(
-        screen.getByRole('option', { name: 'Empresa Nove' }),
+        screen.getByRole('option', { name: 'Empresa Nove', hidden: true }),
       ).toBeInTheDocument(),
     );
-    fireEvent.change(screen.getByLabelText('Empresa comercial do chamado'), {
+    fireEvent.change(screen.getByLabelText('Empresa comercial do chamado', { selector: 'select' }), {
       target: { value: 'org-9' },
     });
     fireEvent.click(

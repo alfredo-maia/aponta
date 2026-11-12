@@ -35,6 +35,10 @@ equivalente funcional no Aponta DS) — todos com testes e tokens DS:
 `EzTagInput`, `EzTextEdit`, `EzTileMedium` (único criado após auditoria
 completa), `EzTimeInput`, `EzTree`, `EzUnderface`.
 
+## Seletor de escolha única: `EzSelect` (DMTE-490)
+
+O `<select>` nativo não permite estilizar a lista aberta (é o navegador que a desenha). `EzSelect` é o único seletor de escolha única do Aponta: lista própria na paleta `brand-*`/`gray-*`, teclado (setas, Home, End, Enter, Esc) e padrão ARIA de listbox. Um `<select>` nativo escondido continua no DOM como controle de formulário (recebe `id`, `name`, `ref`, `data-testid` e dispara `onChange`). `EzComboBox` e `EzClassicComboBox` mantêm a API e renderizam por ele (`variant="classic"` no segundo). `<select>` cru fora do `EzSelect` é reprovado por `scripts/check_native_select.py` no CI.
+
 ## Como decidir no futuro
 
 1. Nome `ez-*` novo apareceu numa spec da Sankhya? Procurar primeiro em

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TicketFormMode } from './TicketFormMode';
 import type { Ticket } from '../../hooks/useTickets';
@@ -39,6 +39,25 @@ describe('TicketFormMode', () => {
     expect(screen.getByText('Atendimento & SLA')).toBeInTheDocument();
     expect(screen.getByText('Anexos & Tarefas')).toBeInTheDocument();
     expect(screen.getByText('Avaliação CSAT')).toBeInTheDocument();
+  });
+
+  it('DMTE-490 AC-06: status select offers every status with the same labels and order as the ticket detail', () => {
+    render(<TicketFormMode ticket={mockTicket} layout="CASCADE" onBackToGrid={vi.fn()} />);
+
+    const options = within(screen.getByTestId('ticket-form-status-select')).getAllByRole('option', { hidden: true });
+
+    expect(options.map((o) => o.textContent)).toEqual([
+      'Aberto',
+      'Em Andamento',
+      'Aguardando Cliente',
+      'Aguardando Terceiros',
+      'Aguardando Sankhya',
+      'Aguardando Aprovação',
+      'Escalonado',
+      'Resolvido',
+      'Fechado',
+    ]);
+    expect(options.map((o) => (o as HTMLOptionElement).value)).toContain('PENDING_SANKHYA');
   });
 
   it('AC-3: Esc volta para a grade', async () => {

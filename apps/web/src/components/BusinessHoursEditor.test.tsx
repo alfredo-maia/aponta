@@ -55,8 +55,8 @@ describe('BusinessHoursEditor', () => {
 
     const row0 = await screen.findByTestId('business-hour-row-0');
     const row1 = screen.getByTestId('business-hour-row-1');
-    expect(within(row0).getByLabelText(/dia da semana/i)).toHaveValue('1');
-    expect(within(row1).getByLabelText(/dia da semana/i)).toHaveValue('2');
+    expect(within(row0).getByLabelText(/dia da semana/i, { selector: 'select' })).toHaveValue('1');
+    expect(within(row1).getByLabelText(/dia da semana/i, { selector: 'select' })).toHaveValue('2');
     expect(within(row0).getByLabelText(/início/i)).toHaveValue('08:00');
     expect(within(row0).getByLabelText(/fim/i)).toHaveValue('18:00');
     expect(screen.getByDisplayValue('Natal')).toBeInTheDocument();
@@ -84,7 +84,7 @@ describe('BusinessHoursEditor', () => {
 
     const row = screen.getByTestId('business-hour-row-0');
     await user.selectOptions(
-      within(row).getByLabelText(/dia da semana/i),
+      within(row).getByLabelText(/dia da semana/i, { selector: 'select' }),
       '1',
     );
     await user.clear(within(row).getByLabelText(/início/i));
@@ -177,7 +177,7 @@ describe('BusinessHoursEditor', () => {
     const weekdays = [1, 2, 3, 4, 5];
     for (const [i, weekday] of weekdays.entries()) {
       const row = screen.getByTestId(`business-hour-row-${i}`);
-      expect(within(row).getByLabelText(/dia da semana/i)).toHaveValue(
+      expect(within(row).getByLabelText(/dia da semana/i, { selector: 'select' })).toHaveValue(
         String(weekday),
       );
       expect(within(row).getByLabelText(/início/i)).toHaveValue('08:00');

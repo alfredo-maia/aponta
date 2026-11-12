@@ -12,7 +12,7 @@ import { SlaBadge } from './SlaBadge';
 import { SlaProgress } from './SlaProgress';
 import { TicketChecklist } from './TicketChecklist';
 import { TicketParentChild } from './TicketParent';
-import { EzAlert, EzTag } from '../ds';
+import { EzAlert, EzSelect, EzTag } from '../ds';
 
 /**
  * Renders an ISO 8601 UTC timestamp as a stable, timezone-independent string
@@ -137,10 +137,11 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
                 variant={statusTagVariants[ticket.status]}
               />
             ) : (
-              <select
+              <EzSelect
                 id="ticket-status"
                 aria-label="Status"
-                className="h-7 cursor-pointer rounded-full border border-gray-200 bg-white px-3 text-xs font-medium text-gray-900 outline-none transition-colors hover:border-gray-300 focus:border-brand-600 focus:ring-1 focus:ring-brand-600 disabled:opacity-50"
+                variant="compact"
+                className="w-auto min-w-[10rem]"
                 value={ticket.status}
                 disabled={statusMutation.isPending}
                 onChange={(e) => statusMutation.mutate(e.target.value as TicketStatus)}
@@ -150,7 +151,7 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
                     {statusLabels[st]}
                   </option>
                 ))}
-              </select>
+              </EzSelect>
             )}
             <EzTag
               label={priorityLabels[ticket.priority]}
@@ -163,9 +164,11 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
               <label htmlFor="assignee" className="text-gray-500">
                 Atribuído a:
               </label>
-              <select
+              <EzSelect
                 id="assignee"
-                className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition-colors hover:border-gray-300 focus:border-brand-600 focus:ring-1 focus:ring-brand-600 disabled:opacity-50"
+                aria-label="Atribuído a:"
+                variant="compact"
+                className="w-auto min-w-[10rem]"
                 value={ticket.agentId || ''}
                 disabled={assignMutation.isPending}
                 onChange={(e) => assignMutation.mutate(e.target.value)}
@@ -176,7 +179,7 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
                     {agent.name}
                   </option>
                 ))}
-              </select>
+              </EzSelect>
             </div>
           )}
         </div>

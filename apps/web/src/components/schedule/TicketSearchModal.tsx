@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useTickets, Ticket } from '../../hooks/useTickets';
-import { EzModal, EzTextInput, EzSpinner, EzTag } from '../ds';
+import { EzModal, EzSelect, EzTextInput, EzSpinner, EzTag } from '../ds';
 import { statusLabels, statusTagVariants } from '../tickets/TicketCard';
 
 interface PickerOption {
@@ -92,11 +92,10 @@ export function TicketSearchModal({
           {showOrganizationFilter && (
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Cliente</label>
-              <select
+              <EzSelect
                 aria-label="Filtrar por cliente"
                 value={organizationId}
                 onChange={(e) => setOrganizationId(e.target.value)}
-                className="w-full h-[38px] px-3 text-sm border border-gray-300 rounded-[8px] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
                 <option value="">Todos os clientes</option>
                 {(Array.isArray(organizationsQuery.data) ? organizationsQuery.data : []).map((org) => (
@@ -104,25 +103,24 @@ export function TicketSearchModal({
                     {org.name}
                   </option>
                 ))}
-              </select>
+              </EzSelect>
             </div>
           )}
 
           <div>
             <label className="block text-xs font-semibold text-gray-700 mb-1">Mesa</label>
-            <select
-              aria-label="Filtrar por mesa"
+            <EzSelect
+                aria-label="Filtrar por mesa"
               value={serviceDeskId}
               onChange={(e) => setServiceDeskId(e.target.value)}
-              className="w-full h-[38px] px-3 text-sm border border-gray-300 rounded-[8px] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
-            >
+              >
               <option value="">Todas as mesas</option>
               {(Array.isArray(serviceDesksQuery.data) ? serviceDesksQuery.data : []).map((sd) => (
                 <option key={sd.id} value={sd.id}>
                   {sd.name}
                 </option>
               ))}
-            </select>
+            </EzSelect>
           </div>
         </div>
 

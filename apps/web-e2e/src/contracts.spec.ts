@@ -47,8 +47,8 @@ test.describe('contracts and recorded valuation (real API/Postgres)', () => {
       await page.goto('/contracts');
       await page.getByRole('button', { name: 'Novo contrato', exact: true }).click({ timeout: 30000 });
       await page.getByLabel('Nome do contrato', { exact: true }).fill(`Contrato ${suffix}`);
-      await page.getByRole('combobox', { name: 'Empresa*', exact: true }).selectOption(ids.org);
-      await page.getByLabel('Modalidade', { exact: true }).selectOption('MONTHLY_HOURS');
+      await page.getByLabel('Empresa', { exact: true }).and(page.locator('select')).selectOption(ids.org);
+      await page.getByLabel('Modalidade', { exact: true }).and(page.locator('select')).selectOption('MONTHLY_HOURS');
       await page.getByLabel('Início da vigência', { exact: true }).fill('2026-10-01');
       await page.getByLabel('Condições comerciais aprovadas', { exact: true }).check();
       await page.getByRole('checkbox', { name: `Mesa E2E ${suffix}`, exact: true }).check();
@@ -67,7 +67,7 @@ test.describe('contracts and recorded valuation (real API/Postgres)', () => {
       await page.getByTestId('worklog-day-input').fill('2026-10-15');
       await page.getByTestId('worklog-start-time-input').fill('09:00');
       await page.getByTestId('worklog-end-time-input').fill('10:00');
-      await page.getByLabel('Contrato aplicável', { exact: true }).selectOption(contractId!);
+      await page.getByLabel('Contrato aplicável', { exact: true }).and(page.locator('select')).selectOption(contractId!);
       await page.getByTestId('worklog-description-input').locator('[contenteditable="true"]').fill('Metade coberta, metade excedente');
       const savedLog = page.waitForResponse((result) => result.url().endsWith(`/api/tickets/${ids.ticket}/worklogs`) && result.request().method() === 'POST');
       await page.getByTestId('worklog-submit-button').click();
@@ -79,7 +79,7 @@ test.describe('contracts and recorded valuation (real API/Postgres)', () => {
       expect(await billing.json()).toEqual([expect.objectContaining({ organizationId: ids.org, coveredMinutes: 30, excessMinutes: 30, totalValueCents: 6000, unknownValuationCount: 0 })]);
       await page.goto('/reports');
       await page.getByRole('tab', { name: 'Faturamento Base' }).click();
-      await page.getByLabel('Contrato', { exact: true }).selectOption(contractId!);
+      await page.getByLabel('Contrato', { exact: true }).and(page.locator('select')).selectOption(contractId!);
       const reportRow = page.getByRole('row').filter({ hasText: `Cliente E2E ${suffix}` });
       await expect(reportRow).toContainText('0h 30m / 0h 30m');
       await expect(reportRow).toContainText(/R\$\s*60,00/);

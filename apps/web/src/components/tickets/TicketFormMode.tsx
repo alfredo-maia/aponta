@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { EzTabs } from '../ds/EzTabs';
 import { EzTag } from '../ds/EzTag';
+import { EzSelect } from '../ds/EzSelect';
 import { EzLayoutFormConfigLayout } from '../ds/EzLayoutFormConfig';
 import type { Ticket, TicketStatus, TicketPriority } from '../../hooks/useTickets';
 import {
@@ -156,38 +157,32 @@ export function TicketFormMode({
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[12px] font-medium text-gray-700">Status</label>
-              <select
-                data-testid="ticket-form-status-select"
-                value={status}
-                onChange={(e) => setStatus(e.target.value as TicketStatus)}
-                className="w-full px-3 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white text-gray-800"
-              >
-                <option value="OPEN">Aberto</option>
-                <option value="IN_PROGRESS">Em Andamento</option>
-                <option value="RESOLVED">Resolvido</option>
-                <option value="CLOSED">Fechado</option>
-                <option value="PENDING_CUSTOMER">Pendente Cliente</option>
-                <option value="ON_HOLD">Em Espera</option>
-                <option value="ESCALATED">Escalado</option>
-              </select>
-            </div>
+            <EzSelect
+              label="Status"
+              variant="compact"
+              data-testid="ticket-form-status-select"
+              value={status}
+              onChange={(e) => setStatus(e.target.value as TicketStatus)}
+            >
+                {(Object.keys(statusLabels) as TicketStatus[]).map((st) => (
+                  <option key={st} value={st}>
+                    {statusLabels[st]}
+                  </option>
+                ))}
+              </EzSelect>
 
-            <div className="space-y-1">
-              <label className="text-[12px] font-medium text-gray-700">Prioridade</label>
-              <select
-                data-testid="ticket-form-priority-select"
-                value={priority}
-                onChange={(e) => setPriority(e.target.value as TicketPriority)}
-                className="w-full px-3 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white text-gray-800"
-              >
+            <EzSelect
+              label="Prioridade"
+              variant="compact"
+              data-testid="ticket-form-priority-select"
+              value={priority}
+              onChange={(e) => setPriority(e.target.value as TicketPriority)}
+            >
                 <option value="LOW">Baixa</option>
                 <option value="MEDIUM">Média</option>
                 <option value="HIGH">Alta</option>
                 <option value="CRITICAL">Crítica</option>
-              </select>
-            </div>
+              </EzSelect>
 
             <div className={cn('space-y-1', isSideBySide && 'md:col-span-2')}>
               <label className="text-[12px] font-medium text-gray-700">Descrição</label>

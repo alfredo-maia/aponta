@@ -1,0 +1,9 @@
+/tmp/multica-task-2381244248/tmp5jrkl11m/apps/web/src/pages/Y.tsx: <select> nativo: use EzSelect
+FALHA: <select> nativo fora do EzSelect (AC-15, DMTE-490).
+OK: nenhum <select> nativo fora do EzSelect (AC-15, DMTE-490).
+OK: nenhum <select> nativo fora do EzSelect (AC-15, DMTE-490).
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 0.059s
+
+OK

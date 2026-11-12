@@ -351,7 +351,7 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     expect(screen.getByLabelText(/^cnpj$/i)).toBeInTheDocument();
     expect(screen.queryByLabelText(/^cpf$/i)).not.toBeInTheDocument();
 
-    await user.selectOptions(screen.getByLabelText(/tipo de documento/i), 'CPF');
+    await user.selectOptions(screen.getByLabelText(/tipo de documento/i, { selector: 'select' }), 'CPF');
 
     expect(screen.getByLabelText(/^cpf$/i)).toBeInTheDocument();
     expect(screen.queryByLabelText(/^cnpj$/i)).not.toBeInTheDocument();
@@ -509,11 +509,11 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     await openDetail(user);
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/tipo de atendimento/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/tipo de atendimento/i, { selector: 'select' })).toBeInTheDocument();
     });
 
-    await user.selectOptions(screen.getByLabelText(/tipo de atendimento/i), 'SUPORTE');
-    await user.selectOptions(screen.getByLabelText(/^saúde$/i), 'SAUDAVEL');
+    await user.selectOptions(screen.getByLabelText(/tipo de atendimento/i, { selector: 'select' }), 'SUPORTE');
+    await user.selectOptions(screen.getByLabelText(/^saúde$/i, { selector: 'select' }), 'SAUDAVEL');
     await user.click(screen.getByRole('button', { name: /salvar perfil/i }));
 
     await waitFor(() => {
@@ -555,7 +555,7 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     expect(screen.getByText('Grupo Suporte')).toBeInTheDocument();
 
     // Vincula uma nova mesa (apenas "Contrato" está disponível, pois "Avulso" já está vinculada)
-    await user.selectOptions(screen.getByLabelText(/adicionar mesa de serviço/i), 'desk-2');
+    await user.selectOptions(screen.getByLabelText(/adicionar mesa de serviço/i, { selector: 'select' }), 'desk-2');
     await user.click(screen.getByRole('button', { name: /^vincular$/i }));
 
     await waitFor(() => {
@@ -596,7 +596,7 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     expect(quarterlyToggle).toBeInTheDocument();
     expect(within(billingContent).getByLabelText(/e-mails para envio de cobrança/i)).toBeInTheDocument();
     expect(within(billingContent).getByLabelText(/dia de vencimento/i)).toBeInTheDocument();
-    expect(within(billingContent).getByLabelText(/forma de pagamento/i)).toBeInTheDocument();
+    expect(within(billingContent).getByLabelText(/forma de pagamento/i, { selector: 'select' })).toBeInTheDocument();
     expect(within(billingContent).getByLabelText(/instruções e observações/i)).toBeInTheDocument();
 
     // Toggle quarterly billing
@@ -605,7 +605,7 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     // Fill in billing inputs
     await user.type(within(billingContent).getByLabelText(/e-mails para envio de cobrança/i), 'cobranca@empresa.com');
     await user.type(within(billingContent).getByLabelText(/dia de vencimento/i), '20');
-    await user.selectOptions(within(billingContent).getByLabelText(/forma de pagamento/i), 'PIX');
+    await user.selectOptions(within(billingContent).getByLabelText(/forma de pagamento/i, { selector: 'select' }), 'PIX');
     await user.type(within(billingContent).getByLabelText(/instruções e observações/i), 'Nota no 1o dia útil');
 
     // Save preferences
@@ -692,7 +692,7 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     expect(screen.getByText('Filtros de Clientes')).toBeInTheDocument();
     expect(within(drawer).getByLabelText(/buscar parceiro/i)).toBeInTheDocument();
     expect(within(drawer).getByLabelText(/^status$/i)).toBeInTheDocument();
-    expect(within(drawer).getByLabelText(/tipo de documento/i)).toBeInTheDocument();
+    expect(within(drawer).getByLabelText(/tipo de documento/i, { selector: 'select' })).toBeInTheDocument();
 
     // Close drawer
     await user.click(screen.getByTestId('ez-filter-drawer-close'));
@@ -748,7 +748,7 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     await user.selectOptions(within(drawer).getByLabelText(/^status$/i), 'ALL');
 
     // Document type filter narrows to CPF-only partners.
-    await user.selectOptions(within(drawer).getByLabelText(/tipo de documento/i), 'CPF');
+    await user.selectOptions(within(drawer).getByLabelText(/tipo de documento/i, { selector: 'select' }), 'CPF');
     expect(screen.queryByText('Empresa A')).not.toBeInTheDocument();
     expect(screen.getByText('Empresa B')).toBeInTheDocument();
 
@@ -982,7 +982,7 @@ describe('OrganizationsPage', { timeout: 15000 }, () => {
     await user.click(within(drawer).getByTestId('ez-dynamic-filter-add'));
 
     const rule = within(drawer).getByTestId('ez-dynamic-filter-rule');
-    const fieldOptions = within(within(rule).getByLabelText('Campo')).getAllByRole('option').map((o) => o.textContent);
+    const fieldOptions = within(within(rule).getByLabelText('Campo', { selector: 'select' })).getAllByRole('option', { hidden: true }).map((o) => o.textContent);
     expect(fieldOptions).toEqual(
       expect.arrayContaining(['Nome', 'Razão Social', 'CPF / CNPJ', 'Status', 'Clientes', 'Inscrição Estadual', 'Perfil', 'Saúde']),
     );
