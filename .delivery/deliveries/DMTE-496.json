@@ -30,7 +30,12 @@
     "green": ".delivery/evidence/DMTE-496/green.json"
   },
   "design_system": {
-    "applicable": false,
-    "reason": "Só acrescenta classes de layout à tira recolhida em TicketKanban.tsx; nenhum componente DS novo ou alterado."
+    "applicable": true,
+    "reused": [
+      "EzTag",
+      "EzAlert",
+      "EzSelect"
+    ],
+    "reason": "Só acrescenta classes de layout (min-h-[500px], self-stretch) à tira recolhida em TicketKanban.tsx; nenhum componente DS novo ou alterado."
   }
 }
