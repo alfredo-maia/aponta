@@ -93,6 +93,11 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
       return () => document.removeEventListener('mousedown', closeOnOutsideClick);
     }, [open]);
 
+    // Lista longa: a opção ativa pelo teclado precisa continuar visível.
+    useEffect(() => {
+      if (open) document.getElementById(`${listId}-${active}`)?.scrollIntoView?.({ block: 'nearest' });
+    }, [open, active, listId]);
+
     const openList = () => {
       const index = options.findIndex((o) => o.value === current && !o.disabled);
       setActive(index >= 0 ? index : options.findIndex((o) => !o.disabled));
