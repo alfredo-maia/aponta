@@ -331,6 +331,9 @@ describe('EzSelect (DMTE-490 T2)', () => {
       <EzSelect id="v-req" label="Mesa" required defaultValue="open">{options}</EzSelect>,
     );
 
-    expect(screen.getByText('*').parentElement).toHaveClass('leading-none');
+    const star = screen.getByText('*');
+    expect(star.parentElement).toHaveClass('leading-none');
+    // O asterisco tem o tamanho do rótulo: com o tamanho do corpo (16px) a linha ficaria 2px mais alta que a dos campos sem asterisco.
+    expect(star).toHaveClass('text-[14px]');
   });
 });

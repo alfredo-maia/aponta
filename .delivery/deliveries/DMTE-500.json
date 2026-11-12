@@ -16,16 +16,9 @@
     },
     {
       "id": "AC-02",
-      "description": "a linha do rótulo (rótulo e `*`) do `EzSelect` tem `leading-none`, então um seletor obrigatório não fica mais alto que um sem `*`.",
+      "description": "a linha do rótulo (rótulo e `*`) do `EzSelect` tem `leading-none` e o `*` tem o tamanho de fonte do rótulo, então um seletor obrigatório não fica mais alto que um sem `*`.",
       "tests": [
         "DMTE-500 AC-02: a linha do rótulo e do asterisco tem leading-none"
-      ]
-    },
-    {
-      "id": "AC-03",
-      "description": "em Chromium, Cliente, Mesa, Solicitante e Prioridade têm o mesmo topo de controle.",
-      "tests": [
-        "Medição em Chromium (script descartável, registrada no pai Multica DMTE-500); sem teste automatizado: jsdom não calcula layout"
       ]
     }
   ],

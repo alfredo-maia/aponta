@@ -187,7 +187,7 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
     return (
       <div className={cn('flex flex-col w-full', dense ? 'gap-1' : 'gap-1.5', className)}>
         {label && (
-          <div className="flex items-center mb-0.5">
+          <div className="flex items-center mb-0.5 leading-none">
             <label
               htmlFor={fieldId}
               onClick={(event) => {
@@ -196,8 +196,9 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
                 controlRef.current?.focus();
               }}
               className={cn(
-                'font-medium leading-none select-none',
-                dense ? 'text-[13px]' : 'text-[14px]',
+                'font-medium select-none',
+                // leading-none depois do tamanho: twMerge descarta leading-* que vem antes de text-[..px].
+                dense ? 'text-[13px] leading-none' : 'text-[14px] leading-none',
                 disabled ? 'text-gray-400' : 'text-gray-900',
                 showError && 'text-red-700',
               )}
@@ -205,7 +206,7 @@ export const EzSelect = forwardRef<HTMLSelectElement, EzSelectProps>(
               {label}
             </label>
             {required && (
-              <span aria-hidden="true" className="ml-1 text-red-600">
+              <span aria-hidden="true" className={cn('ml-1 text-red-600', dense ? 'text-[13px]' : 'text-[14px]')}>
                 *
               </span>
             )}
