@@ -1,4 +1,4 @@
-/tmp/multica-task-3305320482/tmpmwbkpzu6/apps/web/src/pages/Y.tsx: <select> nativo: use EzSelect
+/tmp/multica-task-3305320482/tmptjnmf73a/apps/web/src/pages/Y.tsx: <select> nativo: use EzSelect
 FALHA: <select> nativo fora do EzSelect (AC-15, DMTE-490).
 OK: nenhum <select> nativo fora do EzSelect (AC-15, DMTE-490).
 OK: nenhum <select> nativo fora do EzSelect (AC-15, DMTE-490).
@@ -11,6 +11,6 @@ test_native_select_is_a_violation (test_check_native_select.NativeSelectCheckTes
 test_repository_has_no_native_select_outside_ez_select (test_check_native_select.NativeSelectCheckTest.test_repository_has_no_native_select_outside_ez_select) ... ok
 
 ----------------------------------------------------------------------
-Ran 7 tests in 0.347s
+Ran 7 tests in 0.092s
 
 OK

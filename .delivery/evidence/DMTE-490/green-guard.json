@@ -1,8 +1,8 @@
 {
   "version": 1,
   "phase": "green",
-  "started_at": "2026-11-12T15:22:03.093753+00:00",
-  "finished_at": "2026-11-12T15:22:04.486583+00:00",
+  "started_at": "2026-11-12T15:38:49.238264+00:00",
+  "finished_at": "2026-11-12T15:38:49.432264+00:00",
   "command": [
     "python3",
     "-m",
@@ -15,7 +15,7 @@
     "-v"
   ],
   "base_sha": "596fdac2b90e99b040d1366e381c818d762c532a",
-  "head_sha": "37cf6bf77c45076f64c0fa9b74bc89adac6c8e9c",
+  "head_sha": "89e15af3f945df938552bfb618ee8e6ed35cbc63",
   "exit_code": 0,
   "tests": {
     "scripts/test_check_native_select.py": "78f2159842bc122887887d751ab8460da685311c2228970774449ab67a31a2fc"
@@ -54,8 +54,8 @@
     "apps/web/src/components/ds/EzEntityGrid.tsx": "e3b29ba0de2079f43433e3400dec67e98d92bbee494af0e3d44a0c63e7952d8b",
     "apps/web/src/components/ds/EzGrid.mobile.test.tsx": "fc48ed278675c9e333e5bdee18b98a9d3d46c620a1206868ae1e99f558ca966c",
     "apps/web/src/components/ds/EzSelect.stories.tsx": "c6e3821eb40edd8a50912fd94208a46b20010666576e287f9ecc42f83590b096",
-    "apps/web/src/components/ds/EzSelect.test.tsx": "437f9c213e024c454895334d322ed43a27844ca616559c0bbca4f19ddb6c3d6b",
-    "apps/web/src/components/ds/EzSelect.tsx": "ff4d2b9b45c9dbabe13ddb999973f8ec26c7bf36ca6e45b3a603e0c65b7db287",
+    "apps/web/src/components/ds/EzSelect.test.tsx": "2569570151f8c01d5a4442f9065be682e7b071bc41529a0a3e21d19865665d8d",
+    "apps/web/src/components/ds/EzSelect.tsx": "f331b4bfec87a8744452c10913c5db380e714a9b930815c754ad663d052933ee",
     "apps/web/src/components/ds/EzSimpleFormConfig.test.tsx": "22a766257153ac1832cbc63d651b418f6fe01fc024fc98b4c1ba2c628d9e2142",
     "apps/web/src/components/ds/index.ts": "f30feb79b6b5f1209020bca1274028c1fb33a6ee25f0d5f4872909ac23873a4c",
     "apps/web/src/components/schedule/AppointmentModal.tsx": "b9e9449c360da3a4ed62cdbfbbdfbdd2b447e48b1136e537de309871d0242434",
@@ -70,7 +70,7 @@
     "apps/web/src/components/tickets/TicketList.test.tsx": "ddba3d3939f86960c3a20a2a8d8ca5630e5b9453c99888d1655ca094c7a3c9d9",
     "apps/web/src/components/tickets/TicketList.tsx": "b0effe687e7dd0049bbfb02496da34873f4d30200f24a071413a9340234c8665",
     "apps/web/src/components/tickets/TicketWorklogs.test.tsx": "fc063db4287ed96ae75d4a05f08a63814e72bf70c450a952d0c4a4de8d9739b0",
-    "apps/web/src/hooks/useTickets.ts": "59dceb9e0e90f0378cfa9c0d566ee5b8687e2c693e735f4c759bbc814ba0d0e5",
+    "apps/web/src/hooks/useTickets.ts": "eba2c482d2736c983905d0239ef6d72de8596ec279213f514ca131f789247f62",
     "apps/web/src/pages/ContractsPage.test.tsx": "426cd9cb909bb314f10fa90b549159f7ba66f6a3c16e7837a83ca2ab180e0cc0",
     "apps/web/src/pages/CreateTicketPage.test.tsx": "6fa5c3f372c30dc2c8bac3e702d37a9be8a85fc740e5229fdebcb3756cd1df83",
     "apps/web/src/pages/DashboardPage.test.tsx": "159fc2b81bcbc03615c6b2c0d35df36fafb01a5bfca14a90aa8004cc5c5e4605",
@@ -83,9 +83,10 @@
     "apps/web/src/pages/TicketAdvancedSearchPage.test.tsx": "1b641bc8065d5f6ea3120b5c347825f06c53a73acbb0c91e12a3f6bda7ce76d4",
     "apps/web/src/pages/TicketDetailPage.test.tsx": "aa94ed8503ec7dac5192a21ae626c43af728ea55e167f8c206b65593a739f88e",
     "apps/web/src/pages/VaultPage.tsx": "08709bc65f61a81940ed1001cb459dba5ffe9e33388c73c2a47deb60901a76fe",
+    "apps/web/vite.config.mts": "9281e2e991b7d1a10478fba8964faa3c1098d8b8730c3be2ef9427a15b193080",
     "scripts/check_native_select.py": "d19f705d303726bfc3f148b4f46553ef1f2386cc0cf413438fd398906a1fafc0",
     "scripts/test_check_native_select.py": "78f2159842bc122887887d751ab8460da685311c2228970774449ab67a31a2fc"
   },
   "log": ".delivery/evidence/DMTE-490/green-guard.log",
-  "log_sha256": "7772c2672113284b6f2e9ed3a3edfe40c71888471d24fa5a15dc5416a64be4c4"
+  "log_sha256": "95b702ac1ead3100682bc01deea59d319f7857e2c8448c92b6bbadf66eee7b72"
 }
