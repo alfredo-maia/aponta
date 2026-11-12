@@ -174,6 +174,25 @@ describe('EzSelect (DMTE-490 T2)', () => {
     });
   });
 
+  it('AC-09: typing letters jumps to the next enabled option that starts with them', async () => {
+    const { user, control } = setup();
+    control.focus();
+    await user.keyboard('{ArrowDown}');
+    const items = within(screen.getByRole('listbox')).getAllByRole('option');
+
+    await user.keyboard('f');
+    expect(control).toHaveAttribute('aria-activedescendant', items[3].id);
+
+    await user.keyboard('a');
+    expect(control).toHaveAttribute('aria-activedescendant', items[0].id);
+
+    await user.keyboard('ag');
+    expect(control).toHaveAttribute('aria-activedescendant', items[1].id);
+
+    await user.keyboard('b');
+    expect(control).toHaveAttribute('aria-activedescendant', items[1].id);
+  });
+
   it('AC-09: a click outside closes the list', async () => {
     const { user, control } = setup();
 
