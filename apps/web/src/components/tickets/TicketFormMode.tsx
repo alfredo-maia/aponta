@@ -164,13 +164,11 @@ export function TicketFormMode({
                 onChange={(e) => setStatus(e.target.value as TicketStatus)}
                 className="w-full px-3 py-1.5 text-[13px] border border-gray-300 rounded-[6px] focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 bg-white text-gray-800"
               >
-                <option value="OPEN">Aberto</option>
-                <option value="IN_PROGRESS">Em Andamento</option>
-                <option value="RESOLVED">Resolvido</option>
-                <option value="CLOSED">Fechado</option>
-                <option value="PENDING_CUSTOMER">Pendente Cliente</option>
-                <option value="ON_HOLD">Em Espera</option>
-                <option value="ESCALATED">Escalado</option>
+                {(Object.keys(statusLabels) as TicketStatus[]).map((st) => (
+                  <option key={st} value={st}>
+                    {statusLabels[st]}
+                  </option>
+                ))}
               </select>
             </div>
 

@@ -258,7 +258,8 @@ export class ReportsService {
         if (
           ticket.status === TicketStatus.ON_HOLD ||
           ticket.status === TicketStatus.PENDING_CUSTOMER ||
-          ticket.status === TicketStatus.PENDING_APPROVAL
+          ticket.status === TicketStatus.PENDING_APPROVAL ||
+          ticket.status === TicketStatus.PENDING_SANKHYA
         ) {
           ticketSummary.paused += 1;
         }

@@ -28,6 +28,7 @@ const statusColumns: TicketStatus[] = [
   'PENDING_CUSTOMER',
   'PENDING_APPROVAL',
   'ON_HOLD',
+  'PENDING_SANKHYA',
   'RESOLVED',
   'CLOSED',
 ];

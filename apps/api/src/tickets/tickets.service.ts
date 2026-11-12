@@ -29,6 +29,7 @@ import {
   assertDeskAllowsReopen,
   assertListedAgentMayMutate,
   isTicketBilled,
+  SLA_PAUSE_STATUSES,
 } from '../service-desks/desk-policy';
 
 const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
@@ -46,6 +47,7 @@ const PAUSED_STATUSES: TicketStatus[] = [
   TicketStatus.ON_HOLD,
   TicketStatus.PENDING_CUSTOMER,
   TicketStatus.PENDING_APPROVAL,
+  TicketStatus.PENDING_SANKHYA,
 ];
 
 /**
@@ -162,11 +164,13 @@ const FORWARD_TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
     TicketStatus.PENDING_CUSTOMER,
     TicketStatus.PENDING_APPROVAL,
     TicketStatus.ON_HOLD,
+    TicketStatus.PENDING_SANKHYA,
     TicketStatus.ESCALATED,
   ],
   PENDING_CUSTOMER: [TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED],
   PENDING_APPROVAL: [TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED],
   ON_HOLD: [TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED],
+  PENDING_SANKHYA: [TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED],
   ESCALATED: [TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED],
   RESOLVED: [TicketStatus.CLOSED, TicketStatus.IN_PROGRESS],
   CLOSED: [],
@@ -1120,16 +1124,12 @@ export class TicketsService {
       updateData.csatToken = randomUUID();
     }
 
-    const slaPauseStatuses: TicketStatus[] = [
-      TicketStatus.PENDING_CUSTOMER,
-      TicketStatus.ON_HOLD,
-    ];
     const enteringPause =
-      slaPauseStatuses.includes(newStatus) &&
-      !slaPauseStatuses.includes(existing.status);
+      SLA_PAUSE_STATUSES.includes(newStatus) &&
+      !SLA_PAUSE_STATUSES.includes(existing.status);
     const leavingPause =
-      slaPauseStatuses.includes(existing.status) &&
-      !slaPauseStatuses.includes(newStatus);
+      SLA_PAUSE_STATUSES.includes(existing.status) &&
+      !SLA_PAUSE_STATUSES.includes(newStatus);
     if (enteringPause) {
       updateData.slaPausedAt = new Date();
     }

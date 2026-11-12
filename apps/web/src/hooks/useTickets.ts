@@ -9,6 +9,7 @@ export type TicketStatus =
   | 'PENDING_CUSTOMER'
   | 'ON_HOLD'
   | 'PENDING_APPROVAL'
+  | 'PENDING_SANKHYA'
   | 'ESCALATED';
 
 export type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';

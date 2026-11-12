@@ -26,17 +26,7 @@ import { useDashboardSummary } from '../hooks/useReports';
 import { useAuthStore } from '../stores/authStore';
 import { EzSpinner, EzTabs, EzActionsButton } from '../components/ds';
 import { cn } from '../components/ds/utils';
-
-const STATUS_LABELS: Record<string, string> = {
-  OPEN: 'Aberto',
-  IN_PROGRESS: 'Em Andamento',
-  PENDING_CUSTOMER: 'Aguardando Cliente',
-  ON_HOLD: 'Aguardando Terceiros',
-  PENDING_APPROVAL: 'Aguardando Aprovação',
-  ESCALATED: 'Escalonado',
-  RESOLVED: 'Resolvido',
-  CLOSED: 'Fechado',
-};
+import { statusLabels } from '../components/tickets/TicketCard';
 
 // TiFlux-style palette used for both the pie chart slices and the legend avatars.
 const CHART_COLORS = ['#f59e0b', '#14b8a6', '#6366f1', '#fb923c', '#0d9488', '#10b981', '#0ea5e9', '#ec4899'];
@@ -700,7 +690,7 @@ export function DashboardPage() {
                   <ul className="divide-y divide-gray-100">
                     {Object.entries(data.byStatus).map(([status, count]) => (
                       <li key={status} className="flex items-center justify-between py-2.5 text-sm">
-                        <span className="text-gray-700 font-medium">{STATUS_LABELS[status] ?? status}</span>
+                        <span className="text-gray-700 font-medium">{(statusLabels as Record<string, string>)[status] ?? status}</span>
                         <span className="font-bold text-gray-900">{count}</span>
                       </li>
                     ))}
