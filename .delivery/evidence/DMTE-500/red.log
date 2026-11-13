@@ -1,0 +1,56 @@
+
+> nx run web:test src/components/ds/EzSelect.test.tsx
+
+web:  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-500-4ba825783937/workdir/aponta/apps/web
+web:  ❯ |web| src/components/ds/EzSelect.test.tsx (21 tests | 1 failed) 2527ms
+web:      ✓ AC-08: shows the selected option label on the closed control, with the list closed 169ms
+web:      ✓ AC-08/AC-10: opens its own listbox with every option, marking the selected one 194ms
+web:      ✓ AC-08: choosing an option by click calls onChange with the new value, closes the list and returns focus 266ms
+web:      ✓ AC-08: a disabled option cannot be chosen 150ms
+web:      ✓ AC-08: is controlled, showing `value` until the parent changes it 174ms
+web:      ✓ AC-09: ArrowDown opens, arrows move the active option skipping disabled ones, Enter chooses 156ms
+web:      ✓ AC-09: Home and End jump to the first and last enabled option 102ms
+web:      ✓ AC-09: Escape closes without choosing, returns focus to the control and does not reach a parent Escape handler 123ms
+web:        ✓ AC-09: keeps the active option in view while navigating with the keyboard 67ms
+web:      ✓ AC-09: typing letters jumps to the next enabled option that starts with them 155ms
+web:      ✓ AC-09: a click outside closes the list 139ms
+web:      ✓ AC-10: has a visible label, a required marker and a hidden native select wired to that label 43ms
+web:      ✓ AC-10: clicking the label moves focus to the visible control, not to the hidden native select 63ms
+web:      ✓ AC-10: a required select left empty blocks the submit and focuses the visible control, flagged invalid 178ms
+web:      ✓ AC-10: announces the popup as a listbox and names the control after its label 56ms
+web:      ✓ AC-10: disabled control does not open 50ms
+web:      ✓ AC-10: error state flags the control invalid and shows the message 65ms
+web:      ✓ AC-11: forwards id, name, data-testid and ref to the native select and keeps userEvent.selectOptions working 145ms
+web:      ✓ AC-11: lists options declared inside optgroup 144ms
+web:      ✓ DMTE-500 AC-01: o rótulo mantém leading-none em todas as variantes 37ms
+web:      × DMTE-500 AC-02: a linha do rótulo e do asterisco tem leading-none 41ms
+web: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+web:  FAIL  |web| src/components/ds/EzSelect.test.tsx > EzSelect (DMTE-490 T2) > DMTE-500 AC-02: a linha do rótulo e do asterisco tem leading-none
+web: Error: [2mexpect([22m[31melement[39m[2m).toHaveClass([22m[32m[32m"text-[14px]"[32m[39m[2m)[22m
+web: Expected the element to have class:
+web: [32m  text-[14px][39m
+web: Received:
+web: [31m  ml-1 text-red-600[39m
+web:  ❯ src/components/ds/EzSelect.test.tsx:337:18
+web:     335|     expect(star.parentElement).toHaveClass('leading-none');
+web:     336|     // O asterisco tem o tamanho do rótulo: com o tamanho do corpo (16…
+web:     337|     expect(star).toHaveClass('text-[14px]');
+web:        |                  ^
+web:     338|   });
+web:     339| });
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+web:  Test Files  1 failed (1)
+web:       Tests  1 failed | 20 passed (21)
+web:    Start at  18:08:46
+web:    Duration  6.25s (transform 714ms, setup 541ms, import 1.26s, tests 2.53s, environment 1.16s)
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+

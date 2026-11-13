@@ -311,4 +311,29 @@ describe('EzSelect (DMTE-490 T2)', () => {
 
     expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['Todos', 'Aberto']);
   });
+
+  it('DMTE-500 AC-01: o rótulo mantém leading-none em todas as variantes', () => {
+    render(
+      <>
+        <EzSelect id="v-def" label="Padrão" defaultValue="open">{options}</EzSelect>
+        <EzSelect id="v-cla" label="Clássico" variant="classic" defaultValue="open">{options}</EzSelect>
+        <EzSelect id="v-com" label="Compacto" variant="compact" defaultValue="open">{options}</EzSelect>
+      </>,
+    );
+
+    for (const name of ['Padrão', 'Clássico', 'Compacto']) {
+      expect(screen.getByText(name)).toHaveClass('leading-none');
+    }
+  });
+
+  it('DMTE-500 AC-02: a linha do rótulo e do asterisco tem leading-none', () => {
+    render(
+      <EzSelect id="v-req" label="Mesa" required defaultValue="open">{options}</EzSelect>,
+    );
+
+    const star = screen.getByText('*');
+    expect(star.parentElement).toHaveClass('leading-none');
+    // O asterisco tem o tamanho do rótulo: com o tamanho do corpo (16px) a linha ficaria 2px mais alta que a dos campos sem asterisco.
+    expect(star).toHaveClass('text-[14px]');
+  });
 });

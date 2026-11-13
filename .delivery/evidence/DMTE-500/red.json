@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-12T21:08:30.453996+00:00",
+  "finished_at": "2026-11-12T21:08:53.988035+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run",
+    "web:test",
+    "--skip-nx-cache",
+    "--output-style=stream",
+    "src/components/ds/EzSelect.test.tsx"
+  ],
+  "base_sha": "42ef297ffe91e979169082ce77c5bef8206a5ef6",
+  "head_sha": "0558c526a79156ae49e5d89ef374d15e533298ca",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/components/ds/EzSelect.test.tsx": "8b90c5e8418a3ecf41e15f929add2bbb3e804a405c2797745411471e15f32bf0"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/ds/EzSelect.test.tsx": "8b90c5e8418a3ecf41e15f929add2bbb3e804a405c2797745411471e15f32bf0",
+    "apps/web/src/components/ds/EzSelect.tsx": "26633e4d104dfbcbf72cdbc9fd7dc4ae44eb1d42b2782b1b7f8cc1f23515bbdb"
+  },
+  "log": ".delivery/evidence/DMTE-500/red.log",
+  "log_sha256": "0bd1a4173a05464fc31f49613c8cda48acb3fd516d9354de9afaf7cd10c5bfec"
+}
