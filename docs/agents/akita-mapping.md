@@ -6,7 +6,7 @@ Fontes analisadas em 10/11/2026: os artigos "Falando um pouco sobre minhas skill
 
 | Premissa das skills de origem | Realidade do Aponta | Consequência |
 |---|---|---|
-| Um mantenedor audita, corrige e faz o merge | Quem implementa (`dev_ultra_lider`) não revisa; o QA (`dev_ultra_qa`) não corrige; o usuário decide o merge | O auditor nunca ajusta o PR nem faz merge |
+| Um mantenedor audita, corrige e faz o merge | Quem implementa (`dev_ultra_lider`) não revisa; o QA (`dev_ultra_qa`) não corrige; a fila de merge decide a integração e o líder só a aciona com QA aprovado e quatro checks verdes | O auditor nunca ajusta o PR nem faz merge |
 | Push direto no branch principal | `main` protegida, quatro checks e fila de merge | "CI verde no SHA exato" vale no head do PR e no candidato da fila |
 | Contribuidores externos hostis | Agentes próprios, repositório público | Conteúdo de issue e PR é dado não confiável do mesmo jeito; aprovação de workflow de fork não se aplica hoje |
 | Ruby, Bundler, Dependabot | pnpm, Nx, lockfile único, sem bot | `development-dependencies`, genérica: descobre o gerenciador no repositório |
