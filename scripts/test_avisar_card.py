@@ -30,8 +30,8 @@ class Response:
 class Http:
     """Stands in for urlopen: records requests, answers production version probes with a commit."""
 
-    def __init__(self, commit=SHA, post_error=None):
-        self.requests, self.commit, self.post_error = [], commit, post_error
+    def __init__(self, commit=SHA, post_error=None, probe_error=None):
+        self.requests, self.commit, self.post_error, self.probe_error = [], commit, post_error, probe_error
 
     def __call__(self, request, timeout=10):
         self.requests.append(request)
@@ -39,6 +39,8 @@ class Http:
             if self.post_error:
                 raise self.post_error
             return Response('{}')
+        if self.probe_error:
+            raise self.probe_error
         return Response(json.dumps({'commit': self.commit}))
 
     def posts(self):
@@ -71,6 +73,12 @@ class CommentBodyTests(unittest.TestCase):
         body = build_body('CD (Produção) concluído', SHA, PR, RUN, {'/api/version': OTHER, '/version.json': SHA})
         self.assertIn('diferente do commit implantado', body)
         self.assertNotIn('coincide', body)
+
+    def test_probe_that_failed_is_not_verified_instead_of_different(self):
+        body = build_body('CD (Produção) concluído', SHA, PR, RUN, {'/api/version': None, '/version.json': SHA})
+        self.assertIn('não verificado', body)
+        self.assertIn('indisponível', body)
+        self.assertNotIn('diferente', body)
 
     def test_failure_names_the_job_and_the_run(self):
         body = build_body('CD falhou em staging', SHA, PR, RUN)
@@ -125,6 +133,14 @@ class NotifyTests(unittest.TestCase):
         self.assertIn('coincide com o commit implantado', content)
         probed = [r.full_url for r in http.requests if r.get_method() == 'GET']
         self.assertEqual(probed, ['https://dm.aponta.cloud/api/version', 'https://dm.aponta.cloud/version.json'])
+
+    def test_unreachable_production_is_posted_as_not_verified(self):
+        code, http, _ = self.run_notify(http=Http(probe_error=urllib.error.URLError('sem rota')))
+        self.assertEqual(code, 0)
+        [post] = http.posts()
+        content = json.loads(post.data)['content']
+        self.assertIn('não verificado', content)
+        self.assertNotIn('diferente', content)
 
     def test_failure_comments_without_probing_production(self):
         code, http, _ = self.run_notify(env={**self.env, 'STAGING_RESULT': 'failure', 'PRODUCTION_RESULT': 'skipped'})
@@ -207,6 +223,13 @@ class WorkflowTests(unittest.TestCase):
 
     def test_notify_never_fails_the_deploy(self):
         self.assertIn('continue-on-error: true', self.notify)
+
+    def test_checkout_failure_never_fails_the_deploy(self):
+        self.assertEqual(self.notify.count('continue-on-error: true'), 2)
+
+    def test_delivery_contract_runs_these_tests(self):
+        contract = (DEPLOY.parent / 'delivery.yml').read_text()
+        self.assertIn('-p test_avisar_card.py', contract)
 
     def test_token_is_only_read_by_notify(self):
         self.assertEqual(self.text.count('secrets.MULTICA_TOKEN'), 1)

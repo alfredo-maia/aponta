@@ -15,7 +15,9 @@
         "NotifyTests.test_posts_content_with_workspace_and_bearer_headers",
         "NotifyTests.test_delivery_with_registry_entry_resolves_its_parent",
         "CommentBodyTests.test_version_that_differs_from_the_deployed_commit_is_said_so",
-        "DeliveryTests.test_single_delivery_line_names_the_delivery"
+        "DeliveryTests.test_single_delivery_line_names_the_delivery",
+        "CommentBodyTests.test_probe_that_failed_is_not_verified_instead_of_different",
+        "NotifyTests.test_unreachable_production_is_posted_as_not_verified"
       ]
     },
     {
@@ -52,7 +54,9 @@
         "WorkflowTests.test_notify_never_fails_the_deploy",
         "WorkflowTests.test_token_is_only_read_by_notify",
         "NotifyTests.test_github_lookup_failure_does_not_fail_the_deploy",
-        "NotifyTests.test_missing_token_does_not_comment_nor_fail"
+        "NotifyTests.test_missing_token_does_not_comment_nor_fail",
+        "WorkflowTests.test_checkout_failure_never_fails_the_deploy",
+        "WorkflowTests.test_delivery_contract_runs_these_tests"
       ]
     },
     {
