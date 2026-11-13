@@ -1,0 +1,262 @@
+FFF.F.FFFFFFFFFFFFFFFFFFF
+======================================================================
+FAIL: test_failure_names_the_job_and_the_run (test_avisar_card.CommentBodyTests.test_failure_names_the_job_and_the_run)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 77, in test_failure_names_the_job_and_the_run
+    self.assertTrue(body.startswith(LEADER))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_success_starts_with_leader_mention_and_carries_sha_pr_run_and_version (test_avisar_card.CommentBodyTests.test_success_starts_with_leader_mention_and_carries_sha_pr_run_and_version)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 65, in test_success_starts_with_leader_mention_and_carries_sha_pr_run_and_version
+    self.assertTrue(body.startswith(LEADER))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_version_that_differs_from_the_deployed_commit_is_said_so (test_avisar_card.CommentBodyTests.test_version_that_differs_from_the_deployed_commit_is_said_so)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 72, in test_version_that_differs_from_the_deployed_commit_is_said_so
+    self.assertIn('diferente do commit implantado', body)
+AssertionError: 'diferente do commit implantado' not found in ''
+
+======================================================================
+FAIL: test_single_delivery_line_names_the_delivery (test_avisar_card.DeliveryTests.test_single_delivery_line_names_the_delivery)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 85, in test_single_delivery_line_names_the_delivery
+    self.assertEqual(delivery_of([PR]), ('DMTE-900', PR))
+AssertionError: None != ('DMTE-900', {'number': 12, 'html_url': '[111 chars]#1'})
+
+======================================================================
+FAIL: test_commit_without_pr_does_not_comment (test_avisar_card.NotifyTests.test_commit_without_pr_does_not_comment)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 144, in test_commit_without_pr_does_not_comment
+    self.assertEqual((code, http.requests), (0, []))
+AssertionError: Tuples differ: (1, []) != (0, [])
+
+First differing element 0:
+1
+0
+
+- (1, [])
+?  ^
+
++ (0, [])
+?  ^
+
+
+======================================================================
+FAIL: test_delivery_with_registry_entry_resolves_its_parent (test_avisar_card.NotifyTests.test_delivery_with_registry_entry_resolves_its_parent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 140, in test_delivery_with_registry_entry_resolves_its_parent
+    self.assertEqual([r.full_url for r in http.posts()], ['https://multica.aponta.cloud/api/issues/' + other + '/comments'])
+AssertionError: Lists differ: [] != ['https://multica.aponta.cloud/api/issues/[42 chars]nts']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'https://multica.aponta.cloud/api/issues/01a17485-8de1-7e6d-950a-1e295fef336b/comments'
+
+- []
++ ['https://multica.aponta.cloud/api/issues/01a17485-8de1-7e6d-950a-1e295fef336b/comments']
+
+======================================================================
+FAIL: test_delivery_without_manifest_does_not_comment (test_avisar_card.NotifyTests.test_delivery_without_manifest_does_not_comment)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 159, in test_delivery_without_manifest_does_not_comment
+    self.assertEqual((code, http.requests), (0, []))
+AssertionError: Tuples differ: (1, []) != (0, [])
+
+First differing element 0:
+1
+0
+
+- (1, [])
+?  ^
+
++ (0, [])
+?  ^
+
+
+======================================================================
+FAIL: test_failure_comments_without_probing_production (test_avisar_card.NotifyTests.test_failure_comments_without_probing_production)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 131, in test_failure_comments_without_probing_production
+    self.assertEqual(code, 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_github_lookup_failure_does_not_fail_the_deploy (test_avisar_card.NotifyTests.test_github_lookup_failure_does_not_fail_the_deploy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 166, in test_github_lookup_failure_does_not_fail_the_deploy
+    self.assertEqual((code, http.requests), (0, []))
+AssertionError: Tuples differ: (1, []) != (0, [])
+
+First differing element 0:
+1
+0
+
+- (1, [])
+?  ^
+
++ (0, [])
+?  ^
+
+
+======================================================================
+FAIL: test_http_error_never_fails_the_deploy (test_avisar_card.NotifyTests.test_http_error_never_fails_the_deploy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 177, in test_http_error_never_fails_the_deploy
+    self.assertEqual(code, 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_missing_token_does_not_comment_nor_fail (test_avisar_card.NotifyTests.test_missing_token_does_not_comment_nor_fail)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 171, in test_missing_token_does_not_comment_nor_fail
+    self.assertEqual((code, http.requests), (0, []))
+AssertionError: Tuples differ: (1, []) != (0, [])
+
+First differing element 0:
+1
+0
+
+- (1, [])
+?  ^
+
++ (0, [])
+?  ^
+
+
+======================================================================
+FAIL: test_network_error_never_fails_the_deploy (test_avisar_card.NotifyTests.test_network_error_never_fails_the_deploy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 183, in test_network_error_never_fails_the_deploy
+    self.assertEqual(code, 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_posts_content_with_workspace_and_bearer_headers (test_avisar_card.NotifyTests.test_posts_content_with_workspace_and_bearer_headers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 116, in test_posts_content_with_workspace_and_bearer_headers
+    self.assertEqual(code, 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_pr_without_delivery_line_does_not_comment (test_avisar_card.NotifyTests.test_pr_without_delivery_line_does_not_comment)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 149, in test_pr_without_delivery_line_does_not_comment
+    self.assertEqual((code, http.requests), (0, []))
+AssertionError: Tuples differ: (1, []) != (0, [])
+
+First differing element 0:
+1
+0
+
+- (1, [])
+?  ^
+
++ (0, [])
+?  ^
+
+
+======================================================================
+FAIL: test_token_is_redacted_from_logged_errors (test_avisar_card.NotifyTests.test_token_is_redacted_from_logged_errors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 190, in test_token_is_redacted_from_logged_errors
+    self.assertEqual(code, 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_two_distinct_deliveries_do_not_comment (test_avisar_card.NotifyTests.test_two_distinct_deliveries_do_not_comment)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 154, in test_two_distinct_deliveries_do_not_comment
+    self.assertEqual((code, http.requests), (0, []))
+AssertionError: Tuples differ: (1, []) != (0, [])
+
+First differing element 0:
+1
+0
+
+- (1, [])
+?  ^
+
++ (0, [])
+?  ^
+
+
+======================================================================
+FAIL: test_cancelled_job_shows_its_own_result (test_avisar_card.OutcomeTests.test_cancelled_job_shows_its_own_result)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 59, in test_cancelled_job_shows_its_own_result
+    self.assertEqual(outcome('cancelled', 'skipped'), (False, 'CD falhou em staging (cancelled)'))
+AssertionError: None != (False, 'CD falhou em staging (cancelled)')
+
+======================================================================
+FAIL: test_production_failure_is_reported_as_production (test_avisar_card.OutcomeTests.test_production_failure_is_reported_as_production)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 56, in test_production_failure_is_reported_as_production
+    self.assertEqual(outcome('success', 'failure'), (False, 'CD falhou em produção'))
+AssertionError: None != (False, 'CD falhou em produção')
+
+======================================================================
+FAIL: test_production_success_is_ok (test_avisar_card.OutcomeTests.test_production_success_is_ok)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 50, in test_production_success_is_ok
+    self.assertEqual(outcome('success', 'success'), (True, 'CD (Produção) concluído'))
+AssertionError: None != (True, 'CD (Produção) concluído')
+
+======================================================================
+FAIL: test_staging_failure_is_reported_as_staging (test_avisar_card.OutcomeTests.test_staging_failure_is_reported_as_staging)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 53, in test_staging_failure_is_reported_as_staging
+    self.assertEqual(outcome('failure', 'skipped'), (False, 'CD falhou em staging'))
+AssertionError: None != (False, 'CD falhou em staging')
+
+======================================================================
+FAIL: test_notify_never_fails_the_deploy (test_avisar_card.WorkflowTests.test_notify_never_fails_the_deploy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 198, in setUp
+    self.assertTrue('\n  notify:\n' in self.text, 'deploy.yml sem o job notify')
+AssertionError: False is not true : deploy.yml sem o job notify
+
+======================================================================
+FAIL: test_notify_runs_after_cd_whatever_its_result (test_avisar_card.WorkflowTests.test_notify_runs_after_cd_whatever_its_result)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 198, in setUp
+    self.assertTrue('\n  notify:\n' in self.text, 'deploy.yml sem o job notify')
+AssertionError: False is not true : deploy.yml sem o job notify
+
+======================================================================
+FAIL: test_token_is_only_read_by_notify (test_avisar_card.WorkflowTests.test_token_is_only_read_by_notify)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 198, in setUp
+    self.assertTrue('\n  notify:\n' in self.text, 'deploy.yml sem o job notify')
+AssertionError: False is not true : deploy.yml sem o job notify
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.011s
+
+FAILED (failures=23)
