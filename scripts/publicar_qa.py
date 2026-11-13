@@ -132,6 +132,13 @@ def carry_source(root, records, commit, delivery, main_ref='origin/main'):
     return None
 
 
+def status_payload(source, carried):
+    description = ('QA aprovou ' + carried[:10] + '; código revisado idêntico neste SHA' if carried
+                   else 'QA Multica independente aprovou este SHA')
+    return {'state':'success','context':'Independent QA','description':description,
+        'target_url':'https://multica.aponta.cloud/dm-tecnologia/issues/'+source}
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--delivery', required=True)
@@ -157,10 +164,7 @@ def main():
         if not carried:
             raise
         proof = assess(records, carried)
-    description = ('QA aprovou ' + carried[:10] + '; código revisado idêntico neste SHA' if carried
-                   else 'QA Multica independente aprovou este SHA')
-    payload = {'state':'success','context':'Independent QA','description':description,
-        'target_url':'https://multica.dmtecnologia.cloud/dm-tecnologia/issues/'+source}
+    payload = status_payload(source, carried)
     subprocess.run(['gh','api','-X','POST','repos/'+CANONICAL_REPOSITORY+'/statuses/'+args.sha,'--input','-'],
         input=json.dumps(payload),capture_output=True,text=True,check=True)
     result = {'delivery':args.delivery,'sha':args.sha,'qa_issue':source,'source_task_id':proof['source_task_id'],'result':'success','carried_from':carried}

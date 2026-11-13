@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
-from publicar_qa import assess, build_query, carry_source, parent_of, QA, RAPIDO_QA, ULTRA_QA
+from publicar_qa import assess, build_query, carry_source, parent_of, status_payload, QA, RAPIDO_QA, ULTRA_QA
 from qa_merge_queue import pr_number, queue_verdict
 
 
@@ -218,3 +218,17 @@ class QaMergeQueueTests(unittest.TestCase):
     def test_latest_attestation_wins(self):
         newest_first = [{'context': 'Independent QA', 'state': 'failure'}, {'context': 'Independent QA', 'state': 'success'}]
         self.assertFalse(queue_verdict(newest_first))
+
+
+class QaStatusLinkTests(unittest.TestCase):
+    """The Details link of the Independent QA status opens the live Multica host (DMTE-504)."""
+
+    def test_target_url_points_to_the_active_multica_host(self):
+        source = '11111111-1111-1111-1111-111111111111'
+        payload = status_payload(source, None)
+        self.assertEqual(payload['target_url'], 'https://multica.aponta.cloud/dm-tecnologia/issues/' + source)
+        self.assertEqual(payload['context'], 'Independent QA')
+        self.assertEqual(payload['state'], 'success')
+
+    def test_decommissioned_host_is_gone_from_the_script(self):
+        self.assertNotIn('multica.dmtecnologia.cloud', (Path(__file__).parent / 'publicar_qa.py').read_text())
