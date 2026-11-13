@@ -213,6 +213,17 @@ const TICKET_LIST_INCLUDE = {
   stage: { select: { id: true, name: true } },
 } satisfies Prisma.TicketInclude;
 
+/** Telefone e ramal do solicitante são dado pessoal: só a equipe os recebe (DMTE-502). */
+function ticketListInclude(role: Role) {
+  if (role === Role.CLIENT || role === Role.CLIENT_MASTER) return TICKET_LIST_INCLUDE;
+  return {
+    ...TICKET_LIST_INCLUDE,
+    requester: {
+      select: { ...TICKET_LIST_INCLUDE.requester.select, phone: true, extension: true },
+    },
+  } satisfies Prisma.TicketInclude;
+}
+
 @Injectable()
 export class TicketsService {
   constructor(
@@ -664,7 +675,7 @@ export class TicketsService {
       const candidates = await this.prisma.ticket.findMany({
         where,
         orderBy,
-        include: TICKET_LIST_INCLUDE,
+        include: ticketListInclude(currentUser.role),
       });
       const breached = candidates
         .map((t) => this.decorateWithSlaStatus(t))
@@ -695,7 +706,7 @@ export class TicketsService {
         skip: (page - 1) * limit,
         take: limit,
         orderBy,
-        include: TICKET_LIST_INCLUDE,
+        include: ticketListInclude(currentUser.role),
       }),
       this.prisma.ticket.count({ where }),
     ]);

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -190,5 +190,92 @@ describe('TicketList (D5: Lista agrupável)', () => {
 
     await user.click(screen.getByRole('button', { name: 'Título' }));
     expect(onSortChange).toHaveBeenCalledWith('title', 'desc');
+  });
+
+  describe('DMTE-502: controles na lista vazia e colunas do solicitante', () => {
+    const ticketWithContact: Ticket = {
+      ...ticketA,
+      requester: { ...ticketA.requester!, phone: '(11) 99999-0000', extension: '4321' },
+      resourceGroup: 'Financeiro',
+    };
+    const columnNames = ['E-mail do solicitante', 'Telefone do solicitante', 'Ramal do solicitante', 'Grupo de recursos'];
+    const headers = () => screen.queryAllByRole('columnheader').map((h) => h.textContent ?? '');
+
+    it('AC-01: keeps "Agrupar por" and "Exibir colunas" next to the empty state, with no table', () => {
+      renderList({ tickets: [] });
+
+      expect(screen.getByLabelText(/agrupar por/i, { selector: 'select' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /exibir colunas/i })).toBeInTheDocument();
+      expect(screen.getByText(/nenhum chamado encontrado/i)).toBeInTheDocument();
+      expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    });
+
+    it('AC-02: with an empty list, the column menu lists every column and a toggle persists for the next non-empty render', async () => {
+      const user = userEvent.setup();
+      const first = renderList({ tickets: [] });
+
+      await user.click(screen.getByRole('button', { name: /exibir colunas/i }));
+      expect(screen.getAllByRole('checkbox')).toHaveLength(14 + columnNames.length);
+      await user.click(screen.getByRole('checkbox', { name: /responsável/i }));
+      first.unmount();
+
+      renderList();
+      expect(headers().some((h) => h.includes('Responsável'))).toBe(true);
+    });
+
+    it('AC-03: loading and error states still render without the controls', () => {
+      const loading = renderList({ tickets: [], isLoading: true });
+      expect(screen.queryByRole('button', { name: /exibir colunas/i })).not.toBeInTheDocument();
+      loading.unmount();
+
+      renderList({ tickets: [], isError: true });
+      expect(screen.queryByRole('button', { name: /exibir colunas/i })).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/agrupar por/i, { selector: 'select' })).not.toBeInTheDocument();
+    });
+
+    it('AC-04: offers the four new columns hidden by default and shows their values (or "—") once enabled', async () => {
+      const user = userEvent.setup();
+      renderList({ tickets: [ticketWithContact, ticketB] });
+
+      expect(headers().some((h) => columnNames.includes(h))).toBe(false);
+      await user.click(screen.getByRole('button', { name: /exibir colunas/i }));
+      for (const name of columnNames) {
+        expect(screen.getByRole('checkbox', { name })).not.toBeChecked();
+        await user.click(screen.getByRole('checkbox', { name }));
+      }
+
+      expect(headers()).toEqual(expect.arrayContaining(columnNames));
+      const rows = screen.getAllByRole('row');
+      const first = rows[1].textContent ?? '';
+      expect(first).toContain('maria@acme.com');
+      expect(first).toContain('(11) 99999-0000');
+      expect(first).toContain('4321');
+      expect(first).toContain('Financeiro');
+      const second = within(rows[2]).getAllByRole('cell').map((c) => c.textContent);
+      expect(second.filter((c) => c === '—')).toHaveLength(3);
+      expect(second).toContain('joao@beta.com');
+    });
+
+    it.each(['ADMIN', 'AGENT_MASTER', 'AGENT'])('AC-06: %s sees the phone and extension columns in the menu', async (role) => {
+      useAuthStore.setState({ user: { sub: 'u1', email: 'a@x.com', role, organizationId: null } as any });
+      const user = userEvent.setup();
+      renderList();
+
+      await user.click(screen.getByRole('button', { name: /exibir colunas/i }));
+      expect(screen.getByRole('checkbox', { name: 'Telefone do solicitante' })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: 'Ramal do solicitante' })).toBeInTheDocument();
+    });
+
+    it.each(['CLIENT', 'CLIENT_MASTER'])('AC-06: %s does not get the phone and extension columns, and keeps the others', async (role) => {
+      useAuthStore.setState({ user: { sub: 'u1', email: 'a@x.com', role, organizationId: 'org-1' } as any });
+      const user = userEvent.setup();
+      renderList();
+
+      await user.click(screen.getByRole('button', { name: /exibir colunas/i }));
+      expect(screen.queryByRole('checkbox', { name: 'Telefone do solicitante' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('checkbox', { name: 'Ramal do solicitante' })).not.toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: 'E-mail do solicitante' })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: 'Grupo de recursos' })).toBeInTheDocument();
+    });
   });
 });

@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-13T01:37:49.569058+00:00",
+  "finished_at": "2026-11-13T01:45:50.786965+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run-many",
+    "-t",
+    "test",
+    "-p",
+    "api,web",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "42ef297ffe91e979169082ce77c5bef8206a5ef6",
+  "head_sha": "0e6ff5409db6f9e585d07828d17aeaa21859b93e",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/components/tickets/TicketList.test.tsx": "50bf053552c7fa09aee459644f354f7c394dce25a5f40ab254ef785e665ac86e",
+    "apps/api/src/tickets/tickets.service.spec.ts": "85de67244da41cdd76f78e732c1b15b4c5bb835bd2f97e5903bc035bc304aa29"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07"
+  ],
+  "source_hashes": {
+    "apps/api/src/tickets/tickets.service.spec.ts": "85de67244da41cdd76f78e732c1b15b4c5bb835bd2f97e5903bc035bc304aa29",
+    "apps/web/src/components/tickets/TicketList.test.tsx": "50bf053552c7fa09aee459644f354f7c394dce25a5f40ab254ef785e665ac86e",
+    "apps/web/src/hooks/useTickets.ts": "e6b4537bd48a41da42d0c88eba2abf5eaba3b26bd999e71b814e18e5302dcdb2"
+  },
+  "log": ".delivery/evidence/DMTE-502/red.log",
+  "log_sha256": "9a41e72b087e3ffa36788136ee7bf61b97c5adb58a57b94476332cd393dfbcce"
+}

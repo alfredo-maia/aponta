@@ -31,12 +31,16 @@ export interface Ticket {
     id: string;
     name: string;
     email: string;
+    /** Only returned to staff roles (DMTE-502); the API omits them for CLIENT/CLIENT_MASTER. */
+    phone?: string | null;
+    extension?: string | null;
     organizationId: string | null;
     organization?: { id: string; name: string } | null;
   };
   agentId: string | null;
   agent?: { id: string; name: string } | null;
   serviceDeskId: string;
+  resourceGroup?: string | null;
   responseDeadline: string | null;
   resolveDeadline: string | null;
   closedAt?: string | null;
