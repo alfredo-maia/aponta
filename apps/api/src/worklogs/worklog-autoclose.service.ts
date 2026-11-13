@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PermissionsService } from '../permissions/permissions.service';
 import { MailService } from '../mail/mail.service';
 import { autoCloseDecision, brasiliaHhMm, LockReason } from './pre-appointment-clock';
+import { FeatureFlagsService } from '../feature-flags/feature-flags.service';
 
 const escapeHtml = (value: string) =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -25,9 +26,11 @@ export class WorklogAutoCloseService {
     private readonly prisma: PrismaService,
     private readonly permissions: PermissionsService,
     private readonly mail: MailService,
+    private readonly flags: FeatureFlagsService,
   ) {}
 
   async run(now: Date): Promise<number> {
+    if (!this.flags.isEnabled('fechamento-automatico-cronometro')) return 0;
     const open = await this.prisma.preAppointment.findMany({
       where: { ending: null },
       include: { author: { select: { id: true, name: true, email: true } }, ticket: { select: { id: true, protocol: true, title: true } } },

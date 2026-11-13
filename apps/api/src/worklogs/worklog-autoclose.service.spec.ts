@@ -18,7 +18,8 @@ function setup(rows: unknown[], managers = [{ id: 'g-1', name: 'Gerente', email:
   };
   const permissions = { usersWithPermission: jest.fn().mockResolvedValue(managers) };
   const mail = { sendEmail: jest.fn().mockResolvedValue(undefined) };
-  return { prisma, permissions, mail, service: new WorklogAutoCloseService(prisma, permissions as any, mail as any) };
+  const flags = { isEnabled: jest.fn().mockReturnValue(true) };
+  return { prisma, permissions, mail, flags, service: new WorklogAutoCloseService(prisma, permissions as any, mail as any, flags as any) };
 }
 
 describe('WorklogAutoCloseService (DMTE-462 T4)', () => {
@@ -115,5 +116,22 @@ describe('WorklogAutoCloseService (DMTE-462 T4)', () => {
     mail.sendEmail.mockRejectedValueOnce(new Error('SMTP fora'));
     await expect(service.run(T('12:30'))).resolves.toBe(2);
     expect(mail.sendEmail.mock.calls.length).toBeGreaterThanOrEqual(4);
+  });
+});
+
+describe('WorklogAutoCloseService: flag fechamento-automatico-cronometro (DMTE-462 T4)', () => {
+  it('AC-32: com a flag desligada a tarefa não fecha, não avisa e nem consulta os cronômetros', async () => {
+    const { service, flags, prisma, mail } = setup([open()]);
+    flags.isEnabled.mockReturnValue(false);
+    await expect(service.run(T('12:30'))).resolves.toBe(0);
+    expect(flags.isEnabled).toHaveBeenCalledWith('fechamento-automatico-cronometro');
+    expect(prisma.preAppointment.findMany).not.toHaveBeenCalled();
+    expect(prisma.preAppointment.updateMany).not.toHaveBeenCalled();
+    expect(mail.sendEmail).not.toHaveBeenCalled();
+  });
+
+  it('AC-32: com a flag ligada fecha como antes', async () => {
+    const { service } = setup([open()]);
+    await expect(service.run(T('12:30'))).resolves.toBe(1);
   });
 });
