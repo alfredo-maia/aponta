@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "delivery": "DMTE-505",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 239,
+  "multica_id": "01a1d2f2-e5bf-7db7-b553-00a37815a9bc",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "`docs/delivery/WORKFLOW.md` descreve \"Apto para integração\" com o líder colocando o PR na fila após QA aprovado e checks verdes, e \"Integrado\" disparado por essa entrada na fila; o aceite do usuário continua depois de \"Publicado\".",
+      "tests": [
+        "Busca por referências e verificadores de skills"
+      ],
+      "tdd_required": false,
+      "reason": "Documentação e perfil de skill; sem comportamento"
+    },
+    {
+      "id": "AC-02",
+      "description": "a espera pelo merge é descrita como `blocked` + wakeups `--until-pr merged` e `--until-pr conflicts` criados pelo líder, com retomada pelo wakeup e não por confirmação humana no fio.",
+      "tests": [
+        "Busca por referências e verificadores de skills"
+      ],
+      "tdd_required": false,
+      "reason": "Documentação e perfil de skill; sem comportamento"
+    },
+    {
+      "id": "AC-03",
+      "description": "nenhuma frase restante em `AGENTS.md`, `docs/` e `.agents/skills/` diz que o merge é decisão ou clique do usuário.",
+      "tests": [
+        "Busca por referências e verificadores de skills"
+      ],
+      "tdd_required": false,
+      "reason": "Documentação e perfil de skill; sem comportamento"
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-505.md",
+  "tdd": {
+    "mode": "not-applicable",
+    "reason": "Só documentação e perfil de skill; nenhum código com comportamento"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Só documentação e perfil de skill; nenhuma UI"
+  }
+}
