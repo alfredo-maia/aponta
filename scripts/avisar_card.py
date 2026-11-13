@@ -36,7 +36,7 @@ def delivery_of(prs):
     return named[0] if len({delivery for delivery, _ in named}) == 1 else None
 
 
-def build_body(label, sha, pr, run_url, version=None):
+def build_body(label, sha, pr, run_url, version=None, published=None, together=()):
     lines = [LEADER + ' **' + label + '**', '', '- Commit: `' + sha + '`',
              '- PR: #' + str(pr['number']) + ' (' + pr['html_url'] + ')', '- Run: ' + run_url]
     if version:
@@ -63,7 +63,7 @@ def github_pulls(sha):
     return json.loads(out)
 
 
-def notify(env, github=github_pulls, http=urllib.request.urlopen, root=ROOT):
+def notify(env, github=github_pulls, http=urllib.request.urlopen, root=ROOT, compare=None):
     """Always 0: the notice must never change the result of a deploy that already happened."""
     token = env.get('MULTICA_TOKEN', '')
     if not token:
