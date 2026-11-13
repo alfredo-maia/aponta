@@ -23,7 +23,8 @@ function setup(permitted: string[] = ['APPROVE_WORKLOG_ENTRY', 'APPROVE_WORKLOG_
     usersWithPermission: jest.fn().mockResolvedValue([{ id: 'g-1', name: 'Gerente', email: 'gerente@aponta.test' }, { id: 'u-2', name: 'Ana Consultora', email: 'ana@aponta.test' }]),
   };
   const mail = { sendEmail: jest.fn().mockResolvedValue(undefined) };
-  return { prisma, permissions, mail, service: new WorklogApprovalsService(prisma, permissions as any, mail as any) };
+  const notifications = { notify: jest.fn().mockResolvedValue(undefined) };
+  return { prisma, permissions, mail, notifications, service: new WorklogApprovalsService(prisma, permissions as any, mail as any, notifications as any) };
 }
 
 describe('WorklogApprovalsService (DMTE-462 T5)', () => {
@@ -118,5 +119,58 @@ describe('WorklogApprovalsService (DMTE-462 T5)', () => {
     mail.sendEmail.mockRejectedValueOnce(new Error('SMTP fora'));
     await expect(service.notifyPending(pending())).resolves.toBeUndefined();
     expect(mail.sendEmail.mock.calls[0][0].html).not.toContain('<script>');
+  });
+});
+
+describe('WorklogApprovalsService: sino (DMTE-462 T6)', () => {
+  it('AC-28: a pendência notifica quem tem a permissão do tipo, menos o autor, com o motivo e o destino Liberações', async () => {
+    const { service, notifications, permissions } = setup();
+    await service.notifyPending(pending());
+    expect(permissions.usersWithPermission).toHaveBeenCalledWith('APPROVE_WORKLOG_ENTRY');
+    expect(notifications.notify).toHaveBeenCalledTimes(1);
+    expect(notifications.notify).toHaveBeenCalledWith(['g-1'], expect.objectContaining({
+      type: 'WORKLOG_APPROVAL_PENDING',
+      link: '/releases',
+      title: expect.stringMatching(/liberação pendente/i),
+      body: expect.stringContaining('O início 12/11 08:10 não cai na janela.'),
+    }));
+  });
+
+  it('AC-28: a falha do e-mail não impede a notificação', async () => {
+    const { service, notifications, mail } = setup();
+    mail.sendEmail.mockRejectedValue(new Error('SMTP fora'));
+    await service.notifyPending(pending());
+    expect(notifications.notify).toHaveBeenCalledTimes(1);
+  });
+
+  it('AC-28: liberar notifica o consultor autor, com o destino do ticket', async () => {
+    const { service, notifications } = setup();
+    await service.approve('w-1', user);
+    expect(notifications.notify).toHaveBeenCalledWith(['u-2'], expect.objectContaining({
+      type: 'WORKLOG_APPROVAL_DECIDED',
+      link: '/tickets/t-1',
+      title: expect.stringMatching(/liberad/i),
+    }));
+  });
+
+  it('AC-28: negar notifica o consultor autor com o motivo da negação', async () => {
+    const { service, notifications } = setup();
+    await service.reject('w-1', 'Horário não confere', user);
+    expect(notifications.notify).toHaveBeenCalledWith(['u-2'], expect.objectContaining({
+      type: 'WORKLOG_APPROVAL_DECIDED',
+      link: '/tickets/t-1',
+      title: expect.stringMatching(/negad/i),
+      body: expect.stringContaining('Horário não confere'),
+    }));
+  });
+
+  it('AC-28: decisão recusada (corrida, sem permissão ou o próprio apontamento) não notifica', async () => {
+    const corrida = setup();
+    corrida.prisma.worklog.updateMany.mockResolvedValue({ count: 0 });
+    await expect(corrida.service.approve('w-1', user)).rejects.toThrow();
+    const proprio = setup(undefined, pending({ authorId: 'u-1' }));
+    await expect(proprio.service.approve('w-1', user)).rejects.toThrow();
+    expect(corrida.notifications.notify).not.toHaveBeenCalled();
+    expect(proprio.notifications.notify).not.toHaveBeenCalled();
   });
 });

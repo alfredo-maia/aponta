@@ -63,3 +63,13 @@ export const PosicaoTopo: Story = {
     position: 'top',
   },
 };
+
+/** `open` e `onOpenChange` deixam quem usa fechar o painel (por exemplo com Esc ou ao escolher um item). */
+export const Controlado: Story = {
+  args: {
+    trigger: <EzButton variant="secondary" label="Painel aberto por fora" />,
+    content: <div className="w-56 text-[14px] text-gray-700">O estado do painel vem de fora.</div>,
+    open: true,
+    onOpenChange: () => undefined,
+  },
+};

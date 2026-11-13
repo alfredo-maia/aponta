@@ -19,7 +19,8 @@ function setup(rows: unknown[], managers = [{ id: 'g-1', name: 'Gerente', email:
   const permissions = { usersWithPermission: jest.fn().mockResolvedValue(managers) };
   const mail = { sendEmail: jest.fn().mockResolvedValue(undefined) };
   const flags = { isEnabled: jest.fn().mockReturnValue(true) };
-  return { prisma, permissions, mail, flags, service: new WorklogAutoCloseService(prisma, permissions as any, mail as any, flags as any) };
+  const notifications = { notify: jest.fn().mockResolvedValue(undefined) };
+  return { prisma, permissions, mail, flags, notifications, service: new WorklogAutoCloseService(prisma, permissions as any, mail as any, flags as any, notifications as any) };
 }
 
 describe('WorklogAutoCloseService (DMTE-462 T4)', () => {
@@ -133,5 +134,37 @@ describe('WorklogAutoCloseService: flag fechamento-automatico-cronometro (DMTE-4
   it('AC-32: com a flag ligada fecha como antes', async () => {
     const { service } = setup([open()]);
     await expect(service.run(T('12:30'))).resolves.toBe(1);
+  });
+});
+
+describe('WorklogAutoCloseService: sino (DMTE-462 T6)', () => {
+  it('AC-28: o fechamento notifica o consultor e os membros do grupo de aviso, uma vez cada, com o destino do ticket', async () => {
+    const { service, notifications } = setup([open()], [{ id: 'g-1', name: 'Gerente', email: 'gerente@aponta.test' }, { id: 'u-1', name: 'Ana Consultora', email: 'ANA@aponta.test' }]);
+    await service.run(T('12:30'));
+    expect(notifications.notify).toHaveBeenCalledTimes(1);
+    expect(notifications.notify).toHaveBeenCalledWith(['u-1', 'g-1'], expect.objectContaining({
+      type: 'WORKLOG_AUTOCLOSE',
+      link: '/tickets/ticket-1',
+      title: expect.stringContaining('T-1001'),
+      body: expect.stringContaining('Ana Consultora'),
+    }));
+  });
+
+  it('AC-28: não notifica quando o cronômetro não fecha nem quando outra instância já fechou', async () => {
+    const aberto = setup([open()]);
+    await aberto.service.run(T('12:29'));
+    const corrida = setup([open()]);
+    corrida.prisma.preAppointment.updateMany.mockResolvedValue({ count: 0 });
+    await corrida.service.run(T('12:30'));
+    expect(aberto.notifications.notify).not.toHaveBeenCalled();
+    expect(corrida.notifications.notify).not.toHaveBeenCalled();
+  });
+
+  it('AC-28: falha ao gravar a notificação não derruba o fechamento nem o e-mail', async () => {
+    const { service, notifications, mail } = setup([open()]);
+    notifications.notify.mockRejectedValue(new Error('banco caiu'));
+    await expect(service.run(T('12:30'))).resolves.toBe(1);
+    expect(notifications.notify).toHaveBeenCalled();
+    expect(mail.sendEmail).toHaveBeenCalled();
   });
 });

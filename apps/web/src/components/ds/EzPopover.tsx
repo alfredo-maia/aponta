@@ -6,6 +6,10 @@ export interface EzPopoverProps extends Omit<HTMLAttributes<HTMLDivElement>, 'co
   content: ReactNode;
   align?: 'left' | 'right' | 'center';
   position?: 'top' | 'bottom';
+  /** Controla o painel de fora; sem isso o popover cuida do próprio estado. */
+  open?: boolean;
+  /** Chamado quando o painel abre ou fecha (clique no gatilho ou fora). */
+  onOpenChange?: (open: boolean) => void;
 }
 
 /**
@@ -13,8 +17,18 @@ export interface EzPopoverProps extends Omit<HTMLAttributes<HTMLDivElement>, 'co
  * Element triggered by click to display rich content (unlike tooltip which is simple text/hover).
  */
 export const EzPopover = forwardRef<HTMLDivElement, EzPopoverProps>(
-  ({ trigger, content, align = 'center', position = 'bottom', className, ...props }, ref) => {
-    const [isOpen, setIsOpen] = useState(false);
+  ({ trigger, content, align = 'center', position = 'bottom', open, onOpenChange, className, ...props }, ref) => {
+    const [internalOpen, setInternalOpen] = useState(false);
+    const isOpen = open ?? internalOpen;
+    // Refs: o listener de clique fora é registrado uma vez e precisa do estado e do callback mais recentes.
+    const isOpenRef = useRef(isOpen);
+    isOpenRef.current = isOpen;
+    const onOpenChangeRef = useRef(onOpenChange);
+    onOpenChangeRef.current = onOpenChange;
+    const setIsOpen = (next: boolean) => {
+      setInternalOpen(next);
+      onOpenChangeRef.current?.(next);
+    };
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -34,7 +48,7 @@ export const EzPopover = forwardRef<HTMLDivElement, EzPopoverProps>(
         ) {
           return;
         }
-        setIsOpen(false);
+        if (isOpenRef.current) setIsOpen(false);
       };
       document.addEventListener('mousedown', handleOutsideClick);
       return () => document.removeEventListener('mousedown', handleOutsideClick);

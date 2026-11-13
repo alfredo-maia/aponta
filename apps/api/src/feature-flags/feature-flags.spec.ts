@@ -105,3 +105,11 @@ describe('flag das liberações (DMTE-462 T5)', () => {
     expect(registered?.removeBy).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 });
+
+describe('flag do sino (DMTE-462 T6)', () => {
+  it('AC-35: sino-notificacoes está registrada, ligada por padrão e com dono e data de remoção', () => {
+    const registered = FEATURE_FLAGS.find((f) => f.key === 'sino-notificacoes');
+    expect(registered).toMatchObject({ owner: 'alfredo', defaultValue: true });
+    expect(registered?.removeBy).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});

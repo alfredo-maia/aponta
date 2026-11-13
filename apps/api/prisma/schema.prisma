@@ -190,6 +190,7 @@ model User {
   attachments TicketAttachment[]
   knowledgeAttachments KnowledgeAttachment[]
   worklogs    Worklog[]
+  notifications Notification[]
   costRates   TechnicianCostRate[]
   preAppointments PreAppointment[]
   apiTokens   ApiToken[]
@@ -1057,4 +1058,27 @@ enum WorklogApprovalStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum NotificationType {
+  WORKLOG_AUTOCLOSE
+  WORKLOG_APPROVAL_PENDING
+  WORKLOG_APPROVAL_DECIDED
+}
+
+/// DMTE-462 T6: aviso guardado dentro do sistema para um usuário, mostrado no sino.
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String
+  /// Caminho interno do app, escolhido pelo servidor.
+  link      String
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([userId, createdAt])
+  @@index([userId, readAt])
 }

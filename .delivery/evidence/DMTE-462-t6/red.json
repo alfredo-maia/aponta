@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-13T22:22:23.314231+00:00",
+  "finished_at": "2026-11-13T22:25:06.343334+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run-many",
+    "-t",
+    "test",
+    "-p",
+    "api,web",
+    "--skip-nx-cache"
+  ],
+  "base_sha": "9d553b2bf23ec4df795f2fbbf8377aa3261beb09",
+  "head_sha": "f1ea440796123d0a4b3810f5c6af80f1134094d3",
+  "exit_code": 1,
+  "tests": {
+    "apps/api/src/feature-flags/feature-flags.spec.ts": "5d178a2479a443f5078ba5f76536d5e106604e83cfd33dcdfd342546b01be302",
+    "apps/api/src/notifications/notifications.controller.spec.ts": "ef187eed7b63f6ff790c86ee6ed7012394f0fbf0a8e137375e0f3eb8f32c78d4",
+    "apps/api/src/notifications/notifications.service.spec.ts": "c6930c7a2ae67e3329b681d4f073b1d719f0dd564a574757bf2ef292db871bb8",
+    "apps/api/src/worklogs/worklog-approvals.service.spec.ts": "188570b261a561d456f698d972a9bf14197bdbae3a8b2bd392741021f6624e63",
+    "apps/api/src/worklogs/worklog-approvals.review.spec.ts": "db3d9b42872ec5b7b493a3495fdfb92f60a19310571d4e8cc42866ee3841233f",
+    "apps/api/src/worklogs/worklog-autoclose.service.spec.ts": "ab4fe550bc388a1333baa44f69483d314e997747dcc4d2697ea4cb81a32b401b",
+    "apps/web/src/components/ds/EzNotificationBell.test.tsx": "069b0af8f9281c67d736aacb2edd3311e99603a0e30fccd61e844f980757f8ca",
+    "apps/web/src/components/layout/AppLayout.test.tsx": "8d869e967d4cdcf9017dbc35a15fd8d3b5c7af579e76b3b711e1aa18bea20bdb",
+    "apps/web/src/components/layout/NotificationBell.test.tsx": "ed8519a06bf7888e4bf959bae95d4c9b0568fde7a499a5d89d8a3c39eb7a8be6"
+  },
+  "criteria": [
+    "AC-27",
+    "AC-28",
+    "AC-34",
+    "AC-35"
+  ],
+  "source_hashes": {
+    "GLOSSARY.md": "02a8e103e72590c39f123f993cecddfecbcd44eb2a8dd6555fb4ce4e75cfc9da",
+    "apps/api/prisma/migrations/20261113150000_notifications/migration.sql": "5551e59e820935fbe99d06e60a4c442d92138de1ddfb8f845183ffef969aae74",
+    "apps/api/prisma/schema.prisma": "3ca9a5b9e027873d5b0b5f944a31b4282d914a62e0dc59999ec6b2617b387d29",
+    "apps/api/src/app.module.ts": "66344426c225e79b28f45e371429bf051d91f6aaae7204e91fb0f1747e2b387b",
+    "apps/api/src/feature-flags/feature-flags.spec.ts": "5d178a2479a443f5078ba5f76536d5e106604e83cfd33dcdfd342546b01be302",
+    "apps/api/src/notifications/notifications.controller.spec.ts": "ef187eed7b63f6ff790c86ee6ed7012394f0fbf0a8e137375e0f3eb8f32c78d4",
+    "apps/api/src/notifications/notifications.controller.ts": "2fef519056b34a78601967951fdf1f164c2a554f9ec2d64f16cc8e256c75d7f5",
+    "apps/api/src/notifications/notifications.module.ts": "48fa2e11a380deef001e7a25109c1107d2e0ebfe853310e89b4460bcf9877abc",
+    "apps/api/src/notifications/notifications.service.spec.ts": "c6930c7a2ae67e3329b681d4f073b1d719f0dd564a574757bf2ef292db871bb8",
+    "apps/api/src/notifications/notifications.service.ts": "eaa496258f9d6a95d063bcfa8373e59f4b5f6d41ef84c1857d38ff676dcdb73e",
+    "apps/api/src/worklogs/worklog-approvals.review.spec.ts": "db3d9b42872ec5b7b493a3495fdfb92f60a19310571d4e8cc42866ee3841233f",
+    "apps/api/src/worklogs/worklog-approvals.service.spec.ts": "188570b261a561d456f698d972a9bf14197bdbae3a8b2bd392741021f6624e63",
+    "apps/api/src/worklogs/worklog-approvals.service.ts": "4e6c8a1ea343e114a14e8fe2981ba29e6497095dbaa4743e865f60ec53b165f9",
+    "apps/api/src/worklogs/worklog-autoclose.service.spec.ts": "ab4fe550bc388a1333baa44f69483d314e997747dcc4d2697ea4cb81a32b401b",
+    "apps/api/src/worklogs/worklog-autoclose.service.ts": "323ce651c9ef8f5ad04bd37c8628edfaa71269097a207ec83ea218693e309b77",
+    "apps/api/src/worklogs/worklogs.module.ts": "975603228ac6886ed6884a07cb2cdfa9759218ca5befd71d59de8d4fb3aecdf8",
+    "apps/web/src/components/ds/EzNotificationBell.test.tsx": "069b0af8f9281c67d736aacb2edd3311e99603a0e30fccd61e844f980757f8ca",
+    "apps/web/src/components/ds/EzNotificationBell.tsx": "674c09c7109f009963398de556b5d7bb3e3a3da32f89137a278a22d06bdb1aee",
+    "apps/web/src/components/layout/AppLayout.test.tsx": "8d869e967d4cdcf9017dbc35a15fd8d3b5c7af579e76b3b711e1aa18bea20bdb",
+    "apps/web/src/components/layout/NotificationBell.test.tsx": "ed8519a06bf7888e4bf959bae95d4c9b0568fde7a499a5d89d8a3c39eb7a8be6",
+    "apps/web/src/components/layout/NotificationBell.tsx": "db16d332eeb4dc31c0d541200ecbe8dd0bc2b60cf12e1385051e6da8576d5e7e"
+  },
+  "log": ".delivery/evidence/DMTE-462-t6/red.log",
+  "log_sha256": "54013f2d4a383c5d1ebe3580e5faf69f81d57fd158ba8e8cad26edf267f1564c"
+}
