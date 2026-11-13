@@ -480,6 +480,52 @@ describe('TicketsService', () => {
       });
     });
 
+    describe('DMTE-502: telefone e ramal do solicitante na listagem', () => {
+      const requesterSelectOf = () => {
+        const [arg] = mockPrismaService.ticket.findMany.mock.calls.at(-1)!;
+        return arg.include.requester.select as Record<string, unknown>;
+      };
+
+      it.each([Role.ADMIN, Role.AGENT_MASTER, Role.AGENT])(
+        'AC-05: %s receives requester.phone and requester.extension, also in the overdue path',
+        async (role) => {
+          mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+          await service.findAll({}, { id: 'staff-1', role });
+          expect(requesterSelectOf()).toMatchObject({ phone: true, extension: true, email: true });
+
+          await service.findAll({ overdue: 'true' }, { id: 'staff-1', role });
+          expect(requesterSelectOf()).toMatchObject({ phone: true, extension: true, email: true });
+        },
+      );
+
+      it.each([Role.CLIENT, Role.CLIENT_MASTER])(
+        'AC-06: %s never receives requester.phone or requester.extension, also in the overdue path',
+        async (role) => {
+          mockPrismaService.ticket.findMany.mockResolvedValue([]);
+          const user = { id: 'client-1', role, organizationId: 'org-1' };
+
+          await service.findAll({}, user);
+          expect(requesterSelectOf()).not.toHaveProperty('phone');
+          expect(requesterSelectOf()).not.toHaveProperty('extension');
+          expect(requesterSelectOf()).toHaveProperty('email', true);
+
+          await service.findAll({ overdue: 'true' }, user);
+          expect(requesterSelectOf()).not.toHaveProperty('phone');
+          expect(requesterSelectOf()).not.toHaveProperty('extension');
+        },
+      );
+
+      it('AC-06: an unknown or missing role never receives requester.phone or requester.extension', async () => {
+        mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+        await service.findAll({}, { id: 'x-1', role: undefined as unknown as Role });
+
+        expect(requesterSelectOf()).not.toHaveProperty('phone');
+        expect(requesterSelectOf()).not.toHaveProperty('extension');
+      });
+    });
+
     it('filters by priority', async () => {
       mockPrismaService.ticket.findMany.mockResolvedValue([]);
 

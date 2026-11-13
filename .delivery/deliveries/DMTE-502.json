@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "delivery": "DMTE-502",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 230,
+  "multica_id": "01a1d194-d6dc-7515-9dc3-3ffc7c7da35b",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 2,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "com `tickets: []`, `TicketList` mostra \"Agrupar por\", \"Exibir colunas\" e a mensagem \"Nenhum chamado encontrado\", e não mostra a tabela.",
+      "tests": [
+        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-01: keeps \"Agrupar por\" and \"Exibir colunas\" next to the empty state, with no table",
+        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-01: the page-grouping note is not shown when the list is empty"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "com `tickets: []`, abrir \"Exibir colunas\" lista todas as colunas, e marcar ou desmarcar uma persiste na configuração `tickets-list` e vale quando a lista volta a ter chamados.",
+      "tests": [
+        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-02: with an empty list, the column menu lists every column and a toggle persists for the next non-empty render"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "nos estados de carregamento e de erro a lista continua sem os controles.",
+      "tests": [
+        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-03: loading and error states still render without the controls"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "\"Exibir colunas\" oferece E-mail do solicitante, Telefone do solicitante, Ramal do solicitante e Grupo de recursos, desmarcadas por padrão; marcadas, a tabela mostra o valor do chamado ou \"—\" quando ausente. As sete colunas padrão atuais continuam marcadas.",
+      "tests": [
+        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-04: offers the four new columns hidden by default and shows their values (or \"—\") once enabled",
+        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-04: a configuration saved before the new columns existed keeps them hidden"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "para ADMIN, AGENT_MASTER e AGENT, a listagem devolve `requester.phone` e `requester.extension`.",
+      "tests": [
+        "TicketsService > findAll > DMTE-502: telefone e ramal do solicitante na listagem > AC-05: %s receives requester.phone and requester.extension, also in the overdue path"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "description": "para CLIENT e CLIENT_MASTER, a listagem não devolve `phone` nem `extension` do solicitante, e a tela não oferece as colunas de telefone e ramal.",
+      "tests": [
+        "TicketsService > findAll > DMTE-502: telefone e ramal do solicitante na listagem > AC-06: %s never receives requester.phone or requester.extension, also in the overdue path",
+        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-06: %s sees the phone and extension columns in the menu",
+        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-06: %s does not get the phone and extension columns, and keeps the others",
+        "TicketsService > findAll > DMTE-502: telefone e ramal do solicitante na listagem > AC-06: an unknown or missing role never receives requester.phone or requester.extension",
+        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-06: without a known role the phone and extension columns are not offered"
+      ]
+    },
+    {
+      "id": "AC-07",
+      "description": "o isolamento por organização e os filtros da listagem ficam como estão (os testes atuais de `findAll` continuam verdes).",
+      "tests": [
+        "TicketsService > findAll > should list tickets filtered by serviceDeskId and status for AGENT",
+        "TicketsService > findAll > should not allow CLIENT to see other users tickets (forces requesterId filter)"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-502.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-502/red.json",
+    "green": ".delivery/evidence/DMTE-502/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzSelect",
+      "EzEmptyCard",
+      "EzTag",
+      "EzAlert",
+      "EzSpinner"
+    ],
+    "reason": "TicketList só ganha quatro itens no menu \"Exibir colunas\" e mostra o controle também com a lista vazia; nenhum componente DS novo ou alterado."
+  }
+}
