@@ -40,8 +40,9 @@ def build_body(label, sha, pr, run_url, version=None):
     lines = [LEADER + ' **' + label + '**', '', '- Commit: `' + sha + '`',
              '- PR: #' + str(pr['number']) + ' (' + pr['html_url'] + ')', '- Run: ' + run_url]
     if version:
-        shown = ', '.join('`' + path + '` → `' + commit + '`' for path, commit in version.items())
-        verdict = 'coincide com o' if set(version.values()) == {sha} else 'diferente do'
+        shown = ', '.join('`' + path + '` → ' + ('`' + commit + '`' if commit else 'indisponível') for path, commit in version.items())
+        verdict = ('não verificado contra o' if None in version.values()
+                   else 'coincide com o' if set(version.values()) == {sha} else 'diferente do')
         lines.append('- Produção: ' + shown + ' (' + verdict + ' commit implantado)')
     return '\n'.join(lines)
 
@@ -51,8 +52,8 @@ def production_version(base, http):
     for path in VERSION_PATHS:
         try:
             version[path] = json.loads(http(urllib.request.Request(base + path), timeout=10).read())['commit']
-        except Exception as error:
-            version[path] = 'indisponível: ' + type(error).__name__
+        except Exception:
+            version[path] = None  # probe failed: reported as unavailable, not as a different commit
     return version
 
 
@@ -65,10 +66,10 @@ def github_pulls(sha):
 def notify(env, github=github_pulls, http=urllib.request.urlopen, root=ROOT):
     """Always 0: the notice must never change the result of a deploy that already happened."""
     token = env.get('MULTICA_TOKEN', '')
+    if not token:
+        print('MULTICA_TOKEN ausente: sem aviso ao card.')
+        return 0
     try:
-        if not token:
-            print('MULTICA_TOKEN ausente: sem aviso ao card.')
-            return 0
         sha = env['SHA']
         prs = github(sha)
         found = delivery_of(prs)
@@ -94,7 +95,7 @@ def notify(env, github=github_pulls, http=urllib.request.urlopen, root=ROOT):
         http(request, timeout=20).read()
         print('Aviso publicado no card de ' + delivery + ' (' + label + ').')
     except Exception as error:
-        print('Aviso ao Multica falhou (' + type(error).__name__ + '): ' + str(error).replace(token or '\0', '***'))
+        print('Aviso ao Multica falhou (' + type(error).__name__ + '): ' + str(error).replace(token, '***'))
     return 0
 
 

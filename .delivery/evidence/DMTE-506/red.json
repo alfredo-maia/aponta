@@ -1,8 +1,8 @@
 {
   "version": 1,
   "phase": "red",
-  "started_at": "2026-11-13T03:57:35.863198+00:00",
-  "finished_at": "2026-11-13T03:57:35.940069+00:00",
+  "started_at": "2026-11-13T04:01:10.978780+00:00",
+  "finished_at": "2026-11-13T04:01:11.281444+00:00",
   "command": [
     "python3",
     "-m",
@@ -14,10 +14,10 @@
     "test_avisar_card.py"
   ],
   "base_sha": "9d553b2bf23ec4df795f2fbbf8377aa3261beb09",
-  "head_sha": "a3324b95b7f71a66d15cfcee091c1158f1fcc46d",
+  "head_sha": "c644805c52b45b6ac2d50eeee921b4c4a6512cdb",
   "exit_code": 1,
   "tests": {
-    "scripts/test_avisar_card.py": "b3e65d648d0291cb20418d934b3dcd18bef5321ea9904648074423c6c8c1da06"
+    "scripts/test_avisar_card.py": "f72de8872feb3ef0e9974117c5e54d43f12065601700b43355eb03c4b07a4110"
   },
   "criteria": [
     "AC-01",
@@ -26,9 +26,11 @@
     "AC-04"
   ],
   "source_hashes": {
-    "scripts/avisar_card.py": "dd1d446b4d6de0d12d3ea02fb415428bef3bb7889315ac7a66ff49e66899cbab",
-    "scripts/test_avisar_card.py": "b3e65d648d0291cb20418d934b3dcd18bef5321ea9904648074423c6c8c1da06"
+    ".agents/skills/aponta-delivery/SKILL.md": "dfa4e63d4b16f26cd3bd49eb9eb4e5a52cd42115c165e9e5b5e8a571295cc18a",
+    ".agents/skills/aponta-flow/SKILL.md": "6827fe9d409e659841bdc54b31ee4e638feb63695c83b63613c6e1a46128abad",
+    "scripts/avisar_card.py": "b01617172ec498ccad1d429096105347e8e25243f883a6af1e4dfa6a680188d9",
+    "scripts/test_avisar_card.py": "f72de8872feb3ef0e9974117c5e54d43f12065601700b43355eb03c4b07a4110"
   },
   "log": ".delivery/evidence/DMTE-506/red.log",
-  "log_sha256": "a8f1620f94e596db77cf94228493cd5dad2c0e6f15c2f4c4c6d292601ba22c07"
+  "log_sha256": "fe2d63dadd4526cd906c9cab18ca2bcd4ecbe9607b65e4000346b20dc76f404a"
 }
