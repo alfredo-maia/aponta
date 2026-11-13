@@ -239,6 +239,9 @@ describe('TicketList (D5: Lista agrupável)', () => {
 
       expect(headers().some((h) => columnNames.includes(h))).toBe(false);
       await user.click(screen.getByRole('button', { name: /exibir colunas/i }));
+      for (const name of ['Número', 'Título', 'Cliente', 'Origem', 'Prioridade', 'Status', 'Estágio']) {
+        expect(screen.getByRole('checkbox', { name })).toBeChecked();
+      }
       for (const name of columnNames) {
         expect(screen.getByRole('checkbox', { name })).not.toBeChecked();
         await user.click(screen.getByRole('checkbox', { name }));
@@ -254,6 +257,37 @@ describe('TicketList (D5: Lista agrupável)', () => {
       const second = within(rows[2]).getAllByRole('cell').map((c) => c.textContent);
       expect(second.filter((c) => c === '—')).toHaveLength(3);
       expect(second).toContain('joao@beta.com');
+    });
+
+    it('AC-04: a configuration saved before the new columns existed keeps them hidden', () => {
+      localStorage.setItem(
+        'aponta_screen_config_u1_tickets-list',
+        JSON.stringify({ grid: { columnVisibility: { number: true, title: true, agent: true }, density: 'compact' } }),
+      );
+      renderList({ tickets: [ticketWithContact] });
+
+      expect(headers().some((h) => h.includes('Responsável'))).toBe(true);
+      expect(headers().some((h) => columnNames.includes(h))).toBe(false);
+    });
+
+    it('AC-06: without a known role the phone and extension columns are not offered', async () => {
+      useAuthStore.setState({ user: null });
+      const user = userEvent.setup();
+      renderList();
+
+      await user.click(screen.getByRole('button', { name: /exibir colunas/i }));
+      expect(screen.queryByRole('checkbox', { name: 'Telefone do solicitante' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('checkbox', { name: 'Ramal do solicitante' })).not.toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: 'E-mail do solicitante' })).toBeInTheDocument();
+    });
+
+    it('AC-01: the page-grouping note is not shown when the list is empty', async () => {
+      const user = userEvent.setup();
+      renderList({ tickets: [], totalPages: 3 });
+
+      await user.selectOptions(screen.getByLabelText(/agrupar por/i, { selector: 'select' }), 'organization');
+
+      expect(screen.queryByText(/agrupando os/i)).not.toBeInTheDocument();
     });
 
     it.each(['ADMIN', 'AGENT_MASTER', 'AGENT'])('AC-06: %s sees the phone and extension columns in the menu', async (role) => {

@@ -487,12 +487,14 @@ describe('TicketsService', () => {
       };
 
       it.each([Role.ADMIN, Role.AGENT_MASTER, Role.AGENT])(
-        'AC-05: %s receives requester.phone and requester.extension',
+        'AC-05: %s receives requester.phone and requester.extension, also in the overdue path',
         async (role) => {
           mockPrismaService.ticket.findMany.mockResolvedValue([]);
 
           await service.findAll({}, { id: 'staff-1', role });
+          expect(requesterSelectOf()).toMatchObject({ phone: true, extension: true, email: true });
 
+          await service.findAll({ overdue: 'true' }, { id: 'staff-1', role });
           expect(requesterSelectOf()).toMatchObject({ phone: true, extension: true, email: true });
         },
       );
@@ -513,6 +515,15 @@ describe('TicketsService', () => {
           expect(requesterSelectOf()).not.toHaveProperty('extension');
         },
       );
+
+      it('AC-06: an unknown or missing role never receives requester.phone or requester.extension', async () => {
+        mockPrismaService.ticket.findMany.mockResolvedValue([]);
+
+        await service.findAll({}, { id: 'x-1', role: undefined as unknown as Role });
+
+        expect(requesterSelectOf()).not.toHaveProperty('phone');
+        expect(requesterSelectOf()).not.toHaveProperty('extension');
+      });
     });
 
     it('filters by priority', async () => {

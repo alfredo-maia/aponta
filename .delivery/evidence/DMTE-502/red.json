@@ -1,8 +1,8 @@
 {
   "version": 1,
   "phase": "red",
-  "started_at": "2026-11-13T01:37:49.569058+00:00",
-  "finished_at": "2026-11-13T01:45:50.786965+00:00",
+  "started_at": "2026-11-13T01:58:12.689407+00:00",
+  "finished_at": "2026-11-13T02:01:35.726625+00:00",
   "command": [
     "pnpm",
     "exec",
@@ -15,11 +15,11 @@
     "--skip-nx-cache"
   ],
   "base_sha": "42ef297ffe91e979169082ce77c5bef8206a5ef6",
-  "head_sha": "0e6ff5409db6f9e585d07828d17aeaa21859b93e",
+  "head_sha": "71a9242c101a13580f64df0bbe6612934b585b4f",
   "exit_code": 1,
   "tests": {
-    "apps/web/src/components/tickets/TicketList.test.tsx": "50bf053552c7fa09aee459644f354f7c394dce25a5f40ab254ef785e665ac86e",
-    "apps/api/src/tickets/tickets.service.spec.ts": "85de67244da41cdd76f78e732c1b15b4c5bb835bd2f97e5903bc035bc304aa29"
+    "apps/web/src/components/tickets/TicketList.test.tsx": "793b73af087332d7fda0a08d825ad09218f80677ae98fa71fa5c2dda36246c92",
+    "apps/api/src/tickets/tickets.service.spec.ts": "c204ed1ed00b5c4bdb41991312e488e4f638e43621e675b7eee5fe744baf3725"
   },
   "criteria": [
     "AC-01",
@@ -31,10 +31,12 @@
     "AC-07"
   ],
   "source_hashes": {
-    "apps/api/src/tickets/tickets.service.spec.ts": "85de67244da41cdd76f78e732c1b15b4c5bb835bd2f97e5903bc035bc304aa29",
-    "apps/web/src/components/tickets/TicketList.test.tsx": "50bf053552c7fa09aee459644f354f7c394dce25a5f40ab254ef785e665ac86e",
+    "apps/api/src/tickets/tickets.service.spec.ts": "c204ed1ed00b5c4bdb41991312e488e4f638e43621e675b7eee5fe744baf3725",
+    "apps/api/src/tickets/tickets.service.ts": "9b909544cd4e1a0a4bbeceebe012cdfae4ffe942b8136217c33ee14f01ac6cf1",
+    "apps/web/src/components/tickets/TicketList.test.tsx": "793b73af087332d7fda0a08d825ad09218f80677ae98fa71fa5c2dda36246c92",
+    "apps/web/src/components/tickets/TicketList.tsx": "6404d9b9efb562c8d30c131b87da199a8520d1cf2cdad981acd35f9bc99c1460",
     "apps/web/src/hooks/useTickets.ts": "e6b4537bd48a41da42d0c88eba2abf5eaba3b26bd999e71b814e18e5302dcdb2"
   },
   "log": ".delivery/evidence/DMTE-502/red.log",
-  "log_sha256": "9a41e72b087e3ffa36788136ee7bf61b97c5adb58a57b94476332cd393dfbcce"
+  "log_sha256": "411d2bcd3d16268ada0d9d59d91304c4fa15103d84b0a1e556d1a5fea6097083"
 }

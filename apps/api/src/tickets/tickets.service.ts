@@ -215,7 +215,7 @@ const TICKET_LIST_INCLUDE = {
 
 /** Telefone e ramal do solicitante são dado pessoal: só a equipe os recebe (DMTE-502). */
 function ticketListInclude(role: Role) {
-  if (role === Role.CLIENT || role === Role.CLIENT_MASTER) return TICKET_LIST_INCLUDE;
+  if (role !== Role.ADMIN && role !== Role.AGENT_MASTER && role !== Role.AGENT) return TICKET_LIST_INCLUDE;
   return {
     ...TICKET_LIST_INCLUDE,
     requester: {

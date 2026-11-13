@@ -20,7 +20,7 @@ interface ColumnDef {
   sortField?: string;
   render: (ticket: Ticket) => ReactNode;
   defaultVisible: boolean;
-  /** The API only sends this data to staff (ADMIN/AGENT_MASTER/AGENT), so CLIENT roles never get the column. */
+  /** The API only sends this data to staff (ADMIN/AGENT_MASTER/AGENT), so any other role never gets the column. */
   staffOnly?: boolean;
 }
 
@@ -201,8 +201,8 @@ export function TicketList({
 }: TicketListProps) {
   const openInTab = useOpenInTab();
   const role = useAuthStore((state) => state.user?.role);
-  const isClientRole = role === 'CLIENT' || role === 'CLIENT_MASTER';
-  const columns = isClientRole ? COLUMNS.filter((col) => !col.staffOnly) : COLUMNS;
+  const isStaff = role === 'ADMIN' || role === 'AGENT_MASTER' || role === 'AGENT';
+  const columns = isStaff ? COLUMNS : COLUMNS.filter((col) => !col.staffOnly);
   const { config, setGroupBy, setColumnVisibility } = useUserScreenConfig('tickets-list', {
     groupBy: 'none',
     grid: { columnVisibility: DEFAULT_COLUMN_VISIBILITY, density: 'compact' },
@@ -320,7 +320,7 @@ export function TicketList({
           )}
         </div>
 
-        {isGrouped && totalPages && totalPages > 1 && (
+        {isGrouped && tickets.length > 0 && totalPages && totalPages > 1 && (
           <span className="text-[12px] text-gray-500">
             Agrupando os {tickets.length} chamados desta página.
           </span>

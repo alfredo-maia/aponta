@@ -11,7 +11,8 @@
       "id": "AC-01",
       "description": "com `tickets: []`, `TicketList` mostra \"Agrupar por\", \"Exibir colunas\" e a mensagem \"Nenhum chamado encontrado\", e não mostra a tabela.",
       "tests": [
-        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-01: keeps \"Agrupar por\" and \"Exibir colunas\" next to the empty state, with no table"
+        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-01: keeps \"Agrupar por\" and \"Exibir colunas\" next to the empty state, with no table",
+        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-01: the page-grouping note is not shown when the list is empty"
       ]
     },
     {
@@ -32,14 +33,15 @@
       "id": "AC-04",
       "description": "\"Exibir colunas\" oferece E-mail do solicitante, Telefone do solicitante, Ramal do solicitante e Grupo de recursos, desmarcadas por padrão; marcadas, a tabela mostra o valor do chamado ou \"—\" quando ausente. As sete colunas padrão atuais continuam marcadas.",
       "tests": [
-        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-04: offers the four new columns hidden by default and shows their values (or \"—\") once enabled"
+        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-04: offers the four new columns hidden by default and shows their values (or \"—\") once enabled",
+        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-04: a configuration saved before the new columns existed keeps them hidden"
       ]
     },
     {
       "id": "AC-05",
       "description": "para ADMIN, AGENT_MASTER e AGENT, a listagem devolve `requester.phone` e `requester.extension`.",
       "tests": [
-        "TicketsService > findAll > DMTE-502: telefone e ramal do solicitante na listagem > AC-05: %s receives requester.phone and requester.extension"
+        "TicketsService > findAll > DMTE-502: telefone e ramal do solicitante na listagem > AC-05: %s receives requester.phone and requester.extension, also in the overdue path"
       ]
     },
     {
@@ -48,7 +50,9 @@
       "tests": [
         "TicketsService > findAll > DMTE-502: telefone e ramal do solicitante na listagem > AC-06: %s never receives requester.phone or requester.extension, also in the overdue path",
         "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-06: %s sees the phone and extension columns in the menu",
-        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-06: %s does not get the phone and extension columns, and keeps the others"
+        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-06: %s does not get the phone and extension columns, and keeps the others",
+        "TicketsService > findAll > DMTE-502: telefone e ramal do solicitante na listagem > AC-06: an unknown or missing role never receives requester.phone or requester.extension",
+        "TicketList (D5: Lista agrupável) > DMTE-502: controles na lista vazia e colunas do solicitante > AC-06: without a known role the phone and extension columns are not offered"
       ]
     },
     {

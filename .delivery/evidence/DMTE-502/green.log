@@ -13,152 +13,12 @@
 
  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-502-12a4092f5070/workdir/aponta/apps/web
 
-stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > defaults a new article to "Público" and hides the Compartilhar button
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > shows the Compartilhar button once "Privado" is selected, and opens the sharing dialog
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > shows the new-article form to an AGENT and creates a PUBLIC article inside the open folder
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > selects an agent group and a client in the share dialog, and sends them (plus auto-share) in the create payload
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > allows an AGENT to update an existing article, pre-populating the access type and sharing lists
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > loads the edit form with EzRichText pre-filled with the existing article content
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
- ✓ |web| src/pages/KnowledgePage.test.tsx (22 tests) 25868ms
-     ✓ shows the folders grid first, not the article list  358ms
-     ✓ opens a folder and lists only its articles, filtered by folderId  716ms
-     ✓ shows a breadcrumb back to the folders grid once inside a folder  531ms
-     ✓ does not show the new-article form or edit/delete buttons to a CLIENT  586ms
-     ✓ defaults a new article to "Público" and hides the Compartilhar button  1407ms
-     ✓ shows the Compartilhar button once "Privado" is selected, and opens the sharing dialog  1895ms
-     ✓ shows the new-article form to an AGENT and creates a PUBLIC article inside the open folder  5364ms
-     ✓ selects an agent group and a client in the share dialog, and sends them (plus auto-share) in the create payload  5924ms
-     ✓ allows an AGENT to update an existing article, pre-populating the access type and sharing lists  4319ms
-     ✓ allows filtering by search keyword and tag inside a folder  403ms
-     ✓ allows selecting more than one tag at once (OR filter)  484ms
-     ✓ paginates articles beyond the first page  485ms
-     ✓ allows deleting an article  554ms
-     ✓ shows attachment upload controls to an AGENT and allows removing an attachment  576ms
-     ✓ loads the edit form with EzRichText pre-filled with the existing article content  869ms
- ✓ |web| src/pages/OrganizationsPage.test.tsx (33 tests) 56757ms
-     ✓ keeps the grid scrollable by touch in both axes on phones (DMTE-455)  1483ms
-     ✓ shows the list view by default with a mode toggle (Tiflux/Sankhya-parity, issue #57)  1494ms
-     ✓ switches to the full-page form via Ações > Cadastrar manualmente and validates it  1373ms
-     ✓ switches between Grid Mode and Form Mode via the toolbar toggle  1666ms
-     ✓ creates a new organization with rich fields  2740ms
-     ✓ looks up a CNPJ and autofills legal name / trade name  1422ms
-     ✓ locks CNPJ and Razão Social after a Receita lookup, standardizing form-mode editability (Sankhya parity)  1116ms
-     ✓ toggles CPF/CNPJ fields based on document type (Tiflux-parity, issue #56)  907ms
-     ✓ opens the full-page detail with the Tiflux-parity 3-column panel  861ms
-     ✓ shows the "Cliente ativo" toggle and inactivates the organization  1298ms
-     ✓ defaults to the Usuários tab, lists only CLIENT/CLIENT_MASTER users and allows linking  2134ms
-     ✓ updates organization name and legal name on blur in Usuários tab  2516ms
-     ✓ toggles visibility and quarterly billing from the detail header  1769ms
-     ✓ adds a new contact from the Usuários tab  1612ms
-     ✓ saves serviceType/healthStatus from the Usuários tab (Perfil do Cliente, issue #56)  1210ms
-     ✓ shows an honest stub in the Recursos tab (no fabricated module)  1125ms
-     ✓ manages Mesas (N:N) and Grupo de Atendentes in the Relacionamentos tab (Tiflux-parity, issue #57)  2424ms
-     ✓ renders billing preferences and updates quarterly billing in Faturamento tab (issue #58)  6127ms
-     ✓ supports inline editing of cells and Cadastrar por CNPJ via toolbar actions (Sankhya parity)  3122ms
-     ✓ renders Sankhya standard entity toolbar, filter drawer, and screen config modal (br.com.sankhya.core.cad.parceiros parity)  1079ms
-     ✓ filters the grid by search text, status, and document type (Sankhya filter drawer)  3694ms
-     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  3330ms
-     ✓ navigates between organizations from the detail view using toolbar Anterior/Próximo  1118ms
-     ✓ duplicates a selected organization into a prefilled Nova Empresa form (Duplicar)  1012ms
-     ✓ DMTE-481 AC-04: a lixeira avisa que o cliente será apenas inativado e chama DELETE /organizations/:id  739ms
-     ✓ DMTE-481 AC-04: mostra a mensagem da API quando a exclusão é recusada (contrato ativo/ticket aberto)  969ms
-     ✓ persists column visibility toggles to the per-user screen config (localStorage)  854ms
-     ✓ edits the optional grid columns (IE, IM, Pasta, Perfil, Saúde) once made visible via screen config  4021ms
-     ✓ restores default screen configuration from the config modal  637ms
-     ✓ filters dynamically by any column using the rule builder (Sankhya Filtros parity)  2246ms
-     ✓ does not offer grouping and shows the record count in a single place  454ms
- ✓ |web| src/components/tickets/TicketWorklogs.test.tsx (75 tests) 57775ms
-     ✓ renders worklogs list and summary header correctly  1676ms
-     ✓ renders empty state when no worklogs exist  578ms
-     ✓ uses the DS EzComboBox (Storybook) for every worklog selector  503ms
-     ✓ allows filling the form and submitting a new worklog  2506ms
-     ✓ allows choosing attendance type and a custom time range, sending them on submit  2061ms
-     ✓ blocks submission when the end time is not after the start time  2058ms
-     ✓ quick chip buttons update the end time and the computed duration  941ms
-     ✓ sends valuationType MANUAL with the entered value  1850ms
-     ✓ blocks submission when valuationType is MANUAL without a value  1404ms
-     ✓ hides the valuation type from an agent without LAUNCH_WORKLOG_GUARANTEE and submits CONTRACT  1211ms
-     ✓ does not leak the valuation type in the expanded row of an agent without the permission  722ms
-     ✓ DMTE-479 AC-04: o envio de ADMIN sem a permissão não leva o valor manual do rascunho  517ms
-     ✓ DMTE-479 AC-04: enquanto a permissão carrega, o rascunho MANUAL de ADMIN não vira CONTRACT em silêncio  914ms
-     ✓ submits CONTRACT for an agent with a stale GUARANTEE draft when permissions never load  405ms
-     ✓ does not show the guarantee reason field for an agent with a stale GUARANTEE draft when permissions fail  825ms
-     ✓ keeps a GUARANTEE draft for an agent who has the permission once it loads  415ms
-     ✓ shows the valuation type and the Garantia option to an agent with LAUNCH_WORKLOG_GUARANTEE  535ms
-     ✓ unchecks billable automatically when GUARANTEE is selected  749ms
-     ✓ sends nextStageId when a next stage is chosen  2343ms
-     ✓ does not send nextStageId when "Não alterar" stays selected  1978ms
-     ✓ sends sendAsReply when the checkbox is checked  2269ms
-     ✓ submits with the final next stage when "Salvar e fechar ticket" is clicked  1983ms
-     ✓ disables "Salvar e fechar ticket" when no reachable next stage closes the ticket  395ms
-     ✓ submits and advances start time to previous end time when "Salvar e criar novo apontamento" is clicked  2465ms
-     ✓ allows deleting own worklog when confirmed  831ms
-     ✓ renders modal closed by default when defaultModalOpen is false and opens upon "+ Apontamento" click  531ms
-     ✓ handles activity timer start, pause, and stop to open apontamento modal  853ms
-     ✓ lists a Brasília pré-apontamento while the timer runs and converts it into the form  456ms
-     ✓ appends a new pré-apontamento when starting again instead of overwriting  640ms
-     ✓ converts stopped raw time with its original contract and source identifier  490ms
-     ✓ discards the running pré-apontamento from the timer cancel control  499ms
-     ✓ prefills + Apontamento from the running pré without opening from the table  355ms
-     ✓ pauses and resumes the running pré from the table row  454ms
-     ✓ prefills from derived timer times when initTime and endTime are blank  329ms
-     ✓ paginates the pré-apontamentos table when the list grows  521ms
-     ✓ clamps pagination back to the last page after deleting the only row on page 2  615ms
-     ✓ saves worklog draft in localStorage and restores it automatically  2641ms
-     ✓ keeps filled fields after closing the modal with X and reopening  2653ms
-     ✓ expands and collapses activity details per row and in bulk  590ms
-     ✓ filters the history by attendant and attendance type via the funnel  515ms
-     ✓ sorts worklogs by day and shows filtered totals in the footer  394ms
-     ✓ hides monetary data and manual valuation for agents even with unmasked payloads  639ms
-     ✓ submits an explicit eligible contract and preserves it in the draft  803ms
-     ✓ keeps unknown contract values distinct from free coverage  492ms
-     ✓ rejects negative manual amounts before calling the API  1081ms
-     ✓ keeps unknown historical totals visible without inferring free values  1073ms
-     ✓ blocks every valuation mode when no commercial contract is eligible  1604ms
-     ✓ requires a bonus reason and records its eligible contract without quota consumption  1063ms
-     ✓ submits near-midnight Brasília work as true instants in the correct local cycle  323ms
-     ✓ keeps incomplete worklog-end-time-input editable and blocks submission  345ms
-       ✓ AC-04 (r2, achado do code-review): os atalhos de duração só ficam ativos com a permissão  1253ms
- ✓ |web| src/pages/ContractsPage.test.tsx (22 tests) 25579ms
-     ✓ shows a loading state while contracts are being fetched  527ms
-     ✓ shows financial columns (valor mensal / reajuste) for ADMIN  1327ms
-     ✓ shows financial columns for CLIENT_MASTER as well  426ms
-     ✓ hides financial columns for AGENT (masked by the backend, but double-check the UI gate too)  577ms
-     ✓ displays inactive contracts and zero money honestly  434ms
-     ✓ lets admins create with explicit excess rate and minute allowance  1859ms
-     ✓ prevents non-admin management and hides detail financial data  994ms
-     ✓ opens a contract's detail as a full page (no dialog) and returns to the list via the back button  1066ms
-     ✓ navigates between contracts using the toolbar Anterior/Próximo buttons  747ms
-     ✓ shows a dedicated "Novo contrato" button directly on the toolbar for ADMIN, opening the full-page form  1354ms
-     ✓ lets an ADMIN select a contract and delete it via the toolbar  847ms
-     ✓ shows the backend conflict message when deleting a contract with worklogs fails  1008ms
-     ✓ does not show the delete button for AGENT, who cannot manage contracts  504ms
-     ✓ renders the Sankhya standard filter drawer and screen config modal (parity with Clientes)  777ms
-     ✓ filters contracts by name or company on the client side via the filter drawer  3310ms
-     ✓ filters contracts by status (Ativo/Inativo) via the filter drawer  1110ms
-     ✓ filters dynamically by modality using the rule builder (Sankhya Filtros parity)  1734ms
-     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  3552ms
-     ✓ edits via the update command without turning zero into missing money  1907ms
-     ✓ validates reversed dates before saving  1123ms
+ ✓ |web| src/components/tickets/TicketList.test.tsx (24 tests) 3735ms
+       ✓ AC-04: offers the four new columns hidden by default and shows their values (or "—") once enabled  1011ms
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should render ticket form with new DS components
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-483 AC-02: com a consulta de catálogo falhando, abre o formulário em branco sem esperar retentativas
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > renders all core fields
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-493 AC-01: carregamento, catálogo e formulário sem teto de largura, como Relatórios
@@ -167,16 +27,7 @@ stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-493 AC-01
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-489 AC-02: cliente, mesa, solicitante e prioridade em 1, 2 e 4 colunas por largura
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > shows the submit error banner when submitError is set
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > AC-12: announces the submit error as an alert (DS EzAlert)
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-489 AC-04: ações do formulário quebram de linha em vez de vazar do cartão
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > AC-12: shows no alert when there is no submit error
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-483 AC-04: formulário e catálogo usam a mesma largura máxima
@@ -185,28 +36,10 @@ stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-483 AC-04
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should populate the service desk dropdown from the API
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > disables submit buttons while isSubmitting is true
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > disables the Cliente and Solicitante fields for CLIENT role users
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should not submit when required fields are empty
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > keeps the Cliente and Solicitante fields enabled for ADMIN/AGENT role users
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > locks title, service desk and priority when a catalogOverride is supplied
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > should submit the form and navigate to the new ticket detail page
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > toggles the schedule date field on and off via the "Agendar Ticket" button
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > shows a validation error and blocks submit when title/description/service desk are empty
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows the service catalog when the API returns categories, and lets the user pick an item
@@ -215,173 +48,24 @@ stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows the serv
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > AC-3: Esc no formulário volta para o catálogo
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits with saveAndNew: true when "Salvar e criar novo" is clicked
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user open a blank ticket from the catalog via "não está catalogado"
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits with saveAndNew: true when "Salvar e criar novo" is clicked
-An update to EzRichText inside a test was not wrapped in act(...).
-
-When testing, code that causes React state updates should be wrapped into act(...):
-
-act(() => {
-  /* fire events that update state */
-});
-/* assert on the output */
-
-This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
-An update to Controller inside a test was not wrapped in act(...).
-
-When testing, code that causes React state updates should be wrapped into act(...):
-
-act(() => {
-  /* fire events that update state */
-});
-/* assert on the output */
-
-This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
 
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > submits a blank ticket from the catalog without the synthetic custom item or an empty desk
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits without saveAndNew when the primary "Abrir Ticket" button is clicked
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits without saveAndNew when the primary "Abrir Ticket" button is clicked
-An update to EzRichText inside a test was not wrapped in act(...).
-
-When testing, code that causes React state updates should be wrapped into act(...):
-
-act(() => {
-  /* fire events that update state */
-});
-/* assert on the output */
-
-This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
-An update to Controller inside a test was not wrapped in act(...).
-
-When testing, code that causes React state updates should be wrapped into act(...):
-
-act(() => {
-  /* fire events that update state */
-});
-/* assert on the output */
-
-This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
-
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > lets the user go back from the form to the catalog view
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > attaches a file via EzUpload and removes it again via the file item remove button
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > shows a submit error message and does not navigate when the API call fails
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > filters available requesters down to the selected organization once Cliente is chosen
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > lets the user search and attach a parent ticket
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > hides inactive, closed and internal desks from the Mesa options
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > warns and blocks submit when the desk requires attachments
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > warns and blocks submit when the desk requires attachments
-An update to EzRichText inside a test was not wrapped in act(...).
-
-When testing, code that causes React state updates should be wrapped into act(...):
-
-act(() => {
-  /* fire events that update state */
-});
-/* assert on the output */
-
-This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
-An update to Controller inside a test was not wrapped in act(...).
-
-When testing, code that causes React state updates should be wrapped into act(...):
-
-act(() => {
-  /* fire events that update state */
-});
-/* assert on the output */
-
-This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
 
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > patches the parent ticket and uploads attachments after creating the ticket
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > DMTE-485 AC-12: mesa com catalogRequiredOnOpen não mostra aviso nem bloqueia o envio
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
- ✓ |web| src/pages/ServiceDesksPage.test.tsx (14 tests) 19456ms
-     ✓ should list existing service desks for an ADMIN user  1358ms
-     ✓ keeps the grid scrollable by touch in both axes on phones (DMTE-455)  591ms
-     ✓ should show the Sankhya-standard entity toolbar with Incluir, Recarregar, and column config  615ms
-     ✓ should enable Excluir and Duplicar once a row is selected, and call the delete endpoint on confirmation  1704ms
-     ✓ should open the create form only after clicking Incluir, and create a new service desk  1804ms
-     ✓ should not submit when the name field is empty  716ms
-     ✓ shows Portuguese labels for ticket sections instead of database keys  764ms
-     ✓ should link a service desk to a client and save its SLA overrides  2159ms
-     ✓ DMTE-485 AC-13: a opção de catálogo da mesa aparece como "Mostrar o catálogo ao abrir (permite 'não catalogado')"  595ms
-     ✓ shows the Sankhya-standard filter drawer with search, status and dynamic filter fields  720ms
-     ✓ filters the grid by search text and status (Sankhya filter drawer)  2756ms
-     ✓ filters dynamically by any column using the rule builder (Sankhya Filtros parity)  3275ms
-     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  2351ms
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > DMTE-485 AC-12: mesa com catalogRequiredOnOpen não mostra aviso nem bloqueia o envio
-An update to EzRichText inside a test was not wrapped in act(...).
-
-When testing, code that causes React state updates should be wrapped into act(...):
-
-act(() => {
-  /* fire events that update state */
-});
-/* assert on the output */
-
-This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
-An update to Controller inside a test was not wrapped in act(...).
-
-When testing, code that causes React state updates should be wrapped into act(...):
-
-act(() => {
-  /* fire events that update state */
-});
-/* assert on the output */
-
-This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
-
-stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > lets the user add followers via the multi-select
-[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
-
- ✓ |web| src/components/tickets/TicketForm.test.tsx (19 tests) 18637ms
-     ✓ renders all core fields  2260ms
-     ✓ shows the submit error banner when submitError is set  726ms
-     ✓ AC-12: announces the submit error as an alert (DS EzAlert)  756ms
-     ✓ AC-12: shows no alert when there is no submit error  808ms
-     ✓ disables submit buttons while isSubmitting is true  1501ms
-     ✓ disables the Cliente and Solicitante fields for CLIENT role users  700ms
-     ✓ keeps the Cliente and Solicitante fields enabled for ADMIN/AGENT role users  509ms
-     ✓ locks title, service desk and priority when a catalogOverride is supplied  401ms
-     ✓ toggles the schedule date field on and off via the "Agendar Ticket" button  1422ms
-     ✓ shows a validation error and blocks submit when title/description/service desk are empty  1210ms
-     ✓ submits with saveAndNew: true when "Salvar e criar novo" is clicked  1810ms
-     ✓ submits without saveAndNew when the primary "Abrir Ticket" button is clicked  1347ms
-     ✓ attaches a file via EzUpload and removes it again via the file item remove button  887ms
-     ✓ filters available requesters down to the selected organization once Cliente is chosen  917ms
-     ✓ lets the user search and attach a parent ticket  397ms
-     ✓ hides inactive, closed and internal desks from the Mesa options  461ms
-     ✓ warns and blocks submit when the desk requires attachments  1080ms
-     ✓ DMTE-485 AC-12: mesa com catalogRequiredOnOpen não mostra aviso nem bloqueia o envio  829ms
-     ✓ lets the user add followers via the multi-select  582ms
 stderr | src/pages/CreateTicketPage.test.tsx > CreateTicketPage > DMTE-485: catálogo por Cliente > AC-08: o Cliente escolhido no catálogo chega ao formulário travado e o envio não leva organizationId
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
@@ -438,31 +122,200 @@ act(() => {
 
 This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
 
- ✓ |web| src/pages/CreateTicketPage.test.tsx (29 tests) 27009ms
-     ✓ should render ticket form with new DS components  1857ms
-     ✓ DMTE-483 AC-01: mostra carregamento e não renderiza o formulário enquanto o catálogo carrega  326ms
-     ✓ DMTE-483 AC-02: com a consulta de catálogo falhando, abre o formulário em branco sem esperar retentativas  779ms
-     ✓ DMTE-493 AC-01: carregamento, catálogo e formulário sem teto de largura, como Relatórios  924ms
-     ✓ DMTE-489 AC-02: cliente, mesa, solicitante e prioridade em 1, 2 e 4 colunas por largura  583ms
-     ✓ DMTE-489 AC-04: ações do formulário quebram de linha em vez de vazar do cartão  1095ms
-     ✓ DMTE-483 AC-04: formulário e catálogo usam a mesma largura máxima  919ms
-     ✓ should populate the service desk dropdown from the API  978ms
-     ✓ should not submit when required fields are empty  1216ms
-     ✓ should submit the form and navigate to the new ticket detail page  2470ms
-     ✓ shows the service catalog when the API returns categories, and lets the user pick an item  536ms
-     ✓ AC-3: Esc no formulário volta para o catálogo  828ms
-     ✓ lets the user open a blank ticket from the catalog via "não está catalogado"  499ms
-     ✓ submits a blank ticket from the catalog without the synthetic custom item or an empty desk  1890ms
-     ✓ lets the user go back from the form to the catalog view  752ms
-     ✓ shows a submit error message and does not navigate when the API call fails  1474ms
-     ✓ forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit  1087ms
-     ✓ patches the parent ticket and uploads attachments after creating the ticket  1578ms
-       ✓ AC-07: ao escolher um Cliente consulta o catálogo com organizationId e mostra o resultado  363ms
-       ✓ AC-09: sem itens para o Cliente mostra o catálogo vazio e mantém o botão de chamado em branco  348ms
-       ✓ AC-08: o Cliente escolhido no catálogo chega ao formulário travado e o envio não leva organizationId  1667ms
-       ✓ AC-08: no fluxo em branco a lista de mesas só mostra mesas que servem o Cliente escolhido  764ms
-       ✓ AC-10: o botão "não catalogado" fica no cabeçalho ao lado do título, antes das categorias  901ms
-       ✓ AC-12: o fluxo em branco envia semCatalogo, sem catalogItemId, e não bloqueia por catalogRequiredOnOpen  2651ms
+ ✓ |web| src/pages/CreateTicketPage.test.tsx (29 tests) 9151ms
+     ✓ should render ticket form with new DS components  623ms
+     ✓ DMTE-489 AC-04: ações do formulário quebram de linha em vez de vazar do cartão  406ms
+     ✓ should not submit when required fields are empty  676ms
+     ✓ should submit the form and navigate to the new ticket detail page  940ms
+     ✓ submits a blank ticket from the catalog without the synthetic custom item or an empty desk  520ms
+     ✓ shows a submit error message and does not navigate when the API call fails  608ms
+     ✓ forwards catalogItemId/serviceDeskId/priority overrides from the selected catalog item on submit  353ms
+     ✓ patches the parent ticket and uploads attachments after creating the ticket  563ms
+       ✓ AC-08: o Cliente escolhido no catálogo chega ao formulário travado e o envio não leva organizationId  542ms
+       ✓ AC-08: no fluxo em branco a lista de mesas só mostra mesas que servem o Cliente escolhido  391ms
+       ✓ AC-12: o fluxo em branco envia semCatalogo, sem catalogItemId, e não bloqueia por catalogRequiredOnOpen  501ms
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > defaults a new article to "Público" and hides the Compartilhar button
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/components/tickets/TicketWorklogs.test.tsx (75 tests) 21217ms
+     ✓ renders worklogs list and summary header correctly  508ms
+     ✓ allows filling the form and submitting a new worklog  1050ms
+     ✓ allows choosing attendance type and a custom time range, sending them on submit  690ms
+     ✓ blocks submission when the end time is not after the start time  751ms
+     ✓ quick chip buttons update the end time and the computed duration  397ms
+     ✓ sends valuationType MANUAL with the entered value  824ms
+     ✓ blocks submission when valuationType is MANUAL without a value  593ms
+     ✓ does not leak the valuation type in the expanded row of an agent without the permission  825ms
+     ✓ DMTE-479 AC-04: o envio de ADMIN sem a permissão não leva o valor manual do rascunho  510ms
+     ✓ DMTE-479 AC-04: enquanto a permissão carrega, o rascunho MANUAL de ADMIN não vira CONTRACT em silêncio  348ms
+     ✓ submits CONTRACT for an agent with a stale GUARANTEE draft when permissions never load  991ms
+     ✓ shows the valuation type and the Garantia option to an agent with LAUNCH_WORKLOG_GUARANTEE  329ms
+     ✓ sends nextStageId when a next stage is chosen  1059ms
+     ✓ does not send nextStageId when "Não alterar" stays selected  939ms
+     ✓ sends sendAsReply when the checkbox is checked  965ms
+     ✓ submits with the final next stage when "Salvar e fechar ticket" is clicked  764ms
+     ✓ submits and advances start time to previous end time when "Salvar e criar novo apontamento" is clicked  580ms
+     ✓ saves worklog draft in localStorage and restores it automatically  659ms
+     ✓ keeps filled fields after closing the modal with X and reopening  843ms
+     ✓ rejects negative manual amounts before calling the API  302ms
+     ✓ blocks every valuation mode when no commercial contract is eligible  514ms
+     ✓ requires a bonus reason and records its eligible contract without quota consumption  329ms
+ ✓ |web| src/pages/OrganizationsPage.test.tsx (33 tests) 21456ms
+     ✓ keeps the grid scrollable by touch in both axes on phones (DMTE-455)  303ms
+     ✓ shows the list view by default with a mode toggle (Tiflux/Sankhya-parity, issue #57)  658ms
+     ✓ switches to the full-page form via Ações > Cadastrar manualmente and validates it  397ms
+     ✓ switches between Grid Mode and Form Mode via the toolbar toggle  813ms
+     ✓ creates a new organization with rich fields  1049ms
+     ✓ looks up a CNPJ and autofills legal name / trade name  578ms
+     ✓ locks CNPJ and Razão Social after a Receita lookup, standardizing form-mode editability (Sankhya parity)  831ms
+     ✓ toggles CPF/CNPJ fields based on document type (Tiflux-parity, issue #56)  431ms
+     ✓ shows the "Cliente ativo" toggle and inactivates the organization  1162ms
+     ✓ defaults to the Usuários tab, lists only CLIENT/CLIENT_MASTER users and allows linking  1934ms
+     ✓ updates organization name and legal name on blur in Usuários tab  945ms
+     ✓ toggles visibility and quarterly billing from the detail header  520ms
+     ✓ adds a new contact from the Usuários tab  751ms
+     ✓ saves serviceType/healthStatus from the Usuários tab (Perfil do Cliente, issue #56)  926ms
+     ✓ shows an honest stub in the Recursos tab (no fabricated module)  463ms
+     ✓ manages Mesas (N:N) and Grupo de Atendentes in the Relacionamentos tab (Tiflux-parity, issue #57)  923ms
+     ✓ renders billing preferences and updates quarterly billing in Faturamento tab (issue #58)  1419ms
+     ✓ supports inline editing of cells and Cadastrar por CNPJ via toolbar actions (Sankhya parity)  889ms
+     ✓ renders Sankhya standard entity toolbar, filter drawer, and screen config modal (br.com.sankhya.core.cad.parceiros parity)  368ms
+     ✓ filters the grid by search text, status, and document type (Sankhya filter drawer)  926ms
+     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  986ms
+     ✓ navigates between organizations from the detail view using toolbar Anterior/Próximo  321ms
+     ✓ DMTE-481 AC-04: a lixeira avisa que o cliente será apenas inativado e chama DELETE /organizations/:id  306ms
+     ✓ edits the optional grid columns (IE, IM, Pasta, Perfil, Saúde) once made visible via screen config  1362ms
+     ✓ filters dynamically by any column using the rule builder (Sankhya Filtros parity)  774ms
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > shows the Compartilhar button once "Privado" is selected, and opens the sharing dialog
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > shows the new-article form to an AGENT and creates a PUBLIC article inside the open folder
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/components/ds/EzCalendar.test.tsx (4 tests) 407ms
+ ✓ |web| src/hooks/useEscapeLayer.review.test.tsx (4 tests) 416ms
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > selects an agent group and a client in the share dialog, and sends them (plus auto-share) in the create payload
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > allows an AGENT to update an existing article, pre-populating the access type and sharing lists
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/pages/KnowledgePage.test.tsx > KnowledgePage > loads the edit form with EzRichText pre-filled with the existing article content
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/KnowledgePage.test.tsx (22 tests) 7676ms
+     ✓ defaults a new article to "Público" and hides the Compartilhar button  518ms
+     ✓ shows the Compartilhar button once "Privado" is selected, and opens the sharing dialog  657ms
+     ✓ shows the new-article form to an AGENT and creates a PUBLIC article inside the open folder  1685ms
+     ✓ selects an agent group and a client in the share dialog, and sends them (plus auto-share) in the create payload  1667ms
+     ✓ allows an AGENT to update an existing article, pre-populating the access type and sharing lists  988ms
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > renders all core fields
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > shows the submit error banner when submitError is set
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > AC-12: announces the submit error as an alert (DS EzAlert)
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > AC-12: shows no alert when there is no submit error
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > disables submit buttons while isSubmitting is true
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > disables the Cliente and Solicitante fields for CLIENT role users
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/ServiceDesksPage.test.tsx (14 tests) 5655ms
+     ✓ should list existing service desks for an ADMIN user  353ms
+     ✓ should enable Excluir and Duplicar once a row is selected, and call the delete endpoint on confirmation  482ms
+     ✓ should open the create form only after clicking Incluir, and create a new service desk  473ms
+     ✓ shows Portuguese labels for ticket sections instead of database keys  313ms
+     ✓ should link a service desk to a client and save its SLA overrides  605ms
+     ✓ filters the grid by search text and status (Sankhya filter drawer)  670ms
+     ✓ filters dynamically by any column using the rule builder (Sankhya Filtros parity)  924ms
+     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  765ms
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > keeps the Cliente and Solicitante fields enabled for ADMIN/AGENT role users
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > locks title, service desk and priority when a catalogOverride is supplied
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > toggles the schedule date field on and off via the "Agendar Ticket" button
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+ ✓ |web| src/pages/ContractsPage.test.tsx (22 tests) 6788ms
+     ✓ lets admins create with explicit excess rate and minute allowance  573ms
+     ✓ opens a contract's detail as a full page (no dialog) and returns to the list via the back button  344ms
+     ✓ lets an ADMIN select a contract and delete it via the toolbar  424ms
+     ✓ filters contracts by name or company on the client side via the filter drawer  580ms
+     ✓ filters contracts by status (Ativo/Inativo) via the filter drawer  327ms
+     ✓ filters dynamically by modality using the rule builder (Sankhya Filtros parity)  516ms
+     ✓ saves, applies, and deletes a saved filter from the drawer (Sankhya saved filters parity)  1092ms
+     ✓ edits via the update command without turning zero into missing money  570ms
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > shows a validation error and blocks submit when title/description/service desk are empty
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits with saveAndNew: true when "Salvar e criar novo" is clicked
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits with saveAndNew: true when "Salvar e criar novo" is clicked
+An update to EzRichText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to Controller inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits without saveAndNew when the primary "Abrir Ticket" button is clicked
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > submits without saveAndNew when the primary "Abrir Ticket" button is clicked
+An update to EzRichText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to Controller inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > attaches a file via EzUpload and removes it again via the file item remove button
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > filters available requesters down to the selected organization once Cliente is chosen
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > lets the user search and attach a parent ticket
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
 stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders a header cell for each column and a row for each data entry
 An update to EzEntityGrid inside a test was not wrapped in act(...).
 
@@ -474,6 +327,37 @@ act(() => {
 /* assert on the output */
 
 This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > hides inactive, closed and internal desks from the Mesa options
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > warns and blocks submit when the desk requires attachments
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > warns and blocks submit when the desk requires attachments
+An update to EzRichText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to Controller inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > DMTE-485 AC-12: mesa com catalogRequiredOnOpen não mostra aviso nem bloqueia o envio
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
 stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders the EzFilterBar above the grid when filters is provided
 An update to EzEntityGrid inside a test was not wrapped in act(...).
@@ -547,6 +431,28 @@ act(() => {
 
 This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
 
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > DMTE-485 AC-12: mesa com catalogRequiredOnOpen não mostra aviso nem bloqueia o envio
+An update to EzRichText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to Controller inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
 stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > renders a right-pinned column after the other columns, marked with data-pinned="right"
 An update to EzEntityGrid inside a test was not wrapped in act(...).
 
@@ -583,6 +489,9 @@ act(() => {
 
 This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
 
+stderr | src/components/tickets/TicketForm.test.tsx > TicketForm > lets the user add followers via the multi-select
+[tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
+
 stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid > ignores a pinned column id that does not exist in the data without crashing
 An update to EzEntityGrid inside a test was not wrapped in act(...).
 
@@ -607,6 +516,18 @@ act(() => {
 
 This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
 
+ ✓ |web| src/components/tickets/TicketForm.test.tsx (19 tests) 6622ms
+     ✓ renders all core fields  447ms
+     ✓ disables submit buttons while isSubmitting is true  313ms
+     ✓ toggles the schedule date field on and off via the "Agendar Ticket" button  581ms
+     ✓ shows a validation error and blocks submit when title/description/service desk are empty  408ms
+     ✓ submits with saveAndNew: true when "Salvar e criar novo" is clicked  687ms
+     ✓ submits without saveAndNew when the primary "Abrir Ticket" button is clicked  434ms
+     ✓ attaches a file via EzUpload and removes it again via the file item remove button  335ms
+     ✓ filters available requesters down to the selected organization once Cliente is chosen  410ms
+     ✓ lets the user search and attach a parent ticket  310ms
+     ✓ warns and blocks submit when the desk requires attachments  588ms
+     ✓ DMTE-485 AC-12: mesa com catalogRequiredOnOpen não mostra aviso nem bloqueia o envio  476ms
 stderr | src/components/ds/EzEntityGrid.test.tsx > EzEntityGrid grouping > does not render group rows when groupBy is omitted
 An update to EzEntityGrid inside a test was not wrapped in act(...).
 
@@ -836,42 +757,16 @@ act(() => {
 
 This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
 
- ✓ |web| src/components/ds/EzEntityGrid.test.tsx (51 tests) 16168ms
-     ✓ renders a header cell for each column and a row for each data entry  1292ms
-     ✓ sorts rows by column when its header is clicked  745ms
-     ✓ calls onSelectionChange with the selected rows when a row checkbox is clicked  431ms
-     ✓ paginates rows and advances to the next page on click  417ms
-     ✓ expands a group to reveal its leaf rows when its header row is clicked  574ms
-     ✓ expands a group when its header row receives Enter or Space while focused  310ms
-     ✓ applies bg-brand-50 to selected rows when selectable is true and row is checked  317ms
-     ✓ displays explicit record count "1-2 de 3" and page size selector when paginated  1424ms
-     ✓ opens Excel-style column filter popover on funnel click and filters data by distinct values  563ms
-     ✓ clears column filter restoring all rows  1144ms
-     ✓ searches values within filter popover and uses select all  570ms
-     ✓ renders Sankhya sort indicators (green border for asc, red for desc)  673ms
-     ✓ opens column header menu and sorts via menu action  583ms
-     ✓ provides "Todos" and "Filtrados" tabs in the Excel filter popover  307ms
-     ✓ renders AG Grid corner menu and toggles density  332ms
-     ✓ opens Grid Statistics modal and displays numeric metrics  308ms
-     ✓ opens Column Configurator modal and toggles column visibility  544ms
-     ✓ hides column directly via "Ocultar esta Coluna" in column menu  481ms
-     ✓ opens Column Configurator modal from taskbar CONFIGURATOR action  306ms
- ✓ |web| src/pages/VaultPage.test.tsx (21 tests) 17487ms
-     ✓ renders the folder tree and masks every password/username by default (acceptance criterion #1)  345ms
-     ✓ allows ADMIN to delete a credential after confirming  1050ms
-     ✓ hides destructive/management actions for a non-ADMIN role (AGENT)  478ms
-     ✓ copies the username via the reveal endpoint (intent=copy) without ever rendering it  381ms
-     ✓ reveals a row in place when the lock icon is clicked, auditing the reveal server-side  449ms
-     ✓ navigates to /vault/audit when ADMIN clicks "Auditoria"  464ms
-     ✓ selecting a non-root folder shows its header actions and resets page/revealed state  697ms
-     ✓ creates a folder via "Nova pasta" and edits a selected folder's name  3012ms
-     ✓ does not delete the folder when confirm is cancelled, but does when confirmed  836ms
-     ✓ creates a credential via "Nova senha" and edits one without touching blank username/password  3157ms
-     ✓ does not save a new credential with a blank/whitespace-only name, nor without a password  2206ms
-     ✓ hides a previously revealed row again when the lock icon is clicked a second time  397ms
-     ✓ renders pagination when there is more than one page and refetches for the clicked page  551ms
-     ✓ searches credentials by text and resets to page 1  506ms
-     ✓ closes folder and credential modals via "Cancelar" without calling the API  1875ms
+ ✓ |web| src/components/ds/EzEntityGrid.test.tsx (51 tests) 5679ms
+     ✓ renders a header cell for each column and a row for each data entry  433ms
+     ✓ sorts rows by column when its header is clicked  491ms
+     ✓ clears column filter restoring all rows  345ms
+ ✓ |web| src/pages/VaultPage.test.tsx (21 tests) 5928ms
+     ✓ allows ADMIN to delete a credential after confirming  403ms
+     ✓ creates a folder via "Nova pasta" and edits a selected folder's name  893ms
+     ✓ creates a credential via "Nova senha" and edits one without touching blank username/password  1197ms
+     ✓ does not save a new credential with a blank/whitespace-only name, nor without a password  695ms
+     ✓ closes folder and credential modals via "Cancelar" without calling the API  534ms
 stderr | src/components/ds/EzRichText.test.tsx > EzRichText > renders the label and a contenteditable surface tagged with testId
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
@@ -893,28 +788,18 @@ stderr | src/components/ds/EzRichText.test.tsx > EzRichText > disables all toolb
 stderr | src/components/ds/EzRichText.test.tsx > EzRichText > toggles bold/italic/underline/list formatting without throwing when clicked
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
- ✓ |web| src/pages/TicketDetailPage.test.tsx (26 tests) 15020ms
-     ✓ should render ticket details with status, priority and SLA deadlines  1345ms
-     ✓ AC-3: Esc volta para a tela inicial  694ms
-     ✓ sets the browser tab title to "#<protocolo> - <título>" (TiFlux parity) and restores it on unmount  337ms
-     ✓ should render the comment timeline with an internal-note indicator only on internal comments  725ms
-     ✓ should show the comment form and post a new comment  1661ms
-     ✓ should show the isInternal checkbox for agents  824ms
-     ✓ should show the isInternal checkbox for admins  589ms
-     ✓ should show the worklogs section for agents and admins  508ms
-     ✓ starts a TiFlux-style pré-apontamento from the header play on any tab  1502ms
-       ✓ shows the assignment dropdown to agents and allows assigning a ticket  739ms
-       ✓ AC-05: the agent status select lists Aguardando Sankhya right after Aguardando Terceiros and moves the ticket there  574ms
-       ✓ shows an error message (not a silent revert) when the backend rejects an invalid status transition  582ms
-       ✓ shows the "Histórico" section with the audit trail to agents  557ms
-       ✓ shows an empty-state message when there is no audit history yet  408ms
-       ✓ refetches the audit trail after an assignment succeeds  814ms
-       ✓ switches between tabs and shows respective tab panels for agents  722ms
-       ✓ Apontamentos tab activates tab-panel-apontamentos when clicked  637ms
-       ✓ shows a "Voltar" link that navigates back to the ticket list  438ms
 stderr | src/components/ds/EzRichText.test.tsx > EzRichText > prompts for a URL and inserts a link when "Inserir Link" is clicked
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
+stderr | src/pages/TicketsPage.test.tsx > TicketsPage > navigates to /tickets/search when "Busca avançada" is clicked (AC3)
+No routes matched location "/tickets/search" 
+
+ ✓ |web| src/pages/TicketsPage.test.tsx (24 tests) 4445ms
+     ✓ should render ticket list  499ms
+     ✓ defaults non-CLIENT users to the Kanban view and lets them switch to List  447ms
+     ✓ renders pagination controls in List view and navigates between pages  434ms
+     ✓ navigates to the previous page when "Anterior" is clicked  305ms
+     ✓ reflects a search typed in the header back into the URL (bookmarkable/shareable)  664ms
 stderr | src/components/ds/EzRichText.test.tsx > EzRichText > removes the link when the URL prompt is answered with an empty string
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
@@ -960,139 +845,15 @@ stderr | src/components/ds/EzRichText.test.tsx > EzRichText > toggles source-cod
 stderr | src/components/ds/EzRichText.test.tsx > EzRichText > disables the new formatting buttons while in preview mode
 [tiptap warn]: Duplicate extension names found: ['link', 'underline']. This can lead to issues.
 
- ✓ |web| src/components/ds/EzRichText.test.tsx (25 tests) 11308ms
-     ✓ renders the label and a contenteditable surface tagged with testId  937ms
-     ✓ renders the formatting toolbar (bold, italic, underline, lists, link, image)  305ms
-     ✓ toggles preview mode via the toolbar eye button  944ms
-     ✓ renders a custom preview when renderPreview is provided  428ms
-     ✓ toggles bold/italic/underline/list formatting without throwing when clicked  1390ms
-     ✓ prompts for a URL and inserts a link when "Inserir Link" is clicked  478ms
-     ✓ removes the link when the URL prompt is answered with an empty string  391ms
-     ✓ disables toolbar buttons (not just typing) while in preview mode  563ms
-     ✓ toggles strikethrough and blockquote without throwing  527ms
-     ✓ enables undo after a change and disables redo until an undo happens  559ms
-     ✓ toggles highlight without emitting a style attribute (mark-only HTML)  327ms
-     ✓ applies and removes a text color from the color palette dropdown  384ms
-     ✓ applies each text alignment option  637ms
-     ✓ inserts a table and shows row/column controls while inside it  602ms
-     ✓ toggles source-code mode and applies edited raw HTML back to the editor  1464ms
-stderr | src/pages/TicketsPage.test.tsx > TicketsPage > navigates to /tickets/search when "Busca avançada" is clicked (AC3)
-No routes matched location "/tickets/search" 
-
- ✓ |web| src/pages/TicketsPage.test.tsx (24 tests) 9335ms
-     ✓ should render ticket list  1217ms
-     ✓ should show empty state when no tickets  632ms
-     ✓ should render a Kanban card per ticket with protocol, title and status tag (D7)  519ms
-     ✓ defaults non-CLIENT users to the Kanban view and lets them switch to List  1239ms
-     ✓ renders pagination controls in List view and navigates between pages  581ms
-     ✓ disables the "Anterior" button on page 1 and "Próxima" on the last page  626ms
-     ✓ does not render pagination controls when there is only a single page  378ms
-     ✓ navigates to the previous page when "Anterior" is clicked  437ms
-     ✓ RODADA 2: stays at "/" on initial load (no ?view=) and only writes ?view= once the user switches views  524ms
-     ✓ reflects a search typed in the header back into the URL (bookmarkable/shareable)  1076ms
-     ✓ navigates to /tickets/search when "Busca avançada" is clicked (AC3)  357ms
- ✓ |web| src/components/tickets/TicketKanban.test.tsx (36 tests) 7436ms
-       ✓ DMTE-458: board is a snap-scroll container and columns are fluid (no fixed 290px)  439ms
-       ✓ DMTE-490 AC-05: has an Aguardando Sankhya column right after Aguardando Terceiros and groups its tickets there  312ms
-       ✓ lists service desks in the Mesa dropdown and switches to stage-grouped columns on selection, without needing initialServiceDeskId  379ms
-       ✓ clicking an avatar filters the board to that agent's tickets (toggle, multi-select)  418ms
-       ✓ opens "Ordenar", sorts cards by Título asc/desc, and "Limpar" restores the original order  670ms
-       ✓ "Configurações" lets the user group by Responsável instead of Status/Estágio  327ms
-       ✓ RODADA 2 ("Exibir campos", D6c): "Configurações" lets the user toggle optional card fields, persisted like "Agrupar por"  325ms
-stderr | src/components/layout/AppLayout.test.tsx > AppLayout > AC-17: menu retrátil no celular > when the viewport grows to the desktop width > closes the drawer, so the fixed sidebar and the drawer never coexist
-An update to AppLayout inside a test was not wrapped in act(...).
-
-When testing, code that causes React state updates should be wrapped into act(...):
-
-act(() => {
-  /* fire events that update state */
-});
-/* assert on the output */
-
-This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
-
- ✓ |web| src/components/layout/AppLayout.test.tsx (17 tests) 7495ms
-       ✓ has an "Abrir menu" button in the header, closed by default  319ms
-       ✓ opens the navigation as a named dialog and flips aria-expanded  1158ms
-       ✓ does not offer the collapse toggle inside the drawer  703ms
-       ✓ closes with Escape  563ms
-       ✓ closes when the backdrop is tapped  453ms
-       ✓ returns focus to the "Abrir menu" button after closing with Escape  425ms
-       ✓ has a visible "Fechar menu" button inside the dialog that closes it  425ms
-       ✓ locks the page scroll while the menu is open and releases it on close  361ms
-         ✓ closes the drawer, so the fixed sidebar and the drawer never coexist  373ms
-       ✓ closes after choosing a destination, and shows that page  681ms
-       ✓ opens a tab for the chosen option and focuses it again instead of duplicating  522ms
-       ✓ does not open an extra tab for "Tickets" (fixed tab); tickets keep opening their own tabs  537ms
- ✓ |web| src/pages/SchedulePage.test.tsx (11 tests) 6099ms
-     ✓ renders the header and navigation controls  626ms
-     ✓ renders appointments list on the current week  557ms
-     ✓ opens create modal when clicking "Novo Agendamento"  810ms
-     ✓ filters appointments when changing type filter  474ms
-     ✓ switches to Dia view and shows a single-day grid  788ms
-     ✓ switches to Mês view and shows the month grid with appointment chips  520ms
-     ✓ switches to Lista view and shows a chronological list of appointments  580ms
-     ✓ shows an empty state in Lista view when there are no appointments  349ms
-     ✓ navigates to the previous and next week, and back to today  1131ms
- ✓ |web| src/pages/DashboardPage.test.tsx (17 tests) 5435ms
-     ✓ renders the greeting (TiFlux "Bom te ver de volta" copy) and the four plain-text tabs  451ms
-     ✓ shows the "Modo TV" control and a working "Ações" menu with Novo Ticket  751ms
-     ✓ renders the Resumo de tickets KPI row from ticketSummary  517ms
-     ✓ renders each "Resumo de tickets" KPI as a link to the matching filtered ticket list  657ms
-     ✓ renders a real pie chart (not a donut) for Tickets em andamento and switches grouping via plain tabs  486ms
-     ✓ switches to Chats tab and renders chat KPI rows, departments and agents tables  349ms
- ✓ |web| src/components/tickets/TicketList.test.tsx (21 tests) 9658ms
-     ✓ groups by the chosen field, with a collapsible group row showing a count (AC6)  479ms
-     ✓ AC-09: the group header exposes aria-expanded and flips it when toggled  531ms
-     ✓ toggles an optional column on via "Exibir colunas" and it persists after remount (D5 persistence)  797ms
-     ✓ clicking a sortable column header calls onSortChange, toggling direction on repeated clicks  351ms
-       ✓ AC-02: with an empty list, the column menu lists every column and a toggle persists for the next non-empty render  543ms
-       ✓ AC-04: offers the four new columns hidden by default and shows their values (or "—") once enabled  1989ms
-       ✓ AC-06: ADMIN sees the phone and extension columns in the menu  628ms
-       ✓ AC-06: AGENT_MASTER sees the phone and extension columns in the menu  846ms
-       ✓ AC-06: AGENT sees the phone and extension columns in the menu  605ms
-       ✓ AC-06: CLIENT does not get the phone and extension columns, and keeps the others  894ms
-       ✓ AC-06: CLIENT_MASTER does not get the phone and extension columns, and keeps the others  671ms
- ✓ |web| src/components/contracts/CommercialReport.test.tsx (17 tests) 6406ms
-     ✓ never presents incomplete costs as profit and labels project saldo as partial  499ms
-     ✓ shows an error alert when the commercial report query fails  580ms
-     ✓ falls back to the contract id when a contract has no name  837ms
-     ✓ lists agents as technician options for the cost-rate form  443ms
-     ✓ rejects submission without a selected technician, due date or cost  454ms
-     ✓ rejects a negative hourly cost  617ms
-     ✓ rejects a non-numeric hourly cost  561ms
-     ✓ rejects an hourly cost with more than two decimal places  578ms
-     ✓ saves a valid hourly cost rate and resets the form on success  512ms
- ✓ |web| src/pages/TicketAdvancedSearchPage.test.tsx (10 tests) 9483ms
-     ✓ renders every D4 field for AGENT/ADMIN  690ms
-     ✓ hides Cliente, Solicitante and Atendente for CLIENT (RBAC §2.5)  325ms
-     ✓ RODADA 2: "Status" has Abertos/Fechados shortcuts that map to notClosed/closedOnly, not a literal status (D4)  903ms
-     ✓ RODADA 2: "Fechados" shortcut maps to closedOnly  559ms
-     ✓ AC-12: the "Filtros adicionais" checkboxes map to mine/unassigned/paused/overdue and "Limpar" unchecks them  3828ms
-     ✓ AC-12: "Filtros adicionais" is a button that expands and collapses the extra filters (aria-expanded)  771ms
-     ✓ keeps Estágio disabled until a Mesa is chosen  954ms
-     ✓ "Buscar" navigates to "/" with the chosen filters in the query string  633ms
-     ✓ "Limpar" resets every field back to empty  562ms
-stderr | src/components/ds/EzSimpleCrud.test.tsx > EzSimpleCrud > renders the grid by default with the IN_MEMORY data
-An update to EzEntityGrid inside a test was not wrapped in act(...).
-
-When testing, code that causes React state updates should be wrapped into act(...):
-
-act(() => {
-  /* fire events that update state */
-});
-/* assert on the output */
-
-This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
-
- ✓ |web| src/components/ds/EzSimpleCrud.test.tsx (8 tests) 8513ms
-     ✓ renders the grid by default with the IN_MEMORY data  692ms
-     ✓ clicking INSERT shows an empty form  968ms
-     ✓ clicking a grid row shows the form filled with that item  979ms
-     ✓ SAVE in IN_MEMORY mode updates the dataset and returns to the grid  1911ms
-     ✓ CANCEL returns to the grid without changing the dataset  1576ms
-     ✓ SERVER mode calls onFetch on mount and shows a loading state  603ms
-     ✓ SERVER mode SAVE calls onSave and adds the returned item to the grid  1503ms
+ ✓ |web| src/components/ds/EzRichText.test.tsx (25 tests) 3869ms
+     ✓ toggles bold/italic/underline/list formatting without throwing when clicked  413ms
+     ✓ toggles source-code mode and applies edited raw HTML back to the editor  723ms
+ ✓ |web| src/pages/TicketDetailPage.test.tsx (26 tests) 4097ms
+     ✓ should render ticket details with status, priority and SLA deadlines  340ms
+     ✓ should show the comment form and post a new comment  472ms
+     ✓ starts a TiFlux-style pré-apontamento from the header play on any tab  343ms
+ ✓ |web| src/components/tickets/TicketKanban.test.tsx (36 tests) 3111ms
+       ✓ opens "Ordenar", sorts cards by Título asc/desc, and "Limpar" restores the original order  321ms
 stderr | src/pages/MyAccountPage.test.tsx > MyAccountPage > renders tabs for Minha Conta and Segurança, defaulting to Minha Conta
 An update to ProfileTab inside a test was not wrapped in act(...).
 
@@ -1105,58 +866,48 @@ act(() => {
 
 This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
 
- ✓ |web| src/components/layout/Sidebar.test.tsx (15 tests) 8196ms
-     ✓ shows the CLIENT-specific menu without internal/agent-only modules  810ms
-     ✓ shows the full ADMIN menu including Clientes and Mesa, in the fixed order  1049ms
-     ✓ shows the AGENT_MASTER menu (vault/contracts/reports, no Clientes/Mesa)  406ms
-     ✓ always renders the "Novo Ticket" action button as a highlighted button, not a nav link  831ms
-     ✓ renders Chats as a disabled "Em breve" item that does not navigate (Issue #45 not shipped yet)  820ms
-     ✓ navigates to /schedule when Agenda is clicked  306ms
-     ✓ navigates to /tickets/new when "Novo Ticket" is clicked  571ms
-     ✓ navigates to an enabled item route when clicked  564ms
-     ✓ toggles collapsed state when "Esconder"/"Expandir" is clicked  1691ms
- ✓ |web| src/pages/MyAccountPage.test.tsx (9 tests) 7810ms
-     ✓ fetches the current profile via GET /auth/me and prefills name and email  740ms
-     ✓ renders tabs for Minha Conta and Segurança, defaulting to Minha Conta  639ms
-       ✓ submits updated name and email via PATCH /auth/me  1483ms
-       ✓ shows an error when the email is already in use (409)  777ms
-       ✓ renders the change password form when the tab is selected  498ms
-       ✓ submits the change password request and shows a success message  1094ms
-       ✓ shows an error message when the current password is wrong (401)  921ms
-       ✓ creates a token, shows the plaintext value once, then lists it as metadata-only  1134ms
-       ✓ revokes a token after confirmation  500ms
- ✓ |web| src/components/ds/EzSimpleFormConfig.test.tsx (8 tests) 7179ms
-     ✓ renders the list of available fields with the correct visible state  1683ms
-     ✓ calls onChange with the updated config when toggling field visibility  965ms
-     ✓ calls onChange with the updated tab when changing a field tab  589ms
-     ✓ calls onSave when clicking the save button  605ms
-     ✓ calls onCancel when clicking the cancel button  576ms
-     ✓ defaults to a single "Geral" tab when tabs is not provided or empty  304ms
-     ✓ allows creating and assigning a new tab to a field  2174ms
- ✓ |web| src/pages/ScheduledJobsPage.test.tsx (7 tests) 5950ms
-     ✓ AC-16: lista a tarefa com o cron atual, a próxima e a última execução  1573ms
-     ✓ AC-18: a tarefa do fechamento automático aparece com nome em português  348ms
-     ✓ AC-16: falha ao carregar não aparece como lista vazia  703ms
-     ✓ AC-15: editar o cron e salvar envia só o cron daquele tipo  2558ms
-     ✓ AC-15: cron recusado pelo servidor mostra a mensagem dele  303ms
- ✓ |web| src/components/tickets/TicketFormMode.test.tsx (6 tests) 6156ms
-     ✓ renders ticket header, back button, and tabs  1183ms
-     ✓ DMTE-490 AC-06: status select offers every status with the same labels and order as the ticket detail  377ms
-     ✓ AC-3: Esc volta para a grade  337ms
-     ✓ allows editing title, status, priority, and saving  3567ms
-     ✓ switches tabs and displays SLA details  467ms
- ✓ |web| src/pages/TechnicalGroupsPage.test.tsx (6 tests) 6344ms
-     ✓ lists technical groups from GET /technical-groups  1090ms
-     ✓ opens a group detail with Informações, Equipe and Acessos tabs  1695ms
-     ✓ adds a member on the Equipe tab via POST /technical-groups/:id/members/:userId  1080ms
-     ✓ removes a member on the Equipe tab via DELETE /technical-groups/:id/members/:userId  842ms
-     ✓ adds an organization access on the Acessos tab via POST .../organizations/:id  810ms
-     ✓ adds a service desk access on the Acessos tab via POST .../service-desks/:id  781ms
- ✓ |web| src/pages/RegisterPage.test.tsx (4 tests) 5444ms
-     ✓ should render register form  1175ms
-     ✓ should register and log in the user on success (happy path)  1922ms
-     ✓ should show a generic/conflict error when registration itself fails (409)  1135ms
-     ✓ should show a distinguishing message and a path to /login when register succeeds but auto-login fails  1171ms
+stderr | src/components/layout/AppLayout.test.tsx > AppLayout > AC-17: menu retrátil no celular > when the viewport grows to the desktop width > closes the drawer, so the fixed sidebar and the drawer never coexist
+An update to AppLayout inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/pages/MyAccountPage.test.tsx (9 tests) 1667ms
+       ✓ submits updated name and email via PATCH /auth/me  368ms
+ ✓ |web| src/components/layout/AppLayout.test.tsx (17 tests) 2829ms
+       ✓ opens the navigation as a named dialog and flips aria-expanded  452ms
+ ✓ |web| src/pages/TicketAdvancedSearchPage.test.tsx (10 tests) 2522ms
+     ✓ renders every D4 field for AGENT/ADMIN  417ms
+     ✓ RODADA 2: "Status" has Abertos/Fechados shortcuts that map to notClosed/closedOnly, not a literal status (D4)  302ms
+     ✓ AC-12: the "Filtros adicionais" checkboxes map to mine/unassigned/paused/overdue and "Limpar" unchecks them  790ms
+ ✓ |web| src/pages/DashboardPage.test.tsx (17 tests) 2150ms
+     ✓ shows the "Modo TV" control and a working "Ações" menu with Novo Ticket  340ms
+stderr | src/components/ds/EzSimpleCrud.test.tsx > EzSimpleCrud > renders the grid by default with the IN_MEMORY data
+An update to EzEntityGrid inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ |web| src/pages/SchedulePage.test.tsx (11 tests) 2443ms
+     ✓ renders the header and navigation controls  355ms
+     ✓ opens create modal when clicking "Novo Agendamento"  353ms
+     ✓ navigates to the previous and next week, and back to today  320ms
+ ✓ |web| src/components/ds/EzSimpleCrud.test.tsx (8 tests) 2034ms
+     ✓ renders the grid by default with the IN_MEMORY data  420ms
+     ✓ SERVER mode SAVE calls onSave and adds the returned item to the grid  501ms
+ ✓ |web| src/components/ds/EzSelect.test.tsx (19 tests) 1310ms
 stderr | src/components/schedule/AppointmentModal.test.tsx > compromisso que ignora a regra de apontamento (DMTE-462 T2) > AC-12: com a permissão, o campo aparece e a marca vai no que é salvo
 An update to AppointmentModal inside a test was not wrapped in act(...).
 
@@ -1221,53 +972,107 @@ act(() => {
 
 This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
 
- ✓ |web| src/components/schedule/AppointmentModal.test.tsx (10 tests) 11121ms
-     ✓ renders creation mode with initial fields  751ms
-     ✓ validates required title before saving  1197ms
-     ✓ validates that end time is after start time  594ms
-     ✓ submits a new appointment successfully  623ms
-     ✓ renders edit mode with existing appointment and allows delete  1093ms
-     ✓ shows the linked ticket and requester, with an option to unlink  1166ms
-     ✓ opens the ticket search modal with Cliente/Mesa filters and links the selected ticket  4318ms
-     ✓ AC-12: com a permissão, o campo aparece e a marca vai no que é salvo  935ms
-     ✓ AC-12: sem a permissão, o campo não aparece  318ms
- ✓ |web| src/components/tickets/TicketKanbanCard.test.tsx (20 tests) 2963ms
-     ✓ is a single link for the whole card, with the protocol highlighted and an accessible label  1037ms
-     ✓ has a menu with only "Abrir ticket" and "Abrir em nova aba interna" (no apontamento/play)  377ms
- ✓ |web| src/components/BusinessHoursEditor.test.tsx (9 tests) 5327ms
-     ✓ shows a 24/7 message when no business hours are configured  951ms
-     ✓ adds a new window and saves the full config via PUT  1784ms
-     ✓ adds a holiday and includes it in the save payload  663ms
-     ✓ applies the same Mon-Fri window in one click via the shortcut  793ms
-     ✓ imports national holidays for a chosen year and adds them as draft rows  414ms
- ✓ |web| src/pages/ReportsPage.test.tsx (9 tests) 2048ms
-     ✓ shows the workload tab by default with hours formatted as Xh Ym  477ms
-     ✓ shows the Faturamento tab for ADMIN and switches content on click  557ms
-     ✓ DMTE-479 AC-03: Resultado gerencial aberto some e para de consultar quando a permissão é revogada  505ms
- ✓ |web| src/components/knowledge/KnowledgeFoldersGrid.test.tsx (6 tests) 2710ms
-     ✓ renders folders fetched from the API with their article count  342ms
-     ✓ calls onOpenFolder when a folder card is clicked  410ms
-     ✓ allows a canAuthor user to create a new folder  1464ms
- ✓ |web| src/pages/PermissionGroupsPage.test.tsx (4 tests) 2566ms
-     ✓ lists permission groups from GET /permission-groups  561ms
-     ✓ renders the permission matrix grouped by category from the catalog  909ms
-     ✓ "Selecionar todos" checks every permission in that category only, and Save persists the result  822ms
- ✓ |web| src/components/ds/EzSelect.test.tsx (19 tests) 2998ms
-     ✓ AC-08: shows the selected option label on the closed control, with the list closed  373ms
-     ✓ AC-08: choosing an option by click calls onChange with the new value, closes the list and returns focus  389ms
- ✓ |web| src/components/ServiceDeskEditor.test.tsx (7 tests) 2071ms
-     ✓ enters edit mode and lists every agent with checkboxes pre-checked for assigned ones  455ms
-     ✓ toggles an agent checkbox and cancels without saving  360ms
-     ✓ saves the selected agent ids via PATCH and returns to read-only mode  473ms
-     ✓ unchecking an already-assigned agent removes it from the saved list  355ms
- ✓ |web| src/pages/DocsPage.test.tsx (5 tests) 2756ms
-     ✓ renders the header and the "Visão geral" section by default  596ms
-     ✓ renders every documented module section (tickets, relatórios, cofre, contratos, conhecimento)  418ms
-     ✓ highlights the clicked sidebar nav item and scrolls to the matching section  1166ms
-     ✓ jumps to the API section when the in-text FAQ link is clicked  365ms
- ✓ |web| src/components/tickets/TicketAttachments.test.tsx (7 tests) 2126ms
-     ✓ shows a loading state while fetching attachments  623ms
-     ✓ uploads the selected file via POST and resets the input  308ms
+ ✓ |web| src/components/schedule/AppointmentModal.test.tsx (10 tests) 1569ms
+     ✓ opens the ticket search modal with Cliente/Mesa filters and links the selected ticket  452ms
+ ✓ |web| src/components/BusinessHoursEditor.test.tsx (9 tests) 1404ms
+     ✓ adds a new window and saves the full config via PUT  505ms
+ ✓ |web| src/components/contracts/CommercialReport.test.tsx (17 tests) 1188ms
+ ✓ |web| src/components/layout/Sidebar.test.tsx (15 tests) 1454ms
+ ✓ |web| src/components/tickets/TicketCsat.test.tsx (9 tests) 1149ms
+     ✓ submits a star rating and optional comment via PATCH  401ms
+ ✓ |web| src/components/tickets/TicketKanbanCard.test.tsx (20 tests) 699ms
+ ✓ |web| src/components/tickets/TicketFormMode.test.tsx (6 tests) 2826ms
+     ✓ renders ticket header, back button, and tabs  606ms
+     ✓ allows editing title, status, priority, and saving  1614ms
+ ✓ |web| src/pages/TechnicalGroupsPage.test.tsx (6 tests) 2638ms
+     ✓ opens a group detail with Informações, Equipe and Acessos tabs  403ms
+     ✓ adds a member on the Equipe tab via POST /technical-groups/:id/members/:userId  1093ms
+     ✓ removes a member on the Equipe tab via DELETE /technical-groups/:id/members/:userId  353ms
+     ✓ adds a service desk access on the Acessos tab via POST .../service-desks/:id  309ms
+ ✓ |web| src/pages/RegisterPage.test.tsx (4 tests) 1821ms
+     ✓ should render register form  338ms
+     ✓ should register and log in the user on success (happy path)  663ms
+     ✓ should show a generic/conflict error when registration itself fails (409)  368ms
+     ✓ should show a distinguishing message and a path to /login when register succeeds but auto-login fails  433ms
+ ✓ |web| src/hooks/useEscapeLayer.test.tsx (7 tests) 534ms
+ ✓ |web| src/components/tickets/TicketsHeader.test.tsx (6 tests) 1124ms
+     ✓ debounces typed search text before calling onSearchChange  646ms
+ ✓ |web| src/components/ds/EzSimpleFormConfig.test.tsx (8 tests) 1123ms
+     ✓ renders the list of available fields with the correct visible state  333ms
+ ✓ |web| src/hooks/useActivityTimer.test.ts (11 tests) 977ms
+ ✓ |web| src/components/ds/EzSplitButton.test.tsx (4 tests) 537ms
+ ✓ |web| src/pages/PermissionGroupsPage.test.tsx (4 tests) 1401ms
+     ✓ renders the permission matrix grouped by category from the catalog  508ms
+     ✓ "Selecionar todos" checks every permission in that category only, and Save persists the result  437ms
+     ✓ adds a user link via POST /permission-groups/:id/users/:userId  303ms
+ ✓ |web| src/components/tickets/TicketChecklist.test.tsx (6 tests) 1268ms
+     ✓ adds a new pending item via the inline form  617ms
+ ✓ |web| src/pages/LoginPage.test.tsx (4 tests) 850ms
+ ✓ |web| src/components/ds/EzDataExporter.test.tsx (9 tests) 938ms
+ ✓ |web| src/components/contracts/CommercialContract.test.tsx (4 tests) 861ms
+     ✓ approves a monthly contract with explicit zero allowance and zero fee  566ms
+ ✓ |web| src/pages/DocsPage.test.tsx (5 tests) 865ms
+ ✓ |web| src/components/tickets/TicketAttachments.test.tsx (7 tests) 887ms
+ ✓ |web| src/App.test.tsx (4 tests) 364ms
+ ✓ |web| src/pages/VaultAuditPage.test.tsx (4 tests) 705ms
+     ✓ queries the audit log with the selected filters once "Exibir" is clicked  307ms
+ ✓ |web| src/components/ds/EzTree.test.tsx (4 tests) 271ms
+ ✓ |web| src/components/knowledge/KnowledgeFoldersGrid.test.tsx (6 tests) 1136ms
+     ✓ allows a canAuthor user to create a new folder  599ms
+ ✓ |web| src/components/ds/EzFilterBar.test.tsx (6 tests) 2314ms
+     ✓ opens the quick-edit popover with clear/pin/remove options when a chip is clicked  735ms
+     ✓ calls onFilterChange with the updated filter when removing it from the popover  325ms
+     ✓ calls onFilterChange with pinned toggled when "Fixar" is clicked  540ms
+ ✓ |web| src/pages/ReportsPage.test.tsx (9 tests) 2003ms
+     ✓ shows the workload tab by default with hours formatted as Xh Ym  587ms
+     ✓ shows the Faturamento tab for ADMIN and switches content on click  405ms
+ ✓ |web| src/components/ds/EzSegmented.test.tsx (5 tests) 484ms
+ ✓ |web| src/components/ds/EzPopover.test.tsx (6 tests) 388ms
+ ✓ |web| src/components/ds/EzDateTimeInput.test.tsx (3 tests) 223ms
+ ✓ |web| src/pages/ScheduledJobsPage.test.tsx (7 tests) 1145ms
+     ✓ AC-15: editar o cron e salvar envia só o cron daquele tipo  408ms
+ ✓ |web| src/components/ds/EzPrintSelector.test.tsx (7 tests) 842ms
+ ✓ |web| src/components/contracts/CommercialTicketContext.test.tsx (6 tests) 771ms
+ ✓ |web| src/components/ServiceDeskEditor.test.tsx (7 tests) 811ms
+ ✓ |web| src/components/layout/UserMenu.test.tsx (3 tests) 438ms
+ ✓ |web| src/components/ds/EzAlertList.test.tsx (4 tests) 342ms
+ ✓ |web| src/components/ds/EzMultiSelectionList.test.tsx (4 tests) 259ms
+ ✓ |web| src/components/MesaStagesEditor.test.tsx (2 tests) 712ms
+     ✓ lists stages and creates a new one  376ms
+     ✓ edits name and allowed transitions  330ms
+ ✓ |web| src/pages/UsersPage.test.tsx (4 tests) 749ms
+ ✓ |web| src/components/ds/EzEntityList.test.tsx (5 tests) 468ms
+ ✓ |web| src/pages/TicketAdvancedSearchPage.collapsible.test.tsx (1 test) 519ms
+     ✓ a checkbox marked before collapsing is still checked after reopening (the state lives in the form)  514ms
+ ✓ |web| src/components/knowledge/KnowledgeArticleAttachments.test.tsx (8 tests) 486ms
+ ✓ |web| src/pages/SettingsPage.test.tsx (9 tests) 579ms
+ ✓ |web| src/components/ds/EzFilterDrawer.test.tsx (5 tests) 461ms
+ ✓ |web| src/components/ds/EzClassicComboBox.test.tsx (4 tests) 355ms
+ ✓ |web| src/components/ds/EzEntityForm.test.tsx (10 tests) 488ms
+ ✓ |web| src/components/tickets/TicketParent.test.tsx (5 tests) 455ms
+ ✓ |web| src/hooks/useEscapeLayer.fields.test.tsx (4 tests) 286ms
+ ✓ |web| src/components/ds/EzSidebar.test.tsx (10 tests) 245ms
+ ✓ |web| src/components/ds/EzMultiSelect.test.tsx (9 tests) 382ms
+ ✓ |web| src/components/contracts/ContractForm.test.tsx (3 tests) 519ms
+     ✓ preserves exact stored dates during an unrelated edit and sends minutes without legacy fractional hours  335ms
+ ✓ |web| src/pages/PublicCsatPage.test.tsx (5 tests) 463ms
+ ✓ |web| src/components/ds/EzTaskbar.test.tsx (7 tests) 349ms
+ ✓ |web| src/components/schedule/CompromissoDetailModal.test.tsx (4 tests) 343ms
+ ✓ |web| src/hooks/useEscapeLayer.revert.test.tsx (4 tests) 352ms
+ ✓ |web| src/components/ds/EzAdvancedSearch.test.tsx (9 tests) 475ms
+ ✓ |web| src/components/ds/EzDialog.test.tsx (3 tests) 91ms
+ ✓ |web| src/components/ds/EzTextArea.test.tsx (5 tests) 226ms
+ ✓ |web| src/contexts/TabsContext.test.tsx (6 tests) 496ms
+ ✓ |web| src/components/ds/EzDropdown.test.tsx (8 tests) 430ms
+ ✓ |web| src/components/ds/EzSearch.test.tsx (8 tests) 436ms
+ ✓ |web| src/components/ds/EzTextEdit.test.tsx (4 tests) 445ms
+ ✓ |web| src/components/ds/EzComboBox.test.tsx (9 tests) 423ms
+ ✓ |web| src/components/ds/EzEntityToolbar.test.tsx (4 tests) 313ms
+ ✓ |web| src/components/ds/EzEntityScreenConfigModal.test.tsx (4 tests) 338ms
+ ✓ |web| src/components/ds/EzClassicInput.test.tsx (5 tests) 235ms
+ ✓ |web| src/components/ds/EzEmptyCard.test.tsx (3 tests) 101ms
+ ✓ |web| src/components/tickets/TicketActiveFilters.test.tsx (4 tests) 220ms
+ ✓ |web| src/components/layout/TabBar.test.tsx (5 tests) 421ms
 stderr | src/components/ds/EzLayoutFormConfig.test.tsx > EzLayoutFormConfig > calls onChange with the correct value when clicking the other option
 An update to EzLayoutFormConfig inside a test was not wrapped in act(...).
 
@@ -1292,142 +1097,12 @@ act(() => {
 
 This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
 
- ✓ |web| src/components/ds/EzLayoutFormConfig.test.tsx (6 tests) 1507ms
-     ✓ renders with the correct option selected according to defaultLayout  621ms
- ✓ |web| src/components/layout/TabBar.test.tsx (5 tests) 1494ms
-     ✓ renders the fixed Tickets tab without a close button  348ms
-     ✓ clicking a tab navigates to its path  396ms
-     ✓ closes a closable tab via its close button without navigating the still-active tab  426ms
- ✓ |web| src/components/tickets/TicketCsat.test.tsx (9 tests) 3622ms
-     ✓ shows the rating form for the requester when the ticket is RESOLVED and unrated  848ms
-     ✓ submits a star rating and optional comment via PATCH  1586ms
-     ✓ AC-12: the star rating is a named group whose buttons have distinct names and expose the chosen score  538ms
- ✓ |web| src/components/contracts/CommercialContract.test.tsx (4 tests) 2577ms
-     ✓ approves a monthly contract with explicit zero allowance and zero fee  1411ms
-     ✓ blocks approval without explicit desk coverage and commercial terms  441ms
-     ✓ saves fixed-project scope, total estimate and explicit desks without a monthly allowance  654ms
- ✓ |web| src/components/ds/EzFilterDrawer.test.tsx (5 tests) 1884ms
-     ✓ calls onClose when close button is clicked  433ms
-     ✓ supports saving, applying, and deleting saved filters (Sankhya parity)  907ms
- ✓ |web| src/contexts/TabsContext.test.tsx (6 tests) 1508ms
-     ✓ opening a path creates a new tab and navigates to it  482ms
- ✓ |web| src/components/MesaStagesEditor.test.tsx (2 tests) 2878ms
-     ✓ lists stages and creates a new one  1506ms
-     ✓ edits name and allowed transitions  1345ms
- ✓ |web| src/components/ds/EzDataExporter.test.tsx (9 tests) 2337ms
-     ✓ selects a format by clicking its option  628ms
-     ✓ calls onExport with the selected format and scope when confirming  685ms
-     ✓ shows a loading state while an async export is running, then success  302ms
- ✓ |web| src/pages/VaultAuditPage.test.tsx (4 tests) 2153ms
-     ✓ shows the fixed IP/horário notice and the 4 filters, without querying the audit log yet  327ms
-     ✓ queries the audit log with the selected filters once "Exibir" is clicked  1185ms
-     ✓ shows an empty state when no audit entries match the filters  337ms
- ✓ |web| src/components/contracts/CommercialTicketContext.test.tsx (6 tests) 2862ms
-     ✓ renders nothing while the ticket query is still pending  809ms
-     ✓ lets an admin pick an organization and regularizes the ticket  960ms
-     ✓ ignores a form submission without a chosen organization  488ms
-     ✓ shows an error message when regularization fails  395ms
- ✓ |web| src/components/tickets/TicketChecklist.test.tsx (6 tests) 4747ms
-     ✓ shows the empty state with a button to create the first checklist  1264ms
-     ✓ renders the first checklist with its items, marking completed ones with strike-through  715ms
-     ✓ toggles an item completion via its checkbox  393ms
-     ✓ deletes an item when its trash button is clicked  544ms
-     ✓ adds a new pending item via the inline form  1361ms
-     ✓ keeps the submit button disabled when the input is empty  348ms
- ✓ |web| src/pages/LoginPage.test.tsx (4 tests) 2535ms
-     ✓ should render login form  718ms
-     ✓ should show validation errors when submitted empty  697ms
-     ✓ should call login on submit and store the token  523ms
-     ✓ should show an error message on invalid credentials  595ms
- ✓ |web| src/hooks/useEscapeLayer.baseline.test.tsx (3 tests) 1105ms
-     ✓ campo com autoFocus no mesmo commit da camada (como no VaultPage) também volta ao valor original  482ms
-     ✓ valor já confirmado (evento change) vira o novo valor-base  408ms
- ✓ |web| src/components/ds/EzEntityList.test.tsx (5 tests) 2037ms
-     ✓ renders items with the correct checked state  383ms
-     ✓ calls onToggle with the correct id when a checkbox is clicked  421ms
-     ✓ calls onSearch when typing in the search field (async search mode)  412ms
-     ✓ filters the list locally by label when onSearch is not provided  506ms
- ✓ |web| src/components/ds/EzFilterBar.test.tsx (6 tests) 2203ms
-     ✓ opens the quick-edit popover with clear/pin/remove options when a chip is clicked  650ms
-     ✓ calls onFilterChange with the updated filter when removing it from the popover  436ms
-     ✓ calls onApplyAll with the full updated list when toggling a checkbox and clicking "Aplicar"  465ms
- ✓ |web| src/components/ds/EzComboBox.test.tsx (9 tests) 1553ms
-     ✓ renders correctly with options  697ms
-     ✓ DMTE-490 AC-11: renders through the EzSelect listbox, keeping the children <option> API  500ms
- ✓ |web| src/pages/TicketAdvancedSearchPage.collapsible.test.tsx (1 test) 2012ms
-     ✓ a checkbox marked before collapsing is still checked after reopening (the state lives in the form)  2004ms
- ✓ |web| src/components/ds/EzActionsButton.test.tsx (4 tests) 667ms
- ✓ |web| src/pages/SettingsPage.test.tsx (9 tests) 1597ms
-     ✓ always shows Minha conta inside the Usuários submenu, regardless of permissions  482ms
-     ✓ shows every Usuários submenu item for an ADMIN even with no PermissionGroup linked  333ms
- ✓ |web| src/pages/PublicCsatPage.test.tsx (5 tests) 1566ms
-     ✓ shows the ticket summary and 5 stars pre-selected  541ms
-     ✓ submits the chosen score+comment only when Confirmar is clicked  712ms
- ✓ |web| src/components/tickets/TicketParent.test.tsx (5 tests) 1575ms
-     ✓ shows the "not linked" prompt for an unlinked, childless ticket (ADMIN)  346ms
-     ✓ shows the parent ticket card and allows unlinking when ticket is a child  370ms
-     ✓ switches to edit mode and submits a parent protocol to link  630ms
- ✓ |web| src/components/ds/EzEntityForm.test.tsx (10 tests) 1807ms
-     ✓ renders a field for each type declared in the schema  775ms
- ✓ |web| src/hooks/useEscapeLayer.revert.test.tsx (4 tests) 1061ms
-     ✓ campo que grava no blur (padrão da tela Clientes) não grava o texto digitado  635ms
- ✓ |web| src/components/ds/EzPrintSelector.test.tsx (7 tests) 2085ms
-     ✓ renders every option as a selectable radio item  766ms
-     ✓ calls onPrint with the selected option id and remember=false by default  400ms
-     ✓ calls onPrint with remember=true when the "usar sempre esta seleção" checkbox is checked  513ms
- ✓ |web| src/components/ds/EzEntityScreenConfigModal.test.tsx (4 tests) 1172ms
-     ✓ renders grid tab with columns and density selector by default  332ms
-     ✓ toggles column visibility when checkbox clicked  327ms
-     ✓ switches to form layout tab and changes form layout  363ms
- ✓ |web| src/App.test.tsx (4 tests) 1095ms
-     ✓ redirects unauthenticated users to the login page  440ms
- ✓ |web| src/hooks/useEscapeLayer.test.tsx (7 tests) 834ms
-     ✓ AC-4: Esc em campo em edição só cancela a edição e não fecha o modal  370ms
- ✓ |web| src/pages/UsersPage.test.tsx (4 tests) 1154ms
-     ✓ lists users paginated from GET /users with name, groups and status columns  357ms
-     ✓ searches by typing in the search box, sending q to GET /users  302ms
-     ✓ renders Perfil and Segurança tabs in the detail view  302ms
- ✓ |web| src/components/tickets/TicketsHeader.test.tsx (6 tests) 2090ms
-     ✓ shows "Tickets" as the title, in that position, with Lista/Kanban, Buscar and Busca avançada (AC2)  573ms
-     ✓ debounces typed search text before calling onSearchChange  921ms
- ✓ |web| src/components/ds/EzTagInput.test.tsx (4 tests) 790ms
-     ✓ adds a new tag when typing text and pressing Enter  392ms
- ✓ |web| src/components/ds/EzSearch.test.tsx (8 tests) 1166ms
- ✓ |web| src/components/ds/EzDropdown.test.tsx (8 tests) 1037ms
- ✓ |web| src/components/ds/EzTextEdit.test.tsx (4 tests) 1210ms
-     ✓ switches to an input on click and saves on Enter  656ms
-     ✓ saves on blur as well  328ms
- ✓ |web| src/components/ds/EzSegmented.test.tsx (5 tests) 698ms
-     ✓ renders the options as buttons inside a named group  368ms
- ✓ |web| src/hooks/useEscapeLayer.review.test.tsx (4 tests) 884ms
-     ✓ "Voltar" de tela ignora Esc dentro de campo de texto  389ms
- ✓ |web| src/components/knowledge/KnowledgeArticleAttachments.test.tsx (8 tests) 1794ms
-     ✓ uploads a file and invalidates the articles query on success  409ms
-     ✓ shows an error mentioning the 25MB limit when upload fails  375ms
- ✓ |web| src/components/ds/EzClassicComboBox.test.tsx (4 tests) 2343ms
-     ✓ renders the label and all options  1520ms
-     ✓ fires onChange when a different option is selected  692ms
- ✓ |web| src/hooks/useActivityTimer.test.ts (11 tests) 1201ms
- ✓ |web| src/components/contracts/ContractForm.test.tsx (3 tests) 1802ms
-     ✓ preserves exact stored dates during an unrelated edit and sends minutes without legacy fractional hours  1065ms
-     ✓ creates a half-hour allowance and full Brasília day boundaries  651ms
- ✓ |web| src/components/ds/EzTaskbar.test.tsx (7 tests) 1230ms
-     ✓ renders a button for each entry in the buttons prop  375ms
- ✓ |web| src/components/ds/EzMultiSelect.test.tsx (9 tests) 1371ms
-     ✓ shows options when clicked/focused  337ms
- ✓ |web| src/components/layout/UserMenu.test.tsx (3 tests) 1078ms
-     ✓ opens the dropdown with Minha Conta and Sair when clicked, and navigates to /my-account  657ms
- ✓ |web| src/components/schedule/CompromissoDetailModal.test.tsx (4 tests) 1757ms
-     ✓ renders compromisso details matching TiFlux card structure  657ms
-     ✓ triggers onEdit callback when clicking edit icon  760ms
- ✓ |web| src/components/MesaFlagEditor.test.tsx (2 tests) 1184ms
-     ✓ patches the selected flags for a mesa  996ms
- ✓ |web| src/components/ds/EzTileMedium.test.tsx (10 tests) 526ms
- ✓ |web| src/components/ds/EzDateInput.test.tsx (8 tests) 946ms
-     ✓ calls onChange when user inputs a value  372ms
- ✓ |web| src/components/ds/EzTree.test.tsx (4 tests) 824ms
-     ✓ renders the root node and hides children until expanded  340ms
-     ✓ expands children when the chevron is clicked  358ms
+ ✓ |web| src/components/ds/EzAttachmentList.test.tsx (8 tests) 187ms
+ ✓ |web| src/components/ds/EzLayoutFormConfig.test.tsx (6 tests) 340ms
+ ✓ |web| src/components/ds/EzCollapsibleBox.test.tsx (4 tests) 338ms
+ ✓ |web| src/components/ds/EzDateInput.test.tsx (8 tests) 278ms
+ ✓ |web| src/components/ds/EzDoubleList.test.tsx (8 tests) 319ms
+ ✓ |web| src/components/ds/EzActionsButton.test.tsx (4 tests) 255ms
 stderr | src/components/ds/EzGrid.mobile.test.tsx > EzEntityGrid paginação no celular > empilha a paginação e dá alvos de toque de 44px aos botões de página
 An update to EzEntityGrid inside a test was not wrapped in act(...).
 
@@ -1452,6 +1127,7 @@ act(() => {
 
 This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
 
+ ✓ |web| src/components/ds/EzTileMedium.test.tsx (10 tests) 205ms
 stderr | src/components/ds/EzGrid.mobile.test.tsx > EzTaskbar e seletor de linhas no celular (revisão interna) > seletor de linhas por página tem 44px de altura abaixo de sm
 An update to EzEntityGrid inside a test was not wrapped in act(...).
 
@@ -1464,64 +1140,44 @@ act(() => {
 
 This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
 
- ✓ |web| src/components/ds/EzGrid.mobile.test.tsx (7 tests) 1239ms
-     ✓ empilha a paginação e dá alvos de toque de 44px aos botões de página  335ms
- ✓ |web| src/components/ds/EzDoubleList.test.tsx (8 tests) 1426ms
-     ✓ renders available and selected items with default labels  441ms
-     ✓ calls onAdd with the correct item when the add button is clicked  493ms
- ✓ |web| src/components/ds/EzAdvancedSearch.test.tsx (9 tests) 1372ms
- ✓ |web| src/components/ds/EzCalendar.test.tsx (4 tests) 933ms
- ✓ |web| src/components/ds/EzPagination.test.tsx (6 tests) 1129ms
-     ✓ calls onChange when a page number is clicked  319ms
- ✓ |web| src/components/ds/EzEntityToolbar.test.tsx (4 tests) 1152ms
-     ✓ renders all left and right buttons according to specification  334ms
-     ✓ toggles viewMode and opens mode configuration dropdown  505ms
- ✓ |web| src/components/ds/EzSplitButton.test.tsx (4 tests) 879ms
-     ✓ calls onClick when the main button is clicked  364ms
- ✓ |web| src/components/ds/EzSearchPlus.test.tsx (4 tests) 783ms
-     ✓ renders the current value and placeholder  307ms
-     ✓ calls onChange when the user types  329ms
- ✓ |web| src/hooks/useEscapeLayer.controls.test.tsx (5 tests) 698ms
- ✓ |web| src/hooks/useTickets.test.tsx (4 tests) 422ms
- ✓ |web| src/components/ds/EzMultiSelectionList.test.tsx (4 tests) 663ms
- ✓ |web| src/components/ds/EzChip.test.tsx (5 tests) 597ms
-     ✓ calls onRemove when the remove button is clicked  368ms
- ✓ |web| src/components/ds/EzSimpleBar.test.tsx (7 tests) 572ms
- ✓ |web| src/components/ds/EzSortableList.test.tsx (3 tests) 470ms
- ✓ |web| src/components/ds/EzTextArea.test.tsx (5 tests) 713ms
-     ✓ allows user input  376ms
- ✓ |web| src/components/ds/EzCollapsibleBox.test.tsx (4 tests) 699ms
- ✓ |web| src/hooks/useEscapeLayer.fields.test.tsx (4 tests) 687ms
-     ✓ input: o primeiro Esc sai do campo sem fechar; o segundo fecha  458ms
- ✓ |web| src/components/ds/EzAlertList.test.tsx (4 tests) 854ms
-     ✓ renders every alert message in the list  303ms
- ✓ |web| src/components/ds/EzBreadcrumb.test.tsx (5 tests) 519ms
- ✓ |web| src/components/ds/EzModal.test.tsx (7 tests) 2018ms
-     ✓ locks body scroll when open  442ms
-     ✓ calls onClose when clicking the close (X) button  734ms
- ✓ |web| src/components/ds/EzClassicTextArea.test.tsx (5 tests) 965ms
-     ✓ accepts text input and fires onChange  571ms
- ✓ |web| src/components/tickets/TicketActiveFilters.test.tsx (4 tests) 809ms
-     ✓ lists each active filter in a named group  307ms
-     ✓ calls onReset when "Redefinir filtros" is clicked  313ms
- ✓ |web| src/components/ds/EzClassicInput.test.tsx (5 tests) 765ms
-     ✓ accepts text input and fires onChange  411ms
- ✓ |web| src/components/ds/EzPopover.test.tsx (6 tests) 822ms
- ✓ |web| src/components/ds/EzNumberInput.test.tsx (5 tests) 735ms
-     ✓ renders the current value  380ms
- ✓ |web| src/components/ds/EzCheck.test.tsx (6 tests) 571ms
-     ✓ fires onChange event when clicked  312ms
- ✓ |web| src/components/ds/EzToast.test.tsx (6 tests) 734ms
-     ✓ renders title and defaults to info variant  395ms
- ✓ |web| src/components/ds/EzPopup.test.tsx (4 tests) 614ms
-     ✓ calls onClose when clicking outside the popup  300ms
- ✓ |web| src/hooks/usePreAppointments.test.ts (7 tests) 384ms
- ✓ |web| src/components/ds/EzAlert.test.tsx (6 tests) 1436ms
-     ✓ renders correctly with default info variant  415ms
-     ✓ renders action element if provided  520ms
- ✓ |web| src/components/ds/EzScrim.test.tsx (4 tests) 408ms
- ✓ |web| src/components/ds/EzRadioButton.test.tsx (5 tests) 633ms
-     ✓ renders correctly  335ms
+ ✓ |web| src/components/ds/EzGrid.mobile.test.tsx (7 tests) 376ms
+ ✓ |web| src/components/ds/EzPagination.test.tsx (6 tests) 881ms
+ ✓ |web| src/hooks/useEscapeLayer.controls.test.tsx (5 tests) 331ms
+ ✓ |web| src/hooks/useEscapeLayer.baseline.test.tsx (3 tests) 592ms
+ ✓ |web| src/components/ds/EzPageLayout.test.tsx (5 tests) 300ms
+ ✓ |web| src/components/ds/EzPopup.test.tsx (4 tests) 171ms
+ ✓ |web| src/hooks/useTickets.test.tsx (4 tests) 292ms
+ ✓ |web| src/components/ds/EzGuideNavigator.test.tsx (3 tests) 211ms
+ ✓ |web| src/components/ds/EzModal.test.tsx (7 tests) 217ms
+ ✓ |web| src/components/MesaFlagEditor.test.tsx (2 tests) 244ms
+ ✓ |web| src/components/ds/EzBreadcrumb.test.tsx (5 tests) 153ms
+ ✓ |web| src/components/ds/EzNumberInput.test.tsx (5 tests) 236ms
+ ✓ |web| src/components/ds/EzClassicTextArea.test.tsx (5 tests) 254ms
+ ✓ |web| src/components/ds/EzToast.test.tsx (6 tests) 191ms
+ ✓ |web| src/components/ds/EzSimpleBar.test.tsx (7 tests) 177ms
+ ✓ |web| src/components/ds/EzFilter.test.tsx (3 tests) 155ms
+ ✓ |web| src/components/ds/EzSearchPlus.test.tsx (4 tests) 202ms
+ ✓ |web| src/components/tickets/RichContentView.test.tsx (9 tests) 146ms
+ ✓ |web| src/components/ds/EzTagInput.test.tsx (4 tests) 185ms
+ ✓ |web| src/components/ds/EzAlert.test.tsx (6 tests) 257ms
+ ✓ |web| src/components/ds/EzFilterInput.test.tsx (3 tests) 68ms
+ ✓ |web| src/components/ds/EzModalContainer.test.tsx (4 tests) 210ms
+ ✓ |web| src/components/ds/EzChip.test.tsx (5 tests) 166ms
+ ✓ |web| src/components/ds/EzUpload.test.tsx (6 tests) 243ms
+ ✓ |web| src/components/ds/EzPopoverPlus.test.tsx (4 tests) 154ms
+ ✓ |web| src/components/ds/EzSortableList.test.tsx (3 tests) 112ms
+ ✓ |web| src/components/ds/EzCheck.test.tsx (6 tests) 264ms
+ ✓ |web| src/components/ds/EzListItem.test.tsx (4 tests) 178ms
+ ✓ |web| src/components/ds/EzTabs.test.tsx (4 tests) 150ms
+ ✓ |web| src/components/ds/EzList.test.tsx (5 tests) 139ms
+ ✓ |web| src/components/ds/EzRadioButton.test.tsx (5 tests) 255ms
+ ✓ |web| src/hooks/usePermissions.test.tsx (2 tests) 165ms
+ ✓ |web| src/components/ds/EzScrim.test.tsx (4 tests) 143ms
+ ✓ |web| src/hooks/useFeatureFlag.test.tsx (3 tests) 128ms
+ ✓ |web| src/components/ds/EzSpinner.test.tsx (4 tests) 69ms
+ ✓ |web| src/components/ds/escapeOverlays.test.tsx (9 tests) 135ms
+ ✓ |web| src/components/ds/EzCardItem.test.tsx (6 tests) 141ms
+ ✓ |web| src/hooks/useAppointments.test.tsx (4 tests) 143ms
 stderr | src/components/ds/EzGrid.test.tsx > EzGridWrapper > observes container resize via ResizeObserver
 An update to EzGridWrapper inside a test was not wrapped in act(...).
 
@@ -1544,81 +1200,58 @@ act(() => {
 
 This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
 
- ✓ |web| src/components/ds/EzGrid.test.tsx (9 tests) 467ms
- ✓ |web| src/components/ds/EzCardItem.test.tsx (6 tests) 458ms
- ✓ |web| src/components/ds/EzPopoverPlus.test.tsx (4 tests) 480ms
- ✓ |web| src/components/ds/EzDesignTokens.test.tsx (3 tests) 383ms
- ✓ |web| src/components/ds/EzSidebar.test.tsx (10 tests) 621ms
- ✓ |web| src/components/ds/EzPageLayout.test.tsx (5 tests) 612ms
- ✓ |web| src/components/ds/EzChart.test.tsx (4 tests) 470ms
- ✓ |web| src/components/ds/EzSplitPanel.test.tsx (4 tests) 270ms
- ✓ |web| src/components/ds/EzDialog.test.tsx (3 tests) 235ms
- ✓ |web| src/components/ds/EzSpinner.test.tsx (4 tests) 201ms
- ✓ |web| src/components/ds/EzTabs.test.tsx (4 tests) 474ms
- ✓ |web| src/components/ds/EzProgressBar.test.tsx (6 tests) 214ms
- ✓ |web| src/components/ds/EzUpload.test.tsx (6 tests) 480ms
- ✓ |web| src/components/ds/EzList.test.tsx (5 tests) 498ms
- ✓ |web| src/components/ds/EzBadge.test.tsx (3 tests) 99ms
- ✓ |web| src/components/ds/EzGuideNavigator.test.tsx (3 tests) 489ms
- ✓ |web| src/components/ds/EzListItem.test.tsx (4 tests) 410ms
- ✓ |web| src/components/ds/EzModalContainer.test.tsx (4 tests) 426ms
- ✓ |web| src/components/ds/EzAttachmentList.test.tsx (8 tests) 753ms
- ✓ |web| src/components/ds/EzFileItem.test.tsx (3 tests) 330ms
- ✓ |web| src/components/ds/EzIcon.test.tsx (4 tests) 151ms
- ✓ |web| src/components/ds/EzFormView.test.tsx (3 tests) 120ms
- ✓ |web| src/components/tickets/RichContentView.test.tsx (9 tests) 392ms
- ✓ |web| src/components/ds/EzFilter.test.tsx (3 tests) 248ms
- ✓ |web| src/components/ds/EzFilterInput.test.tsx (3 tests) 281ms
- ✓ |web| src/components/ds/EzAvatar.test.tsx (5 tests) 271ms
- ✓ |web| src/components/ds/EzSlaChip.test.tsx (6 tests) 298ms
- ✓ |web| src/components/ds/EzTile.test.tsx (4 tests) 466ms
- ✓ |web| src/components/ds/escapeBack.test.tsx (4 tests) 427ms
- ✓ |web| src/components/ds/EzEmptyCard.test.tsx (3 tests) 255ms
- ✓ |web| src/components/tickets/TicketComments.test.tsx (1 test) 375ms
-     ✓ renders html evidence from a worklog reply without showing raw markup  363ms
- ✓ |web| src/components/ds/EzTimeInput.test.tsx (3 tests) 325ms
- ✓ |web| src/components/ds/EzScroller.test.tsx (4 tests) 122ms
- ✓ |web| src/components/ds/EzForm.test.tsx (3 tests) 214ms
- ✓ |web| src/components/ds/EzTextInput.test.tsx (5 tests) 337ms
- ✓ |web| src/components/ds/escapeOverlays.test.tsx (9 tests) 329ms
- ✓ |web| src/components/ds/EzButton.test.tsx (5 tests) 331ms
- ✓ |web| src/components/tickets/SlaBadge.test.tsx (5 tests) 216ms
- ✓ |web| src/hooks/useAppointments.test.tsx (4 tests) 289ms
- ✓ |web| src/hooks/useUserScreenConfig.test.ts (7 tests) 118ms
- ✓ |web| src/components/ds/EzTag.test.tsx (4 tests) 344ms
- ✓ |web| src/components/ds/EzGridView.test.tsx (3 tests) 174ms
- ✓ |web| src/hooks/usePermissions.test.tsx (2 tests) 253ms
- ✓ |web| src/components/ds/EzDateTimeInput.test.tsx (3 tests) 218ms
- ✓ |web| src/lib/billingTime.test.ts (3 tests) 90ms
- ✓ |web| src/hooks/useFeatureFlag.test.tsx (3 tests) 167ms
- ✓ |web| src/components/ds/EzSkeleton.test.tsx (5 tests) 139ms
- ✓ |web| src/components/ds/EzTooltip.test.tsx (4 tests) 124ms
- ✓ |web| src/components/ds/EzUnderface.test.tsx (3 tests) 61ms
- ✓ |web| src/lib/brasiliaTime.test.ts (6 tests) 76ms
- ✓ |web| src/lib/preparePastedImage.test.ts (7 tests) 125ms
- ✓ |web| src/stores/authStore.test.ts (8 tests) 57ms
- ✓ |web| src/lib/ticketFilterParams.test.ts (2 tests) 14ms
- ✓ |web| src/lib/mesaLabels.test.ts (1 test) 4ms
+ ✓ |web| src/components/ds/EzGrid.test.tsx (9 tests) 103ms
+ ✓ |web| src/hooks/usePreAppointments.test.ts (7 tests) 128ms
+ ✓ |web| src/components/ds/EzDesignTokens.test.tsx (3 tests) 113ms
+ ✓ |web| src/components/ds/EzSplitPanel.test.tsx (4 tests) 107ms
+ ✓ |web| src/components/ds/EzProgressBar.test.tsx (6 tests) 98ms
+ ✓ |web| src/components/ds/EzTooltip.test.tsx (4 tests) 78ms
+ ✓ |web| src/components/ds/EzChart.test.tsx (4 tests) 202ms
+ ✓ |web| src/components/ds/EzScroller.test.tsx (4 tests) 68ms
+ ✓ |web| src/components/ds/EzForm.test.tsx (3 tests) 83ms
+ ✓ |web| src/components/ds/EzGridView.test.tsx (3 tests) 114ms
+ ✓ |web| src/components/ds/EzTimeInput.test.tsx (3 tests) 95ms
+ ✓ |web| src/components/ds/EzAvatar.test.tsx (5 tests) 101ms
+ ✓ |web| src/components/tickets/SlaBadge.test.tsx (5 tests) 78ms
+ ✓ |web| src/components/ds/EzSlaChip.test.tsx (6 tests) 130ms
+ ✓ |web| src/components/ds/EzTextInput.test.tsx (5 tests) 160ms
+ ✓ |web| src/components/ds/EzIcon.test.tsx (4 tests) 82ms
+ ✓ |web| src/components/tickets/TicketComments.test.tsx (1 test) 153ms
+ ✓ |web| src/components/ds/EzFileItem.test.tsx (3 tests) 119ms
+ ✓ |web| src/components/ds/EzButton.test.tsx (5 tests) 87ms
+ ✓ |web| src/components/ds/EzTag.test.tsx (4 tests) 137ms
+ ✓ |web| src/components/ds/EzTile.test.tsx (4 tests) 113ms
+ ✓ |web| src/hooks/useUserScreenConfig.test.ts (7 tests) 116ms
+ ✓ |web| src/components/ds/escapeBack.test.tsx (4 tests) 164ms
+ ✓ |web| src/components/ds/EzBadge.test.tsx (3 tests) 51ms
+ ✓ |web| src/components/ds/EzFormView.test.tsx (3 tests) 66ms
+ ✓ |web| src/components/ds/EzSkeleton.test.tsx (5 tests) 59ms
+ ✓ |web| src/components/ds/EzUnderface.test.tsx (3 tests) 64ms
+ ✓ |web| src/lib/billingTime.test.ts (3 tests) 27ms
+ ✓ |web| src/lib/brasiliaTime.test.ts (6 tests) 39ms
+ ✓ |web| src/lib/preparePastedImage.test.ts (7 tests) 12ms
+ ✓ |web| src/stores/authStore.test.ts (8 tests) 8ms
+ ✓ |web| src/lib/mesaLabels.test.ts (1 test) 6ms
+ ✓ |web| src/lib/ticketFilterParams.test.ts (2 tests) 5ms
 
  Test Files  170 passed (170)
-      Tests  1322 passed (1322)
-   Start at  22:46:19
-   Duration  488.67s (transform 32.70s, setup 59.89s, import 336.67s, tests 564.73s, environment 359.24s)
+      Tests  1325 passed (1325)
+   Start at  23:01:50
+   Duration  166.58s (transform 11.97s, setup 20.26s, import 114.72s, tests 190.00s, environment 122.39s)
 
 
 > nx run api:test
 
 > jest --passWithNoTests=true
 
-[31m[Nest] 3274419  - [39m11/12/2026, 10:54:54 PM [31m  ERROR[39m [38;5;3m[JobsService] [39m[31mFalha ao gravar o resultado de A: banco caiu[39m
-[31m[Nest] 3274418  - [39m11/12/2026, 10:54:55 PM [31m  ERROR[39m [38;5;3m[WorklogAutoCloseService] [39m[31mFalha ao avisar o fechamento de pre-1: banco caiu[39m
-[31m[Nest] 3274418  - [39m11/12/2026, 10:54:55 PM [31m  ERROR[39m [38;5;3m[WorklogAutoCloseService] [39m[31mFalha ao avisar ana@aponta.test: SMTP fora[39m
-[33mA worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.[39m
+[31m[Nest] 3326790  - [39m11/12/2026, 11:04:49 PM [31m  ERROR[39m [38;5;3m[JobsService] [39m[31mFalha ao gravar o resultado de A: banco caiu[39m
+[31m[Nest] 3326790  - [39m11/12/2026, 11:04:51 PM [31m  ERROR[39m [38;5;3m[WorklogAutoCloseService] [39m[31mFalha ao avisar o fechamento de pre-1: banco caiu[39m
+[31m[Nest] 3326790  - [39m11/12/2026, 11:04:51 PM [31m  ERROR[39m [38;5;3m[WorklogAutoCloseService] [39m[31mFalha ao avisar ana@aponta.test: SMTP fora[39m
 
 [1mTest Suites: [22m[1m[32m91 passed[39m[22m, 91 total
-[1mTests:       [22m[1m[32m1246 passed[39m[22m, 1246 total
+[1mTests:       [22m[1m[32m1247 passed[39m[22m, 1247 total
 [1mSnapshots:   [22m0 total
-[1mTime:[22m        [1m[33m31.628 s[39m[22m
+[1mTime:[22m        14.408 s, estimated 18 s
 [2mRan all test suites[22m[2m.[22m
 
 
