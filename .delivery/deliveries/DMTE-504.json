@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "delivery": "DMTE-504",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 235,
+  "multica_id": "01a1d2c8-f0a5-76d2-92b9-46ab7b0dce53",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "o payload do status `Independent QA` enviado a `repos/<repo>/statuses/<sha>` tem `target_url` iniciado por `https://multica.aponta.cloud/dm-tecnologia/issues/` e o id da issue de origem; nenhuma ocorrência de `multica.dmtecnologia.cloud` permanece em `scripts/publicar_qa.py`.",
+      "tests": [
+        "QaStatusLinkTests.test_target_url_points_to_the_active_multica_host",
+        "QaStatusLinkTests.test_decommissioned_host_is_gone_from_the_script"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-504.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-504/red.json",
+    "green": ".delivery/evidence/DMTE-504/green.json"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Só scripts de governança; sem UI."
+  }
+}

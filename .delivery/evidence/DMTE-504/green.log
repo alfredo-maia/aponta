@@ -1,0 +1,19 @@
+/tmp/multica-task-3193967970/tmp4m5jb706/apps/web/src/pages/Y.tsx: <select> nativo: use EzSelect
+FALHA: <select> nativo fora do EzSelect (AC-15, DMTE-490).
+OK: nenhum <select> nativo fora do EzSelect (AC-15, DMTE-490).
+OK: nenhum <select> nativo fora do EzSelect (AC-15, DMTE-490).
+/tmp/multica-task-3193967970/tmpcee084ng/apps/web/src/pages/TicketDetailPage.tsx: classe de paleta fora do DS: teal-50
+FALHA: paleta fora do DS ou hex literal na aba Tickets (AC-01, DMTE-427).
+OK: nenhum hex literal ou classe de paleta fora do DS na aba Tickets (AC-01, DMTE-427).
+OK: nenhum hex literal ou classe de paleta fora do DS na aba Tickets (AC-01, DMTE-427).
+/tmp/multica-task-3193967970/tmpqs51976_/apps/web/src/components/tickets/TicketKanban.tsx: altura de controle fora da escala D6: h-[38px]
+FALHA: altura de controle ad hoc fora da escala D6 na aba Tickets (AC-02, DMTE-427).
+OK: alturas de controle seguem a escala D6 na aba Tickets (AC-02, DMTE-427).
+/tmp/multica-task-3193967970/tmp45herhpw/apps/web/src/pages/TicketDetailPage.tsx: found it
+FAIL
+OK
+...............................................................................................................................................................................................
+----------------------------------------------------------------------
+Ran 191 tests in 13.179s
+
+OK

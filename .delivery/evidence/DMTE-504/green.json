@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-13T02:43:50.632727+00:00",
+  "finished_at": "2026-11-13T02:44:04.010593+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_*.py"
+  ],
+  "base_sha": "4fe57f5673e951b590699cbb68c7231be0a3e499",
+  "head_sha": "4fe57f5673e951b590699cbb68c7231be0a3e499",
+  "exit_code": 0,
+  "tests": {
+    "scripts/test_publicar_qa.py": "05eb3714c91de350c6d0160931b433ac275b88f301226843a2155e5020f57760"
+  },
+  "criteria": [
+    "AC-01"
+  ],
+  "source_hashes": {
+    "scripts/publicar_qa.py": "eb6a1cb93c86f1efe55e7ea9508d9d0958853b8d3d9feb025a1ecfc042a4f146",
+    "scripts/test_publicar_qa.py": "05eb3714c91de350c6d0160931b433ac275b88f301226843a2155e5020f57760"
+  },
+  "log": ".delivery/evidence/DMTE-504/green.log",
+  "log_sha256": "379866ddec1b97277778ffad5078d3f25dc036573a828559d3e981e302011df4"
+}
