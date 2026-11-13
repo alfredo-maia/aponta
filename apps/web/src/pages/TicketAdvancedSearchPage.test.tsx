@@ -52,6 +52,12 @@ describe('TicketAdvancedSearchPage (D4)', () => {
     mockApiGet();
   });
 
+  it('DMTE-499 AC-01: a página não tem teto de largura, como a tela de novo ticket', () => {
+    renderPage();
+
+    expect(screen.getByRole('heading', { name: 'Busca avançada' }).closest('[class*="max-w-"]')).toBeNull();
+  });
+
   it('renders every D4 field for AGENT/ADMIN', async () => {
     renderPage();
 

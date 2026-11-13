@@ -1,0 +1,716 @@
+
+> nx run web:test src/pages/TicketAdvancedSearchPage.test.tsx
+
+web:  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-499-d2d0396658bf/workdir/.claude/skills/aponta/apps/web
+web:  ❯ |web| src/pages/TicketAdvancedSearchPage.test.tsx (11 tests | 1 failed) 11738ms
+web:      × DMTE-499 AC-01: a página não tem teto de largura, como a tela de novo ticket 866ms
+web:      ✓ renders every D4 field for AGENT/ADMIN  461ms
+web:      ✓ hides Cliente, Solicitante and Atendente for CLIENT (RBAC §2.5) 158ms
+web:      ✓ RODADA 2: hides Atendente (but keeps Solicitante) for CLIENT_MASTER, since GET /users/agents returns 403 for this role 215ms
+web:      ✓ RODADA 2: "Status" has Abertos/Fechados shortcuts that map to notClosed/closedOnly, not a literal status (D4)  695ms
+web:      ✓ RODADA 2: "Fechados" shortcut maps to closedOnly  828ms
+web:      ✓ AC-12: the "Filtros adicionais" checkboxes map to mine/unassigned/paused/overdue and "Limpar" unchecks them  5652ms
+web:      ✓ AC-12: "Filtros adicionais" is a button that expands and collapses the extra filters (aria-expanded)  650ms
+web:      ✓ keeps Estágio disabled until a Mesa is chosen  1113ms
+web:      ✓ "Buscar" navigates to "/" with the chosen filters in the query string 219ms
+web:      ✓ "Limpar" resets every field back to empty  836ms
+web: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+web:  FAIL  |web| src/pages/TicketAdvancedSearchPage.test.tsx > TicketAdvancedSearchPage (D4) > DMTE-499 AC-01: a página não tem teto de largura, como a tela de novo ticket
+web: AssertionError: expected <div class="max-w-5xl space-y-6">…(2)</div> to be null
+web: - Expected:
+web: null
+web: + Received:
+web: <div
+web:   class="max-w-5xl space-y-6"
+web: >
+web:   <h1
+web:     class="text-[20px] font-semibold text-gray-900"
+web:   >
+web:     Busca avançada
+web:   </h1>
+web:   <form
+web:     class="space-y-4"
+web:   >
+web:     <div
+web:       class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+web:     >
+web:       <div
+web:         class="flex flex-col w-full gap-1.5"
+web:       >
+web:         <div
+web:           class="flex items-center mb-0.5"
+web:         >
+web:           <label
+web:             class="font-medium select-none text-[14px] text-gray-900"
+web:             for="adv-search-date-field"
+web:           >
+web:             Data
+web:           </label>
+web:         </div>
+web:         <div
+web:           class="relative"
+web:         >
+web:           <div
+web:             class="relative flex items-center w-full overflow-hidden transition-colors border bg-white rounded-[12px] h-[42px] focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300"
+web:           >
+web:             <select
+web:               aria-hidden="true"
+web:               class="sr-only"
+web:               id="adv-search-date-field"
+web:               tabindex="-1"
+web:             >
+web:               <option
+web:                 value="createdAt"
+web:               >
+web:                 Abertura
+web:               </option>
+web:               <option
+web:                 value="closedAt"
+web:               >
+web:                 Fechamento
+web:               </option>
+web:             </select>
+web:             <button
+web:               aria-expanded="false"
+web:               aria-haspopup="listbox"
+web:               aria-label="Data"
+web:               class="flex h-full w-full items-center justify-between gap-2 bg-transparent text-left text-gray-900 outline-none pl-4 pr-3 text-[14px]"
+web:               role="combobox"
+web:               type="button"
+web:             >
+web:               <span
+web:                 class="truncate"
+web:               >
+web:                 Abertura
+web:               </span>
+web:               <svg
+web:                 aria-hidden="true"
+web:                 class="lucide lucide-chevron-down shrink-0 text-gray-500 w-4 h-4"
+web:                 fill="none"
+web:                 height="24"
+web:                 stroke="currentColor"
+web:                 stroke-linecap="round"
+web:                 stroke-linejoin="round"
+web:                 stroke-width="2"
+web:                 viewBox="0 0 24 24"
+web:                 width="24"
+web:                 xmlns="http://www.w3.org/2000/svg"
+web:               >
+web:                 <path … />
+web:               </svg>
+web:             </button>
+web:           </div>
+web:         </div>
+web:       </div>
+web:       <div
+web:         class="flex gap-2 lg:col-span-2"
+web:       >
+web:         <div
+web:           class="flex flex-col w-full gap-1.5"
+web:         >
+web:           <label
+web:             class="text-[14px] font-medium leading-none mb-0.5 select-none text-gray-900"
+web:             for="adv-search-date-from"
+web:           >
+web:             De
+web:           </label>
+web:           <div
+web:             class="relative flex items-center w-full overflow-hidden transition-colors border rounded-[12px] bg-white group focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300 h-[42px]"
+web:           >
+web:             <input
+web:               class="flex-1 w-full bg-transparent border-none outline-none text-[14px] text-gray-900 placeholder:text-gray-400 h-full pl-4 pr-4"
+web:               id="adv-search-date-from"
+web:               type="date"
+web:               value=""
+web:             />
+web:           </div>
+web:         </div>
+web:         <div
+web:           class="flex flex-col w-full gap-1.5"
+web:         >
+web:           <label
+web:             class="text-[14px] font-medium leading-none mb-0.5 select-none text-gray-900"
+web:             for="adv-search-date-to"
+web:           >
+web:             Até
+web:           </label>
+web:           <div
+web:             class="relative flex items-center w-full overflow-hidden transition-colors border rounded-[12px] bg-white group focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300 h-[42px]"
+web:           >
+web:             <input
+web:               class="flex-1 w-full bg-transparent border-none outline-none text-[14px] text-gray-900 placeholder:text-gray-400 h-full pl-4 pr-4"
+web:               id="adv-search-date-to"
+web:               type="date"
+web:               value=""
+web:             />
+web:           </div>
+web:         </div>
+web:       </div>
+web:       <div
+web:         class="flex flex-col w-full gap-1.5"
+web:       >
+web:         <label
+web:           class="text-[14px] font-medium leading-none mb-0.5 select-none text-gray-900"
+web:           for="adv-search-number"
+web:         >
+web:           Número do ticket
+web:         </label>
+web:         <div
+web:           class="relative flex items-center w-full overflow-hidden transition-colors border rounded-[12px] bg-white group focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300 h-[42px]"
+web:         >
+web:           <input
+web:             class="flex-1 w-full bg-transparent border-none outline-none text-[14px] text-gray-900 placeholder:text-gray-400 h-full pl-4 pr-4"
+web:             id="adv-search-number"
+web:             type="text"
+web:             value=""
+web:           />
+web:         </div>
+web:       </div>
+web:       <div
+web:         class="flex flex-col w-full gap-1.5"
+web:       >
+web:         <label
+web:           class="text-[14px] font-medium leading-none mb-0.5 select-none text-gray-900"
+web:           for="adv-search-title"
+web:         >
+web:           Título
+web:         </label>
+web:         <div
+web:           class="relative flex items-center w-full overflow-hidden transition-colors border rounded-[12px] bg-white group focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300 h-[42px]"
+web:         >
+web:           <input
+web:             class="flex-1 w-full bg-transparent border-none outline-none text-[14px] text-gray-900 placeholder:text-gray-400 h-full pl-4 pr-4"
+web:             id="adv-search-title"
+web:             type="text"
+web:             value=""
+web:           />
+web:         </div>
+web:       </div>
+web:       <div
+web:         class="flex flex-col w-full gap-1.5"
+web:       >
+web:         <div
+web:           class="flex items-center mb-0.5"
+web:         >
+web:           <label
+web:             class="font-medium select-none text-[14px] text-gray-900"
+web:             for="adv-search-status"
+web:           >
+web:             Status
+web:           </label>
+web:         </div>
+web:         <div
+web:           class="relative"
+web:         >
+web:           <div
+web:             class="relative flex items-center w-full overflow-hidden transition-colors border bg-white rounded-[12px] h-[42px] focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300"
+web:           >
+web:             <select
+web:               aria-hidden="true"
+web:               class="sr-only"
+web:               id="adv-search-status"
+web:               tabindex="-1"
+web:             >
+web:               <option
+web:                 value=""
+web:               >
+web:                 Qualquer status
+web:               </option>
+web:               <optgroup
+web:                 label="Atalhos"
+web:               >
+web:                 <option … />
+web:                 <option … />
+web:               </optgroup>
+web:               <optgroup
+web:                 label="Status"
+web:               >
+web:                 <option … />
+web:                 <option … />
+web:                 <option … />
+web:                 <option … />
+web:                 <option … />
+web:                 <option … />
+web:                 <option … />
+web:                 <option … />
+web:                 <option … />
+web:               </optgroup>
+web:             </select>
+web:             <button
+web:               aria-expanded="false"
+web:               aria-haspopup="listbox"
+web:               aria-label="Status"
+web:               class="flex h-full w-full items-center justify-between gap-2 bg-transparent text-left text-gray-900 outline-none pl-4 pr-3 text-[14px]"
+web:               role="combobox"
+web:               type="button"
+web:             >
+web:               <span
+web:                 class="truncate"
+web:               >
+web:                 Qualquer status
+web:               </span>
+web:               <svg
+web:                 aria-hidden="true"
+web:                 class="lucide lucide-chevron-down shrink-0 text-gray-500 w-4 h-4"
+web:                 fill="none"
+web:                 height="24"
+web:                 stroke="currentColor"
+web:                 stroke-linecap="round"
+web:                 stroke-linejoin="round"
+web:                 stroke-width="2"
+web:                 viewBox="0 0 24 24"
+web:                 width="24"
+web:                 xmlns="http://www.w3.org/2000/svg"
+web:               >
+web:                 <path … />
+web:               </svg>
+web:             </button>
+web:           </div>
+web:         </div>
+web:       </div>
+web:       <div
+web:         class="flex flex-col w-full gap-1.5"
+web:       >
+web:         <div
+web:           class="flex items-center mb-0.5"
+web:         >
+web:           <label
+web:             class="font-medium select-none text-[14px] text-gray-900"
+web:             for="adv-search-priority"
+web:           >
+web:             Prioridade
+web:           </label>
+web:         </div>
+web:         <div
+web:           class="relative"
+web:         >
+web:           <div
+web:             class="relative flex items-center w-full overflow-hidden transition-colors border bg-white rounded-[12px] h-[42px] focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300"
+web:           >
+web:             <select
+web:               aria-hidden="true"
+web:               class="sr-only"
+web:               id="adv-search-priority"
+web:               tabindex="-1"
+web:             >
+web:               <option
+web:                 value=""
+web:               >
+web:                 Qualquer prioridade
+web:               </option>
+web:               <option
+web:                 value="LOW"
+web:               >
+web:                 Baixa
+web:               </option>
+web:               <option
+web:                 value="MEDIUM"
+web:               >
+web:                 Média
+web:               </option>
+web:               <option
+web:                 value="HIGH"
+web:               >
+web:                 Alta
+web:               </option>
+web:               <option
+web:                 value="CRITICAL"
+web:               >
+web:                 Crítica
+web:               </option>
+web:             </select>
+web:             <button
+web:               aria-expanded="false"
+web:               aria-haspopup="listbox"
+web:               aria-label="Prioridade"
+web:               class="flex h-full w-full items-center justify-between gap-2 bg-transparent text-left text-gray-900 outline-none pl-4 pr-3 text-[14px]"
+web:               role="combobox"
+web:               type="button"
+web:             >
+web:               <span
+web:                 class="truncate"
+web:               >
+web:                 Qualquer prioridade
+web:               </span>
+web:               <svg
+web:                 aria-hidden="true"
+web:                 class="lucide lucide-chevron-down shrink-0 text-gray-500 w-4 h-4"
+web:                 fill="none"
+web:                 height="24"
+web:                 stroke="currentColor"
+web:                 stroke-linecap="round"
+web:                 stroke-linejoin="round"
+web:                 stroke-width="2"
+web:                 viewBox="0 0 24 24"
+web:                 width="24"
+web:                 xmlns="http://www.w3.org/2000/svg"
+web:               >
+web:                 <path … />
+web:               </svg>
+web:             </button>
+web:           </div>
+web:         </div>
+web:       </div>
+web:       <div
+web:         class="flex flex-col w-full gap-1.5"
+web:       >
+web:         <div
+web:           class="flex items-center mb-0.5"
+web:         >
+web:           <label
+web:             class="font-medium select-none text-[14px] text-gray-900"
+web:             for="adv-search-organization"
+web:           >
+web:             Cliente
+web:           </label>
+web:         </div>
+web:         <div
+web:           class="relative"
+web:         >
+web:           <div
+web:             class="relative flex items-center w-full overflow-hidden transition-colors border bg-white rounded-[12px] h-[42px] focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300"
+web:           >
+web:             <select
+web:               aria-hidden="true"
+web:               class="sr-only"
+web:               id="adv-search-organization"
+web:               tabindex="-1"
+web:             >
+web:               <option
+web:                 value=""
+web:               >
+web:                 Todos os clientes
+web:               </option>
+web:             </select>
+web:             <button
+web:               aria-expanded="false"
+web:               aria-haspopup="listbox"
+web:               aria-label="Cliente"
+web:               class="flex h-full w-full items-center justify-between gap-2 bg-transparent text-left text-gray-900 outline-none pl-4 pr-3 text-[14px]"
+web:               role="combobox"
+web:               type="button"
+web:             >
+web:               <span
+web:                 class="truncate"
+web:               >
+web:                 Todos os clientes
+web:               </span>
+web:               <svg
+web:                 aria-hidden="true"
+web:                 class="lucide lucide-chevron-down shrink-0 text-gray-500 w-4 h-4"
+web:                 fill="none"
+web:                 height="24"
+web:                 stroke="currentColor"
+web:                 stroke-linecap="round"
+web:                 stroke-linejoin="round"
+web:                 stroke-width="2"
+web:                 viewBox="0 0 24 24"
+web:                 width="24"
+web:                 xmlns="http://www.w3.org/2000/svg"
+web:               >
+web:                 <path … />
+web:               </svg>
+web:             </button>
+web:           </div>
+web:         </div>
+web:       </div>
+web:       <div
+web:         class="flex flex-col w-full gap-1.5"
+web:       >
+web:         <label
+web:           class="text-[14px] font-medium leading-none mb-0.5 select-none text-gray-900"
+web:           for="adv-search-requester"
+web:         >
+web:           Solicitante
+web:         </label>
+web:         <div
+web:           class="relative flex items-center w-full overflow-hidden transition-colors border rounded-[12px] bg-white group focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300 h-[42px]"
+web:         >
+web:           <input
+web:             class="flex-1 w-full bg-transparent border-none outline-none text-[14px] text-gray-900 placeholder:text-gray-400 h-full pl-4 pr-4"
+web:             id="adv-search-requester"
+web:             placeholder="Nome ou e-mail"
+web:             type="text"
+web:             value=""
+web:           />
+web:         </div>
+web:       </div>
+web:       <div
+web:         class="flex flex-col w-full gap-1.5"
+web:       >
+web:         <div
+web:           class="flex items-center mb-0.5"
+web:         >
+web:           <label
+web:             class="font-medium select-none text-[14px] text-gray-900"
+web:             for="adv-search-agent"
+web:           >
+web:             Atendente
+web:           </label>
+web:         </div>
+web:         <div
+web:           class="relative"
+web:         >
+web:           <div
+web:             class="relative flex items-center w-full overflow-hidden transition-colors border bg-white rounded-[12px] h-[42px] focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300"
+web:           >
+web:             <select
+web:               aria-hidden="true"
+web:               class="sr-only"
+web:               id="adv-search-agent"
+web:               tabindex="-1"
+web:             >
+web:               <option
+web:                 value=""
+web:               >
+web:                 Todos os atendentes
+web:               </option>
+web:             </select>
+web:             <button
+web:               aria-expanded="false"
+web:               aria-haspopup="listbox"
+web:               aria-label="Atendente"
+web:               class="flex h-full w-full items-center justify-between gap-2 bg-transparent text-left text-gray-900 outline-none pl-4 pr-3 text-[14px]"
+web:               role="combobox"
+web:               type="button"
+web:             >
+web:               <span
+web:                 class="truncate"
+web:               >
+web:                 Todos os atendentes
+web:               </span>
+web:               <svg
+web:                 aria-hidden="true"
+web:                 class="lucide lucide-chevron-down shrink-0 text-gray-500 w-4 h-4"
+web:                 fill="none"
+web:                 height="24"
+web:                 stroke="currentColor"
+web:                 stroke-linecap="round"
+web:                 stroke-linejoin="round"
+web:                 stroke-width="2"
+web:                 viewBox="0 0 24 24"
+web:                 width="24"
+web:                 xmlns="http://www.w3.org/2000/svg"
+web:               >
+web:                 <path … />
+web:               </svg>
+web:             </button>
+web:           </div>
+web:         </div>
+web:       </div>
+web:       <div
+web:         class="flex flex-col w-full gap-1.5"
+web:       >
+web:         <div
+web:           class="flex items-center mb-0.5"
+web:         >
+web:           <label
+web:             class="font-medium select-none text-[14px] text-gray-900"
+web:             for="adv-search-service-desk"
+web:           >
+web:             Mesa de serviço
+web:           </label>
+web:         </div>
+web:         <div
+web:           class="relative"
+web:         >
+web:           <div
+web:             class="relative flex items-center w-full overflow-hidden transition-colors border bg-white rounded-[12px] h-[42px] focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300"
+web:           >
+web:             <select
+web:               aria-hidden="true"
+web:               class="sr-only"
+web:               id="adv-search-service-desk"
+web:               tabindex="-1"
+web:             >
+web:               <option
+web:                 value=""
+web:               >
+web:                 Todas as mesas
+web:               </option>
+web:             </select>
+web:             <button
+web:               aria-expanded="false"
+web:               aria-haspopup="listbox"
+web:               aria-label="Mesa de serviço"
+web:               class="flex h-full w-full items-center justify-between gap-2 bg-transparent text-left text-gray-900 outline-none pl-4 pr-3 text-[14px]"
+web:               role="combobox"
+web:               type="button"
+web:             >
+web:               <span
+web:                 class="truncate"
+web:               >
+web:                 Todas as mesas
+web:               </span>
+web:               <svg
+web:                 aria-hidden="true"
+web:                 class="lucide lucide-chevron-down shrink-0 text-gray-500 w-4 h-4"
+web:                 fill="none"
+web:                 height="24"
+web:                 stroke="currentColor"
+web:                 stroke-linecap="round"
+web:                 stroke-linejoin="round"
+web:                 stroke-width="2"
+web:                 viewBox="0 0 24 24"
+web:                 width="24"
+web:                 xmlns="http://www.w3.org/2000/svg"
+web:               >
+web:                 <path … />
+web:               </svg>
+web:             </button>
+web:           </div>
+web:         </div>
+web:       </div>
+web:       <div
+web:         class="flex flex-col w-full gap-1.5"
+web:       >
+web:         <div
+web:           class="flex items-center mb-0.5"
+web:         >
+web:           <label
+web:             class="font-medium select-none text-[14px] text-gray-400"
+web:             for="adv-search-stage"
+web:           >
+web:             Estágio
+web:           </label>
+web:         </div>
+web:         <div
+web:           class="relative"
+web:         >
+web:           <div
+web:             class="relative flex items-center w-full overflow-hidden transition-colors border rounded-[12px] h-[42px] focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 hover:border-gray-300 bg-gray-80 border-gray-100 cursor-not-allowed"
+web:           >
+web:             <select
+web:               aria-hidden="true"
+web:               class="sr-only"
+web:               disabled=""
+web:               id="adv-search-stage"
+web:               tabindex="-1"
+web:             >
+web:               <option
+web:                 value=""
+web:               >
+web:                 Todos os estágios
+web:               </option>
+web:             </select>
+web:             <button
+web:               aria-expanded="false"
+web:               aria-haspopup="listbox"
+web:               aria-label="Estágio"
+web:               class="flex h-full w-full items-center justify-between gap-2 bg-transparent text-left outline-none pl-4 pr-3 text-[14px] text-gray-400 cursor-not-allowed"
+web:               disabled=""
+web:               role="combobox"
+web:               type="button"
+web:             >
+web:               <span
+web:                 class="truncate"
+web:               >
+web:                 Todos os estágios
+web:               </span>
+web:               <svg
+web:                 aria-hidden="true"
+web:                 class="lucide lucide-chevron-down shrink-0 text-gray-500 w-4 h-4"
+web:                 fill="none"
+web:                 height="24"
+web:                 stroke="currentColor"
+web:                 stroke-linecap="round"
+web:                 stroke-linejoin="round"
+web:                 stroke-width="2"
+web:                 viewBox="0 0 24 24"
+web:                 width="24"
+web:                 xmlns="http://www.w3.org/2000/svg"
+web:               >
+web:                 <path … />
+web:               </svg>
+web:             </button>
+web:           </div>
+web:         </div>
+web:       </div>
+web:     </div>
+web:     <div
+web:       class="w-full rounded-[12px] border border-gray-200 bg-white overflow-hidden"
+web:     >
+web:       <button
+web:         aria-expanded="false"
+web:         class="flex w-full items-center justify-between gap-2 px-4 py-3 text-left transition-colors text-[14px] font-semibold text-gray-900 hover:bg-gray-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-200"
+web:         type="button"
+web:       >
+web:         <span>
+web:           Filtros adicionais
+web:         </span>
+web:         <svg
+web:           aria-hidden="true"
+web:           class="lucide lucide-chevron-down w-4 h-4 shrink-0 text-gray-500 transition-transform"
+web:           fill="none"
+web:           height="24"
+web:           stroke="currentColor"
+web:           stroke-linecap="round"
+web:           stroke-linejoin="round"
+web:           stroke-width="2"
+web:           viewBox="0 0 24 24"
+web:           width="24"
+web:           xmlns="http://www.w3.org/2000/svg"
+web:         >
+web:           <path
+web:             d="m6 9 6 6 6-6"
+web:           />
+web:         </svg>
+web:       </button>
+web:     </div>
+web:     <div
+web:       class="flex gap-2"
+web:     >
+web:       <button
+web:         class="relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-brand-500 text-gray-70 border border-brand-500 hover:bg-brand-700 hover:border-brand-700 disabled:bg-gray-400 disabled:border-gray-400 disabled:text-gray-70 h-[42px] text-sm px-4"
+web:         type="submit"
+web:       >
+web:         <div
+web:           class="relative z-10 flex items-center gap-2"
+web:         >
+web:           <span
+web:             class="font-normal"
+web:           >
+web:             Buscar
+web:           </span>
+web:         </div>
+web:       </button>
+web:       <button
+web:         class="relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-transparent text-brand-600 border border-gray-200 hover:bg-gray-80 hover:border-gray-90 disabled:bg-gray-80 disabled:border-gray-200 disabled:text-gray-400 h-[42px] text-sm px-4"
+web:         type="button"
+web:       >
+web:         <div
+web:           class="relative z-10 flex items-center gap-2"
+web:         >
+web:           <span
+web:             class="font-medium"
+web:           >
+web:             Limpar
+web:           </span>
+web:         </div>
+web:       </button>
+web:     </div>
+web:   </form>
+web: </div>
+web:  ❯ src/pages/TicketAdvancedSearchPage.test.tsx:58:98
+web:      56|     renderPage();
+web:      57|
+web:      58|     expect(screen.getByRole('heading', { name: 'Busca avançada' }).clo…
+web:        |                                                                                                  ^
+web:      59|   });
+web:      60|
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+web:  Test Files  1 failed (1)
+web:       Tests  1 failed | 10 passed (11)
+web:    Start at  18:01:11
+web:    Duration  26.50s (transform 6.33s, setup 690ms, import 10.23s, tests 11.74s, environment 3.21s)
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+

@@ -1,0 +1,44 @@
+.E.................F....FF...
+======================================================================
+ERROR: test_probe_that_failed_is_not_verified_instead_of_different (test_avisar_card.CommentBodyTests.test_probe_that_failed_is_not_verified_instead_of_different)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 78, in test_probe_that_failed_is_not_verified_instead_of_different
+    body = build_body('CD (Produção) concluído', SHA, PR, RUN, {'/api/version': None, '/version.json': SHA})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/avisar_card.py", line 43, in build_body
+    shown = ', '.join('`' + path + '` → `' + commit + '`' for path, commit in version.items())
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/avisar_card.py", line 43, in <genexpr>
+    shown = ', '.join('`' + path + '` → `' + commit + '`' for path, commit in version.items())
+                      ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+TypeError: can only concatenate str (not "NoneType") to str
+
+======================================================================
+FAIL: test_unreachable_production_is_posted_as_not_verified (test_avisar_card.NotifyTests.test_unreachable_production_is_posted_as_not_verified)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 142, in test_unreachable_production_is_posted_as_not_verified
+    self.assertIn('não verificado', content)
+AssertionError: 'não verificado' not found in '[@dev_ultra_lider](mention://agent/0427564a-c9cc-494e-8ea1-592a98588251) **CD (Produção) concluído**\n\n- Commit: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n- PR: #12 (https://github.com/dmrepositorio/aponta/pull/12)\n- Run: https://github.com/dmrepositorio/aponta/actions/runs/777\n- Produção: `/api/version` → `indisponível: URLError`, `/version.json` → `indisponível: URLError` (diferente do commit implantado)'
+
+======================================================================
+FAIL: test_checkout_failure_never_fails_the_deploy (test_avisar_card.WorkflowTests.test_checkout_failure_never_fails_the_deploy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 228, in test_checkout_failure_never_fails_the_deploy
+    self.assertEqual(self.notify.count('continue-on-error: true'), 2)
+AssertionError: 1 != 2
+
+======================================================================
+FAIL: test_delivery_contract_runs_these_tests (test_avisar_card.WorkflowTests.test_delivery_contract_runs_these_tests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-506-a0a78ef9a1f5/workdir/aponta/scripts/test_avisar_card.py", line 232, in test_delivery_contract_runs_these_tests
+    self.assertIn('-p test_avisar_card.py', contract)
+AssertionError: '-p test_avisar_card.py' not found in 'name: Aponta delivery\n\non:\n  pull_request:\n    branches: [main]\n    types: [opened, synchronize, reopened, edited, ready_for_review]\n  merge_group:\n    branches: [main]\n\npermissions:\n  contents: read\n  pull-requests: read\n\nconcurrency:\n  group: delivery-${{ github.event.pull_request.number || github.event.merge_group.head_sha }}\n  cancel-in-progress: true\n\njobs:\n  contract:\n    name: Delivery contract\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4\n        with:\n          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha }}\n          fetch-depth: 0\n          persist-credentials: false\n      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4\n        with:\n          node-version: \'24\'\n      - name: Test the verifier\n        run: python3 -m unittest discover -s scripts -p test_aponta_delivery.py -v\n      - name: Test the Independent QA publisher\n        run: python3 -m unittest discover -s scripts -p test_publicar_qa.py -v\n      - name: Verify reusable engineering skill bundles\n        run: |\n          python3 -m unittest discover -s scripts -p test_engineering_skills.py -v\n          python3 scripts/check_engineering_skills.py\n      - name: Verify identity, SPEC, TDD and design system\n        env:\n          GH_TOKEN: ${{ github.token }}\n        run: python3 scripts/aponta_delivery.py check --event "$GITHUB_EVENT_PATH"\n      - name: Build affected Storybook\n        env:\n          BASE_SHA: ${{ github.event.pull_request.base.sha }}\n          HEAD_SHA: ${{ github.event.pull_request.head.sha }}\n        shell: bash\n        run: |\n          if git diff --name-only "$BASE_SHA...$HEAD_SHA" -- apps/web/src/components/ds apps/web/.storybook | read -r changed; then\n            corepack enable\n            corepack prepare pnpm@12.8.1 --activate\n            pnpm install --frozen-lockfile\n            pnpm exec nx run web:build-storybook\n          fi\n      - name: Preserve delivery evidence\n        if: always()\n        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4\n        with:\n          name: delivery-${{ github.event.pull_request.head.sha }}\n          path: .delivery/\n          retention-days: 30\n'
+
+----------------------------------------------------------------------
+Ran 29 tests in 0.069s
+
+FAILED (failures=3, errors=1)

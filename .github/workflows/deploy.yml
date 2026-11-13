@@ -112,3 +112,29 @@ jobs:
           script: |
             set -e
             python3 "$HOME/deploy/aponta/releases/$DEPLOY_SHA/scripts/aponta_release.py" promote --sha "$DEPLOY_SHA"
+
+  # Devolve o resultado do CD ao card Multica da entrega, para o líder não agendar horário.
+  # Nunca altera o resultado do CD: o script termina com 0 e o passo tem continue-on-error.
+  notify:
+    name: Aviso ao card Multica
+    needs: [resolve, staging, production]
+    if: always() && needs.resolve.outputs.sha != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.resolve.outputs.sha }}
+          persist-credentials: false
+        continue-on-error: true
+      - name: Comment the CD result on the delivery card
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MULTICA_TOKEN: ${{ secrets.MULTICA_TOKEN }}
+          SHA: ${{ needs.resolve.outputs.sha }}
+          STAGING_RESULT: ${{ needs.staging.result }}
+          PRODUCTION_RESULT: ${{ needs.production.result }}
+        run: python3 scripts/avisar_card.py

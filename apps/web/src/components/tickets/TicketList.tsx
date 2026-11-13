@@ -5,6 +5,7 @@ import { EzAlert, EzEmptyCard, EzSelect, EzSpinner, EzTag } from '../ds';
 import { statusLabels, priorityLabels, statusTagVariants, priorityTagVariants } from './TicketCard';
 import { useUserScreenConfig } from '../../hooks/useUserScreenConfig';
 import { useOpenInTab } from '../../contexts/TabsContext';
+import { useAuthStore } from '../../stores/authStore';
 
 const sourceLabels: Record<string, string> = {
   WEB: 'Web',
@@ -19,6 +20,8 @@ interface ColumnDef {
   sortField?: string;
   render: (ticket: Ticket) => ReactNode;
   defaultVisible: boolean;
+  /** The API only sends this data to staff (ADMIN/AGENT_MASTER/AGENT), so any other role never gets the column. */
+  staffOnly?: boolean;
 }
 
 function formatDateTime(value: string | null | undefined): ReactNode {
@@ -86,6 +89,12 @@ const COLUMNS: ColumnDef[] = [
     render: (t) => <span>{t.serviceDesk?.displayName ?? t.serviceDesk?.name ?? '—'}</span>,
   },
   {
+    id: 'resourceGroup',
+    label: 'Grupo de recursos',
+    defaultVisible: false,
+    render: (t) => <span>{t.resourceGroup || '—'}</span>,
+  },
+  {
     id: 'agent',
     label: 'Responsável',
     sortField: 'agentId',
@@ -97,6 +106,26 @@ const COLUMNS: ColumnDef[] = [
     label: 'Solicitante',
     defaultVisible: false,
     render: (t) => <span>{t.requester?.name ?? '—'}</span>,
+  },
+  {
+    id: 'requesterEmail',
+    label: 'E-mail do solicitante',
+    defaultVisible: false,
+    render: (t) => <span>{t.requester?.email || '—'}</span>,
+  },
+  {
+    id: 'requesterPhone',
+    label: 'Telefone do solicitante',
+    defaultVisible: false,
+    staffOnly: true,
+    render: (t) => <span>{t.requester?.phone || '—'}</span>,
+  },
+  {
+    id: 'requesterExtension',
+    label: 'Ramal do solicitante',
+    defaultVisible: false,
+    staffOnly: true,
+    render: (t) => <span>{t.requester?.extension || '—'}</span>,
   },
   {
     id: 'createdAt',
@@ -171,6 +200,9 @@ export function TicketList({
   onSortChange,
 }: TicketListProps) {
   const openInTab = useOpenInTab();
+  const role = useAuthStore((state) => state.user?.role);
+  const isStaff = role === 'ADMIN' || role === 'AGENT_MASTER' || role === 'AGENT';
+  const columns = isStaff ? COLUMNS : COLUMNS.filter((col) => !col.staffOnly);
   const { config, setGroupBy, setColumnVisibility } = useUserScreenConfig('tickets-list', {
     groupBy: 'none',
     grid: { columnVisibility: DEFAULT_COLUMN_VISIBILITY, density: 'compact' },
@@ -213,16 +245,7 @@ export function TicketList({
     );
   }
 
-  if (tickets.length === 0) {
-    return (
-      <EzEmptyCard
-        title="Nenhum chamado encontrado"
-        description="Tente ajustar os filtros."
-      />
-    );
-  }
-
-  const visibleColumns = COLUMNS.filter((col) => config.grid.columnVisibility[col.id] !== false);
+  const visibleColumns = columns.filter((col) => config.grid.columnVisibility[col.id] !== false);
   const groupOption = GROUP_OPTIONS.find((g) => g.id === config.groupBy) ?? GROUP_OPTIONS[0];
   const isGrouped = groupOption.id !== 'none';
 
@@ -281,7 +304,7 @@ export function TicketList({
           </button>
           {isColumnMenuOpen && (
             <div className="absolute z-10 mt-1 w-56 rounded-control border border-gray-200 bg-white p-2 shadow-popover">
-              {COLUMNS.map((col) => (
+              {columns.map((col) => (
                 <label key={col.id} className="flex items-center gap-2 px-1 py-1 text-[13px]">
                   <input
                     type="checkbox"
@@ -297,72 +320,79 @@ export function TicketList({
           )}
         </div>
 
-        {isGrouped && totalPages && totalPages > 1 && (
+        {isGrouped && tickets.length > 0 && totalPages && totalPages > 1 && (
           <span className="text-[12px] text-gray-500">
             Agrupando os {tickets.length} chamados desta página.
           </span>
         )}
       </div>
 
-      <div
-        role="region"
-        aria-label="Tabela de chamados"
-        tabIndex={0}
-        className="overflow-x-auto rounded-control border border-gray-200 bg-white outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-      >
-        <table className="w-full min-w-[720px] text-left">
-          <thead>
-            <tr className="border-b border-gray-200 bg-gray-80">
-              {visibleColumns.map((col) => (
-                <th key={col.id} className="px-3 py-2 text-[12px] font-semibold text-gray-600">
-                  {col.sortField ? (
-                    <button
-                      type="button"
-                      onClick={() => handleSortClick(col.sortField as string)}
-                      className="cursor-pointer hover:text-gray-900"
-                    >
-                      {col.label}
-                    </button>
-                  ) : (
-                    col.label
-                  )}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {isGrouped
-              ? Array.from(groups ?? []).map(([groupKey, groupTickets]) => {
-                  const isExpanded = expandedGroups.has(groupKey);
-                  return (
-                    <Fragment key={groupKey}>
-                      <tr className="bg-gray-80">
-                        <td colSpan={visibleColumns.length} className="px-3 py-2">
-                          <button
-                            type="button"
-                            aria-expanded={isExpanded}
-                            onClick={() => toggleGroup(groupKey)}
-                            className="flex w-full cursor-pointer items-center gap-2 rounded-control text-left text-[13px] font-semibold text-gray-900 outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                          >
-                            {isExpanded ? (
-                              <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-500" />
-                            ) : (
-                              <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-500" />
-                            )}
-                            <span>
-                              {groupKey} ({groupTickets.length})
-                            </span>
-                          </button>
-                        </td>
-                      </tr>
-                      {isExpanded && groupTickets.map(renderRow)}
-                    </Fragment>
-                  );
-                })
-              : tickets.map(renderRow)}
-          </tbody>
-        </table>
-      </div>
+      {tickets.length === 0 ? (
+        <EzEmptyCard
+          title="Nenhum chamado encontrado"
+          description="Tente ajustar os filtros."
+        />
+      ) : (
+        <div
+          role="region"
+          aria-label="Tabela de chamados"
+          tabIndex={0}
+          className="overflow-x-auto rounded-control border border-gray-200 bg-white outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        >
+          <table className="w-full min-w-[720px] text-left">
+            <thead>
+              <tr className="border-b border-gray-200 bg-gray-80">
+                {visibleColumns.map((col) => (
+                  <th key={col.id} className="px-3 py-2 text-[12px] font-semibold text-gray-600">
+                    {col.sortField ? (
+                      <button
+                        type="button"
+                        onClick={() => handleSortClick(col.sortField as string)}
+                        className="cursor-pointer hover:text-gray-900"
+                      >
+                        {col.label}
+                      </button>
+                    ) : (
+                      col.label
+                    )}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {isGrouped
+                ? Array.from(groups ?? []).map(([groupKey, groupTickets]) => {
+                    const isExpanded = expandedGroups.has(groupKey);
+                    return (
+                      <Fragment key={groupKey}>
+                        <tr className="bg-gray-80">
+                          <td colSpan={visibleColumns.length} className="px-3 py-2">
+                            <button
+                              type="button"
+                              aria-expanded={isExpanded}
+                              onClick={() => toggleGroup(groupKey)}
+                              className="flex w-full cursor-pointer items-center gap-2 rounded-control text-left text-[13px] font-semibold text-gray-900 outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                            >
+                              {isExpanded ? (
+                                <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-500" />
+                              ) : (
+                                <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-500" />
+                              )}
+                              <span>
+                                {groupKey} ({groupTickets.length})
+                              </span>
+                            </button>
+                          </td>
+                        </tr>
+                        {isExpanded && groupTickets.map(renderRow)}
+                      </Fragment>
+                    );
+                  })
+                : tickets.map(renderRow)}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

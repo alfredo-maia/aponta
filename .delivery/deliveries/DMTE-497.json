@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "delivery": "DMTE-497",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 226,
+  "multica_id": "01a1d18b-ca9f-7501-88fd-ba8b00c735a5",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "com Ordenar aberto, Esc fecha o painel e o foco volta ao botão Ordenar.",
+      "tests": [
+        "DMTE-497 AC-01: Esc fecha o painel de Ordenar e o foco volta ao botão"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "com Configurações aberto, Esc fecha o painel e o foco volta ao botão Configurações.",
+      "tests": [
+        "DMTE-497 AC-02: Esc fecha o painel de Configurações e o foco volta ao botão"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "`mousedown` fora de cada menu o fecha; clique dentro do painel (inclusive escolher uma opção do \"Agrupar por\") não o fecha. Clicar no seletor de mesa também fecha o menu aberto.",
+      "tests": [
+        "DMTE-497 AC-03: clique fora fecha cada menu, clique dentro não, e o seletor de mesa também fecha",
+        "DMTE-497 AC-03: escolher uma opção do \"Agrupar por\" não fecha o painel de Configurações"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "abrir Configurações com Ordenar aberto fecha Ordenar, e o inverso: nunca dois painéis abertos.",
+      "tests": [
+        "DMTE-497 AC-04: abrir um menu fecha o outro, nos dois sentidos"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "com a lista do \"Agrupar por\" aberta dentro de Configurações, o primeiro Esc fecha só a lista e o segundo fecha o painel.",
+      "tests": [
+        "DMTE-497 AC-05: com a lista do \"Agrupar por\" aberta, o primeiro Esc fecha só a lista e o segundo o painel"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "description": "os gatilhos expõem `aria-expanded` (true/false) e `aria-controls` do painel aberto; têm foco visível e o visual descrito em \"Situação desejada\".",
+      "tests": [
+        "DMTE-497 AC-06: os gatilhos expõem aria-expanded e aria-controls, e têm foco visível"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-497.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-497/red.json",
+    "green": ".delivery/evidence/DMTE-497/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzSelect"
+    ]
+  }
+}

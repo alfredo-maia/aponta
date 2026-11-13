@@ -1,0 +1,172 @@
+
+> nx run web:test src/components/tickets/TicketKanban.test.tsx
+
+web:  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-497-2acf1ec217ee/workdir/aponta/apps/web
+web:  ❯ |web| src/components/tickets/TicketKanban.test.tsx (43 tests | 6 failed) 15711ms
+web:        ✓ DMTE-458: board is a snap-scroll container and columns are fluid (no fixed 290px)  1092ms
+web:        ✓ shows a skeleton loading state with every column label while isLoading 214ms
+web:        ✓ shows an error message when isError is true 178ms
+web:        ✓ groups tickets into their matching status column with correct counts  345ms
+web:        ✓ DMTE-490 AC-05: has an Aguardando Sankhya column right after Aguardando Terceiros and groups its tickets there  329ms
+web:        ✓ renders an empty column (count 0) when there are no tickets for that status 76ms
+web:        ✓ does nothing when a card is dropped outside any column (no destination) 224ms
+web:        ✓ does nothing when a card is dropped back in the same column 54ms
+web:        ✓ calls the status-update API when a card is dropped into a different column 191ms
+web:        ✓ rolls back the optimistic update when the status-update API call fails 93ms
+web:        ✓ disables drop targets and card dragging for CLIENT role users 257ms
+web:        ✓ does not fetch mesa stages when no mesa is selected (fetches only the Mesa dropdown list) 198ms
+web:        ✓ shows a collapse toggle and an "Abrir novo ticket" link on every column by default (fallback por status)  402ms
+web:        ✓ collapsing a status column hides its ticket list and disables it as a drop target; expanding restores it 284ms
+web:        ✓ does not show "Abrir novo ticket" for CLIENT role users 54ms
+web:        ✓ collapsing a stage column (mesa selecionada) hides its ticket list and disables it as a drop target  665ms
+web:        ✓ lists service desks in the Mesa dropdown and switches to stage-grouped columns on selection, without needing initialServiceDeskId  405ms
+web:        ✓ keeps the user's own Mesa selection even if the component re-renders with a different initialServiceDeskId  326ms
+web:        ✓ fetches the mesa stages via GET /service-desks/:id/stages 31ms
+web:        ✓ groups tickets by stage (ordered by position) instead of by status  1196ms
+web:        ✓ puts tickets with no recognized stage into a "Sem estágio" column that never accepts a drop  735ms
+web:        ✓ allows dragging an unstaged ticket straight to the mesa's initial stage  634ms
+web:        ✓ blocks dragging an unstaged ticket to a non-initial stage 291ms
+web:        ✓ calls PATCH /tickets/:id/stage (not /status) when dropping into an allowed next stage  399ms
+web:        ✓ blocks the drop and shows an error when the destination stage is not in transitionToIds 102ms
+web:        ✓ does nothing when a card is dropped back in its own stage column 193ms
+web:        ✓ dims (disables) columns unreachable from the dragged card while dragging 179ms
+web:        ✓ rolls back the optimistic update and surfaces the backend message when the stage API call rejects with 400  521ms
+web:        ✓ shows an informational alert when the mesa has no stages configured 154ms
+web:        ✓ AC-04: keeps Mesa, responsáveis, Ordenar and Configurações in one toolbar row, in that order  742ms
+web:        ✓ renders one avatar per distinct agent present in the tickets 229ms
+web:        ✓ clicking an avatar filters the board to that agent's tickets (toggle, multi-select)  502ms
+web:        ✓ opens "Ordenar", sorts cards by Título asc/desc, and "Limpar" restores the original order  1262ms
+web:        ✓ "Configurações" lets the user group by Responsável instead of Status/Estágio  404ms
+web:        ✓ "Configurações" lets the user group by Prioridade  503ms
+web:        ✓ RODADA 2 ("Exibir campos", D6c): "Configurações" lets the user toggle optional card fields, persisted like "Agrupar por"  370ms
+web:        × DMTE-497 AC-01: Esc fecha o painel de Ordenar e o foco volta ao botão 516ms
+web:        × DMTE-497 AC-02: Esc fecha o painel de Configurações e o foco volta ao botão 179ms
+web:        × DMTE-497 AC-03: clique fora fecha cada menu, clique dentro não, e o seletor de mesa também fecha 143ms
+web:        ✓ DMTE-497 AC-03: escolher uma opção do "Agrupar por" não fecha o painel de Configurações 276ms
+web:        × DMTE-497 AC-04: abrir um menu fecha o outro, nos dois sentidos 317ms
+web:        × DMTE-497 AC-05: com a lista do "Agrupar por" aberta, o primeiro Esc fecha só a lista e o segundo o painel 253ms
+web:        × DMTE-497 AC-06: os gatilhos expõem aria-expanded e aria-controls, e têm foco visível 144ms
+web: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+web:  FAIL  |web| src/components/tickets/TicketKanban.test.tsx > TicketKanban > DMTE-497: menus Ordenar e Configurações como o seletor de mesa > DMTE-497 AC-01: Esc fecha o painel de Ordenar e o foco volta ao botão
+web: Error: [2mexpect([22m[31melement[39m[2m).not.toBeInTheDocument()[22m
+web: [31mexpected document not to contain element, found <p
+web:   class="px-1 pb-1 text-[12px] font-semibold text-gray-500"
+web: >
+web:   Ordenar os cards por
+web: </p> instead[39m
+web:  ❯ src/components/tickets/TicketKanban.test.tsx:1010:31
+web:     1008|       pressEscape(option);
+web:     1009|
+web:     1010|       expect(sortPanel()).not.toBeInTheDocument();
+web:        |                               ^
+web:     1011|       expect(sortButton()).toHaveFocus();
+web:     1012|     });
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+web:  FAIL  |web| src/components/tickets/TicketKanban.test.tsx > TicketKanban > DMTE-497: menus Ordenar e Configurações como o seletor de mesa > DMTE-497 AC-02: Esc fecha o painel de Configurações e o foco volta ao botão
+web: Error: [2mexpect([22m[31melement[39m[2m).not.toBeInTheDocument()[22m
+web: [31mexpected document not to contain element, found <p
+web:   class="px-1 text-[12px] font-semibold text-gray-500"
+web: >
+web:   Exibir campos
+web: </p> instead[39m
+web:  ❯ src/components/tickets/TicketKanban.test.tsx:1022:33
+web:     1020|       pressEscape(checkbox);
+web:     1021|
+web:     1022|       expect(configPanel()).not.toBeInTheDocument();
+web:        |                                 ^
+web:     1023|       expect(configButton()).toHaveFocus();
+web:     1024|     });
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+web:  FAIL  |web| src/components/tickets/TicketKanban.test.tsx > TicketKanban > DMTE-497: menus Ordenar e Configurações como o seletor de mesa > DMTE-497 AC-03: clique fora fecha cada menu, clique dentro não, e o seletor de mesa também fecha
+web: Error: [2mexpect([22m[31melement[39m[2m).not.toBeInTheDocument()[22m
+web: [31mexpected document not to contain element, found <p
+web:   class="px-1 pb-1 text-[12px] font-semibold text-gray-500"
+web: >
+web:   Ordenar os cards por
+web: </p> instead[39m
+web:  ❯ src/components/tickets/TicketKanban.test.tsx:1031:31
+web:     1029|       expect(sortPanel()).toBeInTheDocument();
+web:     1030|       fireEvent.mouseDown(document.body);
+web:     1031|       expect(sortPanel()).not.toBeInTheDocument();
+web:        |                               ^
+web:     1032|
+web:     1033|       fireEvent.click(configButton());
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+web:  FAIL  |web| src/components/tickets/TicketKanban.test.tsx > TicketKanban > DMTE-497: menus Ordenar e Configurações como o seletor de mesa > DMTE-497 AC-04: abrir um menu fecha o outro, nos dois sentidos
+web: Error: [2mexpect([22m[31melement[39m[2m).not.toBeInTheDocument()[22m
+web: [31mexpected document not to contain element, found <p
+web:   class="px-1 pb-1 text-[12px] font-semibold text-gray-500"
+web: >
+web:   Ordenar os cards por
+web: </p> instead[39m
+web:  ❯ src/components/tickets/TicketKanban.test.tsx:1059:31
+web:     1057|       fireEvent.click(configButton());
+web:     1058|       expect(configPanel()).toBeInTheDocument();
+web:     1059|       expect(sortPanel()).not.toBeInTheDocument();
+web:        |                               ^
+web:     1060|
+web:     1061|       fireEvent.mouseDown(sortButton());
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+web:  FAIL  |web| src/components/tickets/TicketKanban.test.tsx > TicketKanban > DMTE-497: menus Ordenar e Configurações como o seletor de mesa > DMTE-497 AC-05: com a lista do "Agrupar por" aberta, o primeiro Esc fecha só a lista e o segundo o painel
+web: Error: [2mexpect([22m[31melement[39m[2m).not.toBeInTheDocument()[22m
+web: [31mexpected document not to contain element, found <p
+web:   class="px-1 text-[12px] font-semibold text-gray-500"
+web: >
+web:   Exibir campos
+web: </p> instead[39m
+web:  ❯ src/components/tickets/TicketKanban.test.tsx:1078:33
+web:     1076|
+web:     1077|       pressEscape(groupBy);
+web:     1078|       expect(configPanel()).not.toBeInTheDocument();
+web:        |                                 ^
+web:     1079|     });
+web:     1080|
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+web:  FAIL  |web| src/components/tickets/TicketKanban.test.tsx > TicketKanban > DMTE-497: menus Ordenar e Configurações como o seletor de mesa > DMTE-497 AC-06: os gatilhos expõem aria-expanded e aria-controls, e têm foco visível
+web: Error: [2mexpect([22m[31melement[39m[2m).toHaveAttribute([22m[32m[32m"aria-expanded"[32m[39m[2m, [22m[32m[32m"false"[32m[39m[2m) // element.getAttribute("aria-expanded") === "false"[22m
+web: Expected the element to have attribute:
+web: [32m  aria-expanded="false"[39m
+web: Received:
+web: [31m  null[39m
+web:  ❯ src/components/tickets/TicketKanban.test.tsx:1086:27
+web:     1084|         [configButton, 'Exibir campos'],
+web:     1085|       ] as const) {
+web:     1086|         expect(trigger()).toHaveAttribute('aria-expanded', 'false');
+web:        |                           ^
+web:     1087|         expect(trigger()).not.toHaveAttribute('aria-controls');
+web:     1088|         expect(trigger().className).toContain('focus-visible:ring');
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+web:  Test Files  1 failed (1)
+web:       Tests  6 failed | 37 passed (43)
+web:    Start at  18:02:36
+web:    Duration  35.29s (transform 8.00s, setup 838ms, import 13.24s, tests 15.71s, environment 4.28s)
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
+Creating project graph nodes with 4 plugins
+  - @nx/eslint/plugin
+  - @nx/vitest
+  - @nx/playwright/plugin
+  - @nx/jest/plugin
+Creating project graph nodes with 3 plugins
+  - @nx/eslint/plugin
+  - @nx/playwright/plugin
+  - @nx/jest/plugin
+Creating project graph nodes with 2 plugins
+  - @nx/eslint/plugin
+  - @nx/playwright/plugin
+Creating project graph nodes with @nx/eslint/plugin
+
+Creating project graph dependencies with 2 plugins
+  - @nx/vite/plugin
+  - nx/js/dependencies-and-lockfile
+Creating project graph dependencies with nx/js/dependencies-and-lockfile
+

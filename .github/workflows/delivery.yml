@@ -32,6 +32,8 @@ jobs:
         run: python3 -m unittest discover -s scripts -p test_aponta_delivery.py -v
       - name: Test the Independent QA publisher
         run: python3 -m unittest discover -s scripts -p test_publicar_qa.py -v
+      - name: Test the CD notice to the Multica card
+        run: python3 -m unittest discover -s scripts -p test_avisar_card.py -v
       - name: Verify reusable engineering skill bundles
         run: |
           python3 -m unittest discover -s scripts -p test_engineering_skills.py -v
