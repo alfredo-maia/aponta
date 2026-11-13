@@ -6,7 +6,7 @@ Identidade: DMTE-498, issue dmrepositorio/aponta#246, Tier 1, ciclo 2026-11-09/2
 `mesaSelector` em `apps/web/src/components/tickets/TicketKanban.tsx` é um `EzSelect` padrão: caixa `bg-white` com borda `gray-200`, texto `gray-900`, chevron `gray-500`. O botão "Novo Ticket" (`Sidebar.tsx`, `EzButton` primary) usa `bg-brand-500`, `border-brand-500`, `text-gray-70` e hover `bg-brand-700` / `border-brand-700`.
 
 ## Situação desejada
-A caixa do seletor de mesa do Kanban usa os mesmos tokens do "Novo Ticket": fundo e borda `brand-500`, texto e chevron `gray-70`, hover com fundo e borda `brand-700`. O anel de foco do `EzSelect` (`brand-600`) e a lista suspensa (branca) não mudam.
+A caixa do seletor de mesa do Kanban usa os mesmos tokens do "Novo Ticket": fundo e borda `brand-500`, texto e chevron `gray-70`, hover com fundo e borda `brand-700`. A lista suspensa (branca) não muda. O anel de foco do `EzSelect` (`ring-1 brand-600`) some sobre o fundo `brand-500`; por isso, com foco na caixa entra o anel do `EzButton` primário: `ring-4 brand-200` com `ring-offset-2`.
 
 Proposta de implementação (não é escopo fechado): classes de variante arbitrária no `div` que envolve o `EzSelect` em `mesaSelector`, apontando para a caixa do controle e para o botão `combobox` (o `EzSelect` não expõe `className` para o controle interno). Nenhum arquivo de `components/ds` muda.
 
@@ -14,15 +14,16 @@ Proposta de implementação (não é escopo fechado): classes de variante arbitr
 - AC-01: a caixa do seletor de mesa do Kanban tem fundo e borda `brand-500`; o texto e o chevron têm `gray-70`.
 - AC-02: no hover, a caixa do seletor de mesa do Kanban passa a fundo e borda `brand-700`.
 - AC-03: o `EzSelect` não muda: `components/ds/EzSelect.tsx` fica intacto e um `EzSelect` fora do seletor de mesa continua com caixa `bg-white`.
+- AC-04: com o foco no seletor de mesa do Kanban, a caixa mostra anel `ring-4` `brand-200` com `ring-offset-2`, o mesmo foco do botão "Novo Ticket" (o anel `brand-600` do `EzSelect` quase não se vê sobre `brand-500`).
 
 ## Comportamento preservado
-Escolha de mesa, `aria-label="Mesa"`, `data-testid="kanban-mesa-select"`, abertura da lista, Esc, clique fora, foco visível (anel `brand-600`), lista suspensa branca, ordem da barra (Mesa, responsáveis, Ordenar, Configurações).
+Escolha de mesa, `aria-label="Mesa"`, `data-testid="kanban-mesa-select"`, abertura da lista, Esc, clique fora, foco visível (agora com o anel do AC-04), lista suspensa branca, ordem da barra (Mesa, responsáveis, Ordenar, Configurações).
 
 ## Testes
 `apps/web/src/components/tickets/TicketKanban.test.tsx`, bloco novo "DMTE-498: seletor de mesa com a cor do Novo Ticket". Seam: o Kanban renderizado com `api.get` mockado; a caixa do controle é o pai do `combobox` "Mesa"; asserções sobre as classes de token. jsdom não calcula CSS: as classes são conferidas por teste e a cor renderizada por captura do Chromium no pai Multica (sem substituir o aceite visual do usuário). Também rodar `scripts/check_tickets_palette.py`, `scripts/check_tickets_proportion.py` e `scripts/check_native_select.py`.
 
 ## Direção de UI (Impeccable, modo Operate; Web Design Guidelines)
-Impeccable, modo Operate: a cor de acento fica para ação primária; aqui é pedido explícito do usuário para unificar com o "Novo Ticket", então o ajuste é só de tokens, sem forma nova. Web Design Guidelines (regras recuperadas em 2026-11-13): foco visível preservado (anel do `EzSelect`), hover presente, `aria-label` do controle mantido. Sem `PRODUCT.md`/`DESIGN.md` no repositório e o launcher `impeccable context` sem permissão de execução (`Permission denied`); a direção vem de `docs/architecture/03-sankhya-ds-parity.md` e dos tokens de `apps/web/src/styles.css`.
+Impeccable, modo Operate: a cor de acento fica para ação primária; aqui é pedido explícito do usuário para unificar com o "Novo Ticket", então o ajuste é só de tokens, sem forma nova. Web Design Guidelines (regras recuperadas em 2026-11-13): foco visível (regra "Interactive elements need visible focus"; o anel original do `EzSelect` não basta sobre `brand-500`, ver AC-04), hover presente, `aria-label` do controle mantido. Sem `PRODUCT.md`/`DESIGN.md` no repositório e o launcher `impeccable context` sem permissão de execução (`Permission denied`); a direção vem de `docs/architecture/03-sankhya-ds-parity.md` e dos tokens de `apps/web/src/styles.css`.
 
 ## Riscos e exclusões
 - Contraste: `gray-70` (#ffffff) sobre `brand-500` (#1a9171) dá cerca de 3,9:1, abaixo de 4,5:1 para texto de 14px. É a mesma combinação do "Novo Ticket" e foi pedida assim; fica registrado para o aceite visual do usuário. Não proposto: escurecer o fundo.

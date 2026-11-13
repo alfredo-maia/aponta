@@ -2,20 +2,27 @@
 > nx run web:test src/components/tickets/TicketKanban.test.tsx
 
 web:  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-498-4184d89f200e/workdir/aponta/apps/web
-web:  ✓ |web| src/components/tickets/TicketKanban.test.tsx (47 tests) 9002ms
-web:        ✓ DMTE-458: board is a snap-scroll container and columns are fluid (no fixed 290px)  1014ms
-web:        ✓ shows an error message when isError is true  317ms
-web:        ✓ groups tickets into their matching status column with correct counts  505ms
-web:        ✓ DMTE-490 AC-05: has an Aguardando Sankhya column right after Aguardando Terceiros and groups its tickets there  580ms
-web:        ✓ calls the status-update API when a card is dropped into a different column  515ms
-web:        ✓ rolls back the optimistic update when the status-update API call fails  338ms
-web:        ✓ DMTE-496 AC-01: a coluna recolhida tem a altura mínima da expandida e acompanha o quadro, por status e por estágio  442ms
-web:        ✓ opens "Ordenar", sorts cards by Título asc/desc, and "Limpar" restores the original order  396ms
-web:        ✓ DMTE-497 AC-06: os gatilhos expõem aria-expanded e aria-controls, e têm foco visível  409ms
+web:  ✓ |web| src/components/tickets/TicketKanban.test.tsx (48 tests) 12625ms
+web:        ✓ DMTE-458: board is a snap-scroll container and columns are fluid (no fixed 290px)  422ms
+web:        ✓ DMTE-490 AC-05: has an Aguardando Sankhya column right after Aguardando Terceiros and groups its tickets there  334ms
+web:        ✓ DMTE-496 AC-01: a coluna recolhida tem a altura mínima da expandida e acompanha o quadro, por status e por estágio  380ms
+web:        ✓ lists service desks in the Mesa dropdown and switches to stage-grouped columns on selection, without needing initialServiceDeskId  308ms
+web:        ✓ renders one avatar per distinct agent present in the tickets  320ms
+web:        ✓ clicking an avatar filters the board to that agent's tickets (toggle, multi-select)  671ms
+web:        ✓ opens "Ordenar", sorts cards by Título asc/desc, and "Limpar" restores the original order  1075ms
+web:        ✓ "Configurações" lets the user group by Responsável instead of Status/Estágio  399ms
+web:        ✓ RODADA 2 ("Exibir campos", D6c): "Configurações" lets the user toggle optional card fields, persisted like "Agrupar por"  455ms
+web:        ✓ DMTE-497 AC-01: Esc fecha o painel de Ordenar e o foco volta ao botão  498ms
+web:        ✓ DMTE-497 AC-02: Esc fecha o painel de Configurações e o foco volta ao botão  489ms
+web:        ✓ DMTE-497 AC-03: clique fora fecha cada menu, clique dentro não, e o seletor de mesa também fecha  632ms
+web:        ✓ DMTE-497 AC-03: escolher uma opção do "Agrupar por" não fecha o painel de Configurações  354ms
+web:        ✓ DMTE-497 AC-04: abrir um menu fecha o outro, nos dois sentidos  628ms
+web:        ✓ DMTE-497 AC-05: com a lista do "Agrupar por" aberta, o primeiro Esc fecha só a lista e o segundo o painel  303ms
+web:        ✓ DMTE-497 AC-06: os gatilhos expõem aria-expanded e aria-controls, e têm foco visível  600ms
 web:  Test Files  1 passed (1)
-web:       Tests  47 passed (47)
-web:    Start at  19:54:54
-web:    Duration  19.98s (transform 6.08s, setup 625ms, import 8.26s, tests 9.00s, environment 1.72s)
+web:       Tests  48 passed (48)
+web:    Start at  19:58:57
+web:    Duration  22.59s (transform 5.32s, setup 344ms, import 7.54s, tests 12.62s, environment 1.48s)
 
 
 

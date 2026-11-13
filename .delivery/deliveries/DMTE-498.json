@@ -27,6 +27,13 @@
       "tests": [
         "DMTE-498 AC-03: um EzSelect fora do seletor de mesa segue com a caixa bg-white"
       ]
+    },
+    {
+      "id": "AC-04",
+      "description": "com o foco no seletor de mesa do Kanban, a caixa mostra anel `ring-4` `brand-200` com `ring-offset-2`, o mesmo foco do botão \"Novo Ticket\" (o anel `brand-600` do `EzSelect` quase não se vê sobre `brand-500`).",
+      "tests": [
+        "DMTE-498 AC-04: com foco a caixa do seletor de mesa mostra o anel brand-200 do Novo Ticket"
+      ]
     }
   ],
   "spec": "docs/delivery/specs/DMTE-498.md",

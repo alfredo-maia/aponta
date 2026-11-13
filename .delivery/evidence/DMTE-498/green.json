@@ -1,8 +1,8 @@
 {
   "version": 1,
   "phase": "green",
-  "started_at": "2026-11-13T22:54:52.111870+00:00",
-  "finished_at": "2026-11-13T22:55:14.940672+00:00",
+  "started_at": "2026-11-13T22:58:45.049185+00:00",
+  "finished_at": "2026-11-13T22:59:20.925006+00:00",
   "command": [
     "pnpm",
     "exec",
@@ -13,21 +13,22 @@
     "--output-style=stream",
     "src/components/tickets/TicketKanban.test.tsx"
   ],
-  "base_sha": "a01c362c55bdd29b65b8cee6448c962e374440ee",
-  "head_sha": "a01c362c55bdd29b65b8cee6448c962e374440ee",
+  "base_sha": "7ae71108070719af25bfa736a552314225e069fe",
+  "head_sha": "70be5fcc6a4052750f69610134f446719e125463",
   "exit_code": 0,
   "tests": {
-    "apps/web/src/components/tickets/TicketKanban.test.tsx": "0652a461e9966d8f621fdec86d59d6c438e84a5dd5a7cf598554e3e54c4b32fb"
+    "apps/web/src/components/tickets/TicketKanban.test.tsx": "9604ed045ea19fb5d8e265d5a47c9bf1c7a72978e433e3c59ba53d3cfe2ea587"
   },
   "criteria": [
     "AC-01",
     "AC-02",
-    "AC-03"
+    "AC-03",
+    "AC-04"
   ],
   "source_hashes": {
-    "apps/web/src/components/tickets/TicketKanban.test.tsx": "0652a461e9966d8f621fdec86d59d6c438e84a5dd5a7cf598554e3e54c4b32fb",
-    "apps/web/src/components/tickets/TicketKanban.tsx": "3118de4aa703766abcf44a9970f33ebd8677ce9da90a1bb78ad6cc4b88d3827f"
+    "apps/web/src/components/tickets/TicketKanban.test.tsx": "9604ed045ea19fb5d8e265d5a47c9bf1c7a72978e433e3c59ba53d3cfe2ea587",
+    "apps/web/src/components/tickets/TicketKanban.tsx": "6a08c9c83df927b8264957a64338bd2733e08167322199f4d6df1d62864f3561"
   },
   "log": ".delivery/evidence/DMTE-498/green.log",
-  "log_sha256": "d6f7c5f80123ff67849b5fcc3928a35d02eadee2e55c85d79bd61685b8fe9961"
+  "log_sha256": "7cfb044864e7896d91dc17c12b750b876588d3b5118cc7276ab1e41332f87883"
 }

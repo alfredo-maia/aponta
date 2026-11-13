@@ -551,9 +551,10 @@ export function TicketKanban({
   // TiFlux parity: a dedicated "Mesa" dropdown above the columns, always
   // visible regardless of loading/error/fallback state, so switching mesas
   // never requires leaving the Kanban.
+
   // Mesma cor do botão "Novo Ticket" do menu (DMTE-498). O EzSelect não expõe
   // className do controle interno, então as variantes descendentes pintam a caixa
-  // (o div que contém o combobox), o texto e o chevron só neste seletor.
+  // (o div que contém o combobox), o texto, o chevron e o foco só neste seletor.
   const mesaSelector = (
     <div
       className={cn(
@@ -561,6 +562,8 @@ export function TicketKanban({
         '[&_div:has(>[role=combobox])]:border-brand-500 [&_div:has(>[role=combobox])]:bg-brand-500',
         '[&_div:has(>[role=combobox])]:hover:border-brand-700 [&_div:has(>[role=combobox])]:hover:bg-brand-700',
         '[&_[role=combobox]]:text-gray-70 [&_[role=combobox]_svg]:text-gray-70',
+        // O anel brand-600 do EzSelect não aparece sobre brand-500: foco do EzButton primário.
+        '[&_div:has(>[role=combobox])]:focus-within:ring-4 [&_div:has(>[role=combobox])]:focus-within:ring-brand-200 [&_div:has(>[role=combobox])]:focus-within:ring-offset-2',
       )}
     >
       <label htmlFor="kanban-mesa-select" className="sr-only">

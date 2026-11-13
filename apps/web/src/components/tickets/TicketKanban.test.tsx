@@ -1124,12 +1124,15 @@ describe('TicketKanban', () => {
       }
     });
   });
+
   describe('DMTE-498: seletor de mesa com a cor do Novo Ticket', () => {
-    // jsdom não compila Tailwind: a cor é conferida pelas classes de token.
-    // A caixa do controle é o pai do combobox; o div que envolve o EzSelect
-    // (`max-w-xs`) carrega as variantes que pintam a caixa e o botão.
+    // jsdom não compila Tailwind: a cor é conferida pelas classes de token, por
+    // token inteiro. A caixa do controle é o pai do combobox; o div que envolve o
+    // EzSelect (`max-w-xs`) carrega as variantes que pintam a caixa e o botão.
+    const BOX = '[&_div:has(>[role=combobox])]';
     const mesaCombobox = () => screen.getByRole('combobox', { name: 'Mesa' });
-    const mesaWrapper = () => mesaCombobox().closest('.max-w-xs') as HTMLElement;
+    const mesaClasses = () =>
+      (mesaCombobox().closest('.max-w-xs') as HTMLElement).className.split(/\s+/);
 
     beforeEach(() => {
       mockApiGet();
@@ -1137,17 +1140,20 @@ describe('TicketKanban', () => {
     });
 
     it('DMTE-498 AC-01: a caixa do seletor de mesa tem fundo e borda brand-500, texto e chevron gray-70', () => {
-      const classes = mesaWrapper().className;
-      expect(classes).toContain('bg-brand-500');
-      expect(classes).toContain('border-brand-500');
-      expect(classes).toContain('text-gray-70');
-      expect(classes).toContain('svg]:text-gray-70');
+      expect(mesaClasses()).toEqual(
+        expect.arrayContaining([
+          `${BOX}:bg-brand-500`,
+          `${BOX}:border-brand-500`,
+          '[&_[role=combobox]]:text-gray-70',
+          '[&_[role=combobox]_svg]:text-gray-70',
+        ]),
+      );
     });
 
     it('DMTE-498 AC-02: no hover a caixa do seletor de mesa passa a brand-700', () => {
-      const classes = mesaWrapper().className;
-      expect(classes).toContain('hover:bg-brand-700');
-      expect(classes).toContain('hover:border-brand-700');
+      expect(mesaClasses()).toEqual(
+        expect.arrayContaining([`${BOX}:hover:bg-brand-700`, `${BOX}:hover:border-brand-700`]),
+      );
     });
 
     it('DMTE-498 AC-03: um EzSelect fora do seletor de mesa segue com a caixa bg-white', () => {
@@ -1162,6 +1168,16 @@ describe('TicketKanban', () => {
       expect(outro.parentElement?.className).not.toContain('brand-500');
       // No Kanban o EzSelect é o mesmo: a caixa continua bg-white no DS e só a variante do wrapper a repinta.
       expect(mesaCombobox().parentElement?.className).toContain('bg-white');
+    });
+
+    it('DMTE-498 AC-04: com foco a caixa do seletor de mesa mostra o anel brand-200 do Novo Ticket', () => {
+      expect(mesaClasses()).toEqual(
+        expect.arrayContaining([
+          `${BOX}:focus-within:ring-4`,
+          `${BOX}:focus-within:ring-brand-200`,
+          `${BOX}:focus-within:ring-offset-2`,
+        ]),
+      );
     });
   });
 });
