@@ -15,6 +15,7 @@ import type { Ticket } from '../../hooks/useTickets';
 import type { DeskStage } from '../MesaStagesEditor';
 import { useAuthStore } from '../../stores/authStore';
 import { api } from '../../lib/api';
+import { EzSelect } from '../ds/EzSelect';
 import { TicketKanban } from './TicketKanban';
 
 vi.mock('../../lib/api', () => ({
@@ -1121,6 +1122,46 @@ describe('TicketKanban', () => {
         expect(panel?.className).toContain('z-30');
         fireEvent.mouseDown(document.body);
       }
+    });
+  });
+  describe('DMTE-498: seletor de mesa com a cor do Novo Ticket', () => {
+    // jsdom não compila Tailwind: a cor é conferida pelas classes de token.
+    // A caixa do controle é o pai do combobox; o div que envolve o EzSelect
+    // (`max-w-xs`) carrega as variantes que pintam a caixa e o botão.
+    const mesaCombobox = () => screen.getByRole('combobox', { name: 'Mesa' });
+    const mesaWrapper = () => mesaCombobox().closest('.max-w-xs') as HTMLElement;
+
+    beforeEach(() => {
+      mockApiGet();
+      renderKanban({ tickets: [baseTicket], isLoading: false, isError: false });
+    });
+
+    it('DMTE-498 AC-01: a caixa do seletor de mesa tem fundo e borda brand-500, texto e chevron gray-70', () => {
+      const classes = mesaWrapper().className;
+      expect(classes).toContain('bg-brand-500');
+      expect(classes).toContain('border-brand-500');
+      expect(classes).toContain('text-gray-70');
+      expect(classes).toContain('svg]:text-gray-70');
+    });
+
+    it('DMTE-498 AC-02: no hover a caixa do seletor de mesa passa a brand-700', () => {
+      const classes = mesaWrapper().className;
+      expect(classes).toContain('hover:bg-brand-700');
+      expect(classes).toContain('hover:border-brand-700');
+    });
+
+    it('DMTE-498 AC-03: um EzSelect fora do seletor de mesa segue com a caixa bg-white', () => {
+      render(
+        <EzSelect aria-label="Outro seletor" defaultValue="a">
+          <option value="a">A</option>
+        </EzSelect>,
+      );
+      const outro = screen.getByRole('combobox', { name: 'Outro seletor' });
+      expect(outro.parentElement?.className).toContain('bg-white');
+      expect(outro.closest('.max-w-xs')).toBeNull();
+      expect(outro.parentElement?.className).not.toContain('brand-500');
+      // No Kanban o EzSelect é o mesmo: a caixa continua bg-white no DS e só a variante do wrapper a repinta.
+      expect(mesaCombobox().parentElement?.className).toContain('bg-white');
     });
   });
 });
