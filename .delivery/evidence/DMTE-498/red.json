@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-13T22:57:59.945622+00:00",
+  "finished_at": "2026-11-13T22:58:36.196299+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run",
+    "web:test",
+    "--skip-nx-cache",
+    "--output-style=stream",
+    "src/components/tickets/TicketKanban.test.tsx"
+  ],
+  "base_sha": "7ae71108070719af25bfa736a552314225e069fe",
+  "head_sha": "70be5fcc6a4052750f69610134f446719e125463",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/components/tickets/TicketKanban.test.tsx": "9604ed045ea19fb5d8e265d5a47c9bf1c7a72978e433e3c59ba53d3cfe2ea587"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/tickets/TicketKanban.test.tsx": "9604ed045ea19fb5d8e265d5a47c9bf1c7a72978e433e3c59ba53d3cfe2ea587",
+    "apps/web/src/components/tickets/TicketKanban.tsx": "3118de4aa703766abcf44a9970f33ebd8677ce9da90a1bb78ad6cc4b88d3827f"
+  },
+  "log": ".delivery/evidence/DMTE-498/red.log",
+  "log_sha256": "48bdbeb60eaaf1850433a6a395d2e6e70f83881ce2801f774c719a28d698b0f2"
+}

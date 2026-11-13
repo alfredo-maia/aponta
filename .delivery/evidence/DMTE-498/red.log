@@ -1,0 +1,94 @@
+
+> nx run web:test src/components/tickets/TicketKanban.test.tsx
+
+web:  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-498-4184d89f200e/workdir/aponta/apps/web
+web:  ❯ |web| src/components/tickets/TicketKanban.test.tsx (48 tests | 1 failed) 11765ms
+web:        ✓ DMTE-458: board is a snap-scroll container and columns are fluid (no fixed 290px)  359ms
+web:        ✓ shows a skeleton loading state with every column label while isLoading 91ms
+web:        ✓ shows an error message when isError is true 146ms
+web:        ✓ groups tickets into their matching status column with correct counts  347ms
+web:        ✓ DMTE-490 AC-05: has an Aguardando Sankhya column right after Aguardando Terceiros and groups its tickets there 230ms
+web:        ✓ renders an empty column (count 0) when there are no tickets for that status 85ms
+web:        ✓ does nothing when a card is dropped outside any column (no destination) 96ms
+web:        ✓ does nothing when a card is dropped back in the same column 64ms
+web:        ✓ calls the status-update API when a card is dropped into a different column 149ms
+web:        ✓ rolls back the optimistic update when the status-update API call fails 256ms
+web:        ✓ disables drop targets and card dragging for CLIENT role users 35ms
+web:        ✓ does not fetch mesa stages when no mesa is selected (fetches only the Mesa dropdown list) 77ms
+web:        ✓ shows a collapse toggle and an "Abrir novo ticket" link on every column by default (fallback por status) 165ms
+web:        ✓ collapsing a status column hides its ticket list and disables it as a drop target; expanding restores it 142ms
+web:        ✓ DMTE-496 AC-01: a coluna recolhida tem a altura mínima da expandida e acompanha o quadro, por status e por estágio 299ms
+web:        ✓ does not show "Abrir novo ticket" for CLIENT role users 63ms
+web:        ✓ collapsing a stage column (mesa selecionada) hides its ticket list and disables it as a drop target 145ms
+web:        ✓ lists service desks in the Mesa dropdown and switches to stage-grouped columns on selection, without needing initialServiceDeskId  368ms
+web:        ✓ keeps the user's own Mesa selection even if the component re-renders with a different initialServiceDeskId 207ms
+web:        ✓ fetches the mesa stages via GET /service-desks/:id/stages 32ms
+web:        ✓ groups tickets by stage (ordered by position) instead of by status 151ms
+web:        ✓ puts tickets with no recognized stage into a "Sem estágio" column that never accepts a drop 215ms
+web:        ✓ allows dragging an unstaged ticket straight to the mesa's initial stage 188ms
+web:        ✓ blocks dragging an unstaged ticket to a non-initial stage 240ms
+web:        ✓ calls PATCH /tickets/:id/stage (not /status) when dropping into an allowed next stage 169ms
+web:        ✓ blocks the drop and shows an error when the destination stage is not in transitionToIds 287ms
+web:        ✓ does nothing when a card is dropped back in its own stage column 99ms
+web:        ✓ dims (disables) columns unreachable from the dragged card while dragging 135ms
+web:        ✓ rolls back the optimistic update and surfaces the backend message when the stage API call rejects with 400 118ms
+web:        ✓ shows an informational alert when the mesa has no stages configured 123ms
+web:        ✓ AC-04: keeps Mesa, responsáveis, Ordenar and Configurações in one toolbar row, in that order  456ms
+web:        ✓ renders one avatar per distinct agent present in the tickets 270ms
+web:        ✓ clicking an avatar filters the board to that agent's tickets (toggle, multi-select)  385ms
+web:        ✓ opens "Ordenar", sorts cards by Título asc/desc, and "Limpar" restores the original order  904ms
+web:        ✓ "Configurações" lets the user group by Responsável instead of Status/Estágio  450ms
+web:        ✓ "Configurações" lets the user group by Prioridade  331ms
+web:        ✓ RODADA 2 ("Exibir campos", D6c): "Configurações" lets the user toggle optional card fields, persisted like "Agrupar por"  383ms
+web:        ✓ DMTE-497 AC-01: Esc fecha o painel de Ordenar e o foco volta ao botão  407ms
+web:        ✓ DMTE-497 AC-02: Esc fecha o painel de Configurações e o foco volta ao botão  456ms
+web:        ✓ DMTE-497 AC-03: clique fora fecha cada menu, clique dentro não, e o seletor de mesa também fecha  481ms
+web:        ✓ DMTE-497 AC-03: escolher uma opção do "Agrupar por" não fecha o painel de Configurações 197ms
+web:        ✓ DMTE-497 AC-04: abrir um menu fecha o outro, nos dois sentidos  423ms
+web:        ✓ DMTE-497 AC-05: com a lista do "Agrupar por" aberta, o primeiro Esc fecha só a lista e o segundo o painel  394ms
+web:        ✓ DMTE-497 AC-06: os gatilhos expõem aria-expanded e aria-controls, e têm foco visível  794ms
+web:        ✓ DMTE-498 AC-01: a caixa do seletor de mesa tem fundo e borda brand-500, texto e chevron gray-70 80ms
+web:        ✓ DMTE-498 AC-02: no hover a caixa do seletor de mesa passa a brand-700 38ms
+web:        ✓ DMTE-498 AC-03: um EzSelect fora do seletor de mesa segue com a caixa bg-white 94ms
+web:        × DMTE-498 AC-04: com foco a caixa do seletor de mesa mostra o anel brand-200 do Novo Ticket 111ms
+web: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+web:  FAIL  |web| src/components/tickets/TicketKanban.test.tsx > TicketKanban > DMTE-498: seletor de mesa com a cor do Novo Ticket > DMTE-498 AC-04: com foco a caixa do seletor de mesa mostra o anel brand-200 do Novo Ticket
+web: AssertionError: expected [ 'max-w-xs', …(6) ] to deeply equal ArrayContaining{…}
+web: - Expected
+web: + Received
+web: - ArrayContaining [
+web: -   "[&_div:has(>[role=combobox])]:focus-within:ring-4",
+web: -   "[&_div:has(>[role=combobox])]:focus-within:ring-brand-200",
+web: -   "[&_div:has(>[role=combobox])]:focus-within:ring-offset-2",
+web: + [
+web: +   "max-w-xs",
+web: +   "[&_div:has(>[role=combobox])]:border-brand-500",
+web: +   "[&_div:has(>[role=combobox])]:bg-brand-500",
+web: +   "[&_div:has(>[role=combobox])]:hover:border-brand-700",
+web: +   "[&_div:has(>[role=combobox])]:hover:bg-brand-700",
+web: +   "[&_[role=combobox]]:text-gray-70",
+web: +   "[&_[role=combobox]_svg]:text-gray-70",
+web:   ]
+web:  ❯ src/components/tickets/TicketKanban.test.tsx:1174:29
+web:     1172|
+web:     1173|     it('DMTE-498 AC-04: com foco a caixa do seletor de mesa mostra o a…
+web:     1174|       expect(mesaClasses()).toEqual(
+web:        |                             ^
+web:     1175|         expect.arrayContaining([
+web:     1176|           `${BOX}:focus-within:ring-4`,
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+web:  Test Files  1 failed (1)
+web:       Tests  1 failed | 47 passed (48)
+web:    Start at  19:58:14
+web:    Duration  20.42s (transform 4.39s, setup 353ms, import 6.16s, tests 11.77s, environment 1.44s)
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+

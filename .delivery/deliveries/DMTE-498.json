@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "delivery": "DMTE-498",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 246,
+  "multica_id": "01a1d18c-7fe7-7c7a-a3a2-43db75ef43b1",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "a caixa do seletor de mesa do Kanban tem fundo e borda `brand-500`; o texto e o chevron têm `gray-70`.",
+      "tests": [
+        "DMTE-498 AC-01: a caixa do seletor de mesa tem fundo e borda brand-500, texto e chevron gray-70"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "no hover, a caixa do seletor de mesa do Kanban passa a fundo e borda `brand-700`.",
+      "tests": [
+        "DMTE-498 AC-02: no hover a caixa do seletor de mesa passa a brand-700"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "o `EzSelect` não muda: `components/ds/EzSelect.tsx` fica intacto e um `EzSelect` fora do seletor de mesa continua com caixa `bg-white`.",
+      "tests": [
+        "DMTE-498 AC-03: um EzSelect fora do seletor de mesa segue com a caixa bg-white"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "com o foco no seletor de mesa do Kanban, a caixa mostra anel `ring-4` `brand-200` com `ring-offset-2`, o mesmo foco do botão \"Novo Ticket\" (o anel `brand-600` do `EzSelect` quase não se vê sobre `brand-500`).",
+      "tests": [
+        "DMTE-498 AC-04: com foco a caixa do seletor de mesa mostra o anel brand-200 do Novo Ticket"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-498.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-498/red.json",
+    "green": ".delivery/evidence/DMTE-498/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzSelect"
+    ]
+  }
+}
