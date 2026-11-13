@@ -1,6 +1,6 @@
-import { ReactNode, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Plus, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Plus, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import {
   DragDropContext,
   Droppable,
@@ -14,6 +14,7 @@ import axios from 'axios';
 import { api } from '../../lib/api';
 import type { Ticket, TicketStatus, TicketsPage } from '../../hooks/useTickets';
 import type { DeskStage } from '../MesaStagesEditor';
+import { useEscapeLayer } from '../../hooks/useEscapeLayer';
 import { statusLabels, priorityLabels } from './TicketCard';
 import { TicketKanbanCard, type TicketKanbanCardVisibleFields } from './TicketKanbanCard';
 import { useAuthStore } from '../../stores/authStore';
@@ -255,6 +256,66 @@ function NewTicketButton() {
   );
 }
 
+/** Gatilho + painel da toolbar (Ordenar, Configurações). Fecha como o
+ * `EzSelect` do seletor de Mesa: Esc (devolve o foco ao botão) e `mousedown`
+ * fora. Quem controla `open` mantém um menu aberto por vez. */
+function ToolbarMenu({
+  label,
+  icon,
+  open,
+  onOpenChange,
+  children,
+}: {
+  label: string;
+  icon: ReactNode;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  children: ReactNode;
+}) {
+  const panelId = useId();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  useEscapeLayer(() => {
+    onOpenChange(false);
+    triggerRef.current?.focus();
+  }, open);
+
+  useEffect(() => {
+    if (!open) return;
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) onOpenChange(false);
+    };
+    document.addEventListener('mousedown', closeOnOutsideClick);
+    return () => document.removeEventListener('mousedown', closeOnOutsideClick);
+  }, [open, onOpenChange]);
+
+  return (
+    <div ref={rootRef} className="relative">
+      <button
+        ref={triggerRef}
+        type="button"
+        aria-expanded={open}
+        aria-controls={open ? panelId : undefined}
+        onClick={() => onOpenChange(!open)}
+        className="flex h-[var(--control-height-md)] items-center gap-2 rounded-control border border-gray-200 bg-white px-3 text-[14px] font-medium text-gray-700 hover:border-gray-300 hover:bg-gray-90 focus-visible:border-brand-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-600"
+      >
+        {icon}
+        {label}
+        <ChevronDown className="h-4 w-4 shrink-0 text-gray-500" aria-hidden="true" />
+      </button>
+      {open && (
+        <div
+          id={panelId}
+          className="absolute left-0 top-full z-30 mt-1 w-64 rounded-control border border-gray-200 bg-white p-2 shadow-popover"
+        >
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function TicketKanban({
   tickets,
   isLoading,
@@ -317,8 +378,9 @@ export function TicketKanban({
   // not persisted (session-local).
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
-  const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
-  const [isConfigMenuOpen, setIsConfigMenuOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState<'sort' | 'config' | null>(null);
+  const setSortMenuOpen = (open: boolean) => setOpenMenu(open ? 'sort' : null);
+  const setConfigMenuOpen = (open: boolean) => setOpenMenu(open ? 'config' : null);
   const handleSortFieldClick = (field: string) => {
     if (sortField === field) {
       setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
@@ -534,92 +596,78 @@ export function TicketKanban({
 
   // D6b "Ordenar": popover with one button per sortable field + Limpar.
   const sortMenu = (
-    <div className="relative">
+    <ToolbarMenu
+      label="Ordenar"
+      icon={<ArrowUpDown className="h-3.5 w-3.5" aria-hidden="true" />}
+      open={openMenu === 'sort'}
+      onOpenChange={setSortMenuOpen}
+    >
+      <p className="px-1 pb-1 text-[12px] font-semibold text-gray-500">
+        Ordenar os cards por
+      </p>
+      {SORT_FIELDS.map((field) => (
+        <button
+          key={field.id}
+          type="button"
+          onClick={() => handleSortFieldClick(field.id)}
+          className="flex w-full items-center justify-between rounded-[6px] px-2 py-1.5 text-left text-[13px] text-gray-700 hover:bg-gray-80"
+        >
+          {field.label}
+          {sortField === field.id && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
+        </button>
+      ))}
       <button
         type="button"
-        onClick={() => setIsSortMenuOpen((prev) => !prev)}
-        className="flex h-[var(--control-height-md)] items-center gap-1.5 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"
+        onClick={() => setSortField(null)}
+        className="mt-1 w-full rounded-[6px] px-2 py-1.5 text-left text-[13px] text-red-600 hover:bg-red-100"
       >
-        <ArrowUpDown className="h-3.5 w-3.5" />
-        Ordenar
+        Limpar ordenação
       </button>
-      {isSortMenuOpen && (
-        <div className="absolute z-20 mt-1 w-64 rounded-control border border-gray-200 bg-white p-2 shadow-popover">
-          <p className="px-1 pb-1 text-[12px] font-semibold text-gray-500">
-            Ordenar os cards por
-          </p>
-          {SORT_FIELDS.map((field) => (
-            <button
-              key={field.id}
-              type="button"
-              onClick={() => handleSortFieldClick(field.id)}
-              className="flex w-full items-center justify-between rounded-[6px] px-2 py-1.5 text-left text-[13px] text-gray-700 hover:bg-gray-80"
-            >
-              {field.label}
-              {sortField === field.id && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
-            </button>
-          ))}
-          <button
-            type="button"
-            onClick={() => setSortField(null)}
-            className="mt-1 w-full rounded-[6px] px-2 py-1.5 text-left text-[13px] text-red-600 hover:bg-red-100"
-          >
-            Limpar ordenação
-          </button>
-        </div>
-      )}
-    </div>
+    </ToolbarMenu>
   );
 
   // D6c "Configurações": Agrupar por + Exibir campos (quais campos opcionais
   // o card mostra — Título/Número são fixos, ver KANBAN_FIELDS acima).
   const configMenu = (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => setIsConfigMenuOpen((prev) => !prev)}
-        className="flex h-[var(--control-height-md)] items-center gap-1.5 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"
+    <ToolbarMenu
+      label="Configurações"
+      icon={<SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />}
+      open={openMenu === 'config'}
+      onOpenChange={setConfigMenuOpen}
+    >
+      <label htmlFor="kanban-group-by" className="px-1 text-[12px] font-semibold text-gray-500">
+        Agrupar por
+      </label>
+      <EzSelect
+        id="kanban-group-by"
+        aria-label="Agrupar por"
+        variant="compact"
+        className="mt-1"
+        value={groupBy}
+        onChange={(e) => setGroupBy(e.target.value)}
       >
-        <SlidersHorizontal className="h-3.5 w-3.5" />
-        Configurações
-      </button>
-      {isConfigMenuOpen && (
-        <div className="absolute z-20 mt-1 w-64 rounded-control border border-gray-200 bg-white p-2 shadow-popover">
-          <label htmlFor="kanban-group-by" className="px-1 text-[12px] font-semibold text-gray-500">
-            Agrupar por
-          </label>
-          <EzSelect
-            id="kanban-group-by"
-            aria-label="Agrupar por"
-            variant="compact"
-            className="mt-1"
-            value={groupBy}
-            onChange={(e) => setGroupBy(e.target.value)}
-          >
-            <option value="stage">Estágio</option>
-            <option value="status">Status</option>
-            <option value="agent">Responsável</option>
-            <option value="priority">Prioridade</option>
-          </EzSelect>
+        <option value="stage">Estágio</option>
+        <option value="status">Status</option>
+        <option value="agent">Responsável</option>
+        <option value="priority">Prioridade</option>
+      </EzSelect>
 
-          <div className="mt-3 border-t border-gray-100 pt-2">
-            <p className="px-1 text-[12px] font-semibold text-gray-500">Exibir campos</p>
-            {KANBAN_FIELDS.map((field) => (
-              <label key={field.id} className="flex items-center gap-2 px-1 py-1 text-[13px]">
-                <input
-                  type="checkbox"
-                  checked={kanbanConfig.grid.columnVisibility[field.id] !== false}
-                  onChange={(e) =>
-                    setColumnVisibility((prev) => ({ ...prev, [field.id]: e.target.checked }))
-                  }
-                />
-                {field.label}
-              </label>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+      <div className="mt-3 border-t border-gray-100 pt-2">
+        <p className="px-1 text-[12px] font-semibold text-gray-500">Exibir campos</p>
+        {KANBAN_FIELDS.map((field) => (
+          <label key={field.id} className="flex items-center gap-2 px-1 py-1 text-[13px]">
+            <input
+              type="checkbox"
+              checked={kanbanConfig.grid.columnVisibility[field.id] !== false}
+              onChange={(e) =>
+                setColumnVisibility((prev) => ({ ...prev, [field.id]: e.target.checked }))
+              }
+            />
+            {field.label}
+          </label>
+        ))}
+      </div>
+    </ToolbarMenu>
   );
 
   const toolbar = (

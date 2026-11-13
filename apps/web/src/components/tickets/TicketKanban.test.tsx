@@ -1008,4 +1008,119 @@ describe('TicketKanban', () => {
       expect(screen.getAllByText('Acme Corp').length).toBeGreaterThan(0);
     });
   });
+
+  describe('DMTE-497: menus Ordenar e Configurações como o seletor de mesa', () => {
+    const tickets = [
+      { ...baseTicket, id: 't1', protocol: 'AP-2026-0001', title: 'B ticket' },
+    ];
+    const sortPanel = () => screen.queryByText('Ordenar os cards por');
+    const configPanel = () => screen.queryByText('Exibir campos');
+    const sortButton = () => screen.getByRole('button', { name: 'Ordenar' });
+    const configButton = () => screen.getByRole('button', { name: 'Configurações' });
+    const pressEscape = (target: Element = document.body) =>
+      fireEvent.keyDown(target, { key: 'Escape' });
+
+    beforeEach(() => {
+      mockApiGet();
+      renderKanban({ tickets, isLoading: false, isError: false });
+    });
+
+    it('DMTE-497 AC-01: Esc fecha o painel de Ordenar e o foco volta ao botão', () => {
+      fireEvent.click(sortButton());
+      const option = screen.getByRole('button', { name: /^Título/ });
+      option.focus();
+      expect(sortPanel()).toBeInTheDocument();
+
+      pressEscape(option);
+
+      expect(sortPanel()).not.toBeInTheDocument();
+      expect(sortButton()).toHaveFocus();
+    });
+
+    it('DMTE-497 AC-02: Esc fecha o painel de Configurações e o foco volta ao botão', () => {
+      fireEvent.click(configButton());
+      const checkbox = screen.getByLabelText('Responsável');
+      checkbox.focus();
+      expect(configPanel()).toBeInTheDocument();
+
+      pressEscape(checkbox);
+
+      expect(configPanel()).not.toBeInTheDocument();
+      expect(configButton()).toHaveFocus();
+    });
+
+    it('DMTE-497 AC-03: clique fora fecha cada menu, clique dentro não, e o seletor de mesa também fecha', () => {
+      fireEvent.click(sortButton());
+      fireEvent.mouseDown(screen.getByText('Ordenar os cards por'));
+      expect(sortPanel()).toBeInTheDocument();
+      fireEvent.mouseDown(document.body);
+      expect(sortPanel()).not.toBeInTheDocument();
+
+      fireEvent.click(configButton());
+      fireEvent.mouseDown(screen.getByText('Exibir campos'));
+      expect(configPanel()).toBeInTheDocument();
+      fireEvent.mouseDown(document.body);
+      expect(configPanel()).not.toBeInTheDocument();
+
+      fireEvent.click(sortButton());
+      fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Mesa' }));
+      expect(sortPanel()).not.toBeInTheDocument();
+    });
+
+    it('DMTE-497 AC-03: escolher uma opção do "Agrupar por" não fecha o painel de Configurações', () => {
+      fireEvent.click(configButton());
+      fireEvent.click(screen.getByRole('combobox', { name: 'Agrupar por' }));
+      const option = screen.getByRole('option', { name: 'Prioridade' });
+      fireEvent.mouseDown(option);
+      fireEvent.click(option);
+
+      expect(configPanel()).toBeInTheDocument();
+    });
+
+    it('DMTE-497 AC-04: abrir um menu fecha o outro, nos dois sentidos', () => {
+      fireEvent.click(sortButton());
+      fireEvent.mouseDown(configButton());
+      fireEvent.click(configButton());
+      expect(configPanel()).toBeInTheDocument();
+      expect(sortPanel()).not.toBeInTheDocument();
+
+      fireEvent.mouseDown(sortButton());
+      fireEvent.click(sortButton());
+      expect(sortPanel()).toBeInTheDocument();
+      expect(configPanel()).not.toBeInTheDocument();
+    });
+
+    it('DMTE-497 AC-05: com a lista do "Agrupar por" aberta, o primeiro Esc fecha só a lista e o segundo o painel', () => {
+      fireEvent.click(configButton());
+      const groupBy = screen.getByRole('combobox', { name: 'Agrupar por' });
+      fireEvent.click(groupBy);
+      expect(screen.getByRole('listbox', { name: 'Agrupar por' })).toBeInTheDocument();
+
+      pressEscape(groupBy);
+      expect(screen.queryByRole('listbox', { name: 'Agrupar por' })).not.toBeInTheDocument();
+      expect(configPanel()).toBeInTheDocument();
+
+      pressEscape(groupBy);
+      expect(configPanel()).not.toBeInTheDocument();
+    });
+
+    it('DMTE-497 AC-06: os gatilhos expõem aria-expanded e aria-controls, e têm foco visível', () => {
+      for (const [trigger, panelText] of [
+        [sortButton, 'Ordenar os cards por'],
+        [configButton, 'Exibir campos'],
+      ] as const) {
+        expect(trigger()).toHaveAttribute('aria-expanded', 'false');
+        expect(trigger()).not.toHaveAttribute('aria-controls');
+        expect(trigger().className).toContain('focus-visible:ring');
+
+        fireEvent.click(trigger());
+        expect(trigger()).toHaveAttribute('aria-expanded', 'true');
+        const panel = document.getElementById(trigger().getAttribute('aria-controls') ?? '');
+        expect(panel).not.toBeNull();
+        expect(panel).toHaveTextContent(panelText);
+        expect(panel?.className).toContain('z-30');
+        fireEvent.mouseDown(document.body);
+      }
+    });
+  });
 });
