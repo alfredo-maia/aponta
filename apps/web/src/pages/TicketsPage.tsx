@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { TicketList } from '../components/tickets/TicketList';
 import { TicketKanban } from '../components/tickets/TicketKanban';
 import { TicketActiveFilters } from '../components/tickets/TicketActiveFilters';
+import { TicketShortcuts } from '../components/tickets/TicketShortcuts';
 import { TicketsHeader, type TicketsViewMode } from '../components/tickets/TicketsHeader';
 import { EzAlert, EzButton, EzSpinner } from '../components/ds';
 import type { TicketFiltersInput } from '../hooks/useTickets';
@@ -89,6 +90,15 @@ export function TicketsPage() {
         }
         onOpenAdvancedSearch={() => openInTab('/tickets/search', 'Busca avançada')}
       />
+
+      {viewMode === 'list' && (
+        <TicketShortcuts
+          role={user?.role}
+          status={filters.status}
+          closedOnly={filters.closedOnly}
+          onSelect={(patch) => setFilters((prev) => ({ ...prev, ...patch, page: 1 }))}
+        />
+      )}
 
       {viewMode === 'list' && (
         <TicketActiveFilters

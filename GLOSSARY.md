@@ -55,3 +55,11 @@ _Avoid_: Chamado em branco, chamado avulso
 **Catálogo de conhecimento**:
 Classificação dos artigos da base de conhecimento por serviço; é outro recurso, sem relação com a mesa de destino de um chamado.
 _Avoid_: Catálogo de serviços
+
+**Atalho da lista**:
+Botão da lista de Tickets que liga e desliga um filtro pronto, sem abrir a Busca avançada.
+_Avoid_: Aba de estado, preset
+
+**Autorização**:
+Ticket em Aguardando Aprovação, que um perfil administrativo ou MASTER precisa liberar antes de seguir.
+_Avoid_: Aprovação pendente
