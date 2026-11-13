@@ -46,10 +46,10 @@ jobs:
         id: previous
         run: |
           previous=$(curl -fsS --max-time 10 https://dm.aponta.cloud/api/version | jq -r '.commit // empty' || true)
-          if printf '%s' "$previous" | grep -Eq '^[0-9a-f]{40}$'; then
+          if [[ "$previous" =~ ^[0-9a-f]{40}$ ]]; then
             echo "previous_sha=$previous" >> "$GITHUB_OUTPUT"
           else
-            echo "Commit em produção ilegível ('$previous'): o aviso cobre só o commit publicado."
+            echo "Commit em produção ilegível: o aviso cobre só o commit publicado."
           fi
       # What ships is always the tip of main, never "the commit whose CI just
       # finished": CI runs of commits that leave the merge queue together finish

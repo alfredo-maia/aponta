@@ -17,7 +17,7 @@ Identidade: DMTE-510, issue dmrepositorio/aponta#253, Tier 2, pai Multica `01a1d
 - Deduplicação por entrega (`DMTE-N`): vale o commit mais novo do intervalo que resolveu para ela (squash: o único; merge commit: o commit de merge) e o PR dele. Resolve-se o pai de cada entrega com `parent_of()`; entrega sem manifest nem registro é ignorada com log.
 - Um comentário por card, com a mesma menção ao `dev_ultra_lider` e o corpo de hoje: resultado, `- Commit:` (commit da própria entrega), PR, run e versão em produção. Duas adições, só quando valem:
   - `- Publicado no commit: \`<ponta>\`` quando o commit da entrega não é a ponta publicada;
-  - `- Publicado junto com: DMTE-A (PR #x), DMTE-B (PR #y)` quando o deploy publicou mais de uma entrega (as outras, sem repetir a do próprio card, na ordem do intervalo).
+  - `- Publicado junto com: DMTE-A (PR #x), DMTE-B (PR #y)` quando o deploy publicou mais de uma entrega (as outras, sem repetir a do próprio card, na ordem do commit mais novo de cada entrega no intervalo).
   Com uma única entrega no intervalo o corpo é byte a byte o de hoje. O veredito da versão em produção compara com o commit publicado (a ponta).
 - Falha de `staging` ou `production` usa o mesmo resolvedor e comenta em todos os cards do intervalo, com o job que falhou e o link do run.
 - A sonda de produção roda uma vez por run, não por card. Falha ao comentar em um card é registrada (token redigido) e não impede os demais; saída sempre 0 e `continue-on-error` mantido.

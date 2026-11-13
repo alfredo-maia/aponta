@@ -132,7 +132,7 @@ def notify(env, github=github_pulls, http=urllib.request.urlopen, root=ROOT, com
             try:
                 cards.append((delivery, commit, pr, parent_of(root, Path(root) / '.delivery/registry.json', delivery)))
             except (OSError, KeyError, ValueError):
-                print(delivery + ' sem manifest nem registro no commit ' + sha + ': sem aviso ao card.')
+                print(delivery + ' sem manifest nem registro no commit ' + commit + ': sem aviso ao card.')
         if not cards:
             return 0
         ok, label = outcome(env['STAGING_RESULT'], env['PRODUCTION_RESULT'])
