@@ -43,7 +43,7 @@ Decisões (confirmadas pelo Alfredo, salvo marca de proposta):
 - D3 [Humano] "Autorizações" = tickets em PENDING_APPROVAL. Visível só para ADMIN, AGENT_MASTER e CLIENT_MASTER.
 - D4 [Humano] Clique liga e desliga um filtro da própria lista, na URL, combinável com Buscar e filtros ativos; um atalho por vez; o ativo fica destacado e aparece nos filtros ativos com a opção de redefinir.
 - D5 [Humano] Só no modo Lista. O Kanban não muda. Para CLIENT aparece apenas "Tickets fechados".
-- D6 [Proposta] Sem API nova, sem schema e sem permissão nova. O atalho Tickets fechados usa `closedOnly=true`; Autorizações usa `status=PENDING_APPROVAL`. Ligar um atalho troca `status` e `closedOnly` (o outro atalho desliga, e um `status` vindo da Busca avançada é substituído, porque a API ignora `closedOnly` quando há `status`) e volta a página para 1. Os demais filtros ficam.
+- D6 [Proposta] Sem API nova, sem schema e sem permissão nova. O atalho Tickets fechados usa `closedOnly=true`; Autorizações usa `status=PENDING_APPROVAL`. Ligar um atalho troca `status` e `closedOnly` (o outro atalho desliga, e um `status` vindo da Busca avançada é substituído, porque a API ignora `closedOnly` quando há `status`; pelo mesmo motivo, ligar um atalho também desliga Abertos, Não atendidos, Pausados e Vencidos, que a API sobrepõe ao status. Achado da revisão interna; desligar o atalho limpa só o próprio filtro) e volta a página para 1. Os demais filtros ficam.
 - D7 [Proposta] Estado do atalho derivado dos filtros, sem estado próprio: "Tickets fechados" ativo quando `closedOnly` está ligado; "Autorizações" ativo quando `status` é PENDING_APPROVAL. Assim, um link da Busca avançada ou do dashboard já abre com o atalho aceso.
 - D8 [Proposta] Contador: uma consulta à lista de tickets com `status=PENDING_APPROVAL` e `limit=1`, lendo `meta.total`, sem os outros filtros ativos. O que o usuário já pode ver na lista é o que ele conta; nenhum dado novo é exposto. Só roda para os três perfis que veem o atalho. Oculto quando 0, enquanto carrega e em erro (o atalho continua clicável). Região `aria-live="polite"`, números com `tabular-nums`. Atualiza ao montar e ao voltar o foco à janela, como as demais consultas da lista.
 - D9 [Proposta] Visibilidade é só de interface: a API continua aceitando os mesmos filtros para qualquer perfil que já enxerga o ticket. A restrição por perfil define quem vê o atalho, não o que a API devolve.
@@ -55,7 +55,7 @@ Decisões (confirmadas pelo Alfredo, salvo marca de proposta):
 
 Riscos:
 
-- R1: `closedOnly` é ignorado pela API quando há `status`; por isso D6 limpa `status` ao ligar Tickets fechados. Coberto por AC-02.
+- R1: `closedOnly` é ignorado pela API quando há `status`, `notClosed`, `unassigned` ou `paused`, e `paused` também sobrepõe `status`; por isso D6 limpa esses filtros ao ligar um atalho. Coberto por AC-02 e AC-03.
 - R2: perfis. CLIENT_MASTER não é CLIENT, então tem Lista e Kanban e, pelo D3, o atalho Autorizações; CLIENT vê só Fechados. Coberto por AC-01.
 - R3: a contagem é uma consulta a mais por abertura da lista para três perfis; custo de uma linha de total, com `limit=1`.
 - R4: nenhum teste de contrato de API muda; qualquer alteração em `apps/api` nesta entrega indica desvio do escopo.

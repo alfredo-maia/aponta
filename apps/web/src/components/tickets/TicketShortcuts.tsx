@@ -7,7 +7,20 @@ import { EzBadge } from '../ds';
 /** Perfis que podem liberar um ticket em Aguardando Aprovação (`changeStatus` na API). */
 const AUTHORIZER_ROLES = ['ADMIN', 'AGENT_MASTER', 'CLIENT_MASTER'];
 
-type ShortcutPatch = Pick<TicketFiltersInput, 'status' | 'closedOnly'>;
+type ShortcutPatch = Pick<
+  TicketFiltersInput,
+  'status' | 'closedOnly' | 'notClosed' | 'unassigned' | 'paused' | 'overdue'
+>;
+
+/** Ligar um atalho assume o recorte de status: a API sobrepõe `status`/`closedOnly` a estes filtros, e o botão aceso mentiria. */
+const CLEAR_STATUS_FILTERS: ShortcutPatch = {
+  status: undefined,
+  closedOnly: undefined,
+  notClosed: undefined,
+  unassigned: undefined,
+  paused: undefined,
+  overdue: undefined,
+};
 
 interface TicketShortcutsProps {
   role?: string;
@@ -55,7 +68,7 @@ export function TicketShortcuts({ role, status, closedOnly, onSelect }: TicketSh
             onSelect(
               authorizationActive
                 ? { status: undefined }
-                : { status: 'PENDING_APPROVAL', closedOnly: undefined },
+                : { ...CLEAR_STATUS_FILTERS, status: 'PENDING_APPROVAL' },
             )
           }
         >
@@ -75,7 +88,7 @@ export function TicketShortcuts({ role, status, closedOnly, onSelect }: TicketSh
         aria-pressed={closedActive}
         className={buttonClass(closedActive)}
         onClick={() =>
-          onSelect(closedActive ? { closedOnly: undefined } : { closedOnly: true, status: undefined })
+          onSelect(closedActive ? { closedOnly: undefined } : { ...CLEAR_STATUS_FILTERS, closedOnly: true })
         }
       >
         <TicketCheck className="h-4 w-4 shrink-0" aria-hidden="true" />

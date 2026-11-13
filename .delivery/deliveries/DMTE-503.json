@@ -18,14 +18,16 @@
       "id": "AC-02",
       "description": "clicar em \"Tickets fechados\" pede `GET /tickets` com `closedOnly=true` e sem `status`, grava `closedOnly=true` na URL, marca o botão com `aria-pressed=\"true\"` e mostra \"Fechados\" nos filtros ativos; clicar de novo desliga o filtro e volta `aria-pressed` para `false`.",
       "tests": [
-        "DMTE-503 AC-02: Tickets fechados pede closedOnly sem status, grava na URL e desliga no segundo clique"
+        "DMTE-503 AC-02: Tickets fechados pede closedOnly sem status, grava na URL e desliga no segundo clique",
+        "DMTE-503 AC-02/AC-03: %s desliga Abertos, Pausados, Vencidos e Não atendidos, que a API sobrepõe ao status"
       ]
     },
     {
       "id": "AC-03",
       "description": "clicar em \"Autorizações\" pede `GET /tickets` com `status=PENDING_APPROVAL` e sem `closedOnly`, grava `status=PENDING_APPROVAL` na URL, marca o botão com `aria-pressed=\"true\"` e mostra \"Status: Aguardando Aprovação\" nos filtros ativos; com um atalho ligado, clicar no outro desliga o primeiro e liga o segundo.",
       "tests": [
-        "DMTE-503 AC-03: Autorizações pede status PENDING_APPROVAL sem closedOnly e troca com Tickets fechados"
+        "DMTE-503 AC-03: Autorizações pede status PENDING_APPROVAL sem closedOnly e troca com Tickets fechados",
+        "DMTE-503 AC-02/AC-03: %s desliga Abertos, Pausados, Vencidos e Não atendidos, que a API sobrepõe ao status"
       ]
     },
     {
@@ -71,8 +73,8 @@
   "spec": "docs/delivery/specs/DMTE-503.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-503/red.json",
-    "green": ".delivery/evidence/DMTE-503/green.json"
+    "red": ".delivery/evidence/DMTE-503/red-r2.json",
+    "green": ".delivery/evidence/DMTE-503/green-r2.json"
   },
   "design_system": {
     "applicable": true,

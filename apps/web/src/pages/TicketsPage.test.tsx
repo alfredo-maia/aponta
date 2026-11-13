@@ -521,7 +521,11 @@ describe('TicketsPage', () => {
         if (url === '/service-desks') return Promise.resolve({ data: serviceDesks });
         if (url !== '/tickets') return Promise.reject(new Error(`Unexpected GET ${url}`));
         if ((config?.params as { limit?: number } | undefined)?.limit === 1) {
-          if (authorizationTotal === 'loading') return new Promise(() => {});
+          if (authorizationTotal === 'loading') {
+            return new Promise(() => {
+              // Never resolves, keeping the counter query in its loading state.
+            });
+          }
           if (authorizationTotal === 'error') return Promise.reject(new Error('Network Error'));
           return Promise.resolve({ data: { data: [], meta: { total: authorizationTotal, page: 1, totalPages: 1 } } });
         }
@@ -606,6 +610,27 @@ describe('TicketsPage', () => {
       await waitFor(() => expect(listParams()).not.toHaveProperty('status'));
       expect(autorizacoes()).toHaveAttribute('aria-pressed', 'false');
     });
+
+    it.each([
+      ['Tickets fechados', fechados, { closedOnly: 'true' }],
+      ['Autorizações', autorizacoes, { status: 'PENDING_APPROVAL' }],
+    ] as [string, () => HTMLElement, Record<string, string>][])(
+      'DMTE-503 AC-02/AC-03: %s desliga Abertos, Pausados, Vencidos e Não atendidos, que a API sobrepõe ao status',
+      async (_name, shortcut, expected) => {
+        loginAs('ADMIN');
+        mockTickets();
+        const user = userEvent.setup();
+        renderDashboard(['/?view=list&notClosed=true&paused=true&overdue=true&unassigned=true&search=printer']);
+        await screen.findByText('Printer not working');
+
+        await user.click(shortcut());
+        await waitFor(() => expect(listParams()).toMatchObject(expected));
+        for (const key of ['notClosed', 'paused', 'overdue', 'unassigned']) {
+          expect(listParams()).not.toHaveProperty(key);
+        }
+        expect(listParams()).toMatchObject({ search: 'printer' });
+      },
+    );
 
     it('DMTE-503 AC-04: ligar um atalho mantém Buscar e demais filtros e volta para a página 1', async () => {
       loginAs('ADMIN');
