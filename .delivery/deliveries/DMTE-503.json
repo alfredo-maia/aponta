@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "delivery": "DMTE-503",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 247,
+  "multica_id": "01a1d196-87f4-7720-9edd-25700264306a",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 2,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "no modo Lista, \"Tickets fechados\" aparece para ADMIN, AGENT_MASTER, AGENT, CLIENT_MASTER e CLIENT; \"Autorizações\" aparece só para ADMIN, AGENT_MASTER e CLIENT_MASTER.",
+      "tests": [
+        "DMTE-503 AC-01: %s vê Tickets fechados e Autorizações=%s no modo Lista"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "clicar em \"Tickets fechados\" pede `GET /tickets` com `closedOnly=true` e sem `status`, grava `closedOnly=true` na URL, marca o botão com `aria-pressed=\"true\"` e mostra \"Fechados\" nos filtros ativos; clicar de novo desliga o filtro e volta `aria-pressed` para `false`.",
+      "tests": [
+        "DMTE-503 AC-02: Tickets fechados pede closedOnly sem status, grava na URL e desliga no segundo clique"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "clicar em \"Autorizações\" pede `GET /tickets` com `status=PENDING_APPROVAL` e sem `closedOnly`, grava `status=PENDING_APPROVAL` na URL, marca o botão com `aria-pressed=\"true\"` e mostra \"Status: Aguardando Aprovação\" nos filtros ativos; com um atalho ligado, clicar no outro desliga o primeiro e liga o segundo.",
+      "tests": [
+        "DMTE-503 AC-03: Autorizações pede status PENDING_APPROVAL sem closedOnly e troca com Tickets fechados"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "ligar um atalho mantém Buscar e os demais filtros ativos e volta a página para 1.",
+      "tests": [
+        "DMTE-503 AC-04: ligar um atalho mantém Buscar e demais filtros e volta para a página 1"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "o contador de \"Autorizações\" mostra o `meta.total` de `GET /tickets?status=PENDING_APPROVAL&limit=1`, independente dos filtros ativos; fica oculto quando o total é 0, enquanto carrega e em erro; perfis que não veem o atalho não fazem essa consulta.",
+      "tests": [
+        "DMTE-503 AC-05: contador de Autorizações mostra o total de PENDING_APPROVAL, sem os outros filtros",
+        "DMTE-503 AC-05: sem contador com %s e o atalho continua clicável",
+        "DMTE-503 AC-05: perfil sem o atalho Autorizações não consulta o contador"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "description": "os atalhos não aparecem no Kanban nem fora do modo Lista; abrir `/?view=list&closedOnly=true` ou `/?view=list&status=PENDING_APPROVAL` já mostra o atalho correspondente ligado.",
+      "tests": [
+        "DMTE-503 AC-06: sem atalhos no Kanban; URL com closedOnly ou status abre o atalho ligado"
+      ]
+    },
+    {
+      "id": "AC-07",
+      "description": "os atalhos são `<button>` com `aria-pressed`, ícone com `aria-hidden` e foco visível; o contador tem `aria-live=\"polite\"` e `tabular-nums`; só cores e escala do DS (`check_tickets_palette.py` e `check_tickets_proportion.py` passam); a fileira quebra de linha em 390px sem rolagem horizontal (aceite visual do Alfredo).",
+      "tests": [
+        "DMTE-503 AC-07: botões com aria-pressed, ícone aria-hidden e contador aria-live com tabular-nums"
+      ]
+    },
+    {
+      "id": "AC-08",
+      "description": "nenhum arquivo de `apps/api` muda e não há migração.",
+      "tests": [
+        "git diff --stat origin/main...HEAD -- apps/api"
+      ],
+      "tdd_required": false,
+      "reason": "Restrição de escopo verificada pelo diff do PR: nenhum arquivo de apps/api e nenhuma migração mudam; sem comportamento a testar."
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-503.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-503/red.json",
+    "green": ".delivery/evidence/DMTE-503/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzBadge"
+    ],
+    "reason": "TicketShortcuts é componente da aba Tickets (components/tickets), não do DS; reutiliza EzBadge para o contador e só tokens do DS (brand, gray, red), sem componente DS novo ou alterado."
+  }
+}

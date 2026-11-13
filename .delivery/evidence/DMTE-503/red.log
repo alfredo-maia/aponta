@@ -1,0 +1,3519 @@
+
+> nx run web:test src/pages/TicketsPage.test.tsx
+
+web:  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-503-c7a8b8bcba16/workdir/base-red/apps/web
+web: stderr | src/pages/TicketsPage.test.tsx > TicketsPage > navigates to /tickets/search when "Busca avançada" is clicked (AC3)
+web: No routes matched location "/tickets/search" 
+web:  ❯ |web| src/pages/TicketsPage.test.tsx (39 tests | 14 failed) 21519ms
+web:      ✓ should render ticket list  1028ms
+web:      ✓ should show a loading state while tickets are being fetched 55ms
+web:      ✓ should show empty state when no tickets  561ms
+web:      ✓ should render a Kanban card per ticket with protocol, title and status tag (D7) 218ms
+web:      ✓ should show an error state when the tickets request fails 51ms
+web:      ✓ defaults non-CLIENT users to the Kanban view and lets them switch to List  1068ms
+web:      ✓ shows the "Tickets" title and hides the view toggle entirely for CLIENT users (AC2) 88ms
+web:      ✓ renders pagination controls in List view and navigates between pages  628ms
+web:      ✓ disables the "Anterior" button on page 1 and "Próxima" on the last page  706ms
+web:      ✓ does not render pagination controls when there is only a single page  592ms
+web:      ✓ navigates to the previous page when "Anterior" is clicked  1178ms
+web:      ✓ never renders a Grade view button or grid testid (AC1: Grade mode removed)  1361ms
+web:      ✓ never renders the old TicketFilters panel (AC5: migrated to Busca avançada, not duplicated)  493ms
+web:      ✓ seeds filters from the URL query string, e.g. a dashboard KPI link (?mine=true)  301ms
+web:      ✓ seeds the "overdue" and "unassigned" boolean filters from the URL too 199ms
+web:      ✓ AC-10: shows the active filters in the list and "Redefinir filtros" clears them and refetches 285ms
+web:      ✓ AC-10: keeps "Redefinir filtros" available when the fetch fails, so a bad filter can be cleared 158ms
+web:      ✓ AC-10: "Redefinir filtros" also clears the search text typed in the header 291ms
+web:      ✓ RODADA 2: stays at "/" on initial load (no ?view=) and only writes ?view= once the user switches views  572ms
+web:      ✓ RODADA 2: stays at "/" on initial load even under React.StrictMode's double-invoked mount effect (reproduces the real e2e failure)  302ms
+web:      ✓ starts in the view mode named by an existing ?view= URL param 82ms
+web:      ✓ reflects a search typed in the header back into the URL (bookmarkable/shareable)  1405ms
+web:      ✓ refetches with sortBy/sortDir when a List column header is clicked (D5) 211ms
+web:      ✓ navigates to /tickets/search when "Busca avançada" is clicked (AC3)  567ms
+web:        × DMTE-503 AC-01: ADMIN vê Tickets fechados e Autorizações=true no modo Lista 754ms
+web:        × DMTE-503 AC-01: AGENT_MASTER vê Tickets fechados e Autorizações=true no modo Lista 456ms
+web:        × DMTE-503 AC-01: AGENT vê Tickets fechados e Autorizações=false no modo Lista 530ms
+web:        × DMTE-503 AC-01: CLIENT_MASTER vê Tickets fechados e Autorizações=true no modo Lista 373ms
+web:        × DMTE-503 AC-01: CLIENT vê Tickets fechados e Autorizações=false no modo Lista 688ms
+web:        × DMTE-503 AC-02: Tickets fechados pede closedOnly sem status, grava na URL e desliga no segundo clique 464ms
+web:        × DMTE-503 AC-03: Autorizações pede status PENDING_APPROVAL sem closedOnly e troca com Tickets fechados 537ms
+web:        × DMTE-503 AC-04: ligar um atalho mantém Buscar e demais filtros e volta para a página 1 627ms
+web:        × DMTE-503 AC-05: contador de Autorizações mostra o total de PENDING_APPROVAL, sem os outros filtros 1047ms
+web:        × DMTE-503 AC-05: sem contador com total 0 e o atalho continua clicável 564ms
+web:        × DMTE-503 AC-05: sem contador com carregando e o atalho continua clicável 481ms
+web:        × DMTE-503 AC-05: sem contador com erro e o atalho continua clicável 637ms
+web:        ✓ DMTE-503 AC-05: perfil sem o atalho Autorizações não consulta o contador 66ms
+web:        × DMTE-503 AC-06: sem atalhos no Kanban; URL com closedOnly ou status abre o atalho ligado 828ms
+web:        × DMTE-503 AC-07: botões com aria-pressed, ícone aria-hidden e contador aria-live com tabular-nums 1049ms
+web: ⎯⎯⎯⎯⎯⎯ Failed Tests 14 ⎯⎯⎯⎯⎯⎯⎯
+web:  FAIL  |web| src/pages/TicketsPage.test.tsx > TicketsPage > atalhos da lista (DMTE-503) > DMTE-503 AC-01: ADMIN vê Tickets fechados e Autorizações=true no modo Lista
+web:  FAIL  |web| src/pages/TicketsPage.test.tsx > TicketsPage > atalhos da lista (DMTE-503) > DMTE-503 AC-01: AGENT_MASTER vê Tickets fechados e Autorizações=true no modo Lista
+web:  FAIL  |web| src/pages/TicketsPage.test.tsx > TicketsPage > atalhos da lista (DMTE-503) > DMTE-503 AC-01: AGENT vê Tickets fechados e Autorizações=false no modo Lista
+web:  FAIL  |web| src/pages/TicketsPage.test.tsx > TicketsPage > atalhos da lista (DMTE-503) > DMTE-503 AC-01: CLIENT_MASTER vê Tickets fechados e Autorizações=true no modo Lista
+web: TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/^Tickets fechados/`
+web: Here are the accessible roles:
+web:   heading:
+web:   Name "Tickets":
+web:   [36m<h1[39m
+web:     [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   group:
+web:   Name "Visualização":
+web:   [36m<div[39m
+web:     [33maria-label[39m=[32m"Visualização"[39m
+web:     [33mclass[39m=[32m"inline-flex h-[var(--control-height-md)] shrink-0 items-center rounded-control border border-gray-200 bg-gray-90 p-1 text-[13px]"[39m
+web:     [33mrole[39m=[32m"group"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   button:
+web:   Name "Lista":
+web:   [36m<button[39m
+web:     [33maria-pressed[39m=[32m"true"[39m
+web:     [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-gray-200 bg-white text-brand-600 shadow-sm"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Kanban":
+web:   [36m<button[39m
+web:     [33maria-pressed[39m=[32m"false"[39m
+web:     [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-transparent text-gray-500 hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Busca avançada":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Exibir colunas":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-compact)] rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Número":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Título":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Prioridade":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Status":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   searchbox:
+web:   Name "Buscar":
+web:   [36m<input[39m
+web:     [33mautocomplete[39m=[32m"off"[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:     [33mid[39m=[32m"tickets-header-search"[39m
+web:     [33mname[39m=[32m"search"[39m
+web:     [33mplaceholder[39m=[32m"Buscar…"[39m
+web:     [33mtype[39m=[32m"search"[39m
+web:     [33mvalue[39m=[32m""[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   combobox:
+web:   Name "Agrupar por":
+web:   [36m<button[39m
+web:     [33maria-expanded[39m=[32m"false"[39m
+web:     [33maria-haspopup[39m=[32m"listbox"[39m
+web:     [33maria-label[39m=[32m"Agrupar por"[39m
+web:     [33mclass[39m=[32m"flex h-full w-full items-center justify-between gap-2 bg-transparent text-left text-gray-900 outline-none pl-2 pr-2 text-[13px]"[39m
+web:     [33mrole[39m=[32m"combobox"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   region:
+web:   Name "Tabela de chamados":
+web:   [36m<div[39m
+web:     [33maria-label[39m=[32m"Tabela de chamados"[39m
+web:     [33mclass[39m=[32m"overflow-x-auto rounded-control border border-gray-200 bg-white outline-none focus-visible:ring-2 focus-visible:ring-brand-500"[39m
+web:     [33mrole[39m=[32m"region"[39m
+web:     [33mtabindex[39m=[32m"0"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   table:
+web:   Name "":
+web:   [36m<table[39m
+web:     [33mclass[39m=[32m"w-full min-w-[720px] text-left"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   rowgroup:
+web:   Name "":
+web:   [36m<thead />[39m
+web:   Name "":
+web:   [36m<tbody />[39m
+web:   --------------------------------------------------
+web:   row:
+web:   Name "Número Título Cliente Origem Prioridade Status Estágio":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-200 bg-gray-80"[39m
+web:   [36m/>[39m
+web:   Name "AP-000001 Printer not working — Web Alta Aberto —":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-100 last:border-0 hover:bg-gray-80 cursor-pointer"[39m
+web:   [36m/>[39m
+web:   Name "AP-000002 VPN access request — Web Média Em Andamento —":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-100 last:border-0 hover:bg-gray-80 cursor-pointer"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   columnheader:
+web:   Name "Número":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Título":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Cliente":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Origem":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Prioridade":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Status":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Estágio":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   cell:
+web:   Name "AP-000001":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Printer not working":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Web":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Alta":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Aberto":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "AP-000002":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "VPN access request":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Web":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Média":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Em Andamento":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web: Ignored nodes: comments, script, style
+web: [36m<body>[39m
+web:   [36m<div>[39m
+web:     [36m<div[39m
+web:       [33mdata-testid[39m=[32m"location-probe"[39m
+web:     [36m>[39m
+web:       [0m/[0m
+web:     [36m</div>[39m
+web:     [36m<div[39m
+web:       [33mclass[39m=[32m"space-y-4"[39m
+web:     [36m>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 sm:gap-4"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex shrink-0 items-center gap-4"[39m
+web:         [36m>[39m
+web:           [36m<h1[39m
+web:             [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:           [36m>[39m
+web:             [0mTickets[0m
+web:           [36m</h1>[39m
+web:           [36m<div[39m
+web:             [33maria-label[39m=[32m"Visualização"[39m
+web:             [33mclass[39m=[32m"inline-flex h-[var(--control-height-md)] shrink-0 items-center rounded-control border border-gray-200 bg-gray-90 p-1 text-[13px]"[39m
+web:             [33mrole[39m=[32m"group"[39m
+web:           [36m>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-gray-200 bg-white text-brand-600 shadow-sm"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mLista[0m
+web:             [36m</button>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"false"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-transparent text-gray-500 hover:text-gray-900"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mKanban[0m
+web:             [36m</button>[39m
+web:           [36m</div>[39m
+web:         [36m</div>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex w-full items-center gap-2 sm:w-auto"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative min-w-0 flex-1 sm:flex-none"[39m
+web:           [36m>[39m
+web:             [36m<svg[39m
+web:               [33maria-hidden[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"lucide lucide-search pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"[39m
+web:               [33mfill[39m=[32m"none"[39m
+web:               [33mheight[39m=[32m"24"[39m
+web:               [33mstroke[39m=[32m"currentColor"[39m
+web:               [33mstroke-linecap[39m=[32m"round"[39m
+web:               [33mstroke-linejoin[39m=[32m"round"[39m
+web:               [33mstroke-width[39m=[32m"2"[39m
+web:               [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:               [33mwidth[39m=[32m"24"[39m
+web:               [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:             [36m>[39m
+web:               [36m<path[39m
+web:                 [33md[39m=[32m"m21 21-4.34-4.34"[39m
+web:               [36m/>[39m
+web:               [36m<circle[39m
+web:                 [33mcx[39m=[32m"11"[39m
+web:                 [33mcy[39m=[32m"11"[39m
+web:                 [33mr[39m=[32m"8"[39m
+web:               [36m/>[39m
+web:             [36m</svg>[39m
+web:             [36m<label[39m
+web:               [33mclass[39m=[32m"sr-only"[39m
+web:               [33mfor[39m=[32m"tickets-header-search"[39m
+web:             [36m>[39m
+web:               [0mBuscar[0m
+web:             [36m</label>[39m
+web:             [36m<input[39m
+web:               [33mautocomplete[39m=[32m"off"[39m
+web:               [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:               [33mid[39m=[32m"tickets-header-search"[39m
+web:               [33mname[39m=[32m"search"[39m
+web:               [33mplaceholder[39m=[32m"Buscar…"[39m
+web:               [33mtype[39m=[32m"search"[39m
+web:               [33mvalue[39m=[32m""[39m
+web:             [36m/>[39m
+web:           [36m</div>[39m
+web:           [36m<button[39m
+web:             [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:             [33mtype[39m=[32m"button"[39m
+web:           [36m>[39m
+web:             [0mBusca avançada[0m
+web:           [36m</button>[39m
+web:         [36m</div>[39m
+web:       [36m</div>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"space-y-2"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex flex-wrap items-center gap-3"[39m
+web:         [36m>[39m
+web:           [36m<label[39m
+web:             [33mclass[39m=[32m"text-[13px] font-medium text-gray-700"[39m
+web:             [33mfor[39m=[32m"ticket-list-group-by"[39m
+web:           [36m>[39m
+web:             [0mAgrupar por[0m
+web:           [36m</label>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"flex flex-col gap-1 w-auto"[39m
+web:           [36m>[39m
+web:             [36m<div[39m
+web:               [33mclass[39m=[32m"relative"[39m
+web:             [36m>[39m
+web:               [36m<div[39m
+web:                 [33mclass[39m=[32m"relative flex items-center w-full overflow-hidden transition-colors border bg-white rounded-[8px] h-11 sm:h-[32px] focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300"[39m
+web:               [36m>[39m
+web:                 [36m<select[39m
+web:                   [33maria-hidden[39m=[32m"true"[39m
+web:                   [33maria-label[39m=[32m"Agrupar por"[39m
+web:                   [33mclass[39m=[32m"sr-only"[39m
+web:                   [33mid[39m=[32m"ticket-list-group-by"[39m
+web:                   [33mtabindex[39m=[32m"-1"[39m
+web:                 [36m>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"none"[39m
+web:                   [36m>[39m
+web:                     [0mNenhum[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"organization"[39m
+web:                   [36m>[39m
+web:                     [0mCliente[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"stage"[39m
+web:                   [36m>[39m
+web:                     [0mEstágio[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"status"[39m
+web:                   [36m>[39m
+web:                     [0mStatus[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"priority"[39m
+web:                   [36m>[39m
+web:                     [0mPrioridade[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"agent"[39m
+web:                   [36m>[39m...
+web:  ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+web:  ❯ fechados src/pages/TicketsPage.test.tsx:539:35
+web:     537|     }
+web:     538|
+web:     539|     const fechados = () => screen.getByRole('button', { name: /^Ticket…
+web:        |                                   ^
+web:     540|     const autorizacoes = () => screen.getByRole('button', { name: /^Au…
+web:     541|     const url = () => screen.getByTestId('location-probe');
+web:  ❯ src/pages/TicketsPage.test.tsx:557:16
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/14]⎯
+web:  FAIL  |web| src/pages/TicketsPage.test.tsx > TicketsPage > atalhos da lista (DMTE-503) > DMTE-503 AC-01: CLIENT vê Tickets fechados e Autorizações=false no modo Lista
+web: TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/^Tickets fechados/`
+web: Here are the accessible roles:
+web:   heading:
+web:   Name "Tickets":
+web:   [36m<h1[39m
+web:     [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   searchbox:
+web:   Name "Buscar":
+web:   [36m<input[39m
+web:     [33mautocomplete[39m=[32m"off"[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:     [33mid[39m=[32m"tickets-header-search"[39m
+web:     [33mname[39m=[32m"search"[39m
+web:     [33mplaceholder[39m=[32m"Buscar…"[39m
+web:     [33mtype[39m=[32m"search"[39m
+web:     [33mvalue[39m=[32m""[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   button:
+web:   Name "Busca avançada":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Exibir colunas":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-compact)] rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Número":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Título":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Prioridade":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Status":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   combobox:
+web:   Name "Agrupar por":
+web:   [36m<button[39m
+web:     [33maria-expanded[39m=[32m"false"[39m
+web:     [33maria-haspopup[39m=[32m"listbox"[39m
+web:     [33maria-label[39m=[32m"Agrupar por"[39m
+web:     [33mclass[39m=[32m"flex h-full w-full items-center justify-between gap-2 bg-transparent text-left text-gray-900 outline-none pl-2 pr-2 text-[13px]"[39m
+web:     [33mrole[39m=[32m"combobox"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   region:
+web:   Name "Tabela de chamados":
+web:   [36m<div[39m
+web:     [33maria-label[39m=[32m"Tabela de chamados"[39m
+web:     [33mclass[39m=[32m"overflow-x-auto rounded-control border border-gray-200 bg-white outline-none focus-visible:ring-2 focus-visible:ring-brand-500"[39m
+web:     [33mrole[39m=[32m"region"[39m
+web:     [33mtabindex[39m=[32m"0"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   table:
+web:   Name "":
+web:   [36m<table[39m
+web:     [33mclass[39m=[32m"w-full min-w-[720px] text-left"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   rowgroup:
+web:   Name "":
+web:   [36m<thead />[39m
+web:   Name "":
+web:   [36m<tbody />[39m
+web:   --------------------------------------------------
+web:   row:
+web:   Name "Número Título Cliente Origem Prioridade Status Estágio":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-200 bg-gray-80"[39m
+web:   [36m/>[39m
+web:   Name "AP-000001 Printer not working — Web Alta Aberto —":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-100 last:border-0 hover:bg-gray-80 cursor-pointer"[39m
+web:   [36m/>[39m
+web:   Name "AP-000002 VPN access request — Web Média Em Andamento —":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-100 last:border-0 hover:bg-gray-80 cursor-pointer"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   columnheader:
+web:   Name "Número":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Título":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Cliente":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Origem":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Prioridade":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Status":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Estágio":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   cell:
+web:   Name "AP-000001":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Printer not working":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Web":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Alta":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Aberto":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "AP-000002":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "VPN access request":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Web":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Média":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Em Andamento":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web: Ignored nodes: comments, script, style
+web: [36m<body>[39m
+web:   [36m<div>[39m
+web:     [36m<div[39m
+web:       [33mdata-testid[39m=[32m"location-probe"[39m
+web:     [36m>[39m
+web:       [0m/[0m
+web:     [36m</div>[39m
+web:     [36m<div[39m
+web:       [33mclass[39m=[32m"space-y-4"[39m
+web:     [36m>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 sm:gap-4"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex shrink-0 items-center gap-4"[39m
+web:         [36m>[39m
+web:           [36m<h1[39m
+web:             [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:           [36m>[39m
+web:             [0mTickets[0m
+web:           [36m</h1>[39m
+web:         [36m</div>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex w-full items-center gap-2 sm:w-auto"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative min-w-0 flex-1 sm:flex-none"[39m
+web:           [36m>[39m
+web:             [36m<svg[39m
+web:               [33maria-hidden[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"lucide lucide-search pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"[39m
+web:               [33mfill[39m=[32m"none"[39m
+web:               [33mheight[39m=[32m"24"[39m
+web:               [33mstroke[39m=[32m"currentColor"[39m
+web:               [33mstroke-linecap[39m=[32m"round"[39m
+web:               [33mstroke-linejoin[39m=[32m"round"[39m
+web:               [33mstroke-width[39m=[32m"2"[39m
+web:               [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:               [33mwidth[39m=[32m"24"[39m
+web:               [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:             [36m>[39m
+web:               [36m<path[39m
+web:                 [33md[39m=[32m"m21 21-4.34-4.34"[39m
+web:               [36m/>[39m
+web:               [36m<circle[39m
+web:                 [33mcx[39m=[32m"11"[39m
+web:                 [33mcy[39m=[32m"11"[39m
+web:                 [33mr[39m=[32m"8"[39m
+web:               [36m/>[39m
+web:             [36m</svg>[39m
+web:             [36m<label[39m
+web:               [33mclass[39m=[32m"sr-only"[39m
+web:               [33mfor[39m=[32m"tickets-header-search"[39m
+web:             [36m>[39m
+web:               [0mBuscar[0m
+web:             [36m</label>[39m
+web:             [36m<input[39m
+web:               [33mautocomplete[39m=[32m"off"[39m
+web:               [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:               [33mid[39m=[32m"tickets-header-search"[39m
+web:               [33mname[39m=[32m"search"[39m
+web:               [33mplaceholder[39m=[32m"Buscar…"[39m
+web:               [33mtype[39m=[32m"search"[39m
+web:               [33mvalue[39m=[32m""[39m
+web:             [36m/>[39m
+web:           [36m</div>[39m
+web:           [36m<button[39m
+web:             [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:             [33mtype[39m=[32m"button"[39m
+web:           [36m>[39m
+web:             [0mBusca avançada[0m
+web:           [36m</button>[39m
+web:         [36m</div>[39m
+web:       [36m</div>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"space-y-2"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex flex-wrap items-center gap-3"[39m
+web:         [36m>[39m
+web:           [36m<label[39m
+web:             [33mclass[39m=[32m"text-[13px] font-medium text-gray-700"[39m
+web:             [33mfor[39m=[32m"ticket-list-group-by"[39m
+web:           [36m>[39m
+web:             [0mAgrupar por[0m
+web:           [36m</label>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"flex flex-col gap-1 w-auto"[39m
+web:           [36m>[39m
+web:             [36m<div[39m
+web:               [33mclass[39m=[32m"relative"[39m
+web:             [36m>[39m
+web:               [36m<div[39m
+web:                 [33mclass[39m=[32m"relative flex items-center w-full overflow-hidden transition-colors border bg-white rounded-[8px] h-11 sm:h-[32px] focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300"[39m
+web:               [36m>[39m
+web:                 [36m<select[39m
+web:                   [33maria-hidden[39m=[32m"true"[39m
+web:                   [33maria-label[39m=[32m"Agrupar por"[39m
+web:                   [33mclass[39m=[32m"sr-only"[39m
+web:                   [33mid[39m=[32m"ticket-list-group-by"[39m
+web:                   [33mtabindex[39m=[32m"-1"[39m
+web:                 [36m>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"none"[39m
+web:                   [36m>[39m
+web:                     [0mNenhum[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"organization"[39m
+web:                   [36m>[39m
+web:                     [0mCliente[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"stage"[39m
+web:                   [36m>[39m
+web:                     [0mEstágio[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"status"[39m
+web:                   [36m>[39m
+web:                     [0mStatus[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"priority"[39m
+web:                   [36m>[39m
+web:                     [0mPrioridade[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"agent"[39m
+web:                   [36m>[39m
+web:                     [0mResponsável[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"serviceDesk"[39m
+web:                   [36m>[39m
+web:                     [0mMesa de serviço[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"requester"[39m
+web:                   [36m>[39m
+web:                     [0mSolicitante[0m
+web:                   [36m</option>[39m
+web:                 [36m</select>[39m
+web:                 [36m<button[39m
+web:                   [33maria-expanded[39m=[32m"false"[39m
+web:                   [33maria-haspopup[39m=[32m"listbox"[39m
+web:                   [33maria-label[39m=[32m"Agrupar por"[39m
+web:                   [33mclass[39m=[32m"flex h-full w-full items-center justify-between gap-2 bg-transparent text-left text-gray-900 outline-none pl-2 pr-2 text-[13px]"[39m
+web:                   [33mrole[39m=[32m"combobox"[39m
+web:                   [33mtype[39m=[32m"button"[39m
+web:                 [36m>[39m
+web:                   [36m<span[39m
+web:                     [33mclass[39m=[32m"truncate"[39m
+web:                   [36m>[39m
+web:                     [0mNenhum[0m
+web:                   [36m</span>[39m
+web:                   [36m<svg[39m
+web:                     [33maria-hidden[39m=[32m"true"[39m
+web:                     [33mclass[39m=[32m"lucide lucide-chevron-down shrink-0 text-gray-500 w-3.5 h-3.5"[39m
+web:                     [33mfill[39m=[32m"none"[39m
+web:                     [33mheight[39m=[32m"24"[39m
+web:                     [33mstroke[39m=[32m"currentColor"[39m
+web:                     [33mstroke-linecap[39m=[32m"round"[39m
+web:                     [33mstroke-linejoin[39m=[32m"round"[39m
+web:                     [33mstroke-width[39m=[32m"2"[39m
+web:                     [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:                     [33mwidth[39m=[32m"24"[39m
+web:                     [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:                   [36m>[39m
+web:                     [36m<path[39m
+web:                       [33md[39m=[32m"m6 9 6 6 6-6"[39m
+web:                     [36m/>[39m
+web:                   [36m</svg>[39m
+web:                 [36m</button>[39m
+web:               [36m</div>[39m
+web:             [36m</div>[39m
+web:           [36m</div>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative"[39m
+web:           [36m>[39m
+web:             [36m<button[39m
+web:               [33mclass[39m=[32m"h-[var(--control-height-compact)] rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mExibir colunas[0m
+web:             [36m</button>[39m
+web:           [36m</div>[39m
+web:         [36m</div>[39m
+web:         [36m<div[39m
+web:           [33maria-label[39m=[32m"Tabela de chamados"[39m
+web:           [33mclass[39m=[32m"overflow-x-auto rounded-control border border-gray-200 bg-white outline-none focus-visible:ring-2 focus-visible:ring-brand-500"[39m
+web:           [33mrole[39m=[32m"region"[39m
+web:           [33mtabindex[39m=[32m"0"[39m
+web:         [36m>[39m
+web:           [36m<table[39m
+web:             [33mclass[39m=[32m"w-full min-w-[720px] text-left"[39m
+web:           [36m>[39m
+web:             [36m<thead>[39m
+web:               [36m<tr[39m
+web:                 [33mclass[39m=[32m"border-b border-gray-200 bg-gray-80"[39m
+web:               [36m>[39m
+web:                 [36m<th[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:                 [36m>[39m
+web:                   [36m<button[39m
+web:                     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:                     [33mtype[39m=[32m"button"[39m
+web:                   [36m>[39m
+web:                     [0mNúmero[0m
+web:                   [36m</button>[39m
+web:                 [36m</th>[39m
+web:                 [36m<th[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:                 [36m>[39m
+web:                   [36m<button[39m
+web:                     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:                     [33mtype[39m=[32m"button"[39m
+web:                   [36m>[39m
+web:                     [0mTítulo[0m
+web:                   [36m</button>[39m
+web:                 [36m</th>[39m
+web:                 [36m<th[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:                 [36m>[39m
+web:                   [0mCliente[0m
+web:                 [36m</th>[39m
+web:                 [36m<th[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:                 [36m>[39m
+web:                   [0mOrigem[0m
+web:                 [36m</th>[39m
+web:                 [36m<th[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:                 [36m>[39m
+web:                   [36m<button[39m
+web:                     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:                     [33mtype[39m=[32m"button"[39m
+web:                   [36m>[39m
+web:                     [0mPrioridade[0m
+web:                   [36m</button>[39m
+web:                 [36m</th>[39m
+web:                 [36m<th[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:                 [36m>[39m
+web:                   [36m<button[39m
+web:                     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:                     [33mtype[39m=[32m"button"[39m
+web:                   [36m>[39m
+web:                     [0mStatus[0m
+web:                   [36m</button>[39m
+web:                 [36m</th>[39m
+web:                 [36m<th[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:                 [36m>[39m
+web:                   [0mEstágio[0m
+web:                 [36m</th>[39m
+web:               [36m</tr>[39m
+web:             [36m</thead>[39m
+web:             [36m<tbody>[39m
+web:               [36m<tr[39m
+web:                 [33mclass[39m=[32m"border-b border-gray-100 last:border-0 hover:bg-gray-80 cursor-pointer"[39m
+web:               [36m>[39m
+web:                 [36m<td[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:                 [36m>[39m
+web:                   [36m<span[39m
+web:                     [33mclass[39m=[32m"whitespace-nowrap font-mono text-[12px]"[39m
+web:                   [36m>[39m
+web:                     [0mAP-000001[0m
+web:                   [36m</span>[39m
+web:                 [36m</td>[39m
+web:                 [36m<td[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:                 [36m>[39m
+web:                   [36m<span[39m
+web:                     [33mclass[39m=[32m"block min-w-[14rem] font-medium text-gray-900"[39m
+web:                   [36m>[39m
+web:                     [0mPrinter not working[0m
+web:                   [36m</span>[39m
+web:                 [36m</td>[39m
+web:                 [36m<td[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:                 [36m>[39m
+web:                   [36m<span>[39m
+web:                     [0m—[0m
+web:                   [36m</span>[39m
+web:                 [36m</td>[39m
+web:                 [36m<td[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:                 [36m>[39m
+web:                   [36m<span>[39m
+web:                     [0mWeb[0m
+web:                   [36m</span>[39m
+web:                 [36m</td>[39m
+web:                 [36m<td[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:                 [36m>[39m
+web:                   [36m<div[39m
+web:                     [33mclass[39m=[32m"inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px] text-[12px] font-medium leading-none select-none transition-colors border bg-yellow-100 text-yellow-800 border-yellow-300"[39m
+web:                   [36m>[39m
+web:                     [36m<span>[39m
+web:                       [0mAlta[0m
+web:                     [36m</span>[39m
+web:                   [36m</div>[39m
+web:                 [36m</td>[39m
+web:                 [36m<td[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:                 [36m>[39m
+web:                   [36m<div[39m
+web:                     [33mclass[39m=[32m"inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px] text-[12px] font-medium leading-none select-none transition-colors border bg-brand-100/50 text-brand-700 border-brand-200"[39m
+web:                   [36m>[39m
+web:                     [36m<span>[39m
+web:                       [0mAberto[0m
+web:                     [36m</span>[39m
+web:                   [36m</div>[39m
+web:                 [36m</td>[39m
+web:                 [36m<td[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:                 [36m>[39m
+web:                   [36m<span>[39m
+web:                     [0m—[0m
+web:                   [36m</span>[39m
+web:                 [36m</td>[39m
+web:               [36m</tr>[39m
+web:               [36m<tr[39m
+web:                 [33mclass[39m=[32m"border-b border-gray-100 last:border-0 hover:bg-gray-80 cursor-pointer"[39m
+web:               [36m>[39m
+web:                 [36m<td[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:                 [36m>[39m
+web:                   [36m<span[39m
+web:                     [33mclass[39m=[32m"whitespace-nowrap font-mono text-[12px]"[39m
+web:                   [36m>[39m
+web:                     [0mAP-000002[0m
+web:                   [36m</span>[39m
+web:                 [36m</td>[39m
+web:                 [36m<td[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:                 [36m>[39m
+web:                   [36m<span[39m
+web:                     [33mclass[39m=[32m"block min-w-[14rem] font-medium text-gray-900"[39m
+web:                   [36m>[39m
+web:                     [0mVPN access request[0m
+web:                   [36m</span>[39m
+web:                 [36m</td>[39m
+web:                 [36m<td[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:                 [36m>[39m
+web:                   [36m<span>[39m
+web:                     [0m—[0m
+web:                   [36m</span>[39m
+web:                 [36m</td>[39m
+web:                 [36m<td[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:                 [36m>[39m
+web:                   [36m<span>[39m
+web:                     [0mWeb[0m
+web:                   [36m</span>[39m
+web:                 [36m</td>[39m
+web:                 [36m<td[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:                 [36m>[39m
+web:                   [36m<div[39m
+web:                     [33mclass[39m=[32m"inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px] text-[12px] font-medium leading-none select-none transition-colors border bg-brand-100/50 text-brand-700 border-brand-200"[39m
+web:                   [36m>[39m
+web:                     [36m<span>[39m
+web:                       [0mMédia[0m
+web:                     [36m</span>[39m
+web:                   [36m</div>[39m
+web:                 [36m</td>[39m
+web:                 [36m<td[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:                 [36m>[39m
+web:                   [36m<div[39m
+web:                     [33mclass[39m=[32m"inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px] text-[12px] font-medium leading-none select-none transition-colors border bg-yellow-100 text-yellow-800 border-yellow-300"[39m
+web:                   [36m>[39m
+web:                     [36m<span>[39m
+web:                       [0mEm Andamento[0m
+web:                     [36m</span>[39m
+web:                   [36m</div>[39m
+web:                 [36m</td>[39m
+web:                 [36m<td[39m
+web:                   [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:                 [36m>[39m
+web:                   [36m<span>[39m
+web:                     [0m—[0m
+web:                   [36m</span>[39m
+web:                 [36m</td>[39m
+web:               [36m</tr>[39m
+web:             [36m</tbody>[39m
+web:           [36m</table>[39m
+web:         [36m</div>[39m
+web:       [36m</div>[39m
+web:     [36m</div>[39m
+web:   [36m</div>[39m
+web: [36m</body>[39m
+web:  ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+web:  ❯ fechados src/pages/TicketsPage.test.tsx:539:35
+web:     537|     }
+web:     538|
+web:     539|     const fechados = () => screen.getByRole('button', { name: /^Ticket…
+web:        |                                   ^
+web:     540|     const autorizacoes = () => screen.getByRole('button', { name: /^Au…
+web:     541|     const url = () => screen.getByTestId('location-probe');
+web:  ❯ src/pages/TicketsPage.test.tsx:557:16
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/14]⎯
+web:  FAIL  |web| src/pages/TicketsPage.test.tsx > TicketsPage > atalhos da lista (DMTE-503) > DMTE-503 AC-02: Tickets fechados pede closedOnly sem status, grava na URL e desliga no segundo clique
+web: TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/^Tickets fechados/`
+web: Here are the accessible roles:
+web:   heading:
+web:   Name "Tickets":
+web:   [36m<h1[39m
+web:     [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   group:
+web:   Name "Visualização":
+web:   [36m<div[39m
+web:     [33maria-label[39m=[32m"Visualização"[39m
+web:     [33mclass[39m=[32m"inline-flex h-[var(--control-height-md)] shrink-0 items-center rounded-control border border-gray-200 bg-gray-90 p-1 text-[13px]"[39m
+web:     [33mrole[39m=[32m"group"[39m
+web:   [36m/>[39m
+web:   Name "Filtros ativos":
+web:   [36m<div[39m
+web:     [33maria-label[39m=[32m"Filtros ativos"[39m
+web:     [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+web:     [33mrole[39m=[32m"group"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   button:
+web:   Name "Lista":
+web:   [36m<button[39m
+web:     [33maria-pressed[39m=[32m"true"[39m
+web:     [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-gray-200 bg-white text-brand-600 shadow-sm"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Kanban":
+web:   [36m<button[39m
+web:     [33maria-pressed[39m=[32m"false"[39m
+web:     [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-transparent text-gray-500 hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Busca avançada":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Redefinir filtros":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-transparent text-brand-600 hover:text-brand-800 disabled:text-gray-400 disabled:bg-transparent h-[32px] text-xs px-4"[39m
+web:   [36m/>[39m
+web:   Name "Exibir colunas":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-compact)] rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Número":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Título":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Prioridade":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Status":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   searchbox:
+web:   Name "Buscar":
+web:   [36m<input[39m
+web:     [33mautocomplete[39m=[32m"off"[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:     [33mid[39m=[32m"tickets-header-search"[39m
+web:     [33mname[39m=[32m"search"[39m
+web:     [33mplaceholder[39m=[32m"Buscar…"[39m
+web:     [33mtype[39m=[32m"search"[39m
+web:     [33mvalue[39m=[32m""[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   combobox:
+web:   Name "Agrupar por":
+web:   [36m<button[39m
+web:     [33maria-expanded[39m=[32m"false"[39m
+web:     [33maria-haspopup[39m=[32m"listbox"[39m
+web:     [33maria-label[39m=[32m"Agrupar por"[39m
+web:     [33mclass[39m=[32m"flex h-full w-full items-center justify-between gap-2 bg-transparent text-left text-gray-900 outline-none pl-2 pr-2 text-[13px]"[39m
+web:     [33mrole[39m=[32m"combobox"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   region:
+web:   Name "Tabela de chamados":
+web:   [36m<div[39m
+web:     [33maria-label[39m=[32m"Tabela de chamados"[39m
+web:     [33mclass[39m=[32m"overflow-x-auto rounded-control border border-gray-200 bg-white outline-none focus-visible:ring-2 focus-visible:ring-brand-500"[39m
+web:     [33mrole[39m=[32m"region"[39m
+web:     [33mtabindex[39m=[32m"0"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   table:
+web:   Name "":
+web:   [36m<table[39m
+web:     [33mclass[39m=[32m"w-full min-w-[720px] text-left"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   rowgroup:
+web:   Name "":
+web:   [36m<thead />[39m
+web:   Name "":
+web:   [36m<tbody />[39m
+web:   --------------------------------------------------
+web:   row:
+web:   Name "Número Título Cliente Origem Prioridade Status Estágio":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-200 bg-gray-80"[39m
+web:   [36m/>[39m
+web:   Name "AP-000001 Printer not working — Web Alta Aberto —":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-100 last:border-0 hover:bg-gray-80 cursor-pointer"[39m
+web:   [36m/>[39m
+web:   Name "AP-000002 VPN access request — Web Média Em Andamento —":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-100 last:border-0 hover:bg-gray-80 cursor-pointer"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   columnheader:
+web:   Name "Número":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Título":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Cliente":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Origem":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Prioridade":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Status":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Estágio":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   cell:
+web:   Name "AP-000001":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Printer not working":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Web":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Alta":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Aberto":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "AP-000002":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "VPN access request":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Web":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Média":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Em Andamento":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web: Ignored nodes: comments, script, style
+web: [36m<body>[39m
+web:   [36m<div>[39m
+web:     [36m<div[39m
+web:       [33mdata-testid[39m=[32m"location-probe"[39m
+web:     [36m>[39m
+web:       [0m/?status=OPEN[0m
+web:     [36m</div>[39m
+web:     [36m<div[39m
+web:       [33mclass[39m=[32m"space-y-4"[39m
+web:     [36m>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 sm:gap-4"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex shrink-0 items-center gap-4"[39m
+web:         [36m>[39m
+web:           [36m<h1[39m
+web:             [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:           [36m>[39m
+web:             [0mTickets[0m
+web:           [36m</h1>[39m
+web:           [36m<div[39m
+web:             [33maria-label[39m=[32m"Visualização"[39m
+web:             [33mclass[39m=[32m"inline-flex h-[var(--control-height-md)] shrink-0 items-center rounded-control border border-gray-200 bg-gray-90 p-1 text-[13px]"[39m
+web:             [33mrole[39m=[32m"group"[39m
+web:           [36m>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-gray-200 bg-white text-brand-600 shadow-sm"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mLista[0m
+web:             [36m</button>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"false"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-transparent text-gray-500 hover:text-gray-900"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mKanban[0m
+web:             [36m</button>[39m
+web:           [36m</div>[39m
+web:         [36m</div>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex w-full items-center gap-2 sm:w-auto"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative min-w-0 flex-1 sm:flex-none"[39m
+web:           [36m>[39m
+web:             [36m<svg[39m
+web:               [33maria-hidden[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"lucide lucide-search pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"[39m
+web:               [33mfill[39m=[32m"none"[39m
+web:               [33mheight[39m=[32m"24"[39m
+web:               [33mstroke[39m=[32m"currentColor"[39m
+web:               [33mstroke-linecap[39m=[32m"round"[39m
+web:               [33mstroke-linejoin[39m=[32m"round"[39m
+web:               [33mstroke-width[39m=[32m"2"[39m
+web:               [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:               [33mwidth[39m=[32m"24"[39m
+web:               [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:             [36m>[39m
+web:               [36m<path[39m
+web:                 [33md[39m=[32m"m21 21-4.34-4.34"[39m
+web:               [36m/>[39m
+web:               [36m<circle[39m
+web:                 [33mcx[39m=[32m"11"[39m
+web:                 [33mcy[39m=[32m"11"[39m
+web:                 [33mr[39m=[32m"8"[39m
+web:               [36m/>[39m
+web:             [36m</svg>[39m
+web:             [36m<label[39m
+web:               [33mclass[39m=[32m"sr-only"[39m
+web:               [33mfor[39m=[32m"tickets-header-search"[39m
+web:             [36m>[39m
+web:               [0mBuscar[0m
+web:             [36m</label>[39m
+web:             [36m<input[39m
+web:               [33mautocomplete[39m=[32m"off"[39m
+web:               [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:               [33mid[39m=[32m"tickets-header-search"[39m
+web:               [33mname[39m=[32m"search"[39m
+web:               [33mplaceholder[39m=[32m"Buscar…"[39m
+web:               [33mtype[39m=[32m"search"[39m
+web:               [33mvalue[39m=[32m""[39m
+web:             [36m/>[39m
+web:           [36m</div>[39m
+web:           [36m<button[39m
+web:             [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:             [33mtype[39m=[32m"button"[39m
+web:           [36m>[39m
+web:             [0mBusca avançada[0m
+web:           [36m</button>[39m
+web:         [36m</div>[39m
+web:       [36m</div>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33maria-label[39m=[32m"Filtros ativos"[39m
+web:           [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+web:           [33mrole[39m=[32m"group"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px] text-[12px] font-medium leading-none select-none transition-colors border bg-gray-90 text-gray-700 border-gray-200"[39m
+web:           [36m>[39m
+web:             [36m<span>[39m
+web:               [0mStatus: Aberto[0m
+web:             [36m</span>[39m
+web:           [36m</div>[39m
+web:         [36m</div>[39m
+web:         [36m<button[39m
+web:           [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-transparent text-brand-600 hover:text-brand-800 disabled:text-gray-400 disabled:bg-transparent h-[32px] text-xs px-4"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+web:           [36m>[39m
+web:             [36m<span[39m
+web:               [33mclass[39m=[32m"font-medium"[39m
+web:             [36m>[39m
+web:               [0mRedefinir filtros[0m
+web:             [36m</span>[39m
+web:           [36m</div>[39m
+web:         [36m</button>[39m
+web:       [36m</div>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"space-y-2"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex flex-wrap items-center gap-3"[39m
+web:         [36m>[39m
+web:           [36m<label[39m
+web:             [33mclass[39m=[32m"text-[13px] font-medium text-gray-700"[39m
+web:             [33mfor[39m=[32m"ticket-list-group-by"[39m
+web:           [36m>[39m
+web:             [0mAgrupar por[0m
+web:           [36m</label>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"flex flex-col gap-1 w-auto"[39m
+web:           [36m>[39m
+web:             [36m<div[39m
+web:               [33mclass[39m=[32m"relative"[39m
+web:             [36m>[39m
+web:               [36m<div[39m
+web:                 [33mclass[39m=[32m"relative flex items-center w-full overflow-hi...
+web:  ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+web:  ❯ fechados src/pages/TicketsPage.test.tsx:539:35
+web:     537|     }
+web:     538|
+web:     539|     const fechados = () => screen.getByRole('button', { name: /^Ticket…
+web:        |                                   ^
+web:     540|     const autorizacoes = () => screen.getByRole('button', { name: /^Au…
+web:     541|     const url = () => screen.getByTestId('location-probe');
+web:  ❯ src/pages/TicketsPage.test.tsx:572:14
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/14]⎯
+web:  FAIL  |web| src/pages/TicketsPage.test.tsx > TicketsPage > atalhos da lista (DMTE-503) > DMTE-503 AC-03: Autorizações pede status PENDING_APPROVAL sem closedOnly e troca com Tickets fechados
+web: TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/^Tickets fechados/`
+web: Here are the accessible roles:
+web:   heading:
+web:   Name "Tickets":
+web:   [36m<h1[39m
+web:     [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   group:
+web:   Name "Visualização":
+web:   [36m<div[39m
+web:     [33maria-label[39m=[32m"Visualização"[39m
+web:     [33mclass[39m=[32m"inline-flex h-[var(--control-height-md)] shrink-0 items-center rounded-control border border-gray-200 bg-gray-90 p-1 text-[13px]"[39m
+web:     [33mrole[39m=[32m"group"[39m
+web:   [36m/>[39m
+web:   Name "Filtros ativos":
+web:   [36m<div[39m
+web:     [33maria-label[39m=[32m"Filtros ativos"[39m
+web:     [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+web:     [33mrole[39m=[32m"group"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   button:
+web:   Name "Lista":
+web:   [36m<button[39m
+web:     [33maria-pressed[39m=[32m"true"[39m
+web:     [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-gray-200 bg-white text-brand-600 shadow-sm"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Kanban":
+web:   [36m<button[39m
+web:     [33maria-pressed[39m=[32m"false"[39m
+web:     [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-transparent text-gray-500 hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Busca avançada":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Redefinir filtros":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-transparent text-brand-600 hover:text-brand-800 disabled:text-gray-400 disabled:bg-transparent h-[32px] text-xs px-4"[39m
+web:   [36m/>[39m
+web:   Name "Exibir colunas":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-compact)] rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Número":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Título":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Prioridade":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Status":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   searchbox:
+web:   Name "Buscar":
+web:   [36m<input[39m
+web:     [33mautocomplete[39m=[32m"off"[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:     [33mid[39m=[32m"tickets-header-search"[39m
+web:     [33mname[39m=[32m"search"[39m
+web:     [33mplaceholder[39m=[32m"Buscar…"[39m
+web:     [33mtype[39m=[32m"search"[39m
+web:     [33mvalue[39m=[32m""[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   combobox:
+web:   Name "Agrupar por":
+web:   [36m<button[39m
+web:     [33maria-expanded[39m=[32m"false"[39m
+web:     [33maria-haspopup[39m=[32m"listbox"[39m
+web:     [33maria-label[39m=[32m"Agrupar por"[39m
+web:     [33mclass[39m=[32m"flex h-full w-full items-center justify-between gap-2 bg-transparent text-left text-gray-900 outline-none pl-2 pr-2 text-[13px]"[39m
+web:     [33mrole[39m=[32m"combobox"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   region:
+web:   Name "Tabela de chamados":
+web:   [36m<div[39m
+web:     [33maria-label[39m=[32m"Tabela de chamados"[39m
+web:     [33mclass[39m=[32m"overflow-x-auto rounded-control border border-gray-200 bg-white outline-none focus-visible:ring-2 focus-visible:ring-brand-500"[39m
+web:     [33mrole[39m=[32m"region"[39m
+web:     [33mtabindex[39m=[32m"0"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   table:
+web:   Name "":
+web:   [36m<table[39m
+web:     [33mclass[39m=[32m"w-full min-w-[720px] text-left"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   rowgroup:
+web:   Name "":
+web:   [36m<thead />[39m
+web:   Name "":
+web:   [36m<tbody />[39m
+web:   --------------------------------------------------
+web:   row:
+web:   Name "Número Título Cliente Origem Prioridade Status Estágio":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-200 bg-gray-80"[39m
+web:   [36m/>[39m
+web:   Name "AP-000001 Printer not working — Web Alta Aberto —":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-100 last:border-0 hover:bg-gray-80 cursor-pointer"[39m
+web:   [36m/>[39m
+web:   Name "AP-000002 VPN access request — Web Média Em Andamento —":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-100 last:border-0 hover:bg-gray-80 cursor-pointer"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   columnheader:
+web:   Name "Número":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Título":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Cliente":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Origem":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Prioridade":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Status":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Estágio":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   cell:
+web:   Name "AP-000001":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Printer not working":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Web":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Alta":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Aberto":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "AP-000002":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "VPN access request":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Web":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Média":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Em Andamento":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web: Ignored nodes: comments, script, style
+web: [36m<body>[39m
+web:   [36m<div>[39m
+web:     [36m<div[39m
+web:       [33mdata-testid[39m=[32m"location-probe"[39m
+web:     [36m>[39m
+web:       [0m/?closedOnly=true[0m
+web:     [36m</div>[39m
+web:     [36m<div[39m
+web:       [33mclass[39m=[32m"space-y-4"[39m
+web:     [36m>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 sm:gap-4"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex shrink-0 items-center gap-4"[39m
+web:         [36m>[39m
+web:           [36m<h1[39m
+web:             [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:           [36m>[39m
+web:             [0mTickets[0m
+web:           [36m</h1>[39m
+web:           [36m<div[39m
+web:             [33maria-label[39m=[32m"Visualização"[39m
+web:             [33mclass[39m=[32m"inline-flex h-[var(--control-height-md)] shrink-0 items-center rounded-control border border-gray-200 bg-gray-90 p-1 text-[13px]"[39m
+web:             [33mrole[39m=[32m"group"[39m
+web:           [36m>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-gray-200 bg-white text-brand-600 shadow-sm"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mLista[0m
+web:             [36m</button>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"false"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-transparent text-gray-500 hover:text-gray-900"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mKanban[0m
+web:             [36m</button>[39m
+web:           [36m</div>[39m
+web:         [36m</div>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex w-full items-center gap-2 sm:w-auto"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative min-w-0 flex-1 sm:flex-none"[39m
+web:           [36m>[39m
+web:             [36m<svg[39m
+web:               [33maria-hidden[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"lucide lucide-search pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"[39m
+web:               [33mfill[39m=[32m"none"[39m
+web:               [33mheight[39m=[32m"24"[39m
+web:               [33mstroke[39m=[32m"currentColor"[39m
+web:               [33mstroke-linecap[39m=[32m"round"[39m
+web:               [33mstroke-linejoin[39m=[32m"round"[39m
+web:               [33mstroke-width[39m=[32m"2"[39m
+web:               [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:               [33mwidth[39m=[32m"24"[39m
+web:               [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:             [36m>[39m
+web:               [36m<path[39m
+web:                 [33md[39m=[32m"m21 21-4.34-4.34"[39m
+web:               [36m/>[39m
+web:               [36m<circle[39m
+web:                 [33mcx[39m=[32m"11"[39m
+web:                 [33mcy[39m=[32m"11"[39m
+web:                 [33mr[39m=[32m"8"[39m
+web:               [36m/>[39m
+web:             [36m</svg>[39m
+web:             [36m<label[39m
+web:               [33mclass[39m=[32m"sr-only"[39m
+web:               [33mfor[39m=[32m"tickets-header-search"[39m
+web:             [36m>[39m
+web:               [0mBuscar[0m
+web:             [36m</label>[39m
+web:             [36m<input[39m
+web:               [33mautocomplete[39m=[32m"off"[39m
+web:               [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:               [33mid[39m=[32m"tickets-header-search"[39m
+web:               [33mname[39m=[32m"search"[39m
+web:               [33mplaceholder[39m=[32m"Buscar…"[39m
+web:               [33mtype[39m=[32m"search"[39m
+web:               [33mvalue[39m=[32m""[39m
+web:             [36m/>[39m
+web:           [36m</div>[39m
+web:           [36m<button[39m
+web:             [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:             [33mtype[39m=[32m"button"[39m
+web:           [36m>[39m
+web:             [0mBusca avançada[0m
+web:           [36m</button>[39m
+web:         [36m</div>[39m
+web:       [36m</div>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33maria-label[39m=[32m"Filtros ativos"[39m
+web:           [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+web:           [33mrole[39m=[32m"group"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px] text-[12px] font-medium leading-none select-none transition-colors border bg-gray-90 text-gray-700 border-gray-200"[39m
+web:           [36m>[39m
+web:             [36m<span>[39m
+web:               [0mFechados[0m
+web:             [36m</span>[39m
+web:           [36m</div>[39m
+web:         [36m</div>[39m
+web:         [36m<button[39m
+web:           [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-transparent text-brand-600 hover:text-brand-800 disabled:text-gray-400 disabled:bg-transparent h-[32px] text-xs px-4"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+web:           [36m>[39m
+web:             [36m<span[39m
+web:               [33mclass[39m=[32m"font-medium"[39m
+web:             [36m>[39m
+web:               [0mRedefinir filtros[0m
+web:             [36m</span>[39m
+web:           [36m</div>[39m
+web:         [36m</button>[39m
+web:       [36m</div>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"space-y-2"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex flex-wrap items-center gap-3"[39m
+web:         [36m>[39m
+web:           [36m<label[39m
+web:             [33mclass[39m=[32m"text-[13px] font-medium text-gray-700"[39m
+web:             [33mfor[39m=[32m"ticket-list-group-by"[39m
+web:           [36m>[39m
+web:             [0mAgrupar por[0m
+web:           [36m</label>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"flex flex-col gap-1 w-auto"[39m
+web:           [36m>[39m
+web:             [36m<div[39m
+web:               [33mclass[39m=[32m"relative"[39m
+web:             [36m>[39m
+web:               [36m<div[39m
+web:                 [33mclass[39m=[32m"relative flex items-center w-full overflow-hidd...
+web:  ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+web:  ❯ fechados src/pages/TicketsPage.test.tsx:539:35
+web:     537|     }
+web:     538|
+web:     539|     const fechados = () => screen.getByRole('button', { name: /^Ticket…
+web:        |                                   ^
+web:     540|     const autorizacoes = () => screen.getByRole('button', { name: /^Au…
+web:     541|     const url = () => screen.getByTestId('location-probe');
+web:  ❯ src/pages/TicketsPage.test.tsx:593:14
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/14]⎯
+web:  FAIL  |web| src/pages/TicketsPage.test.tsx > TicketsPage > atalhos da lista (DMTE-503) > DMTE-503 AC-04: ligar um atalho mantém Buscar e demais filtros e volta para a página 1
+web: TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/^Tickets fechados/`
+web: Here are the accessible roles:
+web:   heading:
+web:   Name "Tickets":
+web:   [36m<h1[39m
+web:     [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   group:
+web:   Name "Visualização":
+web:   [36m<div[39m
+web:     [33maria-label[39m=[32m"Visualização"[39m
+web:     [33mclass[39m=[32m"inline-flex h-[var(--control-height-md)] shrink-0 items-center rounded-control border border-gray-200 bg-gray-90 p-1 text-[13px]"[39m
+web:     [33mrole[39m=[32m"group"[39m
+web:   [36m/>[39m
+web:   Name "Filtros ativos":
+web:   [36m<div[39m
+web:     [33maria-label[39m=[32m"Filtros ativos"[39m
+web:     [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+web:     [33mrole[39m=[32m"group"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   button:
+web:   Name "Lista":
+web:   [36m<button[39m
+web:     [33maria-pressed[39m=[32m"true"[39m
+web:     [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-gray-200 bg-white text-brand-600 shadow-sm"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Kanban":
+web:   [36m<button[39m
+web:     [33maria-pressed[39m=[32m"false"[39m
+web:     [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-transparent text-gray-500 hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Busca avançada":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Redefinir filtros":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-transparent text-brand-600 hover:text-brand-800 disabled:text-gray-400 disabled:bg-transparent h-[32px] text-xs px-4"[39m
+web:   [36m/>[39m
+web:   Name "Exibir colunas":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-compact)] rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Número":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Título":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Prioridade":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Status":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   searchbox:
+web:   Name "Buscar":
+web:   [36m<input[39m
+web:     [33mautocomplete[39m=[32m"off"[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:     [33mid[39m=[32m"tickets-header-search"[39m
+web:     [33mname[39m=[32m"search"[39m
+web:     [33mplaceholder[39m=[32m"Buscar…"[39m
+web:     [33mtype[39m=[32m"search"[39m
+web:     [33mvalue[39m=[32m"printer"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   combobox:
+web:   Name "Agrupar por":
+web:   [36m<button[39m
+web:     [33maria-expanded[39m=[32m"false"[39m
+web:     [33maria-haspopup[39m=[32m"listbox"[39m
+web:     [33maria-label[39m=[32m"Agrupar por"[39m
+web:     [33mclass[39m=[32m"flex h-full w-full items-center justify-between gap-2 bg-transparent text-left text-gray-900 outline-none pl-2 pr-2 text-[13px]"[39m
+web:     [33mrole[39m=[32m"combobox"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   region:
+web:   Name "Tabela de chamados":
+web:   [36m<div[39m
+web:     [33maria-label[39m=[32m"Tabela de chamados"[39m
+web:     [33mclass[39m=[32m"overflow-x-auto rounded-control border border-gray-200 bg-white outline-none focus-visible:ring-2 focus-visible:ring-brand-500"[39m
+web:     [33mrole[39m=[32m"region"[39m
+web:     [33mtabindex[39m=[32m"0"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   table:
+web:   Name "":
+web:   [36m<table[39m
+web:     [33mclass[39m=[32m"w-full min-w-[720px] text-left"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   rowgroup:
+web:   Name "":
+web:   [36m<thead />[39m
+web:   Name "":
+web:   [36m<tbody />[39m
+web:   --------------------------------------------------
+web:   row:
+web:   Name "Número Título Cliente Origem Prioridade Status Estágio":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-200 bg-gray-80"[39m
+web:   [36m/>[39m
+web:   Name "AP-000001 Printer not working — Web Alta Aberto —":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-100 last:border-0 hover:bg-gray-80 cursor-pointer"[39m
+web:   [36m/>[39m
+web:   Name "AP-000002 VPN access request — Web Média Em Andamento —":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-100 last:border-0 hover:bg-gray-80 cursor-pointer"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   columnheader:
+web:   Name "Número":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Título":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Cliente":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Origem":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Prioridade":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Status":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Estágio":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   cell:
+web:   Name "AP-000001":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Printer not working":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Web":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Alta":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Aberto":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "AP-000002":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "VPN access request":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Web":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Média":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Em Andamento":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web: Ignored nodes: comments, script, style
+web: [36m<body>[39m
+web:   [36m<div>[39m
+web:     [36m<div[39m
+web:       [33mdata-testid[39m=[32m"location-probe"[39m
+web:     [36m>[39m
+web:       [0m/?serviceDeskId=sd-1&search=printer&page=2[0m
+web:     [36m</div>[39m
+web:     [36m<div[39m
+web:       [33mclass[39m=[32m"space-y-4"[39m
+web:     [36m>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 sm:gap-4"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex shrink-0 items-center gap-4"[39m
+web:         [36m>[39m
+web:           [36m<h1[39m
+web:             [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:           [36m>[39m
+web:             [0mTickets[0m
+web:           [36m</h1>[39m
+web:           [36m<div[39m
+web:             [33maria-label[39m=[32m"Visualização"[39m
+web:             [33mclass[39m=[32m"inline-flex h-[var(--control-height-md)] shrink-0 items-center rounded-control border border-gray-200 bg-gray-90 p-1 text-[13px]"[39m
+web:             [33mrole[39m=[32m"group"[39m
+web:           [36m>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-gray-200 bg-white text-brand-600 shadow-sm"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mLista[0m
+web:             [36m</button>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"false"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-transparent text-gray-500 hover:text-gray-900"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mKanban[0m
+web:             [36m</button>[39m
+web:           [36m</div>[39m
+web:         [36m</div>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex w-full items-center gap-2 sm:w-auto"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative min-w-0 flex-1 sm:flex-none"[39m
+web:           [36m>[39m
+web:             [36m<svg[39m
+web:               [33maria-hidden[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"lucide lucide-search pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"[39m
+web:               [33mfill[39m=[32m"none"[39m
+web:               [33mheight[39m=[32m"24"[39m
+web:               [33mstroke[39m=[32m"currentColor"[39m
+web:               [33mstroke-linecap[39m=[32m"round"[39m
+web:               [33mstroke-linejoin[39m=[32m"round"[39m
+web:               [33mstroke-width[39m=[32m"2"[39m
+web:               [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:               [33mwidth[39m=[32m"24"[39m
+web:               [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:             [36m>[39m
+web:               [36m<path[39m
+web:                 [33md[39m=[32m"m21 21-4.34-4.34"[39m
+web:               [36m/>[39m
+web:               [36m<circle[39m
+web:                 [33mcx[39m=[32m"11"[39m
+web:                 [33mcy[39m=[32m"11"[39m
+web:                 [33mr[39m=[32m"8"[39m
+web:               [36m/>[39m
+web:             [36m</svg>[39m
+web:             [36m<label[39m
+web:               [33mclass[39m=[32m"sr-only"[39m
+web:               [33mfor[39m=[32m"tickets-header-search"[39m
+web:             [36m>[39m
+web:               [0mBuscar[0m
+web:             [36m</label>[39m
+web:             [36m<input[39m
+web:               [33mautocomplete[39m=[32m"off"[39m
+web:               [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:               [33mid[39m=[32m"tickets-header-search"[39m
+web:               [33mname[39m=[32m"search"[39m
+web:               [33mplaceholder[39m=[32m"Buscar…"[39m
+web:               [33mtype[39m=[32m"search"[39m
+web:               [33mvalue[39m=[32m"printer"[39m
+web:             [36m/>[39m
+web:           [36m</div>[39m
+web:           [36m<button[39m
+web:             [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:             [33mtype[39m=[32m"button"[39m
+web:           [36m>[39m
+web:             [0mBusca avançada[0m
+web:           [36m</button>[39m
+web:         [36m</div>[39m
+web:       [36m</div>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33maria-label[39m=[32m"Filtros ativos"[39m
+web:           [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+web:           [33mrole[39m=[32m"group"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px] text-[12px] font-medium leading-none select-none transition-colors border bg-gray-90 text-gray-700 border-gray-200"[39m
+web:           [36m>[39m
+web:             [36m<span>[39m
+web:               [0mBusca: printer[0m
+web:             [36m</span>[39m
+web:           [36m</div>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px] text-[12px] font-medium leading-none select-none transition-colors border bg-gray-90 text-gray-700 border-gray-200"[39m
+web:           [36m>[39m
+web:             [36m<span>[39m
+web:               [0mMesa de serviço[0m
+web:             [36m</span>[39m
+web:           [36m</div>[39m
+web:         [36m</div>[39m
+web:         [36m<button[39m
+web:           [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-transparent text-brand-600 hover:text-brand-800 disabled:text-gray-400 disabled:bg-transparent h-[32px] text-xs px-4"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+web:           [36m>[39m
+web:             [36m<span[39m
+web:               [33mclass[39m=[32m"font-medium"[39m
+web:             [36m>[39m
+web:               [0mRedefinir filtros[0m
+web:             [36m</span>[39m
+web:           [36m</div>[39m
+web:         [36m</button>[39m
+web:       [36m</div>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"space-y-2"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex flex-wrap items-center gap-3"[39m
+web:         [36m>[39m
+web:           [36m<label[39m
+web:             [33mclass[39m=[32m"text-[13px] font-medium text-gray-700"[39m
+web:             [3...
+web:  ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+web:  ❯ fechados src/pages/TicketsPage.test.tsx:539:35
+web:     537|     }
+web:     538|
+web:     539|     const fechados = () => screen.getByRole('button', { name: /^Ticket…
+web:        |                                   ^
+web:     540|     const autorizacoes = () => screen.getByRole('button', { name: /^Au…
+web:     541|     const url = () => screen.getByTestId('location-probe');
+web:  ❯ src/pages/TicketsPage.test.tsx:618:24
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/14]⎯
+web:  FAIL  |web| src/pages/TicketsPage.test.tsx > TicketsPage > atalhos da lista (DMTE-503) > DMTE-503 AC-05: contador de Autorizações mostra o total de PENDING_APPROVAL, sem os outros filtros
+web: TestingLibraryElementError: Unable to find role="button" and name `/^Autorizações/`
+web: Ignored nodes: comments, script, style
+web: [36m<body>[39m
+web:   [36m<div>[39m
+web:     [36m<div[39m
+web:       [33mdata-testid[39m=[32m"location-probe"[39m
+web:     [36m>[39m
+web:       [0m/?search=printer[0m
+web:     [36m</div>[39m
+web:     [36m<div[39m
+web:       [33mclass[39m=[32m"space-y-4"[39m
+web:     [36m>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 sm:gap-4"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex shrink-0 items-center gap-4"[39m
+web:         [36m>[39m
+web:           [36m<h1[39m
+web:             [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:           [36m>[39m
+web:             [0mTickets[0m
+web:           [36m</h1>[39m
+web:           [36m<div[39m
+web:             [33maria-label[39m=[32m"Visualização"[39m
+web:             [33mclass[39m=[32m"inline-flex h-[var(--control-height-md)] shrink-0 items-center rounded-control border border-gray-200 bg-gray-90 p-1 text-[13px]"[39m
+web:             [33mrole[39m=[32m"group"[39m
+web:           [36m>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-gray-200 bg-white text-brand-600 shadow-sm"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mLista[0m
+web:             [36m</button>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"false"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-transparent text-gray-500 hover:text-gray-900"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mKanban[0m
+web:             [36m</button>[39m
+web:           [36m</div>[39m
+web:         [36m</div>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex w-full items-center gap-2 sm:w-auto"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative min-w-0 flex-1 sm:flex-none"[39m
+web:           [36m>[39m
+web:             [36m<svg[39m
+web:               [33maria-hidden[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"lucide lucide-search pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"[39m
+web:               [33mfill[39m=[32m"none"[39m
+web:               [33mheight[39m=[32m"24"[39m
+web:               [33mstroke[39m=[32m"currentColor"[39m
+web:               [33mstroke-linecap[39m=[32m"round"[39m
+web:               [33mstroke-linejoin[39m=[32m"round"[39m
+web:               [33mstroke-width[39m=[32m"2"[39m
+web:               [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:               [33mwidth[39m=[32m"24"[39m
+web:               [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:             [36m>[39m
+web:               [36m<path[39m
+web:                 [33md[39m=[32m"m21 21-4.34-4.34"[39m
+web:               [36m/>[39m
+web:               [36m<circle[39m
+web:                 [33mcx[39m=[32m"11"[39m
+web:                 [33mcy[39m=[32m"11"[39m
+web:                 [33mr[39m=[32m"8"[39m
+web:               [36m/>[39m
+web:             [36m</svg>[39m
+web:             [36m<label[39m
+web:               [33mclass[39m=[32m"sr-only"[39m
+web:               [33mfor[39m=[32m"tickets-header-search"[39m
+web:             [36m>[39m
+web:               [0mBuscar[0m
+web:             [36m</label>[39m
+web:             [36m<input[39m
+web:               [33mautocomplete[39m=[32m"off"[39m
+web:               [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:               [33mid[39m=[32m"tickets-header-search"[39m
+web:               [33mname[39m=[32m"search"[39m
+web:               [33mplaceholder[39m=[32m"Buscar…"[39m
+web:               [33mtype[39m=[32m"search"[39m
+web:               [33mvalue[39m=[32m"printer"[39m
+web:             [36m/>[39m
+web:           [36m</div>[39m
+web:           [36m<button[39m
+web:             [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:             [33mtype[39m=[32m"button"[39m
+web:           [36m>[39m
+web:             [0mBusca avançada[0m
+web:           [36m</button>[39m
+web:         [36m</div>[39m
+web:       [36m</div>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33maria-label[39m=[32m"Filtros ativos"[39m
+web:           [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+web:           [33mrole[39m=[32m"group"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px] text-[12px] font-medium leading-none select-none transition-colors border bg-gray-90 text-gray-700 border-gray-200"[39m
+web:           [36m>[39m
+web:             [36m<span>[39m
+web:               [0mBusca: printer[0m
+web:             [36m</span>[39m
+web:           [36m</div>[39m
+web:         [36m</div>[39m
+web:         [36m<button[39m
+web:           [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-transparent text-brand-600 hover:text-brand-800 disabled:text-gray-400 disabled:bg-transparent h-[32px] text-xs px-4"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+web:           [36m>[39m
+web:             [36m<span[39m
+web:               [33mclass[39m=[32m"font-medium"[39m
+web:             [36m>[39m
+web:               [0mRedefinir filtros[0m
+web:             [36m</span>[39m
+web:           [36m</div>[39m
+web:         [36m</button>[39m
+web:       [36m</div>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"space-y-2"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex flex-wrap items-center gap-3"[39m
+web:         [36m>[39m
+web:           [36m<label[39m
+web:             [33mclass[39m=[32m"text-[13px] font-medium text-gray-700"[39m
+web:             [33mfor[39m=[32m"ticket-list-group-by"[39m
+web:           [36m>[39m
+web:             [0mAgrupar por[0m
+web:           [36m</label>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"flex flex-col gap-1 w-auto"[39m
+web:           [36m>[39m
+web:             [36m<div[39m
+web:               [33mclass[39m=[32m"relative"[39m
+web:             [36m>[39m
+web:               [36m<div[39m
+web:                 [33mclass[39m=[32m"relative flex items-center w-full o...
+web: Ignored nodes: comments, script, style
+web: [36m<body>[39m
+web:   [36m<div>[39m
+web:     [36m<div[39m
+web:       [33mdata-testid[39m=[32m"location-probe"[39m
+web:     [36m>[39m
+web:       [0m/?search=printer[0m
+web:     [36m</div>[39m
+web:     [36m<div[39m
+web:       [33mclass[39m=[32m"space-y-4"[39m
+web:     [36m>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 sm:gap-4"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex shrink-0 items-center gap-4"[39m
+web:         [36m>[39m
+web:           [36m<h1[39m
+web:             [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:           [36m>[39m
+web:             [0mTickets[0m
+web:           [36m</h1>[39m
+web:           [36m<div[39m
+web:             [33maria-label[39m=[32m"Visualização"[39m
+web:             [33mclass[39m=[32m"inline-flex h-[var(--control-height-md)] shrink-0 items-center rounded-control border border-gray-200 bg-gray-90 p-1 text-[13px]"[39m
+web:             [33mrole[39m=[32m"group"[39m
+web:           [36m>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-gray-200 bg-white text-brand-600 shadow-sm"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mLista[0m
+web:             [36m</button>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"false"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-transparent text-gray-500 hover:text-gray-900"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mKanban[0m
+web:             [36m</button>[39m
+web:           [36m</div>[39m
+web:         [36m</div>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex w-full items-center gap-2 sm:w-auto"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative min-w-0 flex-1 sm:flex-none"[39m
+web:           [36m>[39m
+web:             [36m<svg[39m
+web:               [33maria-hidden[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"lucide lucide-search pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"[39m
+web:               [33mfill[39m=[32m"none"[39m
+web:               [33mheight[39m=[32m"24"[39m
+web:               [33mstroke[39m=[32m"currentColor"[39m
+web:               [33mstroke-linecap[39m=[32m"round"[39m
+web:               [33mstroke-linejoin[39m=[32m"round"[39m
+web:               [33mstroke-width[39m=[32m"2"[39m
+web:               [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:               [33mwidth[39m=[32m"24"[39m
+web:               [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:             [36m>[39m
+web:               [36m<path[39m
+web:                 [33md[39m=[32m"m21 21-4.34-4.34"[39m
+web:               [36m/>[39m
+web:               [36m<circle[39m
+web:                 [33mcx[39m=[32m"11"[39m
+web:                 [33mcy[39m=[32m"11"[39m
+web:                 [33mr[39m=[32m"8"[39m
+web:               [36m/>[39m
+web:             [36m</svg>[39m
+web:             [36m<label[39m
+web:               [33mclass[39m=[32m"sr-only"[39m
+web:               [33mfor[39m=[32m"tickets-header-search"[39m
+web:             [36m>[39m
+web:               [0mBuscar[0m
+web:             [36m</label>[39m
+web:             [36m<input[39m
+web:               [33mautocomplete[39m=[32m"off"[39m
+web:               [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:               [33mid[39m=[32m"tickets-header-search"[39m
+web:               [33mname[39m=[32m"search"[39m
+web:               [33mplaceholder[39m=[32m"Buscar…"[39m
+web:               [33mtype[39m=[32m"search"[39m
+web:               [33mvalue[39m=[32m"printer"[39m
+web:             [36m/>[39m
+web:           [36m</div>[39m
+web:           [36m<button[39m
+web:             [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:             [33mtype[39m=[32m"button"[39m
+web:           [36m>[39m
+web:             [0mBusca avançada[0m
+web:           [36m</button>[39m
+web:         [36m</div>[39m
+web:       [36m</div>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33maria-label[39m=[32m"Filtros ativos"[39m
+web:           [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+web:           [33mrole[39m=[32m"group"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px] text-[12px] font-medium leading-none select-none transition-colors border bg-gray-90 text-gray-700 border-gray-200"[39m
+web:           [36m>[39m
+web:             [36m<span>[39m
+web:               [0mBusca: printer[0m
+web:             [36m</span>[39m
+web:           [36m</div>[39m
+web:         [36m</div>[39m
+web:         [36m<button[39m
+web:           [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-transparent text-brand-600 hover:text-brand-800 disabled:text-gray-400 disabled:bg-transparent h-[32px] text-xs px-4"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+web:           [36m>[39m
+web:             [36m<span[39m
+web:               [33mclass[39m=[32m"font-medium"[39m
+web:             [36m>[39m
+web:               [0mRedefinir filtros[0m
+web:             [36m</span>[39m
+web:           [36m</div>[39m
+web:         [36m</button>[39m
+web:       [36m</div>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"space-y-2"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex flex-wrap items-center gap-3"[39m
+web:         [36m>[39m
+web:           [36m<label[39m
+web:             [33mclass[39m=[32m"text-[13px] font-medium text-gray-700"[39m
+web:             [33mfor[39m=[32m"ticket-list-group-by"[39m
+web:           [36m>[39m
+web:             [0mAgrupar por[0m
+web:           [36m</label>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"flex flex-col gap-1 w-auto"[39m
+web:           [36m>[39m
+web:             [36m<div[39m
+web:               [33mclass[39m=[32m"relative"[39m
+web:             [36m>[39m
+web:               [36m<div[39m
+web:                 [33mclass[39m=[32m"relative flex items-center w-full o...
+web:  ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+web:  ❯ src/pages/TicketsPage.test.tsx:628:35
+web:     626|       renderDashboard(['/?view=list&search=printer']);
+web:     627|
+web:     628|       const button = await screen.findByRole('button', { name: /^Autor…
+web:        |                                   ^
+web:     629|       expect(await within(button).findByText('3')).toBeInTheDocument();
+web:     630|       expect(api.get).toHaveBeenCalledWith('/tickets', { params: { sta…
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/14]⎯
+web:  FAIL  |web| src/pages/TicketsPage.test.tsx > TicketsPage > atalhos da lista (DMTE-503) > DMTE-503 AC-05: sem contador com total 0 e o atalho continua clicável
+web:  FAIL  |web| src/pages/TicketsPage.test.tsx > TicketsPage > atalhos da lista (DMTE-503) > DMTE-503 AC-05: sem contador com carregando e o atalho continua clicável
+web:  FAIL  |web| src/pages/TicketsPage.test.tsx > TicketsPage > atalhos da lista (DMTE-503) > DMTE-503 AC-05: sem contador com erro e o atalho continua clicável
+web: TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/^Autorizações/`
+web: Here are the accessible roles:
+web:   heading:
+web:   Name "Tickets":
+web:   [36m<h1[39m
+web:     [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   group:
+web:   Name "Visualização":
+web:   [36m<div[39m
+web:     [33maria-label[39m=[32m"Visualização"[39m
+web:     [33mclass[39m=[32m"inline-flex h-[var(--control-height-md)] shrink-0 items-center rounded-control border border-gray-200 bg-gray-90 p-1 text-[13px]"[39m
+web:     [33mrole[39m=[32m"group"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   button:
+web:   Name "Lista":
+web:   [36m<button[39m
+web:     [33maria-pressed[39m=[32m"true"[39m
+web:     [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-gray-200 bg-white text-brand-600 shadow-sm"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Kanban":
+web:   [36m<button[39m
+web:     [33maria-pressed[39m=[32m"false"[39m
+web:     [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-transparent text-gray-500 hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Busca avançada":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Exibir colunas":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-compact)] rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Número":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Título":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Prioridade":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Status":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   searchbox:
+web:   Name "Buscar":
+web:   [36m<input[39m
+web:     [33mautocomplete[39m=[32m"off"[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:     [33mid[39m=[32m"tickets-header-search"[39m
+web:     [33mname[39m=[32m"search"[39m
+web:     [33mplaceholder[39m=[32m"Buscar…"[39m
+web:     [33mtype[39m=[32m"search"[39m
+web:     [33mvalue[39m=[32m""[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   combobox:
+web:   Name "Agrupar por":
+web:   [36m<button[39m
+web:     [33maria-expanded[39m=[32m"false"[39m
+web:     [33maria-haspopup[39m=[32m"listbox"[39m
+web:     [33maria-label[39m=[32m"Agrupar por"[39m
+web:     [33mclass[39m=[32m"flex h-full w-full items-center justify-between gap-2 bg-transparent text-left text-gray-900 outline-none pl-2 pr-2 text-[13px]"[39m
+web:     [33mrole[39m=[32m"combobox"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   region:
+web:   Name "Tabela de chamados":
+web:   [36m<div[39m
+web:     [33maria-label[39m=[32m"Tabela de chamados"[39m
+web:     [33mclass[39m=[32m"overflow-x-auto rounded-control border border-gray-200 bg-white outline-none focus-visible:ring-2 focus-visible:ring-brand-500"[39m
+web:     [33mrole[39m=[32m"region"[39m
+web:     [33mtabindex[39m=[32m"0"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   table:
+web:   Name "":
+web:   [36m<table[39m
+web:     [33mclass[39m=[32m"w-full min-w-[720px] text-left"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   rowgroup:
+web:   Name "":
+web:   [36m<thead />[39m
+web:   Name "":
+web:   [36m<tbody />[39m
+web:   --------------------------------------------------
+web:   row:
+web:   Name "Número Título Cliente Origem Prioridade Status Estágio":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-200 bg-gray-80"[39m
+web:   [36m/>[39m
+web:   Name "AP-000001 Printer not working — Web Alta Aberto —":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-100 last:border-0 hover:bg-gray-80 cursor-pointer"[39m
+web:   [36m/>[39m
+web:   Name "AP-000002 VPN access request — Web Média Em Andamento —":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-100 last:border-0 hover:bg-gray-80 cursor-pointer"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   columnheader:
+web:   Name "Número":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Título":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Cliente":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Origem":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Prioridade":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Status":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Estágio":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   cell:
+web:   Name "AP-000001":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Printer not working":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Web":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Alta":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Aberto":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "AP-000002":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "VPN access request":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Web":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Média":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Em Andamento":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web: Ignored nodes: comments, script, style
+web: [36m<body>[39m
+web:   [36m<div>[39m
+web:     [36m<div[39m
+web:       [33mdata-testid[39m=[32m"location-probe"[39m
+web:     [36m>[39m
+web:       [0m/[0m
+web:     [36m</div>[39m
+web:     [36m<div[39m
+web:       [33mclass[39m=[32m"space-y-4"[39m
+web:     [36m>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 sm:gap-4"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex shrink-0 items-center gap-4"[39m
+web:         [36m>[39m
+web:           [36m<h1[39m
+web:             [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:           [36m>[39m
+web:             [0mTickets[0m
+web:           [36m</h1>[39m
+web:           [36m<div[39m
+web:             [33maria-label[39m=[32m"Visualização"[39m
+web:             [33mclass[39m=[32m"inline-flex h-[var(--control-height-md)] shrink-0 items-center rounded-control border border-gray-200 bg-gray-90 p-1 text-[13px]"[39m
+web:             [33mrole[39m=[32m"group"[39m
+web:           [36m>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-gray-200 bg-white text-brand-600 shadow-sm"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mLista[0m
+web:             [36m</button>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"false"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-transparent text-gray-500 hover:text-gray-900"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mKanban[0m
+web:             [36m</button>[39m
+web:           [36m</div>[39m
+web:         [36m</div>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex w-full items-center gap-2 sm:w-auto"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative min-w-0 flex-1 sm:flex-none"[39m
+web:           [36m>[39m
+web:             [36m<svg[39m
+web:               [33maria-hidden[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"lucide lucide-search pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"[39m
+web:               [33mfill[39m=[32m"none"[39m
+web:               [33mheight[39m=[32m"24"[39m
+web:               [33mstroke[39m=[32m"currentColor"[39m
+web:               [33mstroke-linecap[39m=[32m"round"[39m
+web:               [33mstroke-linejoin[39m=[32m"round"[39m
+web:               [33mstroke-width[39m=[32m"2"[39m
+web:               [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:               [33mwidth[39m=[32m"24"[39m
+web:               [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:             [36m>[39m
+web:               [36m<path[39m
+web:                 [33md[39m=[32m"m21 21-4.34-4.34"[39m
+web:               [36m/>[39m
+web:               [36m<circle[39m
+web:                 [33mcx[39m=[32m"11"[39m
+web:                 [33mcy[39m=[32m"11"[39m
+web:                 [33mr[39m=[32m"8"[39m
+web:               [36m/>[39m
+web:             [36m</svg>[39m
+web:             [36m<label[39m
+web:               [33mclass[39m=[32m"sr-only"[39m
+web:               [33mfor[39m=[32m"tickets-header-search"[39m
+web:             [36m>[39m
+web:               [0mBuscar[0m
+web:             [36m</label>[39m
+web:             [36m<input[39m
+web:               [33mautocomplete[39m=[32m"off"[39m
+web:               [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:               [33mid[39m=[32m"tickets-header-search"[39m
+web:               [33mname[39m=[32m"search"[39m
+web:               [33mplaceholder[39m=[32m"Buscar…"[39m
+web:               [33mtype[39m=[32m"search"[39m
+web:               [33mvalue[39m=[32m""[39m
+web:             [36m/>[39m
+web:           [36m</div>[39m
+web:           [36m<button[39m
+web:             [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:             [33mtype[39m=[32m"button"[39m
+web:           [36m>[39m
+web:             [0mBusca avançada[0m
+web:           [36m</button>[39m
+web:         [36m</div>[39m
+web:       [36m</div>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"space-y-2"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex flex-wrap items-center gap-3"[39m
+web:         [36m>[39m
+web:           [36m<label[39m
+web:             [33mclass[39m=[32m"text-[13px] font-medium text-gray-700"[39m
+web:             [33mfor[39m=[32m"ticket-list-group-by"[39m
+web:           [36m>[39m
+web:             [0mAgrupar por[0m
+web:           [36m</label>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"flex flex-col gap-1 w-auto"[39m
+web:           [36m>[39m
+web:             [36m<div[39m
+web:               [33mclass[39m=[32m"relative"[39m
+web:             [36m>[39m
+web:               [36m<div[39m
+web:                 [33mclass[39m=[32m"relative flex items-center w-full overflow-hidden transition-colors border bg-white rounded-[8px] h-11 sm:h-[32px] focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300"[39m
+web:               [36m>[39m
+web:                 [36m<select[39m
+web:                   [33maria-hidden[39m=[32m"true"[39m
+web:                   [33maria-label[39m=[32m"Agrupar por"[39m
+web:                   [33mclass[39m=[32m"sr-only"[39m
+web:                   [33mid[39m=[32m"ticket-list-group-by"[39m
+web:                   [33mtabindex[39m=[32m"-1"[39m
+web:                 [36m>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"none"[39m
+web:                   [36m>[39m
+web:                     [0mNenhum[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"organization"[39m
+web:                   [36m>[39m
+web:                     [0mCliente[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"stage"[39m
+web:                   [36m>[39m
+web:                     [0mEstágio[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"status"[39m
+web:                   [36m>[39m
+web:                     [0mStatus[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"priority"[39m
+web:                   [36m>[39m
+web:                     [0mPrioridade[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"agent"[39m
+web:                   [36m>[39m...
+web:  ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+web:  ❯ autorizacoes src/pages/TicketsPage.test.tsx:540:39
+web:     538|
+web:     539|     const fechados = () => screen.getByRole('button', { name: /^Ticket…
+web:     540|     const autorizacoes = () => screen.getByRole('button', { name: /^Au…
+web:        |                                       ^
+web:     541|     const url = () => screen.getByTestId('location-probe');
+web:     542|
+web:  ❯ src/pages/TicketsPage.test.tsx:646:16
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/14]⎯
+web:  FAIL  |web| src/pages/TicketsPage.test.tsx > TicketsPage > atalhos da lista (DMTE-503) > DMTE-503 AC-06: sem atalhos no Kanban; URL com closedOnly ou status abre o atalho ligado
+web: TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/^Tickets fechados/`
+web: Here are the accessible roles:
+web:   heading:
+web:   Name "Tickets":
+web:   [36m<h1[39m
+web:     [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   group:
+web:   Name "Visualização":
+web:   [36m<div[39m
+web:     [33maria-label[39m=[32m"Visualização"[39m
+web:     [33mclass[39m=[32m"inline-flex h-[var(--control-height-md)] shrink-0 items-center rounded-control border border-gray-200 bg-gray-90 p-1 text-[13px]"[39m
+web:     [33mrole[39m=[32m"group"[39m
+web:   [36m/>[39m
+web:   Name "Filtros ativos":
+web:   [36m<div[39m
+web:     [33maria-label[39m=[32m"Filtros ativos"[39m
+web:     [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+web:     [33mrole[39m=[32m"group"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   button:
+web:   Name "Lista":
+web:   [36m<button[39m
+web:     [33maria-pressed[39m=[32m"true"[39m
+web:     [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-gray-200 bg-white text-brand-600 shadow-sm"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Kanban":
+web:   [36m<button[39m
+web:     [33maria-pressed[39m=[32m"false"[39m
+web:     [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-transparent text-gray-500 hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Busca avançada":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Redefinir filtros":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-transparent text-brand-600 hover:text-brand-800 disabled:text-gray-400 disabled:bg-transparent h-[32px] text-xs px-4"[39m
+web:   [36m/>[39m
+web:   Name "Exibir colunas":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-compact)] rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 hover:bg-gray-90"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Número":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Título":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Prioridade":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   Name "Status":
+web:   [36m<button[39m
+web:     [33mclass[39m=[32m"cursor-pointer hover:text-gray-900"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   searchbox:
+web:   Name "Buscar":
+web:   [36m<input[39m
+web:     [33mautocomplete[39m=[32m"off"[39m
+web:     [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:     [33mid[39m=[32m"tickets-header-search"[39m
+web:     [33mname[39m=[32m"search"[39m
+web:     [33mplaceholder[39m=[32m"Buscar…"[39m
+web:     [33mtype[39m=[32m"search"[39m
+web:     [33mvalue[39m=[32m""[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   combobox:
+web:   Name "Agrupar por":
+web:   [36m<button[39m
+web:     [33maria-expanded[39m=[32m"false"[39m
+web:     [33maria-haspopup[39m=[32m"listbox"[39m
+web:     [33maria-label[39m=[32m"Agrupar por"[39m
+web:     [33mclass[39m=[32m"flex h-full w-full items-center justify-between gap-2 bg-transparent text-left text-gray-900 outline-none pl-2 pr-2 text-[13px]"[39m
+web:     [33mrole[39m=[32m"combobox"[39m
+web:     [33mtype[39m=[32m"button"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   region:
+web:   Name "Tabela de chamados":
+web:   [36m<div[39m
+web:     [33maria-label[39m=[32m"Tabela de chamados"[39m
+web:     [33mclass[39m=[32m"overflow-x-auto rounded-control border border-gray-200 bg-white outline-none focus-visible:ring-2 focus-visible:ring-brand-500"[39m
+web:     [33mrole[39m=[32m"region"[39m
+web:     [33mtabindex[39m=[32m"0"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   table:
+web:   Name "":
+web:   [36m<table[39m
+web:     [33mclass[39m=[32m"w-full min-w-[720px] text-left"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   rowgroup:
+web:   Name "":
+web:   [36m<thead />[39m
+web:   Name "":
+web:   [36m<tbody />[39m
+web:   --------------------------------------------------
+web:   row:
+web:   Name "Número Título Cliente Origem Prioridade Status Estágio":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-200 bg-gray-80"[39m
+web:   [36m/>[39m
+web:   Name "AP-000001 Printer not working — Web Alta Aberto —":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-100 last:border-0 hover:bg-gray-80 cursor-pointer"[39m
+web:   [36m/>[39m
+web:   Name "AP-000002 VPN access request — Web Média Em Andamento —":
+web:   [36m<tr[39m
+web:     [33mclass[39m=[32m"border-b border-gray-100 last:border-0 hover:bg-gray-80 cursor-pointer"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   columnheader:
+web:   Name "Número":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Título":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Cliente":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Origem":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Prioridade":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Status":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   Name "Estágio":
+web:   [36m<th[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[12px] font-semibold text-gray-600"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web:   cell:
+web:   Name "AP-000001":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Printer not working":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Web":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Alta":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Aberto":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "AP-000002":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "VPN access request":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Web":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Média":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "Em Andamento":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   Name "—":
+web:   [36m<td[39m
+web:     [33mclass[39m=[32m"px-3 py-2 text-[13px] text-gray-700"[39m
+web:   [36m/>[39m
+web:   --------------------------------------------------
+web: Ignored nodes: comments, script, style
+web: [36m<body>[39m
+web:   [36m<div />[39m
+web:   [36m<div>[39m
+web:     [36m<div[39m
+web:       [33mdata-testid[39m=[32m"location-probe"[39m
+web:     [36m>[39m
+web:       [0m/?closedOnly=true[0m
+web:     [36m</div>[39m
+web:     [36m<div[39m
+web:       [33mclass[39m=[32m"space-y-4"[39m
+web:     [36m>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 sm:gap-4"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex shrink-0 items-center gap-4"[39m
+web:         [36m>[39m
+web:           [36m<h1[39m
+web:             [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:           [36m>[39m
+web:             [0mTickets[0m
+web:           [36m</h1>[39m
+web:           [36m<div[39m
+web:             [33maria-label[39m=[32m"Visualização"[39m
+web:             [33mclass[39m=[32m"inline-flex h-[var(--control-height-md)] shrink-0 items-center rounded-control border border-gray-200 bg-gray-90 p-1 text-[13px]"[39m
+web:             [33mrole[39m=[32m"group"[39m
+web:           [36m>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-gray-200 bg-white text-brand-600 shadow-sm"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mLista[0m
+web:             [36m</button>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"false"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-transparent text-gray-500 hover:text-gray-900"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mKanban[0m
+web:             [36m</button>[39m
+web:           [36m</div>[39m
+web:         [36m</div>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex w-full items-center gap-2 sm:w-auto"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative min-w-0 flex-1 sm:flex-none"[39m
+web:           [36m>[39m
+web:             [36m<svg[39m
+web:               [33maria-hidden[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"lucide lucide-search pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"[39m
+web:               [33mfill[39m=[32m"none"[39m
+web:               [33mheight[39m=[32m"24"[39m
+web:               [33mstroke[39m=[32m"currentColor"[39m
+web:               [33mstroke-linecap[39m=[32m"round"[39m
+web:               [33mstroke-linejoin[39m=[32m"round"[39m
+web:               [33mstroke-width[39m=[32m"2"[39m
+web:               [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:               [33mwidth[39m=[32m"24"[39m
+web:               [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:             [36m>[39m
+web:               [36m<path[39m
+web:                 [33md[39m=[32m"m21 21-4.34-4.34"[39m
+web:               [36m/>[39m
+web:               [36m<circle[39m
+web:                 [33mcx[39m=[32m"11"[39m
+web:                 [33mcy[39m=[32m"11"[39m
+web:                 [33mr[39m=[32m"8"[39m
+web:               [36m/>[39m
+web:             [36m</svg>[39m
+web:             [36m<label[39m
+web:               [33mclass[39m=[32m"sr-only"[39m
+web:               [33mfor[39m=[32m"tickets-header-search"[39m
+web:             [36m>[39m
+web:               [0mBuscar[0m
+web:             [36m</label>[39m
+web:             [36m<input[39m
+web:               [33mautocomplete[39m=[32m"off"[39m
+web:               [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:               [33mid[39m=[32m"tickets-header-search"[39m
+web:               [33mname[39m=[32m"search"[39m
+web:               [33mplaceholder[39m=[32m"Buscar…"[39m
+web:               [33mtype[39m=[32m"search"[39m
+web:               [33mvalue[39m=[32m""[39m
+web:             [36m/>[39m
+web:           [36m</div>[39m
+web:           [36m<button[39m
+web:             [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:             [33mtype[39m=[32m"button"[39m
+web:           [36m>[39m
+web:             [0mBusca avançada[0m
+web:           [36m</button>[39m
+web:         [36m</div>[39m
+web:       [36m</div>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33maria-label[39m=[32m"Filtros ativos"[39m
+web:           [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+web:           [33mrole[39m=[32m"group"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"inline-flex items-center justify-center rounded-[24px] px-2.5 py-1 min-w-[32px] min-h-[24px] text-[12px] font-medium leading-none select-none transition-colors border bg-gray-90 text-gray-700 border-gray-200"[39m
+web:           [36m>[39m
+web:             [36m<span>[39m
+web:               [0mFechados[0m
+web:             [36m</span>[39m
+web:           [36m</div>[39m
+web:         [36m</div>[39m
+web:         [36m<button[39m
+web:           [33mclass[39m=[32m"relative flex items-center justify-center overflow-hidden whitespace-nowrap rounded-[24px] box-border transition-all duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed bg-transparent text-brand-600 hover:text-brand-800 disabled:text-gray-400 disabled:bg-transparent h-[32px] text-xs px-4"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative z-10 flex items-center gap-2"[39m
+web:           [36m>[39m
+web:             [36m<span[39m
+web:               [33mclass[39m=[32m"font-medium"[39m
+web:             [36m>[39m
+web:               [0mRedefinir filtros[0m
+web:             [36m</span>[39m
+web:           [36m</div>[39m
+web:         [36m</button>[39m
+web:       [36m</div>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"space-y-2"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex flex-wrap items-center gap-3"[39m
+web:         [36m>[39m
+web:           [36m<label[39m
+web:             [33mclass[39m=[32m"text-[13px] font-medium text-gray-700"[39m
+web:             [33mfor[39m=[32m"ticket-list-group-by"[39m
+web:           [36m>[39m
+web:             [0mAgrupar por[0m
+web:           [36m</label>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"flex flex-col gap-1 w-auto"[39m
+web:           [36m>[39m
+web:             [36m<div[39m
+web:               [33mclass[39m=[32m"relative"[39m
+web:             [36m>[39m
+web:               [36m<div[39m
+web:                 [33mclass[39m=[32m"relative flex items-center ...
+web:  ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+web:  ❯ fechados src/pages/TicketsPage.test.tsx:539:35
+web:     537|     }
+web:     538|
+web:     539|     const fechados = () => screen.getByRole('button', { name: /^Ticket…
+web:        |                                   ^
+web:     540|     const autorizacoes = () => screen.getByRole('button', { name: /^Au…
+web:     541|     const url = () => screen.getByTestId('location-probe');
+web:  ❯ src/pages/TicketsPage.test.tsx:676:14
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/14]⎯
+web:  FAIL  |web| src/pages/TicketsPage.test.tsx > TicketsPage > atalhos da lista (DMTE-503) > DMTE-503 AC-07: botões com aria-pressed, ícone aria-hidden e contador aria-live com tabular-nums
+web: TestingLibraryElementError: Unable to find role="button" and name `/^Autorizações/`
+web: Ignored nodes: comments, script, style
+web: [36m<body>[39m
+web:   [36m<div>[39m
+web:     [36m<div[39m
+web:       [33mdata-testid[39m=[32m"location-probe"[39m
+web:     [36m>[39m
+web:       [0m/[0m
+web:     [36m</div>[39m
+web:     [36m<div[39m
+web:       [33mclass[39m=[32m"space-y-4"[39m
+web:     [36m>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 sm:gap-4"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex shrink-0 items-center gap-4"[39m
+web:         [36m>[39m
+web:           [36m<h1[39m
+web:             [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:           [36m>[39m
+web:             [0mTickets[0m
+web:           [36m</h1>[39m
+web:           [36m<div[39m
+web:             [33maria-label[39m=[32m"Visualização"[39m
+web:             [33mclass[39m=[32m"inline-flex h-[var(--control-height-md)] shrink-0 items-center rounded-control border border-gray-200 bg-gray-90 p-1 text-[13px]"[39m
+web:             [33mrole[39m=[32m"group"[39m
+web:           [36m>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-gray-200 bg-white text-brand-600 shadow-sm"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mLista[0m
+web:             [36m</button>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"false"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-transparent text-gray-500 hover:text-gray-900"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mKanban[0m
+web:             [36m</button>[39m
+web:           [36m</div>[39m
+web:         [36m</div>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex w-full items-center gap-2 sm:w-auto"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative min-w-0 flex-1 sm:flex-none"[39m
+web:           [36m>[39m
+web:             [36m<svg[39m
+web:               [33maria-hidden[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"lucide lucide-search pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"[39m
+web:               [33mfill[39m=[32m"none"[39m
+web:               [33mheight[39m=[32m"24"[39m
+web:               [33mstroke[39m=[32m"currentColor"[39m
+web:               [33mstroke-linecap[39m=[32m"round"[39m
+web:               [33mstroke-linejoin[39m=[32m"round"[39m
+web:               [33mstroke-width[39m=[32m"2"[39m
+web:               [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:               [33mwidth[39m=[32m"24"[39m
+web:               [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:             [36m>[39m
+web:               [36m<path[39m
+web:                 [33md[39m=[32m"m21 21-4.34-4.34"[39m
+web:               [36m/>[39m
+web:               [36m<circle[39m
+web:                 [33mcx[39m=[32m"11"[39m
+web:                 [33mcy[39m=[32m"11"[39m
+web:                 [33mr[39m=[32m"8"[39m
+web:               [36m/>[39m
+web:             [36m</svg>[39m
+web:             [36m<label[39m
+web:               [33mclass[39m=[32m"sr-only"[39m
+web:               [33mfor[39m=[32m"tickets-header-search"[39m
+web:             [36m>[39m
+web:               [0mBuscar[0m
+web:             [36m</label>[39m
+web:             [36m<input[39m
+web:               [33mautocomplete[39m=[32m"off"[39m
+web:               [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:               [33mid[39m=[32m"tickets-header-search"[39m
+web:               [33mname[39m=[32m"search"[39m
+web:               [33mplaceholder[39m=[32m"Buscar…"[39m
+web:               [33mtype[39m=[32m"search"[39m
+web:               [33mvalue[39m=[32m""[39m
+web:             [36m/>[39m
+web:           [36m</div>[39m
+web:           [36m<button[39m
+web:             [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:             [33mtype[39m=[32m"button"[39m
+web:           [36m>[39m
+web:             [0mBusca avançada[0m
+web:           [36m</button>[39m
+web:         [36m</div>[39m
+web:       [36m</div>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"space-y-2"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex flex-wrap items-center gap-3"[39m
+web:         [36m>[39m
+web:           [36m<label[39m
+web:             [33mclass[39m=[32m"text-[13px] font-medium text-gray-700"[39m
+web:             [33mfor[39m=[32m"ticket-list-group-by"[39m
+web:           [36m>[39m
+web:             [0mAgrupar por[0m
+web:           [36m</label>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"flex flex-col gap-1 w-auto"[39m
+web:           [36m>[39m
+web:             [36m<div[39m
+web:               [33mclass[39m=[32m"relative"[39m
+web:             [36m>[39m
+web:               [36m<div[39m
+web:                 [33mclass[39m=[32m"relative flex items-center w-full overflow-hidden transition-colors border bg-white rounded-[8px] h-11 sm:h-[32px] focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300"[39m
+web:               [36m>[39m
+web:                 [36m<select[39m
+web:                   [33maria-hidden[39m=[32m"true"[39m
+web:                   [33maria-label[39m=[32m"Agrupar por"[39m
+web:                   [33mclass[39m=[32m"sr-only"[39m
+web:                   [33mid[39m=[32m"ticket-list-group-by"[39m
+web:                   [33mtabindex[39m=[32m"-1"[39m
+web:                 [36m>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"none"[39m
+web:                   [36m>[39m
+web:                     [0mNenhum[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"organization"[39m
+web:                   [36m>[39m
+web:                     [0mCliente[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"stage"[39m
+web:                   [36m>[39m
+web:                     [0mEstágio[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"status"[39m
+web:                   [36m>[39m
+web:                     [0mStatus[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"priority"[39m
+web:                   [36m>[39m
+web:                     [0mPrioridade[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"agent"[39m
+web:                   [36m>[39m...
+web: Ignored nodes: comments, script, style
+web: [36m<body>[39m
+web:   [36m<div>[39m
+web:     [36m<div[39m
+web:       [33mdata-testid[39m=[32m"location-probe"[39m
+web:     [36m>[39m
+web:       [0m/[0m
+web:     [36m</div>[39m
+web:     [36m<div[39m
+web:       [33mclass[39m=[32m"space-y-4"[39m
+web:     [36m>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"flex flex-wrap items-center justify-between gap-3 sm:gap-4"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex shrink-0 items-center gap-4"[39m
+web:         [36m>[39m
+web:           [36m<h1[39m
+web:             [33mclass[39m=[32m"text-[20px] font-semibold text-gray-900"[39m
+web:           [36m>[39m
+web:             [0mTickets[0m
+web:           [36m</h1>[39m
+web:           [36m<div[39m
+web:             [33maria-label[39m=[32m"Visualização"[39m
+web:             [33mclass[39m=[32m"inline-flex h-[var(--control-height-md)] shrink-0 items-center rounded-control border border-gray-200 bg-gray-90 p-1 text-[13px]"[39m
+web:             [33mrole[39m=[32m"group"[39m
+web:           [36m>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-gray-200 bg-white text-brand-600 shadow-sm"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mLista[0m
+web:             [36m</button>[39m
+web:             [36m<button[39m
+web:               [33maria-pressed[39m=[32m"false"[39m
+web:               [33mclass[39m=[32m"h-full cursor-pointer rounded-[6px] border px-3 font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 border-transparent text-gray-500 hover:text-gray-900"[39m
+web:               [33mtype[39m=[32m"button"[39m
+web:             [36m>[39m
+web:               [0mKanban[0m
+web:             [36m</button>[39m
+web:           [36m</div>[39m
+web:         [36m</div>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex w-full items-center gap-2 sm:w-auto"[39m
+web:         [36m>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"relative min-w-0 flex-1 sm:flex-none"[39m
+web:           [36m>[39m
+web:             [36m<svg[39m
+web:               [33maria-hidden[39m=[32m"true"[39m
+web:               [33mclass[39m=[32m"lucide lucide-search pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"[39m
+web:               [33mfill[39m=[32m"none"[39m
+web:               [33mheight[39m=[32m"24"[39m
+web:               [33mstroke[39m=[32m"currentColor"[39m
+web:               [33mstroke-linecap[39m=[32m"round"[39m
+web:               [33mstroke-linejoin[39m=[32m"round"[39m
+web:               [33mstroke-width[39m=[32m"2"[39m
+web:               [33mviewBox[39m=[32m"0 0 24 24"[39m
+web:               [33mwidth[39m=[32m"24"[39m
+web:               [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+web:             [36m>[39m
+web:               [36m<path[39m
+web:                 [33md[39m=[32m"m21 21-4.34-4.34"[39m
+web:               [36m/>[39m
+web:               [36m<circle[39m
+web:                 [33mcx[39m=[32m"11"[39m
+web:                 [33mcy[39m=[32m"11"[39m
+web:                 [33mr[39m=[32m"8"[39m
+web:               [36m/>[39m
+web:             [36m</svg>[39m
+web:             [36m<label[39m
+web:               [33mclass[39m=[32m"sr-only"[39m
+web:               [33mfor[39m=[32m"tickets-header-search"[39m
+web:             [36m>[39m
+web:               [0mBuscar[0m
+web:             [36m</label>[39m
+web:             [36m<input[39m
+web:               [33mautocomplete[39m=[32m"off"[39m
+web:               [33mclass[39m=[32m"h-[var(--control-height-md)] w-full rounded-control sm:w-56 border border-gray-200 bg-white pl-8 pr-3 text-[13px] text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"[39m
+web:               [33mid[39m=[32m"tickets-header-search"[39m
+web:               [33mname[39m=[32m"search"[39m
+web:               [33mplaceholder[39m=[32m"Buscar…"[39m
+web:               [33mtype[39m=[32m"search"[39m
+web:               [33mvalue[39m=[32m""[39m
+web:             [36m/>[39m
+web:           [36m</div>[39m
+web:           [36m<button[39m
+web:             [33mclass[39m=[32m"h-[var(--control-height-md)] shrink-0 rounded-control border border-gray-200 bg-white px-3 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-90"[39m
+web:             [33mtype[39m=[32m"button"[39m
+web:           [36m>[39m
+web:             [0mBusca avançada[0m
+web:           [36m</button>[39m
+web:         [36m</div>[39m
+web:       [36m</div>[39m
+web:       [36m<div[39m
+web:         [33mclass[39m=[32m"space-y-2"[39m
+web:       [36m>[39m
+web:         [36m<div[39m
+web:           [33mclass[39m=[32m"flex flex-wrap items-center gap-3"[39m
+web:         [36m>[39m
+web:           [36m<label[39m
+web:             [33mclass[39m=[32m"text-[13px] font-medium text-gray-700"[39m
+web:             [33mfor[39m=[32m"ticket-list-group-by"[39m
+web:           [36m>[39m
+web:             [0mAgrupar por[0m
+web:           [36m</label>[39m
+web:           [36m<div[39m
+web:             [33mclass[39m=[32m"flex flex-col gap-1 w-auto"[39m
+web:           [36m>[39m
+web:             [36m<div[39m
+web:               [33mclass[39m=[32m"relative"[39m
+web:             [36m>[39m
+web:               [36m<div[39m
+web:                 [33mclass[39m=[32m"relative flex items-center w-full overflow-hidden transition-colors border bg-white rounded-[8px] h-11 sm:h-[32px] focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600 border-gray-200 hover:border-gray-300"[39m
+web:               [36m>[39m
+web:                 [36m<select[39m
+web:                   [33maria-hidden[39m=[32m"true"[39m
+web:                   [33maria-label[39m=[32m"Agrupar por"[39m
+web:                   [33mclass[39m=[32m"sr-only"[39m
+web:                   [33mid[39m=[32m"ticket-list-group-by"[39m
+web:                   [33mtabindex[39m=[32m"-1"[39m
+web:                 [36m>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"none"[39m
+web:                   [36m>[39m
+web:                     [0mNenhum[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"organization"[39m
+web:                   [36m>[39m
+web:                     [0mCliente[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"stage"[39m
+web:                   [36m>[39m
+web:                     [0mEstágio[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"status"[39m
+web:                   [36m>[39m
+web:                     [0mStatus[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"priority"[39m
+web:                   [36m>[39m
+web:                     [0mPrioridade[0m
+web:                   [36m</option>[39m
+web:                   [36m<option[39m
+web:                     [33mvalue[39m=[32m"agent"[39m
+web:                   [36m>[39m...
+web:  ❯ waitForWrapper ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+web:  ❯ src/pages/TicketsPage.test.tsx:691:35
+web:     689|       renderDashboard(['/?view=list']);
+web:     690|
+web:     691|       const button = await screen.findByRole('button', { name: /^Autor…
+web:        |                                   ^
+web:     692|       expect(button.tagName).toBe('BUTTON');
+web:     693|       expect(button).toHaveAttribute('type', 'button');
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/14]⎯
+web:  Test Files  1 failed (1)
+web:       Tests  14 failed | 25 passed (39)
+web:    Start at  20:03:45
+web:    Duration  30.91s (transform 4.41s, setup 262ms, import 6.95s, tests 21.52s, environment 1.39s)
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+

@@ -1,0 +1,26 @@
+
+> nx run web:test src/pages/TicketsPage.test.tsx
+
+web:  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-503-c7a8b8bcba16/workdir/aponta/apps/web
+web: stderr | src/pages/TicketsPage.test.tsx > TicketsPage > navigates to /tickets/search when "Busca avançada" is clicked (AC3)
+web: No routes matched location "/tickets/search" 
+web:  ✓ |web| src/pages/TicketsPage.test.tsx (39 tests) 11635ms
+web:      ✓ should render ticket list  488ms
+web:      ✓ defaults non-CLIENT users to the Kanban view and lets them switch to List  543ms
+web:      ✓ renders pagination controls in List view and navigates between pages  347ms
+web:      ✓ reflects a search typed in the header back into the URL (bookmarkable/shareable)  1317ms
+web:        ✓ DMTE-503 AC-02: Tickets fechados pede closedOnly sem status, grava na URL e desliga no segundo clique  543ms
+web:        ✓ DMTE-503 AC-03: Autorizações pede status PENDING_APPROVAL sem closedOnly e troca com Tickets fechados  425ms
+web:        ✓ DMTE-503 AC-05: sem contador com erro e o atalho continua clicável  922ms
+web:        ✓ DMTE-503 AC-06: sem atalhos no Kanban; URL com closedOnly ou status abre o atalho ligado  1984ms
+web:        ✓ DMTE-503 AC-07: botões com aria-pressed, ícone aria-hidden e contador aria-live com tabular-nums  502ms
+web:  Test Files  1 passed (1)
+web:       Tests  39 passed (39)
+web:    Start at  20:04:44
+web:    Duration  18.74s (transform 3.34s, setup 273ms, import 5.12s, tests 11.63s, environment 1.32s)
+
+
+
+ NX   Successfully ran target test for project web
+
+

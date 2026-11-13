@@ -504,4 +504,199 @@ describe('TicketsPage', () => {
       expect(screen.getByTestId('location-probe')).toHaveTextContent('/tickets/search'),
     );
   });
+
+  describe('atalhos da lista (DMTE-503)', () => {
+    type Role = 'ADMIN' | 'AGENT_MASTER' | 'AGENT' | 'CLIENT_MASTER' | 'CLIENT';
+
+    function loginAs(role: Role) {
+      useAuthStore.setState({
+        token: 'tok',
+        user: { sub: 'u1', email: 'u1@example.com', role, organizationId: null },
+      });
+    }
+
+    /** Lista (limit 20) e contador (limit 1) saem do mesmo GET /tickets; o mock os separa pelo `limit`. */
+    function mockTickets(authorizationTotal: number | 'loading' | 'error' = 3) {
+      vi.mocked(api.get).mockImplementation((url: string, config?: { params?: unknown }) => {
+        if (url === '/service-desks') return Promise.resolve({ data: serviceDesks });
+        if (url !== '/tickets') return Promise.reject(new Error(`Unexpected GET ${url}`));
+        if ((config?.params as { limit?: number } | undefined)?.limit === 1) {
+          if (authorizationTotal === 'loading') return new Promise(() => {});
+          if (authorizationTotal === 'error') return Promise.reject(new Error('Network Error'));
+          return Promise.resolve({ data: { data: [], meta: { total: authorizationTotal, page: 1, totalPages: 1 } } });
+        }
+        return Promise.resolve({ data: { data: tickets, meta: { total: 2, page: 1, totalPages: 1 } } });
+      });
+    }
+
+    function listParams() {
+      const calls = vi.mocked(api.get).mock.calls.filter(
+        ([url, config]) => url === '/tickets' && (config as { params?: { limit?: number } })?.params?.limit === 20,
+      );
+      return (calls[calls.length - 1][1] as { params: Record<string, unknown> }).params;
+    }
+
+    const fechados = () => screen.getByRole('button', { name: /^Tickets fechados/ });
+    const autorizacoes = () => screen.getByRole('button', { name: /^Autorizações/ });
+    const url = () => screen.getByTestId('location-probe');
+
+    it.each([
+      ['ADMIN', true],
+      ['AGENT_MASTER', true],
+      ['AGENT', false],
+      ['CLIENT_MASTER', true],
+      ['CLIENT', false],
+    ] as [Role, boolean][])(
+      'DMTE-503 AC-01: %s vê Tickets fechados e Autorizações=%s no modo Lista',
+      async (role, seesAuthorizations) => {
+        loginAs(role);
+        mockTickets();
+        renderDashboard(['/?view=list']);
+
+        await screen.findByText('Printer not working');
+        expect(fechados()).toBeInTheDocument();
+        if (seesAuthorizations) {
+          expect(autorizacoes()).toBeInTheDocument();
+        } else {
+          expect(screen.queryByRole('button', { name: /^Autorizações/ })).not.toBeInTheDocument();
+        }
+      },
+    );
+
+    it('DMTE-503 AC-02: Tickets fechados pede closedOnly sem status, grava na URL e desliga no segundo clique', async () => {
+      loginAs('ADMIN');
+      mockTickets();
+      const user = userEvent.setup();
+      renderDashboard(['/?view=list&status=OPEN']);
+      await screen.findByText('Printer not working');
+      expect(fechados()).toHaveAttribute('aria-pressed', 'false');
+
+      await user.click(fechados());
+      await waitFor(() => expect(listParams()).toMatchObject({ closedOnly: 'true' }));
+      expect(listParams()).not.toHaveProperty('status');
+      expect(url()).toHaveTextContent('closedOnly=true');
+      expect(fechados()).toHaveAttribute('aria-pressed', 'true');
+      expect(within(screen.getByRole('group', { name: 'Filtros ativos' })).getByText('Fechados')).toBeInTheDocument();
+
+      await user.click(fechados());
+      await waitFor(() => expect(listParams()).not.toHaveProperty('closedOnly'));
+      expect(url()).not.toHaveTextContent('closedOnly');
+      expect(fechados()).toHaveAttribute('aria-pressed', 'false');
+    });
+
+    it('DMTE-503 AC-03: Autorizações pede status PENDING_APPROVAL sem closedOnly e troca com Tickets fechados', async () => {
+      loginAs('ADMIN');
+      mockTickets();
+      const user = userEvent.setup();
+      renderDashboard(['/?view=list&closedOnly=true']);
+      await screen.findByText('Printer not working');
+      expect(fechados()).toHaveAttribute('aria-pressed', 'true');
+
+      await user.click(autorizacoes());
+      await waitFor(() => expect(listParams()).toMatchObject({ status: 'PENDING_APPROVAL' }));
+      expect(listParams()).not.toHaveProperty('closedOnly');
+      expect(url()).toHaveTextContent('status=PENDING_APPROVAL');
+      expect(autorizacoes()).toHaveAttribute('aria-pressed', 'true');
+      expect(fechados()).toHaveAttribute('aria-pressed', 'false');
+      expect(
+        within(screen.getByRole('group', { name: 'Filtros ativos' })).getByText('Status: Aguardando Aprovação'),
+      ).toBeInTheDocument();
+
+      await user.click(autorizacoes());
+      await waitFor(() => expect(listParams()).not.toHaveProperty('status'));
+      expect(autorizacoes()).toHaveAttribute('aria-pressed', 'false');
+    });
+
+    it('DMTE-503 AC-04: ligar um atalho mantém Buscar e demais filtros e volta para a página 1', async () => {
+      loginAs('ADMIN');
+      mockTickets();
+      const user = userEvent.setup();
+      renderDashboard(['/?view=list&search=printer&serviceDeskId=sd-1&page=2']);
+      await screen.findByText('Printer not working');
+      expect(listParams()).toMatchObject({ page: 2 });
+
+      await user.click(fechados());
+      await waitFor(() => expect(listParams()).toMatchObject({ closedOnly: 'true' }));
+      expect(listParams()).toMatchObject({ search: 'printer', serviceDeskId: 'sd-1', page: 1 });
+    });
+
+    it('DMTE-503 AC-05: contador de Autorizações mostra o total de PENDING_APPROVAL, sem os outros filtros', async () => {
+      loginAs('ADMIN');
+      mockTickets(3);
+      renderDashboard(['/?view=list&search=printer']);
+
+      const button = await screen.findByRole('button', { name: /^Autorizações/ });
+      expect(await within(button).findByText('3')).toBeInTheDocument();
+      expect(api.get).toHaveBeenCalledWith('/tickets', { params: { status: 'PENDING_APPROVAL', limit: 1 } });
+    });
+
+    it.each([
+      ['total 0', 0],
+      ['carregando', 'loading'],
+      ['erro', 'error'],
+    ] as ['total 0' | 'carregando' | 'erro', number | 'loading' | 'error'][])(
+      'DMTE-503 AC-05: sem contador com %s e o atalho continua clicável',
+      async (_label, total) => {
+        loginAs('ADMIN');
+        mockTickets(total);
+        const user = userEvent.setup();
+        renderDashboard(['/?view=list']);
+
+        await screen.findByText('Printer not working');
+        expect(autorizacoes()).toHaveAccessibleName('Autorizações');
+        await user.click(autorizacoes());
+        await waitFor(() => expect(autorizacoes()).toHaveAttribute('aria-pressed', 'true'));
+      },
+    );
+
+    it('DMTE-503 AC-05: perfil sem o atalho Autorizações não consulta o contador', async () => {
+      loginAs('AGENT');
+      mockTickets();
+      renderDashboard(['/?view=list']);
+
+      await screen.findByText('Printer not working');
+      expect(
+        vi.mocked(api.get).mock.calls.some(
+          ([, config]) => (config as { params?: { limit?: number } })?.params?.limit === 1,
+        ),
+      ).toBe(false);
+    });
+
+    it('DMTE-503 AC-06: sem atalhos no Kanban; URL com closedOnly ou status abre o atalho ligado', async () => {
+      loginAs('ADMIN');
+      mockTickets();
+      const first = renderDashboard(['/?view=kanban']);
+      expect(await screen.findByRole('heading', { name: 'Aberto' })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /^Tickets fechados/ })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /^Autorizações/ })).not.toBeInTheDocument();
+      first.unmount();
+
+      const second = renderDashboard(['/?view=list&closedOnly=true']);
+      await screen.findByText('Printer not working');
+      expect(fechados()).toHaveAttribute('aria-pressed', 'true');
+      expect(autorizacoes()).toHaveAttribute('aria-pressed', 'false');
+      second.unmount();
+
+      renderDashboard(['/?view=list&status=PENDING_APPROVAL']);
+      await screen.findByText('Printer not working');
+      expect(autorizacoes()).toHaveAttribute('aria-pressed', 'true');
+      expect(fechados()).toHaveAttribute('aria-pressed', 'false');
+    });
+
+    it('DMTE-503 AC-07: botões com aria-pressed, ícone aria-hidden e contador aria-live com tabular-nums', async () => {
+      loginAs('ADMIN');
+      mockTickets(3);
+      renderDashboard(['/?view=list']);
+
+      const button = await screen.findByRole('button', { name: /^Autorizações/ });
+      expect(button.tagName).toBe('BUTTON');
+      expect(button).toHaveAttribute('type', 'button');
+      expect(button).toHaveAttribute('aria-pressed');
+      expect(button.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+      const count = await within(button).findByText('3');
+      const live = count.closest('[aria-live]');
+      expect(live).toHaveAttribute('aria-live', 'polite');
+      expect(count.className).toContain('tabular-nums');
+    });
+  });
 });
