@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "delivery": "DMTE-507",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 243,
+  "multica_id": "01a1d315-5d18-7dac-9c86-56fb983f1d7a",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "`grep -c \"multica.dmtecnologia.cloud\" .delivery/registry.json` retorna 0 e `grep -c \"https://multica.aponta.cloud/dm-tecnologia/issues/\" .delivery/registry.json` retorna o número de entradas existentes (26 hoje).",
+      "tests": [
+        "grep -c do host antigo e do novo em .delivery/registry.json"
+      ],
+      "tdd_required": false,
+      "reason": "Só dado de governança em .delivery/registry.json; sem comportamento de produto"
+    },
+    {
+      "id": "AC-02",
+      "description": "o diff do PR toca só o host dessas linhas: nenhuma outra linha de `.delivery/registry.json` muda.",
+      "tests": [
+        "git diff --stat da branch contra origin/main"
+      ],
+      "tdd_required": false,
+      "reason": "Só dado de governança em .delivery/registry.json; sem comportamento de produto"
+    },
+    {
+      "id": "AC-03",
+      "description": "`python3 scripts/aponta_delivery.py check` continua passando.",
+      "tests": [
+        "python3 scripts/aponta_delivery.py check"
+      ],
+      "tdd_required": false,
+      "reason": "Só dado de governança em .delivery/registry.json; sem comportamento de produto"
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-507.md",
+  "tdd": {
+    "mode": "not-applicable",
+    "reason": "Só troca de host em links de registro em .delivery/registry.json; nenhum código com comportamento"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Só governança em .delivery/; nenhuma UI"
+  }
+}
