@@ -1,0 +1,15 @@
+
+> nx run web:test src/components/tickets/TicketKanban.test.tsx
+
+web:  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-496-834aa54b7471/workdir/aponta/apps/web
+web:  ✓ |web| src/components/tickets/TicketKanban.test.tsx (37 tests) 2141ms
+web:  Test Files  1 passed (1)
+web:       Tests  37 passed (37)
+web:    Start at  17:55:46
+web:    Duration  5.44s (transform 1.64s, setup 128ms, import 2.38s, tests 2.14s, environment 557ms)
+
+
+
+ NX   Successfully ran target test for project web
+
+

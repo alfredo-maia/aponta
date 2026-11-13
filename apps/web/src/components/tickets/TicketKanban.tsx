@@ -221,7 +221,7 @@ function CollapsedColumn({
     <div
       ref={droppableRef}
       {...droppableProps}
-      className="flex w-12 shrink-0 flex-col items-center gap-2 rounded-lg border border-gray-200 bg-gray-80 p-2"
+      className="flex min-h-[500px] w-12 shrink-0 flex-col items-center gap-2 self-stretch rounded-lg border border-gray-200 bg-gray-80 p-2"
     >
       <button
         type="button"

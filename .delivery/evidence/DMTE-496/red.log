@@ -1,0 +1,72 @@
+
+> nx run web:test src/components/tickets/TicketKanban.test.tsx
+
+web:  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-496-834aa54b7471/workdir/aponta/apps/web
+web:  ❯ |web| src/components/tickets/TicketKanban.test.tsx (37 tests | 1 failed) 2063ms
+web:        ✓ DMTE-458: board is a snap-scroll container and columns are fluid (no fixed 290px) 95ms
+web:        ✓ shows a skeleton loading state with every column label while isLoading 27ms
+web:        ✓ shows an error message when isError is true 39ms
+web:        ✓ groups tickets into their matching status column with correct counts 58ms
+web:        ✓ DMTE-490 AC-05: has an Aguardando Sankhya column right after Aguardando Terceiros and groups its tickets there 49ms
+web:        ✓ renders an empty column (count 0) when there are no tickets for that status 23ms
+web:        ✓ does nothing when a card is dropped outside any column (no destination) 22ms
+web:        ✓ does nothing when a card is dropped back in the same column 24ms
+web:        ✓ calls the status-update API when a card is dropped into a different column 81ms
+web:        ✓ rolls back the optimistic update when the status-update API call fails 75ms
+web:        ✓ disables drop targets and card dragging for CLIENT role users 15ms
+web:        ✓ does not fetch mesa stages when no mesa is selected (fetches only the Mesa dropdown list) 17ms
+web:        ✓ shows a collapse toggle and an "Abrir novo ticket" link on every column by default (fallback por status) 38ms
+web:        ✓ collapsing a status column hides its ticket list and disables it as a drop target; expanding restores it 43ms
+web:        × DMTE-496 AC-01: a coluna recolhida tem a altura mínima da expandida e acompanha o quadro, por status e por estágio 33ms
+web:        ✓ does not show "Abrir novo ticket" for CLIENT role users 9ms
+web:        ✓ collapsing a stage column (mesa selecionada) hides its ticket list and disables it as a drop target 32ms
+web:        ✓ lists service desks in the Mesa dropdown and switches to stage-grouped columns on selection, without needing initialServiceDeskId 86ms
+web:        ✓ keeps the user's own Mesa selection even if the component re-renders with a different initialServiceDeskId 49ms
+web:        ✓ fetches the mesa stages via GET /service-desks/:id/stages 17ms
+web:        ✓ groups tickets by stage (ordered by position) instead of by status 28ms
+web:        ✓ puts tickets with no recognized stage into a "Sem estágio" column that never accepts a drop 21ms
+web:        ✓ allows dragging an unstaged ticket straight to the mesa's initial stage 67ms
+web:        ✓ blocks dragging an unstaged ticket to a non-initial stage 33ms
+web:        ✓ calls PATCH /tickets/:id/stage (not /status) when dropping into an allowed next stage 74ms
+web:        ✓ blocks the drop and shows an error when the destination stage is not in transitionToIds 28ms
+web:        ✓ does nothing when a card is dropped back in its own stage column 20ms
+web:        ✓ dims (disables) columns unreachable from the dragged card while dragging 26ms
+web:        ✓ rolls back the optimistic update and surfaces the backend message when the stage API call rejects with 400 38ms
+web:        ✓ shows an informational alert when the mesa has no stages configured 29ms
+web:        ✓ AC-04: keeps Mesa, responsáveis, Ordenar and Configurações in one toolbar row, in that order 68ms
+web:        ✓ renders one avatar per distinct agent present in the tickets 46ms
+web:        ✓ clicking an avatar filters the board to that agent's tickets (toggle, multi-select) 127ms
+web:        ✓ opens "Ordenar", sorts cards by Título asc/desc, and "Limpar" restores the original order 291ms
+web:        ✓ "Configurações" lets the user group by Responsável instead of Status/Estágio 139ms
+web:        ✓ "Configurações" lets the user group by Prioridade 100ms
+web:        ✓ RODADA 2 ("Exibir campos", D6c): "Configurações" lets the user toggle optional card fields, persisted like "Agrupar por" 92ms
+web: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+web:  FAIL  |web| src/components/tickets/TicketKanban.test.tsx > TicketKanban > colapsar colunas e abrir novo ticket (TiFlux parity) > DMTE-496 AC-01: a coluna recolhida tem a altura mínima da expandida e acompanha o quadro, por status e por estágio
+web: Error: [2mexpect([22m[31melement[39m[2m).toHaveClass([22m[32m[32m"min-h-[500px] self-stretch"[32m[39m[2m)[22m
+web: Expected the element to have class:
+web: [32m  min-h-[500px] self-stretch[39m
+web: Received:
+web: [31m  flex w-12 shrink-0 flex-col items-center gap-2 rounded-lg border border-gray-200 bg-gray-80 p-2[39m
+web:  ❯ src/components/tickets/TicketKanban.test.tsx:422:33
+web:     420|       fireEvent.click(screen.getByTestId('collapse-column-OPEN'));
+web:     421|       const collapsedByStatus = screen.getByTestId('expand-column').pa…
+web:     422|       expect(collapsedByStatus).toHaveClass('min-h-[500px]', 'self-str…
+web:        |                                 ^
+web:     423|
+web:     424|       cleanup();
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+web:  Test Files  1 failed (1)
+web:       Tests  1 failed | 36 passed (37)
+web:    Start at  17:55:30
+web:    Duration  4.42s (transform 1.11s, setup 104ms, import 1.67s, tests 2.06s, environment 387ms)
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
