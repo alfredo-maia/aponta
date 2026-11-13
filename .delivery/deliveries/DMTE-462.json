@@ -13,7 +13,8 @@
       "tests": [
         "apps/api/src/worklogs/worklog-approval.spec.ts",
         "apps/api/src/worklogs/worklogs.commercial.spec.ts",
-        "apps/web/src/components/tickets/TicketWorklogs.test.tsx"
+        "apps/web/src/components/tickets/TicketWorklogs.test.tsx",
+        "apps/api/src/worklogs/worklog-approvals.review.spec.ts"
       ]
     },
     {
@@ -38,14 +39,16 @@
       "tests": [
         "apps/api/src/worklogs/worklog-approvals.service.spec.ts",
         "apps/api/src/worklogs/worklog-approvals.controller.spec.ts",
-        "apps/web/src/pages/ReleasesPage.test.tsx"
+        "apps/web/src/pages/ReleasesPage.test.tsx",
+        "apps/api/src/worklogs/worklog-approvals.review.spec.ts"
       ]
     },
     {
       "id": "AC-26",
       "description": "ninguém decide o próprio apontamento, mesmo com a permissão do tipo.",
       "tests": [
-        "apps/api/src/worklogs/worklog-approvals.service.spec.ts"
+        "apps/api/src/worklogs/worklog-approvals.service.spec.ts",
+        "apps/api/src/worklogs/worklog-approvals.review.spec.ts"
       ]
     },
     {
@@ -64,7 +67,8 @@
         "apps/web/src/components/layout/Sidebar.test.tsx",
         "apps/web/src/components/layout/AppLayout.test.tsx",
         "apps/web/src/pages/ReleasesPage.test.tsx",
-        "apps/web/src/components/ds/EzEntityGrid.test.tsx"
+        "apps/web/src/components/ds/EzEntityGrid.test.tsx",
+        "apps/web/src/pages/ReleasesPage.review.test.tsx"
       ]
     },
     {
@@ -87,8 +91,8 @@
   "spec": "docs/delivery/specs/DMTE-462.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-462-t5/red.json",
-    "green": ".delivery/evidence/DMTE-462-t5/green.json"
+    "red": ".delivery/evidence/DMTE-462-t5/red-r2.json",
+    "green": ".delivery/evidence/DMTE-462-t5/green-r2.json"
   },
   "design_system": {
     "applicable": true,
