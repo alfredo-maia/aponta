@@ -102,7 +102,8 @@ export class WorklogApprovalsService {
     if (!(await this.permissions.hasPermission(user.id, APPROVAL_TYPES[row.approvalType].permission))) {
       throw new ForbiddenException('Sem permissão para decidir este tipo de liberação');
     }
-    if (row.authorId === user.id) throw new ForbiddenException('Ninguém decide o próprio apontamento');
+    // Quem lançou em nome do consultor (ADMIN com authorId) também não decide.
+    if (row.authorId === user.id || row.approvalRequestedBy === user.id) throw new ForbiddenException('Ninguém decide o próprio apontamento');
     if (row.approvalStatus !== 'PENDING' || row.voidedAt) throw new BadRequestException('Esta liberação já foi decidida');
     return row;
   }

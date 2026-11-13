@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { EzButton, EzEmptyCard, EzModal, EzPageLayout, EzSpinner, EzTextArea } from '../components/ds';
+import { Navigate } from 'react-router-dom';
+import { EzAlert, EzButton, EzEmptyCard, EzModal, EzPageLayout, EzSpinner, EzTextArea } from '../components/ds';
 import { EzEntityGrid } from '../components/ds/EzEntityGrid';
+import { useEffectivePermissions } from '../hooks/usePermissions';
 import { APPROVAL_TYPE_LABELS, WorklogApproval, useDecideWorklogApproval, useWorklogApprovals } from '../hooks/useWorklogApprovals';
 
 const when = (iso: string) => new Date(iso).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short', timeStyle: 'short' });
@@ -36,6 +38,7 @@ export function ReleasesPage() {
 
   const close = () => {
     setOpen(null);
+    setSelected([]);
     setRejecting(false);
     setNote('');
     setError(null);
@@ -68,7 +71,7 @@ export function ReleasesPage() {
       {isLoading ? (
         <div className="p-8"><EzSpinner label="Carregando liberações…" /></div>
       ) : isError ? (
-        <p role="alert" className="p-4 text-[13px] text-red-600">Erro ao carregar as liberações.</p>
+        <EzAlert variant="error" className="m-4">Erro ao carregar as liberações.</EzAlert>
       ) : rows.length === 0 ? (
         <EzEmptyCard title="Nenhuma liberação pendente." />
       ) : (
@@ -82,7 +85,7 @@ export function ReleasesPage() {
             </EzButton>
             <span className="text-[12px] text-gray-500">Selecione um registro, ou dê duplo clique para ver o motivo e decidir.</span>
           </div>
-          {pageError && <p role="alert" className="text-[13px] text-red-600">{pageError}</p>}
+          {pageError && <EzAlert variant="error">{pageError}</EzAlert>}
           <EzEntityGrid
             key={rows.map((row) => row.id).join(',')}
             data={rows}
@@ -122,7 +125,7 @@ export function ReleasesPage() {
             {rejecting && (
               <EzTextArea id="release-reject-note" label="Motivo da negação" value={note} onChange={(e) => setNote(e.target.value)} rows={3} />
             )}
-            {error && <p role="alert" className="text-[13px] text-red-600">{error}</p>}
+            {error && <EzAlert variant="error">{error}</EzAlert>}
           </div>
         </EzModal>
       )}
@@ -130,8 +133,11 @@ export function ReleasesPage() {
   );
 }
 
-/** DMTE-462 T5: stub neutro (sem a guarda de permissão), substituído na implementação. */
+/** DMTE-462 T5: a rota só abre para quem tem permissão de liberar; a API confere de novo em cada chamada. */
 export function ReleasesRoute() {
+  const { data, isLoading } = useEffectivePermissions();
+  if (isLoading) return <div className="p-8"><EzSpinner label="Carregando…" /></div>;
+  if (data?.canReleaseWorklogs !== true) return <Navigate to="/" replace />;
   return <ReleasesPage />;
 }
 

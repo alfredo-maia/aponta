@@ -38,8 +38,8 @@ export class WorklogsService {
     private readonly commentsService: CommentsService,
     private readonly ticketsService: TicketsService,
     private readonly permissions: PermissionsService,
-    readonly flags: FeatureFlagsService,
-    readonly approvals: WorklogApprovalsService,
+    private readonly flags: FeatureFlagsService,
+    private readonly approvals: WorklogApprovalsService,
   ) {}
 
   async eligibleContracts(ticketId: string, startTime: string, endTime: string, user: CurrentUserPayload) {
@@ -205,6 +205,8 @@ export class WorklogsService {
         }
         if (pre.appointmentId) {
           if (!canEditStart) {
+            // Com a linha da agenda travada, duas conversões não passam juntas pelo mesmo limite.
+            await this.lockAppointment(database, pre.appointmentId);
             if (approvalsOn && pre.lockedReason) {
               // O sistema encerrou o cronômetro: o início e o fim ficam como estão e a conversão depende de liberação.
               approval = { type: 'CRONOMETRO_ENCERRADO', reason: explainSystemClosed(pre.lockedReason, { limitMinutes: pre.limitMinutes ?? null }) };
@@ -235,7 +237,7 @@ export class WorklogsService {
       ...valuation,
       sourcePreAppointmentId: dto.preAppointmentId ?? null,
       ...(appointmentId ? { appointmentId } : {}),
-      ...(approval ? { approvalType: approval.type, approvalStatus: 'PENDING' as const, approvalReason: approval.reason } : {}),
+      ...(approval ? { approvalType: approval.type, approvalStatus: 'PENDING' as const, approvalReason: approval.reason, approvalRequestedBy: currentUser.id } : {}),
       valuationSnapshot: { ...valuation.valuationSnapshot, ...source },
     };
 

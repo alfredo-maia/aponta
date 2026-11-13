@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/comm
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 import { WorklogApprovalsService } from './worklog-approvals.service';
+import { RejectWorklogApprovalDto } from './dto/reject-worklog-approval.dto';
 
 interface AuthenticatedRequest {
   user: CurrentUserPayload;
@@ -24,7 +25,7 @@ export class WorklogApprovalsController {
   }
 
   @Post(':id/reject')
-  reject(@Param('id') id: string, @Body() body: { note?: string }, @Req() req: AuthenticatedRequest) {
+  reject(@Param('id') id: string, @Body() body: RejectWorklogApprovalDto, @Req() req: AuthenticatedRequest) {
     return this.approvals.reject(id, body?.note, req.user);
   }
 }
