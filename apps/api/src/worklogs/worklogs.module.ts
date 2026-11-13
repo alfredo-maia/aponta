@@ -9,11 +9,13 @@ import { PermissionsModule } from '../permissions/permissions.module';
 import { MailModule } from '../mail/mail.module';
 import { FeatureFlagsModule } from '../feature-flags/feature-flags.module';
 import { WorklogAutoCloseService } from './worklog-autoclose.service';
+import { WorklogApprovalsService } from './worklog-approvals.service';
+import { WorklogApprovalsController } from './worklog-approvals.controller';
 
 @Module({
   imports: [PrismaModule, AuthModule, CommentsModule, TicketsModule, PermissionsModule, MailModule, FeatureFlagsModule],
-  controllers: [WorklogsController],
-  providers: [WorklogsService, WorklogAutoCloseService],
+  controllers: [WorklogsController, WorklogApprovalsController],
+  providers: [WorklogsService, WorklogAutoCloseService, WorklogApprovalsService],
   exports: [WorklogsService, WorklogAutoCloseService],
 })
 export class WorklogsModule {}

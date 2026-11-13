@@ -183,4 +183,15 @@ describe('PermissionsService', () => {
       expect(where.active).toBe(true);
     });
   });
+
+  describe('canReleaseWorklogs (DMTE-462 T5)', () => {
+    it('AC-30: é verdadeiro com qualquer uma das duas permissões de liberar e falso sem elas', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({ permissionGroupLinks: [{ permissionGroup: { permissions: ['APPROVE_WORKLOG_SYSTEM_CLOSED'] } }], technicalGroup: null });
+      await expect(service.canReleaseWorklogs('user-1')).resolves.toBe(true);
+      mockPrisma.user.findUnique.mockResolvedValue({ permissionGroupLinks: [{ permissionGroup: { permissions: ['APPROVE_WORKLOG_ENTRY'] } }], technicalGroup: null });
+      await expect(service.canReleaseWorklogs('user-1')).resolves.toBe(true);
+      mockPrisma.user.findUnique.mockResolvedValue({ permissionGroupLinks: [{ permissionGroup: { permissions: ['EDIT_WORKLOG_START_TIME'] } }], technicalGroup: null });
+      await expect(service.canReleaseWorklogs('user-1')).resolves.toBe(false);
+    });
+  });
 });

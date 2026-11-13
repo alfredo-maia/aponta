@@ -856,10 +856,18 @@ model Worklog {
   author         User           @relation(fields: [authorId], references: [id])
   /// DMTE-462 T2: agenda a que o apontamento foi debitado (soma por agenda). Sem FK, como no cronômetro.
   appointmentId  String?
+  /// DMTE-462 T5: liberação. Nulos quando o apontamento não precisou dela.
+  approvalType         WorklogApprovalType?
+  approvalStatus       WorklogApprovalStatus?
+  approvalReason       String?
+  approvalDecidedBy    String?
+  approvalDecidedAt    DateTime?
+  approvalDecisionNote String?
   createdAt      DateTime       @default(now())
 
   @@index([contractId, startTime])
   @@index([appointmentId])
+  @@index([approvalStatus, approvalType])
 }
 
 model ApiToken {
@@ -1037,4 +1045,15 @@ enum PreLockReason {
   LIMIT
   PAUSE_EXPIRED
   WINDOW_CLOSED
+}
+
+enum WorklogApprovalType {
+  LANCAMENTO
+  CRONOMETRO_ENCERRADO
+}
+
+enum WorklogApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }

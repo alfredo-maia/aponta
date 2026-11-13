@@ -19,6 +19,8 @@ import { PermissionsService } from '../permissions/permissions.service';
 import { allocateCommercialSegments, isCompleteCommercialTerm } from './commercial-valuation';
 import { evaluateWorklogWindow, WINDOW_LEAD_MS } from './agenda-window';
 import { brasiliaHhMm, ClockPre, workedMs } from './pre-appointment-clock';
+import { FeatureFlagsService } from '../feature-flags/feature-flags.service';
+import { WorklogApprovalsService } from './worklog-approvals.service';
 
 const AUTHOR_SELECT = { select: { id: true, name: true, email: true } } as const;
 
@@ -35,6 +37,8 @@ export class WorklogsService {
     private readonly commentsService: CommentsService,
     private readonly ticketsService: TicketsService,
     private readonly permissions: PermissionsService,
+    readonly flags: FeatureFlagsService,
+    readonly approvals: WorklogApprovalsService,
   ) {}
 
   async eligibleContracts(ticketId: string, startTime: string, endTime: string, user: CurrentUserPayload) {

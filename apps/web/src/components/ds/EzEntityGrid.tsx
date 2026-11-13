@@ -88,6 +88,8 @@ export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'childre
   showRowNumbers?: boolean;
   /** Called with the currently selected rows (original data items) whenever the selection changes. */
   onSelectionChange?: (rows: T[]) => void;
+  /** DMTE-462 T5: duplo clique numa linha (stub neutro, ainda sem uso). */
+  onRowDoubleClick?: (row: T) => void;
   /** Number of rows per page. Omit to render every row without pagination controls. */
   pageSize?: number;
   /** Available page size choices in the rich pagination dropdown. @default [5, 10, 20, 50, 100] */

@@ -3,6 +3,8 @@ import { BadRequestException, ForbiddenException, NotFoundException } from '@nes
 import { AttendanceType, Role, ValuationType } from '@prisma/client';
 import { WorklogsService } from './worklogs.service';
 import { PermissionsService } from '../permissions/permissions.service';
+import { FeatureFlagsService } from '../feature-flags/feature-flags.service';
+import { WorklogApprovalsService } from './worklog-approvals.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CommentsService } from '../comments/comments.service';
 import { TicketsService } from '../tickets/tickets.service';
@@ -104,6 +106,8 @@ describe('WorklogsService', () => {
         { provide: CommentsService, useValue: mockCommentsService },
         { provide: TicketsService, useValue: mockTicketsService },
         { provide: PermissionsService, useValue: mockPermissions },
+        { provide: FeatureFlagsService, useValue: { isEnabled: jest.fn().mockReturnValue(true) } },
+        { provide: WorklogApprovalsService, useValue: { notifyPending: jest.fn().mockResolvedValue(undefined) } },
       ],
     }).compile();
 

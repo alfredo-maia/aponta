@@ -11,6 +11,8 @@ describe('mandatory commercial authorization', () => {
   let db: any;
   let service: WorklogsService;
   let permissions: { canViewTicketValues: jest.Mock; canEditWorklogStartTime: jest.Mock; hasPermission: jest.Mock };
+  let flags: { isEnabled: jest.Mock };
+  let approvals: { notifyPending: jest.Mock };
   beforeEach(() => {
     const contract = { id: 'contract', organizationId: 'org', approved: true, active: true, type: 'HOURLY', name: 'Avulso',
       startsAt: new Date('2026-01-01'), endsAt: null, serviceDesks: [{ id: 'desk' }], terms: [term],
@@ -25,7 +27,9 @@ describe('mandatory commercial authorization', () => {
       preAppointment: { create: jest.fn(({ data }) => Promise.resolve({ id: 'timer', ...data })), delete: jest.fn(), findUnique: jest.fn(), findFirst: jest.fn().mockResolvedValue(null), update: jest.fn() },
       appointment: { findMany: jest.fn().mockResolvedValue([]) } };
     permissions = { canViewTicketValues: jest.fn().mockResolvedValue(true), canEditWorklogStartTime: jest.fn().mockResolvedValue(true), hasPermission: jest.fn().mockResolvedValue(true) };
-    service = new WorklogsService(db, {} as any, {} as any, permissions as any);
+    flags = { isEnabled: jest.fn().mockReturnValue(true) };
+    approvals = { notifyPending: jest.fn().mockResolvedValue(undefined) };
+    service = new WorklogsService(db, {} as any, {} as any, permissions as any, flags as any, approvals as any);
   });
   it('blocks a company without an explicit desk relationship', async () => {
     db.serviceDesk.findFirst.mockResolvedValue(null);
@@ -122,6 +126,7 @@ describe('mandatory commercial authorization', () => {
 
   describe('DMTE-462 T1: hora inicial e final por permissão EDIT_WORKLOG_START_TIME', () => {
     const timer = { id: 'timer', ticketId: 'ticket', authorId: 'tech', contractId: 'contract', beginning: new Date('2026-10-17T12:00:35Z'), ending: new Date('2026-10-17T13:00:41Z') };
+    beforeEach(() => { flags.isEnabled.mockReturnValue(false); });
     afterEach(() => jest.useRealTimers());
 
     it('AC-01: sem a permissão, recusa lançamento manual', async () => {
@@ -192,7 +197,7 @@ describe('mandatory commercial authorization', () => {
     const NOW = new Date('2026-10-17T15:20:30Z');
     const agendaDoTicket = { id: 'ag', type: 'AGENDA', ticketId: 'ticket', ignoresWorklogRule: false, startTime: new Date('2026-10-17T14:00:00Z'), endTime: new Date('2026-10-17T18:00:00Z') };
     const manual = { ...dto, startTime: '2026-10-17T15:00:00Z', endTime: '2026-10-17T16:00:00Z' };
-    beforeEach(() => { permissions.canEditWorklogStartTime.mockResolvedValue(false); });
+    beforeEach(() => { permissions.canEditWorklogStartTime.mockResolvedValue(false); flags.isEnabled.mockReturnValue(false); });
     afterEach(() => jest.useRealTimers());
 
     it('AC-06: o PLAY sem agenda é recusado', async () => {
@@ -370,6 +375,135 @@ describe('mandatory commercial authorization', () => {
       db.preAppointment.findUnique.mockResolvedValue(open({ ending: T('12:30'), lockedReason: 'LIMIT' }));
       await expect(service.deletePreAppointment('ticket', 'timer', agent)).rejects.toThrow(ForbiddenException);
       expect(db.preAppointment.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('DMTE-462 T5: liberações', () => {
+    const T = (hhmm: string) => new Date(`2026-10-17T${hhmm}:00Z`);
+    const agenda = { id: 'ag', type: 'AGENDA', ticketId: 'ticket', ignoresWorklogRule: false, startTime: T('14:00'), endTime: T('18:00') };
+    const manual = (start: string, end: string) => ({ ...dto, startTime: `2026-10-17T${start}:00Z`, endTime: `2026-10-17T${end}:00Z` });
+    const pre = (over: Record<string, unknown> = {}) => ({ id: 'timer', ticketId: 'ticket', authorId: 'tech', contractId: 'contract', appointmentId: 'ag', limitMinutes: 240,
+      beginning: new Date(dto.startTime), ending: new Date(dto.endTime), lockedReason: null, ...over });
+    const created = () => db.worklog.create.mock.calls[0][0].data;
+    beforeEach(() => { permissions.canEditWorklogStartTime.mockResolvedValue(false); });
+    afterEach(() => jest.useRealTimers());
+
+    it('AC-22: o manual fora da janela vira pendente do tipo Lançamento, com a regra quebrada no motivo', async () => {
+      db.appointment.findMany.mockResolvedValue([agenda]);
+      const result = await service.create('ticket', manual('19:00', '20:00'), agent);
+      expect(result).toMatchObject({ approvalType: 'LANCAMENTO', approvalStatus: 'PENDING' });
+      expect(result.approvalReason).toMatch(/não cai na janela/i);
+      expect(result.approvalReason).toContain('A regra:');
+      expect(result.approvalReason).toContain('16:00');
+      expect(result.approvalReason).toContain('11:00');
+      expect(result.approvalReason).toContain('15:00');
+    });
+
+    it('AC-22: sem nenhuma agenda, vira pendente e o motivo diz que o ticket não tem agenda', async () => {
+      db.appointment.findMany.mockResolvedValue([]);
+      const result = await service.create('ticket', manual('15:00', '16:00'), agent);
+      expect(result).toMatchObject({ approvalType: 'LANCAMENTO', approvalStatus: 'PENDING' });
+      expect(result.approvalReason).toMatch(/não tem agenda/i);
+    });
+
+    it('AC-22: em ausência ou férias, vira pendente e o motivo cita as férias', async () => {
+      db.appointment.findMany.mockResolvedValue([agenda, { ...agenda, id: 'fer', type: 'VACATION', ticketId: null, startTime: T('00:00'), endTime: T('23:59') }]);
+      const result = await service.create('ticket', manual('15:00', '16:00'), agent);
+      expect(result).toMatchObject({ approvalType: 'LANCAMENTO', approvalStatus: 'PENDING' });
+      expect(result.approvalReason).toMatch(/férias/i);
+    });
+
+    it('AC-22: acima do limite da agenda, vira pendente e o motivo traz os números', async () => {
+      db.appointment.findMany.mockResolvedValue([agenda]);
+      db.worklog.aggregate.mockResolvedValue({ _sum: { minutes: 200 } });
+      const result = await service.create('ticket', manual('15:00', '16:00'), agent);
+      expect(result).toMatchObject({ approvalType: 'LANCAMENTO', approvalStatus: 'PENDING', appointmentId: 'ag' });
+      expect(result.approvalReason).toContain('240 min');
+      expect(result.approvalReason).toContain('20 min');
+    });
+
+    it('AC-22: converter o cronômetro acima do limite também vira pendente de Lançamento', async () => {
+      db.preAppointment.findUnique.mockResolvedValue(pre({ limitMinutes: 90 }));
+      db.worklog.aggregate.mockResolvedValue({ _sum: { minutes: 45 } });
+      const result = await service.create('ticket', { ...dto, preAppointmentId: 'timer' }, agent);
+      expect(result).toMatchObject({ approvalType: 'LANCAMENTO', approvalStatus: 'PENDING', sourcePreAppointmentId: 'timer' });
+    });
+
+    it('AC-22: o PLAY continua recusado fora da janela', async () => {
+      jest.useFakeTimers({ now: T('19:00') });
+      db.appointment.findMany.mockResolvedValue([agenda]);
+      await expect(service.createPreAppointment('ticket', { contractId: 'contract' }, agent)).rejects.toThrow(ForbiddenException);
+      expect(db.preAppointment.create).not.toHaveBeenCalled();
+    });
+
+    it('AC-23: converter o cronômetro encerrado pelo sistema vira pendente do tipo Cronômetro encerrado, com o mesmo início e fim', async () => {
+      db.preAppointment.findUnique.mockResolvedValue(pre({ lockedReason: 'LIMIT' }));
+      const result = await service.create('ticket', { ...dto, preAppointmentId: 'timer' }, agent);
+      expect(result).toMatchObject({ approvalType: 'CRONOMETRO_ENCERRADO', approvalStatus: 'PENDING', sourcePreAppointmentId: 'timer', appointmentId: 'ag' });
+      expect(result.approvalReason).toMatch(/encerrou/i);
+      expect(result.approvalReason).toContain('240 min');
+      expect(created().startTime).toEqual(new Date(dto.startTime));
+      expect(created().endTime).toEqual(new Date(dto.endTime));
+    });
+
+    it('AC-23: o encerrado pelo sistema que também passaria do limite vira um pendente só, do tipo Cronômetro encerrado', async () => {
+      db.preAppointment.findUnique.mockResolvedValue(pre({ lockedReason: 'PAUSE_EXPIRED', limitMinutes: 30 }));
+      const result = await service.create('ticket', { ...dto, preAppointmentId: 'timer' }, agent);
+      expect(result.approvalType).toBe('CRONOMETRO_ENCERRADO');
+      expect(db.worklog.create).toHaveBeenCalledTimes(1);
+    });
+
+    it('AC-24: dentro das regras, o apontamento nasce válido, sem campos de liberação, e ninguém é avisado', async () => {
+      db.appointment.findMany.mockResolvedValue([agenda]);
+      const result = await service.create('ticket', manual('15:00', '16:00'), agent);
+      expect(result.approvalType).toBeUndefined();
+      expect(created()).not.toHaveProperty('approvalType');
+      expect(created()).not.toHaveProperty('approvalStatus');
+      expect(approvals.notifyPending).not.toHaveBeenCalled();
+    });
+
+    it('AC-24: o pendente é gravado como qualquer outro apontamento, faturável e com valor calculado', async () => {
+      db.appointment.findMany.mockResolvedValue([]);
+      await service.create('ticket', manual('15:00', '16:00'), agent);
+      expect(created()).toMatchObject({ billable: true, minutes: 60, approvalStatus: 'PENDING' });
+      expect(created().valueCents).not.toBeUndefined();
+    });
+
+    it('AC-29: depois de gravar o pendente, avisa quem libera', async () => {
+      db.appointment.findMany.mockResolvedValue([]);
+      await service.create('ticket', manual('15:00', '16:00'), agent);
+      expect(approvals.notifyPending).toHaveBeenCalledTimes(1);
+      expect(approvals.notifyPending).toHaveBeenCalledWith(expect.objectContaining({ approvalType: 'LANCAMENTO', ticketId: 'ticket' }));
+    });
+
+    it('AC-29: falha ao avisar não desfaz o apontamento já salvo', async () => {
+      db.appointment.findMany.mockResolvedValue([]);
+      approvals.notifyPending.mockRejectedValue(new Error('SMTP fora'));
+      await expect(service.create('ticket', manual('15:00', '16:00'), agent)).resolves.toMatchObject({ approvalStatus: 'PENDING' });
+    });
+
+    it('AC-22: quem tem a permissão de hora inicial não passa por liberação', async () => {
+      permissions.canEditWorklogStartTime.mockResolvedValue(true);
+      db.appointment.findMany.mockResolvedValue([]);
+      const result = await service.create('ticket', manual('15:00', '16:00'), agent);
+      expect(result.approvalType).toBeUndefined();
+    });
+
+    it('AC-33: com a flag desligada, o cronômetro encerrado converte como no T4, sem liberação', async () => {
+      flags.isEnabled.mockReturnValue(false);
+      db.preAppointment.findUnique.mockResolvedValue(pre({ lockedReason: 'LIMIT' }));
+      const result = await service.create('ticket', { ...dto, preAppointmentId: 'timer' }, agent);
+      expect(result.approvalType).toBeUndefined();
+      expect(flags.isEnabled).toHaveBeenCalledWith('liberacoes-apontamento');
+    });
+
+    it('AC-33: com a flag desligada, o lançamento que quebra regra volta a ser recusado', async () => {
+      flags.isEnabled.mockReturnValue(false);
+      db.appointment.findMany.mockResolvedValue([]);
+      await expect(service.create('ticket', manual('15:00', '16:00'), agent)).rejects.toThrow(ForbiddenException);
+      db.appointment.findMany.mockResolvedValue([agenda]);
+      db.worklog.aggregate.mockResolvedValue({ _sum: { minutes: 200 } });
+      await expect(service.create('ticket', manual('15:00', '16:00'), agent)).rejects.toThrow(/limite/i);
     });
   });
 });

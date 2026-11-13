@@ -34,6 +34,10 @@ export interface Worklog {
   authorId: string;
   createdAt: string;
   author: WorklogAuthor;
+  /** DMTE-462 T5: liberação. Nulos quando o apontamento não precisou dela. */
+  approvalType?: 'LANCAMENTO' | 'CRONOMETRO_ENCERRADO' | null;
+  approvalStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | null;
+  approvalReason?: string | null;
 }
 
 export interface CreateWorklogInput {

@@ -62,6 +62,11 @@ export class PermissionsService {
     return this.hasPermission(userId, 'VIEW_TICKET_VALUES');
   }
 
+  /** DMTE-462 T5: stub neutro (sem o comportamento), substituído na implementação. */
+  async canReleaseWorklogs(_userId: string): Promise<boolean> {
+    return false;
+  }
+
   /** DMTE-462 T4: quem tem a chave num grupo direto ou pelo grupo técnico; sem desvio por role. */
   async usersWithPermission(key: string): Promise<{ id: string; name: string; email: string }[]> {
     const group = { permissionGroup: { permissions: { has: key } } };

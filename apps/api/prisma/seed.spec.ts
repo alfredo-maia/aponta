@@ -155,3 +155,14 @@ describe('DMTE-462 T4 RECEIVE_WORKLOG_AUTOCLOSE_ALERT', () => {
     }
   });
 });
+
+describe('DMTE-462 T5 permissões de liberação', () => {
+  it('AC-31: as duas permissões existem no catálogo e nenhum grupo padrão por role as traz', () => {
+    for (const key of ['APPROVE_WORKLOG_ENTRY', 'APPROVE_WORKLOG_SYSTEM_CLOSED']) {
+      expect(PERMISSION_KEYS).toContain(key);
+      for (const role of Object.values(Role)) {
+        expect(DEFAULT_PERMISSION_GROUPS[role].permissions).not.toContain(key);
+      }
+    }
+  });
+});
