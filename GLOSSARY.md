@@ -32,6 +32,10 @@ _Avoid_: Apontamento bloqueado
 Decisão de quem tem a permissão do tipo sobre um apontamento pendente: liberar o mantém, negar o estorna com motivo. Cada tipo (Lançamento, Cronômetro encerrado) tem a sua permissão.
 _Avoid_: Aprovação, autorização
 
+**Notificação**:
+Aviso guardado dentro do sistema para um usuário e mostrado no sino, com destino interno; vem do mesmo evento do e-mail.
+_Avoid_: Alerta, mensagem
+
 **Fechamento automático**:
 Encerramento do pré-apontamento pelo sistema quando o tempo trabalhado atinge a duração da agenda.
 _Avoid_: Auto-stop
