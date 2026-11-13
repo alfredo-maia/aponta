@@ -28,7 +28,7 @@ export class WorklogAutoCloseService {
     private readonly permissions: PermissionsService,
     private readonly mail: MailService,
     private readonly flags: FeatureFlagsService,
-    readonly notifications: NotificationsService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async run(now: Date): Promise<number> {
@@ -59,7 +59,7 @@ export class WorklogAutoCloseService {
   }
 
   private async notify(
-    pre: { author: { id: string; name: string; email: string }; ticket: { protocol: string; title: string } },
+    pre: { author: { id: string; name: string; email: string }; ticket: { id: string; protocol: string; title: string } },
     endsAt: Date,
     reason: LockReason,
   ) {
@@ -77,5 +77,9 @@ export class WorklogAutoCloseService {
         this.logger.error(`Falha ao avisar ${email}: ${cause instanceof Error ? cause.message : String(cause)}`);
       }
     }
+    // Mesmos destinatários do e-mail; o serviço já registra a falha e não deixa o erro subir.
+    await this.notifications.notify([...new Set([pre.author.id, ...managers.map((manager) => manager.id)])], {
+      type: 'WORKLOG_AUTOCLOSE', title: subject, body: text, link: `/tickets/${pre.ticket.id}`,
+    });
   }
 }

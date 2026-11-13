@@ -30,6 +30,13 @@ export const FEATURE_FLAGS: readonly FeatureFlag[] = [
     defaultValue: true,
     removeBy: '2026-12-14',
   },
+  {
+    key: 'sino-notificacoes',
+    description: 'Sino de notificação: avisos dentro do sistema para o fechamento automático e as liberações',
+    owner: 'alfredo',
+    defaultValue: true,
+    removeBy: '2026-12-13',
+  },
 ];
 
 export const FEATURE_FLAGS_TOKEN = 'FEATURE_FLAGS';

@@ -7,24 +7,24 @@ interface AuthenticatedRequest {
   user: CurrentUserPayload;
 }
 
-/** DMTE-462 T6: stub neutro (sem o comportamento), substituído na implementação. */
+/** DMTE-462 T6: cada rota age só com o id do usuário autenticado. */
 @UseGuards(JwtAuthGuard)
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly notifications: NotificationsService) {}
 
   @Get()
-  list(@Req() _req: AuthenticatedRequest) {
-    return this.notifications.list('');
+  list(@Req() req: AuthenticatedRequest) {
+    return this.notifications.list(req.user.id);
   }
 
   @Post('read-all')
-  readAll(@Req() _req: AuthenticatedRequest) {
-    return this.notifications.markAllRead('');
+  readAll(@Req() req: AuthenticatedRequest) {
+    return this.notifications.markAllRead(req.user.id);
   }
 
   @Post(':id/read')
-  read(@Param('id') _id: string, @Req() _req: AuthenticatedRequest) {
-    return this.notifications.markRead('', '');
+  read(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.notifications.markRead(id, req.user.id);
   }
 }

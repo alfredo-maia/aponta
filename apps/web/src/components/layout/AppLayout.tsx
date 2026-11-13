@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 import { UserMenu } from './UserMenu';
+import { NotificationBell } from './NotificationBell';
 import { TabBar } from './TabBar';
 import { TabsProvider } from '../../contexts/TabsContext';
 import { useEscapeLayer } from '../../hooks/useEscapeLayer';
@@ -112,7 +113,8 @@ export function AppLayout() {
             >
               <Menu aria-hidden="true" className="h-5 w-5" />
             </button>
-            <div className="ml-auto min-w-0">
+            <div className="ml-auto flex min-w-0 items-center gap-1">
+              <NotificationBell />
               <UserMenu />
             </div>
           </header>

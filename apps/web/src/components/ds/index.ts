@@ -2,6 +2,7 @@
 export * from './EzButton';
 export * from './EzTextInput';
 export * from './EzBadge';
+export * from './EzNotificationBell';
 export * from './EzTag';
 export * from './EzAvatar';
 export * from './EzTooltip';

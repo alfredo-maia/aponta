@@ -24,7 +24,7 @@ export class WorklogApprovalsService {
     private readonly prisma: PrismaService,
     private readonly permissions: PermissionsService,
     private readonly mail: MailService,
-    readonly notifications: NotificationsService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   /** Pendentes dos tipos que a pessoa libera; sem valores financeiros. */
@@ -90,6 +90,7 @@ export class WorklogApprovalsService {
       for (const approver of approvers) {
         await this.send({ to: approver.email, subject, text, html });
       }
+      await this.notifications.notify(approvers.map((approver) => approver.id), { type: 'WORKLOG_APPROVAL_PENDING', title: subject, body: text, link: '/releases' });
     } catch (cause) {
       this.logger.error(`Falha ao avisar a liberação pendente ${worklog.id}: ${cause instanceof Error ? cause.message : String(cause)}`);
     }
@@ -111,7 +112,7 @@ export class WorklogApprovalsService {
   }
 
   private async notifyDecision(
-    row: { approvalType: WorklogApprovalType | null; ticket: { protocol: string; title: string }; author: { name: string; email: string } },
+    row: { approvalType: WorklogApprovalType | null; ticketId: string; ticket: { protocol: string; title: string }; author: { id: string; name: string; email: string } },
     approved: boolean,
     note?: string,
   ) {
@@ -121,7 +122,9 @@ export class WorklogApprovalsService {
       `O apontamento (${label}) no ticket ${row.ticket.protocol} (${title}) foi ${verdict}.${why}${approved ? '' : ' O apontamento foi estornado.'}`;
     const text = body(row.ticket.title, note ? ` Motivo: ${note}.` : '');
     const html = `<p>${body(escapeHtml(row.ticket.title), note ? ` Motivo: ${escapeHtml(note)}.` : '')}</p>`;
-    await this.send({ to: row.author.email, subject: `Apontamento ${verdict}: ticket ${row.ticket.protocol}`, text, html });
+    const subject = `Apontamento ${verdict}: ticket ${row.ticket.protocol}`;
+    await this.send({ to: row.author.email, subject, text, html });
+    await this.notifications.notify([row.author.id], { type: 'WORKLOG_APPROVAL_DECIDED', title: subject, body: text, link: `/tickets/${row.ticketId}` });
   }
 
   private async send(mail: { to: string; subject: string; text: string; html: string }) {
