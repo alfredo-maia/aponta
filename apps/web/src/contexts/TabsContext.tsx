@@ -24,7 +24,7 @@ interface TabsContextValue {
 const STORAGE_KEY = 'aponta_tabs';
 
 // Initial tab. Closable like any other (DMTE-501 reverts D2), except as the last one left.
-const FIXED_TAB: AppTab = {
+const HOME_TAB: AppTab = {
   id: '/',
   path: '/',
   title: 'Tickets',
@@ -33,12 +33,12 @@ const FIXED_TAB: AppTab = {
 function loadTabs(): AppTab[] {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return [FIXED_TAB];
+    if (!raw) return [HOME_TAB];
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed) || parsed.length === 0) return [FIXED_TAB];
+    if (!Array.isArray(parsed) || parsed.length === 0) return [HOME_TAB];
     return parsed;
   } catch {
-    return [FIXED_TAB];
+    return [HOME_TAB];
   }
 }
 
@@ -80,7 +80,7 @@ export function TabsProvider({ children }: { children: ReactNode }) {
         if (index === -1 || prev.length === 1) return prev;
         const next = prev.filter((tab) => tab.path !== path);
         if (location.pathname === path) {
-          const neighbor = prev[index - 1] ?? prev[index + 1] ?? FIXED_TAB;
+          const neighbor = prev[index - 1] ?? prev[index + 1] ?? HOME_TAB;
           navigate(neighbor.path);
         }
         return next;
