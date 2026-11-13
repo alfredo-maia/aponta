@@ -5,12 +5,14 @@ import { cn } from '../ds/utils';
 
 /**
  * Workspace tab strip (TiFlux parity): shows every internally-opened tab
- * (the fixed "Tickets" home tab plus any ticket/Busca avançada tabs opened
- * via `useOpenInTab`). Only reflects react-router navigation — it never
+ * (the "Tickets" home tab plus any ticket/Busca avançada tabs opened
+ * via `useOpenInTab`). Any tab closes except the last one left.
+ * Only reflects react-router navigation — it never
  * mounts more than the currently-active route's page (see SPEC R5).
  */
 export function TabBar() {
   const { tabs, closeTab } = useTabs();
+  const canClose = tabs.length > 1;
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -37,14 +39,14 @@ export function TabBar() {
             className={cn(
               'flex max-w-[220px] shrink-0 cursor-pointer items-center gap-2 rounded-t-[8px] border border-b-0 px-3 py-1.5 text-[13px] font-medium transition-colors',
               isActive
-                ? 'border-gray-200 bg-gray-80 text-gray-900'
+                ? 'border-brand-200 bg-brand-100 text-brand-700'
                 : 'border-transparent text-gray-500 hover:bg-gray-90',
             )}
           >
             <span className="truncate" id={`tab-title-${tab.id}`}>
               {tab.title}
             </span>
-            {tab.closable && (
+            {canClose && (
               <button
                 type="button"
                 // A generic, constant accessible NAME keeps this button from

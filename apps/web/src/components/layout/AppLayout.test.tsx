@@ -206,6 +206,25 @@ describe('AppLayout', () => {
       expect(screen.getByTestId('dashboard-page')).toBeInTheDocument();
     });
 
+    it('DMTE-501 AC-03: "Tickets" in the sidebar reopens the tab after it was closed, without duplicating', async () => {
+      sessionStorage.clear();
+      const user = userEvent.setup();
+      renderLayout();
+      const nav = within(screen.getByTestId('desktop-sidebar'));
+
+      await user.click(nav.getByRole('button', { name: 'Dashboard' }));
+      await user.click(within(screen.getByRole('tab', { name: 'Tickets' })).getByRole('button', { name: 'Fechar aba' }));
+      expect(tabNames()).toEqual(['Dashboard']);
+
+      await user.click(nav.getByRole('button', { name: 'Tickets' }));
+      expect(tabNames()).toEqual(['Dashboard', 'Tickets']);
+      expect(screen.getByRole('tab', { name: 'Tickets' })).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByTestId('page-content')).toBeInTheDocument();
+
+      await user.click(nav.getByRole('button', { name: 'Tickets' }));
+      expect(tabNames()).toEqual(['Dashboard', 'Tickets']);
+    });
+
     it('does not open an extra tab for "Tickets" (fixed tab); tickets keep opening their own tabs', async () => {
       sessionStorage.clear();
       const user = userEvent.setup();

@@ -90,11 +90,10 @@ export function Sidebar({ inDrawer = false, onNavigate }: SidebarProps = {}) {
     onNavigate?.();
   };
 
-  // "Tickets" é a aba fixa (vários tickets abrem cada um a sua aba). Qualquer outra
-  // opção abre a própria aba ou foca a que já está aberta (DMTE-457).
+  // Toda opção abre a própria aba ou foca a que já está aberta; "Tickets" reabre se foi
+  // fechada (DMTE-457, DMTE-501).
   const goToItem = (to: string, label: string) => {
-    if (to === '/') navigate(to);
-    else openInTab(to, label);
+    openInTab(to, label);
     onNavigate?.();
   };
 

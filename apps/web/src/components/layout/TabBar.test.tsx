@@ -39,10 +39,66 @@ describe('TabBar', () => {
     sessionStorage.clear();
   });
 
-  it('renders the fixed Tickets tab without a close button', () => {
+  it('DMTE-501 AC-01: the only tab has no close button', () => {
     renderBar();
     expect(screen.getByRole('tab', { name: 'Tickets' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Fechar aba' })).not.toBeInTheDocument();
+  });
+
+  it('DMTE-501 AC-01: with two tabs, "Tickets" also has a close button', async () => {
+    const user = userEvent.setup();
+    renderBar();
+
+    await user.click(screen.getByText('Open #AP-0001 - Impressora'));
+
+    expect(within(screen.getByRole('tab', { name: 'Tickets' })).getByRole('button', { name: 'Fechar aba' })).toBeInTheDocument();
+    expect(within(screen.getByRole('tab', { name: /AP-0001/ })).getByRole('button', { name: 'Fechar aba' })).toBeInTheDocument();
+  });
+
+  it('DMTE-501 AC-04: the active tab is green (brand tokens) and the inactive one is not', async () => {
+    const user = userEvent.setup();
+    renderBar();
+
+    await user.click(screen.getByText('Open #AP-0001 - Impressora'));
+
+    const active = screen.getByRole('tab', { name: /AP-0001/ });
+    expect(active).toHaveClass('bg-brand-100', 'text-brand-700', 'border-brand-200');
+    expect(active.className).not.toMatch(/gray-80|#[0-9a-fA-F]{3,8}/);
+    expect(screen.getByRole('tab', { name: 'Tickets' })).not.toHaveClass('bg-brand-100');
+  });
+
+  it('DMTE-501 AC-02: closing the active "Tickets" tab through its button goes to the neighbor', async () => {
+    sessionStorage.setItem(
+      'aponta_tabs',
+      JSON.stringify([
+        { id: '/', path: '/', title: 'Tickets' },
+        { id: '/tickets/t1', path: '/tickets/t1', title: '#AP-0001 - Impressora' },
+      ]),
+    );
+    const user = userEvent.setup();
+    renderBar(['/']);
+
+    await user.click(within(screen.getByRole('tab', { name: 'Tickets' })).getByRole('button', { name: 'Fechar aba' }));
+
+    expect(screen.queryByRole('tab', { name: 'Tickets' })).not.toBeInTheDocument();
+    expect(screen.getByTestId('location-probe')).toHaveTextContent('/tickets/t1');
+  });
+
+  it('DMTE-501 AC-05: tabs saved with the old closable:false shape can be closed', async () => {
+    sessionStorage.setItem(
+      'aponta_tabs',
+      JSON.stringify([
+        { id: '/', path: '/', title: 'Tickets', closable: false },
+        { id: '/tickets/t1', path: '/tickets/t1', title: '#AP-0001 - Impressora', closable: true },
+      ]),
+    );
+    const user = userEvent.setup();
+    renderBar(['/tickets/t1']);
+
+    await user.click(within(screen.getByRole('tab', { name: 'Tickets' })).getByRole('button', { name: 'Fechar aba' }));
+
+    expect(screen.queryByRole('tab', { name: 'Tickets' })).not.toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /AP-0001/ })).toBeInTheDocument();
   });
 
   it('marks the tab matching the current location as active', () => {
@@ -69,7 +125,7 @@ describe('TabBar', () => {
     await user.click(screen.getByRole('tab', { name: 'Tickets' }));
 
     expect(screen.getByRole('tab', { name: /AP-0001/ })).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Fechar aba' }));
+    await user.click(within(screen.getByRole('tab', { name: /AP-0001/ })).getByRole('button', { name: 'Fechar aba' }));
     expect(screen.queryByRole('tab', { name: /AP-0001/ })).not.toBeInTheDocument();
     expect(screen.getByTestId('location-probe')).toHaveTextContent('/');
   });

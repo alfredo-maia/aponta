@@ -25,11 +25,9 @@ function TabsProbe() {
       {tabs.map((tab) => (
         <li key={tab.id} data-testid={`tab-${tab.path}`}>
           {tab.title}
-          {tab.closable && (
-            <button type="button" onClick={() => closeTab(tab.path)} aria-label={`Fechar ${tab.title}`}>
-              x
-            </button>
-          )}
+          <button type="button" onClick={() => closeTab(tab.path)} aria-label={`Fechar ${tab.title}`}>
+            x
+          </button>
         </li>
       ))}
     </ul>
@@ -57,10 +55,50 @@ describe('TabsContext', () => {
     sessionStorage.clear();
   });
 
-  it('always has a fixed, non-closable "Tickets" tab for the root path', () => {
+  it('starts with the "Tickets" tab for the root path', () => {
     renderApp();
     expect(screen.getByTestId('tab-/')).toHaveTextContent('Tickets');
-    expect(screen.queryByLabelText('Fechar Tickets')).not.toBeInTheDocument();
+  });
+
+  it('DMTE-501 AC-01: closeTab on the only remaining tab does not remove it', async () => {
+    const user = userEvent.setup();
+    renderApp();
+
+    await user.click(screen.getByLabelText('Fechar Tickets'));
+
+    expect(screen.getByTestId('tab-/')).toHaveTextContent('Tickets');
+  });
+
+  describe('DMTE-501 AC-02: fechar a aba "Tickets"', () => {
+    beforeEach(() => {
+      sessionStorage.setItem(
+        'aponta_tabs',
+        JSON.stringify([
+          { id: '/', path: '/', title: 'Tickets' },
+          { id: '/tickets/t1', path: '/tickets/t1', title: '#AP-0001 - Impressora' },
+        ]),
+      );
+    });
+
+    it('DMTE-501 AC-02: closing the active "Tickets" tab goes to its neighbor', async () => {
+      const user = userEvent.setup();
+      renderApp(['/']);
+
+      await user.click(screen.getByLabelText('Fechar Tickets'));
+
+      expect(screen.queryByTestId('tab-/')).not.toBeInTheDocument();
+      expect(screen.getByTestId('location-probe')).toHaveTextContent('/tickets/t1');
+    });
+
+    it('DMTE-501 AC-02: closing "Tickets" while another tab is active keeps the current route', async () => {
+      const user = userEvent.setup();
+      renderApp(['/tickets/t1']);
+
+      await user.click(screen.getByLabelText('Fechar Tickets'));
+
+      expect(screen.queryByTestId('tab-/')).not.toBeInTheDocument();
+      expect(screen.getByTestId('location-probe')).toHaveTextContent('/tickets/t1');
+    });
   });
 
   it('opening a path creates a new tab and navigates to it', async () => {
