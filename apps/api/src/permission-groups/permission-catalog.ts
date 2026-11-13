@@ -102,6 +102,8 @@ export const PERMISSION_CATALOG: PermissionDefinition[] = [
   { key: 'CHANGE_PRIORITY_AND_DISABLE_SLA', category: PermissionCategory.TECHNICAL, label: 'Mudar a prioridade e desativar SLA dos tickets' },
   { key: 'RECEIVE_WORKLOG_AUTOCLOSE_ALERT', category: PermissionCategory.TECHNICAL, label: 'Receber aviso de cronômetro encerrado automaticamente' },
   { key: 'RELEASE_WORKLOG_WITHOUT_SCHEDULE', category: PermissionCategory.TECHNICAL, label: 'Liberar apontamento sem agenda' },
+  { key: 'APPROVE_WORKLOG_ENTRY', category: PermissionCategory.TECHNICAL, label: 'Liberar lançamento de apontamento fora da regra' },
+  { key: 'APPROVE_WORKLOG_SYSTEM_CLOSED', category: PermissionCategory.TECHNICAL, label: 'Liberar cronômetro encerrado pelo sistema' },
   { key: 'EDIT_WORKLOG_START_TIME', category: PermissionCategory.TECHNICAL, label: 'Editar hora inicial e final do apontamento' },
   { key: 'LAUNCH_WORKLOG_GUARANTEE', category: PermissionCategory.TECHNICAL, label: 'Lançar garantia em apontamentos' },
   { key: 'ADD_REMOVE_VALUATION_ON_OPEN_TICKETS', category: PermissionCategory.TECHNICAL, label: 'Inserir e remover valorização em tickets abertos' },

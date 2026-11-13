@@ -345,6 +345,8 @@ export function TicketWorklogs({
   );
 
   const [formError, setFormError] = useState<string | null>(null);
+  // DMTE-462 T5: motivo explicado quando o lançamento salvo ficou pendente de liberação.
+  const [approvalNotice, setApprovalNotice] = useState<string | null>(null);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [filterAuthorId, setFilterAuthorId] = useState<string>('');
@@ -607,7 +609,8 @@ export function TicketWorklogs({
       mode === 'CLOSE_TICKET' ? finalNextStage?.id : nextStageId || undefined;
 
     try {
-      await createMutation.mutateAsync({
+      setApprovalNotice(null);
+      const saved = await createMutation.mutateAsync({
         startTime: toISO(day, startTimeOfDay),
         endTime: toISO(day, endTimeOfDay),
         attendanceType,
@@ -625,6 +628,7 @@ export function TicketWorklogs({
         ...(isAdmin && selectedAuthorId ? { authorId: selectedAuthorId } : {}),
       });
 
+      if (saved?.approvalStatus === 'PENDING') setApprovalNotice(saved.approvalReason ?? '');
       try {
         localStorage.removeItem(draftStorageKey);
       } catch {
@@ -1532,6 +1536,16 @@ export function TicketWorklogs({
 
         {/* Worklogs Table */}
         <div className="space-y-2">
+          {approvalNotice !== null && (
+            <EzAlert
+              variant="warning"
+              data-testid="worklog-approval-notice"
+              title="Apontamento enviado para liberação"
+              onClose={() => setApprovalNotice(null)}
+            >
+              {approvalNotice}
+            </EzAlert>
+          )}
           {isLoading && (
             <div className="py-4 flex justify-center" role="status">
               <EzSpinner label="Carregando apontamentos…" />
@@ -1669,6 +1683,15 @@ export function TicketWorklogs({
                               }
                               variant={wl.billable ? 'green' : 'gray'}
                             />
+                            {wl.approvalStatus === 'PENDING' && (
+                              <EzTag
+                                label="Pendente de liberação"
+                                variant="yellow"
+                                className="mt-1"
+                                data-testid="worklog-pending-mark"
+                                title={wl.approvalReason ?? undefined}
+                              />
+                            )}
                             {canSeeValuation && (
                               <span className="block text-xs text-gray-500">
                                 {valuationTypeLabels[wl.valuationType]}

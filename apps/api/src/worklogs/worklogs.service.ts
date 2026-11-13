@@ -21,6 +21,7 @@ import { evaluateWorklogWindow, WINDOW_LEAD_MS } from './agenda-window';
 import { brasiliaHhMm, ClockPre, workedMs } from './pre-appointment-clock';
 import { FeatureFlagsService } from '../feature-flags/feature-flags.service';
 import { WorklogApprovalsService } from './worklog-approvals.service';
+import { explainEntryBreak, explainSystemClosed, EntryBreak } from './worklog-approval';
 
 const AUTHOR_SELECT = { select: { id: true, name: true, email: true } } as const;
 
@@ -163,14 +164,27 @@ export class WorklogsService {
     }
     // DMTE-462: sem a permissão, o cronômetro só converte com os horários dele e o manual precisa de uma agenda.
     const canEditStart = await this.permissions.canEditWorklogStartTime(currentUser.id);
+    // DMTE-462 T5: com a flag ligada, o que quebra a regra vira pendente de liberação em vez de recusa.
+    const approvalsOn = this.flags.isEnabled('liberacoes-apontamento');
+    let approval: { type: 'LANCAMENTO' | 'CRONOMETRO_ENCERRADO'; reason: string } | null = null;
     let appointmentId: string | null = null;
     const afterCommit: Array<() => void> = [];
     const worklog = await this.prisma.$transaction(async (database) => {
       if (!canEditStart && !dto.preAppointmentId) {
-        const window = await this.windowFor(database, authorId, ticketId, start);
-        await this.lockAppointment(database, window.appointmentId);
-        await this.assertWithinLimit(database, window.appointmentId, window.limitMinutes, minutes);
-        appointmentId = window.appointmentId;
+        const found = await this.inspectWindow(database, authorId, ticketId, start);
+        if (found.decision.ok) {
+          await this.lockAppointment(database, found.decision.appointmentId);
+          const over = await this.limitBreak(database, found.decision.appointmentId, found.decision.limitMinutes, minutes);
+          if (over) {
+            if (!approvalsOn) throw this.limitExceeded();
+            approval = { type: 'LANCAMENTO', reason: explainEntryBreak(over) };
+          }
+          appointmentId = found.decision.appointmentId;
+        } else if (approvalsOn) {
+          approval = { type: 'LANCAMENTO', reason: explainEntryBreak(await this.windowBreak(database, authorId, ticketId, start, found)) };
+        } else {
+          throw this.windowRefusal(found.decision.reason);
+        }
       }
       const valuation = await this.computeValuation(database, dto, valuationType, billable, start, end, ticketId, currentUser, authorId);
       let source: Prisma.InputJsonObject = {};
@@ -190,7 +204,18 @@ export class WorklogsService {
           throw new ForbiddenException('Sem permissão para alterar a hora inicial ou final do cronômetro');
         }
         if (pre.appointmentId) {
-          if (!canEditStart) await this.assertWithinLimit(database, pre.appointmentId, pre.limitMinutes, minutes);
+          if (!canEditStart) {
+            if (approvalsOn && pre.lockedReason) {
+              // O sistema encerrou o cronômetro: o início e o fim ficam como estão e a conversão depende de liberação.
+              approval = { type: 'CRONOMETRO_ENCERRADO', reason: explainSystemClosed(pre.lockedReason, { limitMinutes: pre.limitMinutes ?? null }) };
+            } else {
+              const over = await this.limitBreak(database, pre.appointmentId, pre.limitMinutes ?? null, minutes);
+              if (over) {
+                if (!approvalsOn) throw this.limitExceeded();
+                approval = { type: 'LANCAMENTO', reason: explainEntryBreak(over) };
+              }
+            }
+          }
           appointmentId = pre.appointmentId;
         }
         source = { sourcePreAppointmentId: pre.id, sourceBeginning: pre.beginning.toISOString(), sourceEnding: pre.ending.toISOString(),
@@ -210,6 +235,7 @@ export class WorklogsService {
       ...valuation,
       sourcePreAppointmentId: dto.preAppointmentId ?? null,
       ...(appointmentId ? { appointmentId } : {}),
+      ...(approval ? { approvalType: approval.type, approvalStatus: 'PENDING' as const, approvalReason: approval.reason } : {}),
       valuationSnapshot: { ...valuation.valuationSnapshot, ...source },
     };
 
@@ -245,6 +271,10 @@ export class WorklogsService {
         this.logger.error('Falha ao publicar evento de apontamento já salvo');
       }
     });
+    if (approval) {
+      // Já gravado: o aviso não pode desfazer nem atrasar o apontamento (o serviço registra a falha).
+      void this.approvals.notifyPending(worklog).catch(() => this.logger.error('Falha ao avisar a liberação pendente'));
+    }
     return this.maskValue(worklog, await this.permissions.canViewTicketValues(currentUser.id));
   }
 
@@ -459,18 +489,43 @@ export class WorklogsService {
     return ticket;
   }
 
-  /** DMTE-462 T2: agenda que vale para o autor, o ticket e o instante; recusa sem agenda ou em ausência/férias. */
-  private async windowFor(db: Pick<Prisma.TransactionClient, 'appointment'>, userId: string, ticketId: string, at: Date) {
+  /** DMTE-462 T2: agendas do autor perto do instante e a decisão da janela (agenda que vale, ausência ou sem agenda). */
+  private async inspectWindow(db: Pick<Prisma.TransactionClient, 'appointment'>, userId: string, ticketId: string, at: Date) {
     const appointments = await db.appointment.findMany({
       where: { userId, endTime: { gte: at }, startTime: { lte: new Date(at.getTime() + WINDOW_LEAD_MS) } },
     });
-    const decision = evaluateWorklogWindow(appointments, ticketId, at);
-    if (!decision.ok) {
-      throw new ForbiddenException(decision.reason === 'ABSENCE'
-        ? 'Ausência ou férias neste período: não é possível apontar'
-        : 'Sem agenda deste ticket neste horário. Peça ao gerente para agendar ou liberar o apontamento');
-    }
+    return { appointments, decision: evaluateWorklogWindow(appointments, ticketId, at) };
+  }
+
+  private windowRefusal(reason: 'NO_AGENDA' | 'ABSENCE') {
+    return new ForbiddenException(reason === 'ABSENCE'
+      ? 'Ausência ou férias neste período: não é possível apontar'
+      : 'Sem agenda deste ticket neste horário. Peça ao gerente para agendar ou liberar o apontamento');
+  }
+
+  /** DMTE-462 T2: recusa sem agenda ou em ausência/férias; usada pelo PLAY, que nunca vira liberação. */
+  private async windowFor(db: Pick<Prisma.TransactionClient, 'appointment'>, userId: string, ticketId: string, at: Date) {
+    const { decision } = await this.inspectWindow(db, userId, ticketId, at);
+    if (!decision.ok) throw this.windowRefusal(decision.reason);
     return decision;
+  }
+
+  /** DMTE-462 T5: o que quebrou a janela, para o texto de quem libera (período de ausência ou a agenda mais próxima). */
+  private async windowBreak(
+    db: Pick<Prisma.TransactionClient, 'appointment'>,
+    userId: string,
+    ticketId: string,
+    at: Date,
+    found: { appointments: Array<{ type: string; startTime: Date; endTime: Date }>; decision: { ok: boolean } },
+  ): Promise<EntryBreak> {
+    const absence = found.appointments.find((a) => a.type !== 'AGENDA' && a.startTime <= at && at <= a.endTime);
+    if (absence) return { kind: 'ABSENCE', startsAt: at, absence };
+    const where = { userId, type: 'AGENDA' as const, ticketId };
+    const [before] = await db.appointment.findMany({ where: { ...where, startTime: { lte: at } }, orderBy: { startTime: 'desc' }, take: 1 });
+    const [after] = await db.appointment.findMany({ where: { ...where, startTime: { gt: at } }, orderBy: { startTime: 'asc' }, take: 1 });
+    const distance = (a: { startTime: Date; endTime: Date }) => Math.min(Math.abs(a.startTime.getTime() - at.getTime()), Math.abs(a.endTime.getTime() - at.getTime()));
+    const nearest = [before, after].filter(Boolean).sort((a, b) => distance(a) - distance(b))[0];
+    return { kind: 'NO_AGENDA', startsAt: at, ...(nearest ? { nearest: { startTime: nearest.startTime, endTime: nearest.endTime } } : {}) };
   }
 
   /** Serializa PLAYs e lançamentos da mesma agenda: a soma e o cronômetro aberto são conferidos com a linha travada. */
@@ -478,13 +533,20 @@ export class WorklogsService {
     await db.$queryRaw(Prisma.sql`SELECT id FROM "Appointment" WHERE id = ${appointmentId} FOR UPDATE`);
   }
 
-  /** Soma por agenda não passa do limite; `null` = sem limite (compromisso que ignora a regra). */
-  private async assertWithinLimit(db: Pick<Prisma.TransactionClient, 'worklog'>, appointmentId: string, limitMinutes: number | null, minutes: number) {
-    if (limitMinutes === null) return;
+  /** Soma por agenda não passa do limite; `null` = sem limite (compromisso que ignora a regra). Devolve o excesso, se houver. */
+  private async limitBreak(db: Pick<Prisma.TransactionClient, 'worklog'>, appointmentId: string, limitMinutes: number | null, minutes: number): Promise<Extract<EntryBreak, { kind: 'LIMIT' }> | null> {
+    if (limitMinutes === null) return null;
     const { _sum } = await db.worklog.aggregate({ _sum: { minutes: true }, where: { appointmentId, voidedAt: null } });
-    if ((_sum.minutes ?? 0) + minutes > limitMinutes) {
-      throw new BadRequestException('Limite de horas da agenda excedido');
-    }
+    const used = _sum.minutes ?? 0;
+    return used + minutes > limitMinutes ? { kind: 'LIMIT', limitMinutes, usedMinutes: used, entryMinutes: minutes } : null;
+  }
+
+  private limitExceeded() {
+    return new BadRequestException('Limite de horas da agenda excedido');
+  }
+
+  private async assertWithinLimit(db: Pick<Prisma.TransactionClient, 'worklog'>, appointmentId: string, limitMinutes: number | null, minutes: number) {
+    if (await this.limitBreak(db, appointmentId, limitMinutes, minutes)) throw this.limitExceeded();
   }
 
   async createPreAppointment(

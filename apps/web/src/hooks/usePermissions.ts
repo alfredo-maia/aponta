@@ -67,7 +67,8 @@ export function useCanReleaseWorklogWithoutSchedule(): boolean {
   return data?.canReleaseWorklogWithoutSchedule === true;
 }
 
-/** DMTE-462 T5: stub neutro (sem o comportamento), substituído na implementação. */
+/** DMTE-462 T5: o item "Liberações" aparece só para quem tem ao menos uma das permissões de liberar. */
 export function useCanReleaseWorklogs(): boolean {
-  return false;
+  const { data } = useEffectivePermissions();
+  return data?.canReleaseWorklogs === true;
 }

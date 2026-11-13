@@ -62,9 +62,9 @@ export class PermissionsService {
     return this.hasPermission(userId, 'VIEW_TICKET_VALUES');
   }
 
-  /** DMTE-462 T5: stub neutro (sem o comportamento), substituído na implementação. */
-  async canReleaseWorklogs(_userId: string): Promise<boolean> {
-    return false;
+  /** DMTE-462 T5: sem desvio por role; quem tem a permissão de qualquer tipo de liberação vê o item "Liberações". */
+  async canReleaseWorklogs(userId: string): Promise<boolean> {
+    return this.hasPermission(userId, 'APPROVE_WORKLOG_ENTRY', 'APPROVE_WORKLOG_SYSTEM_CLOSED');
   }
 
   /** DMTE-462 T4: quem tem a chave num grupo direto ou pelo grupo técnico; sem desvio por role. */
