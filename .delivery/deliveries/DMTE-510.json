@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "delivery": "DMTE-510",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 253,
+  "multica_id": "01a1d745-8afe-751b-a90c-dd7a55c43815",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 2,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "com N PRs mesclados em sequência e um único deploy da ponta, cada um dos N cards recebe o comentário do workflow, com menção, em até 2 minutos do fim do job.",
+      "tests": []
+    },
+    {
+      "id": "AC-02",
+      "description": "com um único PR entre o commit anterior e o publicado, o comportamento é idêntico ao de hoje (um comentário, mesmo corpo).",
+      "tests": []
+    },
+    {
+      "id": "AC-03",
+      "description": "falha de `staging` ou `production` gera o comentário de falha em todos os cards do intervalo.",
+      "tests": []
+    },
+    {
+      "id": "AC-04",
+      "description": "`previous_sha` vazio, igual ao publicado ou não ancestral → aviso só do commit publicado, com o motivo no log do job; o CD não falha.",
+      "tests": []
+    },
+    {
+      "id": "AC-05",
+      "description": "commit do intervalo sem PR/`Aponta-Delivery` não gera comentário nem falha o job.",
+      "tests": []
+    },
+    {
+      "id": "AC-06",
+      "description": "testes unitários cobrem AC-01 a AC-05 sem rede; `python3 -m pytest scripts/test_avisar_card.py` passa.",
+      "tests": []
+    },
+    {
+      "id": "AC-07",
+      "description": "`WORKFLOW.md` e as referências de `development-delivery` descrevem o aviso por intervalo.",
+      "tests": []
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-510.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-510/red.json",
+    "green": ".delivery/evidence/DMTE-510/green.json"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Sem UI: workflow de CD, script Python e contrato"
+  }
+}
