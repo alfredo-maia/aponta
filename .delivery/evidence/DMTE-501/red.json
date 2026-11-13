@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-13T22:54:25.455470+00:00",
+  "finished_at": "2026-11-13T22:54:54.542929+00:00",
+  "command": [
+    "pnpm",
+    "exec",
+    "nx",
+    "run",
+    "web:test",
+    "--skip-nx-cache",
+    "--output-style=stream",
+    "src/contexts/TabsContext.test.tsx",
+    "src/components/layout/TabBar.test.tsx",
+    "src/components/layout/AppLayout.test.tsx"
+  ],
+  "base_sha": "7ae71108070719af25bfa736a552314225e069fe",
+  "head_sha": "75d9df5bdd3b4ef04261615e6904a40c2b6cbb83",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/contexts/TabsContext.test.tsx": "d9ee6ff6dafeb74b0d47efe071c56b325d25fbfc62322d55f974c249cccc9a49",
+    "apps/web/src/components/layout/TabBar.test.tsx": "f399fd5058c75a3ceebc6e845c1a1effc5fc21ef01b7b2514b109c67cd4e474b",
+    "apps/web/src/components/layout/AppLayout.test.tsx": "1804f132a120c733cfda75d644a570e61be3ff58921def6d268caf9be4de752b"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "source_hashes": {
+    "apps/web/src/components/layout/AppLayout.test.tsx": "1804f132a120c733cfda75d644a570e61be3ff58921def6d268caf9be4de752b",
+    "apps/web/src/components/layout/TabBar.test.tsx": "f399fd5058c75a3ceebc6e845c1a1effc5fc21ef01b7b2514b109c67cd4e474b",
+    "apps/web/src/contexts/TabsContext.test.tsx": "d9ee6ff6dafeb74b0d47efe071c56b325d25fbfc62322d55f974c249cccc9a49"
+  },
+  "log": ".delivery/evidence/DMTE-501/red.log",
+  "log_sha256": "1c1bc310536acc75c445ab6c2e5b1ed1643c9f42f42dbe0e97ac7794a3df958d"
+}

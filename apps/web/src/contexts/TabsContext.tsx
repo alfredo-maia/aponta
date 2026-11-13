@@ -13,8 +13,6 @@ export interface AppTab {
   id: string;
   path: string;
   title: string;
-  /** The fixed "Tickets" home tab can't be closed. */
-  closable: boolean;
 }
 
 interface TabsContextValue {
@@ -25,22 +23,22 @@ interface TabsContextValue {
 
 const STORAGE_KEY = 'aponta_tabs';
 
-const FIXED_TAB: AppTab = {
+// Initial tab. Closable like any other (DMTE-501 reverts D2), except as the last one left.
+const HOME_TAB: AppTab = {
   id: '/',
   path: '/',
   title: 'Tickets',
-  closable: false,
 };
 
 function loadTabs(): AppTab[] {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return [FIXED_TAB];
+    if (!raw) return [HOME_TAB];
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed) || parsed.length === 0) return [FIXED_TAB];
+    if (!Array.isArray(parsed) || parsed.length === 0) return [HOME_TAB];
     return parsed;
   } catch {
-    return [FIXED_TAB];
+    return [HOME_TAB];
   }
 }
 
@@ -67,7 +65,7 @@ export function TabsProvider({ children }: { children: ReactNode }) {
     (path: string, title: string) => {
       setTabs((prev) => {
         if (prev.some((tab) => tab.path === path)) return prev;
-        return [...prev, { id: path, path, title, closable: true }];
+        return [...prev, { id: path, path, title }];
       });
       navigate(path);
     },
@@ -78,10 +76,11 @@ export function TabsProvider({ children }: { children: ReactNode }) {
     (path: string) => {
       setTabs((prev) => {
         const index = prev.findIndex((tab) => tab.path === path);
-        if (index === -1) return prev;
+        // The last remaining tab never closes, so the bar is never empty.
+        if (index === -1 || prev.length === 1) return prev;
         const next = prev.filter((tab) => tab.path !== path);
         if (location.pathname === path) {
-          const neighbor = prev[index - 1] ?? prev[index + 1] ?? FIXED_TAB;
+          const neighbor = prev[index - 1] ?? prev[index + 1] ?? HOME_TAB;
           navigate(neighbor.path);
         }
         return next;

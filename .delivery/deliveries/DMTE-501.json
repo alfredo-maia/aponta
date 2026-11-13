@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "delivery": "DMTE-501",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 245,
+  "multica_id": "01a1d191-ca34-751f-9273-e27cdb2c5f81",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 1,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "com duas ou mais abas abertas, toda aba, inclusive \"Tickets\", mostra o botão \"Fechar aba\"; com uma só aba, ela não mostra o botão e `closeTab` nela não a remove.",
+      "tests": [
+        "DMTE-501 AC-01: closeTab on the only remaining tab does not remove it",
+        "DMTE-501 AC-01: the only tab has no close button",
+        "DMTE-501 AC-01: with two tabs, \"Tickets\" also has a close button"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "fechar a aba \"Tickets\" a remove; se era a ativa, a navegação vai para a vizinha, e se não era, a rota atual não muda.",
+      "tests": [
+        "DMTE-501 AC-02: closing the active \"Tickets\" tab goes to its neighbor",
+        "DMTE-501 AC-02: closing \"Tickets\" while another tab is active keeps the current route",
+        "DMTE-501 AC-02: closing the active \"Tickets\" tab through its button goes to the neighbor"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "clicar em \"Tickets\" na lateral com a aba fechada a reabre e ativa; com ela aberta, ativa sem criar segunda aba.",
+      "tests": [
+        "DMTE-501 AC-03: \"Tickets\" in the sidebar reopens the tab after it was closed, without duplicating"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "a aba ativa tem `bg-brand-100`, `text-brand-700` e `border-brand-200`; a inativa não tem `bg-brand-100`; nenhuma classe `gray-80` nem hex literal na aba ativa.",
+      "tests": [
+        "DMTE-501 AC-04: the active tab is green (brand tokens) and the inactive one is not"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "abas salvas na sessão com `closable: false` (formato antigo) fecham normalmente.",
+      "tests": [
+        "DMTE-501 AC-05: tabs saved with the old closable:false shape can be closed"
+      ]
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-501.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-501/red.json",
+    "green": ".delivery/evidence/DMTE-501/green.json"
+  },
+  "design_system": {
+    "applicable": true,
+    "reused": [
+      "EzTabs"
+    ]
+  }
+}

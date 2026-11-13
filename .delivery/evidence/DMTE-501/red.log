@@ -1,0 +1,237 @@
+
+> nx run web:test src/contexts/TabsContext.test.tsx src/components/layout/TabBar.test.tsx src/components/layout/AppLayout.test.tsx
+
+web:  RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-501-efe61155b422/workdir/red-wt/apps/web
+web:  ❯ |web| src/contexts/TabsContext.test.tsx (9 tests | 1 failed) 1153ms
+web:      ✓ starts with the "Tickets" tab for the root path 48ms
+web:      × DMTE-501 AC-01: closeTab on the only remaining tab does not remove it 128ms
+web:        ✓ DMTE-501 AC-02: closing the active "Tickets" tab goes to its neighbor 46ms
+web:        ✓ DMTE-501 AC-02: closing "Tickets" while another tab is active keeps the current route 49ms
+web:      ✓ opening a path creates a new tab and navigates to it 52ms
+web:      ✓ reopening an already-open path activates it instead of duplicating the tab 134ms
+web:      ✓ closing the active tab activates the previous neighbor  316ms
+web:      ✓ closing a non-active tab does not change the current location 198ms
+web:      ✓ persists open tabs in sessionStorage and restores them on remount (survives refresh) 161ms
+web:  ❯ |web| src/components/layout/TabBar.test.tsx (9 tests | 4 failed) 1974ms
+web:      ✓ DMTE-501 AC-01: the only tab has no close button 262ms
+web:      × DMTE-501 AC-01: with two tabs, "Tickets" also has a close button 198ms
+web:      × DMTE-501 AC-04: the active tab is green (brand tokens) and the inactive one is not 197ms
+web:      × DMTE-501 AC-02: closing the active "Tickets" tab through its button goes to the neighbor 96ms
+web:      × DMTE-501 AC-05: tabs saved with the old closable:false shape can be closed 161ms
+web:      ✓ marks the tab matching the current location as active 96ms
+web:      ✓ clicking a tab navigates to its path 238ms
+web:      ✓ closes a closable tab via its close button without navigating the still-active tab  490ms
+web:      ✓ RODADA 2: the close button's accessible name never collides with another button named after the tab title (e.g. the Busca avançada toggle) 224ms
+web: stderr | src/components/layout/AppLayout.test.tsx > AppLayout > AC-17: menu retrátil no celular > when the viewport grows to the desktop width > closes the drawer, so the fixed sidebar and the drawer never coexist
+web: An update to AppLayout inside a test was not wrapped in act(...).
+web: When testing, code that causes React state updates should be wrapped into act(...):
+web: act(() => {
+web:   /* fire events that update state */
+web: });
+web: /* assert on the output */
+web: This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+web:  ❯ |web| src/components/layout/AppLayout.test.tsx (18 tests | 1 failed) 2574ms
+web:      ✓ renders the DS background tone (bg-gray-80) on the shell, not the old bg-background token 68ms
+web:      ✓ renders a white header with the DS border color, not the old bg-background token 62ms
+web:      ✓ renders the Sidebar, UserMenu trigger and the routed page content 47ms
+web:        ✓ has an "Abrir menu" button in the header, closed by default 223ms
+web:        ✓ opens the navigation as a named dialog and flips aria-expanded  329ms
+web:        ✓ does not offer the collapse toggle inside the drawer 154ms
+web:        ✓ closes with Escape 143ms
+web:        ✓ closes when the backdrop is tapped 123ms
+web:        ✓ moves focus into the dialog when it opens 134ms
+web:        ✓ returns focus to the "Abrir menu" button after closing with Escape 110ms
+web:        ✓ has a visible "Fechar menu" button inside the dialog that closes it 177ms
+web:        ✓ makes the page behind the menu inert while it is open, and not when closed 123ms
+web:        ✓ locks the page scroll while the menu is open and releases it on close 144ms
+web:          ✓ closes the drawer, so the fixed sidebar and the drawer never coexist 145ms
+web:        ✓ closes after choosing a destination, and shows that page 139ms
+web:        ✓ opens a tab for the chosen option and focuses it again instead of duplicating 193ms
+web:        × DMTE-501 AC-03: "Tickets" in the sidebar reopens the tab after it was closed, without duplicating 113ms
+web:        ✓ does not open an extra tab for "Tickets" (fixed tab); tickets keep opening their own tabs 140ms
+web: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+web:  FAIL  |web| src/contexts/TabsContext.test.tsx > TabsContext > DMTE-501 AC-01: closeTab on the only remaining tab does not remove it
+web: TestingLibraryElementError: Unable to find an element by: [data-testid="tab-/"]
+web: Ignored nodes: comments, script, style
+web: [36m<body>[39m
+web:   [36m<div>[39m
+web:     [36m<div[39m
+web:       [33mdata-testid[39m=[32m"location-probe"[39m
+web:     [36m>[39m
+web:       [0m/[0m
+web:     [36m</div>[39m
+web:     [36m<ul />[39m
+web:     [36m<button[39m
+web:       [33mtype[39m=[32m"button"[39m
+web:     [36m>[39m
+web:       [0mOpen [0m
+web:       [0m#AP-0001 - Impressora[0m
+web:     [36m</button>[39m
+web:     [36m<button[39m
+web:       [33mtype[39m=[32m"button"[39m
+web:     [36m>[39m
+web:       [0mOpen [0m
+web:       [0m#AP-0002 - VPN[0m
+web:     [36m</button>[39m
+web:     [36m<div>[39m
+web:       [0mpage[0m
+web:     [36m</div>[39m
+web:   [36m</div>[39m
+web: [36m</body>[39m
+web:  ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+web:  ❯ src/contexts/TabsContext.test.tsx:69:19
+web:      67|     await user.click(screen.getByLabelText('Fechar Tickets'));
+web:      68|
+web:      69|     expect(screen.getByTestId('tab-/')).toHaveTextContent('Tickets');
+web:        |                   ^
+web:      70|   });
+web:      71|
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+web:  FAIL  |web| src/components/layout/AppLayout.test.tsx > AppLayout > DMTE-457: opções da nav bar abrem ou focam uma aba > DMTE-501 AC-03: "Tickets" in the sidebar reopens the tab after it was closed, without duplicating
+web: TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Fechar aba"
+web: There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+web: Ignored nodes: comments, script, style
+web: [36m<div[39m
+web:   [33maria-selected[39m=[32m"false"[39m
+web:   [33mclass[39m=[32m"flex max-w-[220px] shrink-0 cursor-pointer items-center gap-2 rounded-t-[8px] border border-b-0 px-3 py-1.5 text-[13px] font-medium transition-colors border-transparent text-gray-500 hover:bg-gray-90"[39m
+web:   [33mrole[39m=[32m"tab"[39m
+web:   [33mtabindex[39m=[32m"0"[39m
+web: [36m>[39m
+web:   [36m<span[39m
+web:     [33mclass[39m=[32m"truncate"[39m
+web:     [33mid[39m=[32m"tab-title-/"[39m
+web:   [36m>[39m
+web:     [0mTickets[0m
+web:   [36m</span>[39m
+web: [36m</div>[39m
+web:  ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+web:  ❯ src/components/layout/AppLayout.test.tsx:216:77
+web:     214|
+web:     215|       await user.click(nav.getByRole('button', { name: 'Dashboard' }));
+web:     216|       await user.click(within(screen.getByRole('tab', { name: 'Tickets…
+web:        |                                                                             ^
+web:     217|       expect(tabNames()).toEqual(['Dashboard']);
+web:     218|
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+web:  FAIL  |web| src/components/layout/TabBar.test.tsx > TabBar > DMTE-501 AC-01: with two tabs, "Tickets" also has a close button
+web: TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Fechar aba"
+web: There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+web: Ignored nodes: comments, script, style
+web: [36m<div[39m
+web:   [33maria-selected[39m=[32m"false"[39m
+web:   [33mclass[39m=[32m"flex max-w-[220px] shrink-0 cursor-pointer items-center gap-2 rounded-t-[8px] border border-b-0 px-3 py-1.5 text-[13px] font-medium transition-colors border-transparent text-gray-500 hover:bg-gray-90"[39m
+web:   [33mrole[39m=[32m"tab"[39m
+web:   [33mtabindex[39m=[32m"0"[39m
+web: [36m>[39m
+web:   [36m<span[39m
+web:     [33mclass[39m=[32m"truncate"[39m
+web:     [33mid[39m=[32m"tab-title-/"[39m
+web:   [36m>[39m
+web:     [0mTickets[0m
+web:   [36m</span>[39m
+web: [36m</div>[39m
+web:  ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+web:  ❯ src/components/layout/TabBar.test.tsx:54:65
+web:      52|     await user.click(screen.getByText('Open #AP-0001 - Impressora'));
+web:      53|
+web:      54|     expect(within(screen.getByRole('tab', { name: 'Tickets' })).getByR…
+web:        |                                                                 ^
+web:      55|     expect(within(screen.getByRole('tab', { name: /AP-0001/ })).getByR…
+web:      56|   });
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+web:  FAIL  |web| src/components/layout/TabBar.test.tsx > TabBar > DMTE-501 AC-04: the active tab is green (brand tokens) and the inactive one is not
+web: Error: [2mexpect([22m[31melement[39m[2m).toHaveClass([22m[32m[32m"bg-brand-100 text-brand-700 border-brand-200"[32m[39m[2m)[22m
+web: Expected the element to have class:
+web: [32m  bg-brand-100 text-brand-700 border-brand-200[39m
+web: Received:
+web: [31m  flex max-w-[220px] shrink-0 cursor-pointer items-center gap-2 rounded-t-[8px] border border-b-0 px-3 py-1.5 text-[13px] font-medium transition-colors border-gray-200 bg-gray-80 text-gray-900[39m
+web:  ❯ src/components/layout/TabBar.test.tsx:65:20
+web:      63|
+web:      64|     const active = screen.getByRole('tab', { name: /AP-0001/ });
+web:      65|     expect(active).toHaveClass('bg-brand-100', 'text-brand-700', 'bord…
+web:        |                    ^
+web:      66|     expect(active.className).not.toMatch(/gray-80|#[0-9a-fA-F]{3,8}/);
+web:      67|     expect(screen.getByRole('tab', { name: 'Tickets' })).not.toHaveCla…
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+web:  FAIL  |web| src/components/layout/TabBar.test.tsx > TabBar > DMTE-501 AC-02: closing the active "Tickets" tab through its button goes to the neighbor
+web: TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Fechar aba"
+web: There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+web: Ignored nodes: comments, script, style
+web: [36m<div[39m
+web:   [33maria-selected[39m=[32m"true"[39m
+web:   [33mclass[39m=[32m"flex max-w-[220px] shrink-0 cursor-pointer items-center gap-2 rounded-t-[8px] border border-b-0 px-3 py-1.5 text-[13px] font-medium transition-colors border-gray-200 bg-gray-80 text-gray-900"[39m
+web:   [33mrole[39m=[32m"tab"[39m
+web:   [33mtabindex[39m=[32m"0"[39m
+web: [36m>[39m
+web:   [36m<span[39m
+web:     [33mclass[39m=[32m"truncate"[39m
+web:     [33mid[39m=[32m"tab-title-/"[39m
+web:   [36m>[39m
+web:     [0mTickets[0m
+web:   [36m</span>[39m
+web: [36m</div>[39m
+web:  ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+web:  ❯ src/components/layout/TabBar.test.tsx:81:75
+web:      79|     renderBar(['/']);
+web:      80|
+web:      81|     await user.click(within(screen.getByRole('tab', { name: 'Tickets' …
+web:        |                                                                           ^
+web:      82|
+web:      83|     expect(screen.queryByRole('tab', { name: 'Tickets' })).not.toBeInT…
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+web:  FAIL  |web| src/components/layout/TabBar.test.tsx > TabBar > DMTE-501 AC-05: tabs saved with the old closable:false shape can be closed
+web: TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Fechar aba"
+web: There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+web: Ignored nodes: comments, script, style
+web: [36m<div[39m
+web:   [33maria-selected[39m=[32m"false"[39m
+web:   [33mclass[39m=[32m"flex max-w-[220px] shrink-0 cursor-pointer items-center gap-2 rounded-t-[8px] border border-b-0 px-3 py-1.5 text-[13px] font-medium transition-colors border-transparent text-gray-500 hover:bg-gray-90"[39m
+web:   [33mrole[39m=[32m"tab"[39m
+web:   [33mtabindex[39m=[32m"0"[39m
+web: [36m>[39m
+web:   [36m<span[39m
+web:     [33mclass[39m=[32m"truncate"[39m
+web:     [33mid[39m=[32m"tab-title-/"[39m
+web:   [36m>[39m
+web:     [0mTickets[0m
+web:   [36m</span>[39m
+web: [36m</div>[39m
+web:  ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+web:  ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+web:  ❯ src/components/layout/TabBar.test.tsx:98:75
+web:      96|     renderBar(['/tickets/t1']);
+web:      97|
+web:      98|     await user.click(within(screen.getByRole('tab', { name: 'Tickets' …
+web:        |                                                                           ^
+web:      99|
+web:     100|     expect(screen.queryByRole('tab', { name: 'Tickets' })).not.toBeInT…
+web: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+web:  Test Files  3 failed (3)
+web:       Tests  6 failed | 30 passed (36)
+web:    Start at  19:54:40
+web:    Duration  13.48s (transform 5.97s, setup 1.57s, import 13.00s, tests 5.70s, environment 7.44s)
+
+
+
+ NX   Running target test for project web failed
+
+Failed tasks:
+
+- web:test
+
+Hint: run the command with --verbose for more details.
+
