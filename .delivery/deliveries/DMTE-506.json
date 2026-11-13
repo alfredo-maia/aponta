@@ -13,7 +13,9 @@
       "tests": [
         "CommentBodyTests.test_success_starts_with_leader_mention_and_carries_sha_pr_run_and_version",
         "NotifyTests.test_posts_content_with_workspace_and_bearer_headers",
-        "NotifyTests.test_delivery_with_registry_entry_resolves_its_parent"
+        "NotifyTests.test_delivery_with_registry_entry_resolves_its_parent",
+        "CommentBodyTests.test_version_that_differs_from_the_deployed_commit_is_said_so",
+        "DeliveryTests.test_single_delivery_line_names_the_delivery"
       ]
     },
     {
@@ -23,7 +25,9 @@
         "CommentBodyTests.test_failure_names_the_job_and_the_run",
         "OutcomeTests.test_staging_failure_is_reported_as_staging",
         "OutcomeTests.test_production_failure_is_reported_as_production",
-        "WorkflowTests.test_notify_runs_after_cd_whatever_its_result"
+        "WorkflowTests.test_notify_runs_after_cd_whatever_its_result",
+        "OutcomeTests.test_cancelled_job_shows_its_own_result",
+        "NotifyTests.test_failure_comments_without_probing_production"
       ]
     },
     {
@@ -32,7 +36,10 @@
       "tests": [
         "NotifyTests.test_commit_without_pr_does_not_comment",
         "NotifyTests.test_pr_without_delivery_line_does_not_comment",
-        "NotifyTests.test_two_distinct_deliveries_do_not_comment"
+        "NotifyTests.test_two_distinct_deliveries_do_not_comment",
+        "DeliveryTests.test_no_pr_or_no_line_names_nothing",
+        "DeliveryTests.test_two_distinct_deliveries_name_nothing",
+        "NotifyTests.test_delivery_without_manifest_does_not_comment"
       ]
     },
     {
@@ -43,7 +50,9 @@
         "NotifyTests.test_network_error_never_fails_the_deploy",
         "NotifyTests.test_token_is_redacted_from_logged_errors",
         "WorkflowTests.test_notify_never_fails_the_deploy",
-        "WorkflowTests.test_token_is_only_read_by_notify"
+        "WorkflowTests.test_token_is_only_read_by_notify",
+        "NotifyTests.test_github_lookup_failure_does_not_fail_the_deploy",
+        "NotifyTests.test_missing_token_does_not_comment_nor_fail"
       ]
     },
     {
