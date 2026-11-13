@@ -393,6 +393,7 @@ class RangeTests(NotifyFixture):
         class FirstPostFails(Http):
             def __call__(self, request, timeout=10):
                 if request.get_method() == 'POST' and '/p-901/' in request.full_url:
+                    self.requests.append(request)
                     raise urllib.error.HTTPError('u', 401, 'bad ' + TOKEN, {}, io.BytesIO(b''))
                 return super().__call__(request, timeout)
         code, http, out = self.run_range(http=FirstPostFails())
