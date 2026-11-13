@@ -100,6 +100,9 @@
       "EzSpinner",
       "EzEmptyCard"
     ],
-    "reason": "T5: a tela Liberações usa o grid do DS; EzEntityGrid ganha a prop onRowDoubleClick, com história no Storybook."
+    "reason": "T5: a tela Liberações usa o grid do DS; EzEntityGrid ganha a prop onRowDoubleClick, com história no Storybook.",
+    "stories": [
+      "apps/web/src/components/ds/EzEntityGrid.stories.tsx"
+    ]
   }
 }
