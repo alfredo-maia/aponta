@@ -863,6 +863,7 @@ model Worklog {
   approvalDecidedBy    String?
   approvalDecidedAt    DateTime?
   approvalDecisionNote String?
+  approvalRequestedBy  String?
   createdAt      DateTime       @default(now())
 
   @@index([contractId, startTime])

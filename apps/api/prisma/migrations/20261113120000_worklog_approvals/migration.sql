@@ -8,7 +8,8 @@ ALTER TABLE "Worklog"
   ADD COLUMN "approvalReason" TEXT,
   ADD COLUMN "approvalDecidedBy" TEXT,
   ADD COLUMN "approvalDecidedAt" TIMESTAMP(3),
-  ADD COLUMN "approvalDecisionNote" TEXT;
+  ADD COLUMN "approvalDecisionNote" TEXT,
+  ADD COLUMN "approvalRequestedBy" TEXT;
 
 CREATE INDEX "Worklog_approvalStatus_approvalType_idx" ON "Worklog"("approvalStatus", "approvalType");
 

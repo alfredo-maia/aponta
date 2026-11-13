@@ -130,4 +130,9 @@ export function ReleasesPage() {
   );
 }
 
+/** DMTE-462 T5: stub neutro (sem a guarda de permissão), substituído na implementação. */
+export function ReleasesRoute() {
+  return <ReleasesPage />;
+}
+
 export default ReleasesPage;
