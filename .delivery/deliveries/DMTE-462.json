@@ -8,105 +8,59 @@
   "tier": 3,
   "criteria": [
     {
-      "id": "AC-22",
-      "description": "o lançamento manual sem a permissão de hora inicial que quebraria uma regra (início fora da janela da agenda do ticket ou sem agenda, ausência ou férias, soma acima do limite da agenda) é criado pendente do tipo \"Lançamento\", com horários e valor calculados, em vez de recusado; o motivo gravado diz de forma didática qual regra foi quebrada, com os números; a conversão de cronômetro acima do limite também vira pendente desse tipo; o PLAY continua recusado nesses casos.",
+      "id": "AC-27",
+      "description": "o sistema guarda notificações por usuário: GET /notifications devolve só as 30 mais recentes do usuário e a contagem das não lidas; POST /notifications/:id/read marca a do dono e responde 404 para a de outro; POST /notifications/read-all marca só as do usuário; um usuário não vê nem altera notificação de outro.",
       "tests": [
-        "apps/api/src/worklogs/worklog-approval.spec.ts",
-        "apps/api/src/worklogs/worklogs.commercial.spec.ts",
-        "apps/web/src/components/tickets/TicketWorklogs.test.tsx",
-        "apps/api/src/worklogs/worklog-approvals.review.spec.ts"
+        "apps/api/src/notifications/notifications.service.spec.ts",
+        "apps/api/src/notifications/notifications.controller.spec.ts"
       ]
     },
     {
-      "id": "AC-23",
-      "description": "a conversão do cronômetro encerrado pelo sistema (limite, pausa de 2 dias ou janela fechada) cria o apontamento pendente do tipo \"Cronômetro encerrado\", sem alterar início nem fim, com o motivo explicado.",
+      "id": "AC-28",
+      "description": "o fechamento automático (T4) e os eventos da aprovação (T5) geram notificação além do e-mail, para os mesmos destinatários: fechamento, o consultor e o grupo de aviso; pendência, quem tem a permissão do tipo, menos o autor; decisão, o consultor autor. Falha ao gravar a notificação não derruba o fechamento nem a decisão.",
       "tests": [
-        "apps/api/src/worklogs/worklog-approval.spec.ts",
-        "apps/api/src/worklogs/worklogs.commercial.spec.ts"
-      ]
-    },
-    {
-      "id": "AC-24",
-      "description": "o apontamento pendente é faturável e aparece nos totais, e a tela do ticket o marca como \"Pendente de liberação\".",
-      "tests": [
-        "apps/api/src/worklogs/worklogs.commercial.spec.ts",
-        "apps/web/src/components/tickets/TicketWorklogs.test.tsx"
-      ]
-    },
-    {
-      "id": "AC-25",
-      "description": "quem tem a permissão do tipo vê e decide só os pendentes daquele tipo; liberar torna o apontamento válido; rejeitar exige motivo e estorna o apontamento (`voidedAt`); sem a permissão a API devolve 403 e a lista não mostra nada; o ADMIN não tem desvio.",
-      "tests": [
+        "apps/api/src/worklogs/worklog-autoclose.service.spec.ts",
         "apps/api/src/worklogs/worklog-approvals.service.spec.ts",
-        "apps/api/src/worklogs/worklog-approvals.controller.spec.ts",
-        "apps/web/src/pages/ReleasesPage.test.tsx",
-        "apps/api/src/worklogs/worklog-approvals.review.spec.ts"
+        "apps/api/src/notifications/notifications.service.spec.ts"
       ]
     },
     {
-      "id": "AC-26",
-      "description": "ninguém decide o próprio apontamento, mesmo com a permissão do tipo.",
+      "id": "AC-34",
+      "description": "o sino no cabeçalho mostra o contador das não lidas (\"9+\" acima de 9), atualiza a cada 60 segundos e ao abrir o painel, lista as notificações com as não lidas destacadas, leva ao destino ao clicar (marcando como lida), tem \"Marcar todas como lidas\", estado vazio e erro de carga, e não oferece excluir.",
       "tests": [
-        "apps/api/src/worklogs/worklog-approvals.service.spec.ts",
-        "apps/api/src/worklogs/worklog-approvals.review.spec.ts"
+        "apps/web/src/components/ds/EzNotificationBell.test.tsx",
+        "apps/web/src/components/layout/NotificationBell.test.tsx",
+        "apps/web/src/components/layout/AppLayout.test.tsx"
       ]
     },
     {
-      "id": "AC-29",
-      "description": "a pendência envia e-mail a quem tem a permissão do tipo, e a decisão envia e-mail ao consultor, com o motivo da rejeição.",
+      "id": "AC-35",
+      "description": "o sino só roda com a flag sino-notificacoes ligada (ligada por padrão, dono Alfredo, remoção em 30 dias); desligada, o sino some, nenhuma notificação é gravada e o e-mail segue como hoje.",
       "tests": [
-        "apps/api/src/worklogs/worklog-approvals.service.spec.ts"
-      ]
-    },
-    {
-      "id": "AC-30",
-      "description": "o item \"Liberações\" na barra de navegação aparece só para quem tem ao menos uma das permissões; a tela usa o grid do DS, sem incluir nem excluir, e libera ou nega só o registro selecionado ou com duplo clique, pedindo o motivo ao negar.",
-      "tests": [
-        "apps/api/src/permissions/permissions.service.spec.ts",
-        "apps/api/src/auth/auth.controller.spec.ts",
-        "apps/web/src/components/layout/Sidebar.test.tsx",
-        "apps/web/src/components/layout/AppLayout.test.tsx",
-        "apps/web/src/pages/ReleasesPage.test.tsx",
-        "apps/web/src/components/ds/EzEntityGrid.test.tsx",
-        "apps/web/src/pages/ReleasesPage.review.test.tsx"
-      ]
-    },
-    {
-      "id": "AC-31",
-      "description": "as duas permissões de liberar existem no catálogo e nenhum grupo padrão por role as traz; a migração cria os grupos \"Liberação: lançamento\" e \"Liberação: cronômetro encerrado\", vazios.",
-      "tests": [
-        "apps/api/prisma/seed.spec.ts",
-        "apps/api/src/worklogs/worklog-approval.spec.ts"
-      ]
-    },
-    {
-      "id": "AC-33",
-      "description": "o fluxo de liberações só roda com a flag `liberacoes-apontamento` ligada (ligada por padrão); desligada, o lançamento que quebra regra volta a ser recusado e o cronômetro encerrado converte como no T4.",
-      "tests": [
-        "apps/api/src/worklogs/worklogs.commercial.spec.ts",
-        "apps/api/src/feature-flags/feature-flags.spec.ts"
+        "apps/api/src/feature-flags/feature-flags.spec.ts",
+        "apps/api/src/notifications/notifications.service.spec.ts",
+        "apps/web/src/components/layout/NotificationBell.test.tsx"
       ]
     }
   ],
   "spec": "docs/delivery/specs/DMTE-462.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-462-t5/red-r2.json",
-    "green": ".delivery/evidence/DMTE-462-t5/green-r2.json"
+    "red": ".delivery/evidence/DMTE-462-t6/red.json",
+    "green": ".delivery/evidence/DMTE-462-t6/green.json"
   },
   "design_system": {
     "applicable": true,
     "reused": [
-      "EzEntityGrid",
+      "EzPopover",
+      "EzBadge",
       "EzButton",
-      "EzModal",
-      "EzTextArea",
       "EzSpinner",
-      "EzEmptyCard"
+      "EzAlert"
     ],
-    "reason": "T5: a tela Liberações usa o grid do DS; EzEntityGrid ganha a prop onRowDoubleClick, com história no Storybook.",
+    "reason": "T6: o sino reutiliza EzPopover e EzBadge do DS; EzNotificationBell é componente novo do DS (apresentação), com história no Storybook, e NotificationBell liga os dados no cabeçalho.",
     "stories": [
-      "apps/web/src/components/ds/EzEntityGrid.stories.tsx"
+      "apps/web/src/components/ds/EzNotificationBell.stories.tsx"
     ]
   }
 }

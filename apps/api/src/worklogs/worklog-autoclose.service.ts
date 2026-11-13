@@ -4,6 +4,7 @@ import { PermissionsService } from '../permissions/permissions.service';
 import { MailService } from '../mail/mail.service';
 import { autoCloseDecision, brasiliaHhMm, LockReason } from './pre-appointment-clock';
 import { FeatureFlagsService } from '../feature-flags/feature-flags.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 const escapeHtml = (value: string) =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -27,6 +28,7 @@ export class WorklogAutoCloseService {
     private readonly permissions: PermissionsService,
     private readonly mail: MailService,
     private readonly flags: FeatureFlagsService,
+    readonly notifications: NotificationsService,
   ) {}
 
   async run(now: Date): Promise<number> {

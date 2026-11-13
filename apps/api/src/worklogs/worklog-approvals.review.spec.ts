@@ -24,7 +24,7 @@ describe('achados do code-review do T5 (DMTE-462)', () => {
       const prisma: any = { worklog: { findUnique: jest.fn().mockResolvedValue(pending), updateMany: jest.fn().mockResolvedValue({ count: 1 }) } };
       const permissions = { hasPermission: jest.fn().mockResolvedValue(true) };
       const mail = { sendEmail: jest.fn().mockResolvedValue(undefined) };
-      return { prisma, service: new WorklogApprovalsService(prisma, permissions as any, mail as any) };
+      return { prisma, service: new WorklogApprovalsService(prisma, permissions as any, mail as any, { notify: jest.fn().mockResolvedValue(undefined) } as any) };
     };
 
     it('quem lançou em nome do consultor não libera nem nega, mesmo com a permissão', async () => {

@@ -5,6 +5,7 @@ import { PermissionsService } from '../permissions/permissions.service';
 import { MailService } from '../mail/mail.service';
 import { CurrentUserPayload } from '../tickets/decorators/current-user.decorator';
 import { APPROVAL_TYPES } from './worklog-approval';
+import { NotificationsService } from '../notifications/notifications.service';
 
 const escapeHtml = (value: string) =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -23,6 +24,7 @@ export class WorklogApprovalsService {
     private readonly prisma: PrismaService,
     private readonly permissions: PermissionsService,
     private readonly mail: MailService,
+    readonly notifications: NotificationsService,
   ) {}
 
   /** Pendentes dos tipos que a pessoa libera; sem valores financeiros. */

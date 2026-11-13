@@ -217,3 +217,30 @@ describe('AppLayout', () => {
     });
   });
 });
+
+describe('AppLayout: sino (DMTE-462 T6)', () => {
+  it('AC-34: com a flag ligada o sino fica no cabeçalho, antes do menu do usuário', async () => {
+    useAuthStore.setState({ token: 'fake-token', user: { sub: 'u-1', email: 'alfredo@dmtecnologia.com.br', role: 'ADMIN' } });
+    vi.mocked(api.get).mockImplementation(async (url: string) => {
+      if (url === '/feature-flags') return { data: { 'sino-notificacoes': true } };
+      if (url === '/notifications') return { data: { unread: 1, items: [] } };
+      return { data: { id: 'u-1', isAdmin: true, permissions: [], canReleaseWorklogs: false } };
+    });
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/']}>
+          <Routes>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<div>Content</div>} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+    const header = screen.getByRole('banner');
+    const sino = await within(header).findByRole('button', { name: /Notificações/ });
+    const menuDoUsuario = within(header).getByText('alfredo@dmtecnologia.com.br');
+    expect(sino.compareDocumentPosition(menuDoUsuario) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+});
