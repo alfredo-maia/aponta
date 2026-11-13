@@ -25,8 +25,7 @@ export function NotificationBell() {
       onOpen={() => void refetch()}
       onItemClick={(item) => {
         if (!item.readAt) markRead.mutate(item.id);
-        const target = items.find((notification) => notification.id === item.id);
-        if (target) openInTab(target.link, tabTitle(target.link));
+        openInTab(item.link, tabTitle(item.link));
       }}
       onMarkAllRead={() => markAll.mutate()}
     />

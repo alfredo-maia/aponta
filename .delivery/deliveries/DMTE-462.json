@@ -59,9 +59,10 @@
       "EzSpinner",
       "EzAlert"
     ],
-    "reason": "T6: o sino reutiliza EzPopover e EzBadge do DS; EzNotificationBell é componente novo do DS (apresentação), com história no Storybook, e NotificationBell liga os dados no cabeçalho.",
+    "reason": "T6: o sino reutiliza EzPopover e EzBadge do DS; EzNotificationBell é componente novo do DS (apresentação), com história no Storybook, e NotificationBell liga os dados no cabeçalho. EzPopover ganha open e onOpenChange (opcionais), com história Controlado.",
     "stories": [
-      "apps/web/src/components/ds/EzNotificationBell.stories.tsx"
+      "apps/web/src/components/ds/EzNotificationBell.stories.tsx",
+      "apps/web/src/components/ds/EzPopover.stories.tsx"
     ]
   }
 }

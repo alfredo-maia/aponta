@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Bell } from 'lucide-react';
+import { useEscapeLayer } from '../../hooks/useEscapeLayer';
 import { EzAlert } from './EzAlert';
 import { EzBadge } from './EzBadge';
 import { EzButton } from './EzButton';
@@ -14,14 +16,14 @@ export interface EzNotificationItem {
   createdAt: string;
 }
 
-export interface EzNotificationBellProps {
-  items: EzNotificationItem[];
+export interface EzNotificationBellProps<T extends EzNotificationItem = EzNotificationItem> {
+  items: T[];
   unreadCount: number;
   loading?: boolean;
   error?: boolean;
-  /** Chamado a cada clique no sino (abrir ou fechar): quem usa recarrega a lista. */
+  /** Chamado ao abrir o painel (não ao fechar): quem usa recarrega a lista. */
   onOpen?: () => void;
-  onItemClick: (item: EzNotificationItem) => void;
+  onItemClick: (item: T) => void;
   onMarkAllRead: () => void;
 }
 
@@ -33,16 +35,24 @@ const when = (iso: string) =>
  * Sino com contador ("9+" acima de 9) e painel com a lista de notificações, as não lidas destacadas.
  * Só apresenta: dados, marcar como lida e navegação ficam com quem usa.
  */
-export function EzNotificationBell({ items, unreadCount, loading = false, error = false, onOpen, onItemClick, onMarkAllRead }: EzNotificationBellProps) {
+export function EzNotificationBell<T extends EzNotificationItem>({ items, unreadCount, loading = false, error = false, onOpen, onItemClick, onMarkAllRead }: EzNotificationBellProps<T>) {
+  const [open, setOpen] = useState(false);
+  useEscapeLayer(() => setOpen(false), open);
   return (
     <EzPopover
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (next) onOpen?.();
+      }}
       align="right"
       className="w-[22rem] max-w-[calc(100vw-1.5rem)] p-0"
       trigger={
         <button
           type="button"
           aria-label={unreadCount > 0 ? `Notificações, ${unreadCount} não lidas` : 'Notificações'}
-          onClick={onOpen}
+          aria-expanded={open}
+          aria-haspopup="true"
           className="relative inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-control text-gray-700 outline-none hover:bg-gray-80 focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <Bell aria-hidden="true" className="h-5 w-5" />
@@ -76,7 +86,10 @@ export function EzNotificationBell({ items, unreadCount, loading = false, error 
                       type="button"
                       data-notification-id={item.id}
                       data-unread={item.readAt ? undefined : 'true'}
-                      onClick={() => onItemClick(item)}
+                      onClick={() => {
+                        setOpen(false);
+                        onItemClick(item);
+                      }}
                       className={cn(
                         'block w-full touch-manipulation px-4 py-3 text-left outline-none hover:bg-gray-80 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500',
                         item.readAt ? 'bg-white' : 'bg-brand-50',

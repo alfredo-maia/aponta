@@ -45,10 +45,10 @@ export class NotificationsService {
 
   /** Flag desligada não grava; falha só é registrada, para não derrubar o fechamento nem a decisão que avisa. */
   async notify(userIds: string[], notification: NewNotification): Promise<void> {
-    if (!this.flags.isEnabled('sino-notificacoes')) return;
-    const recipients = [...new Set(userIds)];
-    if (recipients.length === 0) return;
     try {
+      if (!this.flags.isEnabled('sino-notificacoes')) return;
+      const recipients = [...new Set(userIds)];
+      if (recipients.length === 0) return;
       await this.prisma.notification.createMany({ data: recipients.map((userId) => ({ userId, ...notification })) });
     } catch (cause) {
       this.logger.error(`Falha ao gravar a notificação ${notification.type}: ${cause instanceof Error ? cause.message : String(cause)}`);
