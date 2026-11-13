@@ -23,6 +23,13 @@ export const FEATURE_FLAGS: readonly FeatureFlag[] = [
     defaultValue: true,
     removeBy: '2026-12-12',
   },
+  {
+    key: 'liberacoes-apontamento',
+    description: 'Liberações de apontamento: lançamento fora da regra e cronômetro encerrado viram pendentes de aprovação',
+    owner: 'alfredo',
+    defaultValue: true,
+    removeBy: '2026-12-14',
+  },
 ];
 
 export const FEATURE_FLAGS_TOKEN = 'FEATURE_FLAGS';

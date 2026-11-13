@@ -85,6 +85,15 @@ const filtros: FilterDef[] = [
   { id: 'cliente', label: 'Cliente', category: 'Relacionamento', value: '', active: false },
 ];
 
+/** `onRowDoubleClick` recebe a linha original: abre o detalhe ou a decisão sem botão extra. */
+export const ComDuploCliqueNaLinha: Story = {
+  args: {
+    ...Basico.args,
+    selectable: true,
+    onRowDoubleClick: () => undefined,
+  },
+};
+
 export const ComFiltrosEPaginacao: Story = {
   args: {
     columns,

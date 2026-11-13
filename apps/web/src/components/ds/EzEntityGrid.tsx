@@ -88,6 +88,8 @@ export type EzEntityGridProps<T> = Omit<HTMLAttributes<HTMLDivElement>, 'childre
   showRowNumbers?: boolean;
   /** Called with the currently selected rows (original data items) whenever the selection changes. */
   onSelectionChange?: (rows: T[]) => void;
+  /** Duplo clique numa linha de dados (não nas linhas de grupo); recebe o item original. */
+  onRowDoubleClick?: (row: T) => void;
   /** Number of rows per page. Omit to render every row without pagination controls. */
   pageSize?: number;
   /** Available page size choices in the rich pagination dropdown. @default [5, 10, 20, 50, 100] */
@@ -1132,6 +1134,7 @@ function EzEntityGridInner<T>(
     enableColumnGrouping = true,
     rowNumberLabel = '#',
     onSelectionChange,
+    onRowDoubleClick,
     pageSize,
     pageSizeOptions,
     onPageSizeChange,
@@ -1908,8 +1911,10 @@ function EzEntityGridInner<T>(
                   key={row.id}
                   data-selected={isSelected || undefined}
                   onClick={() => setFocusedRowIndex(rowIndex)}
+                  onDoubleClick={onRowDoubleClick ? () => onRowDoubleClick(row.original) : undefined}
                   className={cn(
                     'border-t border-gray-200 group transition-colors',
+                    onRowDoubleClick && 'cursor-pointer',
                     isSelected
                       ? 'bg-brand-50'
                       : zebraStriping && isEven

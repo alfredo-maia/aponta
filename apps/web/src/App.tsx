@@ -25,6 +25,7 @@ import { TechnicalGroupsPage } from './pages/TechnicalGroupsPage';
 import { PermissionGroupsPage } from './pages/PermissionGroupsPage';
 import { ScheduledJobsPage } from './pages/ScheduledJobsPage';
 import { SchedulePage } from './pages/SchedulePage';
+import { ReleasesRoute } from './pages/ReleasesPage';
 
 /**
  * App-wide Tanstack Query client. The provider lives here (rather than in
@@ -66,6 +67,7 @@ export function App() {
               <Route path="/settings/permission-groups" element={<PermissionGroupsPage />} />
               <Route path="/settings/scheduled-jobs" element={<ScheduledJobsPage />} />
               <Route path="/schedule" element={<SchedulePage />} />
+              <Route path="/releases" element={<ReleasesRoute />} />
             </Route>
           </Route>
         </Routes>

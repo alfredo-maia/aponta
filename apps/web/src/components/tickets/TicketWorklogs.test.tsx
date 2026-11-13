@@ -1451,3 +1451,50 @@ describe('TicketWorklogs: pausa no servidor e cronômetro travado (DMTE-462 T4)'
     expect(screen.getAllByTestId('worklog-pre-delete-btn')).toHaveLength(1);
   });
 });
+
+describe('TicketWorklogs: liberações (DMTE-462 T5)', () => {
+  const pending = {
+    ...mockWorklogs[0], id: 'wl-pend', approvalType: 'LANCAMENTO', approvalStatus: 'PENDING',
+    approvalReason: 'O início 12/11 08:10 não cai na janela de nenhuma agenda deste ticket. A regra: dentro da janela.',
+  };
+  beforeEach(() => {
+    vi.useRealTimers();
+    installApiStubs();
+    loginAs('AGENT', 'u-1');
+  });
+
+  it('AC-24: o apontamento pendente aparece marcado como Pendente de liberação, com o motivo', async () => {
+    currentWorklogs = [pending, { ...mockWorklogs[1], approvalStatus: 'APPROVED', approvalType: 'LANCAMENTO' }];
+    renderComponent('t-1', false);
+    const item = await screen.findByTestId('worklog-item-wl-pend');
+    const mark = within(item).getByTestId('worklog-pending-mark');
+    expect(mark).toHaveTextContent('Pendente de liberação');
+    expect(mark).toHaveAttribute('title', expect.stringContaining('não cai na janela'));
+    expect(within(screen.getByTestId('worklog-item-wl-2')).queryByTestId('worklog-pending-mark')).not.toBeInTheDocument();
+  });
+
+  it('AC-24: o pendente conta nos totais como qualquer apontamento faturável', async () => {
+    currentWorklogs = [pending];
+    renderComponent('t-1', false);
+    await screen.findByTestId('worklog-item-wl-pend');
+    expect(screen.getAllByText(/Faturável/).length).toBeGreaterThan(0);
+  });
+
+  it('AC-22: ao salvar um lançamento que virou pendente, mostra o motivo explicado', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({ data: { id: 'wl-new', approvalStatus: 'PENDING', approvalType: 'LANCAMENTO', approvalReason: 'O início 12/11 08:10 não cai na janela de nenhuma agenda deste ticket.' } });
+    renderComponent('t-1', true);
+    fireEvent.change(await screen.findByTestId('worklog-description-input'), { target: { value: 'Atendimento fora da agenda' } });
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+    const notice = await screen.findByTestId('worklog-approval-notice');
+    expect(notice).toHaveTextContent(/enviado para liberação/i);
+    expect(notice).toHaveTextContent('não cai na janela');
+  });
+
+  it('AC-22: ao salvar um lançamento comum, não mostra aviso de liberação', async () => {
+    renderComponent('t-1', true);
+    fireEvent.change(await screen.findByTestId('worklog-description-input'), { target: { value: 'Atendimento normal' } });
+    fireEvent.submit(screen.getByTestId('worklog-form'));
+    await waitFor(() => expect(api.post).toHaveBeenCalled());
+    expect(screen.queryByTestId('worklog-approval-notice')).not.toBeInTheDocument();
+  });
+});

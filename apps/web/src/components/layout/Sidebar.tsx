@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useOpenInTab } from '../../contexts/TabsContext';
+import { useCanReleaseWorklogs } from '../../hooks/usePermissions';
 import {
   EzSidebarNavigator,
   EzSidebarButton,
@@ -17,6 +18,7 @@ import {
   FileSignature,
   BarChart3,
   CalendarDays,
+  BadgeCheck,
   BookOpen,
   Key,
   ShieldCheck,
@@ -38,6 +40,8 @@ const NAV_ITEMS = [
   { to: '/contracts', label: 'Contratos', icon: <FileSignature /> },
   { to: '/reports', label: 'Relatórios', icon: <BarChart3 /> },
   { to: '/schedule', label: 'Agenda', icon: <CalendarDays /> },
+  // DMTE-462 T5: aparece só para quem tem uma permissão de liberar apontamento (sem desvio por role).
+  { to: '/releases', label: 'Liberações', icon: <BadgeCheck />, byPermission: true },
   { to: '/knowledge', label: 'Conhecimentos', icon: <BookOpen /> },
   { to: '/vault', label: 'Cofre de Senhas', icon: <Key /> },
   // Submenu item of "Cofre de Senhas" (DMTE-80): sensitive access log over
@@ -98,7 +102,8 @@ export function Sidebar({ inDrawer = false, onNavigate }: SidebarProps = {}) {
     ? ROLE_VISIBILITY[user.role] ?? DEFAULT_VISIBILITY
     : DEFAULT_VISIBILITY;
 
-  const filteredItems = NAV_ITEMS.filter((item) => allowList.includes(item.label));
+  const canRelease = useCanReleaseWorklogs();
+  const filteredItems = NAV_ITEMS.filter((item) => (item.byPermission ? canRelease : allowList.includes(item.label)));
 
   return (
     <EzSidebarNavigator collapsed={collapsed}>

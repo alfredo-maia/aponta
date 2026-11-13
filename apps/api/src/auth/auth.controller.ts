@@ -79,7 +79,8 @@ export class AuthController {
     const canViewTicketValues = await this.permissionsService.canViewTicketValues(user.id);
     const canEditWorklogStartTime = await this.permissionsService.canEditWorklogStartTime(user.id);
     const canReleaseWorklogWithoutSchedule = await this.permissionsService.canReleaseWorklogWithoutSchedule(user.id);
-    return { ...safeUser, isAdmin, permissions, canViewTicketValues, canEditWorklogStartTime, canReleaseWorklogWithoutSchedule };
+    const canReleaseWorklogs = await this.permissionsService.canReleaseWorklogs(user.id);
+    return { ...safeUser, isAdmin, permissions, canViewTicketValues, canEditWorklogStartTime, canReleaseWorklogWithoutSchedule, canReleaseWorklogs };
   }
 
   @UseGuards(JwtAuthGuard)

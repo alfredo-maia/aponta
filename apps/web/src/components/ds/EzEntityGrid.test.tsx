@@ -860,5 +860,19 @@ describe('EzEntityGrid Sankhya JS AG Grid parity features', () => {
   });
 });
 
+describe('EzEntityGrid duplo clique na linha (DMTE-462 T5)', () => {
+  it('chama onRowDoubleClick com a linha original, e não chama no clique simples', async () => {
+    const onRowDoubleClick = vi.fn();
+    render(<EzEntityGrid columns={columns} data={data} onRowDoubleClick={onRowDoubleClick} />);
+    await userEvent.click(screen.getByText('Erro ao salvar chamado'));
+    expect(onRowDoubleClick).not.toHaveBeenCalled();
+    fireEvent.doubleClick(screen.getByText('Erro ao salvar chamado'));
+    expect(onRowDoubleClick).toHaveBeenCalledTimes(1);
+    expect(onRowDoubleClick).toHaveBeenCalledWith(data[1]);
+  });
 
-
+  it('sem onRowDoubleClick, o duplo clique não faz nada', () => {
+    render(<EzEntityGrid columns={columns} data={data} />);
+    expect(() => fireEvent.doubleClick(screen.getByText('Impressora não liga'))).not.toThrow();
+  });
+});

@@ -97,3 +97,11 @@ describe('flags registradas (DMTE-462 T4)', () => {
     expect(registered?.removeBy).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 });
+
+describe('flag das liberações (DMTE-462 T5)', () => {
+  it('AC-33: liberacoes-apontamento está registrada, ligada por padrão e com dono e data de remoção', () => {
+    const registered = FEATURE_FLAGS.find((f) => f.key === 'liberacoes-apontamento');
+    expect(registered).toMatchObject({ owner: 'alfredo', defaultValue: true });
+    expect(registered?.removeBy).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});

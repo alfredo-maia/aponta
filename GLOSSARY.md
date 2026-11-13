@@ -28,6 +28,10 @@ _Avoid_: Apontamento em análise
 Apontamento encerrado por limite ou por pausa, ou depois do fim da janela, que só muda com aprovação.
 _Avoid_: Apontamento bloqueado
 
+**Liberação**:
+Decisão de quem tem a permissão do tipo sobre um apontamento pendente: liberar o mantém, negar o estorna com motivo. Cada tipo (Lançamento, Cronômetro encerrado) tem a sua permissão.
+_Avoid_: Aprovação, autorização
+
 **Fechamento automático**:
 Encerramento do pré-apontamento pelo sistema quando o tempo trabalhado atinge a duração da agenda.
 _Avoid_: Auto-stop

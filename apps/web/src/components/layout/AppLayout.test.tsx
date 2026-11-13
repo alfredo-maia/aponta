@@ -1,9 +1,13 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { api } from '../../lib/api';
 import { AppLayout } from './AppLayout';
 import { useAuthStore } from '../../stores/authStore';
+
+vi.mock('../../lib/api', () => ({ api: { get: vi.fn().mockResolvedValue({ data: { id: 'u-1', isAdmin: true, permissions: [], canReleaseWorklogs: false } }) } }));
 
 describe('AppLayout', () => {
   function renderLayout() {
@@ -11,15 +15,19 @@ describe('AppLayout', () => {
       token: 'fake-token',
       user: { sub: 'u-1', email: 'alfredo@dmtecnologia.com.br', role: 'ADMIN' },
     });
+    void api;
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     return render(
-      <MemoryRouter initialEntries={['/']}>
-        <Routes>
-          <Route element={<AppLayout />}>
-            <Route path="/" element={<div data-testid="page-content">Content</div>} />
-            <Route path="/dashboard" element={<div data-testid="dashboard-page">Dashboard page</div>} />
-          </Route>
-        </Routes>
-      </MemoryRouter>,
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/']}>
+          <Routes>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<div data-testid="page-content">Content</div>} />
+              <Route path="/dashboard" element={<div data-testid="dashboard-page">Dashboard page</div>} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
     );
   }
 

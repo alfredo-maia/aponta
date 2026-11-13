@@ -1,9 +1,13 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { api } from '../../lib/api';
 import { useAuthStore } from '../../stores/authStore';
 import { Sidebar } from './Sidebar';
+
+vi.mock('../../lib/api', () => ({ api: { get: vi.fn() } }));
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -12,10 +16,13 @@ vi.mock('react-router-dom', async () => {
 });
 
 function renderSidebar(initialPath = '/') {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
-    <MemoryRouter initialEntries={[initialPath]}>
-      <Sidebar />
-    </MemoryRouter>,
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={[initialPath]}>
+        <Sidebar />
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 }
 
@@ -29,6 +36,7 @@ function loginAs(role: 'ADMIN' | 'AGENT' | 'AGENT_MASTER' | 'CLIENT' | 'CLIENT_M
 describe('Sidebar', () => {
   beforeEach(() => {
     useAuthStore.setState({ token: null, user: null });
+    vi.mocked(api.get).mockResolvedValue({ data: { id: 'u-1', isAdmin: false, permissions: [], canReleaseWorklogs: false } });
   });
 
   it('shows the CLIENT-specific menu without internal/agent-only modules', () => {
@@ -129,9 +137,11 @@ describe('Sidebar', () => {
     const activeClasses = new Set(activeButton?.className.split(/\s+/));
 
     rerender(
-      <MemoryRouter initialEntries={['/reports']}>
-        <Sidebar />
-      </MemoryRouter>,
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <MemoryRouter initialEntries={['/reports']}>
+          <Sidebar />
+        </MemoryRouter>
+      </QueryClientProvider>,
     );
     const inactiveButton = screen.getByText('Tickets').closest('button');
     const inactiveClasses = new Set(inactiveButton?.className.split(/\s+/));
@@ -203,5 +213,33 @@ describe('Sidebar', () => {
 
     await user.click(screen.getByRole('button', { name: /expandir/i }));
     expect(screen.getByText('Esconder')).toBeInTheDocument();
+  });
+});
+
+describe('Sidebar: Liberações (DMTE-462 T5)', () => {
+  beforeEach(() => {
+    vi.mocked(api.get).mockResolvedValue({ data: { id: 'u-1', isAdmin: false, permissions: [], canReleaseWorklogs: false } });
+  });
+
+  it('AC-30: mostra o item Liberações só para quem tem ao menos uma das permissões de liberar, inclusive ADMIN', async () => {
+    useAuthStore.setState({ token: 'fake-token', user: { sub: 'u-1', email: 'g@aponta.com', role: 'AGENT' } });
+    vi.mocked(api.get).mockResolvedValue({ data: { id: 'u-1', isAdmin: false, permissions: [], canReleaseWorklogs: true } });
+    renderSidebar();
+    expect(await screen.findByText('Liberações')).toBeInTheDocument();
+  });
+
+  it('AC-30: sem a permissão o item não aparece, nem para o ADMIN', async () => {
+    useAuthStore.setState({ token: 'fake-token', user: { sub: 'u-1', email: 'admin@aponta.com', role: 'ADMIN' } });
+    renderSidebar();
+    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/auth/me'));
+    expect(screen.queryByText('Liberações')).not.toBeInTheDocument();
+  });
+
+  it('AC-30: o item leva à tela de liberações', async () => {
+    useAuthStore.setState({ token: 'fake-token', user: { sub: 'u-1', email: 'g@aponta.com', role: 'AGENT' } });
+    vi.mocked(api.get).mockResolvedValue({ data: { id: 'u-1', isAdmin: false, permissions: [], canReleaseWorklogs: true } });
+    renderSidebar();
+    await userEvent.click(await screen.findByText('Liberações'));
+    expect(mockNavigate).toHaveBeenCalled();
   });
 });

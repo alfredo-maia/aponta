@@ -11,6 +11,8 @@ interface EffectivePermissions {
   canEditWorklogStartTime: boolean;
   /** DMTE-462 T2: só o grupo de permissões libera marcar compromisso que ignora a regra de apontamento. */
   canReleaseWorklogWithoutSchedule: boolean;
+  /** DMTE-462 T5: tem ao menos uma das permissões de liberar apontamento (sem desvio por role). */
+  canReleaseWorklogs: boolean;
 }
 
 interface MeResponse extends EffectivePermissions {
@@ -34,6 +36,7 @@ export function useEffectivePermissions() {
         canViewTicketValues: data.canViewTicketValues === true,
         canEditWorklogStartTime: data.canEditWorklogStartTime === true,
         canReleaseWorklogWithoutSchedule: data.canReleaseWorklogWithoutSchedule === true,
+        canReleaseWorklogs: data.canReleaseWorklogs === true,
       };
     },
     enabled: !!token,
@@ -62,4 +65,10 @@ export function useCanEditWorklogStartTime(): boolean {
 export function useCanReleaseWorklogWithoutSchedule(): boolean {
   const { data } = useEffectivePermissions();
   return data?.canReleaseWorklogWithoutSchedule === true;
+}
+
+/** DMTE-462 T5: o item "Liberações" aparece só para quem tem ao menos uma das permissões de liberar. */
+export function useCanReleaseWorklogs(): boolean {
+  const { data } = useEffectivePermissions();
+  return data?.canReleaseWorklogs === true;
 }

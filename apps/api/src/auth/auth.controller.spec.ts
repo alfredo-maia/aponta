@@ -15,7 +15,7 @@ describe('AuthController', () => {
     findById: jest.Mock;
     toSafeUser: jest.Mock;
   };
-  let permissionsService: { getEffectivePermissions: jest.Mock; canViewTicketValues: jest.Mock; canEditWorklogStartTime: jest.Mock; canReleaseWorklogWithoutSchedule: jest.Mock };
+  let permissionsService: { getEffectivePermissions: jest.Mock; canViewTicketValues: jest.Mock; canEditWorklogStartTime: jest.Mock; canReleaseWorklogWithoutSchedule: jest.Mock; canReleaseWorklogs: jest.Mock };
 
   const mockSafeUser = {
     id: 'user-1',
@@ -41,6 +41,7 @@ describe('AuthController', () => {
       canViewTicketValues: jest.fn().mockResolvedValue(false),
       canEditWorklogStartTime: jest.fn().mockResolvedValue(false),
       canReleaseWorklogWithoutSchedule: jest.fn().mockResolvedValue(false),
+      canReleaseWorklogs: jest.fn().mockResolvedValue(false),
     };
 
     const moduleRef = await Test.createTestingModule({
@@ -139,6 +140,7 @@ describe('AuthController', () => {
         canViewTicketValues: false,
         canEditWorklogStartTime: false,
         canReleaseWorklogWithoutSchedule: false,
+        canReleaseWorklogs: false,
       });
     });
 
@@ -150,7 +152,7 @@ describe('AuthController', () => {
       const result = await controller.getProfile(req as never);
 
       expect(permissionsService.getEffectivePermissions).not.toHaveBeenCalled();
-      expect(result).toEqual({ ...adminUser, isAdmin: true, permissions: [], canViewTicketValues: false, canEditWorklogStartTime: false, canReleaseWorklogWithoutSchedule: false });
+      expect(result).toEqual({ ...adminUser, isAdmin: true, permissions: [], canViewTicketValues: false, canEditWorklogStartTime: false, canReleaseWorklogWithoutSchedule: false, canReleaseWorklogs: false });
     });
 
     it('AC-04: ADMIN com a permissão no grupo recebe canViewTicketValues verdadeiro', async () => {
@@ -162,6 +164,17 @@ describe('AuthController', () => {
 
       expect(permissionsService.canViewTicketValues).toHaveBeenCalledWith('admin-1');
       expect(result).toMatchObject({ isAdmin: true, canViewTicketValues: true });
+    });
+
+    it('DMTE-462 T5 AC-30: devolve canReleaseWorklogs verdadeiro quando o grupo concede, inclusive ao ADMIN', async () => {
+      const adminUser = { ...mockSafeUser, id: 'admin-1', role: 'ADMIN' };
+      usersService.findById = jest.fn().mockResolvedValue(adminUser);
+      permissionsService.canReleaseWorklogs.mockResolvedValue(true);
+
+      const result = await controller.getProfile({ user: adminUser } as never);
+
+      expect(permissionsService.canReleaseWorklogs).toHaveBeenCalledWith('admin-1');
+      expect(result).toMatchObject({ isAdmin: true, canReleaseWorklogs: true });
     });
 
     it('DMTE-462 T2 AC-12: devolve canReleaseWorklogWithoutSchedule verdadeiro quando o grupo concede, inclusive ao ADMIN', async () => {
