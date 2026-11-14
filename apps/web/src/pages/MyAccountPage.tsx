@@ -84,7 +84,12 @@ function ProfileTab() {
       .get<{ name: string; email: string }>('/auth/me')
       .then((response) => {
         if (!cancelled) {
-          reset({ name: response.data.name, email: response.data.email });
+          // keepDirtyValues: a slow response must not overwrite what the user
+          // already typed (the PATCH would then save the old values).
+          reset(
+            { name: response.data.name, email: response.data.email },
+            { keepDirtyValues: true },
+          );
         }
       })
       .catch(() => {

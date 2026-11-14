@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-14T00:27:57.483180+00:00",
+  "finished_at": "2026-11-14T00:28:08.730612+00:00",
+  "command": [
+    "pnpm",
+    "--dir",
+    "apps/web",
+    "exec",
+    "vitest",
+    "run",
+    "src/pages/MyAccountPage.test.tsx"
+  ],
+  "base_sha": "564f0625d22c1588682fe917dcb5d6836f79ace1",
+  "head_sha": "77d5f3f476fb0aade08d144ec61d37514db6ef5e",
+  "exit_code": 1,
+  "tests": {
+    "apps/web/src/pages/MyAccountPage.test.tsx": "8ba0b28a2c72c5a99569feab1eb963ff641bf357311d3d93ed544d644beaf2a5"
+  },
+  "criteria": [
+    "AC-03"
+  ],
+  "source_hashes": {
+    "apps/web-e2e/src/auth.spec.ts": "fed58cac5c392511861179e0d9909c94cf910a494afe21efba0cff1239945808",
+    "apps/web/src/pages/MyAccountPage.test.tsx": "8ba0b28a2c72c5a99569feab1eb963ff641bf357311d3d93ed544d644beaf2a5"
+  },
+  "log": ".delivery/evidence/DMTE-511/red.log",
+  "log_sha256": "3b822e3477a0149f4ba24ff96e5cda0a196a510c1399592e9c626ef3ddecbed0"
+}
