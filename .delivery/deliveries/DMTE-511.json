@@ -58,7 +58,12 @@
     "green": ".delivery/evidence/DMTE-511/green.json"
   },
   "design_system": {
-    "applicable": false,
-    "reason": "Sem componente novo nem mudança visual: ajuste de estado do formulário (react-hook-form) em MyAccountPage; reutiliza EzTextInput/EzAlert como estão"
+    "applicable": true,
+    "reused": [
+      "EzTextInput",
+      "EzAlert",
+      "EzButton"
+    ],
+    "reason": "Só muda o estado do formulário (reset com keepDirtyValues) em MyAccountPage; os componentes DS do formulário continuam os mesmos, sem componente, token ou estilo novo ou alterado."
   }
 }

@@ -1,8 +1,8 @@
 {
   "version": 1,
   "phase": "green",
-  "started_at": "2026-11-14T00:28:14.096797+00:00",
-  "finished_at": "2026-11-14T00:28:19.636783+00:00",
+  "started_at": "2026-11-14T00:37:44.784616+00:00",
+  "finished_at": "2026-11-14T00:37:54.085271+00:00",
   "command": [
     "pnpm",
     "--dir",
@@ -13,7 +13,7 @@
     "src/pages/MyAccountPage.test.tsx"
   ],
   "base_sha": "564f0625d22c1588682fe917dcb5d6836f79ace1",
-  "head_sha": "77d5f3f476fb0aade08d144ec61d37514db6ef5e",
+  "head_sha": "c283d3024a160192d78636b99e702ec7c433a266",
   "exit_code": 0,
   "tests": {
     "apps/web/src/pages/MyAccountPage.test.tsx": "8ba0b28a2c72c5a99569feab1eb963ff641bf357311d3d93ed544d644beaf2a5"
@@ -22,10 +22,10 @@
     "AC-03"
   ],
   "source_hashes": {
-    "apps/web-e2e/src/auth.spec.ts": "fed58cac5c392511861179e0d9909c94cf910a494afe21efba0cff1239945808",
+    "apps/web-e2e/src/auth.spec.ts": "3f778918ebb45b5d9dfeb2e0e2744fe2a568726350137cef49902cccd91ef2f7",
     "apps/web/src/pages/MyAccountPage.test.tsx": "8ba0b28a2c72c5a99569feab1eb963ff641bf357311d3d93ed544d644beaf2a5",
     "apps/web/src/pages/MyAccountPage.tsx": "40cafa6089e815801155df055a3d13a85203514e67c56818a7ad50a51ff77ba3"
   },
   "log": ".delivery/evidence/DMTE-511/green.log",
-  "log_sha256": "3dc94057a984db31197a7ec8b8b89277a76a660dfea5a44a574c3c9d5e24032f"
+  "log_sha256": "41e49a55e982f0d2d88f3f0294dc27cc1af6a2f27a0f4534cffaabf294e60b1f"
 }
