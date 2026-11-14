@@ -14,6 +14,8 @@ RUN = 'https://github.com/dmrepositorio/aponta/actions/runs/777'
 PARENT = '01a1d2f2-e5bf-7db7-b553-00a37815a9bc'
 WORKSPACE = 'dabf7eb3-4a03-4e26-8eb0-0773f65cfff4'
 TOKEN = 'mul_secret_token'
+PREVIOUS = 'd' * 40
+C1, C2 = '1' * 40, '2' * 40
 PR = {'number': 12, 'html_url': 'https://github.com/dmrepositorio/aponta/pull/12',
       'body': 'Aponta-Delivery: DMTE-900\nRefs dmrepositorio/aponta#1'}
 DEPLOY = Path(__file__).resolve().parent.parent / '.github/workflows/deploy.yml'
@@ -100,7 +102,7 @@ class DeliveryTests(unittest.TestCase):
         self.assertIsNone(delivery_of([PR, {**PR, 'number': 13, 'body': 'Aponta-Delivery: DMTE-901'}]))
 
 
-class NotifyTests(unittest.TestCase):
+class NotifyFixture(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
@@ -112,13 +114,15 @@ class NotifyTests(unittest.TestCase):
                     'GITHUB_REPOSITORY': 'dmrepositorio/aponta', 'GITHUB_SERVER_URL': 'https://github.com',
                     'GITHUB_RUN_ID': '777'}
 
-    def run_notify(self, prs=(PR,), http=None, env=None, github=None):
+    def run_notify(self, prs=(PR,), http=None, env=None, github=None, compare=None):
         http = http or Http()
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            code = notify(env or self.env, github or (lambda sha: list(prs)), http, self.root)
+            code = notify(env or self.env, github or (lambda sha: list(prs)), http, self.root, compare)
         return code, http, out.getvalue()
 
+
+class NotifyTests(NotifyFixture):
     def test_posts_content_with_workspace_and_bearer_headers(self):
         code, http, _ = self.run_notify()
         self.assertEqual(code, 0)
@@ -208,6 +212,198 @@ class NotifyTests(unittest.TestCase):
         self.assertNotIn(TOKEN, out)
 
 
+class Compare:
+    """Stands in for the GitHub compare call: answers a range, or fails."""
+
+    def __init__(self, commits, status='ahead', total=None, error=None):
+        self.commits, self.status, self.total, self.error, self.calls = commits, status, total, error, []
+
+    def __call__(self, previous, sha):
+        self.calls.append((previous, sha))
+        if self.error:
+            raise self.error
+        return {'status': self.status, 'total_commits': self.total or len(self.commits),
+                'commits': [{'sha': commit} for commit in self.commits]}
+
+
+def pull(number, delivery):
+    return {'number': number, 'html_url': 'https://github.com/dmrepositorio/aponta/pull/' + str(number),
+            'body': 'Aponta-Delivery: ' + delivery + '\nRefs dmrepositorio/aponta#' + str(number)}
+
+
+class RangeTests(NotifyFixture):
+    """A deploy publishes everything between the commit in production and the tip of main."""
+
+    def setUp(self):
+        super().setUp()
+        self.env['PREVIOUS_SHA'] = PREVIOUS
+        self.parents = {'DMTE-901': 'p-901', 'DMTE-902': 'p-902', 'DMTE-903': 'p-903'}
+        for delivery, parent in self.parents.items():
+            (self.root / '.delivery/deliveries' / (delivery + '.json')).write_text(json.dumps({'multica_id': parent}))
+        self.prs = {C1: [pull(31, 'DMTE-901')], C2: [pull(32, 'DMTE-902')], SHA: [pull(33, 'DMTE-903')]}
+        self.asked = []
+
+    def github(self, commit):
+        self.asked.append(commit)
+        return list(self.prs.get(commit, []))
+
+    def run_range(self, commits=(C1, C2, SHA), http=None, env=None, **kwargs):
+        compare = Compare(list(commits), **kwargs)
+        code, http, out = self.run_notify(http=http, env=env, github=self.github, compare=compare)
+        self.compare = compare
+        return code, http, out
+
+    def comments(self, http):
+        return {request.full_url.split('/issues/')[1].split('/')[0]: json.loads(request.data)['content']
+                for request in http.posts()}
+
+    def test_each_delivery_of_the_range_gets_its_own_comment_with_mention(self):
+        code, http, _ = self.run_range()
+        self.assertEqual(code, 0)
+        self.assertEqual(self.compare.calls, [(PREVIOUS, SHA)])
+        comments = self.comments(http)
+        self.assertEqual(sorted(comments), ['p-901', 'p-902', 'p-903'])
+        for parent, commit, number in (('p-901', C1, 31), ('p-902', C2, 32), ('p-903', SHA, 33)):
+            self.assertTrue(comments[parent].startswith(LEADER))
+            self.assertIn('- Commit: `' + commit + '`', comments[parent])
+            self.assertIn('#' + str(number), comments[parent])
+            self.assertIn(RUN, comments[parent])
+            self.assertIn('coincide com o commit implantado', comments[parent])
+
+    def test_comment_names_the_published_commit_and_the_other_deliveries(self):
+        _, http, _ = self.run_range()
+        comments = self.comments(http)
+        self.assertEqual(sorted(comments), ['p-901', 'p-902', 'p-903'])
+        self.assertIn('- Publicado no commit: `' + SHA + '`', comments['p-901'])
+        self.assertIn('- Publicado no commit: `' + SHA + '`', comments['p-902'])
+        self.assertNotIn('Publicado no commit', comments['p-903'])
+        self.assertIn('- Publicado junto com: DMTE-902 (PR #32), DMTE-903 (PR #33)', comments['p-901'])
+        self.assertIn('- Publicado junto com: DMTE-901 (PR #31), DMTE-903 (PR #33)', comments['p-902'])
+        self.assertIn('- Publicado junto com: DMTE-901 (PR #31), DMTE-902 (PR #32)', comments['p-903'])
+
+    def test_production_is_probed_once_for_all_the_cards(self):
+        _, http, _ = self.run_range()
+        probed = [r.full_url for r in http.requests if r.get_method() == 'GET']
+        self.assertEqual(probed, ['https://dm.aponta.cloud/api/version', 'https://dm.aponta.cloud/version.json'])
+
+    def test_single_delivery_in_the_range_is_identical_to_today(self):
+        expected = build_body('CD (Produção) concluído', SHA, PR, RUN, {'/api/version': SHA, '/version.json': SHA})
+        self.prs = {SHA: [PR]}
+        _, http, _ = self.run_range(commits=(SHA,))
+        self.assertEqual(self.comments(http), {PARENT: expected})
+        self.assertNotIn('Publicado', expected)
+
+    def test_range_with_one_delivery_and_other_commits_without_pr_is_identical_to_today(self):
+        expected = build_body('CD (Produção) concluído', SHA, PR, RUN, {'/api/version': SHA, '/version.json': SHA})
+        self.prs = {SHA: [PR]}
+        _, http, out = self.run_range()
+        self.assertEqual(self.comments(http), {PARENT: expected})
+        self.assertIn(C1, out)
+
+    def test_failure_comments_every_card_of_the_range(self):
+        env = {**self.env, 'STAGING_RESULT': 'failure', 'PRODUCTION_RESULT': 'skipped'}
+        code, http, _ = self.run_range(env=env)
+        self.assertEqual(code, 0)
+        comments = self.comments(http)
+        self.assertEqual(sorted(comments), ['p-901', 'p-902', 'p-903'])
+        for content in comments.values():
+            self.assertTrue(content.startswith(LEADER))
+            self.assertIn('CD falhou em staging', content)
+            self.assertIn(RUN, content)
+        self.assertEqual([r.get_method() for r in http.requests], ['POST'] * 3)
+
+    def test_production_failure_comments_every_card_of_the_range(self):
+        env = {**self.env, 'PRODUCTION_RESULT': 'failure'}
+        _, http, _ = self.run_range(env=env)
+        comments = self.comments(http)
+        self.assertEqual(len(comments), 3)
+        self.assertTrue(all('CD falhou em produção' in content for content in comments.values()))
+
+    def assert_only_the_published_commit(self, previous=PREVIOUS, reason=None, **kwargs):
+        env = {**self.env, 'PREVIOUS_SHA': previous}
+        self.prs = {SHA: [pull(33, 'DMTE-903')]}
+        code, http, out = self.run_range(env=env, **kwargs)
+        self.assertEqual(code, 0)
+        self.assertEqual(self.asked, [SHA])
+        self.assertEqual(sorted(self.comments(http)), ['p-903'])
+        self.assertNotIn('Publicado junto com', self.comments(http)['p-903'])
+        self.assertIn(reason, out)
+
+    def test_empty_previous_sha_falls_back_to_the_published_commit(self):
+        self.assert_only_the_published_commit(previous='', reason='PREVIOUS_SHA vazio')
+        self.assertEqual(self.compare.calls, [])
+
+    def test_previous_sha_that_is_not_a_commit_id_falls_back_without_calling_github(self):
+        self.assert_only_the_published_commit(previous='main; rm -rf', reason='PREVIOUS_SHA inválido')
+        self.assertEqual(self.compare.calls, [])
+
+    def test_previous_sha_equal_to_the_published_one_falls_back(self):
+        self.assert_only_the_published_commit(previous=SHA, reason='igual ao commit publicado')
+        self.assertEqual(self.compare.calls, [])
+
+    def test_rollback_range_falls_back(self):
+        for status in ('behind', 'diverged'):
+            with self.subTest(status=status):
+                self.asked = []
+                self.assert_only_the_published_commit(reason='status ' + status, status=status)
+
+    def test_github_compare_failure_falls_back(self):
+        self.assert_only_the_published_commit(reason='gh fora do ar', error=RuntimeError('gh fora do ar'))
+
+    def test_truncated_range_falls_back(self):
+        self.assert_only_the_published_commit(reason='truncado', commits=(C2, SHA), total=130)
+
+    def test_commits_without_pr_or_delivery_line_are_ignored_and_the_others_still_comment(self):
+        self.prs = {C1: [], C2: [{**pull(32, 'DMTE-902'), 'body': 'hotfix'}], SHA: [pull(33, 'DMTE-903')]}
+        code, http, out = self.run_range()
+        self.assertEqual(code, 0)
+        self.assertEqual(sorted(self.comments(http)), ['p-903'])
+        self.assertIn(C1, out)
+        self.assertIn(C2, out)
+
+    def test_delivery_without_manifest_does_not_stop_the_others(self):
+        self.prs[C2] = [pull(32, 'DMTE-950')]
+        code, http, out = self.run_range()
+        self.assertEqual(code, 0)
+        self.assertEqual(sorted(self.comments(http)), ['p-901', 'p-903'])
+        self.assertIn('DMTE-950', out)
+        self.assertNotIn('DMTE-950', self.comments(http)['p-901'])
+
+    def test_github_lookup_failure_on_one_commit_does_not_stop_the_others(self):
+        def github(commit):
+            if commit == C2:
+                raise RuntimeError('gh fora do ar')
+            return list(self.prs.get(commit, []))
+        compare = Compare([C1, C2, SHA])
+        code, http, out = self.run_notify(github=github, compare=compare)
+        self.assertEqual(code, 0)
+        self.assertEqual(sorted(self.comments(http)), ['p-901', 'p-903'])
+        self.assertIn('gh fora do ar', out)
+
+    def test_delivery_in_two_commits_gets_one_comment_for_the_newest(self):
+        self.prs[C2] = [pull(31, 'DMTE-901')]
+        _, http, _ = self.run_range()
+        comments = self.comments(http)
+        self.assertEqual(sorted(comments), ['p-901', 'p-903'])
+        self.assertIn('- Commit: `' + C2 + '`', comments['p-901'])
+        self.assertNotIn(C1, comments['p-901'])
+        self.assertIn('- Publicado junto com: DMTE-903 (PR #33)', comments['p-901'])
+
+    def test_failure_to_comment_on_one_card_does_not_stop_the_others_nor_leak_the_token(self):
+        class FirstPostFails(Http):
+            def __call__(self, request, timeout=10):
+                if request.get_method() == 'POST' and '/p-901/' in request.full_url:
+                    self.requests.append(request)
+                    raise urllib.error.HTTPError('u', 401, 'bad ' + TOKEN, {}, io.BytesIO(b''))
+                return super().__call__(request, timeout)
+        code, http, out = self.run_range(http=FirstPostFails())
+        self.assertEqual(code, 0)
+        self.assertEqual(len(http.posts()), 3)
+        self.assertIn('DMTE-901', out)
+        self.assertIn('401', out)
+        self.assertNotIn(TOKEN, out)
+
+
 class WorkflowTests(unittest.TestCase):
     def setUp(self):
         self.text = DEPLOY.read_text()
@@ -230,6 +426,25 @@ class WorkflowTests(unittest.TestCase):
     def test_delivery_contract_runs_these_tests(self):
         contract = (DEPLOY.parent / 'delivery.yml').read_text()
         self.assertIn('-p test_avisar_card.py', contract)
+
+    def test_resolve_captures_the_commit_in_production_before_any_deploy(self):
+        resolve = self.text.split('\n  staging:\n')[0]
+        self.assertIn('previous_sha: ${{ steps.previous.outputs.previous_sha }}', resolve)
+        self.assertIn('https://dm.aponta.cloud/api/version', resolve)
+        self.assertIn('previous_sha=', resolve)
+        self.assertLess(resolve.index('id: previous'), resolve.index('id: target'))
+
+    def test_capturing_the_previous_commit_never_fails_the_job(self):
+        self.assertIn('id: previous', self.text)
+        step = self.text.split('id: previous')[1].split('id: target')[0]
+        self.assertIn('|| true', step)
+        self.assertIn('--max-time', step)
+
+    def test_notify_receives_the_previous_commit_and_the_deploy_jobs_do_not(self):
+        self.assertIn('PREVIOUS_SHA: ${{ needs.resolve.outputs.previous_sha }}', self.notify)
+        deploy = self.text.split('\n  staging:\n')[1].split('\n  notify:\n')[0]
+        self.assertNotIn('previous_sha', deploy)
+        self.assertNotIn('PREVIOUS_SHA', deploy)
 
     def test_token_is_only_read_by_notify(self):
         self.assertEqual(self.text.count('secrets.MULTICA_TOKEN'), 1)

@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "phase": "green",
+  "started_at": "2026-11-14T00:20:54.325921+00:00",
+  "finished_at": "2026-11-14T00:20:54.478048+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_avisar_card.py"
+  ],
+  "base_sha": "8ee4f7cf4ebbdd5caa163f32f1b0226365c28221",
+  "head_sha": "08478a09cb03787e3a36f8ba7f84b8fbd188dfe6",
+  "exit_code": 0,
+  "tests": {
+    "scripts/test_avisar_card.py": "93ed54441f76caefd78dc4fc7a4d5e6c25d96a0fdc60b0f547cb1849aab99413"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "source_hashes": {
+    ".agents/skills/aponta-delivery/SKILL.md": "17c18f2ec55162a8d4c671d0d370d51abd0bb81cb9acfb060d5e6759658e73bb",
+    ".agents/skills/aponta-flow/SKILL.md": "ad8a879b653c405a886e8454dd8d4c082a66752cac74244c8a543bc61168a60d",
+    "scripts/avisar_card.py": "6911171c6750d9cee541b161fa07284da7babcad39ec81607c2be9027c1f24dc",
+    "scripts/test_avisar_card.py": "93ed54441f76caefd78dc4fc7a4d5e6c25d96a0fdc60b0f547cb1849aab99413"
+  },
+  "log": ".delivery/evidence/DMTE-510/green-r2.log",
+  "log_sha256": "ad60b144da3fb0db495e2f3c4bf725e7374631547679c7d70dd38e679a3cd655"
+}

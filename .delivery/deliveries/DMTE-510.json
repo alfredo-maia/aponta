@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "delivery": "DMTE-510",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 253,
+  "multica_id": "01a1d745-8afe-751b-a90c-dd7a55c43815",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 2,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "com N PRs mesclados em sequência e um único deploy da ponta, cada um dos N cards recebe o comentário do workflow, com menção, em até 2 minutos do fim do job.",
+      "tests": [
+        "RangeTests.test_each_delivery_of_the_range_gets_its_own_comment_with_mention",
+        "RangeTests.test_comment_names_the_published_commit_and_the_other_deliveries",
+        "RangeTests.test_production_is_probed_once_for_all_the_cards",
+        "RangeTests.test_delivery_in_two_commits_gets_one_comment_for_the_newest",
+        "RangeTests.test_failure_to_comment_on_one_card_does_not_stop_the_others_nor_leak_the_token",
+        "WorkflowTests.test_resolve_captures_the_commit_in_production_before_any_deploy",
+        "WorkflowTests.test_capturing_the_previous_commit_never_fails_the_job",
+        "WorkflowTests.test_notify_receives_the_previous_commit_and_the_deploy_jobs_do_not"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "description": "com um único PR entre o commit anterior e o publicado, o comportamento é idêntico ao de hoje (um comentário, mesmo corpo).",
+      "tests": [
+        "RangeTests.test_single_delivery_in_the_range_is_identical_to_today",
+        "RangeTests.test_range_with_one_delivery_and_other_commits_without_pr_is_identical_to_today"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "description": "falha de `staging` ou `production` gera o comentário de falha em todos os cards do intervalo.",
+      "tests": [
+        "RangeTests.test_failure_comments_every_card_of_the_range",
+        "RangeTests.test_production_failure_comments_every_card_of_the_range"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "`previous_sha` vazio, igual ao publicado ou não ancestral → aviso só do commit publicado, com o motivo no log do job; o CD não falha.",
+      "tests": [
+        "RangeTests.test_empty_previous_sha_falls_back_to_the_published_commit",
+        "RangeTests.test_previous_sha_that_is_not_a_commit_id_falls_back_without_calling_github",
+        "RangeTests.test_previous_sha_equal_to_the_published_one_falls_back",
+        "RangeTests.test_rollback_range_falls_back",
+        "RangeTests.test_github_compare_failure_falls_back",
+        "RangeTests.test_truncated_range_falls_back"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "description": "commit do intervalo sem PR/`Aponta-Delivery` não gera comentário nem falha o job.",
+      "tests": [
+        "RangeTests.test_commits_without_pr_or_delivery_line_are_ignored_and_the_others_still_comment",
+        "RangeTests.test_delivery_without_manifest_does_not_stop_the_others",
+        "RangeTests.test_github_lookup_failure_on_one_commit_does_not_stop_the_others"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "description": "testes unitários cobrem AC-01 a AC-05 sem rede; `python3 -m pytest scripts/test_avisar_card.py` passa.",
+      "tests": [
+        "python3 -m unittest discover -s scripts -p test_avisar_card.py"
+      ],
+      "tdd_required": false,
+      "reason": "Critério de cobertura: atendido pelos testes dos AC-01 a AC-05, que têm RED/GREEN próprios; o runner do projeto é unittest (pytest não instalado)"
+    },
+    {
+      "id": "AC-07",
+      "description": "`WORKFLOW.md` e as referências de `development-delivery` descrevem o aviso por intervalo.",
+      "tests": [
+        "Busca por referências e verificadores de skills"
+      ],
+      "tdd_required": false,
+      "reason": "Documentação e perfil de skill; sem comportamento"
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-510.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-510/red-r2.json",
+    "green": ".delivery/evidence/DMTE-510/green-r2.json",
+    "reimplementation": "Reimplementação autorizada pelo Alfredo no card DMTE-510 (comentário na issue Multica 01a1d745-8afe-751b-a90c-dd7a55c43815, opção 1, sem exceção ao gate), depois do veredito de TDD REJEITADO do dev_ultra_qa em 8756faa25e42b915e520c7abf781f99d548e6fc7: a implementação de scripts/avisar_card.py e .github/workflows/deploy.yml foi removida num commit próprio, o RED red-r2 foi gravado com o teste final contra o stub commitado e a implementação foi reescrita em fatias até o GREEN green-r2. O par red/green anterior fica no repositório como histórico e não é referenciado."
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Sem UI: workflow de CD, script Python e contrato"
+  }
+}

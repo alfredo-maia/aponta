@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "phase": "red",
+  "started_at": "2026-11-13T23:42:58.276236+00:00",
+  "finished_at": "2026-11-13T23:42:58.474422+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_avisar_card.py"
+  ],
+  "base_sha": "8ee4f7cf4ebbdd5caa163f32f1b0226365c28221",
+  "head_sha": "b0acd170215da99a864656d7a002f184550ee66b",
+  "exit_code": 1,
+  "tests": {
+    "scripts/test_avisar_card.py": "93ed54441f76caefd78dc4fc7a4d5e6c25d96a0fdc60b0f547cb1849aab99413"
+  },
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "source_hashes": {
+    "scripts/avisar_card.py": "47120c930cd12f270347afba43ca6a0f37728f48b9b4acf221d992bcd899e04d",
+    "scripts/test_avisar_card.py": "93ed54441f76caefd78dc4fc7a4d5e6c25d96a0fdc60b0f547cb1849aab99413"
+  },
+  "log": ".delivery/evidence/DMTE-510/red.log",
+  "log_sha256": "566a8101afe34e811c3b47951ca01088ef02a0b7775ec0130d761bbb5ad46085"
+}
