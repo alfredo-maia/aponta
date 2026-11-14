@@ -158,7 +158,7 @@ test.describe('authentication', () => {
 
     // Hold the profile response until the form was filled: the slow-API
     // ordering that used to make a CI run overwrite the typed values.
-    let releaseProfile = () => {};
+    let releaseProfile!: () => void;
     const profileHeld = new Promise<void>((resolve) => {
       releaseProfile = resolve;
     });
