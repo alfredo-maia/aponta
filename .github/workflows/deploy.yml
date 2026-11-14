@@ -37,7 +37,20 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
     outputs:
       sha: ${{ steps.target.outputs.sha }}
+      previous_sha: ${{ steps.previous.outputs.previous_sha }}
     steps:
+      # The commit in production before this run deploys anything: the notice to the Multica cards
+      # covers everything between it and the published tip (DMTE-510). Concurrency above keeps any
+      # other deploy from running now. Any failure leaves it empty and the notice falls back to the tip.
+      - name: Read the commit in production
+        id: previous
+        run: |
+          previous=$(curl -fsS --max-time 10 https://dm.aponta.cloud/api/version | jq -r '.commit // empty' || true)
+          if [[ "$previous" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "previous_sha=$previous" >> "$GITHUB_OUTPUT"
+          else
+            echo "Commit em produção ilegível: o aviso cobre só o commit publicado."
+          fi
       # What ships is always the tip of main, never "the commit whose CI just
       # finished": CI runs of commits that leave the merge queue together finish
       # out of order (DMTE-472). Any run may publish the tip, but only once the
@@ -135,6 +148,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           MULTICA_TOKEN: ${{ secrets.MULTICA_TOKEN }}
           SHA: ${{ needs.resolve.outputs.sha }}
+          PREVIOUS_SHA: ${{ needs.resolve.outputs.previous_sha }}
           STAGING_RESULT: ${{ needs.staging.result }}
           PRODUCTION_RESULT: ${{ needs.production.result }}
         run: python3 scripts/avisar_card.py
