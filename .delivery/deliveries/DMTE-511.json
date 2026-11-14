@@ -11,7 +11,7 @@
       "id": "AC-01",
       "description": "`auth.spec.ts` (\"update their name and email from Minha Conta\") roda 20 vezes seguidas em verde (`--repeat-each 20`), com evidência no PR.",
       "tests": [
-        "pnpm exec nx run web-e2e:e2e --skip-nx-cache -- src/auth.spec.ts --repeat-each 20 (via scripts/e2e_isolated.sh)"
+        "scripts/e2e_isolated.sh src/auth.spec.ts --repeat-each 20 -g \"Minha Conta\" (teste original e E2E determinístico novo)"
       ],
       "tdd_required": false,
       "reason": "Evidência de estabilidade em repetição (20 execuções); o comportamento novo é coberto pelo AC-03"

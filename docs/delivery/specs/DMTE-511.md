@@ -36,7 +36,7 @@ O E2E existente fica como está: com o produto corrigido ele passa independentem
 
 ## Testes
 
-- AC-01: `pnpm exec nx run web-e2e:e2e --skip-nx-cache -- src/auth.spec.ts --repeat-each 20` pelo `scripts/e2e_isolated.sh`; no CI, o job E2E do PR.
+- AC-01: `scripts/e2e_isolated.sh src/auth.spec.ts --repeat-each 20 -g "Minha Conta"` roda o teste original e o E2E determinístico novo ("Minha Conta keeps what the user typed when the profile loads late") 20 vezes cada; no CI, o job E2E do PR.
 - AC-02: esta SPEC e o corpo do PR.
 - AC-03: `apps/web/src/pages/MyAccountPage.test.tsx`, caso "keeps what the user typed when GET /auth/me responds late"; RED e GREEN pelo coletor.
 - AC-04: job E2E completo no CI; diff do PR só em `MyAccountPage.tsx`, `MyAccountPage.test.tsx` e `auth.spec.ts`.
@@ -45,5 +45,5 @@ O E2E existente fica como está: com o produto corrigido ele passa independentem
 ## Riscos
 
 - Campo "sujo" mantém o valor digitado mesmo que o servidor tenha outro mais novo: aceitável, é o que o usuário escreveu e o salvamento é explícito.
-- Usuário que digita o mesmo valor que o padrão inicial não marca o campo como alterado e recebe o valor do servidor; para e-mail e nome o resultado é equivalente ao valor atual da conta.
+- Usuário que digita exatamente o valor padrão inicial (nome vazio; e-mail do token) não marca o campo como alterado e recebe o valor do servidor. Em geral é o valor atual da conta; difere só se o token está desatualizado (e-mail alterado antes, sem novo login) e o usuário volta a digitar o e-mail do token durante a janela da corrida. Caso estreito, aceito e sem perda de dado.
 - Sem impacto em RBAC, tenant ou API: a tela só chama `/auth/me` do próprio usuário.
