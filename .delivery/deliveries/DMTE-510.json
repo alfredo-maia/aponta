@@ -80,8 +80,9 @@
   "spec": "docs/delivery/specs/DMTE-510.md",
   "tdd": {
     "mode": "required",
-    "red": ".delivery/evidence/DMTE-510/red.json",
-    "green": ".delivery/evidence/DMTE-510/green.json"
+    "red": ".delivery/evidence/DMTE-510/red-r2.json",
+    "green": ".delivery/evidence/DMTE-510/green-r2.json",
+    "reimplementation": "Reimplementação autorizada pelo Alfredo no card DMTE-510 (comentário na issue Multica 01a1d745-8afe-751b-a90c-dd7a55c43815, opção 1, sem exceção ao gate), depois do veredito de TDD REJEITADO do dev_ultra_qa em 8756faa25e42b915e520c7abf781f99d548e6fc7: a implementação de scripts/avisar_card.py e .github/workflows/deploy.yml foi removida num commit próprio, o RED red-r2 foi gravado com o teste final contra o stub commitado e a implementação foi reescrita em fatias até o GREEN green-r2. O par red/green anterior fica no repositório como histórico e não é referenciado."
   },
   "design_system": {
     "applicable": false,
