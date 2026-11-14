@@ -142,4 +142,55 @@ test.describe('authentication', () => {
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL('/');
   });
+
+  test('Minha Conta keeps what the user typed when the profile loads late', async ({
+    page,
+  }) => {
+    const uniqueEmail = `e2e-late-profile-${Date.now()}@aponta.com`;
+    const updatedEmail = `e2e-late-profile-${Date.now()}-updated@aponta.com`;
+
+    await page.goto('/register');
+    await page.fill('[name="name"]', 'E2E Late Profile User');
+    await page.fill('[name="email"]', uniqueEmail);
+    await page.fill('[name="password"]', 'Password123!');
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL('/', { timeout: 10_000 });
+
+    // Hold the profile response until the form was filled: the slow-API
+    // ordering that used to make a CI run overwrite the typed values.
+    let releaseProfile!: () => void;
+    const profileHeld = new Promise<void>((resolve) => {
+      releaseProfile = resolve;
+    });
+    await page.route('**/api/auth/me', async (route) => {
+      if (route.request().method() === 'GET') await profileHeld;
+      await route.continue();
+    });
+
+    await page.goto('/my-account');
+    await page.fill('#name', 'Nome Atualizado');
+    await page.fill('#email', updatedEmail);
+    const profileLoaded = page.waitForResponse(
+      (response) =>
+        response.request().method() === 'GET' &&
+        response.url().includes('/api/auth/me'),
+    );
+    releaseProfile();
+    await profileLoaded;
+    // Let React apply the response (a frame) before saving.
+    await page.evaluate(
+      () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+    );
+
+    const patched = page.waitForRequest(
+      (request) =>
+        request.method() === 'PATCH' && request.url().includes('/api/auth/me'),
+    );
+    await page.click('button[type="submit"]');
+    expect((await patched).postDataJSON()).toEqual({
+      name: 'Nome Atualizado',
+      email: updatedEmail,
+    });
+    await expect(page.getByText('Dados atualizados com sucesso!')).toBeVisible();
+  });
 });

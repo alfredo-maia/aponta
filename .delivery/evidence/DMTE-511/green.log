@@ -1,0 +1,23 @@
+
+ RUN  v4.1.11 /home/hermes/multica_workspaces/dm-tecnolog-0773f65cfff4/dmte-511-b208374dd4fe/workdir/aponta/apps/web
+
+ ✓ |web| src/pages/MyAccountPage.test.tsx (10 tests) 1455ms
+       ✓ submits updated name and email via PATCH /auth/me  334ms
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  21:37:48
+   Duration  5.87s (transform 2.21s, setup 273ms, import 3.14s, tests 1.45s, environment 695ms)
+
+stderr | src/pages/MyAccountPage.test.tsx > MyAccountPage > renders tabs for Minha Conta and Segurança, defaulting to Minha Conta
+An update to ProfileTab inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+

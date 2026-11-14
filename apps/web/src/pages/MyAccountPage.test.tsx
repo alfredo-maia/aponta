@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -91,6 +91,39 @@ describe('MyAccountPage', () => {
       expect(
         await screen.findByText(/dados atualizados com sucesso/i),
       ).toBeInTheDocument();
+    });
+
+    it('keeps what the user typed when GET /auth/me responds late', async () => {
+      const user = userEvent.setup();
+      let respondMe: (value: unknown) => void = () => undefined;
+      vi.mocked(api.get).mockImplementation((url: string) => {
+        if (url === '/auth/me') {
+          return new Promise((resolve) => {
+            respondMe = resolve;
+          });
+        }
+        return Promise.resolve({ data: [] });
+      });
+      vi.mocked(api.patch).mockResolvedValueOnce({ data: {} });
+
+      renderMyAccountPage();
+      await user.type(screen.getByLabelText(/^nome$/i), 'Jane Updated');
+      await user.clear(screen.getByLabelText(/^e-mail$/i));
+      await user.type(screen.getByLabelText(/^e-mail$/i), 'jane.updated@example.com');
+
+      await act(async () => {
+        respondMe({
+          data: { id: 'u-1', name: 'Jane Doe', email: 'jane@example.com', role: 'AGENT' },
+        });
+      });
+      await user.click(screen.getByRole('button', { name: /salvar/i }));
+
+      await waitFor(() => {
+        expect(api.patch).toHaveBeenCalledWith('/auth/me', {
+          name: 'Jane Updated',
+          email: 'jane.updated@example.com',
+        });
+      });
     });
 
     it('shows an error when the email is already in use (409)', async () => {
