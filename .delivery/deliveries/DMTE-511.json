@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "delivery": "DMTE-511",
+  "repository": "dmrepositorio/aponta",
+  "github_issue": 255,
+  "multica_id": "01a1d76c-ec35-7a9e-83d6-67539993a79f",
+  "cycle": "2026-11-09/2026-11-22",
+  "tier": 2,
+  "criteria": [
+    {
+      "id": "AC-01",
+      "description": "`auth.spec.ts` (\"update their name and email from Minha Conta\") roda 20 vezes seguidas em verde (`--repeat-each 20`), com evidência no PR.",
+      "tests": [
+        "pnpm exec nx run web-e2e:e2e --skip-nx-cache -- src/auth.spec.ts --repeat-each 20 (via scripts/e2e_isolated.sh)"
+      ],
+      "tdd_required": false,
+      "reason": "Evidência de estabilidade em repetição (20 execuções); o comportamento novo é coberto pelo AC-03"
+    },
+    {
+      "id": "AC-02",
+      "description": "a causa raiz está explicada no PR e nesta SPEC, com o trace da falha como evidência.",
+      "tests": [
+        "SPEC docs/delivery/specs/DMTE-511.md e corpo do PR"
+      ],
+      "tdd_required": false,
+      "reason": "Explicação documental da causa raiz; sem comportamento de produto"
+    },
+    {
+      "id": "AC-03",
+      "description": "teste unitário cobre a corrida (resposta tardia de `GET /auth/me` depois de o usuário digitar nome e e-mail): o `PATCH` leva os valores digitados. RED antes da correção, no fluxo de TDD do contrato.",
+      "tests": [
+        "apps/web/src/pages/MyAccountPage.test.tsx: keeps what the user typed when GET /auth/me responds late"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "description": "nenhuma outra spec E2E muda de comportamento; o job E2E completo continua verde.",
+      "tests": [
+        "job E2E completo do CI no PR; git diff do PR limitado a MyAccountPage.tsx, MyAccountPage.test.tsx, auth.spec.ts e DMTE-511"
+      ],
+      "tdd_required": false,
+      "reason": "Verificação de escopo e do job E2E completo; sem comportamento novo"
+    },
+    {
+      "id": "AC-05",
+      "description": "`playwright.config.ts` sem `retries` novo.",
+      "tests": [
+        "git diff do PR não toca apps/web-e2e/playwright.config.ts"
+      ],
+      "tdd_required": false,
+      "reason": "Verificação de escopo do diff; sem comportamento de produto"
+    }
+  ],
+  "spec": "docs/delivery/specs/DMTE-511.md",
+  "tdd": {
+    "mode": "required",
+    "red": ".delivery/evidence/DMTE-511/red.json",
+    "green": ".delivery/evidence/DMTE-511/green.json"
+  },
+  "design_system": {
+    "applicable": false,
+    "reason": "Sem componente novo nem mudança visual: ajuste de estado do formulário (react-hook-form) em MyAccountPage; reutiliza EzTextInput/EzAlert como estão"
+  }
+}
